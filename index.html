@@ -138,7 +138,10 @@ header #engines { margin-left: auto; }
   flex-direction: column;
   gap: 8px;
   padding-top: 4px;
+  touch-action: none;
 }
+
+#chords button { touch-action: none; }
 
 #chords .dock-label {
   color: var(--muted);
@@ -947,7 +950,7 @@ footer label input[type="range"] { width: 110px; }
 "use strict";
 
 (function () {
-  var VOICE_CAP = 20;
+  var VOICE_CAP = 32;
 
   function ChordAudio() {
     this.ctx = null;
@@ -1386,7 +1389,7 @@ footer label input[type="range"] { width: 110px; }
     active: []
   };
 
-  var pending = null;
+  var fingers = {};
   var strumLock = null;
   var strumPointer = null;
   var strumIndex = -1;
@@ -1509,12 +1512,7 @@ footer label input[type="range"] { width: 110px; }
   }
 
   function renderPads() {
-    if (state.holding) {
-      state.holding = false;
-      state.holdPointer = null;
-      ChordAudio.stopChord("live");
-      if (loop.recording && ChordAudio.ctx) finalizePending(ChordAudio.currentTime());
-    }
+    releaseFingers();
     padsEl.innerHTML = "";
     if (state.layout === "octave") addPiano(1);
     else if (state.layout === "fourths") addFourths();
@@ -1531,11 +1529,14 @@ footer label input[type="range"] { width: 110px; }
 
   function paintPads() {
     var sel = state.keyMode ? "d" + state.degree : "c" + state.rootPc;
+    var held = {};
+    Object.keys(fingers).forEach(function (id) { held[fingers[id].keyId] = true; });
     var buttons = padsEl.querySelectorAll(".pad");
     for (var i = 0; i < buttons.length; i++) {
       var b = buttons[i];
-      b.classList.toggle("selected", b.dataset.id === sel);
-      b.classList.toggle("held", b.dataset.id === sel && state.holding);
+      var down = !!held[b.dataset.id];
+      b.classList.toggle("selected", down || b.dataset.id === sel);
+      b.classList.toggle("held", down);
       if (!state.keyMode) {
         b.classList.remove("major", "minor", "sus4", "dim");
         b.classList.add(state.type);
@@ -1543,37 +1544,80 @@ footer label input[type="range"] { width: 110px; }
     }
   }
 
+  function specFromFinger(finger) {
+    var root = state.rootPc;
+    var degree = state.degree;
+    if (state.keyMode) state.degree = finger.degree;
+    else state.rootPc = finger.pc;
+    var spec = computeSpec();
+    state.rootPc = root;
+    state.degree = degree;
+    return spec;
+  }
+
+  function rememberFinger(finger) {
+    if (state.keyMode) state.degree = finger.degree;
+    else state.rootPc = finger.pc;
+  }
+
+  function soundFinger(pointerId, pad) {
+    if (!pad || pad.classList.contains("out")) return;
+    if (state.keyMode && !pad.dataset.degree) return;
+    var finger = fingers[pointerId];
+    if (!finger) {
+      finger = { group: "live-" + pointerId };
+      fingers[pointerId] = finger;
+    }
+    if (finger.keyId === pad.dataset.id) return;
+    finger.keyId = pad.dataset.id;
+    finger.pc = Number(pad.dataset.pc);
+    finger.degree = pad.dataset.degree ? Number(pad.dataset.degree) : null;
+    rememberFinger(finger);
+    var spec = computeSpec();
+    ChordAudio.stopChord(finger.group);
+    ChordAudio.playChord(finger.group, spec.midis, { bass: spec.bassOut, sound: state.sound });
+    state.holding = true;
+    if (loop.recording) armPending(finger, spec);
+    updateSymbol();
+  }
+
+  function releaseFinger(pointerId) {
+    var finger = fingers[pointerId];
+    if (!finger) return;
+    ChordAudio.stopChord(finger.group);
+    if (loop.recording && ChordAudio.ctx) finalizeOne(finger, ChordAudio.currentTime());
+    else finger.pending = null;
+    delete fingers[pointerId];
+    state.holding = Object.keys(fingers).length > 0;
+    var ids = Object.keys(fingers);
+    if (ids.length) rememberFinger(fingers[ids[ids.length - 1]]);
+    updateSymbol();
+  }
+
+  function releaseFingers() {
+    Object.keys(fingers).forEach(releaseFinger);
+  }
+
   function onPadDown(e) {
     if (e.button != null && e.button !== 0) return;
     e.preventDefault();
     unlock();
     try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
-    state.holdPointer = e.pointerId;
-    state.holding = true;
-    applyPad(e.currentTarget);
-    refreshHeld();
+    soundFinger(e.pointerId, e.currentTarget);
   }
 
   function onPadMove(e) {
-    if (e.pointerId !== state.holdPointer) return;
+    if (!fingers[e.pointerId]) return;
     e.preventDefault();
     var el = document.elementFromPoint(e.clientX, e.clientY);
     var pad = el && el.closest ? el.closest(".pad") : null;
-    if (!pad || !padsEl.contains(pad) || pad.classList.contains("out")) return;
-    var id = state.keyMode ? "d" + state.degree : "c" + state.rootPc;
-    if (pad.dataset.id === id) return;
-    applyPad(pad);
-    refreshHeld();
+    if (!pad || !padsEl.contains(pad)) return;
+    soundFinger(e.pointerId, pad);
   }
 
   function onPadUp(e) {
-    if (e.pointerId !== state.holdPointer) return;
-    state.holdPointer = null;
-    if (!state.holding) return;
-    state.holding = false;
-    ChordAudio.stopChord("live");
-    if (loop.recording && ChordAudio.ctx) finalizePending(ChordAudio.currentTime());
-    updateSymbol();
+    if (!fingers[e.pointerId]) return;
+    releaseFinger(e.pointerId);
   }
 
   function applyPad(pad) {
@@ -1586,12 +1630,13 @@ footer label input[type="range"] { width: 110px; }
   }
 
   function refreshHeld() {
-    if (state.holding) {
-      var spec = computeSpec();
-      ChordAudio.stopChord("live");
-      ChordAudio.playChord("live", spec.midis, { bass: spec.bassOut, sound: state.sound });
-      if (loop.recording) recordChordOn(spec);
-    }
+    Object.keys(fingers).forEach(function (id) {
+      var finger = fingers[id];
+      var spec = specFromFinger(finger);
+      ChordAudio.stopChord(finger.group);
+      ChordAudio.playChord(finger.group, spec.midis, { bass: spec.bassOut, sound: state.sound });
+      if (loop.recording) armPending(finger, spec);
+    });
     updateSymbol();
   }
 
@@ -1688,14 +1733,13 @@ footer label input[type="range"] { width: 110px; }
     return Math.floor(loop.nextIndex / 64) + 1;
   }
 
-  function recordChordOn(spec) {
-    if (!loop.recording || !ChordAudio.ctx) return;
+  function armPending(finger, spec) {
+    if (!loop.recording || !ChordAudio.ctx || !finger) return;
     var now = ChordAudio.currentTime();
-    if (pending) finalizePending(now);
-    var step = stepAt(now);
-    pending = {
+    if (finger.pending) finalizeOne(finger, now);
+    finger.pending = {
       t0: now,
-      step: step,
+      step: stepAt(now),
       midis: spec.midis.slice(),
       bass: spec.bassOut,
       sound: state.sound,
@@ -1704,23 +1748,37 @@ footer label input[type="range"] { width: 110px; }
     };
   }
 
-  function finalizePending(atTime) {
-    if (!pending) return;
+  function finalizeOne(finger, atTime) {
+    if (!finger || !finger.pending) return;
     var s = 60 / loop.bpm / 4;
-    var dur = Math.round((atTime - pending.t0) / s);
+    var dur = Math.round((atTime - finger.pending.t0) / s);
     if (dur < 1) dur = 1;
     if (dur > 64) dur = 64;
     loop.events.push({
       kind: "chord",
-      step: pending.step,
+      step: finger.pending.step,
       dur: dur,
-      midis: pending.midis,
-      bass: pending.bass,
-      sound: pending.sound,
-      minCycle: pending.minCycle,
-      seq: pending.seq
+      midis: finger.pending.midis,
+      bass: finger.pending.bass,
+      sound: finger.pending.sound,
+      minCycle: finger.pending.minCycle,
+      seq: finger.pending.seq
     });
-    pending = null;
+    finger.pending = null;
+  }
+
+  function finalizePending(atTime) {
+    Object.keys(fingers).forEach(function (id) { finalizeOne(fingers[id], atTime); });
+  }
+
+  function clearPending() {
+    Object.keys(fingers).forEach(function (id) { fingers[id].pending = null; });
+  }
+
+  function armHeld() {
+    Object.keys(fingers).forEach(function (id) {
+      armPending(fingers[id], specFromFinger(fingers[id]));
+    });
   }
 
   function recordStrum(midi, isBass) {
@@ -1806,7 +1864,7 @@ footer label input[type="range"] { width: 110px; }
 
   function commitInitial(restartNow) {
     if (ChordAudio.ctx) finalizePending(ChordAudio.currentTime());
-    else pending = null;
+    else clearPending();
     loop.recording = false;
     loop.overdub = false;
     loop.playing = true;
@@ -1823,7 +1881,7 @@ footer label input[type="range"] { width: 110px; }
   function startFresh() {
     killLoopVoices();
     loop.events = [];
-    pending = null;
+    clearPending();
     loop.recording = true;
     loop.overdub = false;
     loop.playing = false;
@@ -1832,7 +1890,7 @@ footer label input[type="range"] { width: 110px; }
     loop.startTime = ChordAudio.currentTime() + 0.02;
     loop.nextIndex = 0;
     ensureScheduler();
-    if (state.holding) recordChordOn(computeSpec());
+    if (state.holding) armHeld();
     paintLoop();
   }
 
@@ -1847,7 +1905,7 @@ footer label input[type="range"] { width: 110px; }
 
   function stopPlayback() {
     if (loop.recording && ChordAudio.ctx) finalizePending(ChordAudio.currentTime());
-    else pending = null;
+    else clearPending();
     loop.recording = false;
     loop.overdub = false;
     loop.playing = false;
@@ -1880,7 +1938,7 @@ footer label input[type="range"] { width: 110px; }
       loop.recording = true;
       loop.overdub = true;
       ensureScheduler();
-      if (state.holding) recordChordOn(computeSpec());
+      if (state.holding) armHeld();
       paintLoop();
       return;
     }
@@ -1906,7 +1964,7 @@ footer label input[type="range"] { width: 110px; }
   }
 
   function onClear() {
-    pending = null;
+    clearPending();
     loop.events = [];
     loop.recording = false;
     loop.overdub = false;
@@ -2022,6 +2080,24 @@ footer label input[type="range"] { width: 110px; }
     paintLoop();
   }
 
+  function bindPresses(el, onPress) {
+    var pendingClicks = 0;
+    el.addEventListener("pointerdown", function (e) {
+      if (e.button != null && e.button !== 0) return;
+      var b = e.target.closest("button");
+      if (!b || b.disabled) return;
+      e.preventDefault();
+      pendingClicks++;
+      onPress(b);
+    });
+    el.addEventListener("click", function (e) {
+      if (pendingClicks > 0) {
+        pendingClicks--;
+        e.preventDefault();
+      }
+    });
+  }
+
   function wire() {
     var keySel = document.getElementById("keyRoot");
     Theory.NOTE_NAMES.forEach(function (name, i) {
@@ -2031,16 +2107,13 @@ footer label input[type="range"] { width: 110px; }
       keySel.appendChild(opt);
     });
 
-    document.getElementById("types").addEventListener("click", function (e) {
-      var b = e.target.closest("button");
-      if (!b || state.keyMode) return;
+    bindPresses(document.getElementById("types"), function (b) {
+      if (state.keyMode) return;
       state.type = b.dataset.type;
       refreshHeld();
     });
 
-    document.getElementById("exts").addEventListener("click", function (e) {
-      var b = e.target.closest("button");
-      if (!b) return;
+    bindPresses(document.getElementById("exts"), function (b) {
       var key = b.dataset.ext;
       state.extensions[key] = !state.extensions[key];
       refreshHeld();
@@ -2142,13 +2215,7 @@ footer label input[type="range"] { width: 110px; }
     document.addEventListener("visibilitychange", function () {
       if (document.hidden) {
         killLoopVoices();
-        if (state.holding) {
-          state.holding = false;
-          state.holdPointer = null;
-          ChordAudio.stopChord("live");
-          if (loop.recording && ChordAudio.ctx) finalizePending(ChordAudio.currentTime());
-          updateSymbol();
-        }
+        releaseFingers();
       } else if (loop.transport && ChordAudio.ctx) {
         var s = 60 / loop.bpm / 4;
         var elapsed = (ChordAudio.currentTime() - loop.startTime) / s;
