@@ -385,6 +385,98 @@ footer label input[type="range"] { width: 110px; }
 
 #unlock[hidden] { display: none; }
 
+
+.kb-wrap {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.layouts { align-items: center; }
+
+.layouts .lbl {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+
+.kb { touch-action: none; }
+
+.kb.piano {
+  position: relative;
+  height: 168px;
+}
+
+.kb.piano .whites {
+  display: flex;
+  height: 100%;
+  gap: 3px;
+}
+
+.kb.piano .blacks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.kb .pad {
+  height: auto;
+  min-height: 0;
+  border-radius: 0 0 8px 8px;
+  padding: 4px 2px 8px;
+  font-size: 12px;
+}
+
+.kb.piano .white {
+  flex: 1 1 0;
+  height: 100%;
+  background: #f4efe4;
+  color: #2a1c0c;
+  border: 1px solid #c9bfb0;
+}
+
+.kb.piano .black {
+  pointer-events: auto;
+  position: absolute;
+  top: 0;
+  height: 62%;
+  width: var(--black-w, 18px);
+  background: #1b1714;
+  color: #f4efe4;
+  border: 1px solid #000;
+  z-index: 2;
+  font-size: 10px;
+  padding-bottom: 4px;
+}
+
+.kb.piano { --black-w: calc(100% / var(--whites) * 0.58); }
+
+.kb .pad.out { opacity: 0.32; }
+
+.kb.piano .white.held,
+.kb.piano .black.held,
+.kb.fourths .pad.held {
+  background: var(--copper);
+  color: var(--copper-ink);
+}
+
+.kb.fourths {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.kb.fourths .pad {
+  min-height: 56px;
+  height: 56px;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
 @media (max-width: 1100px) {
   footer { flex-wrap: wrap; }
   .transport { margin-left: 0; }
@@ -393,7 +485,8 @@ footer label input[type="range"] { width: 110px; }
 
 @media (max-height: 640px) {
   #app { gap: 6px; padding: 8px 10px; }
-  .pad { height: 64px; padding: 6px 4px; }
+  .kb.piano { height: 120px; }
+  .kb.fourths .pad { height: 44px; min-height: 44px; }
   button, select { min-height: 32px; padding: 0 8px; font-size: 13px; }
   #symbol { font-size: 26px; }
   #tones { display: none; }
@@ -411,8 +504,7 @@ footer label input[type="range"] { width: 110px; }
     max-height: none;
     padding-bottom: calc(20px + env(safe-area-inset-bottom));
   }
-  .pads.chromatic { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-  .pad { height: 84px; }
+  .kb.piano { height: 150px; }
   header { flex-wrap: wrap; }
   header #engines { margin-left: 0; }
   .controls { flex-wrap: wrap; }
@@ -464,21 +556,6 @@ footer label input[type="range"] { width: 110px; }
     </div>
   </section>
 
-  <div id="pads" class="pads chromatic" aria-label="Chord roots">
-    <button type="button" class="pad major" data-id="c0" data-pc="0"><span class="nm">C</span></button>
-    <button type="button" class="pad major" data-id="c1" data-pc="1"><span class="nm">C#</span></button>
-    <button type="button" class="pad major" data-id="c2" data-pc="2"><span class="nm">D</span></button>
-    <button type="button" class="pad major" data-id="c3" data-pc="3"><span class="nm">Eb</span></button>
-    <button type="button" class="pad major" data-id="c4" data-pc="4"><span class="nm">E</span></button>
-    <button type="button" class="pad major" data-id="c5" data-pc="5"><span class="nm">F</span></button>
-    <button type="button" class="pad major" data-id="c6" data-pc="6"><span class="nm">F#</span></button>
-    <button type="button" class="pad major" data-id="c7" data-pc="7"><span class="nm">G</span></button>
-    <button type="button" class="pad major" data-id="c8" data-pc="8"><span class="nm">Ab</span></button>
-    <button type="button" class="pad major" data-id="c9" data-pc="9"><span class="nm">A</span></button>
-    <button type="button" class="pad major" data-id="c10" data-pc="10"><span class="nm">Bb</span></button>
-    <button type="button" class="pad major" data-id="c11" data-pc="11"><span class="nm">B</span></button>
-  </div>
-
   <div class="voicing">
     <div class="vhead">Voicing <b id="vname">close</b></div>
     <input id="voicing" type="range" min="0" max="4" step="1" value="2" aria-label="Voicing" aria-valuetext="close">
@@ -507,6 +584,16 @@ footer label input[type="range"] { width: 110px; }
       <span id="loopStatus">Empty</span>
     </div>
   </footer>
+
+  <div class="kb-wrap">
+    <div id="layouts" class="layouts seg" role="radiogroup" aria-label="Keyboard layout">
+      <span class="lbl">Layout</span>
+      <button type="button" data-layout="piano" class="on">Piano</button>
+      <button type="button" data-layout="octave">Octave</button>
+      <button type="button" data-layout="fourths">Fourths</button>
+    </div>
+    <div id="pads" class="kb piano" aria-label="Chord keyboard"></div>
+  </div>
 
 </div>
 <script>
@@ -1226,6 +1313,7 @@ footer label input[type="range"] { width: 110px; }
     keyScale: "major",
     rootPc: 0,
     degree: 1,
+    layout: "piano",
     sound: "warm",
     bass: false,
     holding: false,
@@ -1295,6 +1383,80 @@ footer label input[type="range"] { width: 110px; }
     return pendingResume;
   }
 
+  function degreeAt(pc) {
+    if (!state.keyMode) return null;
+    var degrees = Theory.scaleDegrees(state.keyRoot, state.keyScale);
+    for (var i = 0; i < degrees.length; i++) {
+      if (degrees[i].pc === pc) return degrees[i];
+    }
+    return null;
+  }
+
+  function makeKey(pc) {
+    var b = document.createElement("button");
+    b.type = "button";
+    var deg = degreeAt(pc);
+    var name = deg ? deg.name : Theory.NOTE_NAMES[pc];
+    if (state.keyMode && !deg) {
+      b.className = "pad out";
+      b.dataset.pc = String(pc);
+      b.innerHTML = "<span class=\"nm\">" + name + "</span>";
+      return b;
+    }
+    if (state.keyMode) {
+      b.className = "pad " + deg.type;
+      b.dataset.id = "d" + deg.degree;
+      b.dataset.degree = String(deg.degree);
+    } else {
+      b.className = "pad " + state.type;
+      b.dataset.id = "c" + pc;
+    }
+    b.dataset.pc = String(pc);
+    b.innerHTML = "<span class=\"nm\">" + name + "</span>";
+    bindPad(b);
+    return b;
+  }
+
+  function addPiano(octaves) {
+    var count = octaves === 1 ? 12 : 25;
+    var whiteCount = octaves === 1 ? 7 : 15;
+    var blacks = { 1: 1, 3: 1, 6: 1, 8: 1, 10: 1 };
+    padsEl.className = "kb piano";
+    padsEl.style.setProperty("--whites", String(whiteCount));
+    var whiteRow = document.createElement("div");
+    whiteRow.className = "whites";
+    var blackLayer = document.createElement("div");
+    blackLayer.className = "blacks";
+    var whitesSoFar = 0;
+    for (var i = 0; i < count; i++) {
+      var pc = i % 12;
+      var key = makeKey(pc);
+      if (blacks[pc]) {
+        key.classList.add("black");
+        key.style.left = "calc(" + (whitesSoFar / whiteCount * 100) + "% - var(--black-w) / 2)";
+        blackLayer.appendChild(key);
+      } else {
+        key.classList.add("white");
+        whiteRow.appendChild(key);
+        whitesSoFar += 1;
+      }
+    }
+    padsEl.appendChild(whiteRow);
+    padsEl.appendChild(blackLayer);
+  }
+
+  function addFourths() {
+    var rows = 4;
+    var cols = 6;
+    padsEl.className = "kb fourths";
+    padsEl.style.removeProperty("--whites");
+    for (var r = rows - 1; r >= 0; r--) {
+      for (var c = 0; c < cols; c++) {
+        padsEl.appendChild(makeKey((r * 5 + c) % 12));
+      }
+    }
+  }
+
   function renderPads() {
     if (state.holding) {
       state.holding = false;
@@ -1303,30 +1465,9 @@ footer label input[type="range"] { width: 110px; }
       if (loop.recording && ChordAudio.ctx) finalizePending(ChordAudio.currentTime());
     }
     padsEl.innerHTML = "";
-    padsEl.className = "pads " + (state.keyMode ? "diatonic" : "chromatic");
-    if (state.keyMode) {
-      Theory.scaleDegrees(state.keyRoot, state.keyScale).forEach(function (d) {
-        var b = document.createElement("button");
-        b.type = "button";
-        b.className = "pad " + d.type;
-        b.dataset.id = "d" + d.degree;
-        b.dataset.degree = String(d.degree);
-        b.innerHTML = "<span class=\"nm\">" + d.name + "</span><span class=\"roman\">" + d.roman + "</span>";
-        bindPad(b);
-        padsEl.appendChild(b);
-      });
-    } else {
-      Theory.NOTE_NAMES.forEach(function (name, i) {
-        var b = document.createElement("button");
-        b.type = "button";
-        b.className = "pad " + state.type;
-        b.dataset.id = "c" + i;
-        b.dataset.pc = String(i);
-        b.innerHTML = "<span class=\"nm\">" + name + "</span>";
-        bindPad(b);
-        padsEl.appendChild(b);
-      });
-    }
+    if (state.layout === "octave") addPiano(1);
+    else if (state.layout === "fourths") addFourths();
+    else addPiano(2);
     paintPads();
   }
 
@@ -1367,7 +1508,7 @@ footer label input[type="range"] { width: 110px; }
     e.preventDefault();
     var el = document.elementFromPoint(e.clientX, e.clientY);
     var pad = el && el.closest ? el.closest(".pad") : null;
-    if (!pad || !padsEl.contains(pad)) return;
+    if (!pad || !padsEl.contains(pad) || pad.classList.contains("out")) return;
     var id = state.keyMode ? "d" + state.degree : "c" + state.rootPc;
     if (pad.dataset.id === id) return;
     applyPad(pad);
@@ -1385,8 +1526,12 @@ footer label input[type="range"] { width: 110px; }
   }
 
   function applyPad(pad) {
-    if (state.keyMode) state.degree = Number(pad.dataset.degree);
-    else state.rootPc = Number(pad.dataset.pc);
+    if (state.keyMode) {
+      if (!pad.dataset.degree) return;
+      state.degree = Number(pad.dataset.degree);
+    } else {
+      state.rootPc = Number(pad.dataset.pc);
+    }
   }
 
   function refreshHeld() {
@@ -1895,6 +2040,15 @@ footer label input[type="range"] { width: 110px; }
       state.keyScale = "minor";
       if (state.keyMode) renderPads();
       refreshHeld();
+    });
+
+    document.getElementById("layouts").addEventListener("click", function (e) {
+      var b = e.target.closest("button");
+      if (!b || !b.dataset.layout) return;
+      state.layout = b.dataset.layout;
+      var all = document.querySelectorAll("#layouts button");
+      for (var i = 0; i < all.length; i++) all[i].classList.toggle("on", all[i] === b);
+      renderPads();
     });
 
     document.getElementById("voicing").addEventListener("input", function (e) {
