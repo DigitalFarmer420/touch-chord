@@ -70,8 +70,9 @@ button.on, button[aria-pressed="true"].toggle.on {
   min-height: 100dvh;
   min-height: -webkit-fill-available;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 12px;
   padding: calc(12px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
   overflow: visible;
   user-select: none;
@@ -128,6 +129,49 @@ header #engines { margin-left: auto; }
 .seg button { min-width: 44px; }
 
 #bass.on { background: var(--sea); color: #10211c; border-color: transparent; }
+
+
+#chords {
+  flex: 0 0 148px;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+#chords .dock-label {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#types, #exts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 auto;
+}
+
+#types button, #exts button {
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 40px;
+  text-align: left;
+  padding-left: 12px;
+}
+
+#exts { margin-top: 8px; }
+
+.stage {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
 .controls {
   display: flex;
@@ -496,6 +540,8 @@ footer label input[type="range"] { width: 110px; }
 
 @media (max-width: 1080px) {
   html, body { overflow: auto; height: auto; }
+  #chords { flex-basis: 124px; }
+  #types button, #exts button { min-height: 40px; font-size: 14px; }
   #app {
     height: auto;
     min-height: 100vh;
@@ -517,6 +563,22 @@ footer label input[type="range"] { width: 110px; }
 </head>
 <body>
 <div id="app">
+  <aside id="chords" aria-label="Chord types">
+    <div class="dock-label">Chords</div>
+    <div id="types" class="seg" role="radiogroup" aria-label="Chord type">
+      <button type="button" data-type="major" class="on">Major</button>
+      <button type="button" data-type="minor">Minor</button>
+      <button type="button" data-type="sus4">Sus4</button>
+      <button type="button" data-type="dim" aria-label="Diminished">Diminished</button>
+    </div>
+    <div id="exts" class="seg" aria-label="Extensions">
+      <button type="button" data-ext="six" aria-pressed="false">6</button>
+      <button type="button" data-ext="min7" aria-pressed="false">min7</button>
+      <button type="button" data-ext="maj7" aria-pressed="false">maj7</button>
+      <button type="button" data-ext="nine" aria-pressed="false">9</button>
+    </div>
+  </aside>
+  <div class="stage">
   <div id="unlock">Open this file in Safari. Chrome on iPad will not run it.</div>
   <header>
     <div class="brand">Touch Chord</div>
@@ -533,18 +595,6 @@ footer label input[type="range"] { width: 110px; }
   </header>
 
   <section class="controls">
-    <div id="types" class="seg" role="radiogroup" aria-label="Chord type">
-      <button type="button" data-type="major" class="on">Major</button>
-      <button type="button" data-type="minor">Minor</button>
-      <button type="button" data-type="sus4">Sus4</button>
-      <button type="button" data-type="dim" aria-label="Diminished">Diminished</button>
-    </div>
-    <div id="exts" class="seg" aria-label="Extensions">
-      <button type="button" data-ext="six" aria-pressed="false">6</button>
-      <button type="button" data-ext="min7" aria-pressed="false">min7</button>
-      <button type="button" data-ext="maj7" aria-pressed="false">maj7</button>
-      <button type="button" data-ext="nine" aria-pressed="false">9</button>
-    </div>
     <div class="keybox">
       <button id="keyMode" type="button" class="toggle" aria-pressed="false">Key</button>
       <select id="keyRoot" aria-label="Key root"></select>
@@ -595,6 +645,7 @@ footer label input[type="range"] { width: 110px; }
     <div id="pads" class="kb piano" aria-label="Chord keyboard"></div>
   </div>
 
+</div>
 </div>
 <script>
 "use strict";
