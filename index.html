@@ -1299,11 +1299,12 @@ footer label input[type="range"] { width: 110px; }
         voice.released = true;
         var t = Math.max(ctx.currentTime, when || ctx.currentTime);
         try {
-          amp.gain.cancelScheduledValues(t);
+          if (amp.gain.cancelAndHoldAtTime) amp.gain.cancelAndHoldAtTime(t);
+          else amp.gain.cancelScheduledValues(t);
           var cur = amp.gain.value;
           if (!isFinite(cur) || cur < 0.0001) cur = 0.0001;
           amp.gain.setValueAtTime(cur, t);
-          amp.gain.exponentialRampToValueAtTime(0.0001, t + (spec.bass ? 0.12 : 0.08));
+          amp.gain.exponentialRampToValueAtTime(0.0001, t + (spec.bass ? 0.12 : 0.05));
         } catch (err) { /* already stopped */ }
         var stopAt = Math.max(t + 0.14, voice.startTime + 0.03);
         oscs.forEach(function (o) {
@@ -2115,6 +2116,8 @@ footer label input[type="range"] { width: 110px; }
     return false;
   }
 
+  var paletteTimer = 0;
+
   function syncPalette() {
     var nextType = "major";
     for (var id in paletteHolds) {
@@ -2123,7 +2126,11 @@ footer label input[type="range"] { width: 110px; }
     state.type = nextType;
     var keys = ["six", "min7", "maj7", "nine"];
     for (var i = 0; i < keys.length; i++) state.extensions[keys[i]] = extStillHeld(keys[i]);
-    refreshHeld();
+    if (paletteTimer) clearTimeout(paletteTimer);
+    paletteTimer = setTimeout(function () {
+      paletteTimer = 0;
+      refreshHeld();
+    }, 20);
   }
 
   function releasePalette(pointerId) {
