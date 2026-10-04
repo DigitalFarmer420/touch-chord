@@ -1499,26 +1499,27 @@ footer label input[type="range"] { width: 110px; }
     return null;
   }
 
-  function makeKey(pc) {
+  var keySerial = 0;
+
+  function makeKey(pc, midi) {
     var b = document.createElement("button");
     b.type = "button";
     var deg = degreeAt(pc);
     var name = deg ? deg.name : Theory.NOTE_NAMES[pc];
+    b.dataset.id = "k" + (keySerial++);
+    b.dataset.pc = String(pc);
+    b.dataset.midi = String(midi);
     if (state.keyMode && !deg) {
       b.className = "pad out";
-      b.dataset.pc = String(pc);
       b.innerHTML = "<span class=\"nm\">" + name + "</span>";
       return b;
     }
     if (state.keyMode) {
       b.className = "pad " + deg.type;
-      b.dataset.id = "d" + deg.degree;
       b.dataset.degree = String(deg.degree);
     } else {
       b.className = "pad " + state.type;
-      b.dataset.id = "c" + pc;
     }
-    b.dataset.pc = String(pc);
     b.innerHTML = "<span class=\"nm\">" + name + "</span>";
     bindPad(b);
     return b;
@@ -1537,7 +1538,7 @@ footer label input[type="range"] { width: 110px; }
     var whitesSoFar = 0;
     for (var i = 0; i < count; i++) {
       var pc = i % 12;
-      var key = makeKey(pc);
+      var key = makeKey(pc, 60 + i);
       if (blacks[pc]) {
         key.classList.add("black");
         key.style.left = "calc(" + (whitesSoFar / whiteCount * 100) + "% - var(--black-w) / 2)";
@@ -1559,13 +1560,14 @@ footer label input[type="range"] { width: 110px; }
     padsEl.style.removeProperty("--whites");
     for (var r = rows - 1; r >= 0; r--) {
       for (var c = 0; c < cols; c++) {
-        padsEl.appendChild(makeKey((r * 5 + c) % 12));
+        padsEl.appendChild(makeKey((r * 5 + c) % 12, 60 + r * 5 + c));
       }
     }
   }
 
   function renderPads() {
     releaseFingers();
+    keySerial = 0;
     padsEl.innerHTML = "";
     if (state.layout === "octave") addPiano(1);
     else if (state.layout === "fourths") addFourths();
@@ -1581,16 +1583,20 @@ footer label input[type="range"] { width: 110px; }
   }
 
   function paintPads() {
-    var sel = state.keyMode ? "d" + state.degree : "c" + state.rootPc;
     var held = {};
     Object.keys(fingers).forEach(function (id) { held[fingers[id].keyId] = true; });
+    var seenMidi = {};
     var buttons = padsEl.querySelectorAll(".pad");
     for (var i = 0; i < buttons.length; i++) {
       var b = buttons[i];
       var down = !!held[b.dataset.id];
-      var preview = suggestPreview && suggestPreview.pcs && suggestPreview.pcs[b.dataset.pc];
-      b.classList.toggle("selected", down || !!preview || b.dataset.id === sel);
-      b.classList.toggle("held", down || !!preview);
+      var preview = false;
+      if (!down && suggestPreview && suggestPreview.midis && suggestPreview.midis[b.dataset.midi] && !seenMidi[b.dataset.midi]) {
+        preview = true;
+        seenMidi[b.dataset.midi] = true;
+      }
+      b.classList.toggle("selected", down || preview);
+      b.classList.toggle("held", down || preview);
       if (!state.keyMode) {
         b.classList.remove("major", "minor", "sus4", "dim");
         b.classList.add(state.type);
@@ -2194,9 +2200,9 @@ footer label input[type="range"] { width: 110px; }
     unlock();
     refreshHeld();
     var spec = computeSpec();
-    var pcs = {};
-    for (var i = 0; i < spec.pcs.length; i++) pcs[spec.pcs[i]] = true;
-    suggestPreview = { type: spec.type, pcs: pcs };
+    var midis = {};
+    for (var i = 0; i < spec.midis.length; i++) midis[spec.midis[i]] = true;
+    suggestPreview = { type: spec.type, midis: midis };
     ChordAudio.stopChord("suggest");
     ChordAudio.playChord("suggest", spec.midis, { bass: spec.bassOut, sound: state.sound });
     updateSymbol();
