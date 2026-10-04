@@ -562,6 +562,64 @@ footer label input[type="range"] { width: 110px; }
   footer label input[type="range"] { flex: 1; width: auto; }
 }
 
+@media (orientation: landscape) and (max-height: 520px) {
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+  #app {
+    height: 100svh;
+    min-height: 0;
+    max-height: 100svh;
+    overflow: hidden;
+    gap: 6px;
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom)) 8px;
+  }
+  .stage {
+    min-height: 0;
+    height: 100%;
+    gap: 4px;
+    overflow: hidden;
+  }
+  #symbol { font-size: 22px; }
+  #tones, .vticks { display: none; }
+  header { gap: 6px 8px; }
+  button, select { min-height: 30px; padding: 0 8px; font-size: 12px; }
+  .strum {
+    height: auto;
+    min-height: 44px;
+    flex: 0.55 1 0;
+  }
+  .kb-wrap {
+    flex: 1 1 0;
+    min-height: 84px;
+    margin-top: 0;
+    gap: 4px;
+  }
+  .kb.piano, .kb.fourths {
+    position: relative;
+    flex: 1 1 0;
+    height: auto;
+    min-height: 64px;
+  }
+  .kb.piano .whites {
+    position: absolute;
+    inset: 0;
+    height: auto;
+  }
+  .kb.fourths {
+    min-height: 0;
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+  }
+  .kb.fourths .pad { height: auto; min-height: 0; }
+  footer { gap: 4px 8px; flex-wrap: nowrap; }
+  footer label { font-size: 11px; }
+  footer label input[type="range"] { width: 56px; }
+  #chords { flex-basis: 92px; gap: 4px; }
+  #types, #exts { gap: 3px; }
+  #types button, #exts button { min-height: 0; font-size: 12px; padding-left: 8px; }
+}
+
 </style>
 </head>
 <body>
@@ -2098,6 +2156,22 @@ footer label input[type="range"] { width: 110px; }
     });
   }
 
+
+  function onTouchGone(e) {
+    var changed = e.changedTouches;
+    if (changed) {
+      for (var i = 0; i < changed.length; i++) {
+        var id = changed[i].identifier;
+        releaseFinger(id);
+        if (id === strumPointer) onStrumUp({ pointerId: id });
+      }
+    }
+    if (!e.touches || e.touches.length === 0) {
+      releaseFingers();
+      if (strumPointer != null) onStrumUp({ pointerId: strumPointer });
+    }
+  }
+
   function wire() {
     var keySel = document.getElementById("keyRoot");
     Theory.NOTE_NAMES.forEach(function (name, i) {
@@ -2208,6 +2282,9 @@ footer label input[type="range"] { width: 110px; }
     document.addEventListener("pointerdown", function () { unlock(); }, true);
     window.addEventListener("pointerup", function (e) { onPadUp(e); onStrumUp(e); });
     window.addEventListener("pointercancel", function (e) { onPadUp(e); onStrumUp(e); });
+
+    document.addEventListener("touchend", onTouchGone, true);
+    document.addEventListener("touchcancel", onTouchGone, true);
     document.addEventListener("contextmenu", function (e) {
       if (e.target.closest && e.target.closest("#pads, #strum")) e.preventDefault();
     });
