@@ -1588,8 +1588,9 @@ footer label input[type="range"] { width: 110px; }
     for (var i = 0; i < buttons.length; i++) {
       var b = buttons[i];
       var down = !!held[b.dataset.id];
-      b.classList.toggle("selected", down || b.dataset.id === sel);
-      b.classList.toggle("held", down);
+      var preview = suggestPreview && suggestPreview.pcs && suggestPreview.pcs[b.dataset.pc];
+      b.classList.toggle("selected", down || !!preview || b.dataset.id === sel);
+      b.classList.toggle("held", down || !!preview);
       if (!state.keyMode) {
         b.classList.remove("major", "minor", "sus4", "dim");
         b.classList.add(state.type);
@@ -1626,6 +1627,7 @@ footer label input[type="range"] { width: 110px; }
     finger.pc = Number(pad.dataset.pc);
     finger.degree = pad.dataset.degree ? Number(pad.dataset.degree) : null;
     rememberFinger(finger);
+    clearSuggestPreview();
     var spec = computeSpec();
     ChordAudio.stopChord(finger.group);
     ChordAudio.playChord(finger.group, spec.midis, { bass: spec.bassOut, sound: state.sound });
@@ -2160,6 +2162,20 @@ footer label input[type="range"] { width: 110px; }
     return out;
   }
 
+  var suggestPreview = null;
+  var suggestTimer = 0;
+
+  function clearSuggestPreview() {
+    if (suggestTimer) {
+      clearTimeout(suggestTimer);
+      suggestTimer = 0;
+    }
+    if (!suggestPreview) return;
+    suggestPreview = null;
+    ChordAudio.stopChord("suggest");
+    updateSymbol();
+  }
+
   function applySuggestion(item) {
     if (paletteTimer) {
       clearTimeout(paletteTimer);
@@ -2175,7 +2191,17 @@ footer label input[type="range"] { width: 110px; }
       state.rootPc = item.rootPc;
       state.type = item.type;
     }
+    unlock();
     refreshHeld();
+    var spec = computeSpec();
+    var pcs = {};
+    for (var i = 0; i < spec.pcs.length; i++) pcs[spec.pcs[i]] = true;
+    suggestPreview = { type: spec.type, pcs: pcs };
+    ChordAudio.stopChord("suggest");
+    ChordAudio.playChord("suggest", spec.midis, { bass: spec.bassOut, sound: state.sound });
+    updateSymbol();
+    if (suggestTimer) clearTimeout(suggestTimer);
+    suggestTimer = setTimeout(clearSuggestPreview, 1600);
   }
 
   function paintSuggestions(spec) {
@@ -2222,7 +2248,7 @@ footer label input[type="range"] { width: 110px; }
     var types = document.querySelectorAll("#types button");
     for (var t = 0; t < types.length; t++) {
       var typeBtn = types[t];
-      var onType = typeHeld(typeBtn.dataset.type);
+      var onType = typeHeld(typeBtn.dataset.type) || (suggestPreview && suggestPreview.type === typeBtn.dataset.type);
       typeBtn.classList.toggle("on", onType);
       typeBtn.setAttribute("aria-pressed", onType ? "true" : "false");
     }
