@@ -131,7 +131,7 @@ header {
 
 
 #chords {
-  flex: 0 0 148px;
+  flex: 0 0 228px;
   align-self: stretch;
   display: flex;
   flex-direction: column;
@@ -149,22 +149,26 @@ header {
   text-transform: uppercase;
 }
 
-#types, #exts {
-  display: flex;
-  flex-direction: column;
+#palette {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  grid-auto-flow: column;
   gap: 6px;
   flex: 1 1 auto;
+  min-height: 0;
 }
+
+#types, #exts { display: contents; }
 
 #types button, #exts button {
   width: 100%;
-  flex: 1 1 auto;
+  min-width: 0;
   min-height: 40px;
-  text-align: left;
-  padding-left: 12px;
+  text-align: center;
+  padding: 0 4px;
+  font-size: 13px;
 }
-
-#exts { margin-top: 8px; }
 
 .stage {
   flex: 1 1 auto;
@@ -551,8 +555,9 @@ footer label input[type="range"] { width: 110px; }
 
 @media (max-width: 1080px) {
   html, body { overflow: auto; height: auto; }
-  #chords { flex-basis: 124px; }
-  #types button, #exts button { min-height: 40px; font-size: 14px; }
+  #chords { flex-basis: 188px; }
+  #palette { gap: 4px; }
+  #types button, #exts button { min-height: 36px; font-size: 12px; }
   #app {
     height: auto;
     min-height: 100vh;
@@ -622,9 +627,9 @@ footer label input[type="range"] { width: 110px; }
   footer { gap: 4px 8px; flex-wrap: nowrap; }
   footer label { font-size: 11px; }
   footer label input[type="range"] { width: 56px; }
-  #chords { flex-basis: 92px; gap: 4px; }
-  #types, #exts { gap: 3px; }
-  #types button, #exts button { min-height: 0; font-size: 12px; padding-left: 8px; }
+  #chords { flex-basis: 156px; gap: 4px; }
+  #palette { gap: 3px; }
+  #types button, #exts button { min-height: 0; font-size: 11px; padding: 0 2px; }
 }
 
 </style>
@@ -633,17 +638,19 @@ footer label input[type="range"] { width: 110px; }
 <div id="app">
   <aside id="chords" aria-label="Chord types">
     <div class="dock-label">Chords</div>
-    <div id="types" class="seg" role="radiogroup" aria-label="Chord type">
-      <button type="button" data-type="major" class="on">Major</button>
-      <button type="button" data-type="minor">Minor</button>
-      <button type="button" data-type="sus4">Sus4</button>
-      <button type="button" data-type="dim" aria-label="Diminished">Diminished</button>
+    <div id="palette">
+    <div id="types" role="group" aria-label="Chord type">
+      <button type="button" data-type="major" aria-pressed="false">Major</button>
+      <button type="button" data-type="minor" aria-pressed="false">Minor</button>
+      <button type="button" data-type="sus4" aria-pressed="false">Sus4</button>
+      <button type="button" data-type="dim" aria-pressed="false" aria-label="Diminished">Dim</button>
     </div>
-    <div id="exts" class="seg" aria-label="Extensions">
+    <div id="exts" role="group" aria-label="Extensions">
       <button type="button" data-ext="six" aria-pressed="false">6</button>
       <button type="button" data-ext="min7" aria-pressed="false">min7</button>
       <button type="button" data-ext="maj7" aria-pressed="false">maj7</button>
       <button type="button" data-ext="nine" aria-pressed="false">9</button>
+    </div>
     </div>
   </aside>
   <div class="stage">
@@ -2099,22 +2106,6 @@ footer label input[type="range"] { width: 110px; }
   }
 
 
-  function paletteChoice(spec) {
-    var quality = spec.symbol.slice(spec.rootName.length).trim();
-    var exact = {
-      "m": { kind: "type", id: "minor", label: "Minor" },
-      "sus4": { kind: "type", id: "sus4", label: "Sus4" },
-      "dim": { kind: "type", id: "dim", label: "Diminished" },
-      "6": { kind: "ext", id: "six", label: "6" },
-      "min7": { kind: "ext", id: "min7", label: "min7" },
-      "maj7": { kind: "ext", id: "maj7", label: "maj7" },
-      "9": { kind: "ext", id: "nine", label: "9" }
-    };
-    if (!quality) return { kind: "type", id: "major", label: "Major" };
-    if (exact[quality]) return exact[quality];
-    return { kind: "type", id: spec.type, label: quality };
-  }
-
   function updateSymbol() {
     var spec = computeSpec();
     document.getElementById("symbol").textContent = spec.symbol;
@@ -2128,27 +2119,22 @@ footer label input[type="range"] { width: 110px; }
     var keyBtn = document.getElementById("keyMode");
     keyBtn.classList.toggle("on", state.keyMode);
     keyBtn.setAttribute("aria-pressed", state.keyMode ? "true" : "false");
-    var choice = paletteChoice(spec);
     var types = document.querySelectorAll("#types button");
     for (var t = 0; t < types.length; t++) {
       var typeBtn = types[t];
-      if (!typeBtn.dataset.label) typeBtn.dataset.label = typeBtn.textContent;
-      var onType = choice.kind === "type" && typeBtn.dataset.type === choice.id;
+      var onType = typeHeld(typeBtn.dataset.type);
       typeBtn.classList.toggle("on", onType);
-      typeBtn.textContent = onType ? choice.label : typeBtn.dataset.label;
       typeBtn.setAttribute("aria-pressed", onType ? "true" : "false");
     }
     var exts = document.querySelectorAll("#exts button");
     var has7 = !!(state.extensions.min7 || state.extensions.maj7);
     for (var x = 0; x < exts.length; x++) {
       var extBtn = exts[x];
-      if (!extBtn.dataset.label) extBtn.dataset.label = extBtn.textContent;
       var extName = extBtn.dataset.ext;
-      var onExt = choice.kind === "ext" && extName === choice.id;
+      var onExt = !!state.extensions[extName];
       var dormant = (extName === "six" && has7) || (extName === "min7" && state.extensions.maj7);
       extBtn.classList.toggle("on", onExt);
       extBtn.classList.toggle("dormant", dormant && !onExt);
-      extBtn.textContent = onExt ? choice.label : extBtn.dataset.label;
       extBtn.setAttribute("aria-pressed", onExt ? "true" : "false");
     }
     var engines = document.querySelectorAll("#engines button");
@@ -2169,22 +2155,62 @@ footer label input[type="range"] { width: 110px; }
     paintLoop();
   }
 
-  function bindPresses(el, onPress) {
-    var pendingClicks = 0;
-    el.addEventListener("pointerdown", function (e) {
-      if (e.button != null && e.button !== 0) return;
-      var b = e.target.closest("button");
-      if (!b || b.disabled) return;
-      e.preventDefault();
-      pendingClicks++;
-      onPress(b);
-    });
-    el.addEventListener("click", function (e) {
-      if (pendingClicks > 0) {
-        pendingClicks--;
-        e.preventDefault();
-      }
-    });
+  var paletteHolds = {};
+
+  function typeHeld(name) {
+    for (var id in paletteHolds) {
+      if (paletteHolds[id].kind === "type" && paletteHolds[id].value === name) return true;
+    }
+    return false;
+  }
+
+  function extStillHeld(name) {
+    for (var id in paletteHolds) {
+      if (paletteHolds[id].kind === "ext" && paletteHolds[id].value === name) return true;
+    }
+    return false;
+  }
+
+  function syncPalette() {
+    var nextType = "major";
+    for (var id in paletteHolds) {
+      if (paletteHolds[id].kind === "type") nextType = paletteHolds[id].value;
+    }
+    state.type = nextType;
+    var keys = ["six", "min7", "maj7", "nine"];
+    for (var i = 0; i < keys.length; i++) state.extensions[keys[i]] = extStillHeld(keys[i]);
+    refreshHeld();
+  }
+
+  function releasePalette(pointerId) {
+    if (pointerId == null) {
+      var any = false;
+      for (var id in paletteHolds) any = true;
+      if (!any) return;
+      paletteHolds = {};
+    } else {
+      if (!paletteHolds[pointerId]) return;
+      delete paletteHolds[pointerId];
+    }
+    syncPalette();
+  }
+
+  function onPaletteDown(e) {
+    if (e.button != null && e.button !== 0) return;
+    var b = e.target.closest ? e.target.closest("button") : null;
+    if (!b || b.disabled || !b.closest("#palette")) return;
+    if (b.dataset.type && state.keyMode) return;
+    e.preventDefault();
+    paletteHolds[e.pointerId] = {
+      kind: b.dataset.type ? "type" : "ext",
+      value: b.dataset.type || b.dataset.ext
+    };
+    try { b.setPointerCapture(e.pointerId); } catch (err) {}
+    syncPalette();
+  }
+
+  function onPaletteUp(e) {
+    releasePalette(e.pointerId);
   }
 
 
@@ -2194,11 +2220,13 @@ footer label input[type="range"] { width: 110px; }
       for (var i = 0; i < changed.length; i++) {
         var id = changed[i].identifier;
         releaseFinger(id);
+        releasePalette(id);
         if (id === strumPointer) onStrumUp({ pointerId: id });
       }
     }
     if (!e.touches || e.touches.length === 0) {
       releaseFingers();
+      releasePalette(null);
       if (strumPointer != null) onStrumUp({ pointerId: strumPointer });
     }
   }
@@ -2212,17 +2240,12 @@ footer label input[type="range"] { width: 110px; }
       keySel.appendChild(opt);
     });
 
-    bindPresses(document.getElementById("types"), function (b) {
-      if (state.keyMode) return;
-      state.type = b.dataset.type;
-      refreshHeld();
-    });
-
-    bindPresses(document.getElementById("exts"), function (b) {
-      var key = b.dataset.ext;
-      state.extensions[key] = !state.extensions[key];
-      refreshHeld();
-    });
+    var palette = document.getElementById("palette");
+    palette.addEventListener("pointerdown", onPaletteDown);
+    palette.addEventListener("pointerup", onPaletteUp);
+    palette.addEventListener("pointercancel", onPaletteUp);
+    window.addEventListener("pointerup", onPaletteUp);
+    window.addEventListener("pointercancel", onPaletteUp);
 
     document.getElementById("engines").addEventListener("click", function (e) {
       var b = e.target.closest("button");
