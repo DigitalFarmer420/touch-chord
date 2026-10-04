@@ -2089,6 +2089,23 @@ footer label input[type="range"] { width: 110px; }
     sym.classList.toggle("sounding", state.holding || loop.active.length > 0 || loop.playing);
   }
 
+
+  function paletteChoice(spec) {
+    var quality = spec.symbol.slice(spec.rootName.length).trim();
+    var exact = {
+      "m": { kind: "type", id: "minor", label: "Minor" },
+      "sus4": { kind: "type", id: "sus4", label: "Sus4" },
+      "dim": { kind: "type", id: "dim", label: "Diminished" },
+      "6": { kind: "ext", id: "six", label: "6" },
+      "min7": { kind: "ext", id: "min7", label: "min7" },
+      "maj7": { kind: "ext", id: "maj7", label: "maj7" },
+      "9": { kind: "ext", id: "nine", label: "9" }
+    };
+    if (!quality) return { kind: "type", id: "major", label: "Major" };
+    if (exact[quality]) return exact[quality];
+    return { kind: "type", id: spec.type, label: quality };
+  }
+
   function updateSymbol() {
     var spec = computeSpec();
     document.getElementById("symbol").textContent = spec.symbol;
@@ -2102,23 +2119,28 @@ footer label input[type="range"] { width: 110px; }
     var keyBtn = document.getElementById("keyMode");
     keyBtn.classList.toggle("on", state.keyMode);
     keyBtn.setAttribute("aria-pressed", state.keyMode ? "true" : "false");
-    var shownType = state.type;
-    if (state.keyMode) shownType = Theory.degreeChord(state.keyRoot, state.keyScale, state.degree).type;
+    var choice = paletteChoice(spec);
     var types = document.querySelectorAll("#types button");
     for (var t = 0; t < types.length; t++) {
-      var onType = types[t].dataset.type === shownType;
-      types[t].classList.toggle("on", onType);
-      types[t].setAttribute("aria-pressed", onType ? "true" : "false");
+      var typeBtn = types[t];
+      if (!typeBtn.dataset.label) typeBtn.dataset.label = typeBtn.textContent;
+      var onType = choice.kind === "type" && typeBtn.dataset.type === choice.id;
+      typeBtn.classList.toggle("on", onType);
+      typeBtn.textContent = onType ? choice.label : typeBtn.dataset.label;
+      typeBtn.setAttribute("aria-pressed", onType ? "true" : "false");
     }
     var exts = document.querySelectorAll("#exts button");
     var has7 = !!(state.extensions.min7 || state.extensions.maj7);
     for (var x = 0; x < exts.length; x++) {
-      var extName = exts[x].dataset.ext;
-      var onExt = !!state.extensions[extName];
+      var extBtn = exts[x];
+      if (!extBtn.dataset.label) extBtn.dataset.label = extBtn.textContent;
+      var extName = extBtn.dataset.ext;
+      var onExt = choice.kind === "ext" && extName === choice.id;
       var dormant = (extName === "six" && has7) || (extName === "min7" && state.extensions.maj7);
-      exts[x].classList.toggle("on", onExt);
-      exts[x].classList.toggle("dormant", dormant);
-      exts[x].setAttribute("aria-pressed", onExt ? "true" : "false");
+      extBtn.classList.toggle("on", onExt);
+      extBtn.classList.toggle("dormant", dormant && !onExt);
+      extBtn.textContent = onExt ? choice.label : extBtn.dataset.label;
+      extBtn.setAttribute("aria-pressed", onExt ? "true" : "false");
     }
     var engines = document.querySelectorAll("#engines button");
     for (var n = 0; n < engines.length; n++) {
