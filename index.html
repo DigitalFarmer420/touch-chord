@@ -366,8 +366,28 @@ input[type="range"]::-moz-range-thumb {
 }
 .suggest button b { font-size: 14px; font-weight: 700; }
 .suggest button span { font-size: 11px; color: var(--muted); }
-.suggest button.happy { border-color: #6d8f4e; }
-.suggest button.sad { border-color: #7d6ea8; }
+.suggest button.happy,
+.suggest button.major {
+  background: #e2b15a;
+  border-color: #c4923e;
+  color: #2a1c0c;
+}
+.suggest button.happy span,
+.suggest button.major span { color: #4a3414; }
+.suggest button.sad,
+.suggest button.minor {
+  background: #7d6ea8;
+  border-color: #6a5c96;
+  color: #f7f3ff;
+}
+.suggest button.sad span,
+.suggest button.minor span { color: #efe8f8; }
+.suggest button.dim {
+  background: #3c315c;
+  border-color: #6d5d96;
+  color: #f4efe6;
+}
+.suggest button.dim span { color: #e4dcf2; }
 .phase {
   height: 3px;
   width: 0;
@@ -2097,22 +2117,41 @@ footer label input[type="range"] { width: 110px; }
     var table = key.mode === "minor" ? NEXT_MINOR : NEXT_MAJOR;
     var hops = table[degree] || table[1];
     var out = [];
-    for (var h = 0; h < hops.length && out.length < 4; h++) {
-      var d = degrees[hops[h] - 1];
-      if (!d || d.type === "dim") continue;
-      if (d.pc === spec.rootPc && d.type === spec.type) continue;
+    function pushChord(d) {
+      if (!d || out.length >= 6) return;
+      if (d.pc === spec.rootPc && d.type === spec.type) return;
+      for (var n = 0; n < out.length; n++) {
+        if (out[n].degree === d.degree) return;
+      }
       var delta = wrap12(d.pc - spec.rootPc);
       var dir = delta <= 6 ? "up" : "down";
       var minor = d.type === "minor";
+      var dim = d.type === "dim";
       out.push({
-        name: d.name + (minor ? "m" : ""),
-        quality: minor ? "minor" : "major",
+        name: d.name + (dim ? "dim" : minor ? "m" : ""),
+        quality: dim ? "dim" : minor ? "minor" : "major",
         dir: dir,
-        mood: minor ? "sad" : "happy",
+        mood: (minor || dim) ? "sad" : "happy",
         rootPc: d.pc,
         type: d.type,
         degree: d.degree
       });
+    }
+    for (var h = 0; h < hops.length && out.length < 6; h++) {
+      var d = degrees[hops[h] - 1];
+      if (!d || d.type === "dim") continue;
+      if (d.pc === spec.rootPc && d.type === spec.type) continue;
+      pushChord(d);
+    }
+    for (var deg = 1; deg <= 7 && out.length < 6; deg++) {
+      var other = degrees[deg - 1];
+      if (!other || other.type === "dim") continue;
+      pushChord(other);
+    }
+    for (var deg2 = 1; deg2 <= 7 && out.length < 6; deg2++) {
+      var dimd = degrees[deg2 - 1];
+      if (!dimd || dimd.type !== "dim") continue;
+      pushChord(dimd);
     }
     return out;
   }
@@ -2175,7 +2214,7 @@ footer label input[type="range"] { width: 110px; }
     items.forEach(function (item) {
       var b = document.createElement("button");
       b.type = "button";
-      b.className = item.mood;
+      b.className = item.mood + " " + item.quality;
       var name = document.createElement("b");
       name.textContent = item.name;
       var meta = document.createElement("span");
