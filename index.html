@@ -442,12 +442,14 @@ footer label input[type="range"] { width: 110px; }
 
 
 .kb-wrap {
-  margin-top: auto;
+  margin-top: 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  flex: 0 0 auto;
+  flex: 1 1 auto;
+  min-height: 0;
 }
+.layouts { flex: 0 0 auto; }
 
 .layouts { align-items: center; }
 
@@ -463,12 +465,16 @@ footer label input[type="range"] { width: 110px; }
 
 .kb.piano {
   position: relative;
-  height: 168px;
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 168px;
 }
 
 .kb.piano .whites {
   display: flex;
-  height: 100%;
+  position: absolute;
+  inset: 0;
+  height: auto;
   gap: 3px;
 }
 
@@ -521,13 +527,16 @@ footer label input[type="range"] { width: 110px; }
 
 .kb.fourths {
   display: grid;
+  flex: 1 1 auto;
+  min-height: 160px;
   grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(0, 1fr));
   gap: 6px;
 }
 
 .kb.fourths .pad {
-  min-height: 56px;
-  height: 56px;
+  min-height: 0;
+  height: auto;
   border-radius: 10px;
   font-size: 15px;
 }
@@ -540,8 +549,8 @@ footer label input[type="range"] { width: 110px; }
 
 @media (max-height: 640px) {
   #app { gap: 6px; padding: 8px 10px; }
-  .kb.piano { height: 120px; }
-  .kb.fourths .pad { height: 44px; min-height: 44px; }
+  .kb.piano { min-height: 96px; }
+  .kb.fourths { min-height: 120px; }
   button, select { min-height: 32px; padding: 0 8px; font-size: 13px; }
   #symbol { font-size: 26px; }
   #tones { display: none; }
@@ -561,7 +570,7 @@ footer label input[type="range"] { width: 110px; }
     max-height: none;
     padding-bottom: calc(20px + env(safe-area-inset-bottom));
   }
-  .kb.piano { height: 150px; }
+  .kb.piano { min-height: 140px; height: auto; }
   header { flex-wrap: nowrap; }
   .controls { flex-wrap: nowrap; overflow-x: auto; }
   .strum { height: 140px; flex: 0 0 140px; }
