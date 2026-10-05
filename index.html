@@ -623,7 +623,7 @@ html body input[type="range"]:focus-visible::-webkit-slider-thumb {
   border-color: #557866;
   color: #0f1f18;
 }
-/* Next grid + Sustain pedal (Piano only) to its right. */
+/* Next grid + Sustain pedal to its right. */
 .next-row {
   display: flex;
   align-items: stretch;
@@ -1163,7 +1163,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     </div>
     <div class="next-row">
       <div id="suggest" class="next-wrap" aria-label="Suggested next chords"></div>
-      <button type="button" id="sustainBtn" aria-pressed="false" aria-disabled="true" title="Sustain (Piano layout): hold to let tapped keys ring; release to damp">Sustain</button>
+      <button type="button" id="sustainBtn" aria-pressed="false" aria-disabled="false" title="Sustain: hold to let tapped keys ring; release to damp">Sustain</button>
     </div>
   </div>
   </div>
@@ -2364,19 +2364,20 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     paintPads();
   }
 
-  // ---- Sustain pedal (Piano only, damper-style, hold-to-sustain) ----
+  // ---- Sustain pedal (damper-style, hold-to-sustain; all layouts) ----
   // While the pedal is down, a finger that lifts (or slides off a key) hands
   // its sounding group to sustainPool instead of stopping it. Releasing the
   // pedal stops every pooled group. Pool groups keep the chord they had when
   // the finger left: refreshHeld only morphs live fingers. state.holding
   // still means "a finger is down", so Next audition is unaffected.
+  // Enabled on Octave / Piano / Fourths — same pad finger + group audio path.
   var sustainDown = false;
   var sustainPool = {};       // group id -> { pending } (loop-recording take)
   var sustainPointers = {};   // pointer ids currently holding the pedal
   var groupSerial = 0;
 
   function sustainEnabled() {
-    return state.layout === "piano";
+    return true;
   }
 
   function sustainActive() {
@@ -3829,7 +3830,8 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       state.layout = b.dataset.layout;
       var all = document.querySelectorAll("#layouts button[data-layout]");
       for (var i = 0; i < all.length; i++) all[i].classList.toggle("on", all[i] === b);
-      if (!sustainEnabled()) setSustain(false);
+      // Pads DOM is rebuilt below; dump any pooled rings so stale groups die.
+      setSustain(false);
       paintSustainBtn();
       renderPads();
     });
