@@ -1586,14 +1586,31 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     }
   }
 
-  ChordAudio.prototype.ensure = function () {
-    if (this.ctx) return;
+  // Create the AudioContext only — no heavy graph. iOS Safari requires
+  // ctx.resume() + a silent buffer start in the same synchronous user-gesture
+  // turn; building the convolver impulse first can burn that token.
+  ChordAudio.prototype.ensureContext = function () {
+    if (this.ctx) return this.ctx;
     var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
     var ctx;
     // "balanced" gives the render thread a slightly larger buffer than the
     // default "interactive", which avoids underrun crackle on busy devices.
     try { ctx = new AC({ latencyHint: "balanced" }); } catch (err) { ctx = new AC(); }
     this.ctx = ctx;
+    var self = this;
+    // iOS: interrupted/suspended after backgrounding or audio-route changes.
+    if (typeof ctx.addEventListener === "function") {
+      ctx.addEventListener("statechange", function () {
+        if (ctx.state === "suspended" || ctx.state === "interrupted") self.primed = false;
+      });
+    }
+    return ctx;
+  };
+
+  ChordAudio.prototype.ensure = function () {
+    var ctx = this.ensureContext();
+    if (!ctx || this.ready) return;
 
     var bus = ctx.createGain();
     bus.gain.value = 1;
@@ -1684,23 +1701,55 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     this.pulse = makePulse(ctx);
   };
 
+  ChordAudio.prototype._primeSilent = function (ctx) {
+    try {
+      var buf = ctx.createBuffer(1, 1, ctx.sampleRate || 44100);
+      var src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.connect(ctx.destination);
+      if (typeof src.start === "function") src.start(0);
+      else if (typeof src.noteOn === "function") src.noteOn(0);
+    } catch (err) { /* ignore */ }
+    // Older WebKit sometimes needs a realtime source, not just a buffer.
+    try {
+      var osc = ctx.createOscillator();
+      var g = ctx.createGain();
+      g.gain.value = 0;
+      osc.connect(g);
+      g.connect(ctx.destination);
+      var t0 = ctx.currentTime || 0;
+      if (typeof osc.start === "function") osc.start(0);
+      else if (typeof osc.noteOn === "function") osc.noteOn(0);
+      if (typeof osc.stop === "function") osc.stop(t0 + 0.02);
+      else if (typeof osc.noteOff === "function") osc.noteOff(t0 + 0.02);
+    } catch (err2) { /* ignore */ }
+  };
+
   ChordAudio.prototype.resume = function () {
-    this.ensure();
-    var ctx = this.ctx;
-    if (!this.primed) {
-      this.primed = true;
-      try {
-        var buf = ctx.createBuffer(1, 1, ctx.sampleRate);
-        var src = ctx.createBufferSource();
-        src.buffer = buf;
-        src.connect(ctx.destination);
-        src.start(0);
-      } catch (err) {}
-    }
+    var ctx = this.ensureContext();
+    if (!ctx) return Promise.resolve();
+
+    // Unlock while still inside the user-gesture turn — before makeImpulse.
+    this._primeSilent(ctx);
+
+    var pending = Promise.resolve();
     if (ctx.state !== "running") {
-      try { return ctx.resume(); } catch (err2) { return Promise.resolve(); }
+      try { pending = ctx.resume() || Promise.resolve(); } catch (err) { pending = Promise.resolve(); }
     }
-    return Promise.resolve();
+
+    // Heavy graph after resume() has been invoked synchronously.
+    try { this.ensure(); } catch (err2) { /* ignore */ }
+
+    var self = this;
+    return Promise.resolve(pending).then(function () {
+      if (ctx.state === "running") {
+        self.primed = true;
+        // Second silent tick after resume resolves (iOS Safari quirk).
+        self._primeSilent(ctx);
+      } else {
+        self.primed = false;
+      }
+    });
   };
 
   ChordAudio.prototype.currentTime = function () {
@@ -2284,12 +2333,33 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
 
   function unlock() {
     var pendingResume = ChordAudio.resume();
-    if (!unlocked) {
+    var banner = document.getElementById("unlock");
+    function hideBanner() {
+      if (unlocked) return;
       unlocked = true;
-      var banner = document.getElementById("unlock");
       if (banner) banner.hidden = true;
     }
+    if (ChordAudio.ctx && ChordAudio.ctx.state === "running") {
+      hideBanner();
+    } else if (pendingResume && typeof pendingResume.then === "function") {
+      pendingResume.then(function () {
+        if (ChordAudio.ctx && ChordAudio.ctx.state === "running") hideBanner();
+      });
+    }
     return pendingResume;
+  }
+
+  // iOS: notes scheduled while AudioContext is still suspended are often
+  // dropped once resume completes. Replay the held finger after unlock.
+  function resoundHeldFinger(pointerId) {
+    var finger = fingers[pointerId];
+    if (!finger || finger.keyId == null) return;
+    if (!(ChordAudio.ctx && ChordAudio.ctx.state === "running")) return;
+    rememberFinger(finger);
+    var spec = computeSpec();
+    ChordAudio.stopChord(finger.group);
+    ChordAudio.playChord(finger.group, spec.midis, { bass: spec.bassOut, sound: state.sound });
+    finger.sig = chordSig(spec);
   }
 
   function degreeAt(pc) {
@@ -2699,9 +2769,13 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   function onPadDown(e) {
     if (e.button != null && e.button !== 0) return;
     e.preventDefault();
-    unlock();
+    var needReplay = !(ChordAudio.ctx && ChordAudio.ctx.state === "running");
+    var pending = unlock();
     try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
     soundFinger(e.pointerId, e.currentTarget);
+    if (needReplay && pending && typeof pending.then === "function") {
+      pending.then(function () { resoundHeldFinger(e.pointerId); });
+    }
   }
 
   function onPadMove(e) {
@@ -3457,7 +3531,8 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     } else {
       state.forceChord = { rootPc: item.rootPc, type: item.type };
     }
-    unlock();
+    var needReplay = !(ChordAudio.ctx && ChordAudio.ctx.state === "running");
+    var pending = unlock();
     refreshHeld();
     var spec = computeSpec();
     // Highlight uses exact pad midis when present; otherwise nearest same-pc
@@ -3477,7 +3552,17 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     // duplicate audition on top (doubles level, can clip). Sustain-pool
     // voices don't count as holding, so Next still auditions over the pedal.
     ChordAudio.stopChord("suggest");
-    if (!state.holding) ChordAudio.playChord("suggest", spec.midis, { bass: spec.bassOut, sound: state.sound });
+    if (!state.holding) {
+      ChordAudio.playChord("suggest", spec.midis, { bass: spec.bassOut, sound: state.sound });
+      if (needReplay && pending && typeof pending.then === "function") {
+        pending.then(function () {
+          if (state.holding) return;
+          if (!(ChordAudio.ctx && ChordAudio.ctx.state === "running")) return;
+          ChordAudio.stopChord("suggest");
+          ChordAudio.playChord("suggest", spec.midis, { bass: spec.bassOut, sound: state.sound });
+        });
+      }
+    }
     updateSymbol();
     if (suggestTimer) clearTimeout(suggestTimer);
     suggestTimer = setTimeout(clearSuggestPreview, 1600);
