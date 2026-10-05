@@ -515,12 +515,6 @@ html body input[type="range"]:focus-visible::-webkit-slider-thumb {
   flex: 1 1 auto;
   min-width: 0;
 }
-.suggest-card .card-label {
-  color: var(--muted);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
 .style-row {
   display: flex;
   align-items: center;
@@ -548,7 +542,7 @@ html body input[type="range"]:focus-visible::-webkit-slider-thumb {
 /* Next grid: 4x2. Columns Bright / Dark / Tension / Color, rows up / down. */
 .next-wrap {
   display: grid;
-  grid-template-columns: 22px repeat(4, minmax(0, 1fr));
+  grid-template-columns: max-content repeat(4, minmax(0, 1fr));
   grid-template-rows: auto repeat(2, var(--chip));
   gap: 4px 5px;
   align-items: stretch;
@@ -567,6 +561,20 @@ html body input[type="range"]:focus-visible::-webkit-slider-thumb {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+/* "Suggestions" label in the header corner, same row as the lane axes. */
+.next-wrap .corner {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: left;
+  justify-self: start;
+  align-self: end;
+  padding-bottom: 1px;
+  white-space: nowrap;
+  overflow: visible;
+  min-width: 0;
 }
 .next-wrap .rowlbl {
   color: var(--muted);
@@ -616,6 +624,52 @@ html body input[type="range"]:focus-visible::-webkit-slider-thumb {
   border-color: #557866;
   color: #0f1f18;
 }
+/* Next grid + Sustain pedal (Piano only) to its right. */
+.next-row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+.next-row > .next-wrap {
+  flex: 1 1 0;
+  min-width: 0;
+}
+#sustainBtn {
+  flex: 0 0 auto;
+  width: 84px;
+  height: auto;
+  min-height: 64px;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  border-radius: 14px;
+  border: 2px solid var(--line);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 60ms linear, transform 60ms linear;
+}
+#sustainBtn.on {
+  background: var(--sea);
+  color: #10211c;
+  border-color: #10211c;
+  box-shadow: inset 0 0 0 3px var(--sea), inset 0 0 0 5px #10211c;
+  transform: translateY(1px);
+}
+#sustainBtn[aria-disabled="true"] {
+  opacity: 0.35;
+  cursor: default;
+}
+
 /* Thin loop-position indicator. */
 .phase-track {
   position: relative;
@@ -793,29 +847,6 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
 
 .kb .pad.out { opacity: 0.32; }
 
-/* Latch toggle (Piano only) */
-.layouts .latch-sep {
-  width: 1px;
-  align-self: stretch;
-  margin: 6px 4px;
-  background: var(--line);
-}
-#latchBtn:disabled,
-#latchBtn[aria-disabled="true"] {
-  opacity: 0.35;
-  pointer-events: none;
-  cursor: default;
-}
-
-/* Latched key: distinct from held/selected (copper) and Next preview. */
-.kb.piano .white.latched,
-.kb.piano .black.latched {
-  background: var(--sea);
-  color: #10211c;
-  border-color: transparent;
-  box-shadow: inset 0 0 0 3px #10211c, inset 0 0 0 5px var(--sea);
-}
-
 .kb.piano .white.held,
 .kb.piano .black.held,
 .kb.fourths .pad.held {
@@ -846,12 +877,12 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   #tones { font-size: 15px; }
   .suggest-card { padding: 10px 14px; }
   .next-wrap {
-    grid-template-columns: 36px repeat(4, minmax(0, 1fr));
+    grid-template-columns: max-content repeat(4, minmax(0, 1fr));
     gap: 6px 8px;
     max-width: 760px;
     --chip: 48px;
   }
-  .next-wrap .axis { font-size: 11px; letter-spacing: 0.06em; }
+  .next-wrap .axis, .next-wrap .corner { font-size: 11px; letter-spacing: 0.06em; }
   .next-wrap .rowlbl { font-size: 18px; }
   .next-wrap button { font-size: 18px; border-radius: 12px; }
   .next-wrap .empty { border-radius: 12px; }
@@ -876,7 +907,6 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     padding: 6px 8px;
     gap: 6px;
   }
-  .suggest-card .card-label { display: none; }
   .style-row .lbl { display: none; }
   .style-row button {
     padding: 0 10px;
@@ -887,11 +917,11 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   .now-card .card-label { font-size: 9px; }
   #tones { font-size: 11px; }
   .next-wrap {
-    grid-template-columns: 14px repeat(4, minmax(0, 1fr));
+    grid-template-columns: max-content repeat(4, minmax(0, 1fr));
     gap: 3px 3px;
     --chip: 34px;
   }
-  .next-wrap .axis { font-size: 8px; letter-spacing: 0.02em; }
+  .next-wrap .axis, .next-wrap .corner { font-size: 8px; letter-spacing: 0.02em; }
   .next-wrap .rowlbl { font-size: 12px; }
   .next-wrap button { font-size: 12px; }
   .keybox { gap: 4px; flex-wrap: wrap; }
@@ -977,25 +1007,27 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   .now-card { --now-w: 132px; --sym: 34px; padding: 5px 9px; gap: 2px; }
   .now-card .card-label { font-size: 9px; }
   #tones { font-size: 11px; }
-  /* Very short landscape: Style pills sit beside the Next grid. */
-  .suggest-card { flex-direction: row; align-items: center; gap: 10px; padding: 5px 8px; }
-  .suggest-card .card-label, .style-row .lbl { display: none; }
-  /* Nine Style pills: compact 3x3 block beside the Next grid. */
+  /* Very short landscape: one scrollable row of Style pills on top, Next
+     grid (+ Sustain) full-width below so chips keep their width. */
+  .suggest-card { flex-direction: column; align-items: stretch; gap: 3px; padding: 4px 8px; }
+  .style-row .lbl { display: none; }
   .style-row, #styles {
-    display: grid;
-    grid-template-columns: repeat(3, auto);
+    display: flex;
+    flex-wrap: nowrap;
     flex: 0 0 auto;
-    max-width: 52%;
+    overflow-x: auto;
+    scrollbar-width: none;
     gap: 3px;
   }
-  .style-row button { height: 26px; min-height: 26px; padding: 0 7px; font-size: 11px; }
+  .style-row::-webkit-scrollbar { display: none; }
+  .style-row button { flex: 1 0 auto; height: 22px; min-height: 22px; padding: 0 7px; font-size: 11px; }
   .next-wrap {
     flex: 1 1 0;
-    grid-template-columns: 14px repeat(4, minmax(0, 1fr));
+    grid-template-columns: max-content repeat(4, minmax(0, 1fr));
     gap: 3px 4px;
     --chip: 28px;
   }
-  .next-wrap .axis { font-size: 8px; }
+  .next-wrap .axis, .next-wrap .corner { font-size: 8px; }
   .next-wrap .rowlbl { font-size: 11px; }
   .next-wrap button { font-size: 11px; border-radius: 8px; }
   .vticks { display: none; }
@@ -1049,6 +1081,26 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   #engines { flex-wrap: wrap; }
   #styles { flex-wrap: wrap; overflow: visible; }
 }
+
+/* Sustain pedal sizing per layout (keeps a thumb-sized target). */
+@media (min-width: 900px) {
+  #sustainBtn { width: 104px; font-size: 17px; }
+}
+@media (max-width: 720px) {
+  .next-row { gap: 5px; }
+  #sustainBtn { width: 64px; min-height: 56px; font-size: 13px; border-radius: 12px; }
+}
+/* Very narrow portrait: no room beside the grid, so the pedal drops below it. */
+@media (max-width: 560px) {
+  .next-row { flex-wrap: wrap; }
+  .next-row > .next-wrap { flex: 1 1 100%; }
+  #sustainBtn { width: 100%; min-height: 48px; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  .style-row, #styles { flex-wrap: nowrap; overflow-x: auto; }
+  .next-row { flex: 0 0 auto; gap: 5px; }
+  #sustainBtn { width: 62px; min-height: 0; font-size: 12px; border-radius: 10px; }
+}
 </style>
 </head>
 <body>
@@ -1091,7 +1143,6 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   </div>
 
   <div class="suggest-card" aria-label="Style and next chords">
-    <div class="card-label">Suggestions</div>
     <div id="styles" class="style-row seg" role="radiogroup" aria-label="Style">
       <span class="lbl">Style</span>
       <button type="button" data-style="pop" class="on">Pop</button>
@@ -1104,7 +1155,10 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       <button type="button" data-style="yoga">Yoga</button>
       <button type="button" data-style="yogaDeep">Yoga Deep</button>
     </div>
-    <div id="suggest" class="next-wrap" aria-label="Suggested next chords"></div>
+    <div class="next-row">
+      <div id="suggest" class="next-wrap" aria-label="Suggested next chords"></div>
+      <button type="button" id="sustainBtn" aria-pressed="false" aria-disabled="true" title="Sustain (Piano layout): hold to let tapped keys ring; release to damp">Sustain</button>
+    </div>
   </div>
   </div>
 
@@ -1160,8 +1214,6 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       <button type="button" data-layout="octave" class="on">Octave</button>
       <button type="button" data-layout="piano">Piano</button>
       <button type="button" data-layout="fourths">Fourths</button>
-      <span class="latch-sep" aria-hidden="true"></span>
-      <button type="button" id="latchBtn" class="toggle" aria-pressed="false" aria-disabled="true" disabled title="Latch (Piano layout only): tap a key to sustain, tap again to release">Latch</button>
     </div>
     <div id="pads" class="kb piano" aria-label="Chord keyboard"></div>
   </div>
@@ -2111,7 +2163,6 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     bass: false,
     warmth: 25,
     holding: false,
-    latch: false,
     holdPointer: null,
     forceChord: null
   };
@@ -2263,28 +2314,38 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   }
 
   function renderPads() {
-    var keep = fingers[LATCH] || null;
-    if (keep) delete fingers[LATCH];
+    // With Sustain down, held fingers hand their chords to the pedal pool.
     releaseFingers();
-    if (keep) fingers[LATCH] = keep;
     state.rootMidi = null;
     keySerial = 0;
     padsEl.innerHTML = "";
     if (state.layout === "octave") addPiano(1);
     else if (state.layout === "fourths") addFourths();
     else addPiano(2);
-    revalidateLatch();
     paintPads();
   }
 
-  // ---- Piano latch (monophonic) ----
-  // The latch lives in fingers["latch"] with its own audio group, so
-  // refreshHeld / loop recording / paintPads treat it like a held pad, but
-  // pointerup never releases it.
-  var LATCH = "latch";
+  // ---- Sustain pedal (Piano only, damper-style, hold-to-sustain) ----
+  // While the pedal is down, a finger that lifts (or slides off a key) hands
+  // its sounding group to sustainPool instead of stopping it. Releasing the
+  // pedal stops every pooled group. Pool groups keep the chord they had when
+  // the finger left: refreshHeld only morphs live fingers. state.holding
+  // still means "a finger is down", so Next audition is unaffected.
+  var sustainDown = false;
+  var sustainPool = {};       // group id -> { pending } (loop-recording take)
+  var sustainPointers = {};   // pointer ids currently holding the pedal
+  var groupSerial = 0;
 
-  function latchActive() {
-    return !!state.latch && state.layout === "piano";
+  function sustainEnabled() {
+    return state.layout === "piano";
+  }
+
+  function sustainActive() {
+    return sustainDown && sustainEnabled();
+  }
+
+  function poolCount() {
+    return Object.keys(sustainPool).length;
   }
 
   function padPlayable(pad) {
@@ -2293,56 +2354,101 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     return true;
   }
 
-  function clearLatch() {
-    if (!fingers[LATCH]) return;
-    releaseFinger(LATCH);
-    paintPads();
+  // Move a finger's sounding group into the pool (audio keeps ringing).
+  function poolFingerGroup(finger) {
+    if (!finger || !finger.group || finger.keyId == null) return;
+    sustainPool[finger.group] = { pending: finger.pending || null };
+    finger.pending = null;
   }
 
-  // After pads are rebuilt (key / scale / mode change) keep the latch on the
-  // same key if it is still playable; otherwise drop it.
-  function revalidateLatch() {
-    var f = fingers[LATCH];
-    if (!f) return;
-    var pad = latchActive() ? padsEl.querySelector('.pad[data-id="' + f.keyId + '"]') : null;
-    if (!pad || Number(pad.dataset.pc) !== f.pc || !padPlayable(pad)) {
-      releaseFinger(LATCH);
-      return;
-    }
-    f.degree = pad.dataset.degree ? Number(pad.dataset.degree) : null;
-    var padMidi = Number(pad.dataset.midi);
-    f.midi = isFinite(padMidi) ? padMidi : null;
-    rememberFinger(f);
-    state.holding = true;
+  function dumpSustain() {
+    var groups = Object.keys(sustainPool);
+    if (!groups.length) return;
+    var now = ChordAudio.ctx ? ChordAudio.currentTime() : 0;
+    groups.forEach(function (g) {
+      var entry = sustainPool[g];
+      ChordAudio.stopChord(g);
+      if (entry.pending && loop.recording && ChordAudio.ctx) finalizeOne(entry, now);
+      else entry.pending = null;
+    });
+    sustainPool = {};
   }
 
-  function onLatchTap(pad) {
-    if (!padPlayable(pad)) return;
-    var f = fingers[LATCH];
-    if (f && f.keyId === pad.dataset.id) {
-      clearLatch();
-      return;
-    }
-    if (!f) fingers[LATCH] = { group: "latch" };
-    soundFinger(LATCH, pad);
-    paintPads();
-  }
-
-  function paintLatchBtn() {
-    var btn = document.getElementById("latchBtn");
+  function paintSustainBtn() {
+    var btn = document.getElementById("sustainBtn");
     if (!btn) return;
-    var enabled = state.layout === "piano";
-    var on = !!state.latch && enabled;
-    btn.disabled = !enabled;
+    var enabled = sustainEnabled();
+    var on = sustainActive();
     btn.setAttribute("aria-disabled", enabled ? "false" : "true");
-    btn.classList.toggle("on", on);
     btn.setAttribute("aria-pressed", on ? "true" : "false");
+    btn.classList.toggle("on", on);
   }
 
-  function setLatch(on) {
-    state.latch = !!on;
-    if (!latchActive()) clearLatch();
-    paintLatchBtn();
+  function setSustain(on) {
+    on = !!on && sustainEnabled();
+    if (!on) sustainPointers = {};
+    if (on !== sustainDown) {
+      sustainDown = on;
+      if (!on) dumpSustain();
+    } else if (!on) {
+      dumpSustain();
+    }
+    paintSustainBtn();
+    updateSymbol();
+  }
+
+  function onSustainDown(e) {
+    if (e.button != null && e.button !== 0) return;
+    e.preventDefault();
+    if (!sustainEnabled()) return;
+    unlock();
+    sustainPointers[e.pointerId] = true;
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+    if (!sustainDown) setSustain(true);
+  }
+
+  function onSustainUp(e) {
+    if (!sustainPointers[e.pointerId]) return;
+    delete sustainPointers[e.pointerId];
+    if (!Object.keys(sustainPointers).length) setSustain(false);
+  }
+
+  function wireSustain() {
+    var btn = document.getElementById("sustainBtn");
+    if (!btn) return;
+    btn.addEventListener("pointerdown", onSustainDown);
+    btn.addEventListener("pointerup", onSustainUp);
+    btn.addEventListener("pointercancel", onSustainUp);
+    btn.addEventListener("lostpointercapture", onSustainUp);
+    btn.addEventListener("pointerleave", onSustainUp);
+    // Keep iOS from scrolling / selecting / long-press calling out the pedal.
+    btn.addEventListener("touchstart", function (e) { e.preventDefault(); }, { passive: false });
+    btn.addEventListener("touchend", function (e) {
+      if (!e.targetTouches || e.targetTouches.length === 0) setSustain(false);
+    });
+    btn.addEventListener("touchcancel", function (e) {
+      if (!e.targetTouches || e.targetTouches.length === 0) setSustain(false);
+    });
+    btn.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+    btn.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); });
+    // Keyboard: hold Space / Enter on the focused pedal.
+    btn.addEventListener("keydown", function (e) {
+      if (e.key !== " " && e.key !== "Enter") return;
+      e.preventDefault();
+      if (e.repeat || !sustainEnabled()) return;
+      unlock();
+      sustainPointers.key = true;
+      if (!sustainDown) setSustain(true);
+    });
+    btn.addEventListener("keyup", function (e) {
+      if (e.key !== " " && e.key !== "Enter") return;
+      e.preventDefault();
+      onSustainUp({ pointerId: "key" });
+    });
+    btn.addEventListener("blur", function () {
+      if (sustainPointers.key) onSustainUp({ pointerId: "key" });
+    });
+    paintSustainBtn();
   }
 
   function bindPad(b) {
@@ -2355,21 +2461,18 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   function paintPads() {
     var held = {};
     Object.keys(fingers).forEach(function (id) {
-      if (id !== LATCH) held[fingers[id].keyId] = true;
+      held[fingers[id].keyId] = true;
     });
-    var latchedId = fingers[LATCH] ? fingers[LATCH].keyId : null;
     var seenMidi = {};
     var buttons = padsEl.querySelectorAll(".pad");
     for (var i = 0; i < buttons.length; i++) {
       var b = buttons[i];
-      var latched = latchedId != null && b.dataset.id === latchedId;
-      var down = !latched && !!held[b.dataset.id];
+      var down = !!held[b.dataset.id];
       var preview = false;
-      if (!down && !latched && suggestPreview && suggestPreview.midis && suggestPreview.midis[b.dataset.midi] && !seenMidi[b.dataset.midi]) {
+      if (!down && suggestPreview && suggestPreview.midis && suggestPreview.midis[b.dataset.midi] && !seenMidi[b.dataset.midi]) {
         preview = true;
         seenMidi[b.dataset.midi] = true;
       }
-      b.classList.toggle("latched", latched);
       b.classList.toggle("selected", down || preview);
       b.classList.toggle("held", down || preview);
       if (!state.keyMode) {
@@ -2404,10 +2507,18 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     state.forceChord = null;
     var finger = fingers[pointerId];
     if (!finger) {
-      finger = { group: "live-" + pointerId };
+      // Unique group per finger-down so pooled (sustained) groups never
+      // collide with a reused pointerId (mouse is always 1).
+      finger = { group: "live-" + pointerId + "-" + (++groupSerial) };
       fingers[pointerId] = finger;
     }
     if (finger.keyId === pad.dataset.id) return;
+    var sustainSlide = finger.keyId != null && sustainActive();
+    if (sustainSlide) {
+      // Sliding to a new key with Sustain down: leave the old chord ringing.
+      poolFingerGroup(finger);
+      finger.group = "live-" + pointerId + "-" + (++groupSerial);
+    }
     finger.keyId = pad.dataset.id;
     finger.pc = Number(pad.dataset.pc);
     var padMidi = Number(pad.dataset.midi);
@@ -2417,7 +2528,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     clearSuggestPreview();
     var spec = computeSpec();
     // New pad: release the old chord (ramped) and attack the new one.
-    ChordAudio.stopChord(finger.group);
+    if (!sustainSlide) ChordAudio.stopChord(finger.group);
     ChordAudio.playChord(finger.group, spec.midis, { bass: spec.bassOut, sound: state.sound });
     finger.sig = chordSig(spec);
     state.holding = true;
@@ -2438,23 +2549,36 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     updateSymbol();
   }
 
-  // Releases transient (pointer) fingers; the latch survives unless asked.
-  function releaseFingers(includeLatch) {
+  // Finger up: with Sustain down the chord joins the pedal pool and keeps
+  // ringing; otherwise it releases as normal hold-to-play.
+  function liftFinger(pointerId) {
+    var finger = fingers[pointerId];
+    if (!finger) return;
+    if (!sustainActive()) {
+      releaseFinger(pointerId);
+      return;
+    }
+    poolFingerGroup(finger);
+    delete fingers[pointerId];
+    var ids = Object.keys(fingers);
+    state.holding = ids.length > 0;
+    if (ids.length) rememberFinger(fingers[ids[ids.length - 1]]);
+    updateSymbol();
+  }
+
+  // Lifts every finger (pedal-aware). hard = stop audio regardless of Sustain.
+  function releaseFingers(hard) {
     Object.keys(fingers).forEach(function (id) {
-      if (id === LATCH && !includeLatch) return;
-      releaseFinger(id);
+      if (hard) releaseFinger(id);
+      else liftFinger(id);
     });
-    if (includeLatch) paintPads();
+    paintPads();
   }
 
   function onPadDown(e) {
     if (e.button != null && e.button !== 0) return;
     e.preventDefault();
     unlock();
-    if (latchActive()) {
-      onLatchTap(e.currentTarget);
-      return;
-    }
     try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
     soundFinger(e.pointerId, e.currentTarget);
   }
@@ -2470,7 +2594,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
 
   function onPadUp(e) {
     if (!fingers[e.pointerId]) return;
-    releaseFinger(e.pointerId);
+    liftFinger(e.pointerId);
   }
 
   function applyPad(pad) {
@@ -2550,10 +2674,12 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
 
   function finalizePending(atTime) {
     Object.keys(fingers).forEach(function (id) { finalizeOne(fingers[id], atTime); });
+    Object.keys(sustainPool).forEach(function (g) { finalizeOne(sustainPool[g], atTime); });
   }
 
   function clearPending() {
     Object.keys(fingers).forEach(function (id) { fingers[id].pending = null; });
+    Object.keys(sustainPool).forEach(function (g) { sustainPool[g].pending = null; });
   }
 
   function armHeld() {
@@ -2797,7 +2923,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     play.textContent = loop.playing ? "Stop" : "Play";
     document.getElementById("loopStatus").textContent = loopLabel();
     var sym = document.getElementById("symbol");
-    sym.classList.toggle("sounding", state.holding || loop.active.length > 0 || loop.playing);
+    sym.classList.toggle("sounding", state.holding || poolCount() > 0 || loop.active.length > 0 || loop.playing);
   }
 
 
@@ -3177,6 +3303,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   }
 
   var suggestPreview = null;
+  var suggestTapAt = 0;   // last touch/pen tap on a Next chip (click de-dupe)
   var suggestTimer = 0;
 
   function clearSuggestPreview() {
@@ -3215,8 +3342,9 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     var midis = {};
     for (var i = 0; i < spec.midis.length; i++) midis[spec.midis[i]] = true;
     suggestPreview = { type: spec.type, midis: midis };
-    // Held pads (incl. a Piano latch) already morphed to this chord above;
-    // don't stack a duplicate audition on top (doubles level, can clip).
+    // Finger-held pads already morphed to this chord above; don't stack a
+    // duplicate audition on top (doubles level, can clip). Sustain-pool
+    // voices don't count as holding, so Next still auditions over the pedal.
     ChordAudio.stopChord("suggest");
     if (!state.holding) ChordAudio.playChord("suggest", spec.midis, { bass: spec.bassOut, sound: state.sound });
     updateSymbol();
@@ -3321,8 +3449,8 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       return n;
     }
 
-    // Header row: corner + column labels.
-    add("div", "corner").setAttribute("aria-hidden", "true");
+    // Header row: "Suggestions" corner label + column labels.
+    add("div", "corner", "Suggestions");
     LANES.forEach(function (ln) { add("div", "axis", ln.label); });
 
     function addCell(item, ln, dirWord) {
@@ -3333,7 +3461,32 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       var b = add("button", ln.tone, chipSymbol(item));
       b.type = "button";
       b.setAttribute("aria-label", item.name + " (" + ln.label + ", " + dirWord + ")");
-      b.addEventListener("click", function () { applySuggestion(item); });
+      // Touch/pen fire on pointerup: browsers drop the synthetic click when
+      // another finger is down (e.g. holding Sustain). Click stays for
+      // mouse / keyboard, de-duplicated against the pointer tap.
+      var tapId = null;
+      b.addEventListener("pointerdown", function (e) {
+        if (e.pointerType === "mouse") return;
+        tapId = e.pointerId;
+      });
+      b.addEventListener("pointercancel", function () { tapId = null; });
+      b.addEventListener("pointerup", function (e) {
+        if (tapId == null || e.pointerId !== tapId) return;
+        tapId = null;
+        var hit = document.elementFromPoint(e.clientX, e.clientY);
+        if (!hit || !b.contains(hit)) return;
+        suggestTapAt = Date.now();
+        applySuggestion(item);
+      });
+      b.addEventListener("click", function () {
+        // The grid may have been rebuilt by the pointer tap, so the click
+        // can land on a *different* chip; ignore any click right after a tap.
+        if (suggestTapAt && Date.now() - suggestTapAt < 800) {
+          suggestTapAt = 0;
+          return;
+        }
+        applySuggestion(item);
+      });
     }
 
     [["up", "\u2191"], ["down", "\u2193"]].forEach(function (row) {
@@ -3479,8 +3632,10 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     var changed = e.changedTouches;
     if (changed) {
       for (var i = 0; i < changed.length; i++) {
+        var tgt = changed[i].target;
+        if (tgt && tgt.closest && tgt.closest("#sustainBtn")) continue;
         var id = changed[i].identifier;
-        releaseFinger(id);
+        liftFinger(id);
         releasePalette(id);
       }
     }
@@ -3577,18 +3732,12 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       state.layout = b.dataset.layout;
       var all = document.querySelectorAll("#layouts button[data-layout]");
       for (var i = 0; i < all.length; i++) all[i].classList.toggle("on", all[i] === b);
-      if (!latchActive()) clearLatch();
-      paintLatchBtn();
+      if (!sustainEnabled()) setSustain(false);
+      paintSustainBtn();
       renderPads();
     });
 
-    document.getElementById("latchBtn").addEventListener("click", function (e) {
-      e.stopPropagation();
-      if (state.layout !== "piano") return;
-      setLatch(!state.latch);
-      updateSymbol();
-      scheduleSave(0);
-    });
+    wireSustain();
 
     document.getElementById("voicing").addEventListener("input", function (e) {
       state.voicing = VOICINGS[Number(e.target.value)];
@@ -3631,6 +3780,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       if (document.hidden) {
         killLoopVoices();
         releaseFingers(true);
+        setSustain(false);
       } else if (loop.transport && ChordAudio.ctx) {
         var s = 60 / loop.bpm / 4;
         var elapsed = (ChordAudio.currentTime() - loop.startTime) / s;
@@ -3757,8 +3907,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       reverb: 0.22,
       delay: 0.14,
       bpm: 96,
-      warmth: WARMTH_DEFAULT,
-      latch: false
+      warmth: WARMTH_DEFAULT
     };
   }
 
@@ -3787,8 +3936,8 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       reverb: num(raw.reverb, 0, 1, d.reverb),
       delay: num(raw.delay, 0, 1, d.delay),
       bpm: num(raw.bpm, 50, 180, d.bpm, true),
-      warmth: num(raw.warmth, 0, 100, d.warmth, true),
-      latch: bool(raw.latch, d.latch)
+      warmth: num(raw.warmth, 0, 100, d.warmth, true)
+      // Legacy `latch` key (cce4d86) is ignored; Sustain is never persisted.
     };
   }
 
@@ -3831,8 +3980,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       reverb: Number(document.getElementById("reverb").value),
       delay: Number(document.getElementById("delay").value),
       bpm: state.bpm,
-      warmth: clampWarmth(document.getElementById("warmth").value),
-      latch: !!state.latch
+      warmth: clampWarmth(document.getElementById("warmth").value)
     };
   }
 
@@ -3883,11 +4031,12 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     state.voicing = s.voicing;
     state.forceChord = null;
     state.rootMidi = null;
-    clearLatch();
-    state.latch = !!s.latch;
+    sustainDown = false;
+    sustainPointers = {};
+    dumpSustain();
 
     markOn("#layouts", "layout", s.layout);
-    paintLatchBtn();
+    paintSustainBtn();
     markOn("#styles", "style", s.style);
     document.getElementById("keyRoot").value = String(s.keyRoot);
     document.getElementById("voicing").value = String(Math.max(0, VOICINGS.indexOf(s.voicing)));
