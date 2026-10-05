@@ -544,11 +544,10 @@ html body input[type="range"]:focus-visible::-webkit-slider-thumb {
   display: grid;
   grid-template-columns: max-content repeat(4, minmax(0, 1fr));
   grid-template-rows: auto repeat(2, var(--chip));
-  gap: 4px 5px;
+  gap: var(--next-vgap) 5px;
   align-items: stretch;
   flex: 0 0 auto;
   min-width: 0;
-  --chip: 40px;
 }
 .next-wrap .axis {
   color: var(--muted);
@@ -631,6 +630,8 @@ html body input[type="range"]:focus-visible::-webkit-slider-thumb {
   gap: 8px;
   flex: 0 0 auto;
   min-width: 0;
+  --chip: 40px;
+  --next-vgap: 4px;
 }
 .next-row > .next-wrap {
   flex: 1 1 0;
@@ -639,9 +640,10 @@ html body input[type="range"]:focus-visible::-webkit-slider-thumb {
 #sustainBtn {
   flex: 0 0 auto;
   width: 84px;
-  height: auto;
+  /* Two Next chord-button rows + the gap between them (not axis headers). */
+  height: calc(var(--chip) * 2 + var(--next-vgap));
   min-height: 0;
-  align-self: stretch;
+  align-self: center;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -876,11 +878,11 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   .now-card { --now-w: 240px; --sym: 60px; padding: 12px 16px; }
   #tones { font-size: 15px; }
   .suggest-card { padding: 10px 14px; }
+  .next-row { --chip: 48px; --next-vgap: 6px; }
   .next-wrap {
     grid-template-columns: max-content repeat(4, minmax(0, 1fr));
-    gap: 6px 8px;
+    gap: var(--next-vgap) 8px;
     max-width: 760px;
-    --chip: 48px;
   }
   .next-wrap .axis, .next-wrap .corner { font-size: 11px; letter-spacing: 0.06em; }
   .next-wrap .rowlbl { font-size: 18px; }
@@ -916,10 +918,10 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   .now-card { --now-w: 112px; --sym: 34px; padding: 6px 8px; }
   .now-card .card-label { font-size: 9px; }
   #tones { font-size: 11px; }
+  .next-row { --chip: 34px; --next-vgap: 3px; }
   .next-wrap {
     grid-template-columns: max-content repeat(4, minmax(0, 1fr));
-    gap: 3px 3px;
-    --chip: 34px;
+    gap: var(--next-vgap) 3px;
   }
   .next-wrap .axis, .next-wrap .corner { font-size: 8px; letter-spacing: 0.02em; }
   .next-wrap .rowlbl { font-size: 12px; }
@@ -977,7 +979,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
 /* iPad Safari with toolbars (~690px tall): trim chrome before the keyboard. */
 @media (min-width: 900px) and (max-height: 720px) {
   .vticks { display: none; }
-  .next-wrap { --chip: 42px; }
+  .next-row { --chip: 42px; }
   .kb.piano, .kb.fourths { min-height: 96px; }
 }
 @media (min-width: 900px) {
@@ -1021,11 +1023,11 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   }
   .style-row::-webkit-scrollbar { display: none; }
   .style-row button { flex: 1 0 auto; height: 22px; min-height: 22px; padding: 0 7px; font-size: 11px; }
+  .next-row { --chip: 28px; --next-vgap: 3px; }
   .next-wrap {
     flex: 1 1 0;
     grid-template-columns: max-content repeat(4, minmax(0, 1fr));
-    gap: 3px 4px;
-    --chip: 28px;
+    gap: var(--next-vgap) 4px;
   }
   .next-wrap .axis, .next-wrap .corner { font-size: 8px; }
   .next-wrap .rowlbl { font-size: 11px; }
@@ -1094,7 +1096,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
 @media (max-width: 560px) {
   .next-row { flex-wrap: wrap; }
   .next-row > .next-wrap { flex: 1 1 100%; }
-  #sustainBtn { width: 100%; min-height: 0; height: calc(var(--chip) * 2 + 4px); }
+  #sustainBtn { width: 100%; min-height: 0; height: calc(var(--chip) * 2 + var(--next-vgap)); }
 }
 @media (orientation: landscape) and (max-height: 520px) {
   .style-row, #styles { flex-wrap: nowrap; overflow-x: auto; }
