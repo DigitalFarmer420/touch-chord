@@ -112,7 +112,7 @@ button.on, button[aria-pressed="true"].toggle.on {
 }
 
 .now-card {
-  --now-w: 168px;
+  --now-w: 196px;
   --sym: 48px;
   flex: 0 0 var(--now-w);
   width: var(--now-w);
@@ -319,7 +319,17 @@ body.is-key #types button {
 
 .pad.held .roman { color: rgba(42, 28, 12, 0.7); }
 
-.voicing { min-width: 0; }
+.voicing {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  align-self: stretch;
+}
+.voicing input[type="range"] { width: 100%; }
 
 .vhead {
   font-size: 12px;
@@ -348,37 +358,41 @@ input[type="range"] {
   background: transparent;
   margin: 0;
   touch-action: manipulation;
+  accent-color: var(--copper);
+  outline: none;
 }
 
 input[type="range"]::-webkit-slider-runnable-track {
   height: 6px;
-  background: #3c342c;
-  border-radius: 99px;
+  background: linear-gradient(90deg, var(--copper), #c47a3a);
+  border-radius: 999px;
 }
 
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 22px;
-  height: 22px;
-  margin-top: -8px;
+  width: 18px;
+  height: 18px;
+  margin-top: -6px;
   border-radius: 50%;
-  background: #f3ddc2;
-  border: 0;
+  background: var(--copper);
+  border: 2px solid var(--copper-ink);
+  box-shadow: 0 0 0 1px rgba(226, 161, 90, 0.35);
 }
 
 input[type="range"]::-moz-range-track {
   height: 6px;
-  background: #3c342c;
-  border-radius: 99px;
+  background: linear-gradient(90deg, var(--copper), #c47a3a);
+  border-radius: 999px;
   border: 0;
 }
 
 input[type="range"]::-moz-range-thumb {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: #f3ddc2;
-  border: 0;
+  background: var(--copper);
+  border: 2px solid var(--copper-ink);
+  box-shadow: 0 0 0 1px rgba(226, 161, 90, 0.35);
 }
 
 
@@ -489,44 +503,17 @@ input[type="range"]::-moz-range-thumb {
   border-color: #4a3a72;
   color: #e8dff8;
 }
-.strum {
+/* Thin loop-position indicator (was the top edge of the strum strip). */
+.phase-track {
   position: relative;
-  border-radius: 16px;
-  border: 1px solid #4a3d2e;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 42%),
-    linear-gradient(90deg, #2a2118, #3a2c1e 50%, #2a2118);
-  overflow: hidden;
-  touch-action: none;
   flex: 0 0 auto;
-  height: 120px;
-  min-height: 88px;
-}
-
-.zones {
-  position: absolute;
-  inset: 0 0 22px 0;
-  display: flex;
-  pointer-events: none;
-}
-
-.zone {
-  flex: 1;
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.zone:last-child { border-right: 0; }
-.zone.hot { background: rgba(226, 161, 90, 0.35); }
-
-.strum-caption {
-  position: absolute;
-  inset: auto 14px 8px 14px;
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(244, 239, 230, 0.55);
+  height: 3px;
+  width: 100%;
+  max-width: none;
+  align-self: stretch;
+  background: rgba(58, 51, 43, 0.55);
+  border-radius: 999px;
+  overflow: hidden;
   pointer-events: none;
 }
 
@@ -534,7 +521,7 @@ input[type="range"]::-moz-range-thumb {
   position: absolute;
   left: 0;
   top: 0;
-  height: 3px;
+  height: 100%;
   width: 0;
   background: var(--sea);
   pointer-events: none;
@@ -609,10 +596,8 @@ footer label input[type="range"] { width: 110px; }
   font-size: 12px;
 }
 
-/* Fixed rows keep their height; strum and keyboard absorb tight heights,
-   so rows never paint over each other. */
+/* Fixed rows keep their height; keyboard absorbs tight heights. */
 .stage > * { flex-shrink: 0; }
-.stage > .strum,
 .stage > .kb-wrap { flex-shrink: 1; }
 
 
@@ -720,7 +705,7 @@ footer label input[type="range"] { width: 110px; }
 @media (min-width: 900px) {
   :root { --ctrl: 44px; }
   .hero { gap: 12px; }
-  .now-card { --now-w: 224px; --sym: 60px; padding: 12px 16px; }
+  .now-card { --now-w: 240px; --sym: 60px; padding: 12px 16px; }
   #tones { font-size: 15px; }
   .suggest-card { padding: 10px 14px; }
   .next-wrap {
@@ -789,7 +774,6 @@ footer label input[type="range"] { width: 110px; }
   .kb.fourths { min-height: 96px; grid-template-rows: repeat(4, minmax(28px, 1fr)); }
   button, select { padding: 0 8px; font-size: 13px; }
   .now-card { --sym: 40px; }
-  .strum { height: 72px; min-height: 64px; }
 }
 
 @media (max-width: 1080px) {
@@ -801,13 +785,11 @@ footer label input[type="range"] { width: 110px; }
   .kb.fourths { min-height: 140px; }
   .topbar { flex-wrap: nowrap; }
   .controls { flex-wrap: wrap; overflow-x: visible; }
-  .strum { height: 100px; min-height: 80px; }
   footer label { flex: 1 1 42%; }
   footer label input[type="range"] { flex: 1; width: auto; }
 }
 
-/* iPad landscape: one-row Style pills, four sliders on one footer row,
-   and a keyboard/strum that can give back height. */
+/* iPad landscape: one-row Style pills, four sliders on one footer row. */
 @media (min-width: 900px) and (max-width: 1180px) {
   .style-row .lbl { display: none; }
   .style-row button { padding: 0 13px; font-size: 14px; }
@@ -817,20 +799,16 @@ footer label input[type="range"] { width: 110px; }
 }
 @media (max-height: 800px) {
   .kb.piano, .kb.fourths { min-height: 110px; }
-  .strum { min-height: 60px; }
 }
 @media (max-height: 640px) {
   .kb.piano, .kb.fourths { min-height: 90px; }
-  .strum { min-height: 52px; }
 }
 /* iPad Safari with toolbars (~690px tall): trim chrome before the keyboard. */
 @media (min-width: 900px) and (max-height: 720px) {
   .vticks { display: none; }
   .next-wrap { --chip: 42px; }
-  .strum { min-height: 48px; }
   .kb.piano, .kb.fourths { min-height: 96px; }
 }
-/* On iPad the strum gives back height before the keyboard does. */
 @media (min-width: 900px) {
   .stage > .kb-wrap { min-height: auto; }
 }
@@ -891,11 +869,6 @@ footer label input[type="range"] { width: 110px; }
     min-height: 64px;
   }
   .kb.fourths { grid-template-rows: repeat(4, minmax(0, 1fr)); }
-  .strum {
-    height: auto;
-    min-height: 44px;
-    flex: 0.45 1 0;
-  }
   footer { gap: 4px 8px; flex-wrap: nowrap; overflow-x: auto; }
   footer > * { flex-shrink: 0; }
   #unlock { left: 120px; right: auto; padding: 2px 10px; font-size: 11px; }
@@ -1003,12 +976,6 @@ footer label input[type="range"] { width: 110px; }
     </div>
   </div>
 
-  <section id="strum" class="strum" aria-label="Strum strip. Slide across to pluck the current chord from low to high.">
-    <div id="phase" class="phase"></div>
-    <div id="zones" class="zones"></div>
-    <div class="strum-caption"><span>low</span><span>strum</span><span>high</span></div>
-  </section>
-
   <footer>
     <label>Cutoff <input id="cutoff" type="range" min="0" max="1" step="0.01" value="0.62" aria-label="Filter cutoff"></label>
     <label>Reverb <input id="reverb" type="range" min="0" max="1" step="0.01" value="0.22" aria-label="Reverb mix"></label>
@@ -1023,6 +990,8 @@ footer label input[type="range"] { width: 110px; }
       <span id="loopStatus">Empty</span>
     </div>
   </footer>
+
+  <div class="phase-track" aria-hidden="true"><div id="phase" class="phase"></div></div>
 
   <div class="kb-wrap">
     <div id="layouts" class="layouts seg" role="radiogroup" aria-label="Keyboard layout">
@@ -1779,14 +1748,9 @@ footer label input[type="range"] { width: 110px; }
   };
 
   var fingers = {};
-  var strumLock = null;
-  var strumPointer = null;
-  var strumIndex = -1;
   var unlocked = false;
 
   var padsEl = document.getElementById("pads");
-  var strumEl = document.getElementById("strum");
-  var zonesEl = document.getElementById("zones");
   var phaseEl = document.getElementById("phase");
 
   function computeSpec() {
@@ -2041,88 +2005,6 @@ footer label input[type="range"] { width: 110px; }
     updateSymbol();
   }
 
-  function layoutStrum(n) {
-    if (!zonesEl) return;
-    if (zonesEl.childElementCount === n) return;
-    zonesEl.innerHTML = "";
-    for (var i = 0; i < n; i++) {
-      var z = document.createElement("div");
-      z.className = "zone";
-      zonesEl.appendChild(z);
-    }
-  }
-
-  function highlightStrum(idx) {
-    var zones = zonesEl.children;
-    for (var i = 0; i < zones.length; i++) zones[i].classList.toggle("hot", i === idx);
-  }
-
-  function clearStrum() {
-    highlightStrum(-1);
-  }
-
-  function onStrumDown(e) {
-    if (e.button != null && e.button !== 0) return;
-    e.preventDefault();
-    unlock();
-    try { strumEl.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
-    strumPointer = e.pointerId;
-    strumLock = computeSpec();
-    strumIndex = -1;
-    layoutStrum(strumLock.midis.length);
-    strumTo(e, true);
-  }
-
-  function onStrumMove(e) {
-    if (e.pointerId !== strumPointer) return;
-    e.preventDefault();
-    strumTo(e, false);
-  }
-
-  function onStrumUp(e) {
-    if (e.pointerId !== strumPointer) return;
-    strumPointer = null;
-    strumLock = null;
-    strumIndex = -1;
-    clearStrum();
-    layoutStrum(computeSpec().midis.length);
-  }
-
-  function strumTo(e, isStart) {
-    var spec = strumLock || computeSpec();
-    var notes = spec.midis.slice().sort(function (a, b) { return a - b; });
-    if (!notes.length) return;
-    var rect = strumEl.getBoundingClientRect();
-    var width = rect.width || 1;
-    var x = Math.min(rect.right - 0.01, Math.max(rect.left, e.clientX));
-    var idx = Math.floor(((x - rect.left) / width) * notes.length);
-    if (idx < 0) idx = 0;
-    if (idx >= notes.length) idx = notes.length - 1;
-    highlightStrum(idx);
-    if (isStart || strumIndex < 0) {
-      pluckNote(notes[idx]);
-      if (spec.bassOut != null) pluckBass(spec.bassOut);
-      strumIndex = idx;
-      return;
-    }
-    if (idx === strumIndex) return;
-    var dir = idx > strumIndex ? 1 : -1;
-    for (var i = strumIndex + dir; dir > 0 ? i <= idx : i >= idx; i += dir) {
-      pluckNote(notes[i]);
-    }
-    strumIndex = idx;
-  }
-
-  function pluckNote(midi) {
-    ChordAudio.pluck(midi, { sound: state.sound, group: "strum" });
-    recordStrum(midi, false);
-  }
-
-  function pluckBass(midi) {
-    ChordAudio.pluck(midi, { sound: state.sound, bass: true, group: "strum" });
-    recordStrum(midi, true);
-  }
-
   function stepAt(time) {
     var s = 60 / loop.bpm / 4;
     var idx = Math.round((time - loop.startTime) / s);
@@ -2180,19 +2062,6 @@ footer label input[type="range"] { width: 110px; }
   function armHeld() {
     Object.keys(fingers).forEach(function (id) {
       armPending(fingers[id], specFromFinger(fingers[id]));
-    });
-  }
-
-  function recordStrum(midi, isBass) {
-    if (!loop.recording || !ChordAudio.ctx) return;
-    var now = ChordAudio.currentTime();
-    loop.events.push({
-      kind: isBass ? "bass" : "strum",
-      step: stepAt(now),
-      midi: midi,
-      sound: state.sound,
-      minCycle: minCycleFor(),
-      seq: ++loop.seq
     });
   }
 
@@ -2963,7 +2832,6 @@ footer label input[type="range"] { width: 110px; }
     document.getElementById("keyReadout").textContent = state.keyMode
       ? "Key of " + Theory.NOTE_NAMES[state.keyRoot] + (state.keyScale === "minor" ? " minor" : " major")
       : "Chromatic";
-    if (!strumLock) layoutStrum(spec.midis.length);
     paintSuggestions(spec);
     paintPads();
     paintLoop();
@@ -3041,13 +2909,11 @@ footer label input[type="range"] { width: 110px; }
         var id = changed[i].identifier;
         releaseFinger(id);
         releasePalette(id);
-        if (id === strumPointer) onStrumUp({ pointerId: id });
       }
     }
     if (!e.touches || e.touches.length === 0) {
       releaseFingers();
       releasePalette(null);
-      if (strumPointer != null) onStrumUp({ pointerId: strumPointer });
     }
   }
 
@@ -3155,24 +3021,16 @@ footer label input[type="range"] { width: 110px; }
     document.getElementById("play").addEventListener("click", onPlay);
     document.getElementById("clear").addEventListener("click", onClear);
 
-    if (strumEl) {
-      strumEl.addEventListener("pointerdown", onStrumDown);
-      strumEl.addEventListener("pointermove", onStrumMove);
-      strumEl.addEventListener("pointerup", onStrumUp);
-      strumEl.addEventListener("pointercancel", onStrumUp);
-      eatMove(strumEl);
-    }
-
     eatMove(padsEl);
 
     document.addEventListener("pointerdown", function () { unlock(); }, true);
-    window.addEventListener("pointerup", function (e) { onPadUp(e); onStrumUp(e); });
-    window.addEventListener("pointercancel", function (e) { onPadUp(e); onStrumUp(e); });
+    window.addEventListener("pointerup", function (e) { onPadUp(e); });
+    window.addEventListener("pointercancel", function (e) { onPadUp(e); });
 
     document.addEventListener("touchend", onTouchGone, true);
     document.addEventListener("touchcancel", onTouchGone, true);
     document.addEventListener("contextmenu", function (e) {
-      if (e.target.closest && e.target.closest("#pads, #strum")) e.preventDefault();
+      if (e.target.closest && e.target.closest("#pads")) e.preventDefault();
     });
 
     document.addEventListener("visibilitychange", function () {
