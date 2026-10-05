@@ -6,6 +6,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#14120f">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Touch Chord</title>
 <style>
 :root {
@@ -329,8 +332,6 @@ body.is-key #types button {
   min-width: 0;
   align-self: stretch;
 }
-.voicing input[type="range"] { width: 100%; }
-
 .vhead {
   font-size: 12px;
   color: var(--muted);
@@ -350,51 +351,75 @@ body.is-key #types button {
 
 .vticks span.on { color: var(--copper); }
 
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
+/* Copper sliders: forced track + thumb on every range input (all engines). */
+html body input[type="range"],
+html body .voicing input[type="range"],
+html body footer input[type="range"],
+html body footer label input[type="range"] {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
   height: 28px;
-  background: transparent;
+  background: transparent !important;
   margin: 0;
+  padding: 0;
+  border: 0;
   touch-action: manipulation;
-  accent-color: var(--copper);
+  accent-color: #e2a15a !important;
+  accent-color: var(--copper, #e2a15a) !important;
+  color: var(--copper, #e2a15a);
   outline: none;
 }
+html body .voicing input[type="range"] { width: 100%; }
 
-input[type="range"]::-webkit-slider-runnable-track {
+html body input[type="range"]::-webkit-slider-runnable-track {
+  -webkit-appearance: none !important;
   height: 6px;
-  background: linear-gradient(90deg, var(--copper), #c47a3a);
+  background: linear-gradient(90deg, var(--copper, #e2a15a), #c47a3a) !important;
+  background-color: var(--copper, #e2a15a) !important;
+  border: 0 !important;
   border-radius: 999px;
 }
 
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
+html body input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
   width: 18px;
   height: 18px;
   margin-top: -6px;
   border-radius: 50%;
-  background: var(--copper);
-  border: 2px solid var(--copper-ink);
-  box-shadow: 0 0 0 1px rgba(226, 161, 90, 0.35);
+  background: var(--copper, #e2a15a) !important;
+  background-color: var(--copper, #e2a15a) !important;
+  border: 2px solid var(--copper-ink, #2a1c0c) !important;
+  box-shadow: 0 0 0 1px rgba(226, 161, 90, 0.35) !important;
 }
 
-input[type="range"]::-moz-range-track {
+html body input[type="range"]::-moz-range-track {
   height: 6px;
-  background: linear-gradient(90deg, var(--copper), #c47a3a);
+  background: linear-gradient(90deg, var(--copper, #e2a15a), #c47a3a) !important;
+  background-color: var(--copper, #e2a15a) !important;
   border-radius: 999px;
-  border: 0;
+  border: 0 !important;
 }
 
-input[type="range"]::-moz-range-thumb {
+html body input[type="range"]::-moz-range-progress {
+  height: 6px;
+  background: var(--copper, #e2a15a) !important;
+  border-radius: 999px;
+}
+
+html body input[type="range"]::-moz-range-thumb {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--copper);
-  border: 2px solid var(--copper-ink);
-  box-shadow: 0 0 0 1px rgba(226, 161, 90, 0.35);
+  background: var(--copper, #e2a15a) !important;
+  border: 2px solid var(--copper-ink, #2a1c0c) !important;
+  box-shadow: 0 0 0 1px rgba(226, 161, 90, 0.35) !important;
 }
 
+html body input[type="range"]:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(226, 161, 90, 0.45) !important;
+}
 
 .suggest-card {
   border: 1px solid var(--line);
@@ -503,7 +528,7 @@ input[type="range"]::-moz-range-thumb {
   border-color: #4a3a72;
   color: #e8dff8;
 }
-/* Thin loop-position indicator (was the top edge of the strum strip). */
+/* Thin loop-position indicator. */
 .phase-track {
   position: relative;
   flex: 0 0 auto;
