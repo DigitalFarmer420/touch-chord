@@ -1528,9 +1528,12 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
 "use strict";
 
 (function () {
-  // Live (non-released) voice cap. Each warm voice is 3 saws + filter, so keep
-  // this modest to avoid render-thread overload (static / dropouts) on iPad.
+  // Live (non-released) soft voice cap. Each warm voice is 3 saws + filter, so
+  // keep this modest to avoid render-thread overload (static / dropouts) on iPad.
+  // Sustain-pooled groups are protected from soft-cap stealing so the pedal can
+  // hold notes until release; HARD_CAP is a safety ceiling only.
   var VOICE_CAP = 28;
+  var VOICE_HARD_CAP = 72;
 
   // Release time-constants (setTargetAtTime). ~7-9 tau to inaudible.
   var REL_TAU = 0.022;       // chord voices: ~50ms perceived release
@@ -1549,7 +1552,22 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     this.voices = [];
     this.pulse = null;
     this.ready = false;
+    this.protectedGroups = {};
   }
+
+  ChordAudio.prototype.protectGroup = function (group) {
+    if (group == null) return;
+    this.protectedGroups[group] = true;
+  };
+
+  ChordAudio.prototype.unprotectGroup = function (group) {
+    if (group == null) return;
+    delete this.protectedGroups[group];
+  };
+
+  ChordAudio.prototype.clearProtected = function () {
+    this.protectedGroups = {};
+  };
 
   // Smoothly move an AudioParam toward `target` from wherever it is *right now*,
   // never stepping it. Works whether or not a ramp is in flight.
@@ -2078,13 +2096,28 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
         this.voices.splice(i, 1);
       }
     }
+    var protect = this.protectedGroups || {};
     var active = this.voices.filter(function (v) { return !v.released; });
-    active.sort(function (a, b) {
+    function byStealOrder(a, b) {
       if (a.short !== b.short) return a.short ? -1 : 1;
       return a.born - b.born;
-    });
-    while (active.length > VOICE_CAP) {
-      active.shift().release(now, REL_TAU_STEAL);
+    }
+    var soft = active.filter(function (v) { return !protect[v.group]; });
+    var hard = active.filter(function (v) { return !!protect[v.group]; });
+    soft.sort(byStealOrder);
+    // Soft cap: only steal unprotected (live / pluck) voices so sustain-pooled
+    // notes keep ringing until the pedal dumps them.
+    while (soft.length > VOICE_CAP) {
+      soft.shift().release(now, REL_TAU_STEAL);
+    }
+    // Hard ceiling: if sustain stacks past the safety limit, steal oldest
+    // protected last (shorts still preferred via sort).
+    var total = soft.length + hard.length;
+    if (total > VOICE_HARD_CAP) {
+      hard.sort(byStealOrder);
+      while (soft.length + hard.length > VOICE_HARD_CAP && hard.length) {
+        hard.shift().release(now, REL_TAU_STEAL);
+      }
     }
   };
 
@@ -2364,6 +2397,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   function poolFingerGroup(finger) {
     if (!finger || !finger.group || finger.keyId == null) return;
     sustainPool[finger.group] = { pending: finger.pending || null };
+    ChordAudio.protectGroup(finger.group);
     finger.pending = null;
   }
 
@@ -2374,10 +2408,12 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     groups.forEach(function (g) {
       var entry = sustainPool[g];
       ChordAudio.stopChord(g);
+      ChordAudio.unprotectGroup(g);
       if (entry.pending && loop.recording && ChordAudio.ctx) finalizeOne(entry, now);
       else entry.pending = null;
     });
     sustainPool = {};
+    ChordAudio.clearProtected();
   }
 
   function paintSustainBtn() {
@@ -3387,7 +3423,16 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     // Highlight uses exact pad midis when present; otherwise nearest same-pc
     // pad so drop/low/bright (and off-keyboard registers) still light the
     // notes the suggestion is sounding. Audio keeps the true voiced midis.
-    suggestPreview = { type: spec.type, midis: highlightMidisFromSpec(spec.midis) };
+    suggestPreview = {
+      type: spec.type,
+      extensions: {
+        six: !!state.extensions.six,
+        min7: !!state.extensions.min7,
+        maj7: !!state.extensions.maj7,
+        nine: !!state.extensions.nine
+      },
+      midis: highlightMidisFromSpec(spec.midis)
+    };
     // Finger-held pads already morphed to this chord above; don't stack a
     // duplicate audition on top (doubles level, can clip). Sustain-pool
     // voices don't count as holding, so Next still auditions over the pedal.
@@ -3580,12 +3625,18 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       typeBtn.setAttribute("aria-pressed", onType ? "true" : "false");
     }
     var exts = document.querySelectorAll("#exts button");
-    var has7 = !!(state.extensions.min7 || state.extensions.maj7);
+    var previewExt = suggestPreview && suggestPreview.extensions;
+    // Momentary like type pads: light only while finger-held or during Next preview.
+    // (applySuggestion writes state.extensions for sounding/quality, but must not
+    // leave min7/maj7/etc. lit after the preview ends.)
+    var litMin7 = extStillHeld("min7") || !!(previewExt && previewExt.min7);
+    var litMaj7 = extStillHeld("maj7") || !!(previewExt && previewExt.maj7);
+    var has7 = !!(litMin7 || litMaj7);
     for (var x = 0; x < exts.length; x++) {
       var extBtn = exts[x];
       var extName = extBtn.dataset.ext;
-      var onExt = !!state.extensions[extName];
-      var dormant = (extName === "six" && has7) || (extName === "min7" && state.extensions.maj7);
+      var onExt = extStillHeld(extName) || !!(previewExt && previewExt[extName]);
+      var dormant = (extName === "six" && has7) || (extName === "min7" && litMaj7);
       extBtn.classList.toggle("on", onExt);
       extBtn.classList.toggle("dormant", dormant && !onExt);
       extBtn.setAttribute("aria-pressed", onExt ? "true" : "false");
