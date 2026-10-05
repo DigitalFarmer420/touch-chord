@@ -643,7 +643,8 @@ footer label {
   min-width: 0;
 }
 
-footer label input[type="range"] { width: 110px; }
+/* Sliders shrink inside their label (never overflow into the next label). */
+footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; }
 
 .bpm b { color: var(--ink); min-width: 2.2ch; display: inline-block; }
 
@@ -889,13 +890,17 @@ footer label input[type="range"] { width: 110px; }
   footer label input[type="range"] { flex: 1; width: auto; }
 }
 
-/* iPad landscape: one-row Style pills, four sliders on one footer row. */
+/* iPad landscape: one-row Style pills, five sliders on one footer row. */
 @media (min-width: 900px) and (max-width: 1180px) {
   .style-row .lbl { display: none; }
   .style-row button { padding: 0 13px; font-size: 14px; }
+  /* Nine Style pills on one row: compact pills, grow to fill the row. */
+  .style-row, #styles { flex-wrap: nowrap; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+  .style-row::-webkit-scrollbar { display: none; }
+  .style-row button { flex: 1 0 auto; padding: 0 6px; font-size: 13px; }
 }
 @media (min-width: 900px) and (max-width: 1100px) {
-  footer label { flex: 1 1 20%; }
+  footer label { flex: 1 1 16%; }
 }
 @media (max-height: 800px) {
   .kb.piano, .kb.fourths { min-height: 110px; }
@@ -939,8 +944,15 @@ footer label input[type="range"] { width: 110px; }
   /* Very short landscape: Style pills sit beside the Next grid. */
   .suggest-card { flex-direction: row; align-items: center; gap: 10px; padding: 5px 8px; }
   .suggest-card .card-label, .style-row .lbl { display: none; }
-  .style-row { flex: 0 1 auto; max-width: 42%; gap: 4px; }
-  .style-row button { padding: 0 9px; font-size: 11px; }
+  /* Nine Style pills: compact 3x3 block beside the Next grid. */
+  .style-row, #styles {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    flex: 0 0 auto;
+    max-width: 46%;
+    gap: 3px;
+  }
+  .style-row button { height: 26px; min-height: 26px; padding: 0 7px; font-size: 11px; }
   .next-wrap {
     flex: 1 1 0;
     grid-template-columns: 16px repeat(3, minmax(0, 1fr));
@@ -970,12 +982,13 @@ footer label input[type="range"] { width: 110px; }
     min-height: 64px;
   }
   .kb.fourths { grid-template-rows: repeat(4, minmax(0, 1fr)); }
-  footer { gap: 4px 8px; flex-wrap: nowrap; overflow-x: auto; }
+  footer { gap: 4px 6px; flex-wrap: nowrap; overflow-x: auto; }
   footer > * { flex-shrink: 0; }
   #unlock { left: 120px; right: auto; padding: 2px 10px; font-size: 11px; }
   footer label { font-size: 11px; }
-  footer label { flex: 0 0 auto; }
-  footer label input[type="range"] { flex: 0 0 56px; width: 56px; }
+  footer label { flex: 0 0 auto; gap: 4px; }
+  /* Five FX sliders + transport must still fit one short-landscape row. */
+  footer label input[type="range"] { flex: 0 0 44px; width: 44px; }
   #chords { flex-basis: 156px; gap: 4px; }
   #palette { gap: 3px; }
   #types button, #exts button { min-height: 0; font-size: 11px; padding: 0 2px; }
@@ -1051,6 +1064,9 @@ footer label input[type="range"] { width: 110px; }
       <button type="button" data-style="romantic">Romantic</button>
       <button type="button" data-style="rnb">R&amp;B</button>
       <button type="button" data-style="ballad">Ballad</button>
+      <button type="button" data-style="reggae">Reggae</button>
+      <button type="button" data-style="funk">Funk</button>
+      <button type="button" data-style="bossa">Bossa</button>
     </div>
     <div id="suggest" class="next-wrap" aria-label="Suggested next chords"></div>
   </div>
@@ -1088,6 +1104,7 @@ footer label input[type="range"] { width: 110px; }
     <label>Cutoff <input id="cutoff" type="range" min="0" max="1" step="0.01" value="0.62" aria-label="Filter cutoff"></label>
     <label>Reverb <input id="reverb" type="range" min="0" max="1" step="0.01" value="0.22" aria-label="Reverb mix"></label>
     <label>Delay <input id="delay" type="range" min="0" max="1" step="0.01" value="0.14" aria-label="Delay mix"></label>
+    <label>Warmth <input id="warmth" type="range" min="0" max="100" step="1" value="25" aria-label="Warmth" aria-valuetext="25"></label>
     <label class="bpm">BPM <b id="bpmVal">96</b>
       <input id="bpm" type="range" min="60" max="180" step="1" value="96" aria-label="Tempo">
     </label>
@@ -1428,6 +1445,7 @@ footer label input[type="range"] { width: 110px; }
     this.cutoffNorm = 0.62;
     this.reverbMix = 0.22;
     this.delayMix = 0.14;
+    this.warmth = 0.25;
     this.bpm = 96;
     this.sound = "warm";
     this.voices = [];
@@ -1477,6 +1495,22 @@ footer label input[type="range"] { width: 110px; }
     comp.attack.value = 0.006;
     comp.release.value = 0.16;
 
+    // Warmth: after the compressor, before the safety clipper. Gentle tilt
+    // (low-shelf lift + high-shelf roll-off) feeding a unity-small-signal tanh
+    // saturator. Series only (no dry/wet split), so oversampling latency can't
+    // comb-filter; every amount change glides, so moving it never clicks.
+    var warmLow = ctx.createBiquadFilter();
+    warmLow.type = "lowshelf";
+    warmLow.frequency.value = 180;
+    var warmHigh = ctx.createBiquadFilter();
+    warmHigh.type = "highshelf";
+    warmHigh.frequency.value = 4200;
+    var warmDrive = ctx.createGain();
+    var warmShaper = ctx.createWaveShaper();
+    warmShaper.curve = makeWarmCurve(4096);
+    warmShaper.oversample = "2x";
+    var warmMakeup = ctx.createGain();
+
     // Transparent safety clipper (no lookahead latency): identity below 0.8,
     // soft knee up to 1.0. Stacked fingers + bass + reverb could otherwise
     // exceed 0 dBFS at the destination and hard-clip (crackle / static).
@@ -1508,7 +1542,12 @@ footer label input[type="range"] { width: 110px; }
     fb.connect(delay);
     delay.connect(master);
     master.connect(comp);
-    comp.connect(clipPre);
+    comp.connect(warmLow);
+    warmLow.connect(warmHigh);
+    warmHigh.connect(warmDrive);
+    warmDrive.connect(warmShaper);
+    warmShaper.connect(warmMakeup);
+    warmMakeup.connect(clipPre);
     clipPre.connect(clipper);
     clipper.connect(ctx.destination);
 
@@ -1518,8 +1557,13 @@ footer label input[type="range"] { width: 110px; }
     this.delaySend = delaySend;
     this.delay = delay;
     this.master = master;
+    this.warmLow = warmLow;
+    this.warmHigh = warmHigh;
+    this.warmDrive = warmDrive;
+    this.warmMakeup = warmMakeup;
     this.ready = true;
     this.applyMix(true);
+    this.applyWarmth(true);
     this.applyDelayTime(true);
     this.pulse = makePulse(ctx);
   };
@@ -1578,6 +1622,34 @@ footer label input[type="range"] { width: 110px; }
   ChordAudio.prototype.setDelay = function (mix) {
     this.delayMix = clamp01(mix);
     this.applyMix();
+  };
+
+  // norm: 0..1 (UI slider 0..100 / 100).
+  ChordAudio.prototype.setWarmth = function (norm) {
+    this.warmth = clamp01(norm);
+    this.applyWarmth();
+  };
+
+  ChordAudio.prototype.applyWarmth = function (immediate) {
+    if (!this.ctx) return;
+    var w = clamp01(this.warmth);
+    // Shaper input is x/4 (curve spans x in [-4, 4]); k is the drive into tanh.
+    // Makeup 1/k keeps small signals at unity so loudness barely moves.
+    var k = 0.25 + 2.75 * w;
+    var lowDb = 3.5 * w;
+    var highDb = -8 * w;
+    if (immediate) {
+      this.warmLow.gain.value = lowDb;
+      this.warmHigh.gain.value = highDb;
+      this.warmDrive.gain.value = k / 4;
+      this.warmMakeup.gain.value = 1 / k;
+      return;
+    }
+    var now = this.ctx.currentTime;
+    glide(this.warmLow.gain, lowDb, now, 0.04);
+    glide(this.warmHigh.gain, highDb, now, 0.04);
+    glide(this.warmDrive.gain, k / 4, now, 0.04);
+    glide(this.warmMakeup.gain, 1 / k, now, 0.04);
   };
 
   ChordAudio.prototype.setBpm = function (bpm) {
@@ -1952,6 +2024,16 @@ footer label input[type="range"] { width: 110px; }
     return curve;
   }
 
+  // Warmth saturator: curve over u in [-1, 1] representing x = 4u, y = tanh(x).
+  function makeWarmCurve(n) {
+    var curve = new Float32Array(n);
+    for (var i = 0; i < n; i++) {
+      var x = ((i / (n - 1)) * 2 - 1) * 4;
+      curve[i] = Math.tanh(x);
+    }
+    return curve;
+  }
+
   function makePulse(ctx) {
     var h = 24;
     var real = new Float32Array(h);
@@ -1986,6 +2068,7 @@ footer label input[type="range"] { width: 110px; }
     style: "pop",
     sound: "warm",
     bass: false,
+    warmth: 25,
     holding: false,
     holdPointer: null,
     forceChord: null
@@ -2740,6 +2823,69 @@ footer label input[type="range"] { width: 110px; }
         6: [E(4,"min"), E(1,"min")],
         7: [E(3,"maj"), E(1,"min")]
       }
+    },
+    // Reggae: triads, V as dom7, bVII as a fill colour.
+    reggae: {
+      major: {
+        1: [E(4,"maj"), E(5,"dom7"), E(6,"min"), E(2,"min"), A("bVII","maj")],
+        2: [E(5,"dom7"), E(1,"maj")],
+        3: [E(6,"min"), E(4,"maj"), E(1,"maj")],
+        4: [E(1,"maj"), E(5,"dom7"), E(2,"min"), A("bVII","maj")],
+        5: [E(1,"maj"), E(4,"maj"), E(6,"min")],
+        6: [E(4,"maj"), E(1,"maj"), E(5,"dom7")],
+        7: [E(1,"maj"), E(6,"min")]
+      },
+      minor: {
+        1: [E(4,"min"), E(7,"maj"), E(3,"maj")],
+        2: [E(5,"min"), E(1,"min")],
+        3: [E(7,"maj"), E(1,"min")],
+        4: [E(1,"min"), E(7,"maj")],
+        5: [E(1,"min"), E(4,"min")],
+        6: [E(7,"maj"), E(1,"min")],
+        7: [E(1,"min"), E(3,"maj")]
+      }
+    },
+    // Funk: dom7 / m7 on the moves, Vsus4 as a tension fill.
+    funk: {
+      major: {
+        1: [E(4,"dom7"), E(5,"dom7"), E(2,"m7"), E(6,"m7"), E(5,"sus4")],
+        2: [E(5,"dom7"), E(1,"dom7"), E(5,"sus4")],
+        3: [E(6,"m7"), E(4,"dom7")],
+        4: [E(1,"dom7"), E(5,"dom7"), E(2,"m7"), E(5,"sus4")],
+        5: [E(1,"dom7"), E(4,"dom7")],
+        6: [E(2,"m7"), E(4,"dom7")],
+        7: [E(1,"dom7"), E(3,"m7")]
+      },
+      minor: {
+        1: [E(4,"m7"), E(5,"m7"), E(7,"dom7")],
+        2: [E(5,"m7"), E(1,"m7")],
+        3: [E(7,"dom7"), E(1,"m7")],
+        4: [E(1,"m7"), E(5,"m7")],
+        5: [E(1,"m7"), E(4,"m7")],
+        6: [E(7,"dom7"), E(1,"m7")],
+        7: [E(1,"m7"), E(3,"maj7")]
+      }
+    },
+    // Bossa: lush maj7 / m7, soft half-dim only as a fill.
+    bossa: {
+      major: {
+        1: [E(2,"m7"), E(5,"dom7"), E(6,"m7"), E(4,"maj7")],
+        2: [E(5,"dom7"), E(1,"maj7")],
+        3: [E(6,"m7"), E(2,"m7")],
+        4: [E(1,"maj7"), E(2,"m7"), E(7,"m7b5")],
+        5: [E(1,"maj7"), E(6,"m7")],
+        6: [E(2,"m7"), E(5,"dom7")],
+        7: [E(3,"dom7"), E(1,"maj7")]
+      },
+      minor: {
+        1: [E(4,"m7"), E(7,"dom7"), E(3,"maj7")],
+        2: [E(5,"dom7"), E(1,"m7")],
+        3: [E(6,"maj7"), E(4,"m7")],
+        4: [E(1,"m7"), E(5,"dom7")],
+        5: [E(1,"m7"), E(6,"maj7")],
+        6: [E(2,"m7b5"), E(5,"dom7")],
+        7: [E(1,"m7"), E(3,"maj7")]
+      }
     }
   };
 
@@ -3256,11 +3402,18 @@ footer label input[type="range"] { width: 110px; }
     document.getElementById("styles").addEventListener("click", function (e) {
       var b = e.target.closest("button");
       if (!b || !b.dataset.style) return;
+      var changed = b.dataset.style !== state.style;
       state.style = b.dataset.style;
       var all = document.querySelectorAll("#styles button");
       for (var i = 0; i < all.length; i++) all[i].classList.toggle("on", all[i] === b);
       suggestSig = "";
-      paintSuggestions(computeSpec());
+      // A new Style pick loads that style's factory sound row; tweaks made
+      // afterwards stick until the next Style pick or Factory reset.
+      if (changed && applyStylePreset(state.style)) {
+        refreshHeld();
+      } else {
+        paintSuggestions(computeSpec());
+      }
     });
 
     document.getElementById("layouts").addEventListener("click", function (e) {
@@ -3285,6 +3438,9 @@ footer label input[type="range"] { width: 110px; }
     });
     document.getElementById("delay").addEventListener("input", function (e) {
       ChordAudio.setDelay(Number(e.target.value));
+    });
+    document.getElementById("warmth").addEventListener("input", function (e) {
+      setWarmth(e.target.value);
     });
     document.getElementById("bpm").addEventListener("input", function (e) {
       setBpm(e.target.value);
@@ -3318,6 +3474,58 @@ footer label input[type="range"] { width: 110px; }
     });
   }
 
+  // ---- Warmth + factory style presets ----
+  var WARMTH_DEFAULT = 25;
+
+  function clampWarmth(v) {
+    v = Math.round(Number(v));
+    if (!isFinite(v)) v = WARMTH_DEFAULT;
+    return Math.min(100, Math.max(0, v));
+  }
+
+  // 0..100 on the UI; audio takes 0..1.
+  function setWarmth(v) {
+    v = clampWarmth(v);
+    state.warmth = v;
+    var el = document.getElementById("warmth");
+    if (el.value !== String(v)) el.value = String(v);
+    el.setAttribute("aria-valuetext", String(v));
+    ChordAudio.setWarmth(v / 100);
+  }
+
+  // Applied on Style change. Never touches Key, layout or the Next grid.
+  var STYLE_PRESETS = {
+    pop:       { sound: "warm", bass: true,  voicing: "close", cutoff: 0.72, reverb: 0.14, delay: 0.10, bpm: 112, warmth: 15 },
+    jazz:      { sound: "warm", bass: true,  voicing: "drop",  cutoff: 0.48, reverb: 0.28, delay: 0.18, bpm: 120, warmth: 70 },
+    classical: { sound: "reed", bass: false, voicing: "close", cutoff: 0.66, reverb: 0.36, delay: 0.06, bpm: 76,  warmth: 20 },
+    romantic:  { sound: "warm", bass: true,  voicing: "low",   cutoff: 0.50, reverb: 0.44, delay: 0.12, bpm: 66,  warmth: 40 },
+    rnb:       { sound: "warm", bass: true,  voicing: "close", cutoff: 0.55, reverb: 0.34, delay: 0.22, bpm: 78,  warmth: 45 },
+    ballad:    { sound: "bell", bass: true,  voicing: "close", cutoff: 0.44, reverb: 0.40, delay: 0.16, bpm: 68,  warmth: 30 },
+    reggae:    { sound: "warm", bass: true,  voicing: "low",   cutoff: 0.58, reverb: 0.24, delay: 0.20, bpm: 76,  warmth: 40 },
+    funk:      { sound: "reed", bass: true,  voicing: "bright", cutoff: 0.78, reverb: 0.10, delay: 0.08, bpm: 108, warmth: 22 },
+    bossa:     { sound: "warm", bass: true,  voicing: "close", cutoff: 0.52, reverb: 0.30, delay: 0.26, bpm: 72,  warmth: 35 }
+  };
+
+  // Push one preset row into state, controls and audio together.
+  function applyStylePreset(style) {
+    var p = STYLE_PRESETS[style];
+    if (!p) return false;
+    state.sound = p.sound;
+    state.bass = p.bass;
+    state.voicing = p.voicing;
+    document.getElementById("voicing").value = String(Math.max(0, VOICINGS.indexOf(p.voicing)));
+    document.getElementById("cutoff").value = String(p.cutoff);
+    document.getElementById("reverb").value = String(p.reverb);
+    document.getElementById("delay").value = String(p.delay);
+    ChordAudio.setSound(p.sound);
+    ChordAudio.setCutoff(p.cutoff);
+    ChordAudio.setReverb(p.reverb);
+    ChordAudio.setDelay(p.delay);
+    setBpm(p.bpm);
+    setWarmth(p.warmth);
+    return true;
+  }
+
   // ---- Settings persistence (localStorage, versioned) ----
   // Only sticky settings are stored. Chord type / extension buttons are
   // momentary (held), so they are intentionally not persisted.
@@ -3325,7 +3533,7 @@ footer label input[type="range"] { width: 110px; }
   var STORE_VERSION = 1;
   var LAYOUTS = ["octave", "piano", "fourths"];
   var SOUNDS = ["warm", "bell", "reed"];
-  var STYLES = ["pop", "jazz", "classical", "romantic", "rnb", "ballad"];
+  var STYLES = ["pop", "jazz", "classical", "romantic", "rnb", "ballad", "reggae", "funk", "bossa"];
   var SCALES = ["major", "minor"];
 
   function factoryDefaults() {
@@ -3343,7 +3551,8 @@ footer label input[type="range"] { width: 110px; }
       cutoff: 0.62,
       reverb: 0.22,
       delay: 0.14,
-      bpm: 96
+      bpm: 96,
+      warmth: WARMTH_DEFAULT
     };
   }
 
@@ -3371,7 +3580,8 @@ footer label input[type="range"] { width: 110px; }
       cutoff: num(raw.cutoff, 0, 1, d.cutoff),
       reverb: num(raw.reverb, 0, 1, d.reverb),
       delay: num(raw.delay, 0, 1, d.delay),
-      bpm: num(raw.bpm, 60, 180, d.bpm, true)
+      bpm: num(raw.bpm, 60, 180, d.bpm, true),
+      warmth: num(raw.warmth, 0, 100, d.warmth, true)
     };
   }
 
@@ -3413,7 +3623,8 @@ footer label input[type="range"] { width: 110px; }
       cutoff: Number(document.getElementById("cutoff").value),
       reverb: Number(document.getElementById("reverb").value),
       delay: Number(document.getElementById("delay").value),
-      bpm: state.bpm
+      bpm: state.bpm,
+      warmth: clampWarmth(document.getElementById("warmth").value)
     };
   }
 
@@ -3476,6 +3687,7 @@ footer label input[type="range"] { width: 110px; }
     ChordAudio.setReverb(s.reverb);
     ChordAudio.setDelay(s.delay);
     setBpm(s.bpm);
+    setWarmth(s.warmth);
     suggestSig = "";
   }
 
@@ -3545,7 +3757,7 @@ footer label input[type="range"] { width: 110px; }
       document.getElementById(id).addEventListener("click", function () { scheduleSave(0); });
     });
     document.getElementById("keyRoot").addEventListener("change", function () { scheduleSave(0); });
-    ["voicing", "cutoff", "reverb", "delay", "bpm"].forEach(function (id) {
+    ["voicing", "cutoff", "reverb", "delay", "warmth", "bpm"].forEach(function (id) {
       var el = document.getElementById(id);
       el.addEventListener("input", function () { scheduleSave(150); });
       el.addEventListener("change", function () { scheduleSave(0); });
