@@ -2026,16 +2026,31 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     env.gain.linearRampToValueAtTime(peak, time + attack);
 
     var expire = null;
+    // Held voices need a true sustain stage (level held until gate release).
+    // If env scheduled a fade to ~0 at note-on, Sustain-pooled notes would go
+    // silent while gate is still 1 — sounds like the pedal "doesn't work".
     if (spec.short) {
       var dur = spec.bass ? 0.26 : engine === "bell" ? 0.5 : engine === "warm" ? 0.34 : 0.2;
       env.gain.exponentialRampToValueAtTime(0.0001, time + attack + dur);
       env.gain.linearRampToValueAtTime(0, time + attack + dur + 0.02);
       expire = time + attack + dur + 0.05;
       oscs.forEach(function (o) { o.stop(expire); });
-    } else if (!spec.bass && engine === "warm") {
-      env.gain.linearRampToValueAtTime(peak * 0.78, time + attack + 0.28);
-    } else if (!spec.bass && engine === "bell") {
-      env.gain.exponentialRampToValueAtTime(Math.max(0.001, peak * 0.62), time + 0.7);
+    } else {
+      var sustainLevel = spec.bass ? peak
+        : engine === "bell" ? peak * 0.7
+        : engine === "reed" ? peak * 0.92
+        : peak * 0.82;
+      var decayDur = spec.bass ? 0.08 : engine === "bell" ? 0.55 : engine === "reed" ? 0.12 : 0.28;
+      var decayEnd = time + attack + decayDur;
+      if (sustainLevel < peak * 0.995) {
+        if (engine === "bell") {
+          env.gain.exponentialRampToValueAtTime(Math.max(0.001, sustainLevel), decayEnd);
+        } else {
+          env.gain.linearRampToValueAtTime(sustainLevel, decayEnd);
+        }
+      }
+      // Lock sustain so the param stays put until gate release / dumpSustain.
+      env.gain.setValueAtTime(sustainLevel, decayEnd);
     }
 
     oscs.forEach(function (o) { o.start(time); });
@@ -2374,6 +2389,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   var sustainDown = false;
   var sustainPool = {};       // group id -> { pending } (loop-recording take)
   var sustainPointers = {};   // pointer ids currently holding the pedal
+  var sustainTouches = {};    // touch identifiers currently on the pedal
   var groupSerial = 0;
 
   function sustainEnabled() {
@@ -2429,7 +2445,10 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
 
   function setSustain(on) {
     on = !!on && sustainEnabled();
-    if (!on) sustainPointers = {};
+    if (!on) {
+      sustainPointers = {};
+      sustainTouches = {};
+    }
     if (on !== sustainDown) {
       sustainDown = on;
       if (!on) dumpSustain();
@@ -2438,6 +2457,14 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     }
     paintSustainBtn();
     updateSymbol();
+  }
+
+  // Touch identities currently on the pedal. On some mobile browsers a second
+  // finger on a pad fires lostpointercapture / pointercancel on the pedal
+  // pointer while the thumb is still down — if we dumped then, pad-up would
+  // releaseFinger instead of poolFingerGroup. Touches are the ground truth.
+  function sustainHeldByInput() {
+    return Object.keys(sustainPointers).length > 0 || Object.keys(sustainTouches).length > 0;
   }
 
   function onSustainDown(e) {
@@ -2453,7 +2480,8 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   function onSustainUp(e) {
     if (!sustainPointers[e.pointerId]) return;
     delete sustainPointers[e.pointerId];
-    if (!Object.keys(sustainPointers).length) setSustain(false);
+    // Keep pedal down if a touch is still on the button (spurious pointer loss).
+    if (!sustainHeldByInput()) setSustain(false);
   }
 
   function wireSustain() {
@@ -2462,17 +2490,28 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     btn.addEventListener("pointerdown", onSustainDown);
     btn.addEventListener("pointerup", onSustainUp);
     btn.addEventListener("pointercancel", onSustainUp);
-    btn.addEventListener("lostpointercapture", onSustainUp);
+    // Do NOT listen for lostpointercapture: with multi-touch, some engines fire
+    // it on the pedal when another finger hits a pad, dumping Sustain before
+    // pad-up can pool. pointerup/cancel + touchend cover real releases.
     // Do NOT listen for pointerleave: with setPointerCapture many browsers still
     // fire leave when the pointer exits the hit box, which dumped the pedal
     // before a key-up could pool (mouse drag / slight finger drift).
     // Keep iOS from scrolling / selecting / long-press calling out the pedal.
-    btn.addEventListener("touchstart", function (e) { e.preventDefault(); }, { passive: false });
-    // Touch fallback only when no pointer is tracking the pedal (multi-touch
-    // races: a pad finger ending must not clear sustainPointers / dump pool).
+    btn.addEventListener("touchstart", function (e) {
+      e.preventDefault();
+      if (!sustainEnabled()) return;
+      unlock();
+      for (var i = 0; i < e.changedTouches.length; i++) {
+        sustainTouches[e.changedTouches[i].identifier] = true;
+      }
+      if (!sustainDown) setSustain(true);
+    }, { passive: false });
     function touchReleasePedal(e) {
+      for (var i = 0; i < e.changedTouches.length; i++) {
+        delete sustainTouches[e.changedTouches[i].identifier];
+      }
       if (e.targetTouches && e.targetTouches.length > 0) return;
-      if (Object.keys(sustainPointers).length) return; // pointer path owns it
+      if (sustainHeldByInput()) return;
       if (sustainDown) setSustain(false);
     }
     btn.addEventListener("touchend", touchReleasePedal);
@@ -3733,10 +3772,15 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
         var tgt = changed[i].target;
         if (tgt && tgt.closest && tgt.closest("#sustainBtn")) continue;
         var id = changed[i].identifier;
+        // Pointer path keys fingers by pointerId (often !== touch.identifier).
+        // liftFinger no-ops on unknown ids; also try Chrome's identifier+2 map.
         liftFinger(id);
+        if (typeof id === "number") liftFinger(id + 2);
         releasePalette(id);
+        if (typeof id === "number") releasePalette(id + 2);
       }
     }
+    // Only clear leftovers when every touch is gone. Soft lift respects Sustain.
     if (!e.touches || e.touches.length === 0) {
       releaseFingers();
       releasePalette(null);
@@ -4132,6 +4176,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     state.rootMidi = null;
     sustainDown = false;
     sustainPointers = {};
+    sustainTouches = {};
     dumpSustain();
 
     markOn("#layouts", "layout", s.layout);
