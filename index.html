@@ -545,12 +545,12 @@ html body input[type="range"]:focus-visible::-webkit-slider-thumb {
 #styles {
   flex-wrap: wrap;
 }
-/* Next grid: widescreen 2x3. Columns Bright / Dark / Tension, rows up / down. */
+/* Next grid: 4x2. Columns Bright / Dark / Tension / Color, rows up / down. */
 .next-wrap {
   display: grid;
-  grid-template-columns: 22px repeat(3, minmax(0, 1fr));
+  grid-template-columns: 22px repeat(4, minmax(0, 1fr));
   grid-template-rows: auto repeat(2, var(--chip));
-  gap: 4px 6px;
+  gap: 4px 5px;
   align-items: stretch;
   flex: 0 0 auto;
   min-width: 0;
@@ -610,6 +610,11 @@ html body input[type="range"]:focus-visible::-webkit-slider-thumb {
   background: #2a1f45;
   border-color: #4a3a72;
   color: #e8dff8;
+}
+.next-wrap button.color {
+  background: #6a8f7e;
+  border-color: #557866;
+  color: #0f1f18;
 }
 /* Thin loop-position indicator. */
 .phase-track {
@@ -818,14 +823,14 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   #tones { font-size: 15px; }
   .suggest-card { padding: 10px 14px; }
   .next-wrap {
-    grid-template-columns: 36px repeat(3, minmax(0, 1fr));
-    gap: 6px 10px;
-    max-width: 640px;
+    grid-template-columns: 36px repeat(4, minmax(0, 1fr));
+    gap: 6px 8px;
+    max-width: 760px;
     --chip: 48px;
   }
-  .next-wrap .axis { font-size: 12px; letter-spacing: 0.08em; }
+  .next-wrap .axis { font-size: 11px; letter-spacing: 0.06em; }
   .next-wrap .rowlbl { font-size: 18px; }
-  .next-wrap button { font-size: 20px; border-radius: 12px; }
+  .next-wrap button { font-size: 18px; border-radius: 12px; }
   .next-wrap .empty { border-radius: 12px; }
   .style-row button { padding: 0 16px; font-size: 15px; }
 }
@@ -859,13 +864,13 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   .now-card .card-label { font-size: 9px; }
   #tones { font-size: 11px; }
   .next-wrap {
-    grid-template-columns: 16px repeat(3, minmax(0, 1fr));
-    gap: 4px 4px;
-    --chip: 36px;
+    grid-template-columns: 14px repeat(4, minmax(0, 1fr));
+    gap: 3px 3px;
+    --chip: 34px;
   }
-  .next-wrap .axis { font-size: 9px; letter-spacing: 0.03em; }
-  .next-wrap .rowlbl { font-size: 13px; }
-  .next-wrap button { font-size: 14px; }
+  .next-wrap .axis { font-size: 8px; letter-spacing: 0.02em; }
+  .next-wrap .rowlbl { font-size: 12px; }
+  .next-wrap button { font-size: 12px; }
   .keybox { gap: 4px; flex-wrap: wrap; }
   .keybox select { width: 52px; padding: 0 4px; }
 }
@@ -902,7 +907,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
 @media (min-width: 900px) and (max-width: 1180px) {
   .style-row .lbl { display: none; }
   .style-row button { padding: 0 13px; font-size: 14px; }
-  /* Ten Style pills on one row: compact pills, grow to fill the row. */
+  /* Nine Style pills on one row: compact pills, grow to fill the row. */
   .style-row, #styles { flex-wrap: nowrap; gap: 4px; overflow-x: auto; scrollbar-width: none; }
   .style-row::-webkit-scrollbar { display: none; }
   .style-row button { flex: 1 0 auto; padding: 0 6px; font-size: 13px; }
@@ -952,10 +957,10 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   /* Very short landscape: Style pills sit beside the Next grid. */
   .suggest-card { flex-direction: row; align-items: center; gap: 10px; padding: 5px 8px; }
   .suggest-card .card-label, .style-row .lbl { display: none; }
-  /* Ten Style pills: compact 2x5 block beside the Next grid. */
+  /* Nine Style pills: compact 3x3 block beside the Next grid. */
   .style-row, #styles {
     display: grid;
-    grid-template-columns: repeat(5, auto);
+    grid-template-columns: repeat(3, auto);
     flex: 0 0 auto;
     max-width: 52%;
     gap: 3px;
@@ -963,13 +968,13 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   .style-row button { height: 26px; min-height: 26px; padding: 0 7px; font-size: 11px; }
   .next-wrap {
     flex: 1 1 0;
-    grid-template-columns: 16px repeat(3, minmax(0, 1fr));
-    gap: 3px 6px;
-    --chip: 30px;
+    grid-template-columns: 14px repeat(4, minmax(0, 1fr));
+    gap: 3px 4px;
+    --chip: 28px;
   }
-  .next-wrap .axis { font-size: 9px; }
-  .next-wrap .rowlbl { font-size: 12px; }
-  .next-wrap button { font-size: 13px; border-radius: 8px; }
+  .next-wrap .axis { font-size: 8px; }
+  .next-wrap .rowlbl { font-size: 11px; }
+  .next-wrap button { font-size: 11px; border-radius: 8px; }
   .vticks { display: none; }
   .topbar { gap: 6px 8px; }
   .brand { font-size: 10px; }
@@ -1073,7 +1078,6 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       <button type="button" data-style="ballad">Ballad</button>
       <button type="button" data-style="reggae">Reggae</button>
       <button type="button" data-style="funk">Funk</button>
-      <button type="button" data-style="bossa">Bossa</button>
       <button type="button" data-style="yoga">Yoga</button>
       <button type="button" data-style="yogaDeep">Yoga Deep</button>
     </div>
@@ -2715,10 +2719,10 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   var STYLE_TABLES = {
     pop: {
       major: {
-        1: [E(5,"maj"), E(4,"maj"), E(6,"min"), E(2,"min"), E(3,"min"), E(7,"dim")],
+        1: [E(5,"maj"), E(4,"maj"), E(6,"min"), E(2,"min"), A("bVII","maj"), E(3,"min"), E(7,"dim")],
         2: [E(5,"maj"), E(1,"maj"), E(4,"maj"), E(6,"min")],
         3: [E(6,"min"), E(4,"maj"), E(1,"maj"), E(2,"min")],
-        4: [E(1,"maj"), E(5,"maj"), E(2,"min"), E(6,"min")],
+        4: [E(1,"maj"), E(5,"maj"), A("bVII","maj"), E(2,"min"), E(6,"min")],
         5: [E(1,"maj"), E(6,"min"), E(4,"maj"), E(2,"min")],
         6: [E(4,"maj"), E(2,"min"), E(5,"maj"), E(1,"maj")],
         7: [E(1,"maj"), E(5,"maj"), E(3,"min")]
@@ -2795,10 +2799,10 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     },
     ballad: {
       major: {
-        1: [E(6,"min"), E(4,"maj7"), E(2,"min"), E(5,"maj"), E(1,"add9")],
+        1: [E(6,"min"), E(4,"maj7"), E(2,"min"), E(5,"maj"), A("bVII","maj"), E(1,"add9")],
         2: [E(5,"maj"), E(1,"maj7"), E(4,"maj")],
         3: [E(6,"min"), E(4,"maj7")],
-        4: [E(1,"maj7"), E(5,"maj"), E(2,"min")],
+        4: [E(1,"maj7"), E(5,"maj"), A("bVI","maj"), E(2,"min")],
         5: [E(6,"min"), E(1,"maj7")],
         6: [E(4,"maj7"), E(2,"min"), E(5,"maj"), E(1,"maj")],
         7: [E(1,"maj7"), E(5,"maj")]
@@ -2837,7 +2841,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     // Funk: dom7 / m7 on the moves, Vsus4 as a tension fill.
     funk: {
       major: {
-        1: [E(4,"dom7"), E(5,"dom7"), E(2,"m7"), E(6,"m7"), E(5,"sus4")],
+        1: [E(4,"dom7"), E(5,"dom7"), E(2,"m7"), E(6,"m7"), A("bVII","dom7"), E(5,"sus4")],
         2: [E(5,"dom7"), E(1,"dom7"), E(5,"sus4")],
         3: [E(6,"m7"), E(4,"dom7")],
         4: [E(1,"dom7"), E(5,"dom7"), E(2,"m7"), E(5,"sus4")],
@@ -2852,27 +2856,6 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
         4: [E(1,"m7"), E(5,"m7")],
         5: [E(1,"m7"), E(4,"m7")],
         6: [E(7,"dom7"), E(1,"m7")],
-        7: [E(1,"m7"), E(3,"maj7")]
-      }
-    },
-    // Bossa: lush maj7 / m7, soft half-dim only as a fill.
-    bossa: {
-      major: {
-        1: [E(2,"m7"), E(5,"dom7"), E(6,"m7"), E(4,"maj7")],
-        2: [E(5,"dom7"), E(1,"maj7")],
-        3: [E(6,"m7"), E(2,"m7")],
-        4: [E(1,"maj7"), E(2,"m7"), E(7,"m7b5")],
-        5: [E(1,"maj7"), E(6,"m7")],
-        6: [E(2,"m7"), E(5,"dom7")],
-        7: [E(3,"dom7"), E(1,"maj7")]
-      },
-      minor: {
-        1: [E(4,"m7"), E(7,"dom7"), E(3,"maj7")],
-        2: [E(5,"dom7"), E(1,"m7")],
-        3: [E(6,"maj7"), E(4,"m7")],
-        4: [E(1,"m7"), E(5,"dom7")],
-        5: [E(1,"m7"), E(6,"maj7")],
-        6: [E(2,"m7b5"), E(5,"dom7")],
         7: [E(1,"m7"), E(3,"maj7")]
       }
     },
@@ -2956,7 +2939,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       degree = d.degree;
       name = d.name;
     }
-    return {
+    var item = {
       rootPc: rootPc,
       degree: degree,
       type: mapped.type,
@@ -2966,6 +2949,8 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       quality: mapped.type === "dim" ? "dim" : mapped.type === "minor" ? "minor" : mapped.type === "sus4" ? "sus4" : "major",
       mood: (mapped.type === "minor" || mapped.type === "dim") ? "sad" : "happy"
     };
+    if (entry.alt) item.alt = entry.alt;
+    return item;
   }
 
   function phraseBias(items) {
@@ -2998,7 +2983,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
 
   // Builds a ranked candidate pool: style table hops first (unchanged order),
   // then diatonic fill, then tension fill (vii°/ii° and Vsus4). Phrase-bar bias
-  // reorders the pool; slotSuggestions() then maps it into the 6 grid cells.
+  // reorders the pool; slotSuggestions() then maps it into the 8 grid cells.
   function nextChords(spec, limit) {
     limit = limit || 6;
     var key = suggestionKey(spec);
@@ -3109,8 +3094,10 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   }
 
   // Bright = major-family (incl. maj7 / dom7 / add9), Dark = minor-family
-  // (Em lives here), Tension = diminished / half-diminished / sus only.
+  // (Em lives here), Tension = diminished / half-diminished / sus only,
+  // Color = soft borrowed / modal hops tagged via entry.alt (checked first).
   function suggestLane(item) {
+    if (item.alt) return "color";
     if (item.type === "dim" || item.type === "sus4") return "tension";
     if (item.type === "minor") return "dark";
     return "bright";
@@ -3128,15 +3115,16 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     return root + label;
   }
 
-  // Map the ranked pool into 3 lanes x (up, down). Each slot first takes the
+  // Map the ranked pool into 4 lanes x (up, down). Each slot first takes the
   // highest-ranked item moving in its direction; leftovers (or "same"-root
   // items) fill any still-empty slot in their own lane. No match = empty cell.
   function slotSuggestions(items) {
-    var lanes = ["bright", "dark", "tension"];
+    var lanes = ["bright", "dark", "tension", "color"];
     var slots = {
       bright: { up: null, down: null },
       dark: { up: null, down: null },
-      tension: { up: null, down: null }
+      tension: { up: null, down: null },
+      color: { up: null, down: null }
     };
     var used = {};
     var i, item, sig, lane;
@@ -3176,11 +3164,12 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   var LANES = [
     { id: "bright", label: "Bright", tone: "major" },
     { id: "dark", label: "Dark", tone: "minor" },
-    { id: "tension", label: "Tension", tone: "tension" }
+    { id: "tension", label: "Tension", tone: "tension" },
+    { id: "color", label: "Color", tone: "color" }
   ];
 
   function paintSuggestions(spec) {
-    var items = nextChords(spec, 14);
+    var items = nextChords(spec, 20);
     var slots = slotSuggestions(items);
     var sig = state.style + "@" + currentLoopBar() + "|" + LANES.map(function (ln) {
       return [slots[ln.id].up, slots[ln.id].down].map(function (it) {
@@ -3537,7 +3526,6 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     ballad:    { sound: "bell", bass: true,  voicing: "close", cutoff: 0.44, reverb: 0.40, delay: 0.16, bpm: 68,  warmth: 30 },
     reggae:    { sound: "warm", bass: true,  voicing: "low",   cutoff: 0.58, reverb: 0.24, delay: 0.20, bpm: 76,  warmth: 40 },
     funk:      { sound: "reed", bass: true,  voicing: "bright", cutoff: 0.78, reverb: 0.10, delay: 0.08, bpm: 108, warmth: 22 },
-    bossa:     { sound: "warm", bass: true,  voicing: "close", cutoff: 0.52, reverb: 0.30, delay: 0.26, bpm: 72,  warmth: 35 },
     yoga:      { sound: "bell", bass: false, voicing: "close", cutoff: 0.40, reverb: 0.50, delay: 0.02, bpm: 60,  warmth: 20 },
     yogaDeep:  { sound: "warm", bass: false, voicing: "low",   cutoff: 0.32, reverb: 0.58, delay: 0.02, bpm: 52,  warmth: 30 }
   };
@@ -3609,7 +3597,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   var STORE_VERSION = 1;
   var LAYOUTS = ["octave", "piano", "fourths"];
   var SOUNDS = ["warm", "bell", "reed"];
-  var STYLES = ["pop", "jazz", "rnb", "romantic", "ballad", "reggae", "funk", "bossa", "yoga", "yogaDeep"];
+  var STYLES = ["pop", "jazz", "rnb", "romantic", "ballad", "reggae", "funk", "yoga", "yogaDeep"];
   var SCALES = ["major", "minor"];
 
   function factoryDefaults() {
