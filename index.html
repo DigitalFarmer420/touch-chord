@@ -10,6 +10,11 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Touch Chord</title>
+<script>
+/* Hide controls until saved settings are applied (no default-then-jump flash). Failsafe unhides. */
+document.documentElement.className += " tc-boot";
+setTimeout(function () { document.documentElement.classList.remove("tc-boot"); }, 1500);
+</script>
 <style>
 :root {
   color-scheme: dark;
@@ -103,6 +108,76 @@ button.on, button[aria-pressed="true"].toggle.on {
   font-size: 12px;
   color: var(--sea);
 }
+
+html.tc-boot #app { visibility: hidden; }
+
+/* Configuration menu (top-right of the brand bar). */
+.topbar { position: relative; }
+/* Wrapper is only a text line tall so the button never grows the bar
+   (keyboard keeps its height); the 24px button overflows it visually. */
+.config { position: relative; margin-left: auto; flex: 0 0 auto; width: 74px; height: 14px; align-self: center; }
+.config-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 24px;
+  min-height: 24px;
+  padding: 0 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: transparent;
+}
+.config-btn[aria-expanded="true"] { color: var(--ink); border-color: var(--copper); }
+.config-btn::after { content: ""; position: absolute; inset: -8px -6px; }
+.config-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 50;
+  min-width: 170px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.config-menu[hidden] { display: none; }
+.config-menu button {
+  width: 100%;
+  height: 40px;
+  min-height: 40px;
+  text-align: left;
+  font-size: 14px;
+  padding: 0 12px;
+}
+.config-menu .danger { color: var(--danger); }
+.config-menu .danger:active { background: var(--danger); color: var(--copper-ink); }
+.config-btn.flash { background: var(--copper); color: var(--copper-ink); border-color: transparent; }
+.toast {
+  position: fixed;
+  left: 50%;
+  top: calc(12px + env(safe-area-inset-top));
+  transform: translate(-50%, -8px);
+  z-index: 60;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: var(--copper);
+  color: var(--copper-ink);
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
 
 /* Hero row: Now (left) beside Suggestions = Style + Next (right). */
 .hero {
@@ -878,6 +953,7 @@ footer label input[type="range"] { width: 110px; }
   .vticks { display: none; }
   .topbar { gap: 6px 8px; }
   .brand { font-size: 10px; }
+  .config { height: 12px; }
   :root { --ctrl: 32px; }
   button, select { padding: 0 8px; font-size: 12px; }
   .controls { flex-wrap: nowrap; }
@@ -949,7 +1025,14 @@ footer label input[type="range"] { width: 110px; }
   <div id="unlock">Open this file in Safari. Chrome on iPad will not run it.</div>
   <header class="topbar">
     <div class="brand">Touch Chord</div>
+    <div class="config" id="configWrap">
+      <button id="configBtn" type="button" class="config-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="configMenu" title="Configuration">Config</button>
+      <div id="configMenu" class="config-menu" role="menu" aria-label="Configuration" hidden>
+        <button id="factoryReset" type="button" role="menuitem" class="danger">Factory reset</button>
+      </div>
+    </div>
   </header>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <div class="hero">
   <div class="now-card" aria-label="Now playing">
@@ -3024,6 +3107,7 @@ footer label input[type="range"] { width: 110px; }
     paintSuggestions(spec);
     paintPads();
     paintLoop();
+    scheduleSave(200);
   }
 
   var paletteHolds = {};
@@ -3234,16 +3318,258 @@ footer label input[type="range"] { width: 110px; }
     });
   }
 
+  // ---- Settings persistence (localStorage, versioned) ----
+  // Only sticky settings are stored. Chord type / extension buttons are
+  // momentary (held), so they are intentionally not persisted.
+  var STORE_KEY = "touchChord.settings.v1";
+  var STORE_VERSION = 1;
+  var LAYOUTS = ["octave", "piano", "fourths"];
+  var SOUNDS = ["warm", "bell", "reed"];
+  var STYLES = ["pop", "jazz", "classical", "romantic", "rnb", "ballad"];
+  var SCALES = ["major", "minor"];
+
+  function factoryDefaults() {
+    return {
+      layout: "octave",
+      sound: "warm",
+      bass: false,
+      style: "pop",
+      keyMode: false,
+      keyRoot: 0,
+      keyScale: "major",
+      rootPc: 0,
+      degree: 1,
+      voicing: "close",
+      cutoff: 0.62,
+      reverb: 0.22,
+      delay: 0.14,
+      bpm: 96
+    };
+  }
+
+  function sanitizeSettings(raw) {
+    var d = factoryDefaults();
+    if (!raw || typeof raw !== "object") return d;
+    function pick(v, list, def) { return list.indexOf(v) >= 0 ? v : def; }
+    function bool(v, def) { return typeof v === "boolean" ? v : def; }
+    function num(v, lo, hi, def, int) {
+      if (typeof v !== "number" || !isFinite(v)) return def;
+      if (int) v = Math.round(v);
+      return Math.min(hi, Math.max(lo, v));
+    }
+    return {
+      layout: pick(raw.layout, LAYOUTS, d.layout),
+      sound: pick(raw.sound, SOUNDS, d.sound),
+      bass: bool(raw.bass, d.bass),
+      style: pick(raw.style, STYLES, d.style),
+      keyMode: bool(raw.keyMode, d.keyMode),
+      keyRoot: num(raw.keyRoot, 0, 11, d.keyRoot, true),
+      keyScale: pick(raw.keyScale, SCALES, d.keyScale),
+      rootPc: num(raw.rootPc, 0, 11, d.rootPc, true),
+      degree: num(raw.degree, 1, 7, d.degree, true),
+      voicing: pick(raw.voicing, VOICINGS, d.voicing),
+      cutoff: num(raw.cutoff, 0, 1, d.cutoff),
+      reverb: num(raw.reverb, 0, 1, d.reverb),
+      delay: num(raw.delay, 0, 1, d.delay),
+      bpm: num(raw.bpm, 60, 180, d.bpm, true)
+    };
+  }
+
+  function storageGet() {
+    try { return window.localStorage ? window.localStorage.getItem(STORE_KEY) : null; } catch (err) { return null; }
+  }
+  function storageSet(str) {
+    try { if (window.localStorage) window.localStorage.setItem(STORE_KEY, str); return true; } catch (err) { return false; }
+  }
+  function storageClear() {
+    try { if (window.localStorage) window.localStorage.removeItem(STORE_KEY); } catch (err) {}
+  }
+
+  // Future builds: read older keys/versions here and migrate into v1+ shape.
+  function loadSettings() {
+    var str = storageGet();
+    if (!str) return factoryDefaults();
+    try {
+      var env = JSON.parse(str);
+      if (!env || typeof env !== "object" || env.v !== STORE_VERSION) return factoryDefaults();
+      return sanitizeSettings(env.settings);
+    } catch (err) {
+      return factoryDefaults();
+    }
+  }
+
+  function collectSettings() {
+    return {
+      layout: state.layout,
+      sound: state.sound,
+      bass: !!state.bass,
+      style: state.style,
+      keyMode: !!state.keyMode,
+      keyRoot: state.keyRoot,
+      keyScale: state.keyScale,
+      rootPc: state.rootPc,
+      degree: state.degree,
+      voicing: state.voicing,
+      cutoff: Number(document.getElementById("cutoff").value),
+      reverb: Number(document.getElementById("reverb").value),
+      delay: Number(document.getElementById("delay").value),
+      bpm: state.bpm
+    };
+  }
+
+  var saveTimer = 0;
+  var lastSaved = "";
+  var persistReady = false;
+
+  function saveNow() {
+    if (saveTimer) {
+      clearTimeout(saveTimer);
+      saveTimer = 0;
+    }
+    if (!persistReady) return;
+    var str = JSON.stringify(collectSettings());
+    if (str === lastSaved) return;
+    if (storageSet("{\"v\":" + STORE_VERSION + ",\"settings\":" + str + "}")) lastSaved = str;
+  }
+
+  function scheduleSave(ms) {
+    if (!persistReady) return;
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveNow, ms == null ? 150 : ms);
+  }
+
+  function markOn(groupSel, attr, value) {
+    var all = document.querySelectorAll(groupSel + " button");
+    for (var i = 0; i < all.length; i++) {
+      var on = all[i].dataset[attr] === value;
+      all[i].classList.toggle("on", on);
+      if (all[i].hasAttribute("aria-pressed") || all[i].getAttribute("role") === "radio") {
+        all[i].setAttribute("aria-pressed", on ? "true" : "false");
+      }
+    }
+  }
+
+  // Push a settings object into state, controls and audio. Caller re-renders.
+  function applySettings(s) {
+    state.layout = s.layout;
+    state.sound = s.sound;
+    state.bass = s.bass;
+    state.style = s.style;
+    state.keyMode = s.keyMode;
+    state.keyRoot = s.keyRoot;
+    state.keyScale = s.keyScale;
+    state.rootPc = s.rootPc;
+    state.degree = s.degree;
+    state.voicing = s.voicing;
+    state.forceChord = null;
+
+    markOn("#layouts", "layout", s.layout);
+    markOn("#styles", "style", s.style);
+    document.getElementById("keyRoot").value = String(s.keyRoot);
+    document.getElementById("voicing").value = String(Math.max(0, VOICINGS.indexOf(s.voicing)));
+    document.getElementById("cutoff").value = String(s.cutoff);
+    document.getElementById("reverb").value = String(s.reverb);
+    document.getElementById("delay").value = String(s.delay);
+
+    ChordAudio.setSound(s.sound);
+    ChordAudio.setCutoff(s.cutoff);
+    ChordAudio.setReverb(s.reverb);
+    ChordAudio.setDelay(s.delay);
+    setBpm(s.bpm);
+    suggestSig = "";
+  }
+
+  var toastTimer = 0;
+  function showToast(msg) {
+    var el = document.getElementById("toast");
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add("show");
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove("show"); }, 1600);
+  }
+
+  function factoryReset() {
+    if (saveTimer) {
+      clearTimeout(saveTimer);
+      saveTimer = 0;
+    }
+    storageClear();
+    clearSuggestPreview();
+    var d = factoryDefaults();
+    applySettings(d);
+    renderPads();
+    refreshHeld();
+    updateSymbol();
+    if (saveTimer) {
+      clearTimeout(saveTimer);
+      saveTimer = 0;
+    }
+    // Storage stays empty until the user changes something again.
+    lastSaved = JSON.stringify(collectSettings());
+    showToast("Settings reset to factory defaults");
+    var btn = document.getElementById("configBtn");
+    btn.classList.add("flash");
+    setTimeout(function () { btn.classList.remove("flash"); }, 450);
+  }
+
+  function wireConfig() {
+    var btn = document.getElementById("configBtn");
+    var menu = document.getElementById("configMenu");
+    var wrap = document.getElementById("configWrap");
+    function setOpen(open) {
+      menu.hidden = !open;
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      setOpen(menu.hidden);
+      if (!menu.hidden) document.getElementById("factoryReset").focus({ preventScroll: true });
+    });
+    document.getElementById("factoryReset").addEventListener("click", function () {
+      setOpen(false);
+      factoryReset();
+    });
+    document.addEventListener("pointerdown", function (e) {
+      if (!menu.hidden && !wrap.contains(e.target)) setOpen(false);
+    }, true);
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !menu.hidden) {
+        setOpen(false);
+        btn.focus({ preventScroll: true });
+      }
+    });
+
+    // Every sticky control saves on change (sliders debounced).
+    ["engines", "bass", "keyMode", "keyMajor", "keyMinor", "styles", "layouts"].forEach(function (id) {
+      document.getElementById(id).addEventListener("click", function () { scheduleSave(0); });
+    });
+    document.getElementById("keyRoot").addEventListener("change", function () { scheduleSave(0); });
+    ["voicing", "cutoff", "reverb", "delay", "bpm"].forEach(function (id) {
+      var el = document.getElementById(id);
+      el.addEventListener("input", function () { scheduleSave(150); });
+      el.addEventListener("change", function () { scheduleSave(0); });
+    });
+    window.addEventListener("pagehide", saveNow);
+    document.addEventListener("visibilitychange", function () { if (document.hidden) saveNow(); });
+  }
+
   var startBanner = document.getElementById("unlock");
   if (startBanner) startBanner.textContent = "Tap anywhere to enable sound";
 
-  wire();
-  renderPads();
-  updateSymbol();
-  ChordAudio.setBpm(96);
-  ChordAudio.setCutoff(0.62);
-  ChordAudio.setReverb(0.22);
-  ChordAudio.setDelay(0.14);
+  try {
+    wire();
+    wireConfig();
+    var initial;
+    try { initial = loadSettings(); } catch (err) { initial = factoryDefaults(); }
+    try { applySettings(initial); } catch (err2) { applySettings(factoryDefaults()); }
+    renderPads();
+    updateSymbol();
+    lastSaved = JSON.stringify(collectSettings());
+    persistReady = true;
+  } finally {
+    document.documentElement.classList.remove("tc-boot");
+  }
 })();
 
 </script>
