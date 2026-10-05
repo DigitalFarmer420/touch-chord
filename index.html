@@ -1285,8 +1285,8 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     return n;
   }
 
-  function voicedMidis(rootPc, type, ext, voicing) {
-    var rootMidi = 60 + mod12(rootPc);
+  function voicedMidis(rootPc, type, ext, voicing, rootMidiOpt) {
+    var rootMidi = (typeof rootMidiOpt === "number" && isFinite(rootMidiOpt)) ? rootMidiOpt : 60 + mod12(rootPc);
     var placed = chordIntervals(type, ext).map(function (iv) { return rootMidi + iv; });
     return applyVoicing(placed, voicing || "close");
   }
@@ -1387,7 +1387,8 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     };
   }
 
-  function bassMidi(rootPc) {
+  function bassMidi(rootPc, rootMidiOpt) {
+    if (typeof rootMidiOpt === "number" && isFinite(rootMidiOpt)) return rootMidiOpt - 24;
     return 60 + mod12(rootPc) - 24;
   }
 
@@ -1400,7 +1401,8 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     var rootSpell = opts.rootSpell || spellRoot(rootPc);
     var rootName = opts.rootName || noteName(rootSpell);
     var names = chordToneNames(rootSpell, type, ext);
-    var midis = voicedMidis(rootPc, type, ext, voicing);
+    var rootMidi = (typeof opts.rootMidi === "number" && isFinite(opts.rootMidi)) ? opts.rootMidi : null;
+    var midis = voicedMidis(rootPc, type, ext, voicing, rootMidi);
     return {
       rootPc: rootPc,
       rootName: rootName,
@@ -1412,7 +1414,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       names: names,
       midis: midis,
       pcs: pitchClasses(midis),
-      bassMidi: bassMidi(rootPc)
+      bassMidi: bassMidi(rootPc, rootMidi)
     };
   }
 
@@ -2077,6 +2079,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     keyScale: "major",
     rootPc: 0,
     degree: 1,
+    rootMidi: null,
     layout: "octave",
     style: "pop",
     sound: "warm",
@@ -2122,13 +2125,23 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       extra.rootSpell = d.rootSpell;
       extra.rootName = d.rootName;
     }
+    // Pad register: root the chord at the pressed pad's MIDI. If the resolved
+    // root pc differs (forced suggestion / key degree), snap to the nearest
+    // MIDI with that pc so the chord stays in the held pad's register.
+    var rootMidi;
+    if (typeof state.rootMidi === "number" && isFinite(state.rootMidi)) {
+      var off = ((((rootPc - state.rootMidi) % 12) + 12) % 12);
+      if (off > 6) off -= 12;
+      rootMidi = state.rootMidi + off;
+    }
     var chord = Theory.buildChord({
       rootPc: rootPc,
       type: type,
       extensions: state.extensions,
       voicing: state.voicing,
       rootSpell: extra.rootSpell,
-      rootName: extra.rootName
+      rootName: extra.rootName,
+      rootMidi: rootMidi
     });
     chord.bassOut = state.bass ? chord.bassMidi : null;
     return chord;
@@ -2225,6 +2238,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
 
   function renderPads() {
     releaseFingers();
+    state.rootMidi = null;
     keySerial = 0;
     padsEl.innerHTML = "";
     if (state.layout === "octave") addPiano(1);
@@ -2243,15 +2257,13 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   function paintPads() {
     var held = {};
     Object.keys(fingers).forEach(function (id) { held[fingers[id].keyId] = true; });
-    var seenMidi = {};
     var buttons = padsEl.querySelectorAll(".pad");
     for (var i = 0; i < buttons.length; i++) {
       var b = buttons[i];
       var down = !!held[b.dataset.id];
       var preview = false;
-      if (!down && suggestPreview && suggestPreview.midis && suggestPreview.midis[b.dataset.midi] && !seenMidi[b.dataset.midi]) {
+      if (!down && suggestPreview && suggestPreview.pcs && suggestPreview.pcs[b.dataset.pc]) {
         preview = true;
-        seenMidi[b.dataset.midi] = true;
       }
       b.classList.toggle("selected", down || preview);
       b.classList.toggle("held", down || preview);
@@ -2265,17 +2277,21 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   function specFromFinger(finger) {
     var root = state.rootPc;
     var degree = state.degree;
+    var rootMidi = state.rootMidi;
     if (state.keyMode) state.degree = finger.degree;
     else state.rootPc = finger.pc;
+    state.rootMidi = finger.midi;
     var spec = computeSpec();
     state.rootPc = root;
     state.degree = degree;
+    state.rootMidi = rootMidi;
     return spec;
   }
 
   function rememberFinger(finger) {
     if (state.keyMode) state.degree = finger.degree;
     else state.rootPc = finger.pc;
+    state.rootMidi = finger.midi;
   }
 
   function soundFinger(pointerId, pad) {
@@ -2290,6 +2306,8 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     if (finger.keyId === pad.dataset.id) return;
     finger.keyId = pad.dataset.id;
     finger.pc = Number(pad.dataset.pc);
+    var padMidi = Number(pad.dataset.midi);
+    finger.midi = isFinite(padMidi) ? padMidi : null;
     finger.degree = pad.dataset.degree ? Number(pad.dataset.degree) : null;
     rememberFinger(finger);
     clearSuggestPreview();
@@ -3081,13 +3099,12 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     unlock();
     refreshHeld();
     var spec = computeSpec();
-    var midis = {};
-    for (var i = 0; i < spec.midis.length; i++) midis[spec.midis[i]] = true;
-    suggestPreview = { type: spec.type, midis: midis };
-    // Held pads already morphed to this chord above; don't stack a duplicate
-    // preview chord on top (doubles level, phase-beats, can clip).
+    var pcs = {};
+    for (var i = 0; i < spec.midis.length; i++) pcs[((spec.midis[i] % 12) + 12) % 12] = true;
+    suggestPreview = { type: spec.type, pcs: pcs };
+    // Next is highlight-only: no audition. Held pads already morphed above;
+    // just make sure nothing leftover from an old "suggest" group sounds.
     ChordAudio.stopChord("suggest");
-    if (!state.holding) ChordAudio.playChord("suggest", spec.midis, { bass: spec.bassOut, sound: state.sound });
     updateSymbol();
     if (suggestTimer) clearTimeout(suggestTimer);
     suggestTimer = setTimeout(clearSuggestPreview, 1600);
@@ -3737,6 +3754,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     state.degree = s.degree;
     state.voicing = s.voicing;
     state.forceChord = null;
+    state.rootMidi = null;
 
     markOn("#layouts", "layout", s.layout);
     markOn("#styles", "style", s.style);
