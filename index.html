@@ -793,6 +793,29 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
 
 .kb .pad.out { opacity: 0.32; }
 
+/* Latch toggle (Piano only) */
+.layouts .latch-sep {
+  width: 1px;
+  align-self: stretch;
+  margin: 6px 4px;
+  background: var(--line);
+}
+#latchBtn:disabled,
+#latchBtn[aria-disabled="true"] {
+  opacity: 0.35;
+  pointer-events: none;
+  cursor: default;
+}
+
+/* Latched key: distinct from held/selected (copper) and Next preview. */
+.kb.piano .white.latched,
+.kb.piano .black.latched {
+  background: var(--sea);
+  color: #10211c;
+  border-color: transparent;
+  box-shadow: inset 0 0 0 3px #10211c, inset 0 0 0 5px var(--sea);
+}
+
 .kb.piano .white.held,
 .kb.piano .black.held,
 .kb.fourths .pad.held {
@@ -1137,6 +1160,8 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       <button type="button" data-layout="octave" class="on">Octave</button>
       <button type="button" data-layout="piano">Piano</button>
       <button type="button" data-layout="fourths">Fourths</button>
+      <span class="latch-sep" aria-hidden="true"></span>
+      <button type="button" id="latchBtn" class="toggle" aria-pressed="false" aria-disabled="true" disabled title="Latch (Piano layout only): tap a key to sustain, tap again to release">Latch</button>
     </div>
     <div id="pads" class="kb piano" aria-label="Chord keyboard"></div>
   </div>
@@ -2086,6 +2111,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     bass: false,
     warmth: 25,
     holding: false,
+    latch: false,
     holdPointer: null,
     forceChord: null
   };
@@ -2237,14 +2263,86 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   }
 
   function renderPads() {
+    var keep = fingers[LATCH] || null;
+    if (keep) delete fingers[LATCH];
     releaseFingers();
+    if (keep) fingers[LATCH] = keep;
     state.rootMidi = null;
     keySerial = 0;
     padsEl.innerHTML = "";
     if (state.layout === "octave") addPiano(1);
     else if (state.layout === "fourths") addFourths();
     else addPiano(2);
+    revalidateLatch();
     paintPads();
+  }
+
+  // ---- Piano latch (monophonic) ----
+  // The latch lives in fingers["latch"] with its own audio group, so
+  // refreshHeld / loop recording / paintPads treat it like a held pad, but
+  // pointerup never releases it.
+  var LATCH = "latch";
+
+  function latchActive() {
+    return !!state.latch && state.layout === "piano";
+  }
+
+  function padPlayable(pad) {
+    if (!pad || pad.classList.contains("out")) return false;
+    if (state.keyMode && !pad.dataset.degree) return false;
+    return true;
+  }
+
+  function clearLatch() {
+    if (!fingers[LATCH]) return;
+    releaseFinger(LATCH);
+    paintPads();
+  }
+
+  // After pads are rebuilt (key / scale / mode change) keep the latch on the
+  // same key if it is still playable; otherwise drop it.
+  function revalidateLatch() {
+    var f = fingers[LATCH];
+    if (!f) return;
+    var pad = latchActive() ? padsEl.querySelector('.pad[data-id="' + f.keyId + '"]') : null;
+    if (!pad || Number(pad.dataset.pc) !== f.pc || !padPlayable(pad)) {
+      releaseFinger(LATCH);
+      return;
+    }
+    f.degree = pad.dataset.degree ? Number(pad.dataset.degree) : null;
+    var padMidi = Number(pad.dataset.midi);
+    f.midi = isFinite(padMidi) ? padMidi : null;
+    rememberFinger(f);
+    state.holding = true;
+  }
+
+  function onLatchTap(pad) {
+    if (!padPlayable(pad)) return;
+    var f = fingers[LATCH];
+    if (f && f.keyId === pad.dataset.id) {
+      clearLatch();
+      return;
+    }
+    if (!f) fingers[LATCH] = { group: "latch" };
+    soundFinger(LATCH, pad);
+    paintPads();
+  }
+
+  function paintLatchBtn() {
+    var btn = document.getElementById("latchBtn");
+    if (!btn) return;
+    var enabled = state.layout === "piano";
+    var on = !!state.latch && enabled;
+    btn.disabled = !enabled;
+    btn.setAttribute("aria-disabled", enabled ? "false" : "true");
+    btn.classList.toggle("on", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+  }
+
+  function setLatch(on) {
+    state.latch = !!on;
+    if (!latchActive()) clearLatch();
+    paintLatchBtn();
   }
 
   function bindPad(b) {
@@ -2256,15 +2354,22 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
 
   function paintPads() {
     var held = {};
-    Object.keys(fingers).forEach(function (id) { held[fingers[id].keyId] = true; });
+    Object.keys(fingers).forEach(function (id) {
+      if (id !== LATCH) held[fingers[id].keyId] = true;
+    });
+    var latchedId = fingers[LATCH] ? fingers[LATCH].keyId : null;
+    var seenMidi = {};
     var buttons = padsEl.querySelectorAll(".pad");
     for (var i = 0; i < buttons.length; i++) {
       var b = buttons[i];
-      var down = !!held[b.dataset.id];
+      var latched = latchedId != null && b.dataset.id === latchedId;
+      var down = !latched && !!held[b.dataset.id];
       var preview = false;
-      if (!down && suggestPreview && suggestPreview.pcs && suggestPreview.pcs[b.dataset.pc]) {
+      if (!down && !latched && suggestPreview && suggestPreview.midis && suggestPreview.midis[b.dataset.midi] && !seenMidi[b.dataset.midi]) {
         preview = true;
+        seenMidi[b.dataset.midi] = true;
       }
+      b.classList.toggle("latched", latched);
       b.classList.toggle("selected", down || preview);
       b.classList.toggle("held", down || preview);
       if (!state.keyMode) {
@@ -2295,8 +2400,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   }
 
   function soundFinger(pointerId, pad) {
-    if (!pad || pad.classList.contains("out")) return;
-    if (state.keyMode && !pad.dataset.degree) return;
+    if (!padPlayable(pad)) return;
     state.forceChord = null;
     var finger = fingers[pointerId];
     if (!finger) {
@@ -2334,14 +2438,23 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     updateSymbol();
   }
 
-  function releaseFingers() {
-    Object.keys(fingers).forEach(releaseFinger);
+  // Releases transient (pointer) fingers; the latch survives unless asked.
+  function releaseFingers(includeLatch) {
+    Object.keys(fingers).forEach(function (id) {
+      if (id === LATCH && !includeLatch) return;
+      releaseFinger(id);
+    });
+    if (includeLatch) paintPads();
   }
 
   function onPadDown(e) {
     if (e.button != null && e.button !== 0) return;
     e.preventDefault();
     unlock();
+    if (latchActive()) {
+      onLatchTap(e.currentTarget);
+      return;
+    }
     try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
     soundFinger(e.pointerId, e.currentTarget);
   }
@@ -3099,12 +3212,13 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     unlock();
     refreshHeld();
     var spec = computeSpec();
-    var pcs = {};
-    for (var i = 0; i < spec.midis.length; i++) pcs[((spec.midis[i] % 12) + 12) % 12] = true;
-    suggestPreview = { type: spec.type, pcs: pcs };
-    // Next is highlight-only: no audition. Held pads already morphed above;
-    // just make sure nothing leftover from an old "suggest" group sounds.
+    var midis = {};
+    for (var i = 0; i < spec.midis.length; i++) midis[spec.midis[i]] = true;
+    suggestPreview = { type: spec.type, midis: midis };
+    // Held pads (incl. a Piano latch) already morphed to this chord above;
+    // don't stack a duplicate audition on top (doubles level, can clip).
     ChordAudio.stopChord("suggest");
+    if (!state.holding) ChordAudio.playChord("suggest", spec.midis, { bass: spec.bassOut, sound: state.sound });
     updateSymbol();
     if (suggestTimer) clearTimeout(suggestTimer);
     suggestTimer = setTimeout(clearSuggestPreview, 1600);
@@ -3461,9 +3575,19 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       var b = e.target.closest("button");
       if (!b || !b.dataset.layout) return;
       state.layout = b.dataset.layout;
-      var all = document.querySelectorAll("#layouts button");
+      var all = document.querySelectorAll("#layouts button[data-layout]");
       for (var i = 0; i < all.length; i++) all[i].classList.toggle("on", all[i] === b);
+      if (!latchActive()) clearLatch();
+      paintLatchBtn();
       renderPads();
+    });
+
+    document.getElementById("latchBtn").addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (state.layout !== "piano") return;
+      setLatch(!state.latch);
+      updateSymbol();
+      scheduleSave(0);
     });
 
     document.getElementById("voicing").addEventListener("input", function (e) {
@@ -3506,7 +3630,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     document.addEventListener("visibilitychange", function () {
       if (document.hidden) {
         killLoopVoices();
-        releaseFingers();
+        releaseFingers(true);
       } else if (loop.transport && ChordAudio.ctx) {
         var s = 60 / loop.bpm / 4;
         var elapsed = (ChordAudio.currentTime() - loop.startTime) / s;
@@ -3633,7 +3757,8 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       reverb: 0.22,
       delay: 0.14,
       bpm: 96,
-      warmth: WARMTH_DEFAULT
+      warmth: WARMTH_DEFAULT,
+      latch: false
     };
   }
 
@@ -3662,7 +3787,8 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       reverb: num(raw.reverb, 0, 1, d.reverb),
       delay: num(raw.delay, 0, 1, d.delay),
       bpm: num(raw.bpm, 50, 180, d.bpm, true),
-      warmth: num(raw.warmth, 0, 100, d.warmth, true)
+      warmth: num(raw.warmth, 0, 100, d.warmth, true),
+      latch: bool(raw.latch, d.latch)
     };
   }
 
@@ -3705,7 +3831,8 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       reverb: Number(document.getElementById("reverb").value),
       delay: Number(document.getElementById("delay").value),
       bpm: state.bpm,
-      warmth: clampWarmth(document.getElementById("warmth").value)
+      warmth: clampWarmth(document.getElementById("warmth").value),
+      latch: !!state.latch
     };
   }
 
@@ -3733,6 +3860,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   function markOn(groupSel, attr, value) {
     var all = document.querySelectorAll(groupSel + " button");
     for (var i = 0; i < all.length; i++) {
+      if (all[i].dataset[attr] == null) continue;
       var on = all[i].dataset[attr] === value;
       all[i].classList.toggle("on", on);
       if (all[i].hasAttribute("aria-pressed") || all[i].getAttribute("role") === "radio") {
@@ -3755,8 +3883,11 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     state.voicing = s.voicing;
     state.forceChord = null;
     state.rootMidi = null;
+    clearLatch();
+    state.latch = !!s.latch;
 
     markOn("#layouts", "layout", s.layout);
+    paintLatchBtn();
     markOn("#styles", "style", s.style);
     document.getElementById("keyRoot").value = String(s.keyRoot);
     document.getElementById("voicing").value = String(Math.max(0, VOICINGS.indexOf(s.voicing)));
