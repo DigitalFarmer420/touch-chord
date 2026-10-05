@@ -22,6 +22,7 @@
   --lilac: #d2a9cc;
   --moss: #b7c98a;
   --danger: #e07a62;
+  --ctrl: 40px;
 }
 
 * { box-sizing: border-box; }
@@ -49,7 +50,8 @@ body {
 button, input, select { font: inherit; color: inherit; }
 
 button {
-  min-height: 40px;
+  height: var(--ctrl);
+  min-height: var(--ctrl);
   border: 1px solid var(--line);
   background: var(--bg-2);
   color: var(--ink);
@@ -57,6 +59,7 @@ button {
   padding: 0 12px;
   cursor: pointer;
   touch-action: manipulation;
+  line-height: 1;
 }
 
 button.on, button[aria-pressed="true"].toggle.on {
@@ -81,11 +84,13 @@ button.on, button[aria-pressed="true"].toggle.on {
   -webkit-touch-callout: none;
 }
 
-header {
+/* Slim brand bar; the current chord lives in the Now card beside Suggestions. */
+.topbar {
   display: flex;
   align-items: center;
   gap: 12px 16px;
   min-height: 0;
+  flex: 0 0 auto;
 }
 
 .brand {
@@ -96,27 +101,62 @@ header {
   color: var(--sea);
 }
 
-.symbolwrap {
+/* Hero row: Now (left) beside Suggestions = Style + Next (right). */
+.hero {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  flex: 0 0 auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+.now-card {
+  --now-w: 168px;
+  --sym: 48px;
+  flex: 0 0 var(--now-w);
+  width: var(--now-w);
+  min-width: 0;
+  border: 1px solid var(--line);
+  background: rgba(28, 25, 20, 0.55);
+  border-radius: 14px;
+  padding: 8px 12px;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   justify-content: center;
-  min-width: 7rem;
-  gap: 2px;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.now-card .card-label {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 #symbol {
+  display: inline-block;
+  max-width: none;
   font-family: Palatino, "Iowan Old Style", Georgia, serif;
-  font-size: clamp(28px, 4vw, 42px);
-  line-height: 0.9;
-  letter-spacing: -0.03em;
+  font-size: var(--sym);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 
 #symbol.sounding { color: var(--copper); }
 
 #tones {
+  max-width: 100%;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
   letter-spacing: 0.06em;
+  line-height: 1.2;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 
@@ -165,6 +205,7 @@ header {
 #types button, #exts button {
   width: 100%;
   min-width: 0;
+  height: auto;
   min-height: 40px;
   text-align: center;
   padding: 0 4px;
@@ -213,9 +254,11 @@ select {
   background: var(--bg-2);
   border: 1px solid var(--line);
   border-radius: 10px;
-  min-height: 40px;
+  height: var(--ctrl);
+  min-height: var(--ctrl);
   padding: 0 8px;
   touch-action: manipulation;
+  line-height: 1;
 }
 
 body.is-key #types button {
@@ -347,7 +390,7 @@ input[type="range"]::-moz-range-thumb {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   min-width: 0;
 }
 .suggest-card .card-label {
@@ -371,60 +414,81 @@ input[type="range"]::-moz-range-thumb {
   flex: 0 0 auto;
 }
 .style-row button {
-  min-height: 32px;
+  height: var(--ctrl);
+  min-height: var(--ctrl);
   padding: 0 12px;
   border-radius: 999px;
   font-size: 13px;
 }
-.suggest {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+#styles {
+  flex-wrap: wrap;
+}
+/* Next grid: widescreen 2x3. Columns Bright / Dark / Tension, rows up / down. */
+.next-wrap {
+  display: grid;
+  grid-template-columns: 22px repeat(3, minmax(0, 1fr));
+  grid-template-rows: auto repeat(2, var(--chip));
+  gap: 4px 6px;
+  align-items: stretch;
   flex: 0 0 auto;
   min-width: 0;
-  overflow-x: auto;
+  --chip: 40px;
 }
-.suggest .lbl {
+.next-wrap .axis {
   color: var(--muted);
-  font-size: 12px;
-  letter-spacing: 0.08em;
+  font-size: 10px;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  flex: 0 0 auto;
-}
-.suggest button {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  min-height: 40px;
-  padding: 4px 10px;
-  line-height: 1.15;
+  text-align: center;
+  align-self: end;
+  padding-bottom: 1px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.suggest button b { font-size: 14px; font-weight: 700; }
-.suggest button span { font-size: 11px; color: var(--muted); }
-.suggest button.happy,
-.suggest button.major {
+.next-wrap .rowlbl {
+  color: var(--muted);
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.next-wrap button {
+  height: auto;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 0 2px;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.next-wrap .empty {
+  border: 1px dashed rgba(58, 51, 43, 0.7);
+  border-radius: 10px;
+  pointer-events: none;
+}
+.next-wrap button.major {
   background: #e2b15a;
   border-color: #c4923e;
   color: #2a1c0c;
 }
-.suggest button.happy span,
-.suggest button.major span { color: #4a3414; }
-.suggest button.sad,
-.suggest button.minor {
+.next-wrap button.minor {
   background: #7d6ea8;
   border-color: #6a5c96;
   color: #f7f3ff;
 }
-.suggest button.sad span,
-.suggest button.minor span { color: #efe8f8; }
-.suggest button.dim {
-  background: #3c315c;
-  border-color: #6d5d96;
-  color: #f4efe6;
+.next-wrap button.tension {
+  background: #2a1f45;
+  border-color: #4a3a72;
+  color: #e8dff8;
 }
-.suggest button.dim span { color: #e4dcf2; }
 .strum {
   position: relative;
   border-radius: 16px;
@@ -534,6 +598,23 @@ footer label input[type="range"] { width: 110px; }
 
 #unlock[hidden] { display: none; }
 
+/* The audio hint floats in the slim brand bar instead of taking a row. */
+.stage { position: relative; }
+#unlock {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 5;
+  padding: 4px 12px;
+  font-size: 12px;
+}
+
+/* Fixed rows keep their height; strum and keyboard absorb tight heights,
+   so rows never paint over each other. */
+.stage > * { flex-shrink: 0; }
+.stage > .strum,
+.stage > .kb-wrap { flex-shrink: 1; }
+
 
 .kb-wrap {
   margin-top: 0;
@@ -636,6 +717,65 @@ footer label input[type="range"] { width: 110px; }
   font-size: 15px;
 }
 
+@media (min-width: 900px) {
+  :root { --ctrl: 44px; }
+  .hero { gap: 12px; }
+  .now-card { --now-w: 224px; --sym: 60px; padding: 12px 16px; }
+  #tones { font-size: 15px; }
+  .suggest-card { padding: 10px 14px; }
+  .next-wrap {
+    grid-template-columns: 36px repeat(3, minmax(0, 1fr));
+    gap: 6px 10px;
+    max-width: 640px;
+    --chip: 48px;
+  }
+  .next-wrap .axis { font-size: 12px; letter-spacing: 0.08em; }
+  .next-wrap .rowlbl { font-size: 18px; }
+  .next-wrap button { font-size: 20px; border-radius: 12px; }
+  .next-wrap .empty { border-radius: 12px; }
+  .style-row button { padding: 0 16px; font-size: 15px; }
+}
+
+@media (max-width: 720px) {
+  .controls {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+  .soundbox {
+    margin-left: auto;
+    flex-wrap: wrap;
+  }
+  .style-row,
+  #styles {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+  .suggest-card {
+    padding: 6px 8px;
+    gap: 6px;
+  }
+  .suggest-card .card-label { display: none; }
+  .style-row .lbl { display: none; }
+  .style-row button {
+    padding: 0 10px;
+    font-size: 12px;
+  }
+  .hero { gap: 6px; }
+  .now-card { --now-w: 112px; --sym: 34px; padding: 6px 8px; }
+  .now-card .card-label { font-size: 9px; }
+  #tones { font-size: 11px; }
+  .next-wrap {
+    grid-template-columns: 16px repeat(3, minmax(0, 1fr));
+    gap: 4px 4px;
+    --chip: 36px;
+  }
+  .next-wrap .axis { font-size: 9px; letter-spacing: 0.03em; }
+  .next-wrap .rowlbl { font-size: 13px; }
+  .next-wrap button { font-size: 14px; }
+  .keybox { gap: 4px; flex-wrap: wrap; }
+  .keybox select { width: 52px; padding: 0 4px; }
+}
+
 @media (max-width: 1100px) {
   footer { flex-wrap: wrap; }
   .transport { margin-left: 0; }
@@ -643,14 +783,13 @@ footer label input[type="range"] { width: 110px; }
 }
 
 @media (max-height: 640px) {
+  :root { --ctrl: 36px; }
   #app { gap: 6px; padding: 8px 10px; }
   .kb.piano { min-height: 96px; }
   .kb.fourths { min-height: 96px; grid-template-rows: repeat(4, minmax(28px, 1fr)); }
-  button, select { min-height: 32px; padding: 0 8px; font-size: 13px; }
-  #symbol { font-size: 26px; }
-  #tones { display: none; }
+  button, select { padding: 0 8px; font-size: 13px; }
+  .now-card { --sym: 40px; }
   .strum { height: 72px; min-height: 64px; }
-  .controls { flex-wrap: nowrap; overflow-x: auto; }
 }
 
 @media (max-width: 1080px) {
@@ -660,11 +799,40 @@ footer label input[type="range"] { width: 110px; }
   #app { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
   .kb.piano { min-height: 160px; }
   .kb.fourths { min-height: 140px; }
-  header { flex-wrap: nowrap; }
-  .controls { flex-wrap: nowrap; overflow-x: auto; }
+  .topbar { flex-wrap: nowrap; }
+  .controls { flex-wrap: wrap; overflow-x: visible; }
   .strum { height: 100px; min-height: 80px; }
   footer label { flex: 1 1 42%; }
   footer label input[type="range"] { flex: 1; width: auto; }
+}
+
+/* iPad landscape: one-row Style pills, four sliders on one footer row,
+   and a keyboard/strum that can give back height. */
+@media (min-width: 900px) and (max-width: 1180px) {
+  .style-row .lbl { display: none; }
+  .style-row button { padding: 0 13px; font-size: 14px; }
+}
+@media (min-width: 900px) and (max-width: 1100px) {
+  footer label { flex: 1 1 20%; }
+}
+@media (max-height: 800px) {
+  .kb.piano, .kb.fourths { min-height: 110px; }
+  .strum { min-height: 60px; }
+}
+@media (max-height: 640px) {
+  .kb.piano, .kb.fourths { min-height: 90px; }
+  .strum { min-height: 52px; }
+}
+/* iPad Safari with toolbars (~690px tall): trim chrome before the keyboard. */
+@media (min-width: 900px) and (max-height: 720px) {
+  .vticks { display: none; }
+  .next-wrap { --chip: 42px; }
+  .strum { min-height: 48px; }
+  .kb.piano, .kb.fourths { min-height: 96px; }
+}
+/* On iPad the strum gives back height before the keyboard does. */
+@media (min-width: 900px) {
+  .stage > .kb-wrap { min-height: auto; }
 }
 
 @media (orientation: landscape) and (max-height: 520px) {
@@ -686,14 +854,30 @@ footer label input[type="range"] { width: 110px; }
     gap: 4px;
     overflow: hidden;
   }
-  #symbol { font-size: 22px; }
-  .suggest button { min-height: 30px; padding: 2px 8px; }
-  .suggest button b { font-size: 12px; }
-  .suggest .lbl, .style-row .lbl, .suggest-card .card-label { display: none; }
-  .style-row button { min-height: 28px; padding: 0 10px; font-size: 12px; }
-  #tones, .vticks { display: none; }
-  header { gap: 6px 8px; }
-  button, select { min-height: 30px; padding: 0 8px; font-size: 12px; }
+  .hero { gap: 6px; }
+  .now-card { --now-w: 132px; --sym: 34px; padding: 5px 9px; gap: 2px; }
+  .now-card .card-label { font-size: 9px; }
+  #tones { font-size: 11px; }
+  /* Very short landscape: Style pills sit beside the Next grid. */
+  .suggest-card { flex-direction: row; align-items: center; gap: 10px; padding: 5px 8px; }
+  .suggest-card .card-label, .style-row .lbl { display: none; }
+  .style-row { flex: 0 1 auto; max-width: 42%; gap: 4px; }
+  .style-row button { padding: 0 9px; font-size: 11px; }
+  .next-wrap {
+    flex: 1 1 0;
+    grid-template-columns: 16px repeat(3, minmax(0, 1fr));
+    gap: 3px 6px;
+    --chip: 30px;
+  }
+  .next-wrap .axis { font-size: 9px; }
+  .next-wrap .rowlbl { font-size: 12px; }
+  .next-wrap button { font-size: 13px; border-radius: 8px; }
+  .vticks { display: none; }
+  .topbar { gap: 6px 8px; }
+  .brand { font-size: 10px; }
+  :root { --ctrl: 32px; }
+  button, select { padding: 0 8px; font-size: 12px; }
+  .controls { flex-wrap: nowrap; }
   .kb-wrap {
     flex: 1 1 0;
     min-height: 84px;
@@ -712,14 +896,36 @@ footer label input[type="range"] { width: 110px; }
     min-height: 44px;
     flex: 0.45 1 0;
   }
-  footer { gap: 4px 8px; flex-wrap: nowrap; }
+  footer { gap: 4px 8px; flex-wrap: nowrap; overflow-x: auto; }
+  footer > * { flex-shrink: 0; }
+  #unlock { left: 120px; right: auto; padding: 2px 10px; font-size: 11px; }
   footer label { font-size: 11px; }
-  footer label input[type="range"] { width: 56px; }
+  footer label { flex: 0 0 auto; }
+  footer label input[type="range"] { flex: 0 0 56px; width: 56px; }
   #chords { flex-basis: 156px; gap: 4px; }
   #palette { gap: 3px; }
   #types button, #exts button { min-height: 0; font-size: 11px; padding: 0 2px; }
 }
 
+/* Very narrow: Now becomes a slim strip above Suggestions so neither clips. */
+@media (max-width: 560px) {
+  .hero { flex-direction: column; }
+  .now-card {
+    flex: 0 0 auto;
+    width: auto;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 10px;
+  }
+}
+
+/* Narrow widths: wrap Style and Sounds instead of clipping. */
+@media (max-width: 720px) {
+  .controls { flex-wrap: wrap; overflow-x: visible; }
+  .soundbox { margin-left: auto; flex-wrap: wrap; }
+  #engines { flex-wrap: wrap; }
+  #styles { flex-wrap: wrap; overflow: visible; }
+}
 </style>
 </head>
 <body>
@@ -743,13 +949,16 @@ footer label input[type="range"] { width: 110px; }
   </aside>
   <div class="stage">
   <div id="unlock">Open this file in Safari. Chrome on iPad will not run it.</div>
-  <header>
+  <header class="topbar">
     <div class="brand">Touch Chord</div>
-    <div class="symbolwrap">
-      <div id="symbol" aria-live="polite">C</div>
-      <div id="tones">C E G</div>
-    </div>
   </header>
+
+  <div class="hero">
+  <div class="now-card" aria-label="Now playing">
+    <div class="card-label">Now</div>
+    <div id="symbol" aria-live="polite">C</div>
+    <div id="tones">C E G</div>
+  </div>
 
   <div class="suggest-card" aria-label="Style and next chords">
     <div class="card-label">Suggestions</div>
@@ -762,7 +971,8 @@ footer label input[type="range"] { width: 110px; }
       <button type="button" data-style="rnb">R&amp;B</button>
       <button type="button" data-style="ballad">Ballad</button>
     </div>
-    <div id="suggest" class="suggest" aria-label="Suggested next chords"></div>
+    <div id="suggest" class="next-wrap" aria-label="Suggested next chords"></div>
+  </div>
   </div>
 
   <section class="controls">
@@ -2470,7 +2680,11 @@ footer label input[type="range"] { width: 110px; }
     return a.concat(b);
   }
 
-  function nextChords(spec) {
+  // Builds a ranked candidate pool: style table hops first (unchanged order),
+  // then diatonic fill, then tension fill (vii°/ii° and Vsus4). Phrase-bar bias
+  // reorders the pool; slotSuggestions() then maps it into the 6 grid cells.
+  function nextChords(spec, limit) {
+    limit = limit || 6;
     var key = suggestionKey(spec);
     var degrees = Theory.scaleDegrees(key.pc, key.mode);
     var degree = 1;
@@ -2498,7 +2712,7 @@ footer label input[type="range"] { width: 110px; }
     var seen = {};
 
     function pushItem(item) {
-      if (!item || out.length >= 6) return;
+      if (!item || out.length >= limit) return;
       var sig = item.rootPc + ":" + item.type + ":" + (item.qualityLabel || "");
       if (seen[sig]) return;
       if (item.rootPc === spec.rootPc && item.type === spec.type && !item.extensions.min7 && !item.extensions.maj7 && !item.extensions.nine) return;
@@ -2509,19 +2723,21 @@ footer label input[type="range"] { width: 110px; }
       out.push(item);
     }
 
-    for (var h = 0; h < hops.length && out.length < 6; h++) {
+    for (var h = 0; h < hops.length && out.length < limit; h++) {
       pushItem(resolveEntry(key, hops[h]));
     }
-    for (var deg = 1; deg <= 7 && out.length < 6; deg++) {
+    for (var deg = 1; deg <= 7 && out.length < limit; deg++) {
       var other = degrees[deg - 1];
       if (!other || other.type === "dim") continue;
       pushItem(resolveEntry(key, E(deg, other.type === "minor" ? "min" : other.type === "dim" ? "dim" : "maj")));
     }
-    for (var deg2 = 1; deg2 <= 7 && out.length < 6; deg2++) {
+    for (var deg2 = 1; deg2 <= 7 && out.length < limit; deg2++) {
       var dimd = degrees[deg2 - 1];
       if (!dimd || dimd.type !== "dim") continue;
       pushItem(resolveEntry(key, E(deg2, "dim")));
     }
+    // Real tension candidates: dominant sus4 (resolves to I/i).
+    if (out.length < limit) pushItem(resolveEntry(key, E(5, "sus4")));
     return phraseBias(out);
   }
 
@@ -2571,38 +2787,142 @@ footer label input[type="range"] { width: 110px; }
     suggestTimer = setTimeout(clearSuggestPreview, 1600);
   }
 
+  // Bright = major-family (incl. maj7 / dom7 / add9), Dark = minor-family
+  // (Em lives here), Tension = diminished / half-diminished / sus only.
+  function suggestLane(item) {
+    if (item.type === "dim" || item.type === "sus4") return "tension";
+    if (item.type === "minor") return "dark";
+    return "bright";
+  }
+
+  function suggestionItemSig(item) {
+    return item.rootPc + ":" + item.type + ":" + (item.qualityLabel || "");
+  }
+
+  function chipSymbol(item) {
+    var label = item.qualityLabel || "";
+    var root = item.name.slice(0, item.name.length - label.length) || Theory.NOTE_NAMES[item.rootPc];
+    if (item.type === "dim" && (label === "dim" || label === "")) return root + "\u00b0";
+    if (item.type === "sus4") return root + label.replace(/^sus4/, "sus");
+    return root + label;
+  }
+
+  // Map the ranked pool into 3 lanes x (up, down). Each slot first takes the
+  // highest-ranked item moving in its direction; leftovers (or "same"-root
+  // items) fill any still-empty slot in their own lane. No match = empty cell.
+  function slotSuggestions(items) {
+    var lanes = ["bright", "dark", "tension"];
+    var slots = {
+      bright: { up: null, down: null },
+      dark: { up: null, down: null },
+      tension: { up: null, down: null }
+    };
+    var used = {};
+    var i, item, sig, lane;
+
+    for (var L = 0; L < lanes.length; L++) {
+      lane = lanes[L];
+      for (i = 0; i < items.length; i++) {
+        item = items[i];
+        if (suggestLane(item) !== lane) continue;
+        sig = suggestionItemSig(item);
+        if (used[sig]) continue;
+        if (item.dir === "up" && !slots[lane].up) {
+          slots[lane].up = item;
+          used[sig] = true;
+        } else if (item.dir === "down" && !slots[lane].down) {
+          slots[lane].down = item;
+          used[sig] = true;
+        }
+      }
+      for (i = 0; i < items.length; i++) {
+        item = items[i];
+        if (suggestLane(item) !== lane) continue;
+        sig = suggestionItemSig(item);
+        if (used[sig]) continue;
+        if (!slots[lane].up) {
+          slots[lane].up = item;
+          used[sig] = true;
+        } else if (!slots[lane].down) {
+          slots[lane].down = item;
+          used[sig] = true;
+        }
+      }
+    }
+    return slots;
+  }
+
+  var LANES = [
+    { id: "bright", label: "Bright", tone: "major" },
+    { id: "dark", label: "Dark", tone: "minor" },
+    { id: "tension", label: "Tension", tone: "tension" }
+  ];
+
   function paintSuggestions(spec) {
-    var items = nextChords(spec);
-    var sig = state.style + "@" + currentLoopBar() + "|" + items.map(function (item) {
-      return item.name + item.dir + item.mood + item.degree + (item.qualityLabel || "");
+    var items = nextChords(spec, 14);
+    var slots = slotSuggestions(items);
+    var sig = state.style + "@" + currentLoopBar() + "|" + LANES.map(function (ln) {
+      return [slots[ln.id].up, slots[ln.id].down].map(function (it) {
+        return it ? (it.name + it.dir + it.degree + (it.qualityLabel || "")) : "-";
+      }).join(",");
     }).join("|");
     if (sig === suggestSig) return;
     suggestSig = sig;
     var el = document.getElementById("suggest");
+    el.className = "next-wrap";
     el.innerHTML = "";
-    var label = document.createElement("span");
-    label.className = "lbl";
-    label.textContent = "Next";
-    el.appendChild(label);
-    items.forEach(function (item) {
-      var b = document.createElement("button");
+
+    function add(tag, cls, text) {
+      var n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text != null) n.textContent = text;
+      el.appendChild(n);
+      return n;
+    }
+
+    // Header row: corner + column labels.
+    add("div", "corner").setAttribute("aria-hidden", "true");
+    LANES.forEach(function (ln) { add("div", "axis", ln.label); });
+
+    function addCell(item, ln, dirWord) {
+      if (!item) {
+        add("div", "empty").setAttribute("aria-hidden", "true");
+        return;
+      }
+      var b = add("button", ln.tone, chipSymbol(item));
       b.type = "button";
-      b.className = item.mood + " " + item.quality;
-      var name = document.createElement("b");
-      name.textContent = item.name;
-      var meta = document.createElement("span");
-      meta.textContent = (item.qualityLabel || item.quality) + " · " + item.dir + " · " + item.mood;
-      b.appendChild(name);
-      b.appendChild(meta);
+      b.setAttribute("aria-label", item.name + " (" + ln.label + ", " + dirWord + ")");
       b.addEventListener("click", function () { applySuggestion(item); });
-      el.appendChild(b);
+    }
+
+    [["up", "\u2191"], ["down", "\u2193"]].forEach(function (row) {
+      add("div", "rowlbl", row[1]).setAttribute("aria-hidden", "true");
+      LANES.forEach(function (ln) { addCell(slots[ln.id][row[0]], ln, row[0]); });
     });
   }
+
+  // Shrink the Now symbol only when a long name (e.g. F#6sus4(add9)) would
+  // overflow its card; short ones like Cmaj7 keep the full display size.
+  function fitNowSymbol() {
+    var sym = document.getElementById("symbol");
+    var card = sym && sym.parentNode;
+    if (!card) return;
+    sym.style.fontSize = "";
+    var cs = getComputedStyle(card);
+    var avail = card.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    var w = sym.getBoundingClientRect().width;
+    if (!(avail > 0) || !(w > avail)) return;
+    var base = parseFloat(getComputedStyle(sym).fontSize) || 48;
+    sym.style.fontSize = Math.max(14, Math.floor(base * (avail / w) * 0.98)) + "px";
+  }
+
+  window.addEventListener("resize", function () { fitNowSymbol(); });
 
   function updateSymbol() {
     var spec = computeSpec();
     document.getElementById("symbol").textContent = spec.symbol;
     document.getElementById("tones").textContent = spec.names.join(" ");
+    fitNowSymbol();
     document.getElementById("vname").textContent = state.voicing;
     var slider = document.getElementById("voicing");
     slider.setAttribute("aria-valuetext", state.voicing);
