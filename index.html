@@ -388,12 +388,54 @@ input[type="range"]::-moz-range-thumb {
   color: #f4efe6;
 }
 .suggest button.dim span { color: #e4dcf2; }
+.strum {
+  position: relative;
+  border-radius: 16px;
+  border: 1px solid #4a3d2e;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 42%),
+    linear-gradient(90deg, #2a2118, #3a2c1e 50%, #2a2118);
+  overflow: hidden;
+  touch-action: none;
+  flex: 0 0 auto;
+  height: 120px;
+  min-height: 88px;
+}
+
+.zones {
+  position: absolute;
+  inset: 0 0 22px 0;
+  display: flex;
+  pointer-events: none;
+}
+
+.zone {
+  flex: 1;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.zone:last-child { border-right: 0; }
+.zone.hot { background: rgba(226, 161, 90, 0.35); }
+
+.strum-caption {
+  position: absolute;
+  inset: auto 14px 8px 14px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(244, 239, 230, 0.55);
+  pointer-events: none;
+}
+
 .phase {
+  position: absolute;
+  left: 0;
+  top: 0;
   height: 3px;
   width: 0;
-  flex: 0 0 auto;
   background: var(--sea);
-  border-radius: 99px;
   pointer-events: none;
 }
 
@@ -465,6 +507,16 @@ footer label input[type="range"] { width: 110px; }
   min-height: 0;
 }
 
+.layouts { align-items: center; }
+
+.layouts .lbl {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+
 .kb { touch-action: none; }
 
 .kb.piano {
@@ -525,9 +577,26 @@ footer label input[type="range"] { width: 110px; }
 .kb .pad.out { opacity: 0.32; }
 
 .kb.piano .white.held,
-.kb.piano .black.held {
+.kb.piano .black.held,
+.kb.fourths .pad.held {
   background: var(--copper);
   color: var(--copper-ink);
+}
+
+.kb.fourths {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  flex: 1 1 auto;
+  min-height: 140px;
+}
+
+.kb.fourths .pad {
+  min-height: 0;
+  height: auto;
+  border-radius: 10px;
+  font-size: 15px;
 }
 
 @media (max-width: 1100px) {
@@ -539,9 +608,11 @@ footer label input[type="range"] { width: 110px; }
 @media (max-height: 640px) {
   #app { gap: 6px; padding: 8px 10px; }
   .kb.piano { min-height: 96px; }
+  .kb.fourths { min-height: 96px; grid-template-rows: repeat(4, minmax(28px, 1fr)); }
   button, select { min-height: 32px; padding: 0 8px; font-size: 13px; }
   #symbol { font-size: 26px; }
   #tones { display: none; }
+  .strum { height: 72px; min-height: 64px; }
   .controls { flex-wrap: nowrap; overflow-x: auto; }
 }
 
@@ -551,8 +622,10 @@ footer label input[type="range"] { width: 110px; }
   #types button, #exts button { min-height: 36px; font-size: 12px; }
   #app { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
   .kb.piano { min-height: 160px; }
+  .kb.fourths { min-height: 140px; }
   header { flex-wrap: nowrap; }
   .controls { flex-wrap: nowrap; overflow-x: auto; }
+  .strum { height: 100px; min-height: 80px; }
   footer label { flex: 1 1 42%; }
   footer label input[type="range"] { flex: 1; width: auto; }
 }
@@ -589,11 +662,17 @@ footer label input[type="range"] { width: 110px; }
     margin-top: 0;
     gap: 4px;
   }
-  .kb.piano {
+  .kb.piano, .kb.fourths {
     position: relative;
     flex: 1 1 0;
     height: auto;
     min-height: 64px;
+  }
+  .kb.fourths { grid-template-rows: repeat(4, minmax(0, 1fr)); }
+  .strum {
+    height: auto;
+    min-height: 44px;
+    flex: 0.45 1 0;
   }
   footer { gap: 4px 8px; flex-wrap: nowrap; }
   footer label { font-size: 11px; }
@@ -664,6 +743,12 @@ footer label input[type="range"] { width: 110px; }
     </div>
   </div>
 
+  <section id="strum" class="strum" aria-label="Strum strip. Slide across to pluck the current chord from low to high.">
+    <div id="phase" class="phase"></div>
+    <div id="zones" class="zones"></div>
+    <div class="strum-caption"><span>low</span><span>strum</span><span>high</span></div>
+  </section>
+
   <footer>
     <label>Cutoff <input id="cutoff" type="range" min="0" max="1" step="0.01" value="0.62" aria-label="Filter cutoff"></label>
     <label>Reverb <input id="reverb" type="range" min="0" max="1" step="0.01" value="0.22" aria-label="Reverb mix"></label>
@@ -680,7 +765,12 @@ footer label input[type="range"] { width: 110px; }
   </footer>
 
   <div class="kb-wrap">
-    <div id="phase" class="phase"></div>
+    <div id="layouts" class="layouts seg" role="radiogroup" aria-label="Keyboard layout">
+      <span class="lbl">Layout</span>
+      <button type="button" data-layout="octave" class="on">Octave</button>
+      <button type="button" data-layout="piano">Piano</button>
+      <button type="button" data-layout="fourths">Fourths</button>
+    </div>
     <div id="pads" class="kb piano" aria-label="Chord keyboard"></div>
   </div>
 
@@ -1404,6 +1494,7 @@ footer label input[type="range"] { width: 110px; }
     keyScale: "major",
     rootPc: 0,
     degree: 1,
+    layout: "octave",
     sound: "warm",
     bass: false,
     holding: false,
@@ -1536,11 +1627,25 @@ footer label input[type="range"] { width: 110px; }
     padsEl.appendChild(blackLayer);
   }
 
+  function addFourths() {
+    var rows = 4;
+    var cols = 6;
+    padsEl.className = "kb fourths";
+    padsEl.style.removeProperty("--whites");
+    for (var r = rows - 1; r >= 0; r--) {
+      for (var c = 0; c < cols; c++) {
+        padsEl.appendChild(makeKey((r * 5 + c) % 12, 60 + r * 5 + c));
+      }
+    }
+  }
+
   function renderPads() {
     releaseFingers();
     keySerial = 0;
     padsEl.innerHTML = "";
-    addPiano(1);
+    if (state.layout === "octave") addPiano(1);
+    else if (state.layout === "fourths") addFourths();
+    else addPiano(2);
     paintPads();
   }
 
@@ -2419,6 +2524,15 @@ footer label input[type="range"] { width: 110px; }
       state.keyScale = "minor";
       if (state.keyMode) renderPads();
       refreshHeld();
+    });
+
+    document.getElementById("layouts").addEventListener("click", function (e) {
+      var b = e.target.closest("button");
+      if (!b || !b.dataset.layout) return;
+      state.layout = b.dataset.layout;
+      var all = document.querySelectorAll("#layouts button");
+      for (var i = 0; i < all.length; i++) all[i].classList.toggle("on", all[i] === b);
+      renderPads();
     });
 
     document.getElementById("voicing").addEventListener("input", function (e) {
