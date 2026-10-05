@@ -339,6 +339,43 @@ input[type="range"]::-moz-range-thumb {
 }
 
 
+.suggest-card {
+  border: 1px solid var(--line);
+  background: rgba(28, 25, 20, 0.55);
+  border-radius: 14px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+.suggest-card .card-label {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.style-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.style-row .lbl {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  flex: 0 0 auto;
+}
+.style-row button {
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 13px;
+}
 .suggest {
   display: flex;
   align-items: center;
@@ -652,7 +689,8 @@ footer label input[type="range"] { width: 110px; }
   #symbol { font-size: 22px; }
   .suggest button { min-height: 30px; padding: 2px 8px; }
   .suggest button b { font-size: 12px; }
-  .suggest .lbl { display: none; }
+  .suggest .lbl, .style-row .lbl, .suggest-card .card-label { display: none; }
+  .style-row button { min-height: 28px; padding: 0 10px; font-size: 12px; }
   #tones, .vticks { display: none; }
   header { gap: 6px 8px; }
   button, select { min-height: 30px; padding: 0 8px; font-size: 12px; }
@@ -713,7 +751,19 @@ footer label input[type="range"] { width: 110px; }
     </div>
   </header>
 
-  <div id="suggest" class="suggest" aria-label="Suggested next chords"></div>
+  <div class="suggest-card" aria-label="Style and next chords">
+    <div class="card-label">Suggestions</div>
+    <div id="styles" class="style-row seg" role="radiogroup" aria-label="Style">
+      <span class="lbl">Style</span>
+      <button type="button" data-style="pop" class="on">Pop</button>
+      <button type="button" data-style="jazz">Jazz</button>
+      <button type="button" data-style="classical">Classical</button>
+      <button type="button" data-style="romantic">Romantic</button>
+      <button type="button" data-style="rnb">R&amp;B</button>
+      <button type="button" data-style="ballad">Ballad</button>
+    </div>
+    <div id="suggest" class="suggest" aria-label="Suggested next chords"></div>
+  </div>
 
   <section class="controls">
     <div class="keybox">
@@ -1495,10 +1545,12 @@ footer label input[type="range"] { width: 110px; }
     rootPc: 0,
     degree: 1,
     layout: "octave",
+    style: "pop",
     sound: "warm",
     bass: false,
     holding: false,
-    holdPointer: null
+    holdPointer: null,
+    forceChord: null
   };
 
   var loop = {
@@ -1531,7 +1583,10 @@ footer label input[type="range"] { width: 110px; }
     var rootPc = state.rootPc;
     var type = state.type;
     var extra = {};
-    if (state.keyMode) {
+    if (state.forceChord) {
+      rootPc = state.forceChord.rootPc;
+      type = state.forceChord.type;
+    } else if (state.keyMode) {
       var d = Theory.degreeChord(state.keyRoot, state.keyScale, state.degree);
       rootPc = d.rootPc;
       type = d.type;
@@ -1697,6 +1752,7 @@ footer label input[type="range"] { width: 110px; }
   function soundFinger(pointerId, pad) {
     if (!pad || pad.classList.contains("out")) return;
     if (state.keyMode && !pad.dataset.degree) return;
+    state.forceChord = null;
     var finger = fingers[pointerId];
     if (!finger) {
       finger = { group: "live-" + pointerId };
@@ -2148,6 +2204,7 @@ footer label input[type="range"] { width: 110px; }
       var beat = Math.floor((step % 16) / 4) + 1;
       base += " · " + bar + "." + beat;
       phaseEl.style.width = ((((pos % 64) + 64) % 64) / 64 * 100) + "%";
+      if (bar !== lastSuggestBar) paintSuggestions(computeSpec());
     } else if (!loop.transport) {
       phaseEl.style.width = "0%";
     }
@@ -2169,25 +2226,176 @@ footer label input[type="range"] { width: 110px; }
 
 
 
-  var NEXT_MAJOR = {
-    1: [5, 4, 6, 2],
-    2: [5, 4, 1],
-    3: [6, 4, 1],
-    4: [5, 1, 2],
-    5: [1, 6, 4],
-    6: [4, 2, 5],
-    7: [1, 6]
+  var ALT_PC = { bII: 1, bIII: 3, III: 4, bVI: 8, bVII: 10, tritV: 1 };
+
+  function blankExt() {
+    return { six: false, min7: false, maj7: false, nine: false };
+  }
+
+  function mapQuality(q) {
+    var ext = blankExt();
+    if (q === "min" || q === "minor") return { type: "minor", extensions: ext, label: "m" };
+    if (q === "sus4") return { type: "sus4", extensions: ext, label: "sus4" };
+    if (q === "dim") return { type: "dim", extensions: ext, label: "dim" };
+    if (q === "dom7" || q === "7") {
+      ext.min7 = true;
+      return { type: "major", extensions: ext, label: "7" };
+    }
+    if (q === "m7") {
+      ext.min7 = true;
+      return { type: "minor", extensions: ext, label: "m7" };
+    }
+    if (q === "maj7") {
+      ext.maj7 = true;
+      return { type: "major", extensions: ext, label: "maj7" };
+    }
+    if (q === "m7b5") {
+      ext.min7 = true;
+      return { type: "dim", extensions: ext, label: "m7b5" };
+    }
+    if (q === "add9") {
+      ext.nine = true;
+      return { type: "major", extensions: ext, label: "add9" };
+    }
+    if (q === "madd9") {
+      ext.nine = true;
+      return { type: "minor", extensions: ext, label: "madd9" };
+    }
+    if (q === "mmaj7") {
+      ext.maj7 = true;
+      return { type: "minor", extensions: ext, label: "m(maj7)" };
+    }
+    return { type: "major", extensions: ext, label: "" };
+  }
+
+  function E(deg, quality) { return { deg: deg, q: quality }; }
+  function A(alt, quality) { return { alt: alt, q: quality }; }
+
+  var STYLE_TABLES = {
+    pop: {
+      major: {
+        1: [E(5,"maj"), E(4,"maj"), E(6,"min"), E(2,"min"), E(3,"min"), E(7,"dim")],
+        2: [E(5,"maj"), E(1,"maj"), E(4,"maj"), E(6,"min")],
+        3: [E(6,"min"), E(4,"maj"), E(1,"maj"), E(2,"min")],
+        4: [E(1,"maj"), E(5,"maj"), E(2,"min"), E(6,"min")],
+        5: [E(1,"maj"), E(6,"min"), E(4,"maj"), E(2,"min")],
+        6: [E(4,"maj"), E(2,"min"), E(5,"maj"), E(1,"maj")],
+        7: [E(1,"maj"), E(5,"maj"), E(3,"min")]
+      },
+      minor: {
+        1: [E(5,"min"), E(4,"min"), E(6,"maj"), E(7,"maj")],
+        2: [E(5,"min"), E(1,"min")],
+        3: [E(6,"maj"), E(4,"min"), E(1,"min")],
+        4: [E(1,"min"), E(5,"min"), E(6,"maj")],
+        5: [E(1,"min"), E(6,"maj"), E(4,"min")],
+        6: [E(4,"min"), E(1,"min"), E(7,"maj")],
+        7: [E(1,"min"), E(3,"maj"), E(6,"maj")]
+      }
+    },
+    jazz: {
+      major: {
+        1: [E(2,"m7"), E(5,"dom7"), E(6,"m7"), E(4,"maj7"), A("bVII","dom7"), E(4,"min")],
+        2: [E(5,"dom7"), E(1,"maj7"), E(7,"m7b5")],
+        3: [E(6,"m7"), A("tritV","dom7"), E(4,"maj")],
+        4: [E(7,"m7b5"), E(3,"dom7"), E(1,"maj7")],
+        5: [E(1,"maj7"), E(6,"m7"), A("bII","dom7")],
+        6: [E(2,"m7"), E(5,"dom7"), E(4,"maj7")],
+        7: [E(1,"maj7"), E(3,"dom7")]
+      },
+      minor: {
+        1: [E(4,"m7"), E(7,"dom7"), E(6,"maj7"), E(5,"m7")],
+        2: [E(5,"dom7"), E(1,"m7")],
+        3: [E(6,"maj7"), E(4,"m7")],
+        4: [E(7,"dom7"), E(1,"m7"), E(5,"dom7")],
+        5: [E(1,"m7"), E(6,"maj7"), E(4,"m7")],
+        6: [E(2,"m7b5"), E(5,"dom7"), E(1,"m7")],
+        7: [E(3,"maj7"), E(1,"m7"), E(6,"maj7")]
+      }
+    },
+    classical: {
+      major: {
+        1: [E(5,"maj"), E(4,"maj"), E(6,"min"), E(2,"min")],
+        2: [E(5,"maj"), E(1,"maj")],
+        3: [E(6,"min"), E(4,"maj")],
+        4: [E(5,"maj"), E(1,"maj"), E(2,"min")],
+        5: [E(1,"maj"), E(6,"min"), E(4,"maj")],
+        6: [E(2,"min"), E(4,"maj"), E(5,"maj")],
+        7: [E(1,"maj"), E(5,"maj")]
+      },
+      minor: {
+        1: [E(5,"maj"), E(4,"min"), E(6,"maj")],
+        2: [E(5,"maj"), E(1,"min")],
+        3: [E(6,"maj"), E(4,"min")],
+        4: [E(5,"maj"), E(1,"min")],
+        5: [E(1,"min"), E(6,"maj")],
+        6: [E(2,"dim"), E(4,"min")],
+        7: [E(3,"maj"), E(1,"min")]
+      }
+    },
+    romantic: {
+      major: {
+        1: [A("bVI","maj"), E(3,"maj"), A("bIII","maj"), E(4,"maj7"), E(5,"maj"), E(6,"min")],
+        2: [E(5,"maj"), A("bII","maj"), E(1,"maj")],
+        3: [E(6,"min"), E(4,"maj7"), E(1,"maj")],
+        4: [A("bVII","maj"), E(2,"min"), E(1,"maj")],
+        5: [E(1,"maj"), A("bVI","maj"), E(6,"min")],
+        6: [A("bVI","maj"), E(4,"maj"), E(2,"min")],
+        7: [E(1,"maj"), E(5,"maj")]
+      },
+      minor: {
+        1: [A("bII","maj"), E(6,"maj"), E(3,"maj"), E(4,"maj7")],
+        2: [E(5,"maj"), E(1,"min")],
+        3: [E(6,"maj"), E(4,"min")],
+        4: [A("bVI","maj"), E(1,"min"), E(5,"maj")],
+        5: [E(1,"min"), E(6,"maj")],
+        6: [A("bII","maj"), E(1,"min")],
+        7: [E(3,"maj"), E(1,"min")]
+      }
+    },
+    rnb: {
+      major: {
+        1: [E(4,"maj7"), E(2,"m7"), E(5,"dom7"), E(6,"m7"), A("bVII","dom7")],
+        2: [E(5,"dom7"), E(1,"maj7")],
+        3: [E(6,"m7"), E(4,"maj7")],
+        4: [E(1,"maj7"), E(2,"m7"), A("bVII","dom7")],
+        5: [E(1,"maj7"), E(6,"m7")],
+        6: [E(2,"m7"), E(4,"maj"), E(5,"dom7")],
+        7: [E(1,"maj7"), A("bVII","dom7")]
+      },
+      minor: {
+        1: [E(4,"m7"), A("bVII","dom7"), E(6,"maj7"), E(5,"m7")],
+        2: [E(5,"m7"), E(1,"m7")],
+        3: [E(6,"maj7"), E(4,"m7")],
+        4: [A("bVII","dom7"), E(1,"m7")],
+        5: [E(1,"m7"), E(6,"maj7")],
+        6: [E(4,"m7"), E(1,"m7")],
+        7: [E(1,"m7"), E(3,"maj")]
+      }
+    },
+    ballad: {
+      major: {
+        1: [E(6,"min"), E(4,"maj7"), E(2,"min"), E(5,"maj"), E(1,"add9")],
+        2: [E(5,"maj"), E(1,"maj7"), E(4,"maj")],
+        3: [E(6,"min"), E(4,"maj7")],
+        4: [E(1,"maj7"), E(5,"maj"), E(2,"min")],
+        5: [E(6,"min"), E(1,"maj7")],
+        6: [E(4,"maj7"), E(2,"min"), E(5,"maj"), E(1,"maj")],
+        7: [E(1,"maj7"), E(5,"maj")]
+      },
+      minor: {
+        1: [E(6,"maj"), E(4,"min"), E(3,"maj"), E(7,"maj"), E(1,"madd9")],
+        2: [E(5,"min"), E(1,"min")],
+        3: [E(6,"maj"), E(4,"min")],
+        4: [E(1,"min"), E(5,"maj")],
+        5: [E(1,"min"), E(6,"maj")],
+        6: [E(4,"min"), E(1,"min")],
+        7: [E(3,"maj"), E(1,"min")]
+      }
+    }
   };
-  var NEXT_MINOR = {
-    1: [6, 7, 3, 4],
-    2: [5, 1, 6],
-    3: [6, 7, 4],
-    4: [1, 7, 5],
-    5: [1, 6, 4],
-    6: [3, 4, 7],
-    7: [3, 1, 4]
-  };
+
   var suggestSig = "";
+  var lastSuggestBar = 0;
 
   function wrap12(n) { return ((n % 12) + 12) % 12; }
 
@@ -2196,6 +2404,70 @@ footer label input[type="range"] { width: 110px; }
     if (spec.type === "minor") return { pc: spec.rootPc, mode: "minor" };
     if (spec.type === "dim") return { pc: wrap12(spec.rootPc + 1), mode: "major" };
     return { pc: spec.rootPc, mode: "major" };
+  }
+
+  function currentLoopBar() {
+    if (!loop.transport || !ChordAudio.ctx) return 1;
+    var s = 60 / loop.bpm / 4;
+    var pos = (ChordAudio.currentTime() - loop.startTime) / s;
+    var step = Math.floor(((pos % 64) + 64) % 64);
+    return Math.floor(step / 16) + 1;
+  }
+
+  function resolveEntry(key, entry) {
+    var mapped = mapQuality(entry.q || "maj");
+    var rootPc;
+    var degree = null;
+    var name;
+    if (entry.alt) {
+      rootPc = wrap12(key.pc + (ALT_PC[entry.alt] || 0));
+      name = Theory.NOTE_NAMES[rootPc];
+    } else {
+      var degrees = Theory.scaleDegrees(key.pc, key.mode);
+      var d = degrees[(entry.deg || 1) - 1];
+      if (!d) return null;
+      rootPc = d.pc;
+      degree = d.degree;
+      name = d.name;
+    }
+    return {
+      rootPc: rootPc,
+      degree: degree,
+      type: mapped.type,
+      extensions: mapped.extensions,
+      qualityLabel: mapped.label,
+      name: name + mapped.label,
+      quality: mapped.type === "dim" ? "dim" : mapped.type === "minor" ? "minor" : mapped.type === "sus4" ? "sus4" : "major",
+      mood: (mapped.type === "minor" || mapped.type === "dim") ? "sad" : "happy"
+    };
+  }
+
+  function phraseBias(items) {
+    var bar = currentLoopBar();
+    lastSuggestBar = bar;
+    if (bar <= 2) return items;
+    var prefer;
+    if (bar === 3) {
+      prefer = function (it) {
+        if (state.style === "jazz") return it.degree === 2 || it.degree === 5;
+        return it.degree === 5 || it.degree === 2;
+      };
+    } else {
+      prefer = function (it) { return it.degree === 1 || it.degree === 5; };
+    }
+    var a = [];
+    var b = [];
+    for (var i = 0; i < items.length; i++) {
+      if (prefer(items[i])) a.push(items[i]);
+      else b.push(items[i]);
+    }
+    if (bar === 3 && state.style === "jazz") {
+      a.sort(function (x, y) { return (x.degree === 2 ? 0 : 1) - (y.degree === 2 ? 0 : 1); });
+    }
+    if (bar === 4) {
+      a.sort(function (x, y) { return (x.degree === 1 ? 0 : 1) - (y.degree === 1 ? 0 : 1); });
+    }
+    return a.concat(b);
   }
 
   function nextChords(spec) {
@@ -2219,46 +2491,38 @@ footer label input[type="range"] { width: 110px; }
         }
       }
     }
-    var table = key.mode === "minor" ? NEXT_MINOR : NEXT_MAJOR;
-    var hops = table[degree] || table[1];
+    var pack = STYLE_TABLES[state.style] || STYLE_TABLES.pop;
+    var modeTables = pack[key.mode] || pack.major;
+    var hops = modeTables[degree] || modeTables[1] || [];
     var out = [];
-    function pushChord(d) {
-      if (!d || out.length >= 6) return;
-      if (d.pc === spec.rootPc && d.type === spec.type) return;
-      for (var n = 0; n < out.length; n++) {
-        if (out[n].degree === d.degree) return;
-      }
-      var delta = wrap12(d.pc - spec.rootPc);
-      var dir = delta <= 6 ? "up" : "down";
-      var minor = d.type === "minor";
-      var dim = d.type === "dim";
-      out.push({
-        name: d.name + (dim ? "dim" : minor ? "m" : ""),
-        quality: dim ? "dim" : minor ? "minor" : "major",
-        dir: dir,
-        mood: (minor || dim) ? "sad" : "happy",
-        rootPc: d.pc,
-        type: d.type,
-        degree: d.degree
-      });
+    var seen = {};
+
+    function pushItem(item) {
+      if (!item || out.length >= 6) return;
+      var sig = item.rootPc + ":" + item.type + ":" + (item.qualityLabel || "");
+      if (seen[sig]) return;
+      if (item.rootPc === spec.rootPc && item.type === spec.type && !item.extensions.min7 && !item.extensions.maj7 && !item.extensions.nine) return;
+      if (item.rootPc === spec.rootPc && item.type === spec.type && item.qualityLabel === "") return;
+      seen[sig] = true;
+      var delta = wrap12(item.rootPc - spec.rootPc);
+      item.dir = delta === 0 ? "same" : (delta <= 6 ? "up" : "down");
+      out.push(item);
     }
+
     for (var h = 0; h < hops.length && out.length < 6; h++) {
-      var d = degrees[hops[h] - 1];
-      if (!d || d.type === "dim") continue;
-      if (d.pc === spec.rootPc && d.type === spec.type) continue;
-      pushChord(d);
+      pushItem(resolveEntry(key, hops[h]));
     }
     for (var deg = 1; deg <= 7 && out.length < 6; deg++) {
       var other = degrees[deg - 1];
       if (!other || other.type === "dim") continue;
-      pushChord(other);
+      pushItem(resolveEntry(key, E(deg, other.type === "minor" ? "min" : other.type === "dim" ? "dim" : "maj")));
     }
     for (var deg2 = 1; deg2 <= 7 && out.length < 6; deg2++) {
       var dimd = degrees[deg2 - 1];
       if (!dimd || dimd.type !== "dim") continue;
-      pushChord(dimd);
+      pushItem(resolveEntry(key, E(deg2, "dim")));
     }
-    return out;
+    return phraseBias(out);
   }
 
   var suggestPreview = null;
@@ -2271,6 +2535,7 @@ footer label input[type="range"] { width: 110px; }
     }
     if (!suggestPreview) return;
     suggestPreview = null;
+    state.forceChord = null;
     ChordAudio.stopChord("suggest");
     updateSymbol();
   }
@@ -2281,14 +2546,17 @@ footer label input[type="range"] { width: 110px; }
       paletteTimer = 0;
     }
     paletteHolds = {};
-    state.extensions.six = false;
-    state.extensions.min7 = false;
-    state.extensions.maj7 = false;
-    state.extensions.nine = false;
-    if (state.keyMode) state.degree = item.degree;
-    else {
-      state.rootPc = item.rootPc;
-      state.type = item.type;
+    state.extensions.six = !!(item.extensions && item.extensions.six);
+    state.extensions.min7 = !!(item.extensions && item.extensions.min7);
+    state.extensions.maj7 = !!(item.extensions && item.extensions.maj7);
+    state.extensions.nine = !!(item.extensions && item.extensions.nine);
+    state.rootPc = item.rootPc;
+    state.type = item.type;
+    if (item.degree) {
+      state.forceChord = null;
+      if (state.keyMode) state.degree = item.degree;
+    } else {
+      state.forceChord = { rootPc: item.rootPc, type: item.type };
     }
     unlock();
     refreshHeld();
@@ -2305,8 +2573,8 @@ footer label input[type="range"] { width: 110px; }
 
   function paintSuggestions(spec) {
     var items = nextChords(spec);
-    var sig = items.map(function (item) {
-      return item.name + item.dir + item.mood + item.degree;
+    var sig = state.style + "@" + currentLoopBar() + "|" + items.map(function (item) {
+      return item.name + item.dir + item.mood + item.degree + (item.qualityLabel || "");
     }).join("|");
     if (sig === suggestSig) return;
     suggestSig = sig;
@@ -2323,7 +2591,7 @@ footer label input[type="range"] { width: 110px; }
       var name = document.createElement("b");
       name.textContent = item.name;
       var meta = document.createElement("span");
-      meta.textContent = item.quality + " · " + item.dir + " · " + item.mood;
+      meta.textContent = (item.qualityLabel || item.quality) + " · " + item.dir + " · " + item.mood;
       b.appendChild(name);
       b.appendChild(meta);
       b.addEventListener("click", function () { applySuggestion(item); });
@@ -2524,6 +2792,16 @@ footer label input[type="range"] { width: 110px; }
       state.keyScale = "minor";
       if (state.keyMode) renderPads();
       refreshHeld();
+    });
+
+    document.getElementById("styles").addEventListener("click", function (e) {
+      var b = e.target.closest("button");
+      if (!b || !b.dataset.style) return;
+      state.style = b.dataset.style;
+      var all = document.querySelectorAll("#styles button");
+      for (var i = 0; i < all.length; i++) all[i].classList.toggle("on", all[i] === b);
+      suggestSig = "";
+      paintSuggestions(computeSpec());
     });
 
     document.getElementById("layouts").addEventListener("click", function (e) {
