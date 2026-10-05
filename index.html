@@ -640,7 +640,7 @@ html body input[type="range"]:focus-visible::-webkit-slider-thumb {
   flex: 0 0 auto;
   width: 84px;
   height: auto;
-  min-height: 64px;
+  min-height: 0;
   align-self: stretch;
   display: flex;
   align-items: center;
@@ -1088,13 +1088,13 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
 }
 @media (max-width: 720px) {
   .next-row { gap: 5px; }
-  #sustainBtn { width: 64px; min-height: 56px; font-size: 13px; border-radius: 12px; }
+  #sustainBtn { width: 64px; min-height: 0; font-size: 13px; border-radius: 12px; }
 }
 /* Very narrow portrait: no room beside the grid, so the pedal drops below it. */
 @media (max-width: 560px) {
   .next-row { flex-wrap: wrap; }
   .next-row > .next-wrap { flex: 1 1 100%; }
-  #sustainBtn { width: 100%; min-height: 48px; }
+  #sustainBtn { width: 100%; min-height: 0; height: calc(var(--chip) * 2 + 4px); }
 }
 @media (orientation: landscape) and (max-height: 520px) {
   .style-row, #styles { flex-wrap: nowrap; overflow-x: auto; }
@@ -2420,15 +2420,20 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     btn.addEventListener("pointerup", onSustainUp);
     btn.addEventListener("pointercancel", onSustainUp);
     btn.addEventListener("lostpointercapture", onSustainUp);
-    btn.addEventListener("pointerleave", onSustainUp);
+    // Do NOT listen for pointerleave: with setPointerCapture many browsers still
+    // fire leave when the pointer exits the hit box, which dumped the pedal
+    // before a key-up could pool (mouse drag / slight finger drift).
     // Keep iOS from scrolling / selecting / long-press calling out the pedal.
     btn.addEventListener("touchstart", function (e) { e.preventDefault(); }, { passive: false });
-    btn.addEventListener("touchend", function (e) {
-      if (!e.targetTouches || e.targetTouches.length === 0) setSustain(false);
-    });
-    btn.addEventListener("touchcancel", function (e) {
-      if (!e.targetTouches || e.targetTouches.length === 0) setSustain(false);
-    });
+    // Touch fallback only when no pointer is tracking the pedal (multi-touch
+    // races: a pad finger ending must not clear sustainPointers / dump pool).
+    function touchReleasePedal(e) {
+      if (e.targetTouches && e.targetTouches.length > 0) return;
+      if (Object.keys(sustainPointers).length) return; // pointer path owns it
+      if (sustainDown) setSustain(false);
+    }
+    btn.addEventListener("touchend", touchReleasePedal);
+    btn.addEventListener("touchcancel", touchReleasePedal);
     btn.addEventListener("contextmenu", function (e) { e.preventDefault(); });
     btn.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); });
     // Keyboard: hold Space / Enter on the focused pedal.
@@ -2456,6 +2461,40 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     b.addEventListener("pointermove", onPadMove);
     b.addEventListener("pointerup", onPadUp);
     b.addEventListener("pointercancel", onPadUp);
+  }
+
+  // Map sounding suggestion midis onto visible pads: exact midi when the key
+  // exists, otherwise the nearest same pitch-class pad. Style voicings
+  // (drop/low/bright) and stale rootMidi often place tones outside the
+  // on-screen keyboard; without this fold, Next highlight misses notes.
+  function highlightMidisFromSpec(specMidis) {
+    var buttons = padsEl.querySelectorAll(".pad");
+    var padMidis = [];
+    for (var i = 0; i < buttons.length; i++) {
+      if (buttons[i].classList.contains("out")) continue;
+      var pm = Number(buttons[i].dataset.midi);
+      if (isFinite(pm)) padMidis.push(pm);
+    }
+    var out = {};
+    if (!specMidis || !specMidis.length || !padMidis.length) return out;
+    for (var s = 0; s < specMidis.length; s++) {
+      var m = specMidis[s];
+      if (!isFinite(m)) continue;
+      var best = null;
+      var bestDist = Infinity;
+      for (var p = 0; p < padMidis.length; p++) {
+        var pm2 = padMidis[p];
+        if ((((pm2 - m) % 12) + 12) % 12 !== 0) continue;
+        var d = Math.abs(pm2 - m);
+        if (d < bestDist) {
+          bestDist = d;
+          best = pm2;
+          if (d === 0) break;
+        }
+      }
+      if (best != null) out[best] = true;
+    }
+    return out;
   }
 
   function paintPads() {
@@ -3339,9 +3378,10 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     unlock();
     refreshHeld();
     var spec = computeSpec();
-    var midis = {};
-    for (var i = 0; i < spec.midis.length; i++) midis[spec.midis[i]] = true;
-    suggestPreview = { type: spec.type, midis: midis };
+    // Highlight uses exact pad midis when present; otherwise nearest same-pc
+    // pad so drop/low/bright (and off-keyboard registers) still light the
+    // notes the suggestion is sounding. Audio keeps the true voiced midis.
+    suggestPreview = { type: spec.type, midis: highlightMidisFromSpec(spec.midis) };
     // Finger-held pads already morphed to this chord above; don't stack a
     // duplicate audition on top (doubles level, can clip). Sustain-pool
     // voices don't count as holding, so Next still auditions over the pedal.
