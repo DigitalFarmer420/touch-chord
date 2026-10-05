@@ -299,6 +299,9 @@ html.tc-boot #app { visibility: hidden; }
   flex-direction: column;
   gap: 10px;
   overflow: hidden;
+  /* Shared by Next chips and bottom Sustain height. */
+  --chip: 40px;
+  --next-vgap: 4px;
 }
 
 .controls {
@@ -623,19 +626,27 @@ html body input[type="range"]:focus-visible::-webkit-slider-thumb {
   border-color: #557866;
   color: #0f1f18;
 }
-/* Next grid + Sustain pedal (Piano only) to its right. */
+/* Next suggestions grid (chips inherit --chip / --next-vgap from .stage). */
 .next-row {
   display: flex;
   align-items: stretch;
   gap: 8px;
   flex: 0 0 auto;
   min-width: 0;
-  --chip: 40px;
-  --next-vgap: 4px;
 }
 .next-row > .next-wrap {
   flex: 1 1 0;
   min-width: 0;
+}
+
+/* Sustain pedal docked under the keyboard (Piano only). */
+.sustain-dock {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-width: 0;
+  width: 100%;
 }
 #sustainBtn {
   flex: 0 0 auto;
@@ -643,7 +654,7 @@ html body input[type="range"]:focus-visible::-webkit-slider-thumb {
   /* Two Next chord-button rows + the gap between them (not axis headers). */
   height: calc(var(--chip) * 2 + var(--next-vgap));
   min-height: 0;
-  align-self: center;
+  align-self: stretch;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -878,7 +889,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   .now-card { --now-w: 240px; --sym: 60px; padding: 12px 16px; }
   #tones { font-size: 15px; }
   .suggest-card { padding: 10px 14px; }
-  .next-row { --chip: 48px; --next-vgap: 6px; }
+  .stage { --chip: 48px; --next-vgap: 6px; }
   .next-wrap {
     grid-template-columns: max-content repeat(4, minmax(0, 1fr));
     gap: var(--next-vgap) 8px;
@@ -918,7 +929,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   .now-card { --now-w: 112px; --sym: 34px; padding: 6px 8px; }
   .now-card .card-label { font-size: 9px; }
   #tones { font-size: 11px; }
-  .next-row { --chip: 34px; --next-vgap: 3px; }
+  .stage { --chip: 34px; --next-vgap: 3px; }
   .next-wrap {
     grid-template-columns: max-content repeat(4, minmax(0, 1fr));
     gap: var(--next-vgap) 3px;
@@ -979,7 +990,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
 /* iPad Safari with toolbars (~690px tall): trim chrome before the keyboard. */
 @media (min-width: 900px) and (max-height: 720px) {
   .vticks { display: none; }
-  .next-row { --chip: 42px; }
+  .stage { --chip: 42px; }
   .kb.piano, .kb.fourths { min-height: 96px; }
 }
 @media (min-width: 900px) {
@@ -1010,7 +1021,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   .now-card .card-label { font-size: 9px; }
   #tones { font-size: 11px; }
   /* Very short landscape: one scrollable row of Style pills on top, Next
-     grid (+ Sustain) full-width below so chips keep their width. */
+     grid full-width below so chips keep their width. */
   .suggest-card { flex-direction: column; align-items: stretch; gap: 3px; padding: 4px 8px; }
   .style-row .lbl { display: none; }
   .style-row, #styles {
@@ -1023,7 +1034,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   }
   .style-row::-webkit-scrollbar { display: none; }
   .style-row button { flex: 1 0 auto; height: 22px; min-height: 22px; padding: 0 7px; font-size: 11px; }
-  .next-row { --chip: 28px; --next-vgap: 3px; }
+  .stage { --chip: 28px; --next-vgap: 3px; }
   .next-wrap {
     flex: 1 1 0;
     grid-template-columns: max-content repeat(4, minmax(0, 1fr));
@@ -1089,18 +1100,15 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   #sustainBtn { width: 104px; font-size: 17px; }
 }
 @media (max-width: 720px) {
-  .next-row { gap: 5px; }
   #sustainBtn { width: 64px; min-height: 0; font-size: 13px; border-radius: 12px; }
 }
-/* Very narrow portrait: no room beside the grid, so the pedal drops below it. */
+/* Very narrow portrait: full-width bottom pedal for easy thumb reach. */
 @media (max-width: 560px) {
-  .next-row { flex-wrap: wrap; }
-  .next-row > .next-wrap { flex: 1 1 100%; }
   #sustainBtn { width: 100%; min-height: 0; height: calc(var(--chip) * 2 + var(--next-vgap)); }
 }
 @media (orientation: landscape) and (max-height: 520px) {
   .style-row, #styles { flex-wrap: nowrap; overflow-x: auto; }
-  .next-row { flex: 0 0 auto; gap: 5px; }
+  .next-row { flex: 0 0 auto; }
   #sustainBtn { width: 62px; min-height: 0; font-size: 12px; border-radius: 10px; }
 }
 </style>
@@ -1159,7 +1167,6 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     </div>
     <div class="next-row">
       <div id="suggest" class="next-wrap" aria-label="Suggested next chords"></div>
-      <button type="button" id="sustainBtn" aria-pressed="false" aria-disabled="true" title="Sustain (Piano layout): hold to let tapped keys ring; release to damp">Sustain</button>
     </div>
   </div>
   </div>
@@ -1218,6 +1225,10 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       <button type="button" data-layout="fourths">Fourths</button>
     </div>
     <div id="pads" class="kb piano" aria-label="Chord keyboard"></div>
+  </div>
+
+  <div class="sustain-dock">
+    <button type="button" id="sustainBtn" aria-pressed="false" aria-disabled="true" title="Sustain (Piano layout): hold to let tapped keys ring; release to damp">Sustain</button>
   </div>
 
 </div>
