@@ -17,6 +17,29 @@ setTimeout(function () { document.documentElement.classList.remove("tc-boot"); }
 /* iOS 17+/Safari 17+: "playback" audio session so Web Audio ignores the ring/silent switch.
    Set before any AudioContext exists; re-applied in unlock(). */
 try { if ("audioSession" in navigator) navigator.audioSession.type = "playback"; } catch (err) { /* ignore */ }
+/* Size class for the v20 responsive layout. Runs before first paint and again on resize.
+   compact = w < 600 or (landscape and h < 500); regular = w >= 768 and h >= 600; else medium.
+   Layout: regular -> pad-port / pad-land; otherwise phone-port / phone-land. */
+window.tcApplySizeClass = function () {
+  var de = document.documentElement;
+  var w = window.innerWidth || de.clientWidth;
+  var h = window.innerHeight || de.clientHeight;
+  var land = w > h;
+  var sz = (w < 600 || (land && h < 500)) ? "compact" : (w >= 768 && h >= 600 ? "regular" : "medium");
+  var lay = sz === "regular" ? (land ? "pad-land" : "pad-port") : (land ? "phone-land" : "phone-port");
+  var want = { "sz-compact": sz === "compact", "sz-medium": sz === "medium", "sz-regular": sz === "regular",
+    "lay-phone-port": lay === "phone-port", "lay-phone-land": lay === "phone-land",
+    "lay-pad-port": lay === "pad-port", "lay-pad-land": lay === "pad-land" };
+  for (var k in want) { if (de.classList.contains(k) !== want[k]) de.classList.toggle(k, want[k]); }
+  return { size: sz, layout: lay };
+};
+window.tcApplySizeClass();
+/* Simple mode before first paint (the app re-applies it from saved settings). */
+try {
+  var tcRaw = window.localStorage && window.localStorage.getItem("touchChord.settings.v1");
+  var tcEnv = tcRaw ? JSON.parse(tcRaw) : null;
+  if (tcEnv && tcEnv.settings && tcEnv.settings.simple === true) document.documentElement.classList.add("simple");
+} catch (err) { /* ignore */ }
 </script>
 <style>
 :root {
@@ -33,7 +56,8 @@ try { if ("audioSession" in navigator) navigator.audioSession.type = "playback";
   --lilac: #d2a9cc;
   --moss: #b7c98a;
   --danger: #e07a62;
-  --ctrl: 40px;
+  --ctrl: 38px;
+  --card: rgba(28, 25, 20, 0.55);
 }
 
 * { box-sizing: border-box; }
@@ -79,30 +103,185 @@ button.on, button[aria-pressed="true"].toggle.on {
   border-color: transparent;
 }
 
+html.tc-boot #app { visibility: hidden; }
+
+/* ===== App grid (v20) =====================================================
+   One DOM, four arrangements chosen by size class (set on <html> by the
+   head script and on resize):
+     lay-phone-port  compact/medium portrait   keyboard-first, tabbed controls strip
+     lay-phone-land  compact/medium landscape  chord types left, controls drawer
+     lay-pad-port    regular portrait          persistent controls panel, 1x8 types
+     lay-pad-land    regular landscape         two-hand: left rail + right stage
+   compact = width < 600 or (landscape and height < 500)
+   regular = width >= 768 and height >= 600; anything else = medium. */
 #app {
+  --gap: 8px;
+  --chip: 34px;
+  --next-vgap: 4px;
+  --sym: 34px;
+  --now-w: 104px;
   height: 100vh;
   height: 100dvh;
-  min-height: 0;
   max-height: 100dvh;
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  gap: 12px;
-  padding: calc(12px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
-  overflow: visible;
+  display: grid;
+  gap: var(--gap);
+  grid-template-columns: minmax(0, 1fr);
+  padding: calc(8px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(10px + env(safe-area-inset-left));
+  overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
 }
+#app > * { min-width: 0; min-height: 0; }
 
-/* Slim brand bar; the current chord lives in the Now card beside Suggestions. */
+.topbar { grid-area: top; }
+.now-card { grid-area: now; }
+#styles { grid-area: sty; }
+.next-card { grid-area: nxt; }
+#sustainBtn { grid-area: sus; }
+#chords { grid-area: pal; }
+#ctl { grid-area: ctl; }
+.kb-wrap { grid-area: kb; }
+
+/* --- Phone portrait (keyboard-first) --- */
+html.lay-phone-port #app {
+  --sus-w: 84px;
+  --pal-h: 92px;
+  grid-template-columns: var(--now-w) minmax(0, 1fr) var(--sus-w);
+  grid-template-rows: auto auto auto auto var(--pal-h) minmax(0, 1fr);
+  grid-template-areas:
+    "top top top"
+    "sty sty sty"
+    "now nxt nxt"
+    "ctl ctl ctl"
+    "pal pal sus"
+    "kb  kb  kb";
+}
+html.lay-phone-port.simple #app {
+  --chip: 42px;
+  --sym: 44px;
+  --now-w: 118px;
+  --pal-h: 112px;
+  --sus-w: 92px;
+  grid-template-rows: auto auto auto var(--pal-h) minmax(0, 1fr);
+  grid-template-areas:
+    "top top top"
+    "sty sty sty"
+    "now nxt nxt"
+    "pal pal sus"
+    "kb  kb  kb";
+}
+html.lay-phone-port.sz-medium #app { --now-w: 150px; --chip: 42px; --sym: 48px; --pal-h: 108px; --sus-w: 110px; --gap: 10px; }
+@media (max-height: 700px) {
+  html.lay-phone-port #app { --gap: 6px; --chip: 30px; --pal-h: 84px; }
+  html.lay-phone-port.simple #app { --chip: 38px; --pal-h: 100px; }
+}
+
+/* --- Phone landscape (chord types left, controls in a drawer) --- */
+html.lay-phone-land #app {
+  --gap: 6px;
+  --chip: 30px;
+  --next-vgap: 3px;
+  --sym: 30px;
+  --now-w: 112px;
+  --pal-w: 150px;
+  --sus-h: 62px;
+  --ctrl: 32px;
+  padding: calc(6px + env(safe-area-inset-top)) calc(8px + env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left));
+  grid-template-columns: var(--pal-w) var(--now-w) minmax(0, 1fr) auto;
+  grid-template-rows: auto auto minmax(0, 1fr) var(--sus-h);
+  grid-template-areas:
+    "pal sty sty top"
+    "pal now nxt nxt"
+    "pal kb  kb  kb"
+    "sus kb  kb  kb";
+}
+html.lay-phone-land.simple #app { --chip: 36px; --sym: 36px; --now-w: 128px; --sus-h: 72px; }
+html.lay-phone-land.sz-medium #app { --chip: 38px; --sym: 40px; --now-w: 150px; --pal-w: 190px; --sus-h: 80px; --ctrl: 36px; --gap: 8px; }
+html.lay-phone-land .brand { display: none; }
+
+/* --- iPad portrait --- */
+html.lay-pad-port #app {
+  --gap: 12px;
+  --chip: 50px;
+  --next-vgap: 6px;
+  --sym: 84px;
+  --now-w: 240px;
+  --sus-w: 132px;
+  --pal-h: 72px;
+  --ctrl: 42px;
+  padding: calc(14px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
+  grid-template-columns: var(--now-w) minmax(0, 1fr) var(--sus-w);
+  grid-template-rows: auto auto auto auto var(--pal-h) minmax(0, 1fr);
+  grid-template-areas:
+    "top top top"
+    "now sty sty"
+    "now nxt nxt"
+    "ctl ctl ctl"
+    "pal pal sus"
+    "kb  kb  kb";
+}
+html.lay-pad-port.simple #app {
+  --chip: 60px;
+  --sym: 100px;
+  --pal-h: 88px;
+  grid-template-rows: auto auto auto var(--pal-h) minmax(0, 1fr);
+  grid-template-areas:
+    "top top top"
+    "now sty sty"
+    "now nxt nxt"
+    "pal pal sus"
+    "kb  kb  kb";
+}
+
+/* --- iPad landscape (two-hand) --- */
+html.lay-pad-land #app {
+  --gap: 12px;
+  --chip: 48px;
+  --next-vgap: 6px;
+  --sym: 76px;
+  --now-w: auto;
+  --rail-w: clamp(220px, 23vw, 290px);
+  --sus-h: 132px;
+  --ctrl: 40px;
+  padding: calc(14px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
+  grid-template-columns: var(--rail-w) minmax(0, 1fr);
+  grid-template-rows: auto auto auto auto minmax(0, 1fr) var(--sus-h);
+  grid-template-areas:
+    "top top"
+    "now sty"
+    "now nxt"
+    "pal ctl"
+    "pal kb"
+    "sus kb";
+}
+html.lay-pad-land.simple #app {
+  --chip: 58px;
+  --sym: 96px;
+  --sus-h: 150px;
+  grid-template-rows: auto auto auto minmax(0, 1fr) var(--sus-h);
+  grid-template-areas:
+    "top top"
+    "now sty"
+    "now nxt"
+    "pal kb"
+    "sus kb";
+}
+@media (max-height: 720px) {
+  html.lay-pad-land #app { --chip: 42px; --gap: 10px; --sus-h: 110px; --sym: 64px; }
+  html.lay-pad-land.simple #app { --chip: 50px; --sus-h: 130px; }
+}
+
+/* ===== Top bar ===== */
 .topbar {
   display: flex;
   align-items: center;
-  gap: 12px 16px;
-  min-height: 0;
-  flex: 0 0 auto;
+  gap: 8px;
+  min-height: 30px;
+  position: relative;
 }
+.topbar .spacer { flex: 1 1 auto; }
+html.lay-phone-land .topbar .spacer { display: none; }
 
 .brand {
   font-weight: 700;
@@ -110,38 +289,72 @@ button.on, button[aria-pressed="true"].toggle.on {
   text-transform: uppercase;
   font-size: 12px;
   color: var(--sea);
+  white-space: nowrap;
 }
 
-html.tc-boot #app { visibility: hidden; }
-
-/* Configuration menu (top-right of the brand bar). */
-.topbar { position: relative; }
-/* Wrapper is only a text line tall so the button never grows the bar
-   (keyboard keeps its height); the 24px button overflows it visually. */
-.config { position: relative; margin-left: auto; flex: 0 0 auto; width: 74px; height: 14px; align-self: center; }
-.config-btn {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 24px;
-  min-height: 24px;
+.top-btn {
+  height: 28px;
+  min-height: 28px;
   padding: 0 10px;
-  border-radius: 8px;
-  font-size: 11px;
+  border-radius: 999px;
+  font-size: 12px;
   font-weight: 600;
+  white-space: nowrap;
+  position: relative;
+}
+.top-btn::after { content: ""; position: absolute; inset: -8px -4px; }
+
+#ctlToggle { display: none; }
+html.lay-phone-land #ctlToggle { display: inline-flex; align-items: center; gap: 6px; }
+html.drawer-open #ctlToggle { border-color: var(--copper); color: var(--copper); }
+
+/* Simple mode switch (pill + knob). */
+.simple-sw {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 4px 0 11px;
+  color: var(--muted);
+}
+.simple-sw .knob {
+  position: relative;
+  width: 32px;
+  height: 18px;
+  border-radius: 9px;
+  background: #3a332b;
+  flex: 0 0 auto;
+  transition: background 120ms linear;
+}
+.simple-sw .knob::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #cfc4b3;
+  transition: left 120ms linear;
+}
+.simple-sw[aria-checked="true"] { color: var(--copper); border-color: var(--copper); }
+.simple-sw[aria-checked="true"] .knob { background: var(--copper); }
+.simple-sw[aria-checked="true"] .knob::after { left: 16px; background: #fff6e8; }
+
+/* Configuration menu. */
+.config { position: relative; flex: 0 0 auto; }
+.config-btn {
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  font-size: 11px;
   color: var(--muted);
   background: transparent;
 }
 .config-btn[aria-expanded="true"] { color: var(--ink); border-color: var(--copper); }
-.config-btn::after { content: ""; position: absolute; inset: -8px -6px; }
 .config-menu {
   position: absolute;
-  top: calc(100% + 12px);
+  top: calc(100% + 10px);
   right: 0;
-  z-index: 50;
+  z-index: 90;
   min-width: 170px;
   padding: 6px;
   border: 1px solid var(--line);
@@ -169,7 +382,7 @@ html.tc-boot #app { visibility: hidden; }
   left: 50%;
   top: calc(12px + env(safe-area-inset-top));
   transform: translate(-50%, -8px);
-  z-index: 60;
+  z-index: 95;
   padding: 8px 14px;
   border-radius: 10px;
   background: var(--copper);
@@ -182,40 +395,28 @@ html.tc-boot #app { visibility: hidden; }
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-/* Hero row: Now (left) beside Suggestions = Style + Next (right). */
-.hero {
-  display: flex;
-  align-items: stretch;
-  gap: 10px;
-  flex: 0 0 auto;
-  min-width: 0;
-  min-height: 0;
-}
-
+/* ===== Now card ===== */
 .now-card {
-  --now-w: 196px;
-  --sym: 48px;
-  flex: 0 0 var(--now-w);
-  width: var(--now-w);
-  min-width: 0;
   border: 1px solid var(--line);
-  background: rgba(28, 25, 20, 0.55);
+  background: var(--card);
   border-radius: 14px;
-  padding: 8px 12px;
+  padding: 6px 10px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  gap: 4px;
+  gap: 3px;
   overflow: hidden;
 }
-
 .now-card .card-label {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 9px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
+html.lay-pad-port .now-card, html.lay-pad-land .now-card { padding: 12px 18px; gap: 6px; }
+html.lay-pad-port .now-card .card-label, html.lay-pad-land .now-card .card-label { font-size: 11px; }
+html.lay-phone-land .now-card .card-label { display: none; }
 
 #symbol {
   display: inline-block;
@@ -227,335 +428,81 @@ html.tc-boot #app { visibility: hidden; }
   letter-spacing: -0.02em;
   white-space: nowrap;
 }
-
 #symbol.sounding { color: var(--copper); }
 
 #tones {
   max-width: 100%;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 11px;
   letter-spacing: 0.06em;
   line-height: 1.2;
   white-space: normal;
   overflow-wrap: anywhere;
 }
+html.lay-pad-port #tones, html.lay-pad-land #tones { font-size: 16px; letter-spacing: 0.12em; }
 
-
-.seg {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 4px;
-}
-
-.seg button { min-width: 44px; }
-
-#bass.on { background: var(--sea); color: #10211c; border-color: transparent; }
-
-
-#chords {
-  flex: 0 0 228px;
-  align-self: stretch;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-top: 4px;
-  touch-action: none;
-}
-
-#chords button { touch-action: none; }
-
-#chords .dock-label {
-  color: var(--muted);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-#palette {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: repeat(4, minmax(0, 1fr));
-  grid-auto-flow: column;
-  gap: 6px;
-  flex: 1 1 auto;
-  min-height: 0;
-}
-
-#types, #exts { display: contents; }
-
-#types button, #exts button {
-  width: 100%;
-  min-width: 0;
-  height: auto;
-  min-height: 40px;
-  text-align: center;
-  padding: 0 4px;
-  font-size: 13px;
-}
-
-.stage {
-  flex: 1 1 auto;
-  min-width: 0;
-  min-height: 0;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  overflow: hidden;
-}
-
-.controls {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  gap: 8px 12px;
-  min-width: 0;
-}
-.soundbox {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-left: auto;
-  flex: 0 0 auto;
-}
-.keybox { flex: 0 0 auto; }
-
-.keybox {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-#keyReadout {
-  color: var(--muted);
-  font-size: 13px;
-}
-
-select {
-  background: var(--bg-2);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  height: var(--ctrl);
-  min-height: var(--ctrl);
-  padding: 0 8px;
-  touch-action: manipulation;
-  line-height: 1;
-}
-
-body.is-key #types button {
-  opacity: 0.4;
-  pointer-events: none;
-}
-
-/* Yoga Deep stillness: Dim/Sus4 unavailable (disabled, no pointer holds). */
-#types button:disabled,
-#types button.gated {
-  opacity: 0.35;
-  pointer-events: none;
-  cursor: default;
-}
-
-#exts button.dormant { opacity: 0.45; }
-
-.pads {
-  display: grid;
-  gap: 8px;
-  flex: 0 0 auto;
-  min-height: 104px;
-  touch-action: none;
-}
-
-.pads.chromatic { grid-template-columns: repeat(12, minmax(0, 1fr)); }
-.pads.diatonic { grid-template-columns: repeat(7, minmax(0, 1fr)); }
-
-.pad {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 104px;
-  min-height: 104px;
-  border-radius: 14px;
-  background: var(--pad);
-  border: 1px solid #423a30;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 4px;
-  padding: 10px 4px 12px;
-  font-size: clamp(15px, 1.5vw, 20px);
-  line-height: 1;
-}
-
-.pad .roman {
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-}
-
-.pad.major { box-shadow: inset 0 -4px 0 var(--copper); }
-.pad.minor { box-shadow: inset 0 -4px 0 var(--sea); }
-.pad.dim { box-shadow: inset 0 -4px 0 var(--lilac); }
-.pad.sus4 { box-shadow: inset 0 -4px 0 var(--moss); }
-
-.pad.selected { outline: 2px solid var(--copper); outline-offset: -2px; }
-
-.pad.held {
-  background: var(--copper);
-  color: var(--copper-ink);
-  border-color: transparent;
-  box-shadow: none;
-}
-
-.pad.held .roman { color: rgba(42, 28, 12, 0.7); }
-
-.voicing {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  flex: 0 0 auto;
-  width: 100%;
-  max-width: none;
-  min-width: 0;
-  align-self: stretch;
-}
-.vhead {
-  font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 0;
-}
-
-.vhead b { color: var(--ink); font-weight: 650; }
-
-.vticks {
-  display: flex;
-  justify-content: space-between;
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-  text-transform: uppercase;
-}
-
-.vticks span.on { color: var(--copper); }
-
-/* Copper sliders: forced track + thumb on every range input (all engines). */
-html body input[type="range"],
-html body .voicing input[type="range"],
-html body footer input[type="range"],
-html body footer label input[type="range"] {
-  -webkit-appearance: none !important;
-  -moz-appearance: none !important;
-  appearance: none !important;
-  height: 28px;
-  background: transparent !important;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  touch-action: manipulation;
-  accent-color: #e2a15a !important;
-  accent-color: var(--copper, #e2a15a) !important;
-  color: var(--copper, #e2a15a);
-  outline: none;
-}
-html body .voicing input[type="range"] { width: 100%; }
-
-html body input[type="range"]::-webkit-slider-runnable-track {
-  -webkit-appearance: none !important;
-  height: 6px;
-  background: linear-gradient(90deg, var(--copper, #e2a15a), #c47a3a) !important;
-  background-color: var(--copper, #e2a15a) !important;
-  border: 0 !important;
-  border-radius: 999px;
-}
-
-html body input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none !important;
-  appearance: none !important;
-  width: 18px;
-  height: 18px;
-  margin-top: -6px;
-  border-radius: 50%;
-  background: var(--copper, #e2a15a) !important;
-  background-color: var(--copper, #e2a15a) !important;
-  border: 2px solid var(--copper-ink, #2a1c0c) !important;
-  box-shadow: 0 0 0 1px rgba(226, 161, 90, 0.35) !important;
-}
-
-html body input[type="range"]::-moz-range-track {
-  height: 6px;
-  background: linear-gradient(90deg, var(--copper, #e2a15a), #c47a3a) !important;
-  background-color: var(--copper, #e2a15a) !important;
-  border-radius: 999px;
-  border: 0 !important;
-}
-
-html body input[type="range"]::-moz-range-progress {
-  height: 6px;
-  background: var(--copper, #e2a15a) !important;
-  border-radius: 999px;
-}
-
-html body input[type="range"]::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--copper, #e2a15a) !important;
-  border: 2px solid var(--copper-ink, #2a1c0c) !important;
-  box-shadow: 0 0 0 1px rgba(226, 161, 90, 0.35) !important;
-}
-
-html body input[type="range"]:focus-visible::-webkit-slider-thumb {
-  box-shadow: 0 0 0 3px rgba(226, 161, 90, 0.45) !important;
-}
-
-.suggest-card {
-  border: 1px solid var(--line);
-  background: rgba(28, 25, 20, 0.55);
-  border-radius: 14px;
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1 1 auto;
-  min-width: 0;
-}
+/* ===== Style row ===== */
 .style-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  min-width: 0;
+  gap: 5px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
 }
+.style-row::-webkit-scrollbar { display: none; }
 .style-row .lbl {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   flex: 0 0 auto;
+  margin-right: 2px;
 }
 .style-row button {
-  height: var(--ctrl);
-  min-height: var(--ctrl);
-  padding: 0 12px;
+  flex: 0 0 auto;
+  height: 30px;
+  min-height: 30px;
+  padding: 0 11px;
   border-radius: 999px;
   font-size: 13px;
+  white-space: nowrap;
 }
-#styles {
-  flex-wrap: wrap;
+html.lay-phone-port .style-row .lbl, html.lay-phone-land .style-row .lbl { display: none; }
+html.lay-phone-land .style-row { align-self: center; }
+html.lay-phone-land .style-row button { height: 26px; min-height: 26px; padding: 0 9px; font-size: 12px; }
+html.lay-phone-port.simple .style-row button { height: 34px; min-height: 34px; padding: 0 13px; font-size: 14px; }
+html.lay-pad-port .style-row { flex-wrap: wrap; overflow: visible; touch-action: manipulation; }
+html.lay-pad-port .style-row button, html.lay-pad-land .style-row button { height: 36px; min-height: 36px; padding: 0 14px; font-size: 14px; }
+html.lay-pad-land .style-row button { flex: 1 0 auto; }
+
+/* ===== Next 4x2 ===== */
+.next-card {
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 14px;
+  padding: 5px 6px 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
-/* Next grid: 4x2. Columns Bright / Dark / Tension / Color, rows up / down. */
+html.lay-pad-port .next-card, html.lay-pad-land .next-card { padding: 8px 12px 10px; }
 .next-wrap {
   display: grid;
   grid-template-columns: max-content repeat(4, minmax(0, 1fr));
   grid-template-rows: auto repeat(2, var(--chip));
-  gap: var(--next-vgap) 5px;
+  gap: var(--next-vgap) 4px;
   align-items: stretch;
-  flex: 0 0 auto;
   min-width: 0;
 }
+html.lay-pad-port .next-wrap, html.lay-pad-land .next-wrap { gap: var(--next-vgap) 8px; }
 .next-wrap .axis {
   color: var(--muted);
-  font-size: 10px;
-  letter-spacing: 0.06em;
+  font-size: 9px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   text-align: center;
   align-self: end;
@@ -564,13 +511,11 @@ html body input[type="range"]:focus-visible::-webkit-slider-thumb {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-/* "Suggestions" label in the header corner, same row as the lane axes. */
 .next-wrap .corner {
   color: var(--muted);
-  font-size: 10px;
-  letter-spacing: 0.06em;
+  font-size: 9px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  text-align: left;
   justify-self: start;
   align-self: end;
   padding-bottom: 1px;
@@ -578,12 +523,15 @@ html body input[type="range"]:focus-visible::-webkit-slider-thumb {
   overflow: visible;
   min-width: 0;
 }
+/* Phones: the corner word steals chip width; the arrows say enough. */
+html.lay-phone-port .next-wrap .corner, html.lay-phone-land .next-wrap .corner { font-size: 0; }
 .next-wrap .rowlbl {
   color: var(--muted);
-  font-size: 15px;
+  font-size: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0 2px;
 }
 .next-wrap button {
   height: auto;
@@ -592,7 +540,7 @@ html body input[type="range"]:focus-visible::-webkit-slider-thumb {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   border-radius: 10px;
   padding: 0 2px;
@@ -601,56 +549,28 @@ html body input[type="range"]:focus-visible::-webkit-slider-thumb {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+html.lay-phone-port.simple .next-wrap button { font-size: 16px; }
+html.lay-pad-port .next-wrap .axis, html.lay-pad-land .next-wrap .axis,
+html.lay-pad-port .next-wrap .corner, html.lay-pad-land .next-wrap .corner { font-size: 11px; letter-spacing: 0.06em; }
+html.lay-pad-port .next-wrap .rowlbl, html.lay-pad-land .next-wrap .rowlbl { font-size: 18px; }
+html.lay-pad-port .next-wrap button, html.lay-pad-land .next-wrap button { font-size: 19px; border-radius: 12px; }
+html.simple.lay-pad-port .next-wrap button, html.simple.lay-pad-land .next-wrap button { font-size: 22px; }
 .next-wrap .empty {
   border: 1px dashed rgba(58, 51, 43, 0.7);
   border-radius: 10px;
   pointer-events: none;
 }
-.next-wrap button.major {
-  background: #e2b15a;
-  border-color: #c4923e;
-  color: #2a1c0c;
-}
-.next-wrap button.minor {
-  background: #7d6ea8;
-  border-color: #6a5c96;
-  color: #f7f3ff;
-}
-.next-wrap button.tension {
-  background: #2a1f45;
-  border-color: #4a3a72;
-  color: #e8dff8;
-}
-.next-wrap button.color {
-  background: #6a8f7e;
-  border-color: #557866;
-  color: #0f1f18;
-}
-/* Next grid + Sustain pedal to its right. */
-.next-row {
-  display: flex;
-  align-items: stretch;
-  gap: 8px;
-  flex: 0 0 auto;
-  min-width: 0;
-  --chip: 40px;
-  --next-vgap: 4px;
-}
-.next-row > .next-wrap {
-  flex: 1 1 0;
-  min-width: 0;
-}
+.next-wrap button.major { background: #e2b15a; border-color: #c4923e; color: #2a1c0c; }
+.next-wrap button.minor { background: #7d6ea8; border-color: #6a5c96; color: #f7f3ff; }
+.next-wrap button.tension { background: #2a1f45; border-color: #4a3a72; color: #e8dff8; }
+.next-wrap button.color { background: #6a8f7e; border-color: #557866; color: #0f1f18; }
+
+/* ===== Sustain ===== */
 #sustainBtn {
-  flex: 0 0 auto;
-  width: 84px;
-  /* Two Next chord-button rows + the gap between them (not axis headers). */
-  height: calc(var(--chip) * 2 + var(--next-vgap));
+  width: auto;
+  height: auto;
   min-height: 0;
-  /* Bottom-align with the Next grid: the axis header is only the grid's top
-     (auto) row, so the two chord rows end at .next-wrap's bottom edge. With
-     the exact two-row height above, top and bottom both line up with the
-     chord buttons (never centered, never stretched into the axis headers). */
-  align-self: flex-end;
+  align-self: stretch;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -667,6 +587,9 @@ html body input[type="range"]:focus-visible::-webkit-slider-thumb {
   -webkit-tap-highlight-color: transparent;
   transition: background 60ms linear, transform 60ms linear;
 }
+html.lay-pad-port #sustainBtn, html.lay-pad-land #sustainBtn { font-size: 19px; }
+html.simple #sustainBtn { font-size: 17px; }
+html.simple.lay-pad-port #sustainBtn, html.simple.lay-pad-land #sustainBtn { font-size: 22px; }
 #sustainBtn.on {
   background: var(--sea);
   color: #10211c;
@@ -674,25 +597,311 @@ html body input[type="range"]:focus-visible::-webkit-slider-thumb {
   box-shadow: inset 0 0 0 3px var(--sea), inset 0 0 0 5px #10211c;
   transform: translateY(1px);
 }
-#sustainBtn[aria-disabled="true"] {
-  opacity: 0.35;
-  cursor: default;
+#sustainBtn[aria-disabled="true"] { opacity: 0.35; cursor: default; }
+
+/* ===== Chord types / extensions palette ===== */
+#bass.on { background: var(--sea); color: #10211c; border-color: transparent; }
+
+#chords {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  touch-action: none;
+}
+#chords button { touch-action: none; }
+#chords .dock-label {
+  display: none;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+html.lay-pad-land #chords .dock-label { display: block; }
+
+#palette {
+  display: grid;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-height: 0;
+  /* Default (side column): 2 cols x 4 rows, types left, extensions right. */
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  grid-auto-flow: column;
+}
+/* Phone portrait: 4x2 above the keys (types on top, extensions below). */
+html.lay-phone-port #palette {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: row;
+}
+/* iPad portrait: one row of eight. */
+html.lay-pad-port #palette {
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+  grid-auto-flow: row;
+  gap: 8px;
+}
+html.lay-pad-land #palette { gap: 8px; }
+html.lay-phone-land #palette { gap: 4px; }
+
+#types, #exts { display: contents; }
+
+#types button, #exts button {
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  text-align: center;
+  padding: 0 4px;
+  font-size: 13px;
+  border-radius: 12px;
+}
+html.simple.lay-phone-port #types button, html.simple.lay-phone-port #exts button { font-size: 15px; }
+html.lay-pad-port #types button, html.lay-pad-port #exts button,
+html.lay-pad-land #types button, html.lay-pad-land #exts button { font-size: 16px; }
+html.simple.lay-pad-land #types button, html.simple.lay-pad-land #exts button { font-size: 18px; }
+
+body.is-key #types button { opacity: 0.4; pointer-events: none; }
+#types button:disabled, #types button.gated { opacity: 0.35; pointer-events: none; cursor: default; }
+#exts button.dormant { opacity: 0.45; }
+
+/* ===== Controls (Sound / FX / Key / Loop) =====
+   Phone portrait: tab strip; one pane open at a time, collapsed by default.
+   Phone landscape: same tabs inside a slide-over drawer.
+   iPad: all panes visible as one persistent panel (no tabs). */
+#ctl {
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 14px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ctl-tabs { display: flex; gap: 3px; align-items: center; }
+.ctl-tabs button {
+  flex: 1 1 0;
+  height: 30px;
+  min-height: 30px;
+  padding: 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  background: transparent;
+  border-color: transparent;
+  border-radius: 9px;
+}
+.ctl-tabs button[aria-selected="true"] { background: #2c271f; color: var(--ink); border-color: var(--line); }
+.ctl-tabs #ctlFold { flex: 0 0 36px; font-size: 14px; }
+.pane {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  padding: 2px 6px 6px;
+  min-width: 0;
+}
+#ctl[data-open="sound"] .pane[data-pane="sound"],
+#ctl[data-open="fx"] .pane[data-pane="fx"],
+#ctl[data-open="key"] .pane[data-pane="key"],
+#ctl[data-open="loop"] .pane[data-pane="loop"] { display: flex; }
+.pane-h {
+  display: none;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
-/* Thin loop-position indicator. */
+/* Drawer (phone landscape). */
+html.lay-phone-land #ctl {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(360px, 72vw);
+  z-index: 80;
+  border-radius: 14px 0 0 14px;
+  background: #1c1915;
+  padding: calc(8px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) 10px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  box-shadow: -12px 0 30px rgba(0, 0, 0, 0.55);
+  transform: translateX(105%);
+  visibility: hidden;
+  transition: transform 180ms ease, visibility 0s linear 180ms;
+}
+html.lay-phone-land.drawer-open #ctl {
+  transform: none;
+  visibility: visible;
+  transition: transform 180ms ease;
+}
+
+/* iPad: persistent panel, every pane visible, no tabs. */
+html.lay-pad-port #ctl, html.lay-pad-land #ctl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 22px;
+  padding: 10px 14px 12px;
+}
+html.lay-pad-port .ctl-tabs, html.lay-pad-land .ctl-tabs { display: none; }
+html.lay-pad-port #ctl .pane, html.lay-pad-land #ctl .pane { display: flex; padding: 0; gap: 7px; }
+html.lay-pad-port .pane-h, html.lay-pad-land .pane-h { display: block; }
+html.lay-pad-port .layouts .lbl, html.lay-pad-land .layouts .lbl { display: none; }
+@media (max-width: 1099px) {
+  html.lay-pad-land #app { --rail-w: clamp(200px, 21vw, 290px); }
+  html.lay-pad-land #ctl button, html.lay-pad-land #ctl select { font-size: 13px; }
+}
+html.lay-pad-port .layouts button, html.lay-pad-land .layouts button { flex: 1 1 auto; }
+@media (min-width: 960px) {
+  html.lay-pad-land #ctl, html.lay-pad-port #ctl { grid-template-columns: 1.35fr 1fr 1.25fr 1fr; gap: 10px 16px; }
+  html.lay-pad-land .soundbox .seg button, html.lay-pad-land #bass,
+  html.lay-pad-land .layouts button, html.lay-pad-land .keybox .seg button { min-width: 0; padding: 0 5px; }
+}
+
+.soundbox { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.soundbox .seg { flex: 3 1 0; }
+.soundbox .seg button { flex: 1 1 0; }
+#bass { flex: 1 1 0; }
+.seg { display: flex; flex-wrap: nowrap; gap: 4px; min-width: 0; }
+.soundbox .seg button, .keybox .seg button, .layouts button { min-width: 44px; padding: 0 8px; }
+
+.keybox { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.keybox select { width: 58px; }
+#keyReadout { color: var(--muted); font-size: 12px; }
+
+select {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  height: var(--ctrl);
+  min-height: var(--ctrl);
+  padding: 0 8px;
+  touch-action: manipulation;
+  line-height: 1;
+}
+
+.layouts { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.layouts .lbl {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+
+.voicing { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.vhead { font-size: 12px; color: var(--muted); }
+.vhead b { color: var(--ink); font-weight: 650; }
+.vticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.vticks span.on { color: var(--copper); }
+
+.fx { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 14px; }
+html.lay-pad-port .fx, html.lay-pad-land .fx { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.fx label, .bpm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  min-width: 0;
+}
+.fx label span { flex: 0 0 52px; }
+.fx label input[type="range"], .bpm input[type="range"] { flex: 1 1 auto; width: auto; min-width: 0; }
+.bpm b { color: var(--ink); min-width: 2.2ch; display: inline-block; }
+
+.transport { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+#rec.on { background: var(--danger); color: #2a100c; border-color: transparent; }
+#play.on { background: var(--sea); color: #10211c; border-color: transparent; }
+#loopStatus { font-size: 12px; color: var(--muted); min-width: 4.5em; }
+
+/* Copper sliders: forced track + thumb on every range input (all engines). */
+html body input[type="range"] {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  height: 28px;
+  background: transparent !important;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  touch-action: manipulation;
+  accent-color: #e2a15a !important;
+  accent-color: var(--copper, #e2a15a) !important;
+  color: var(--copper, #e2a15a);
+  outline: none;
+}
+html body .voicing input[type="range"] { width: 100%; }
+html body input[type="range"]::-webkit-slider-runnable-track {
+  -webkit-appearance: none !important;
+  height: 6px;
+  background: linear-gradient(90deg, var(--copper, #e2a15a), #c47a3a) !important;
+  background-color: var(--copper, #e2a15a) !important;
+  border: 0 !important;
+  border-radius: 999px;
+}
+html body input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 18px;
+  height: 18px;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: var(--copper, #e2a15a) !important;
+  background-color: var(--copper, #e2a15a) !important;
+  border: 2px solid var(--copper-ink, #2a1c0c) !important;
+  box-shadow: 0 0 0 1px rgba(226, 161, 90, 0.35) !important;
+}
+html body input[type="range"]::-moz-range-track {
+  height: 6px;
+  background: linear-gradient(90deg, var(--copper, #e2a15a), #c47a3a) !important;
+  background-color: var(--copper, #e2a15a) !important;
+  border-radius: 999px;
+  border: 0 !important;
+}
+html body input[type="range"]::-moz-range-progress {
+  height: 6px;
+  background: var(--copper, #e2a15a) !important;
+  border-radius: 999px;
+}
+html body input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--copper, #e2a15a) !important;
+  border: 2px solid var(--copper-ink, #2a1c0c) !important;
+  box-shadow: 0 0 0 1px rgba(226, 161, 90, 0.35) !important;
+}
+html body input[type="range"]:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(226, 161, 90, 0.45) !important;
+}
+
+/* ===== Keyboard ===== */
+.kb-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 0;
+}
+
+/* Thin loop-position indicator above the keys. */
 .phase-track {
   position: relative;
   flex: 0 0 auto;
   height: 3px;
   width: 100%;
-  max-width: none;
-  align-self: stretch;
   background: rgba(58, 51, 43, 0.55);
   border-radius: 999px;
   overflow: hidden;
   pointer-events: none;
 }
-
 .phase {
   position: absolute;
   left: 0;
@@ -703,124 +912,57 @@ html body input[type="range"]:focus-visible::-webkit-slider-thumb {
   pointer-events: none;
 }
 
-footer {
-  display: flex;
-  align-items: center;
-  gap: 10px 16px;
-  min-height: 0;
-}
-
-footer label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--muted);
-  min-width: 0;
-}
-
-/* Sliders shrink inside their label (never overflow into the next label). */
-footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; }
-
-.bpm b { color: var(--ink); min-width: 2.2ch; display: inline-block; }
-
-.transport {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: auto;
-}
-
-#rec.on {
-  background: var(--danger);
-  color: #2a100c;
-  border-color: transparent;
-}
-
-#play.on {
-  background: var(--sea);
-  color: #10211c;
-  border-color: transparent;
-}
-
-#loopStatus {
-  font-size: 12px;
-  color: var(--muted);
-  min-width: 4.5em;
-}
-
 #unlock {
-  align-self: center;
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
   background: var(--copper);
   color: var(--copper-ink);
   border-radius: 999px;
-  padding: 8px 14px;
-  font-size: 14px;
+  padding: 5px 14px;
+  font-size: 13px;
   font-weight: 650;
+  white-space: nowrap;
   pointer-events: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
 }
-
 #unlock[hidden] { display: none; }
 
-/* The audio hint floats in the slim brand bar instead of taking a row. */
-.stage { position: relative; }
-#unlock {
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 5;
-  padding: 4px 12px;
-  font-size: 12px;
-}
-
-/* Fixed rows keep their height; keyboard absorbs tight heights. */
-.stage > * { flex-shrink: 0; }
-.stage > .kb-wrap { flex-shrink: 1; }
-
-
-.kb-wrap {
-  margin-top: 0;
+.pad {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 14px;
+  background: var(--pad);
+  border: 1px solid #423a30;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  flex: 1 1 auto;
-  min-height: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 10px 4px 12px;
+  line-height: 1;
 }
+.pad .roman { font-size: 11px; letter-spacing: 0.08em; color: var(--muted); }
+.pad.major { box-shadow: inset 0 -4px 0 var(--copper); }
+.pad.minor { box-shadow: inset 0 -4px 0 var(--sea); }
+.pad.dim { box-shadow: inset 0 -4px 0 var(--lilac); }
+.pad.sus4 { box-shadow: inset 0 -4px 0 var(--moss); }
+.pad.selected { outline: 2px solid var(--copper); outline-offset: -2px; }
+.pad.held { background: var(--copper); color: var(--copper-ink); border-color: transparent; box-shadow: none; }
+.pad.held .roman { color: rgba(42, 28, 12, 0.7); }
 
-.layouts { align-items: center; }
-
-.layouts .lbl {
-  color: var(--muted);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-right: 4px;
-}
-
-.kb { touch-action: none; }
+.kb { touch-action: none; flex: 1 1 auto; min-height: 0; }
 
 .kb.piano {
   position: relative;
-  flex: 1 1 auto;
-  height: auto;
-  min-height: 180px;
   display: flex;
   flex-direction: column;
+  --black-w: calc(100% / var(--whites) * 0.58);
 }
-
-.kb.piano .whites {
-  display: flex;
-  flex: 1 1 auto;
-  height: auto;
-  min-height: 0;
-  gap: 3px;
-}
-
-.kb.piano .blacks {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
+.kb.piano .whites { display: flex; flex: 1 1 auto; min-height: 0; gap: 3px; }
+.kb.piano .blacks { position: absolute; inset: 0; pointer-events: none; }
 
 .kb .pad {
   height: auto;
@@ -829,6 +971,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   padding: 4px 2px 8px;
   font-size: 12px;
 }
+html.lay-pad-port .kb .pad, html.lay-pad-land .kb .pad { font-size: 14px; padding-bottom: 12px; }
 
 .kb.piano .white {
   flex: 1 1 0;
@@ -837,7 +980,6 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   color: #2a1c0c;
   border: 1px solid #c9bfb0;
 }
-
 .kb.piano .black {
   pointer-events: auto;
   position: absolute;
@@ -851,269 +993,66 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
   font-size: 10px;
   padding-bottom: 4px;
 }
-
-.kb.piano { --black-w: calc(100% / var(--whites) * 0.58); }
-
 .kb .pad.out { opacity: 0.32; }
-
 .kb.piano .white.held,
 .kb.piano .black.held,
-.kb.fourths .pad.held {
-  background: var(--copper);
-  color: var(--copper-ink);
-}
+.kb.fourths .pad.held { background: var(--copper); color: var(--copper-ink); }
 
 .kb.fourths {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   grid-template-rows: repeat(4, minmax(0, 1fr));
   gap: 6px;
-  flex: 1 1 auto;
-  min-height: 140px;
 }
+.kb.fourths .pad { min-height: 0; height: auto; border-radius: 10px; font-size: 15px; }
 
-.kb.fourths .pad {
-  min-height: 0;
-  height: auto;
-  border-radius: 10px;
-  font-size: 15px;
-}
-
-@media (min-width: 900px) {
-  :root { --ctrl: 44px; }
-  .hero { gap: 12px; }
-  .now-card { --now-w: 240px; --sym: 60px; padding: 12px 16px; }
-  #tones { font-size: 15px; }
-  .suggest-card { padding: 10px 14px; }
-  .next-row { --chip: 48px; --next-vgap: 6px; }
-  .next-wrap {
-    grid-template-columns: max-content repeat(4, minmax(0, 1fr));
-    gap: var(--next-vgap) 8px;
-    max-width: 760px;
-  }
-  .next-wrap .axis, .next-wrap .corner { font-size: 11px; letter-spacing: 0.06em; }
-  .next-wrap .rowlbl { font-size: 18px; }
-  .next-wrap button { font-size: 18px; border-radius: 12px; }
-  .next-wrap .empty { border-radius: 12px; }
-  .style-row button { padding: 0 16px; font-size: 15px; }
-}
-
-@media (max-width: 720px) {
-  .controls {
-    flex-wrap: wrap;
-    overflow-x: visible;
-  }
-  .soundbox {
-    margin-left: auto;
-    flex-wrap: wrap;
-  }
-  .style-row,
-  #styles {
-    flex-wrap: wrap;
-    overflow: visible;
-  }
-  .suggest-card {
-    padding: 6px 8px;
-    gap: 6px;
-  }
-  .style-row .lbl { display: none; }
-  .style-row button {
-    padding: 0 10px;
-    font-size: 12px;
-  }
-  .hero { gap: 6px; }
-  .now-card { --now-w: 112px; --sym: 34px; padding: 6px 8px; }
-  .now-card .card-label { font-size: 9px; }
-  #tones { font-size: 11px; }
-  .next-row { --chip: 34px; --next-vgap: 3px; }
-  .next-wrap {
-    grid-template-columns: max-content repeat(4, minmax(0, 1fr));
-    gap: var(--next-vgap) 3px;
-  }
-  .next-wrap .axis, .next-wrap .corner { font-size: 8px; letter-spacing: 0.02em; }
-  .next-wrap .rowlbl { font-size: 12px; }
-  .next-wrap button { font-size: 12px; }
-  .keybox { gap: 4px; flex-wrap: wrap; }
-  .keybox select { width: 52px; padding: 0 4px; }
-}
-
-@media (max-width: 1100px) {
-  footer { flex-wrap: wrap; }
-  .transport { margin-left: 0; }
-  footer label input[type="range"] { width: 88px; }
-}
-
-@media (max-height: 640px) {
-  :root { --ctrl: 36px; }
-  #app { gap: 6px; padding: 8px 10px; }
-  .kb.piano { min-height: 96px; }
-  .kb.fourths { min-height: 96px; grid-template-rows: repeat(4, minmax(28px, 1fr)); }
-  button, select { padding: 0 8px; font-size: 13px; }
-  .now-card { --sym: 40px; }
-}
-
-@media (max-width: 1080px) {
-  #chords { flex-basis: 188px; }
-  #palette { gap: 4px; }
-  #types button, #exts button { min-height: 36px; font-size: 12px; }
-  #app { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
-  .kb.piano { min-height: 160px; }
-  .kb.fourths { min-height: 140px; }
-  .topbar { flex-wrap: nowrap; }
-  .controls { flex-wrap: wrap; overflow-x: visible; }
-  footer label { flex: 1 1 42%; }
-  footer label input[type="range"] { flex: 1; width: auto; }
-}
-
-/* iPad landscape: one-row Style pills, five sliders on one footer row. */
-@media (min-width: 900px) and (max-width: 1180px) {
-  .style-row .lbl { display: none; }
-  .style-row button { padding: 0 13px; font-size: 14px; }
-  /* Nine Style pills on one row: compact pills, grow to fill the row. */
-  .style-row, #styles { flex-wrap: nowrap; gap: 4px; overflow-x: auto; scrollbar-width: none; }
-  .style-row::-webkit-scrollbar { display: none; }
-  .style-row button { flex: 1 0 auto; padding: 0 6px; font-size: 13px; }
-}
-@media (min-width: 900px) and (max-width: 1100px) {
-  footer label { flex: 1 1 16%; }
-}
-@media (max-height: 800px) {
-  .kb.piano, .kb.fourths { min-height: 110px; }
-}
-@media (max-height: 640px) {
-  .kb.piano, .kb.fourths { min-height: 90px; }
-}
-/* iPad Safari with toolbars (~690px tall): trim chrome before the keyboard. */
-@media (min-width: 900px) and (max-height: 720px) {
-  .vticks { display: none; }
-  .next-row { --chip: 42px; }
-  .kb.piano, .kb.fourths { min-height: 96px; }
-}
-@media (min-width: 900px) {
-  .stage > .kb-wrap { min-height: auto; }
-}
-
-@media (orientation: landscape) and (max-height: 520px) {
-  html, body {
-    height: 100%;
-    overflow: hidden;
-  }
-  #app {
-    height: 100svh;
-    min-height: 0;
-    max-height: 100svh;
-    overflow: hidden;
-    gap: 6px;
-    padding: 6px 8px calc(6px + env(safe-area-inset-bottom)) 8px;
-  }
-  .stage {
-    min-height: 0;
-    height: 100%;
-    gap: 4px;
-    overflow: hidden;
-  }
-  .hero { gap: 6px; }
-  .now-card { --now-w: 132px; --sym: 34px; padding: 5px 9px; gap: 2px; }
-  .now-card .card-label { font-size: 9px; }
-  #tones { font-size: 11px; }
-  /* Very short landscape: one scrollable row of Style pills on top, Next
-     grid (+ Sustain) full-width below so chips keep their width. */
-  .suggest-card { flex-direction: column; align-items: stretch; gap: 3px; padding: 4px 8px; }
-  .style-row .lbl { display: none; }
-  .style-row, #styles {
-    display: flex;
-    flex-wrap: nowrap;
-    flex: 0 0 auto;
-    overflow-x: auto;
-    scrollbar-width: none;
-    gap: 3px;
-  }
-  .style-row::-webkit-scrollbar { display: none; }
-  .style-row button { flex: 1 0 auto; height: 22px; min-height: 22px; padding: 0 7px; font-size: 11px; }
-  .next-row { --chip: 28px; --next-vgap: 3px; }
-  .next-wrap {
-    flex: 1 1 0;
-    grid-template-columns: max-content repeat(4, minmax(0, 1fr));
-    gap: var(--next-vgap) 4px;
-  }
-  .next-wrap .axis, .next-wrap .corner { font-size: 8px; }
-  .next-wrap .rowlbl { font-size: 11px; }
-  .next-wrap button { font-size: 11px; border-radius: 8px; }
-  .vticks { display: none; }
-  .topbar { gap: 6px 8px; }
-  .brand { font-size: 10px; }
-  .config { height: 12px; }
-  :root { --ctrl: 32px; }
-  button, select { padding: 0 8px; font-size: 12px; }
-  .controls { flex-wrap: nowrap; }
-  .kb-wrap {
-    flex: 1 1 0;
-    min-height: 84px;
-    margin-top: 0;
-    gap: 4px;
-  }
-  .kb.piano, .kb.fourths {
-    position: relative;
-    flex: 1 1 0;
-    height: auto;
-    min-height: 64px;
-  }
-  .kb.fourths { grid-template-rows: repeat(4, minmax(0, 1fr)); }
-  footer { gap: 4px 6px; flex-wrap: nowrap; overflow-x: auto; }
-  footer > * { flex-shrink: 0; }
-  #unlock { left: 120px; right: auto; padding: 2px 10px; font-size: 11px; }
-  footer label { font-size: 11px; }
-  footer label { flex: 0 0 auto; gap: 4px; }
-  /* Five FX sliders + transport must still fit one short-landscape row. */
-  footer label input[type="range"] { flex: 0 0 44px; width: 44px; }
-  #chords { flex-basis: 156px; gap: 4px; }
-  #palette { gap: 3px; }
-  #types button, #exts button { min-height: 0; font-size: 11px; padding: 0 2px; }
-}
-
-/* Very narrow: Now becomes a slim strip above Suggestions so neither clips. */
-@media (max-width: 560px) {
-  .hero { flex-direction: column; }
-  .now-card {
-    flex: 0 0 auto;
-    width: auto;
-    flex-direction: row;
-    align-items: baseline;
-    gap: 10px;
-  }
-}
-
-/* Narrow widths: wrap Style and Sounds instead of clipping. */
-@media (max-width: 720px) {
-  .controls { flex-wrap: wrap; overflow-x: visible; }
-  .soundbox { margin-left: auto; flex-wrap: wrap; }
-  #engines { flex-wrap: wrap; }
-  #styles { flex-wrap: wrap; overflow: visible; }
-}
-
-/* Sustain pedal sizing per layout (keeps a thumb-sized target). */
-@media (min-width: 900px) {
-  #sustainBtn { width: 104px; font-size: 17px; }
-}
-@media (max-width: 720px) {
-  .next-row { gap: 5px; }
-  #sustainBtn { width: 64px; min-height: 0; font-size: 13px; border-radius: 12px; }
-}
-/* Very narrow portrait: no room beside the grid, so the pedal drops below it. */
-@media (max-width: 560px) {
-  .next-row { flex-wrap: wrap; }
-  .next-row > .next-wrap { flex: 1 1 100%; }
-  #sustainBtn { width: 100%; min-height: 0; height: calc(var(--chip) * 2 + var(--next-vgap)); }
-}
-@media (orientation: landscape) and (max-height: 520px) {
-  .style-row, #styles { flex-wrap: nowrap; overflow-x: auto; }
-  .next-row { flex: 0 0 auto; gap: 5px; }
-  #sustainBtn { width: 62px; min-height: 0; font-size: 12px; border-radius: 10px; }
-}
+/* ===== Simple mode: one switch hides every sound/effect/key/loop/layout control. ===== */
+html.simple #ctl,
+html.simple #ctlToggle,
+html.simple .phase-track { display: none !important; }
 </style>
 </head>
 <body>
 <div id="app">
+  <header class="topbar">
+    <div class="brand">Touch Chord</div>
+    <span class="spacer"></span>
+    <button id="ctlToggle" type="button" class="top-btn" aria-controls="ctl" aria-expanded="false" title="Sound, effects, key, loop and layout">&#9776; Controls</button>
+    <button id="simpleBtn" type="button" class="top-btn simple-sw" role="switch" aria-checked="false" title="Simple mode: hide sound, effects, key, loop and layout controls">Simple<span class="knob" aria-hidden="true"></span></button>
+    <div class="config" id="configWrap">
+      <button id="configBtn" type="button" class="top-btn config-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="configMenu" title="Configuration">Config</button>
+      <div id="configMenu" class="config-menu" role="menu" aria-label="Configuration" hidden>
+        <button id="factoryReset" type="button" role="menuitem" class="danger">Factory reset</button>
+      </div>
+    </div>
+  </header>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <div class="now-card" aria-label="Now playing">
+    <div class="card-label">Now</div>
+    <div id="symbol" aria-live="polite">C</div>
+    <div id="tones">C E G</div>
+  </div>
+
+  <div id="styles" class="style-row seg" role="radiogroup" aria-label="Style">
+    <span class="lbl">Style</span>
+    <button type="button" data-style="pop" class="on">Pop</button>
+    <button type="button" data-style="jazz">Jazz</button>
+    <button type="button" data-style="rnb">R&amp;B</button>
+    <button type="button" data-style="romantic">Romantic</button>
+    <button type="button" data-style="ballad">Ballad</button>
+    <button type="button" data-style="reggae">Reggae</button>
+    <button type="button" data-style="funk">Funk</button>
+    <button type="button" data-style="yoga">Yoga</button>
+    <button type="button" data-style="yogaDeep">Yoga Deep</button>
+  </div>
+
+  <div class="next-card">
+    <div id="suggest" class="next-wrap" aria-label="Suggested next chords"></div>
+  </div>
+
+  <button type="button" id="sustainBtn" aria-pressed="false" aria-disabled="false" title="Sustain: hold to let tapped keys ring; release to damp">Sustain</button>
+
   <aside id="chords" aria-label="Chord types">
     <div class="dock-label">Chords</div>
     <div id="palette">
@@ -1131,103 +1070,83 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     </div>
     </div>
   </aside>
-  <div class="stage">
-  <div id="unlock">Open this file in Safari. Chrome on iPad will not run it.</div>
-  <header class="topbar">
-    <div class="brand">Touch Chord</div>
-    <div class="config" id="configWrap">
-      <button id="configBtn" type="button" class="config-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="configMenu" title="Configuration">Config</button>
-      <div id="configMenu" class="config-menu" role="menu" aria-label="Configuration" hidden>
-        <button id="factoryReset" type="button" role="menuitem" class="danger">Factory reset</button>
+
+  <section id="ctl" class="ctl" data-open="" aria-label="Controls">
+    <div class="ctl-tabs" role="tablist" aria-label="Controls">
+      <button type="button" role="tab" data-tab="sound" aria-selected="false" aria-controls="paneSound">Sound</button>
+      <button type="button" role="tab" data-tab="fx" aria-selected="false" aria-controls="paneFx">FX</button>
+      <button type="button" role="tab" data-tab="key" aria-selected="false" aria-controls="paneKey">Key</button>
+      <button type="button" role="tab" data-tab="loop" aria-selected="false" aria-controls="paneLoop">Loop</button>
+      <button type="button" id="ctlFold" aria-label="Expand controls">&#9662;</button>
+    </div>
+
+    <div class="pane" id="paneSound" data-pane="sound" role="tabpanel" aria-label="Sound">
+      <div class="pane-h">Sound</div>
+      <div class="soundbox">
+        <div id="engines" class="seg" role="radiogroup" aria-label="Sound">
+          <button type="button" data-sound="warm" class="on" title="Detuned saw pad">Warm</button>
+          <button type="button" data-sound="bell" title="FM bell">Bell</button>
+          <button type="button" data-sound="reed" title="Filtered pulse">Reed</button>
+        </div>
+        <button id="bass" type="button" class="toggle" aria-pressed="false">Bass</button>
+      </div>
+      <div class="voicing">
+        <div class="vhead">Voicing <b id="vname">close</b></div>
+        <input id="voicing" type="range" min="0" max="4" step="1" value="2" aria-label="Voicing" aria-valuetext="close">
+        <div class="vticks" aria-hidden="true">
+          <span>drop</span><span>low</span><span>close</span><span>high</span><span>bright</span>
+        </div>
       </div>
     </div>
-  </header>
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-  <div class="hero">
-  <div class="now-card" aria-label="Now playing">
-    <div class="card-label">Now</div>
-    <div id="symbol" aria-live="polite">C</div>
-    <div id="tones">C E G</div>
-  </div>
-
-  <div class="suggest-card" aria-label="Style and next chords">
-    <div id="styles" class="style-row seg" role="radiogroup" aria-label="Style">
-      <span class="lbl">Style</span>
-      <button type="button" data-style="pop" class="on">Pop</button>
-      <button type="button" data-style="jazz">Jazz</button>
-      <button type="button" data-style="rnb">R&amp;B</button>
-      <button type="button" data-style="romantic">Romantic</button>
-      <button type="button" data-style="ballad">Ballad</button>
-      <button type="button" data-style="reggae">Reggae</button>
-      <button type="button" data-style="funk">Funk</button>
-      <button type="button" data-style="yoga">Yoga</button>
-      <button type="button" data-style="yogaDeep">Yoga Deep</button>
-    </div>
-    <div class="next-row">
-      <div id="suggest" class="next-wrap" aria-label="Suggested next chords"></div>
-      <button type="button" id="sustainBtn" aria-pressed="false" aria-disabled="false" title="Sustain: hold to let tapped keys ring; release to damp">Sustain</button>
-    </div>
-  </div>
-  </div>
-
-  <section class="controls">
-    <div class="keybox">
-      <button id="keyMode" type="button" class="toggle" aria-pressed="false">Key</button>
-      <select id="keyRoot" aria-label="Key root"></select>
-      <div class="seg" role="radiogroup" aria-label="Key scale">
-        <button id="keyMajor" type="button" class="on">Major</button>
-        <button id="keyMinor" type="button">Minor</button>
+    <div class="pane" id="paneFx" data-pane="fx" role="tabpanel" aria-label="Effects">
+      <div class="pane-h">Effects</div>
+      <div class="fx">
+        <label><span>Cutoff</span><input id="cutoff" type="range" min="0" max="1" step="0.01" value="0.62" aria-label="Filter cutoff"></label>
+        <label><span>Reverb</span><input id="reverb" type="range" min="0" max="1" step="0.01" value="0.22" aria-label="Reverb mix"></label>
+        <label><span>Delay</span><input id="delay" type="range" min="0" max="1" step="0.01" value="0.14" aria-label="Delay mix"></label>
+        <label><span>Warmth</span><input id="warmth" type="range" min="0" max="100" step="1" value="25" aria-label="Warmth" aria-valuetext="25"></label>
       </div>
-      <span id="keyReadout">Chromatic</span>
     </div>
-    <div class="soundbox">
-      <div id="engines" class="seg" role="radiogroup" aria-label="Sound">
-        <button type="button" data-sound="warm" class="on" title="Detuned saw pad">Warm</button>
-        <button type="button" data-sound="bell" title="FM bell">Bell</button>
-        <button type="button" data-sound="reed" title="Filtered pulse">Reed</button>
+
+    <div class="pane" id="paneKey" data-pane="key" role="tabpanel" aria-label="Key and layout">
+      <div class="pane-h">Key &amp; Layout</div>
+      <div class="keybox">
+        <button id="keyMode" type="button" class="toggle" aria-pressed="false">Key</button>
+        <select id="keyRoot" aria-label="Key root"></select>
+        <div class="seg" role="radiogroup" aria-label="Key scale">
+          <button id="keyMajor" type="button" class="on">Major</button>
+          <button id="keyMinor" type="button">Minor</button>
+        </div>
+        <span id="keyReadout">Chromatic</span>
       </div>
-      <button id="bass" type="button" class="toggle" aria-pressed="false">Bass</button>
+      <div id="layouts" class="layouts seg" role="radiogroup" aria-label="Keyboard layout">
+        <span class="lbl">Layout</span>
+        <button type="button" data-layout="octave" class="on">Octave</button>
+        <button type="button" data-layout="piano">Piano</button>
+        <button type="button" data-layout="fourths">Fourths</button>
+      </div>
+    </div>
+
+    <div class="pane" id="paneLoop" data-pane="loop" role="tabpanel" aria-label="Phrase loop">
+      <div class="pane-h">Loop</div>
+      <div class="transport">
+        <button id="rec" type="button">Record</button>
+        <button id="play" type="button">Play</button>
+        <button id="clear" type="button">Clear</button>
+        <span id="loopStatus">Empty</span>
+      </div>
+      <label class="bpm">BPM <b id="bpmVal">96</b>
+        <input id="bpm" type="range" min="50" max="180" step="1" value="96" aria-label="Tempo">
+      </label>
     </div>
   </section>
 
-  <div class="voicing">
-    <div class="vhead">Voicing <b id="vname">close</b></div>
-    <input id="voicing" type="range" min="0" max="4" step="1" value="2" aria-label="Voicing" aria-valuetext="close">
-    <div class="vticks" aria-hidden="true">
-      <span>drop</span><span>low</span><span>close</span><span>high</span><span>bright</span>
-    </div>
-  </div>
-
-  <footer>
-    <label>Cutoff <input id="cutoff" type="range" min="0" max="1" step="0.01" value="0.62" aria-label="Filter cutoff"></label>
-    <label>Reverb <input id="reverb" type="range" min="0" max="1" step="0.01" value="0.22" aria-label="Reverb mix"></label>
-    <label>Delay <input id="delay" type="range" min="0" max="1" step="0.01" value="0.14" aria-label="Delay mix"></label>
-    <label>Warmth <input id="warmth" type="range" min="0" max="100" step="1" value="25" aria-label="Warmth" aria-valuetext="25"></label>
-    <label class="bpm">BPM <b id="bpmVal">96</b>
-      <input id="bpm" type="range" min="50" max="180" step="1" value="96" aria-label="Tempo">
-    </label>
-    <div class="transport">
-      <button id="rec" type="button">Record</button>
-      <button id="play" type="button">Play</button>
-      <button id="clear" type="button">Clear</button>
-      <span id="loopStatus">Empty</span>
-    </div>
-  </footer>
-
-  <div class="phase-track" aria-hidden="true"><div id="phase" class="phase"></div></div>
-
   <div class="kb-wrap">
-    <div id="layouts" class="layouts seg" role="radiogroup" aria-label="Keyboard layout">
-      <span class="lbl">Layout</span>
-      <button type="button" data-layout="octave" class="on">Octave</button>
-      <button type="button" data-layout="piano">Piano</button>
-      <button type="button" data-layout="fourths">Fourths</button>
-    </div>
+    <div id="unlock">Open this file in Safari. Chrome on iPad will not run it.</div>
+    <div class="phase-track" aria-hidden="true"><div id="phase" class="phase"></div></div>
     <div id="pads" class="kb piano" aria-label="Chord keyboard"></div>
   </div>
-
-</div>
 </div>
 <script>
 "use strict";
@@ -2270,7 +2189,9 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     warmth: 25,
     holding: false,
     holdPointer: null,
-    forceChord: null
+    forceChord: null,
+    simple: false,               // Simple mode (v20): hides sound/FX/key/loop/layout controls
+    keyModeBeforeSimple: false   // Key mode is forced off while Simple is on; restored after
   };
 
   var loop = {
@@ -2512,14 +2433,26 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     }
   }
 
+  // Simple mode forces the Octave layout; on regular (iPad) size it spans two
+  // octaves. Full mode is unchanged (Octave = one octave on every size).
+  var padSpan = 1;
+  function octaveSpan() {
+    return (state.simple && document.documentElement.classList.contains("sz-regular")) ? 2 : 1;
+  }
+  function effectiveLayout() {
+    return state.simple ? "octave" : state.layout;
+  }
+
   function renderPads() {
     // With Sustain down, held fingers hand their chords to the pedal pool.
     releaseFingers();
     state.rootMidi = null;
     keySerial = 0;
     padsEl.innerHTML = "";
-    if (state.layout === "octave") addPiano(1);
-    else if (state.layout === "fourths") addFourths();
+    var layout = effectiveLayout();
+    padSpan = layout === "octave" ? octaveSpan() : 0;
+    if (layout === "octave") addPiano(padSpan);
+    else if (layout === "fourths") addFourths();
     else addPiano(2);
     paintPads();
   }
@@ -3947,6 +3880,22 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     }
   }
 
+  // Key mode on/off bookkeeping (shared by the Key button and Simple mode).
+  function setKeyModeState(on) {
+    state.keyMode = !!on;
+    if (state.keyMode) {
+      var degs = Theory.scaleDegrees(state.keyRoot, state.keyScale);
+      var found = 1;
+      for (var i = 0; i < degs.length; i++) {
+        if (degs[i].pc === state.rootPc) found = degs[i].degree;
+      }
+      state.degree = found;
+    } else {
+      var d = Theory.degreeChord(state.keyRoot, state.keyScale, state.degree);
+      state.rootPc = d.rootPc;
+    }
+  }
+
   function wire() {
     var keySel = document.getElementById("keyRoot");
     Theory.NOTE_NAMES.forEach(function (name, i) {
@@ -3977,18 +3926,7 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     });
 
     document.getElementById("keyMode").addEventListener("click", function () {
-      state.keyMode = !state.keyMode;
-      if (state.keyMode) {
-        var degs = Theory.scaleDegrees(state.keyRoot, state.keyScale);
-        var found = 1;
-        for (var i = 0; i < degs.length; i++) {
-          if (degs[i].pc === state.rootPc) found = degs[i].degree;
-        }
-        state.degree = found;
-      } else {
-        var d = Theory.degreeChord(state.keyRoot, state.keyScale, state.degree);
-        state.rootPc = d.rootPc;
-      }
+      setKeyModeState(!state.keyMode);
       renderPads();
       refreshHeld();
     });
@@ -4210,7 +4148,8 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       reverb: 0.22,
       delay: 0.14,
       bpm: 96,
-      warmth: WARMTH_DEFAULT
+      warmth: WARMTH_DEFAULT,
+      simple: false
     };
   }
 
@@ -4239,7 +4178,8 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       reverb: num(raw.reverb, 0, 1, d.reverb),
       delay: num(raw.delay, 0, 1, d.delay),
       bpm: num(raw.bpm, 50, 180, d.bpm, true),
-      warmth: num(raw.warmth, 0, 100, d.warmth, true)
+      warmth: num(raw.warmth, 0, 100, d.warmth, true),
+      simple: bool(raw.simple, d.simple)
       // Legacy `latch` key (cce4d86) is ignored; Sustain is never persisted.
     };
   }
@@ -4273,7 +4213,8 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       sound: state.sound,
       bass: !!state.bass,
       style: state.style,
-      keyMode: !!state.keyMode,
+      // While Simple forces Key mode off, persist the user's real choice.
+      keyMode: !!(state.simple ? state.keyModeBeforeSimple : state.keyMode),
       keyRoot: state.keyRoot,
       keyScale: state.keyScale,
       rootPc: state.rootPc,
@@ -4283,7 +4224,8 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
       reverb: Number(document.getElementById("reverb").value),
       delay: Number(document.getElementById("delay").value),
       bpm: state.bpm,
-      warmth: clampWarmth(document.getElementById("warmth").value)
+      warmth: clampWarmth(document.getElementById("warmth").value),
+      simple: !!state.simple
     };
   }
 
@@ -4354,6 +4296,14 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     ChordAudio.setDelay(s.delay);
     setBpm(s.bpm);
     setWarmth(s.warmth);
+    // Simple mode: Key mode is forced off while on (real value kept for later).
+    state.simple = !!s.simple;
+    state.keyModeBeforeSimple = false;
+    if (state.simple && state.keyMode) {
+      state.keyModeBeforeSimple = true;
+      setKeyModeState(false);
+    }
+    paintSimple();
     suggestSig = "";
     enforceYogaDeepPaletteGate();
   }
@@ -4433,12 +4383,137 @@ footer label input[type="range"] { width: 110px; min-width: 0; flex: 0 1 110px; 
     document.addEventListener("visibilitychange", function () { if (document.hidden) saveNow(); });
   }
 
+  // ---- Simple mode + responsive controls (v20) ----
+  function paintSimple() {
+    var de = document.documentElement;
+    de.classList.toggle("simple", !!state.simple);
+    var btn = document.getElementById("simpleBtn");
+    if (btn) btn.setAttribute("aria-checked", state.simple ? "true" : "false");
+    if (state.simple) setDrawer(false);
+  }
+
+  // One switch. ON: hide Sound/FX/Key/Loop/Layout controls (CSS: html.simple),
+  // force the Octave layout, stop any loop recording/playback, and force Key
+  // mode off. Hidden values are kept; OFF restores the chosen layout and Key mode.
+  function setSimple(on) {
+    on = !!on;
+    if (on === state.simple) return;
+    if (on) {
+      if (loop.recording || loop.playing || loop.transport) stopPlayback();
+      state.keyModeBeforeSimple = !!state.keyMode;
+      if (state.keyMode) setKeyModeState(false);
+      state.simple = true;
+    } else {
+      var restoreKey = state.keyModeBeforeSimple;
+      state.keyModeBeforeSimple = false;
+      state.simple = false;
+      if (restoreKey) setKeyModeState(true);
+    }
+    paintSimple();
+    // Pads DOM is rebuilt; dump pooled rings like a layout change does.
+    setSustain(false);
+    paintSustainBtn();
+    renderPads();
+    refreshHeld();
+    fitNowSymbol();
+    scheduleSave(0);
+  }
+
+  function isDrawerLayout() {
+    return document.documentElement.classList.contains("lay-phone-land");
+  }
+
+  function paintCtl() {
+    var ctl = document.getElementById("ctl");
+    var open = ctl.dataset.open || "";
+    var tabs = ctl.querySelectorAll(".ctl-tabs button[data-tab]");
+    for (var i = 0; i < tabs.length; i++) {
+      tabs[i].setAttribute("aria-selected", tabs[i].dataset.tab === open ? "true" : "false");
+    }
+    var fold = document.getElementById("ctlFold");
+    if (isDrawerLayout()) {
+      fold.textContent = "\u2715";
+      fold.setAttribute("aria-label", "Close controls");
+    } else {
+      fold.textContent = open ? "\u25B4" : "\u25BE";
+      fold.setAttribute("aria-label", open ? "Collapse controls" : "Expand controls");
+    }
+    var toggle = document.getElementById("ctlToggle");
+    toggle.setAttribute("aria-expanded", document.documentElement.classList.contains("drawer-open") ? "true" : "false");
+  }
+
+  var lastTab = "sound";
+  function setOpenTab(tab) {
+    var ctl = document.getElementById("ctl");
+    ctl.dataset.open = tab || "";
+    if (tab) lastTab = tab;
+    paintCtl();
+  }
+
+  function setDrawer(open) {
+    var de = document.documentElement;
+    open = !!open && isDrawerLayout() && !state.simple;
+    de.classList.toggle("drawer-open", open);
+    if (open && !document.getElementById("ctl").dataset.open) setOpenTab(lastTab);
+    else paintCtl();
+  }
+
+  function onSizeChange() {
+    if (typeof window.tcApplySizeClass === "function") window.tcApplySizeClass();
+    if (!isDrawerLayout()) document.documentElement.classList.remove("drawer-open");
+    // Re-render only when the Octave span changes (Simple on iPad = 2 octaves).
+    if (effectiveLayout() === "octave" && padSpan !== octaveSpan()) {
+      setSustain(false);
+      paintSustainBtn();
+      renderPads();
+      refreshHeld();
+    }
+    paintCtl();
+    fitNowSymbol();
+  }
+
+  function wireLayoutUi() {
+    document.getElementById("simpleBtn").addEventListener("click", function () {
+      setSimple(!state.simple);
+    });
+    document.querySelector("#ctl .ctl-tabs").addEventListener("click", function (e) {
+      var b = e.target.closest ? e.target.closest("button") : null;
+      if (!b) return;
+      var ctl = document.getElementById("ctl");
+      if (b.id === "ctlFold") {
+        if (isDrawerLayout()) setDrawer(false);
+        else setOpenTab(ctl.dataset.open ? "" : lastTab);
+        return;
+      }
+      var tab = b.dataset.tab;
+      if (!tab) return;
+      // Strip: tapping the open tab collapses it. Drawer: always shows a pane.
+      if (!isDrawerLayout() && ctl.dataset.open === tab) setOpenTab("");
+      else setOpenTab(tab);
+    });
+    document.getElementById("ctlToggle").addEventListener("click", function () {
+      setDrawer(!document.documentElement.classList.contains("drawer-open"));
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && document.documentElement.classList.contains("drawer-open")) setDrawer(false);
+    });
+    var sizeTimer = 0;
+    function queueSize() {
+      if (sizeTimer) clearTimeout(sizeTimer);
+      sizeTimer = setTimeout(function () { sizeTimer = 0; onSizeChange(); }, 60);
+    }
+    window.addEventListener("resize", queueSize);
+    window.addEventListener("orientationchange", queueSize);
+    paintCtl();
+  }
+
   var startBanner = document.getElementById("unlock");
   if (startBanner) startBanner.textContent = "Tap anywhere to enable sound";
 
   try {
     wire();
     wireConfig();
+    wireLayoutUi();
     var initial;
     try { initial = loadSettings(); } catch (err) { initial = factoryDefaults(); }
     try { applySettings(initial); } catch (err2) { applySettings(factoryDefaults()); }
