@@ -1098,8 +1098,11 @@ html.lay-phone-port .key-row span, html.lay-phone-land .key-row span { font-size
 #keyRow.stack { gap: 1px; }
 #keyRow.stack > span { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.05; padding: 2px 0; border-color: transparent; box-shadow: inset 0 0 0 1px var(--line); }
 #keyRow.stack > span.on { box-shadow: none; }
-#keyRow.stack > span .acc { font-size: .8em; }
-#keyRow.stack > span .q { font-size: .85em; min-height: 1em; }
+#keyRow.stack > span .q { min-height: 1em; }
+/* v51: phone portrait: 7-chord row wraps 4 + 3 at 11px (never smaller); borders drawn inside. */
+html.lay-phone-port #keyRow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; width: calc(100% + 12px); margin-left: -6px; margin-right: -6px; }
+html.lay-phone-port #keyRow > span { font-size: 11px; padding: 2px 0; border-color: transparent; box-shadow: inset 0 0 0 1px var(--line); }
+html.lay-phone-port #keyRow > span.on { box-shadow: none; }
 html.lay-phone-land .key-bar { flex-direction: column; gap: 3px; }
 html.lay-phone-land .key-bar button { height: 22px; min-height: 22px; }
 /* v28: Full Range toggle (was All keys) */
@@ -1137,24 +1140,24 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section><h3>About Touch Chord</h3>
-      <img src="images/howto-why.webp?v=50" alt="Touch Chord on a phone: chord buttons, keys, Now and suggestions" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=51" alt="Touch Chord on a phone: chord buttons, keys, Now and suggestions" width="1200" height="555" loading="lazy" decoding="async">
       <p class="ht-why">Touch Chord turns one finger into a full chord.<br>It's for anyone who wants to play chords without reading music.<br>A chord is 3 or more notes played at once. Chords that sound good together make up a key.</p>
       <ul><li><b>Learn chords:</b> try a random chord and see its name and notes.</li><li><b>Sing along:</b> play chords under your voice.</li><li><b>Beginner to making music:</b> start with one chord, then follow the suggestions into a song.</li></ul></section>
       <h2 class="ht-howto">How-to</h2>
       <section><h3>1. Make a chord</h3>
-      <img src="images/howto-make-chord.webp?v=50" alt="Hold maj7, tap A, Now reads Amaj7" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-make-chord.webp?v=51" alt="Hold maj7, tap A, Now reads Amaj7" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Hold <b>maj7</b> (1), tap <b>A</b> (2) = <b>Amaj7</b>.</p></section>
       <section><h3>2. Chord Suggestion</h3>
-      <img src="images/howto-suggest-b.webp?v=50" alt="Tap a suggestion tile to hear the next chord" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-suggest-b.webp?v=51" alt="Tap a suggestion tile to hear the next chord" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Tap a chord (2)</p></section>
       <section><h3>3. Sustain</h3>
-      <img src="images/howto-sustain.webp?v=50" alt="Sustain lit while the chord rings" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-sustain.webp?v=51" alt="Sustain lit while the chord rings" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Play (1), hold <b>Sustain</b> (2): notes ring and fade. Let go to stop.</p></section>
       <section><h3>4. Style</h3>
-      <img src="images/howto-style.webp?v=50" alt="Style picker" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-style.webp?v=51" alt="Style picker" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Tap a style (1). It changes the sound, not the chords.</p></section>
       <section><h3>5. Full Range</h3>
-      <img src="images/howto-fullrange.webp?v=50" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-fullrange.webp?v=51" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Gray keys are outside your key. Tap <b>Full Range</b> (1) to play them all.</p></section>
       <p class="ht-end">Sound and FX live in the gear's <b>Advanced</b> settings.</p>
       <dl class="ht-legend"><dt>Simple</dt><dd>Simple on/off</dd><dt>&#9881;</dt><dd>Settings (Advanced: sound, FX)</dd><dt>?</dt><dd>This guide</dd></dl>
@@ -1300,7 +1303,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 50;
+var APP_VERSION = 51;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -2606,8 +2609,36 @@ function accSym(s) {
       rootName: extra.rootName,
       rootMidi: rootMidi
     });
+    // v51: a chord that is not diatonic to the key and whose spelling needs double
+    // accidentals (E\u266ddim -> B\u266d\u266d, G\u266dm in D\u266d -> B\u266d\u266d): use the enharmonic
+    // root when that avoids them (D\u266fdim, F\u266fm). Diatonic chords keep the key spelling.
+    var inKeyPcs = null;
+    var akD = activeKey();
+    if (akD) { inKeyPcs = {}; keyDegrees(akD).forEach(function (dd) { inKeyPcs[dd.pc] = true; }); }
+    var diatonic = !!inKeyPcs && chord.pcs.every(function (q) { return inKeyPcs[wrap12(q)]; });
+    if (!diatonic && hasDoubleAcc(chord.names)) {
+      var rs = chord.rootSpell;
+      var alt = null;
+      if (rs.acc !== 0) {
+        var altLi = rs.acc < 0 ? (rs.li + 6) % 7 : (rs.li + 1) % 7;
+        var altAcc = wrap12(rootPc - [0, 2, 4, 5, 7, 9, 11][altLi]);
+        if (altAcc > 6) altAcc -= 12;
+        alt = { li: altLi, acc: altAcc };
+      }
+      if (alt && Math.abs(alt.acc) <= 1) {
+        {
+          var c2 = Theory.buildChord({ rootPc: rootPc, type: type, extensions: state.extensions, voicing: state.voicing, rootSpell: alt, rootMidi: rootMidi });
+          if (!hasDoubleAcc(c2.names)) chord = c2;
+        }
+      }
+    }
     chord.bassOut = state.bass ? chord.bassMidi : null;
     return chord;
+  }
+
+  function hasDoubleAcc(names) {
+    for (var i = 0; i < names.length; i++) if (/bb|##/.test(names[i])) return true;
+    return false;
   }
 
   function eatMove(el) {
@@ -3983,7 +4014,8 @@ function accSym(s) {
     if (!over()) return;
     row.classList.add("stack");
     var fs = parseFloat(getComputedStyle(spans[0]).fontSize) || 9;
-    while (fs > 7 && over()) {
+    var floor = document.documentElement.className.indexOf("lay-pad") >= 0 ? 13 : 11;
+    while (fs > floor && over()) {
       fs -= 0.5;
       for (i = 0; i < spans.length; i++) spans[i].style.fontSize = fs + "px";
     }
