@@ -10,6 +10,8 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Touch Chord</title>
+  <link rel="icon" href="data:,">
+  <link rel="apple-touch-icon" href="data:,">
 <script>
 /* Hide controls until saved settings are applied (no default-then-jump flash). Failsafe unhides. */
 document.documentElement.className += " tc-boot";
@@ -1780,6 +1782,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     clipper.connect(ctx.destination);
 
     this.bus = bus;
+    bus.gain.value = (typeof this.trim === "number") ? this.trim : 1;
     this.dry = dry;
     this.wet = wet;
     this.delaySend = delaySend;
@@ -1869,6 +1872,12 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     else if (v.engine === "strings") target = Math.min(hz * 0.9, hz);
     else target = hz;
     return Math.max(80, target);
+  };
+
+  // v32: per-style output trim (linear) so soft styles aren't near-silent.
+  ChordAudio.prototype.setTrim = function (t) {
+    this.trim = t;
+    if (this.bus && this.ctx) this.bus.gain.setTargetAtTime(t, this.ctx.currentTime, 0.05);
   };
 
   ChordAudio.prototype.setCutoff = function (norm) {
@@ -4685,8 +4694,8 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     ballad:    { sound: "strings", bass: true,  voicing: "close", cutoff: 0.44, reverb: 0.40, delay: 0.16, bpm: 68,  warmth: 30 },
     reggae:    { sound: "warm",    bass: true,  voicing: "low",   cutoff: 0.58, reverb: 0.24, delay: 0.20, bpm: 76,  warmth: 40 },
     funk:      { sound: "reed",    bass: true,  voicing: "bright", cutoff: 0.78, reverb: 0.10, delay: 0.08, bpm: 108, warmth: 22 },
-    yoga:      { sound: "bell",    bass: false, voicing: "close", cutoff: 0.40, reverb: 0.50, delay: 0.02, bpm: 60,  warmth: 20 },
-    yogaDeep:  { sound: "warm",    bass: false, voicing: "low",   cutoff: 0.32, reverb: 0.58, delay: 0.02, bpm: 52,  warmth: 30 }
+    yoga:      { sound: "bell",    bass: false, voicing: "close", cutoff: 0.40, reverb: 0.50, delay: 0.02, bpm: 60,  warmth: 20, trim: 2.0 },
+    yogaDeep:  { sound: "warm",    bass: false, voicing: "low",   cutoff: 0.32, reverb: 0.58, delay: 0.02, bpm: 52,  warmth: 30, trim: 5.5 }
   };
 
   // Yoga Deep: Dim/Sus4 type pads are unavailable (stillness palette).
@@ -4740,6 +4749,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     document.getElementById("reverb").value = String(p.reverb);
     document.getElementById("delay").value = String(p.delay);
     ChordAudio.setSound(p.sound);
+    ChordAudio.setTrim(p.trim || 1);
     ChordAudio.setCutoff(p.cutoff);
     ChordAudio.setReverb(p.reverb);
     ChordAudio.setDelay(p.delay);
@@ -4901,6 +4911,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     state.sound = s.sound;
     state.bass = s.bass;
     state.style = s.style;
+    ChordAudio.setTrim((STYLE_PRESETS[s.style] && STYLE_PRESETS[s.style].trim) || 1);
     // v27: Key mode retired; the key picker is the only key control.
     if (s.keyMode) lockKey = { pc: s.keyRoot, mode: s.keyScale === "minor" ? "minor" : "major" };
     state.keyMode = false;
