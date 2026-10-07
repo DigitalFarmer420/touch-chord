@@ -502,6 +502,7 @@ html.lay-pad-port .next-card, html.lay-pad-land .next-card { padding: 8px 12px 1
   min-width: 0;
 }
 .next-wrap.is-expanded { grid-template-rows: auto repeat(4, var(--chip)); }
+.next-wrap.is-three { grid-template-rows: auto repeat(3, var(--chip)); }
 html.lay-pad-port .next-wrap, html.lay-pad-land .next-wrap { gap: var(--next-vgap) 8px; }
 .next-wrap .axis {
   color: var(--muted);
@@ -1177,7 +1178,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
       <li>The short word says how it feels, like &ldquo;leans home&rdquo;, &ldquo;sad&rdquo; or &ldquo;tension&rdquo;.</li>
       <li>A dashed tile is borrowed from outside the key, so it sounds spicier.</li>
       <li>Bright, Dark, Tension and Color are the mood of each column.</li>
-      <li>Tap &#9660; to show more.</li></ul>
+      <li>Simple shows 3 rows of suggestions; full mode shows 4.</li></ul>
       <h3>Sustain</h3>
       <p>Hold Sustain to keep the notes ringing, and let go to stop.</p>
       <h3>Advanced</h3>
@@ -4134,12 +4135,13 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
   }
 
   function paintSuggestions(spec) {
-    var expanded = !!state.suggestExpanded;
-    var rowCount = expanded ? 4 : 2;
-    var items = nextChords(spec, expanded ? 64 : 24);
+    // v34: rows by mode. Simple = 3 (up, one middle, down); full = 4. No toggle.
+    var rowCount = state.simple ? 3 : 4;
+    var expanded = true;
+    var items = nextChords(spec, 64);
     var slots = slotSuggestions(items);
     var akS = activeKey();
-    var sig = (expanded ? "E|" : "C|") + (akS ? akS.pc + akS.mode : "auto") + "|" + state.style + "@" + currentLoopBar() + "|" + LANES.map(function (ln) {
+    var sig = (rowCount + "|") + (akS ? akS.pc + akS.mode : "auto") + "|" + state.style + "@" + currentLoopBar() + "|" + LANES.map(function (ln) {
       return slots[ln.id].slots.map(function (it) {
         return it ? (it.name + it.dir + it.degree + (it.qualityLabel || "")) : "-";
       }).join(",");
@@ -4147,7 +4149,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     if (sig === suggestSig) return;
     suggestSig = sig;
     var el = document.getElementById("suggest");
-    el.className = "next-wrap" + (expanded ? " is-expanded" : "");
+    el.className = "next-wrap" + (rowCount === 4 ? " is-expanded" : " is-three");
     el.innerHTML = "";
 
     function add(tag, cls, text) {
@@ -4161,6 +4163,8 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     // Header: expand/collapse control + column labels.
     var corner = add("button", "corner");
     corner.type = "button";
+    corner.disabled = true;
+    corner.style.pointerEvents = "none";
     corner.setAttribute("aria-expanded", expanded ? "true" : "false");
     corner.setAttribute("aria-label", expanded ? "Show fewer suggestions" : "Show more suggestions");
     corner.title = expanded ? "Fewer suggestions" : "More suggestions";
@@ -4171,7 +4175,8 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     var chev = document.createElement("span");
     chev.className = "corner-chev";
     chev.setAttribute("aria-hidden", "true");
-    chev.textContent = expanded ? "\u25B2" : "\u25BC";
+    chev.textContent = "";
+    chev.style.display = "none";
     corner.appendChild(chev);
     // Same pointerup pattern as chips so expand works while Sustain is held.
     var expandTapId = null;
@@ -4239,14 +4244,14 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     }
 
     // Collapsed: slots 0 + 3 (up + down anchors). Expanded: all four.
-    var rowMeta = expanded
+    var rowMeta = rowCount === 4
       ? [["up", "\u2191"], ["mid1", "\u00b7"], ["mid2", "\u00b7"], ["down", "\u2193"]]
-      : [["up", "\u2191"], ["down", "\u2193"]];
-    var rowSlots = expanded ? [0, 1, 2, 3] : [0, 3];
+      : [["up", "\u2191"], ["mid1", "\u00b7"], ["down", "\u2193"]];
+    var rowSlots = rowCount === 4 ? [0, 1, 2, 3] : [0, 1, 3];
     for (var r = 0; r < rowCount; r++) {
       add("div", "rowlbl", rowMeta[r][1]).setAttribute("aria-hidden", "true");
       (function (slotIdx, dirWord) {
-        LANES.forEach(function (ln) { addCell(slots[ln.id].slots[slotIdx], ln, dirWord); });
+        LANES.forEach(function (ln) { var sl = slots[ln.id].slots; addCell((rowCount === 3 && slotIdx === 1) ? (sl[1] || sl[2]) : sl[slotIdx], ln, dirWord); });
       })(rowSlots[r], rowMeta[r][0]);
     }
   }
@@ -5073,6 +5078,8 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
       if (restoreKey) setKeyModeState(true);
     }
     paintSimple();
+    suggestSig = "";
+    paintSuggestions(computeSpec());
     // Pads DOM is rebuilt; dump pooled rings like a layout change does.
     setSustain(false);
     paintSustainBtn();
