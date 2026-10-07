@@ -1114,6 +1114,8 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
 .ht-box p, .ht-box li { font-size: 14px; line-height: 1.45; }
 .ht-box ol, .ht-box ul { margin: 4px 0; padding-left: 20px; }
 
+/* v27: graying of out-of-key pads (visual only) */
+.kb .pad.nokey { opacity: 0.32; }
 /* v26: no focus ring on Sound picker / Style buttons (user request) */
 #engines button, #engines button:focus, #engines button:focus-visible, #styles button, #styles button:focus, #styles button:focus-visible { outline: none !important; box-shadow: none; -webkit-tap-highlight-color: transparent; }
 </style>
@@ -1213,7 +1215,7 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
     <div class="ctl-tabs" role="tablist" aria-label="Controls">
       <button type="button" role="tab" data-tab="sound" aria-selected="false" aria-controls="paneSound">Sound</button>
       <button type="button" role="tab" data-tab="fx" aria-selected="false" aria-controls="paneFx">FX</button>
-      <button type="button" role="tab" data-tab="key" aria-selected="false" aria-controls="paneKey">Key</button>
+      <button type="button" role="tab" data-tab="key" aria-selected="false" aria-controls="paneKey">Layout</button>
       <button type="button" role="tab" data-tab="loop" aria-selected="false" aria-controls="paneLoop">Loop</button>
       <button type="button" id="ctlFold" aria-label="Expand controls">&#9662;</button>
     </div>
@@ -1251,8 +1253,8 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
     </div>
 
     <div class="pane" id="paneKey" data-pane="key" role="tabpanel" aria-label="Key and layout">
-      <div class="pane-h">Key &amp; Layout</div>
-      <div class="keybox">
+      <div class="pane-h">Layout</div>
+      <div class="keybox" hidden style="display:none">
         <button id="keyMode" type="button" class="toggle" aria-pressed="false">Key</button>
         <select id="keyRoot" aria-label="Key root"></select>
         <div class="seg" role="radiogroup" aria-label="Key scale">
@@ -4221,6 +4223,11 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
     var row = document.getElementById("keyRow");
     var k = activeKey();
     chip.textContent = k ? "Key: " + keyLabel(k) : "Key: play a chord";
+    var inKey = {};
+    if (k) Theory.scaleDegrees(k.pc, k.mode).forEach(function (d) { inKey[d.pc] = true; });
+    Array.prototype.forEach.call(document.querySelectorAll("#pads .pad, .kb .pad"), function (pd) {
+      pd.classList.toggle("nokey", !!k && !inKey[Number(pd.dataset.pc)]);
+    });
     row.innerHTML = "";
     if (!k) return;
     Theory.scaleDegrees(k.pc, k.mode).forEach(function (d) {
@@ -4234,11 +4241,6 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
     });
   }
   function setLockKey(k) {
-    if (state.keyMode && k) {
-      state.keyRoot = k.pc;
-      state.keyScale = k.mode;
-      renderPads();
-    }
     lockKey = k;
     suggestSig = "";
     refreshHeld();
@@ -4269,7 +4271,7 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
       });
     });
     function close() { pick.hidden = true; sel = null; }
-    pick.querySelector(".kp-auto").addEventListener("click", function () { if (!state.keyMode) setLockKey(null); close(); });
+    pick.querySelector(".kp-auto").addEventListener("click", function () { setLockKey(null); close(); });
     pick.querySelector(".kp-x").addEventListener("click", close);
     pick.addEventListener("click", function (e) { if (e.target === pick) close(); });
     document.getElementById("keyChip").addEventListener("click", function () { sel = null; paint(); pick.hidden = false; });
@@ -4817,7 +4819,9 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
     state.sound = s.sound;
     state.bass = s.bass;
     state.style = s.style;
-    state.keyMode = s.keyMode;
+    // v27: Key mode retired; the key picker is the only key control.
+    if (s.keyMode) lockKey = { pc: s.keyRoot, mode: s.keyScale === "minor" ? "minor" : "major" };
+    state.keyMode = false;
     state.keyRoot = s.keyRoot;
     state.keyScale = s.keyScale;
     state.rootPc = s.rootPc;
