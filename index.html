@@ -2817,7 +2817,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
   function padPlayable(pad) {
     if (!pad || pad.classList.contains("out")) return false;
     if (state.keyMode && !pad.dataset.degree) return false;
-    if (!state.allKeys && (pad.classList.contains("nokey") || pad.classList.contains("nochord"))) return false;
+    if (!state.allKeys && pad.classList.contains("nokey")) return false;
     return true;
   }
 
@@ -4288,7 +4288,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     });
     // v31: chord buttons follow Full Range. A chord "fits" when every note of
     // it (same buildChord spelling as playback) is in the key's scale.
-    var gate = !!k && !state.allKeys;
+    var gate = false; // v35: chord gating removed; every chord button always plays
     function fits(rootPc, type, ext) {
       try {
         var c = Theory.buildChord({ rootPc: rootPc, type: type, extensions: ext || {} });
@@ -4497,8 +4497,6 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     if (e.button != null && e.button !== 0) return;
     var b = e.target.closest ? e.target.closest("button") : null;
     if (!b || b.disabled || !b.closest("#palette")) return;
-    if (b.dataset.type && state.keyMode) return;
-    if (b.classList.contains("nofit")) { e.preventDefault(); return; }
     e.preventDefault();
     paletteHolds[e.pointerId] = {
       kind: b.dataset.type ? "type" : "ext",
@@ -4719,7 +4717,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
 
   // Yoga Deep: Dim/Sus4 type pads are unavailable (stillness palette).
   function enforceYogaDeepPaletteGate() {
-    var gated = state.style === "yogaDeep";
+    var gated = false; // v35: no style gates chord types
     var types = document.querySelectorAll("#types button[data-type]");
     for (var i = 0; i < types.length; i++) {
       var t = types[i].dataset.type;
