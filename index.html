@@ -135,7 +135,8 @@ html.tc-boot #app { visibility: hidden; }
 #app > * { min-width: 0; min-height: 0; }
 
 .topbar { grid-area: top; }
-.now-card { grid-area: now; }
+.now-col { grid-area: now; display: flex; flex-direction: column; gap: 6px; min-height: 0; min-width: 0; }
+.now-col .now-card { flex: 1 1 auto; min-height: 0; }
 #styles { grid-area: sty; }
 .next-card { grid-area: nxt; }
 #sustainBtn { grid-area: sus; }
@@ -1114,6 +1115,22 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
 .ht-box p, .ht-box li { font-size: 14px; line-height: 1.45; }
 .ht-box ol, .ht-box ul { margin: 4px 0; padding-left: 20px; }
 
+/* v30: key bar under Now (real buttons) */
+.key-bar { display: flex; gap: 6px; flex: 0 0 auto; }
+.key-bar button { flex: 1 1 0; min-width: 0; height: 34px; min-height: 34px; margin: 0; border-radius: 10px; font-size: 13px; font-weight: 700; padding: 0 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.key-bar .key-chip { flex: 1.6 1 0; background: var(--copper); color: var(--copper-ink); border: 1px solid transparent; }
+.key-bar .allkeys { background: var(--bg-2); color: var(--ink); border: 1px solid var(--line); }
+.key-bar .allkeys.on { background: var(--copper); color: var(--copper-ink); border-color: transparent; }
+html.lay-pad-port .key-bar button, html.lay-pad-land .key-bar button { height: 44px; min-height: 44px; font-size: 16px; padding: 0 10px; }
+html.lay-phone-port .key-bar { flex-direction: column; gap: 4px; }
+html.lay-phone-port .key-bar button { height: 28px; min-height: 28px; font-size: 12px; }
+html.lay-phone-land .key-bar button { height: 26px; min-height: 26px; font-size: 11px; }
+.key-row { flex-wrap: nowrap !important; overflow: hidden; width: 100%; }
+.key-row span { flex: 1 1 0; min-width: 0; text-align: center; overflow: hidden; text-overflow: clip; white-space: nowrap; }
+html.lay-phone-port .key-row span, html.lay-phone-land .key-row span { font-size: 9px; padding: 1px 1px; }
+.key-row span b { display: none; }
+html.lay-phone-land .key-bar { flex-direction: column; gap: 3px; }
+html.lay-phone-land .key-bar button { height: 22px; min-height: 22px; }
 /* v28: All keys toggle */
 .key-line { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
 .allkeys { margin-top: 2px; font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted); min-height: 0; height: auto; line-height: 1.4; white-space: nowrap; }
@@ -1147,7 +1164,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
       <h3>Make a chord</h3>
       <ol><li>Hold a chord button on the left.</li><li>Tap a key.</li><li>The big letter shows your chord, so holding maj7 and tapping A gives you Amaj7.</li></ol>
       <h3>Next</h3>
-      <p>Your first chord sets the key, which shows at the top of Now. Tap it to change.</p>
+      <p>Your first chord sets the key. Tap the <b>Key</b> button under Now to pick a different one.</p>
       <p>Keys outside your key are grayed out. Turn on <b>All keys</b> to play every key.</p>
       <ul><li>The row under the key shows the 7 chords in your key, and the one you're playing is lit.</li>
       <li>The tiles are good chords to play next. Tap one to hear it.</li>
@@ -1164,12 +1181,14 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
+  <div class="now-col">
   <div class="now-card" aria-label="Now playing">
     <div class="card-label">Now</div>
     <div id="symbol" aria-live="polite">C</div>
     <div id="tones">C E G</div>
-    <div class="key-line"><button type="button" id="keyChip" class="key-chip" aria-haspopup="dialog" title="Tap to change the key">Key: play a chord</button><button type="button" id="allKeys" class="allkeys" role="switch" aria-checked="false" title="All keys: unlock off-scale keys so every key plays">All keys</button></div>
     <div id="keyRow" class="key-row" aria-label="Chords in this key"></div>
+  </div>
+  <div class="key-bar"><button type="button" id="keyChip" class="key-chip" aria-haspopup="dialog" title="Pick the key">Key: play a chord</button><button type="button" id="allKeys" class="allkeys" role="switch" aria-checked="false" title="All keys: unlock off-scale keys so every key plays">All keys</button></div>
   </div>
   <div id="keyPick" class="key-pick" role="dialog" aria-label="Choose key" hidden>
     <div class="kp-box">
