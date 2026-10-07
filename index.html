@@ -1330,7 +1330,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 40;
+var APP_VERSION = 41;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -2071,7 +2071,7 @@ document.addEventListener("DOMContentLoaded", function () {
     this.enforceLimit();
   };
 
-  var FADE_TAU = { piano: 1.4, epiano: 1.4, bell: 1.7, strings: 1.6, warm: 1.6, reed: 1.5 };
+  var FADE_TAU = { piano: 3.8, epiano: 3.8, reed: 4.2, bell: 5.0, strings: 5.0, warm: 5.0 };
   ChordAudio.prototype.fadeGroup = function (group) {
     if (!this.ctx) return;
     for (var i = 0; i < this.voices.length; i++) {
@@ -2354,8 +2354,8 @@ document.addEventListener("DOMContentLoaded", function () {
       var sustainLevel = spec.bass ? peak
         : engine === "bell" ? peak * 0.7
         : engine === "reed" ? peak * 0.92
-        : engine === "piano" ? peak * 0.38
-        : engine === "epiano" ? peak * 0.62
+        : engine === "piano" ? peak * 0.6
+        : engine === "epiano" ? peak * 0.75
         : engine === "strings" ? peak * 0.88
         : peak * 0.82;
       var decayDur = spec.bass ? 0.08
@@ -2415,7 +2415,7 @@ document.addEventListener("DOMContentLoaded", function () {
           level.gain.setValueAtTime(cur, t);
           level.gain.setTargetAtTime(0.0001, t, tau);
         } catch (err) { /* ignore */ }
-        var stopAt = t + tau * 7.5;
+        var stopAt = t + tau * 5.5;
         if (expire != null) stopAt = Math.min(stopAt, Math.max(expire, t + 0.01));
         oscs.forEach(function (o) { try { o.stop(stopAt); } catch (err2) {} });
         voice.done = Math.min(voice.done == null ? Infinity : voice.done, stopAt + 0.05);
@@ -2868,7 +2868,7 @@ document.addEventListener("DOMContentLoaded", function () {
     finger.pending = null;
   }
 
-  var DAMPER_TAU = 0.035; // ~-37 dB at 150 ms, ~-50 dB at 200 ms
+  var DAMPER_TAU = 0.045; // ~-37 dB at 150 ms, ~-50 dB at 200 ms
   function dumpSustain() {
     var groups = Object.keys(sustainPool);
     if (!groups.length) return;
@@ -3198,11 +3198,11 @@ document.addEventListener("DOMContentLoaded", function () {
       var spec = specFromFinger(finger);
       maybeLockKey(spec);
       var sig = chordSig(spec);
-      if (finger.sig === sig && !(paletteStrike && PERCUSSIVE_SOUNDS[state.sound])) return;
+      if (finger.sig === sig && !paletteStrike) return;
       finger.sig = sig;
       // v36: decaying engines (piano, e-piano, bell) re-strike on a chord
       // change; morphing kept faded notes, so the new chord was near-silent.
-      if (PERCUSSIVE_SOUNDS[state.sound]) {
+      if (paletteStrike || PERCUSSIVE_SOUNDS[state.sound]) { // v41: any chord-button press re-strikes on every sound
         ChordAudio.stopChord(finger.group);
         ChordAudio.playChord(finger.group, spec.midis, { bass: spec.bassOut, sound: state.sound });
       } else {
