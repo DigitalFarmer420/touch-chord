@@ -785,16 +785,57 @@ html.lay-pad-port .layouts .lbl, html.lay-pad-land .layouts .lbl { display: none
 html.lay-pad-port .layouts button, html.lay-pad-land .layouts button { flex: 1 1 auto; }
 @media (min-width: 960px) {
   html.lay-pad-land #ctl, html.lay-pad-port #ctl { grid-template-columns: 1.35fr 1fr 1.25fr 1fr; gap: 10px 16px; }
-  html.lay-pad-land .soundbox .seg button, html.lay-pad-land #bass,
+  html.lay-pad-land .sound-tiles button { min-height: 48px; padding: 7px 8px; }
+  html.lay-pad-land .sound-tiles button b { font-size: 14px; }
+  html.lay-pad-land .sound-layer #bass,
   html.lay-pad-land .layouts button, html.lay-pad-land .keybox .seg button { min-width: 0; padding: 0 5px; }
 }
 
-.soundbox { display: flex; align-items: center; gap: 4px; min-width: 0; }
-.soundbox .seg { flex: 3 1 0; }
-.soundbox .seg button { flex: 1 1 0; }
-#bass { flex: 1 1 0; }
+/* Sound picker: 2×3 engine tiles (Option B). Bass is a layer, not an engine. */
+.sound-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  min-width: 0;
+}
+.sound-tiles button {
+  height: auto;
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 12px;
+  line-height: 1.1;
+  min-width: 0;
+}
+.sound-tiles button b {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.sound-tiles button span {
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.sound-tiles button.on span { color: var(--copper-ink); opacity: 0.75; }
+.sound-layer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.sound-layer #bass {
+  flex: 0 0 72px;
+  border-style: dashed;
+}
+.sound-layer .voicing { flex: 1 1 0; min-width: 0; }
 .seg { display: flex; flex-wrap: nowrap; gap: 4px; min-width: 0; }
-.soundbox .seg button, .keybox .seg button, .layouts button { min-width: 44px; padding: 0 8px; }
+.keybox .seg button, .layouts button { min-width: 44px; padding: 0 8px; }
 
 .keybox { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
 .keybox select { width: 58px; }
@@ -1113,19 +1154,22 @@ html.simple .phase-track { display: none !important; }
 
     <div class="pane" id="paneSound" data-pane="sound" role="tabpanel" aria-label="Sound">
       <div class="pane-h">Sound</div>
-      <div class="soundbox">
-        <div id="engines" class="seg" role="radiogroup" aria-label="Sound">
-          <button type="button" data-sound="warm" class="on" title="Detuned saw pad">Warm</button>
-          <button type="button" data-sound="bell" title="FM bell">Bell</button>
-          <button type="button" data-sound="reed" title="Filtered pulse">Reed</button>
-        </div>
-        <button id="bass" type="button" class="toggle" aria-pressed="false">Bass</button>
+      <div id="engines" class="sound-tiles" role="radiogroup" aria-label="Sound">
+        <button type="button" data-sound="piano" class="on" title="Acoustic piano" aria-pressed="true"><b>Piano</b><span>Acoustic</span></button>
+        <button type="button" data-sound="epiano" title="Rhodes-ish electric piano" aria-pressed="false"><b>E.Piano</b><span>Rhodes-ish</span></button>
+        <button type="button" data-sound="strings" title="Soft string ensemble" aria-pressed="false"><b>Strings</b><span>Ensemble</span></button>
+        <button type="button" data-sound="warm" title="Detuned saw pad" aria-pressed="false"><b>Pad</b><span>Saw pad</span></button>
+        <button type="button" data-sound="reed" title="Filtered pulse" aria-pressed="false"><b>Reed</b><span>Pulse</span></button>
+        <button type="button" data-sound="bell" title="FM bell" aria-pressed="false"><b>Bell</b><span>FM bell</span></button>
       </div>
-      <div class="voicing">
-        <div class="vhead">Voicing <b id="vname">close</b></div>
-        <input id="voicing" type="range" min="0" max="4" step="1" value="2" aria-label="Voicing" aria-valuetext="close">
-        <div class="vticks" aria-hidden="true">
-          <span>drop</span><span>low</span><span>close</span><span>high</span><span>bright</span>
+      <div class="sound-layer">
+        <button id="bass" type="button" class="toggle" aria-pressed="false">Bass</button>
+        <div class="voicing">
+          <div class="vhead">Voicing <b id="vname">close</b></div>
+          <input id="voicing" type="range" min="0" max="4" step="1" value="2" aria-label="Voicing" aria-valuetext="close">
+          <div class="vticks" aria-hidden="true">
+            <span>drop</span><span>low</span><span>close</span><span>high</span><span>bright</span>
+          </div>
         </div>
       </div>
     </div>
@@ -1481,7 +1525,7 @@ html.simple .phase-track { display: none !important; }
 "use strict";
 
 (function () {
-  // Live (non-released) soft voice cap. Each warm voice is 3 saws + filter, so
+  // Live (non-released) soft voice cap. Pad/strings use 3–4 oscs; piano up to 6, so
   // keep this modest to avoid render-thread overload (static / dropouts) on iPad.
   // Sustain-pooled groups are protected from soft-cap stealing so the pedal can
   // hold notes until release; HARD_CAP is a safety ceiling only.
@@ -1501,7 +1545,7 @@ html.simple .phase-track { display: none !important; }
     this.delayMix = 0.14;
     this.warmth = 0.25;
     this.bpm = 96;
-    this.sound = "warm";
+    this.sound = "piano";
     this.voices = [];
     this.pulse = null;
     this.ready = false;
@@ -1711,12 +1755,21 @@ html.simple .phase-track { display: none !important; }
   };
 
   ChordAudio.prototype.setSound = function (name) {
-    this.sound = name;
+    // Known engines only; unknown / legacy junk -> warm (Pad).
+    var ok = name === "piano" || name === "epiano" || name === "strings"
+      || name === "warm" || name === "bell" || name === "reed";
+    this.sound = ok ? name : "warm";
   };
 
   ChordAudio.prototype.filterTarget = function (v) {
     var hz = this.cutoffHz();
-    var target = v.bass ? Math.min(hz, 860) : v.engine === "bell" ? 4200 + this.cutoffNorm * 5000 : hz;
+    var target;
+    if (v.bass) target = Math.min(hz, 860);
+    else if (v.engine === "bell") target = 4200 + this.cutoffNorm * 5000;
+    else if (v.engine === "piano") target = Math.min(6800, hz * 1.35);
+    else if (v.engine === "epiano") target = Math.min(5200, hz * 1.15);
+    else if (v.engine === "strings") target = Math.min(hz * 0.9, hz);
+    else target = hz;
     return Math.max(80, target);
   };
 
@@ -1940,6 +1993,16 @@ html.simple .phase-track { display: none !important; }
       filter.frequency.setValueAtTime(Math.min(7000, cut * 1.7), time);
       filter.frequency.exponentialRampToValueAtTime(Math.max(160, cut), time + 0.14);
       filter.Q.setValueAtTime(4.5, time);
+    } else if (engine === "piano") {
+      filter.frequency.setValueAtTime(Math.min(6800, cut * 1.35), time);
+      filter.frequency.exponentialRampToValueAtTime(Math.max(280, cut * 0.55), time + 0.22);
+      filter.Q.setValueAtTime(0.55, time);
+    } else if (engine === "epiano") {
+      filter.frequency.setValueAtTime(Math.min(5200, cut * 1.15), time);
+      filter.Q.setValueAtTime(0.9, time);
+    } else if (engine === "strings") {
+      filter.frequency.setValueAtTime(Math.max(220, cut * 0.85), time);
+      filter.Q.setValueAtTime(0.5, time);
     } else {
       filter.frequency.setValueAtTime(cut, time);
       filter.Q.setValueAtTime(0.7, time);
@@ -1973,6 +2036,85 @@ html.simple .phase-track { display: none !important; }
       sawG.connect(filter);
       oscs.push(sine, saw);
       nodes.push(sineG, sawG);
+    } else if (engine === "piano") {
+      // Hammer-ish transient + decaying harmonic partials (not a toy beep).
+      var partials = [
+        { mul: 1, amp: 0.42, type: "sine" },
+        { mul: 2, amp: 0.22, type: "sine" },
+        { mul: 3, amp: 0.12, type: "triangle" },
+        { mul: 4, amp: 0.07, type: "sine" },
+        { mul: 5, amp: 0.04, type: "sine" }
+      ];
+      for (var pi = 0; pi < partials.length; pi++) {
+        var p = partials[pi];
+        var po = ctx.createOscillator();
+        po.type = p.type;
+        po.frequency.setValueAtTime(freq * p.mul, time);
+        var pg = ctx.createGain();
+        // Higher partials decay faster (struck-string character).
+        var pPeak = p.amp;
+        var pDecay = spec.short ? 0.18 + pi * 0.04 : 0.55 + pi * 0.18;
+        pg.gain.setValueAtTime(0.0001, time);
+        pg.gain.exponentialRampToValueAtTime(pPeak, time + 0.004);
+        pg.gain.exponentialRampToValueAtTime(Math.max(0.0002, pPeak * (0.22 - pi * 0.03)), time + pDecay);
+        po.connect(pg);
+        pg.connect(filter);
+        oscs.push(po);
+        nodes.push(pg);
+      }
+      // Soft hammer click: brief high sine burst into the same filter.
+      var ham = ctx.createOscillator();
+      ham.type = "sine";
+      ham.frequency.setValueAtTime(Math.min(6500, freq * 8.5), time);
+      var hamG = ctx.createGain();
+      hamG.gain.setValueAtTime(0.0001, time);
+      hamG.gain.exponentialRampToValueAtTime(0.09, time + 0.002);
+      hamG.gain.exponentialRampToValueAtTime(0.0001, time + 0.028);
+      ham.connect(hamG);
+      hamG.connect(filter);
+      oscs.push(ham);
+      nodes.push(hamG);
+    } else if (engine === "epiano") {
+      // Rhodes-ish FM/tine: sine carrier + inharmonic modulator, index decays.
+      var car = ctx.createOscillator();
+      var mod = ctx.createOscillator();
+      var mGain = ctx.createGain();
+      car.type = "sine";
+      mod.type = "sine";
+      car.frequency.setValueAtTime(freq, time);
+      // Mild inharmonicity (~14× classic Rhodes tine, scaled down for chords).
+      mod.frequency.setValueAtTime(freq * 14, time);
+      var index = freq * (spec.short ? 0.55 : 0.85);
+      mGain.gain.setValueAtTime(index, time);
+      mGain.gain.exponentialRampToValueAtTime(Math.max(2, freq * 0.08), time + (spec.short ? 0.35 : 1.1));
+      mod.connect(mGain);
+      mGain.connect(car.frequency);
+      // Quiet fundamental reinforcement so chords stay centered.
+      var fund = ctx.createOscillator();
+      fund.type = "sine";
+      fund.frequency.setValueAtTime(freq, time);
+      var fundG = ctx.createGain();
+      fundG.gain.value = 0.18;
+      fund.connect(fundG);
+      fundG.connect(filter);
+      car.connect(filter);
+      oscs.push(car, mod, fund);
+      nodes.push(mGain, fundG);
+    } else if (engine === "strings") {
+      // Slow-attack detuned ensemble (wider than Pad).
+      var sDet = [-18, -7, 5, 16];
+      for (var sd = 0; sd < sDet.length; sd++) {
+        var so = ctx.createOscillator();
+        so.type = "sawtooth";
+        so.frequency.setValueAtTime(freq, time);
+        so.detune.setValueAtTime(sDet[sd], time);
+        var sg = ctx.createGain();
+        sg.gain.value = 0.22;
+        so.connect(sg);
+        sg.connect(filter);
+        oscs.push(so);
+        nodes.push(sg);
+      }
     } else if (engine === "warm") {
       var detunes = [-14, 0, 11];
       for (var d = 0; d < detunes.length; d++) {
@@ -2016,23 +2158,51 @@ html.simple .phase-track { display: none !important; }
     level.connect(gate);
     gate.connect(this.bus);
 
-    var peak = spec.bass ? 0.26 : engine === "bell" ? 0.15 : engine === "reed" ? 0.11 : 0.1;
+    var peak = spec.bass ? 0.26
+      : engine === "bell" ? 0.15
+      : engine === "reed" ? 0.11
+      : engine === "piano" ? 0.14
+      : engine === "epiano" ? 0.12
+      : engine === "strings" ? 0.09
+      : 0.1;
 
     // Linear attack from true zero: soft onset with no step. (An exponential
     // ramp from 1e-4 does nothing for most of its length then jumps at the
     // end, which reads as a click on short attacks.)
-    var attack = spec.short
-      ? (engine === "reed" ? 0.006 : 0.008)
-      : (engine === "reed" ? 0.014 : engine === "bell" ? 0.012 : spec.bass ? 0.03 : 0.04);
+    var attack;
+    if (spec.bass) attack = 0.03;
+    else if (spec.short) {
+      attack = engine === "reed" ? 0.006
+        : engine === "piano" ? 0.004
+        : engine === "epiano" ? 0.006
+        : engine === "strings" ? 0.04
+        : 0.008;
+    } else {
+      attack = engine === "reed" ? 0.014
+        : engine === "bell" ? 0.012
+        : engine === "piano" ? 0.006
+        : engine === "epiano" ? 0.01
+        : engine === "strings" ? 0.18
+        : 0.04;
+    }
 
     env.gain.linearRampToValueAtTime(peak, time + attack);
 
     var expire = null;
+    // Start before any stop(): Web Audio throws InvalidStateError if stop runs first.
+    oscs.forEach(function (o) { o.start(time); });
+
     // Held voices need a true sustain stage (level held until gate release).
     // If env scheduled a fade to ~0 at note-on, Sustain-pooled notes would go
     // silent while gate is still 1 — sounds like the pedal "doesn't work".
     if (spec.short) {
-      var dur = spec.bass ? 0.26 : engine === "bell" ? 0.5 : engine === "warm" ? 0.34 : 0.2;
+      var dur = spec.bass ? 0.26
+        : engine === "bell" ? 0.5
+        : engine === "warm" ? 0.34
+        : engine === "piano" ? 0.55
+        : engine === "epiano" ? 0.48
+        : engine === "strings" ? 0.6
+        : 0.2;
       env.gain.exponentialRampToValueAtTime(0.0001, time + attack + dur);
       env.gain.linearRampToValueAtTime(0, time + attack + dur + 0.02);
       expire = time + attack + dur + 0.05;
@@ -2041,8 +2211,17 @@ html.simple .phase-track { display: none !important; }
       var sustainLevel = spec.bass ? peak
         : engine === "bell" ? peak * 0.7
         : engine === "reed" ? peak * 0.92
+        : engine === "piano" ? peak * 0.38
+        : engine === "epiano" ? peak * 0.62
+        : engine === "strings" ? peak * 0.88
         : peak * 0.82;
-      var decayDur = spec.bass ? 0.08 : engine === "bell" ? 0.55 : engine === "reed" ? 0.12 : 0.28;
+      var decayDur = spec.bass ? 0.08
+        : engine === "bell" ? 0.55
+        : engine === "reed" ? 0.12
+        : engine === "piano" ? 0.7
+        : engine === "epiano" ? 0.45
+        : engine === "strings" ? 0.35
+        : 0.28;
       var decayEnd = time + attack + decayDur;
       if (sustainLevel < peak * 0.995) {
         if (engine === "bell") {
@@ -2054,8 +2233,6 @@ html.simple .phase-track { display: none !important; }
       // Lock sustain so the param stays put until gate release / dumpSustain.
       env.gain.setValueAtTime(sustainLevel, decayEnd);
     }
-
-    oscs.forEach(function (o) { o.start(time); });
 
     // Free the graph once the last oscillator has ended so finished voices
     // stop costing render time.
@@ -2215,7 +2392,7 @@ html.simple .phase-track { display: none !important; }
     rootMidi: null,
     layout: "octave",
     style: "pop",
-    sound: "warm",
+    sound: "piano",
     bass: false,
     warmth: 25,
     holding: false,
@@ -4206,15 +4383,15 @@ html.simple .phase-track { display: none !important; }
 
   // Applied on Style change. Never touches Key, layout or the Next grid.
   var STYLE_PRESETS = {
-    pop:       { sound: "warm", bass: true,  voicing: "close", cutoff: 0.72, reverb: 0.14, delay: 0.10, bpm: 112, warmth: 15 },
-    jazz:      { sound: "warm", bass: true,  voicing: "drop",  cutoff: 0.48, reverb: 0.28, delay: 0.18, bpm: 120, warmth: 70 },
-    rnb:       { sound: "warm", bass: true,  voicing: "close", cutoff: 0.55, reverb: 0.34, delay: 0.22, bpm: 78,  warmth: 45 },
-    romantic:  { sound: "warm", bass: true,  voicing: "low",   cutoff: 0.50, reverb: 0.44, delay: 0.12, bpm: 66,  warmth: 40 },
-    ballad:    { sound: "bell", bass: true,  voicing: "close", cutoff: 0.44, reverb: 0.40, delay: 0.16, bpm: 68,  warmth: 30 },
-    reggae:    { sound: "warm", bass: true,  voicing: "low",   cutoff: 0.58, reverb: 0.24, delay: 0.20, bpm: 76,  warmth: 40 },
-    funk:      { sound: "reed", bass: true,  voicing: "bright", cutoff: 0.78, reverb: 0.10, delay: 0.08, bpm: 108, warmth: 22 },
-    yoga:      { sound: "bell", bass: false, voicing: "close", cutoff: 0.40, reverb: 0.50, delay: 0.02, bpm: 60,  warmth: 20 },
-    yogaDeep:  { sound: "warm", bass: false, voicing: "low",   cutoff: 0.32, reverb: 0.58, delay: 0.02, bpm: 52,  warmth: 30 }
+    pop:       { sound: "piano",   bass: true,  voicing: "close", cutoff: 0.72, reverb: 0.14, delay: 0.10, bpm: 112, warmth: 15 },
+    jazz:      { sound: "epiano",  bass: true,  voicing: "drop",  cutoff: 0.48, reverb: 0.28, delay: 0.18, bpm: 120, warmth: 70 },
+    rnb:       { sound: "epiano",  bass: true,  voicing: "close", cutoff: 0.55, reverb: 0.34, delay: 0.22, bpm: 78,  warmth: 45 },
+    romantic:  { sound: "strings", bass: true,  voicing: "low",   cutoff: 0.50, reverb: 0.44, delay: 0.12, bpm: 66,  warmth: 40 },
+    ballad:    { sound: "strings", bass: true,  voicing: "close", cutoff: 0.44, reverb: 0.40, delay: 0.16, bpm: 68,  warmth: 30 },
+    reggae:    { sound: "warm",    bass: true,  voicing: "low",   cutoff: 0.58, reverb: 0.24, delay: 0.20, bpm: 76,  warmth: 40 },
+    funk:      { sound: "reed",    bass: true,  voicing: "bright", cutoff: 0.78, reverb: 0.10, delay: 0.08, bpm: 108, warmth: 22 },
+    yoga:      { sound: "bell",    bass: false, voicing: "close", cutoff: 0.40, reverb: 0.50, delay: 0.02, bpm: 60,  warmth: 20 },
+    yogaDeep:  { sound: "warm",    bass: false, voicing: "low",   cutoff: 0.32, reverb: 0.58, delay: 0.02, bpm: 52,  warmth: 30 }
   };
 
   // Yoga Deep: Dim/Sus4 type pads are unavailable (stillness palette).
@@ -4283,14 +4460,14 @@ html.simple .phase-track { display: none !important; }
   var STORE_KEY = "touchChord.settings.v1";
   var STORE_VERSION = 1;
   var LAYOUTS = ["octave", "piano", "fourths"];
-  var SOUNDS = ["warm", "bell", "reed"];
+  var SOUNDS = ["piano", "epiano", "strings", "warm", "bell", "reed"];
   var STYLES = ["pop", "jazz", "rnb", "romantic", "ballad", "reggae", "funk", "yoga", "yogaDeep"];
   var SCALES = ["major", "minor"];
 
   function factoryDefaults() {
     return {
       layout: "octave",
-      sound: "warm",
+      sound: "piano",
       bass: false,
       style: "pop",
       keyMode: false,
