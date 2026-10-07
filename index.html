@@ -1115,6 +1115,9 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
 .ht-box p, .ht-box li { font-size: 14px; line-height: 1.45; }
 .ht-box ol, .ht-box ul { margin: 4px 0; padding-left: 20px; }
 
+/* v31: chord-type gating */
+.kb .pad.nochord { opacity: 0.32; }
+#palette button.nofit { opacity: 0.32; }
 /* v30: key bar under Now (real buttons) */
 .key-bar { display: flex; gap: 6px; flex: 0 0 auto; }
 .key-bar button { flex: 1 1 0; min-width: 0; height: 34px; min-height: 34px; margin: 0; border-radius: 10px; font-size: 13px; font-weight: 700; padding: 0 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -2790,7 +2793,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
   function padPlayable(pad) {
     if (!pad || pad.classList.contains("out")) return false;
     if (state.keyMode && !pad.dataset.degree) return false;
-    if (!state.allKeys && pad.classList.contains("nokey")) return false;
+    if (!state.allKeys && (pad.classList.contains("nokey") || pad.classList.contains("nochord"))) return false;
     return true;
   }
 
@@ -4255,6 +4258,46 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     Array.prototype.forEach.call(document.querySelectorAll("#pads .pad, .kb .pad"), function (pd) {
       pd.classList.toggle("nokey", !state.allKeys && !!k && !inKey[Number(pd.dataset.pc)]);
     });
+    // v31: chord buttons follow All keys. A chord "fits" when every note of
+    // it (same buildChord spelling as playback) is in the key's scale.
+    var gate = !!k && !state.allKeys;
+    function fits(rootPc, type, ext) {
+      try {
+        var c = Theory.buildChord({ rootPc: rootPc, type: type, extensions: ext || {} });
+        for (var q = 0; q < c.pcs.length; q++) if (!inKey[((c.pcs[q] % 12) + 12) % 12]) return false;
+        return true;
+      } catch (err) { return true; }
+    }
+    var anyHeld = false;
+    for (var hid in paletteHolds) { anyHeld = true; break; }
+    var heldExt = {
+      six: !!state.extensions.six, min7: !!state.extensions.min7,
+      maj7: !!state.extensions.maj7, nine: !!state.extensions.nine
+    };
+    Array.prototype.forEach.call(document.querySelectorAll(".kb .pad"), function (pd) {
+      var bad = gate && anyHeld && !pd.classList.contains("nokey") && !fits(Number(pd.dataset.pc), state.type, heldExt);
+      pd.classList.toggle("nochord", bad);
+    });
+    var root = spec && !state.forceChord ? state.rootPc : (spec ? spec.rootPc : 0);
+    var rootIn = gate && inKey[root];
+    var typeIsHeld = false;
+    for (var hid2 in paletteHolds) if (paletteHolds[hid2].kind === "type") typeIsHeld = true;
+    var baseType = "major";
+    if (typeIsHeld) baseType = state.type;
+    else if (k) Theory.scaleDegrees(k.pc, k.mode).forEach(function (d) { if (d.pc === root) baseType = d.type; });
+    Array.prototype.forEach.call(document.querySelectorAll("#palette button[data-type], #palette button[data-ext]"), function (cb) {
+      var bad = false;
+      if (rootIn) {
+        if (cb.dataset.type) {
+          bad = !(typeIsHeld && typeHeld(cb.dataset.type)) && !fits(root, cb.dataset.type, heldExt);
+        } else {
+          var e1 = {}; e1[cb.dataset.ext] = true;
+          bad = !extStillHeld(cb.dataset.ext) && !fits(root, baseType, e1);
+        }
+      }
+      cb.classList.toggle("nofit", bad);
+      cb.setAttribute("aria-disabled", bad ? "true" : "false");
+    });
     var ak = document.getElementById("allKeys");
     ak.classList.toggle("on", !!state.allKeys);
     ak.setAttribute("aria-checked", state.allKeys ? "true" : "false");
@@ -4427,6 +4470,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     var b = e.target.closest ? e.target.closest("button") : null;
     if (!b || b.disabled || !b.closest("#palette")) return;
     if (b.dataset.type && state.keyMode) return;
+    if (b.classList.contains("nofit")) { e.preventDefault(); return; }
     e.preventDefault();
     paletteHolds[e.pointerId] = {
       kind: b.dataset.type ? "type" : "ext",
