@@ -3150,17 +3150,27 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
   // Voicing / palette / sound / suggestion changes while a pad is held:
   // skip if nothing audible changed, otherwise morph (common tones sustain,
   // changed tones crossfade) instead of cutting and retriggering every voice.
+  var paletteStrike = false;
+  var PERCUSSIVE_SOUNDS = { piano: true, epiano: true, bell: true };
   function refreshHeld() {
     Object.keys(fingers).forEach(function (id) {
       var finger = fingers[id];
       var spec = specFromFinger(finger);
       maybeLockKey(spec);
       var sig = chordSig(spec);
-      if (finger.sig === sig) return;
+      if (finger.sig === sig && !(paletteStrike && PERCUSSIVE_SOUNDS[state.sound])) return;
       finger.sig = sig;
-      ChordAudio.morphChord(finger.group, spec.midis, { bass: spec.bassOut, sound: state.sound });
+      // v36: decaying engines (piano, e-piano, bell) re-strike on a chord
+      // change; morphing kept faded notes, so the new chord was near-silent.
+      if (PERCUSSIVE_SOUNDS[state.sound]) {
+        ChordAudio.stopChord(finger.group);
+        ChordAudio.playChord(finger.group, spec.midis, { bass: spec.bassOut, sound: state.sound });
+      } else {
+        ChordAudio.morphChord(finger.group, spec.midis, { bass: spec.bassOut, sound: state.sound });
+      }
       if (loop.recording) armPending(finger, spec);
     });
+    paletteStrike = false;
     updateSymbol();
   }
 
@@ -4503,6 +4513,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
       value: b.dataset.type || b.dataset.ext
     };
     try { b.setPointerCapture(e.pointerId); } catch (err) {}
+    paletteStrike = true;
     syncPalette();
   }
 
