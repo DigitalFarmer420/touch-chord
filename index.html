@@ -763,11 +763,17 @@ html.lay-phone-land #ctl {
   box-shadow: -12px 0 30px rgba(0, 0, 0, 0.55);
   transform: translateX(105%);
   visibility: hidden;
+  pointer-events: none;
   transition: transform 180ms ease, visibility 0s linear 180ms;
 }
+/* v42: closed drawer and its tabs never take taps (Simple switch fix). */
+html.lay-phone-land:not(.drawer-open) #ctl, html.lay-phone-land:not(.drawer-open) #ctl * { pointer-events: none !important; }
+html.lay-phone-land header .simple-sw { z-index: 2; }
+html.lay-phone-land #ctlToggle::after { right: 0; }
 html.lay-phone-land.drawer-open #ctl {
   transform: none;
   visibility: visible;
+  pointer-events: auto;
   transition: transform 180ms ease;
 }
 
@@ -1115,6 +1121,14 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
 .kp-x, .ht-x { min-width: 36px; }
 .ht-box h2 { margin: 0 0 6px; font-size: 20px; }
 .ht-box h3 { margin: 14px 0 4px; color: var(--copper); font-size: 15px; }
+/* v42: picture-first How to, full width, scrollable */
+.howto { align-items: flex-start; padding: 8px; overflow: hidden; }
+.ht-box { max-width: 1000px; max-height: calc(100vh - 16px); max-height: calc(100dvh - 16px); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+.ht-box img { display: block; max-width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--line); margin: 6px 0; background: #0f0d0b; }
+.ht-box .cap { margin: 2px 0 6px; color: var(--ink); }
+.ht-box .ht-end { margin-top: 18px; }
+.ht-legend { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 13px; margin: 6px 0 0; opacity: .85; }
+.ht-legend dt { font-weight: 700; } .ht-legend dd { margin: 0; }
 .ht-box p, .ht-box li { font-size: 14px; line-height: 1.45; }
 .ht-box ol, .ht-box ul { margin: 4px 0; padding-left: 20px; }
 
@@ -1172,22 +1186,28 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     <div class="ht-box">
       <button type="button" class="ht-x" aria-label="Close">&#10005;</button>
       <h2>How to</h2>
-      <h3>Make a chord</h3>
-      <ol><li>Hold a chord button on the left.</li><li>Tap a key.</li><li>The big letter shows your chord, so holding maj7 and tapping A gives you Amaj7.</li></ol>
-      <h3>Next</h3>
-      <p>Your first chord sets the key. Tap the <b>Key</b> button under Now to pick a different one.</p>
-      <p>Keys outside your key are grayed out. Turn on <b>Full Range</b> to play every key.</p>
-      <ul><li>The row under the key shows the 7 chords in your key, and the one you're playing is lit.</li>
-      <li>The tiles are good chords to play next. Tap one to hear it.</li>
-      <li>The number (I, IV, V&hellip;) is where that chord sits in the key, and I is home.</li>
-      <li>The short word says how it feels, like &ldquo;leans home&rdquo;, &ldquo;sad&rdquo; or &ldquo;tension&rdquo;.</li>
-      <li>A dashed tile is borrowed from outside the key, so it sounds spicier.</li>
-      <li>Bright, Dark, Tension and Color are the mood of each column.</li>
-      <li>Simple shows 3 rows of suggestions; full mode shows 4.</li></ul>
-      <h3>Sustain</h3>
-      <p>Hold Sustain to keep the notes ringing, and let go to stop.</p>
-      <h3>Advanced</h3>
-      <p>Style, Sound (Piano, E.Piano, Strings, Pad, Reed, Bell), Bass, Voicing, Loop, Simple, and the gear (settings).</p>
+      <section><h3>Why</h3>
+      <img src="images/howto-why.webp?v=42" alt="Touch Chord on a phone: chord buttons, keys, Now and suggestions" width="1200" height="555" loading="lazy" decoding="async">
+      <p class="ht-why">Touch Chord turns one finger into a full chord.<br>It's for anyone who wants to play chords without reading music.<br>A chord is 3 or more notes played at once. Chords that sound good together make up a key.</p>
+      <ul><li><b>Learn chords:</b> try a random chord and see its name and notes.</li><li><b>Sing along:</b> play chords under your voice.</li><li><b>Beginner to making music:</b> start with one chord, then follow the suggestions into a song.</li></ul></section>
+      <section><h3>1. Make a chord</h3>
+      <img src="images/howto-make-chord.webp?v=42" alt="Hold maj7, tap A, Now reads Amaj7" width="1200" height="555" loading="lazy" decoding="async">
+      <p class="cap">Hold <b>maj7</b> (1), tap <b>A</b> (2) = <b>Amaj7</b>.</p></section>
+      <section><h3>2. Suggestions</h3>
+      <img src="images/howto-suggest-a.webp?v=42" alt="Tap the Key button and pick A" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-suggest-b.webp?v=42" alt="Tap a suggestion tile to hear the next chord" width="1200" height="555" loading="lazy" decoding="async">
+      <p class="cap">Tap <b>Key</b> (1), pick A, close. Then tap a tile (2) to hear the next chord.</p></section>
+      <section><h3>3. Sustain</h3>
+      <img src="images/howto-sustain.webp?v=42" alt="Sustain lit while the chord rings" width="1200" height="555" loading="lazy" decoding="async">
+      <p class="cap">Play (1), hold <b>Sustain</b> (2): notes ring and fade. Let go to stop.</p></section>
+      <section><h3>4. Style</h3>
+      <img src="images/howto-style.webp?v=42" alt="Style picker" width="1200" height="555" loading="lazy" decoding="async">
+      <p class="cap">Tap a style (1). It changes the sound and suggestions.</p></section>
+      <section><h3>5. Full Range</h3>
+      <img src="images/howto-fullrange.webp?v=42" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
+      <p class="cap">Gray keys are outside your key. Tap <b>Full Range</b> (1) to play them all.</p></section>
+      <p class="ht-end">Sound and FX live in the gear's <b>Advanced</b> settings.</p>
+      <dl class="ht-legend"><dt>Simple</dt><dd>Simple on/off</dd><dt>&#9881;</dt><dd>Settings (Advanced: sound, FX)</dd><dt>?</dt><dd>This guide</dd></dl>
     </div>
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -1330,7 +1350,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 41;
+var APP_VERSION = 42;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
