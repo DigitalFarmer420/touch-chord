@@ -1114,6 +1114,11 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
 .ht-box p, .ht-box li { font-size: 14px; line-height: 1.45; }
 .ht-box ol, .ht-box ul { margin: 4px 0; padding-left: 20px; }
 
+/* v28: All keys toggle */
+.key-line { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+.allkeys { margin-top: 2px; font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted); min-height: 0; height: auto; line-height: 1.4; white-space: nowrap; }
+.allkeys.on { background: var(--copper); color: var(--copper-ink); border-color: transparent; }
+html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; padding: 3px 12px; }
 /* v27: graying of out-of-key pads (visual only) */
 .kb .pad.nokey { opacity: 0.32; }
 /* v26: no focus ring on Sound picker / Style buttons (user request) */
@@ -1162,7 +1167,7 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
     <div class="card-label">Now</div>
     <div id="symbol" aria-live="polite">C</div>
     <div id="tones">C E G</div>
-    <button type="button" id="keyChip" class="key-chip" aria-haspopup="dialog" title="Tap to change the key">Key: play a chord</button>
+    <div class="key-line"><button type="button" id="keyChip" class="key-chip" aria-haspopup="dialog" title="Tap to change the key">Key: play a chord</button><button type="button" id="allKeys" class="allkeys" role="switch" aria-checked="false" title="All keys: unlock off-scale keys so every key plays">All keys</button></div>
     <div id="keyRow" class="key-row" aria-label="Chords in this key"></div>
   </div>
   <div id="keyPick" class="key-pick" role="dialog" aria-label="Choose key" hidden>
@@ -2470,6 +2475,7 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
     forceChord: null,
     simple: false,               // Simple mode (v20): hides sound/FX/key/loop/layout controls
     keyModeBeforeSimple: false,  // Key mode is forced off while Simple is on; restored after
+    allKeys: false,
     suggestExpanded: false       // Next grid: false = 4x2 (8 chips), true = 4x4 (16 chips)
   };
 
@@ -2764,6 +2770,7 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
   function padPlayable(pad) {
     if (!pad || pad.classList.contains("out")) return false;
     if (state.keyMode && !pad.dataset.degree) return false;
+    if (!state.allKeys && pad.classList.contains("nokey")) return false;
     return true;
   }
 
@@ -4226,8 +4233,11 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
     var inKey = {};
     if (k) Theory.scaleDegrees(k.pc, k.mode).forEach(function (d) { inKey[d.pc] = true; });
     Array.prototype.forEach.call(document.querySelectorAll("#pads .pad, .kb .pad"), function (pd) {
-      pd.classList.toggle("nokey", !!k && !inKey[Number(pd.dataset.pc)]);
+      pd.classList.toggle("nokey", !state.allKeys && !!k && !inKey[Number(pd.dataset.pc)]);
     });
+    var ak = document.getElementById("allKeys");
+    ak.classList.toggle("on", !!state.allKeys);
+    ak.setAttribute("aria-checked", state.allKeys ? "true" : "false");
     row.innerHTML = "";
     if (!k) return;
     Theory.scaleDegrees(k.pc, k.mode).forEach(function (d) {
@@ -4274,6 +4284,11 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
     pick.querySelector(".kp-auto").addEventListener("click", function () { setLockKey(null); close(); });
     pick.querySelector(".kp-x").addEventListener("click", close);
     pick.addEventListener("click", function (e) { if (e.target === pick) close(); });
+    document.getElementById("allKeys").addEventListener("click", function () {
+      state.allKeys = !state.allKeys;
+      updateSymbol();
+      scheduleSave(0);
+    });
     document.getElementById("keyChip").addEventListener("click", function () { sel = null; paint(); pick.hidden = false; });
     var ht = document.getElementById("howto");
     function closeHt() { ht.hidden = true; }
@@ -4698,6 +4713,7 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
       bpm: 96,
       warmth: WARMTH_DEFAULT,
       simple: false,
+      allKeys: false,
       suggestExpanded: false
     };
   }
@@ -4729,6 +4745,7 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
       bpm: num(raw.bpm, 50, 180, d.bpm, true),
       warmth: num(raw.warmth, 0, 100, d.warmth, true),
       simple: bool(raw.simple, d.simple),
+      allKeys: bool(raw.allKeys, d.allKeys),
       suggestExpanded: bool(raw.suggestExpanded, d.suggestExpanded)
       // Legacy `latch` key (cce4d86) is ignored; Sustain is never persisted.
     };
@@ -4776,6 +4793,7 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
       bpm: state.bpm,
       warmth: clampWarmth(document.getElementById("warmth").value),
       simple: !!state.simple,
+      allKeys: !!state.allKeys,
       suggestExpanded: !!state.suggestExpanded
     };
   }
@@ -4852,6 +4870,7 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
     // Simple mode: Key mode is forced off while on (real value kept for later).
     state.simple = !!s.simple;
     state.suggestExpanded = !!s.suggestExpanded;
+    state.allKeys = !!s.allKeys;
     state.keyModeBeforeSimple = false;
     if (state.simple && state.keyMode) {
       state.keyModeBeforeSimple = true;
