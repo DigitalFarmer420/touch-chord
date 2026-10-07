@@ -1081,6 +1081,9 @@ html.lay-phone-land .key-row { display: none; }
 .key-bar .allkeys { background: var(--bg-2); color: var(--ink); border: 1px solid var(--line); }
 .key-bar .allkeys.on { background: var(--copper); color: var(--copper-ink); border-color: transparent; }
 html.lay-pad-port .key-bar button, html.lay-pad-land .key-bar button { height: 44px; min-height: 44px; font-size: 16px; padding: 0 10px; }
+/* v49: narrow iPad-portrait Now column: keep "Full Range" and long key names unclipped. */
+html.lay-pad-port .key-bar button { font-size: 14px; padding: 0 6px; }
+html.lay-pad-port .key-bar .allkeys { flex: 0 0 auto; }
 html.lay-phone-port .key-bar { flex-direction: column; gap: 4px; }
 html.lay-phone-port .key-bar button { height: 28px; min-height: 28px; font-size: 12px; }
 html.lay-phone-land .key-bar button { height: 26px; min-height: 26px; font-size: 11px; }
@@ -1088,6 +1091,13 @@ html.lay-phone-land .key-bar button { height: 26px; min-height: 26px; font-size:
 .key-row span { flex: 1 1 0; min-width: 0; text-align: center; overflow: hidden; text-overflow: clip; white-space: nowrap; }
 html.lay-phone-port .key-row span, html.lay-phone-land .key-row span { font-size: 9px; padding: 1px 1px; }
 .key-row span b { display: none; }
+.key-row > span i { font-style: normal; }
+/* Stacked (narrow Now card): root over quality, border drawn inside so it takes no width. */
+#keyRow.stack { gap: 1px; }
+#keyRow.stack > span { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.05; padding: 2px 0; border-color: transparent; box-shadow: inset 0 0 0 1px var(--line); }
+#keyRow.stack > span.on { box-shadow: none; }
+#keyRow.stack > span .acc { font-size: .8em; }
+#keyRow.stack > span .q { font-size: .85em; min-height: 1em; }
 html.lay-phone-land .key-bar { flex-direction: column; gap: 3px; }
 html.lay-phone-land .key-bar button { height: 22px; min-height: 22px; }
 /* v28: Full Range toggle (was All keys) */
@@ -1125,24 +1135,24 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section><h3>About Touch Chord</h3>
-      <img src="images/howto-why.webp?v=48" alt="Touch Chord on a phone: chord buttons, keys, Now and suggestions" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=49" alt="Touch Chord on a phone: chord buttons, keys, Now and suggestions" width="1200" height="555" loading="lazy" decoding="async">
       <p class="ht-why">Touch Chord turns one finger into a full chord.<br>It's for anyone who wants to play chords without reading music.<br>A chord is 3 or more notes played at once. Chords that sound good together make up a key.</p>
       <ul><li><b>Learn chords:</b> try a random chord and see its name and notes.</li><li><b>Sing along:</b> play chords under your voice.</li><li><b>Beginner to making music:</b> start with one chord, then follow the suggestions into a song.</li></ul></section>
       <h2 class="ht-howto">How-to</h2>
       <section><h3>1. Make a chord</h3>
-      <img src="images/howto-make-chord.webp?v=48" alt="Hold maj7, tap A, Now reads Amaj7" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-make-chord.webp?v=49" alt="Hold maj7, tap A, Now reads Amaj7" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Hold <b>maj7</b> (1), tap <b>A</b> (2) = <b>Amaj7</b>.</p></section>
       <section><h3>2. Chord Suggestion</h3>
-      <img src="images/howto-suggest-b.webp?v=48" alt="Tap a suggestion tile to hear the next chord" width="1200" height="555" loading="lazy" decoding="async">
-      <p class="cap">Tap <b>Key</b> (1), pick A, close. Then tap a tile (2) to hear the next chord.</p></section>
+      <img src="images/howto-suggest-b.webp?v=49" alt="Tap a suggestion tile to hear the next chord" width="1200" height="555" loading="lazy" decoding="async">
+      <p class="cap">Tap a chord (2)</p></section>
       <section><h3>3. Sustain</h3>
-      <img src="images/howto-sustain.webp?v=48" alt="Sustain lit while the chord rings" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-sustain.webp?v=49" alt="Sustain lit while the chord rings" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Play (1), hold <b>Sustain</b> (2): notes ring and fade. Let go to stop.</p></section>
       <section><h3>4. Style</h3>
-      <img src="images/howto-style.webp?v=48" alt="Style picker" width="1200" height="555" loading="lazy" decoding="async">
-      <p class="cap">Tap a style (1). It changes the sound and suggestions.</p></section>
+      <img src="images/howto-style.webp?v=49" alt="Style picker" width="1200" height="555" loading="lazy" decoding="async">
+      <p class="cap">Tap a style (1). It changes the sound, not the chords.</p></section>
       <section><h3>5. Full Range</h3>
-      <img src="images/howto-fullrange.webp?v=48" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-fullrange.webp?v=49" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Gray keys are outside your key. Tap <b>Full Range</b> (1) to play them all.</p></section>
       <p class="ht-end">Sound and FX live in the gear's <b>Advanced</b> settings.</p>
       <dl class="ht-legend"><dt>Simple</dt><dd>Simple on/off</dd><dt>&#9881;</dt><dd>Settings (Advanced: sound, FX)</dd><dt>?</dt><dd>This guide</dd></dl>
@@ -1288,11 +1298,20 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 48;
+var APP_VERSION = 49;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
 });
+
+// v49: display-only accidentals. "Bb" -> "B♭", "F#" -> "F♯", "m7b5" -> "m7♭5".
+// Internal names stay ASCII; call this only where text is shown.
+function accSym(s) {
+  return String(s == null ? "" : s)
+    .replace(/([A-G])(bb|##|b|#)/g, function (m, l, a) { return l + a.replace(/b/g, "\u266d").replace(/#/g, "\u266f"); })
+    .replace(/(\d|\()b(\d)/g, "$1\u266d$2")
+    .replace(/(\d|\()#(\d)/g, "$1\u266f$2");
+}
 
 
 (function () {
@@ -2706,7 +2725,7 @@ document.addEventListener("DOMContentLoaded", function () {
     b.dataset.midi = String(midi);
     if (state.keyMode && !deg) {
       b.className = "pad out";
-      b.innerHTML = "<span class=\"nm\">" + name + "</span>";
+      b.innerHTML = "<span class=\"nm\">" + accSym(name) + "</span>";
       return b;
     }
     if (state.keyMode) {
@@ -2715,7 +2734,7 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       b.className = "pad " + state.type;
     }
-    b.innerHTML = "<span class=\"nm\">" + name + "</span>";
+    b.innerHTML = "<span class=\"nm\">" + accSym(name) + "</span>";
     bindPad(b);
     return b;
   }
@@ -3647,9 +3666,7 @@ document.addEventListener("DOMContentLoaded", function () {
     [6, "m7", "sad", "minor"], [2, "m7", "sad", "minor"], [3, "m7", "sad", "minor"],
     [7, "m7b5", "tension", "tension"], [5, "sus4", "tension", "tension"]
   ];
-  function prettyAcc(name) {
-    return name.charAt(0) + name.slice(1).replace(/b/g, "\u266d").replace(/#/g, "\u266f");
-  }
+  function prettyAcc(name) { return accSym(name); }
   function stripLabel(item) {
     var q = item.qualityLabel || "";
     if (q === "m7b5") q = "m7\u266d5";
@@ -3803,6 +3820,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Shrink the Now symbol only when a long name (e.g. F#6sus4(add9)) would
   // overflow its card; short ones like Cmaj7 keep the full display size.
   function fitNowSymbol() {
+    fitKeyRow();
     var sym = document.getElementById("symbol");
     var card = sym && sym.parentNode;
     if (!card) return;
@@ -3818,7 +3836,7 @@ document.addEventListener("DOMContentLoaded", function () {
   window.addEventListener("resize", function () { fitNowSymbol(); });
 
   function keyLabel(k) {
-    return Theory.noteName(Theory.spellRoot(k.pc)) + (k.mode === "minor" ? " minor" : " major");
+    return accSym(Theory.noteName(Theory.spellRoot(k.pc))) + (k.mode === "minor" ? " minor" : " major");
   }
   function paintKeyChip(spec) {
     var chip = document.getElementById("keyChip");
@@ -3880,11 +3898,38 @@ document.addEventListener("DOMContentLoaded", function () {
       var b = document.createElement("b");
       b.textContent = d.roman + (d.type === "dim" ? "\u00b0" : "");
       s.appendChild(b);
-      s.appendChild(document.createTextNode(d.name + (d.type === "minor" ? "m" : d.type === "dim" ? "\u00b0" : "")));
+      var r = document.createElement("i"); r.className = "r";
+      var nm = accSym(d.name);
+      r.textContent = nm.charAt(0);
+      if (nm.length > 1) { var ac = document.createElement("i"); ac.className = "acc"; ac.textContent = nm.slice(1); r.appendChild(ac); }
+      var q = document.createElement("i"); q.className = "q"; q.textContent = d.type === "minor" ? "m" : d.type === "dim" ? "\u00b0" : "";
+      s.appendChild(r); s.appendChild(q);
       if (spec && d.pc === spec.rootPc && (d.type === spec.type || (spec.type === "sus4"))) s.className = "on";
       row.appendChild(s);
     });
+    fitKeyRow();
   }
+  // v49: 7-chord row: one line when it fits, else root stacked over quality.
+  function fitKeyRow() {
+    var row = document.getElementById("keyRow");
+    if (!row || !row.firstChild) return;
+    row.classList.remove("stack");
+    var spans = row.children;
+    function over() {
+      for (var i = 0; i < spans.length; i++) if (spans[i].scrollWidth > spans[i].clientWidth + 0.5) return true;
+      return false;
+    }
+    var i;
+    for (i = 0; i < spans.length; i++) spans[i].style.fontSize = "";
+    if (!over()) return;
+    row.classList.add("stack");
+    var fs = parseFloat(getComputedStyle(spans[0]).fontSize) || 9;
+    while (fs > 7 && over()) {
+      fs -= 0.5;
+      for (i = 0; i < spans.length; i++) spans[i].style.fontSize = fs + "px";
+    }
+  }
+  window.addEventListener("resize", function () { fitKeyRow(); });
   function setLockKey(k) {
     lockKey = k;
     suggestSig = "";
@@ -3935,8 +3980,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function updateSymbol() {
     var spec = computeSpec();
-    document.getElementById("symbol").textContent = spec.symbol;
-    document.getElementById("tones").textContent = spec.names.join(" ");
+    document.getElementById("symbol").textContent = accSym(spec.symbol);
+    document.getElementById("tones").textContent = spec.names.map(accSym).join(" ");
     fitNowSymbol();
     document.getElementById("vname").textContent = state.voicing;
     var slider = document.getElementById("voicing");
@@ -3982,7 +4027,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("keyMajor").classList.toggle("on", state.keyScale === "major");
     document.getElementById("keyMinor").classList.toggle("on", state.keyScale === "minor");
     document.getElementById("keyReadout").textContent = state.keyMode
-      ? "Key of " + Theory.NOTE_NAMES[state.keyRoot] + (state.keyScale === "minor" ? " minor" : " major")
+      ? "Key of " + accSym(Theory.NOTE_NAMES[state.keyRoot]) + (state.keyScale === "minor" ? " minor" : " major")
       : "Chromatic";
     paintKeyChip(spec);
     paintSuggestions(spec);
@@ -4099,7 +4144,7 @@ document.addEventListener("DOMContentLoaded", function () {
     Theory.NOTE_NAMES.forEach(function (name, i) {
       var opt = document.createElement("option");
       opt.value = String(i);
-      opt.textContent = name;
+      opt.textContent = accSym(name);
       keySel.appendChild(opt);
     });
 
