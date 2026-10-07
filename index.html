@@ -750,7 +750,7 @@ body.is-key #types button { opacity: 0.4; pointer-events: none; }
 /* Drawer (phone landscape). */
 html.lay-phone-land #ctl {
   position: fixed;
-  top: 0;
+  top: var(--topbar-h, 0px);
   right: 0;
   bottom: 0;
   width: min(360px, 72vw);
@@ -1117,7 +1117,8 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
 .kp-modes button { flex: 1; }
 .kp-box button.on { background: var(--copper); color: var(--copper-ink); border-color: transparent; }
 .kp-auto { width: 100%; font-size: 12px; }
-.ht-x { position: absolute; top: 10px; right: 10px; }
+.ht-bar { position: sticky; top: 0; height: 0; z-index: 3; display: flex; justify-content: flex-end; }
+.ht-x { background: #1a1612; }
 .kp-x, .ht-x { min-width: 36px; }
 .ht-box h2 { margin: 0 0 6px; font-size: 20px; }
 .ht-box h3 { margin: 14px 0 4px; color: var(--copper); font-size: 15px; }
@@ -1184,27 +1185,28 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
   </header>
   <div id="howto" class="howto" role="dialog" aria-modal="true" aria-label="How to" hidden>
     <div class="ht-box">
-      <button type="button" class="ht-x" aria-label="Close">&#10005;</button>
+      <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <h2>How to</h2>
       <section><h3>Why</h3>
-      <img src="images/howto-why.webp?v=42" alt="Touch Chord on a phone: chord buttons, keys, Now and suggestions" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=43" alt="Touch Chord on a phone: chord buttons, keys, Now and suggestions" width="1200" height="555" loading="lazy" decoding="async">
       <p class="ht-why">Touch Chord turns one finger into a full chord.<br>It's for anyone who wants to play chords without reading music.<br>A chord is 3 or more notes played at once. Chords that sound good together make up a key.</p>
       <ul><li><b>Learn chords:</b> try a random chord and see its name and notes.</li><li><b>Sing along:</b> play chords under your voice.</li><li><b>Beginner to making music:</b> start with one chord, then follow the suggestions into a song.</li></ul></section>
       <section><h3>1. Make a chord</h3>
-      <img src="images/howto-make-chord.webp?v=42" alt="Hold maj7, tap A, Now reads Amaj7" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-make-chord.webp?v=43" alt="Hold maj7, tap A, Now reads Amaj7" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Hold <b>maj7</b> (1), tap <b>A</b> (2) = <b>Amaj7</b>.</p></section>
       <section><h3>2. Suggestions</h3>
-      <img src="images/howto-suggest-a.webp?v=42" alt="Tap the Key button and pick A" width="1200" height="555" loading="lazy" decoding="async">
-      <img src="images/howto-suggest-b.webp?v=42" alt="Tap a suggestion tile to hear the next chord" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-suggest-a.webp?v=43" alt="Tap the Key button and pick A" width="1200" height="555" loading="lazy" decoding="async">
+      <p class="cap">Tap <b>Key</b> (1) and pick A.</p>
+      <img src="images/howto-suggest-b.webp?v=43" alt="Tap a suggestion tile to hear the next chord" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Tap <b>Key</b> (1), pick A, close. Then tap a tile (2) to hear the next chord.</p></section>
       <section><h3>3. Sustain</h3>
-      <img src="images/howto-sustain.webp?v=42" alt="Sustain lit while the chord rings" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-sustain.webp?v=43" alt="Sustain lit while the chord rings" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Play (1), hold <b>Sustain</b> (2): notes ring and fade. Let go to stop.</p></section>
       <section><h3>4. Style</h3>
-      <img src="images/howto-style.webp?v=42" alt="Style picker" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-style.webp?v=43" alt="Style picker" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Tap a style (1). It changes the sound and suggestions.</p></section>
       <section><h3>5. Full Range</h3>
-      <img src="images/howto-fullrange.webp?v=42" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-fullrange.webp?v=43" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Gray keys are outside your key. Tap <b>Full Range</b> (1) to play them all.</p></section>
       <p class="ht-end">Sound and FX live in the gear's <b>Advanced</b> settings.</p>
       <dl class="ht-legend"><dt>Simple</dt><dd>Simple on/off</dd><dt>&#9881;</dt><dd>Settings (Advanced: sound, FX)</dd><dt>?</dt><dd>This guide</dd></dl>
@@ -1350,7 +1352,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 42;
+var APP_VERSION = 43;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -5169,6 +5171,8 @@ document.addEventListener("DOMContentLoaded", function () {
     scheduleSave(0);
   }
 
+  // v43: drawer opens below the top bar so Simple / gear / ? stay tappable.
+  function syncTopbarH() { var t = document.querySelector("header.topbar"); if (t) document.documentElement.style.setProperty("--topbar-h", Math.ceil(t.getBoundingClientRect().bottom) + "px"); }
   function isDrawerLayout() {
     return document.documentElement.classList.contains("lay-phone-land");
   }
@@ -5203,6 +5207,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function setDrawer(open) {
     var de = document.documentElement;
     open = !!open && isDrawerLayout() && !state.simple;
+    syncTopbarH();
     de.classList.toggle("drawer-open", open);
     if (open && !document.getElementById("ctl").dataset.open) setOpenTab(lastTab);
     else paintCtl();
