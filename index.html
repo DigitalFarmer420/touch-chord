@@ -1113,6 +1113,9 @@ html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn
 .ht-box h3 { margin: 14px 0 4px; color: var(--copper); font-size: 15px; }
 .ht-box p, .ht-box li { font-size: 14px; line-height: 1.45; }
 .ht-box ol, .ht-box ul { margin: 4px 0; padding-left: 20px; }
+
+/* v26: no focus ring on Sound picker / Style buttons (user request) */
+#engines button, #engines button:focus, #engines button:focus-visible, #styles button, #styles button:focus, #styles button:focus-visible { outline: none !important; box-shadow: none; -webkit-tap-highlight-color: transparent; }
 </style>
 </head>
 <body>
