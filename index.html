@@ -1082,6 +1082,37 @@ html.lay-pad-port .kb .pad, html.lay-pad-land .kb .pad { font-size: 14px; paddin
 html.simple #ctl,
 html.simple #ctlToggle,
 html.simple .phase-track { display: none !important; }
+
+/* ===== v24: key chip, key row, why labels, how-to ===== */
+.key-chip { margin-top: 2px; font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--copper); background: transparent; color: var(--ink); min-height: 0; height: auto; line-height: 1.4; white-space: nowrap; }
+.key-row { display: flex; gap: 3px; flex-wrap: wrap; max-width: 100%; }
+.key-row span { font-size: 10px; padding: 1px 4px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted); line-height: 1.3; }
+.key-row span b { font-weight: 700; margin-right: 2px; opacity: .7; }
+.key-row span.on { background: var(--copper); color: var(--copper-ink); border-color: transparent; }
+html.lay-pad-port .key-chip, html.lay-pad-land .key-chip { font-size: 14px; padding: 3px 12px; }
+html.lay-pad-port .key-row span, html.lay-pad-land .key-row span { font-size: 13px; padding: 2px 6px; }
+html.lay-phone-land .key-row { display: none; }
+.next-wrap button { flex-direction: column; gap: 1px; }
+.next-wrap button .rn { font-size: 9px; font-weight: 600; opacity: .8; letter-spacing: .02em; }
+.next-wrap button .why { font-size: 9px; font-weight: 500; opacity: .8; }
+html.lay-phone-port .next-wrap button .why, html.lay-phone-land .next-wrap button .why { display: none; }
+html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn, html.lay-pad-port .next-wrap button .why, html.lay-pad-land .next-wrap button .why { font-size: 11px; }
+.next-wrap button.borrowed { border-style: dashed; border-width: 2px; border-color: rgba(255,255,255,.75); }
+.key-pick, .howto { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.key-pick[hidden], .howto[hidden] { display: none; }
+.kp-box, .ht-box { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; color: var(--ink); max-width: 560px; width: 100%; max-height: 90vh; overflow: auto; position: relative; }
+.kp-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 700; }
+.kp-roots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 8px; }
+.kp-modes { display: flex; gap: 6px; margin-bottom: 8px; }
+.kp-modes button { flex: 1; }
+.kp-box button.on { background: var(--copper); color: var(--copper-ink); border-color: transparent; }
+.kp-auto { width: 100%; font-size: 12px; }
+.ht-x { position: absolute; top: 10px; right: 10px; }
+.kp-x, .ht-x { min-width: 36px; }
+.ht-box h2 { margin: 0 0 6px; font-size: 20px; }
+.ht-box h3 { margin: 14px 0 4px; color: var(--copper); font-size: 15px; }
+.ht-box p, .ht-box li { font-size: 14px; line-height: 1.45; }
+.ht-box ol, .ht-box ul { margin: 4px 0; padding-left: 20px; }
 </style>
 </head>
 <body>
@@ -1091,6 +1122,7 @@ html.simple .phase-track { display: none !important; }
     <span class="spacer"></span>
     <button id="ctlToggle" type="button" class="top-btn" aria-controls="ctl" aria-expanded="false" title="Sound, effects, key, loop and layout">&#9776; Controls</button>
     <button id="simpleBtn" type="button" class="top-btn simple-sw" role="switch" aria-checked="false" title="Simple mode: hide sound, effects, key, loop and layout controls">Simple<span class="knob" aria-hidden="true"></span></button>
+    <button id="howtoBtn" type="button" class="top-btn howto-btn" aria-haspopup="dialog" title="How to use Touch Chord">How to</button>
     <div class="config" id="configWrap">
       <button id="configBtn" type="button" class="top-btn config-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="configMenu" title="Configuration">Config</button>
       <div id="configMenu" class="config-menu" role="menu" aria-label="Configuration" hidden>
@@ -1098,12 +1130,43 @@ html.simple .phase-track { display: none !important; }
       </div>
     </div>
   </header>
+  <div id="howto" class="howto" role="dialog" aria-modal="true" aria-label="How to" hidden>
+    <div class="ht-box">
+      <button type="button" class="ht-x" aria-label="Close">&#10005;</button>
+      <h2>How to</h2>
+      <h3>Make a chord</h3>
+      <ol><li>Hold a chord button on the left.</li><li>Tap a key.</li><li>The big letter shows your chord, so holding maj7 and tapping A gives you Amaj7.</li></ol>
+      <h3>Next</h3>
+      <p>Your first chord sets the key, which shows at the top of Now. Tap it to change.</p>
+      <ul><li>The row under the key shows the 7 chords in your key, and the one you're playing is lit.</li>
+      <li>The tiles are good chords to play next. Tap one to hear it.</li>
+      <li>The number (I, IV, V&hellip;) is where that chord sits in the key, and I is home.</li>
+      <li>The short word says how it feels, like &ldquo;leans home&rdquo;, &ldquo;sad&rdquo; or &ldquo;tension&rdquo;.</li>
+      <li>A dashed tile is borrowed from outside the key, so it sounds spicier.</li>
+      <li>Bright, Dark, Tension and Color are the mood of each column.</li>
+      <li>Tap &#9652; to show more.</li></ul>
+      <h3>Sustain</h3>
+      <p>Hold Sustain to keep the notes ringing, and let go to stop.</p>
+      <h3>Advanced</h3>
+      <p>Style, Sound (Piano, E.Piano, Strings, Pad, Reed, Bell), Bass, Voicing, Loop, Simple, and Config.</p>
+    </div>
+  </div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <div class="now-card" aria-label="Now playing">
     <div class="card-label">Now</div>
     <div id="symbol" aria-live="polite">C</div>
     <div id="tones">C E G</div>
+    <button type="button" id="keyChip" class="key-chip" aria-haspopup="dialog" title="Tap to change the key">Key: play a chord</button>
+    <div id="keyRow" class="key-row" aria-label="Chords in this key"></div>
+  </div>
+  <div id="keyPick" class="key-pick" role="dialog" aria-label="Choose key" hidden>
+    <div class="kp-box">
+      <div class="kp-head"><span>Choose key</span><button type="button" class="kp-x" aria-label="Close">&#10005;</button></div>
+      <div class="kp-roots"></div>
+      <div class="kp-modes"><button type="button" data-mode="major">Major</button><button type="button" data-mode="minor">Minor</button></div>
+      <button type="button" class="kp-auto">Auto: next chord I play sets the key</button>
+    </div>
   </div>
 
   <div id="styles" class="style-row seg" role="radiogroup" aria-label="Style">
@@ -1248,6 +1311,7 @@ html.simple .phase-track { display: none !important; }
 
   var DEGREE_STEPS = {
     0: 0,
+    1: 1,
     2: 1,
     3: 2,
     4: 2,
@@ -1508,6 +1572,7 @@ html.simple .phase-track { display: none !important; }
     chordIntervals: chordIntervals,
     chordToneNames: chordToneNames,
     tones: tones,
+    spellInterval: spellInterval,
     voicedMidis: voicedMidis,
     pitchClasses: pitchClasses,
     chordSymbol: chordSymbol,
@@ -2941,6 +3006,7 @@ html.simple .phase-track { display: none !important; }
     finger.sig = chordSig(spec);
     state.holding = true;
     if (loop.recording) armPending(finger, spec);
+    maybeLockKey(spec);
     updateSymbol();
   }
 
@@ -3029,6 +3095,7 @@ html.simple .phase-track { display: none !important; }
     Object.keys(fingers).forEach(function (id) {
       var finger = fingers[id];
       var spec = specFromFinger(finger);
+      maybeLockKey(spec);
       var sig = chordSig(spec);
       if (finger.sig === sig) return;
       finger.sig = sig;
@@ -3577,8 +3644,24 @@ html.simple .phase-track { display: none !important; }
 
   function wrap12(n) { return ((n % 12) + 12) % 12; }
 
-  function suggestionKey(spec) {
+  // v24 key lock: the first chord played sets the key (major-family -> major,
+  // minor/dim -> minor, rooted on the chord). Key mode (pad layout) still wins.
+  var lockKey = null;
+  function keyFromChord(spec) {
+    return { pc: spec.rootPc, mode: (spec.type === "minor" || spec.type === "dim") ? "minor" : "major" };
+  }
+  function maybeLockKey(spec) {
+    if (lockKey || state.keyMode || !spec) return;
+    lockKey = keyFromChord(spec);
+    suggestSig = "";
+  }
+  function activeKey() {
     if (state.keyMode) return { pc: state.keyRoot, mode: state.keyScale === "minor" ? "minor" : "major" };
+    return lockKey;
+  }
+  function suggestionKey(spec) {
+    var ak = activeKey();
+    if (ak) return ak;
     if (spec.type === "minor") return { pc: spec.rootPc, mode: "minor" };
     if (spec.type === "dim") return { pc: wrap12(spec.rootPc + 1), mode: "major" };
     return { pc: spec.rootPc, mode: "major" };
@@ -3599,7 +3682,8 @@ html.simple .phase-track { display: none !important; }
     var name;
     if (entry.alt) {
       rootPc = wrap12(key.pc + (ALT_PC[entry.alt] || 0));
-      name = Theory.NOTE_NAMES[rootPc];
+      // Spell borrowed roots by letter from the key (bII in C = Db, not C#).
+      name = Theory.spellInterval(Theory.spellRoot(key.pc), ALT_PC[entry.alt] || 0).name;
     } else {
       var degrees = Theory.scaleDegrees(key.pc, key.mode);
       var d = degrees[(entry.deg || 1) - 1];
@@ -3619,7 +3703,60 @@ html.simple .phase-track { display: none !important; }
       mood: (mapped.type === "minor" || mapped.type === "dim") ? "sad" : "happy"
     };
     if (entry.alt) item.alt = entry.alt;
+    annotate(key, item);
     return item;
+  }
+
+  var ALT_ROMAN = { bII: "\u266dII", bIII: "\u266dIII", III: "III", bVI: "\u266dVI", bVII: "\u266dVII", tritV: "\u266dII" };
+  var WHY_MAJOR = { 1: "home", 2: "leans to V", 3: "soft, dreamy", 4: "lifts away", 5: "pulls home", 6: "sad", 7: "tension" };
+  var WHY_MINOR = { 1: "home", 2: "tension", 3: "bright relief", 4: "deep, heavy", 5: "soft pull", 6: "warm", 7: "lift" };
+  var WHY_ALT = { bII: "spicy", bIII: "bold", III: "surprise", bVI: "darker", bVII: "rock color", tritV: "slides home" };
+  function romanCase(r, type) {
+    var up = r.replace(/^(\u266d?)(.*)$/, function (m, f, n) { return f + n.toUpperCase(); });
+    if (type === "minor") return up.replace(/[IV]+/, function (x) { return x.toLowerCase(); });
+    if (type === "dim") return up.replace(/[IV]+/, function (x) { return x.toLowerCase(); }) + "\u00b0";
+    return up;
+  }
+  function romanSuffix(item) {
+    var e = item.extensions || {};
+    if (item.type === "sus4") return "sus";
+    if (e.maj7) return "maj7";
+    if (e.min7) return item.qualityLabel === "m7b5" || /\u00f8|b5/.test(item.qualityLabel || "") ? "\u00f87" : "7";
+    if (e.nine) return "add9";
+    return "";
+  }
+  // Roman numeral + short reason + borrowed flag for a suggestion item.
+  function annotate(key, item) {
+    var minor = key.mode === "minor";
+    var base, why, borrowed = false;
+    if (item.alt) {
+      base = ALT_ROMAN[item.alt] || item.alt;
+      why = WHY_ALT[item.alt] || "borrowed";
+      borrowed = true;
+    } else {
+      var degs = Theory.scaleDegrees(key.pc, key.mode);
+      var d = degs[(item.degree || 1) - 1];
+      base = d ? d.roman : "I";
+      why = (minor ? WHY_MINOR : WHY_MAJOR)[item.degree] || "";
+      var tri = item.type === "sus4" ? null : item.type;
+      if (d && tri && tri !== d.type) {
+        borrowed = true;
+        if (!minor && item.degree === 2 && tri === "major") why = "pushes to V";
+        else if (!minor && item.degree === 4 && tri === "minor") why = "bittersweet";
+        else if (!minor && item.degree === 1 && tri === "minor") why = "dark home";
+        else if (!minor && item.degree === 3 && tri === "major") why = "surprise";
+        else if (minor && item.degree === 5 && tri === "major") why = "pulls home";
+        else why = "borrowed";
+        if (minor && item.degree === 5 && tri === "major") borrowed = false; // harmonic-minor V is standard
+      }
+      if (item.type === "sus4") why = "suspended";
+      if (item.extensions && item.extensions.min7 && !item.extensions.maj7 && item.type === "major" && item.degree === 5) why = minor ? "pulls home" : "pulls home";
+    }
+    var sfx = romanSuffix(item);
+    item.roman = romanCase(base, item.type === "sus4" ? "major" : item.type) + sfx;
+    if (sfx === "\u00f87") item.roman = item.roman.replace("\u00b0", "");
+    item.why = why;
+    item.borrowed = borrowed;
   }
 
   function phraseBias(items) {
@@ -3943,7 +4080,8 @@ html.simple .phase-track { display: none !important; }
     var rowCount = expanded ? 4 : 2;
     var items = nextChords(spec, expanded ? 64 : 24);
     var slots = slotSuggestions(items);
-    var sig = (expanded ? "E|" : "C|") + state.style + "@" + currentLoopBar() + "|" + LANES.map(function (ln) {
+    var akS = activeKey();
+    var sig = (expanded ? "E|" : "C|") + (akS ? akS.pc + akS.mode : "auto") + "|" + state.style + "@" + currentLoopBar() + "|" + LANES.map(function (ln) {
       return slots[ln.id].slots.map(function (it) {
         return it ? (it.name + it.dir + it.degree + (it.qualityLabel || "")) : "-";
       }).join(",");
@@ -4007,9 +4145,13 @@ html.simple .phase-track { display: none !important; }
         add("div", "empty").setAttribute("aria-hidden", "true");
         return;
       }
-      var b = add("button", ln.tone, chipSymbol(item));
+      var b = add("button", ln.tone + (item.borrowed ? " borrowed" : ""));
       b.type = "button";
-      b.setAttribute("aria-label", item.name + " (" + ln.label + ", " + dirWord + ")");
+      if (item.roman) { var rn = document.createElement("span"); rn.className = "rn"; rn.textContent = item.roman; b.appendChild(rn); }
+      var sy = document.createElement("span"); sy.className = "sym"; sy.textContent = chipSymbol(item); b.appendChild(sy);
+      if (item.why) { var wy = document.createElement("span"); wy.className = "why"; wy.textContent = item.why; b.appendChild(wy); }
+      b.title = (item.roman ? item.roman + " \u00b7 " : "") + (item.why || "") + (item.borrowed ? " (borrowed)" : "");
+      b.setAttribute("aria-label", item.name + (item.roman ? ", " + item.roman : "") + (item.why ? ", " + item.why : "") + (item.borrowed ? ", borrowed" : "") + " (" + ln.label + ", " + dirWord + ")");
       // Touch/pen fire on pointerup: browsers drop the synthetic click when
       // another finger is down (e.g. holding Sustain). Click stays for
       // mouse / keyboard, de-duplicated against the pointer tap.
@@ -4068,6 +4210,74 @@ html.simple .phase-track { display: none !important; }
 
   window.addEventListener("resize", function () { fitNowSymbol(); });
 
+  function keyLabel(k) {
+    return Theory.noteName(Theory.spellRoot(k.pc)) + (k.mode === "minor" ? " minor" : " major");
+  }
+  function paintKeyChip(spec) {
+    var chip = document.getElementById("keyChip");
+    var row = document.getElementById("keyRow");
+    var k = activeKey();
+    chip.textContent = k ? "Key: " + keyLabel(k) : "Key: play a chord";
+    row.innerHTML = "";
+    if (!k) return;
+    Theory.scaleDegrees(k.pc, k.mode).forEach(function (d) {
+      var s = document.createElement("span");
+      var b = document.createElement("b");
+      b.textContent = d.roman + (d.type === "dim" ? "\u00b0" : "");
+      s.appendChild(b);
+      s.appendChild(document.createTextNode(d.name + (d.type === "minor" ? "m" : d.type === "dim" ? "\u00b0" : "")));
+      if (spec && d.pc === spec.rootPc && (d.type === spec.type || (spec.type === "sus4"))) s.className = "on";
+      row.appendChild(s);
+    });
+  }
+  function setLockKey(k) {
+    if (state.keyMode && k) {
+      state.keyRoot = k.pc;
+      state.keyScale = k.mode;
+      renderPads();
+    }
+    lockKey = k;
+    suggestSig = "";
+    refreshHeld();
+  }
+  function wireKeyPick() {
+    var pick = document.getElementById("keyPick");
+    var roots = pick.querySelector(".kp-roots");
+    var sel = null;
+    function paint() {
+      var k = sel || activeKey() || { pc: 0, mode: "major" };
+      Array.prototype.forEach.call(roots.children, function (b) { b.classList.toggle("on", Number(b.dataset.pc) === k.pc); });
+      Array.prototype.forEach.call(pick.querySelectorAll(".kp-modes button"), function (b) { b.classList.toggle("on", b.dataset.mode === k.mode); });
+    }
+    var FLATS = ["C", "D\u266d", "D", "E\u266d", "E", "F", "F\u266f", "G", "A\u266d", "A", "B\u266d", "B"];
+    FLATS.forEach(function (n, i) {
+      var b = document.createElement("button");
+      b.type = "button"; b.dataset.pc = String(i); b.textContent = n;
+      b.addEventListener("click", function () {
+        var k = sel || activeKey() || { pc: 0, mode: "major" };
+        sel = { pc: i, mode: k.mode }; setLockKey(sel); paint();
+      });
+      roots.appendChild(b);
+    });
+    Array.prototype.forEach.call(pick.querySelectorAll(".kp-modes button"), function (b) {
+      b.addEventListener("click", function () {
+        var k = sel || activeKey() || { pc: 0, mode: "major" };
+        sel = { pc: k.pc, mode: b.dataset.mode }; setLockKey(sel); paint();
+      });
+    });
+    function close() { pick.hidden = true; sel = null; }
+    pick.querySelector(".kp-auto").addEventListener("click", function () { if (!state.keyMode) setLockKey(null); close(); });
+    pick.querySelector(".kp-x").addEventListener("click", close);
+    pick.addEventListener("click", function (e) { if (e.target === pick) close(); });
+    document.getElementById("keyChip").addEventListener("click", function () { sel = null; paint(); pick.hidden = false; });
+    var ht = document.getElementById("howto");
+    function closeHt() { ht.hidden = true; }
+    document.getElementById("howtoBtn").addEventListener("click", function () { ht.hidden = false; ht.querySelector(".ht-x").focus(); });
+    ht.querySelector(".ht-x").addEventListener("click", closeHt);
+    ht.addEventListener("click", function (e) { if (e.target === ht) closeHt(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") { closeHt(); close(); } });
+  }
+
   function updateSymbol() {
     var spec = computeSpec();
     document.getElementById("symbol").textContent = spec.symbol;
@@ -4119,6 +4329,7 @@ html.simple .phase-track { display: none !important; }
     document.getElementById("keyReadout").textContent = state.keyMode
       ? "Key of " + Theory.NOTE_NAMES[state.keyRoot] + (state.keyScale === "minor" ? " minor" : " major")
       : "Chromatic";
+    paintKeyChip(spec);
     paintSuggestions(spec);
     paintPads();
     paintLoop();
@@ -4849,6 +5060,7 @@ html.simple .phase-track { display: none !important; }
   try {
     wire();
     wireConfig();
+    wireKeyPick();
     wireLayoutUi();
     var initial;
     try { initial = loadSettings(); } catch (err) { initial = factoryDefaults(); }
