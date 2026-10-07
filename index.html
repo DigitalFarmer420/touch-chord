@@ -3474,9 +3474,11 @@ html.simple .phase-track { display: none !important; }
   }
 
   // Builds a ranked candidate pool: style table hops first (unchanged order),
-  // then diatonic fill, then tension fill (vii°/ii° and Vsus4). Phrase-bar bias
-  // reorders the pool; slotSuggestions() then maps it into up to 16 grid cells
-  // (4 lanes x 4 slots; collapsed view shows the first 2 slots per lane).
+  // then diatonic fill, then tension fill (vii°/ii° and Vsus4), then lane
+  // enrichment (quality variants / borrows / extra sus / modal color) so each
+  // lane can reach ~4 distinct chips when expanded. Phrase-bar bias reorders
+  // the pool; slotSuggestions() maps it into up to 16 grid cells (4x4).
+  // Collapsed view shows the up + down anchors per lane (same top-2 quality).
   function nextChords(spec, limit) {
     limit = limit || 6;
     var key = suggestionKey(spec);
@@ -3534,6 +3536,67 @@ html.simple .phase-track { display: none !important; }
       }
       // Real tension candidates: dominant sus4 (resolves to I/i).
       if (out.length < limit) pushItem(resolveEntry(key, E(5, "sus4")));
+    }
+
+    // Lane enrichment: musically sensible extras so expanded 4x4 can fill
+    // ~4 distinct chips per lane. Only when limit is large (expanded paint
+    // asks for 64); collapsed (limit 24) keeps the pre-enrichment pool so
+    // top-2 quality matches ?v=20/?v=21. pushItem dedupes against the pool.
+    if (limit < 32) return phraseBias(out);
+    var style = state.style;
+    var soft = style === "yoga" || style === "yogaDeep";
+    var enrich = [];
+    if (key.mode === "major") {
+      // Bright: dominant / maj7 / add9 variants + V/V (II maj)
+      if (style === "jazz" || style === "rnb") {
+        enrich.push(E(5, "dom7"), E(4, "maj7"), E(1, "maj7"), E(2, "maj"), E(1, "add9"), E(6, "maj"));
+      } else if (style === "funk") {
+        enrich.push(E(5, "dom7"), E(4, "dom7"), E(1, "dom7"), E(2, "maj"), E(1, "add9"));
+      } else if (soft) {
+        enrich.push(E(1, "add9"), E(1, "maj7"), E(4, "maj7"), E(4, "add9"));
+      } else {
+        enrich.push(E(5, "dom7"), E(4, "maj7"), E(1, "maj7"), E(1, "add9"), E(2, "maj"), E(4, "add9"));
+      }
+      // Dark: m7 variants + borrowed iv / parallel i
+      enrich.push(E(2, "m7"), E(6, "m7"), E(3, "m7"), E(4, "min"), E(1, "min"));
+      // Tension: more sus + half-dim (skipped for Yoga Deep)
+      if (style !== "yogaDeep") {
+        enrich.push(E(7, "m7b5"), E(1, "sus4"), E(4, "sus4"), E(2, "sus4"));
+        if (!soft) enrich.push(E(6, "sus4"));
+      }
+      // Color: common modal / borrowed majors (alts)
+      if (style === "jazz") {
+        enrich.push(A("bVII", "dom7"), A("bII", "dom7"), A("tritV", "dom7"), A("bVI", "maj"), A("bIII", "maj"));
+      } else if (soft) {
+        enrich.push(A("bVII", "maj"), A("bVI", "maj"));
+      } else {
+        enrich.push(A("bVII", "maj"), A("bVI", "maj"), A("bIII", "maj"), A("bII", "maj"), A("bVII", "dom7"), A("III", "maj"));
+      }
+    } else {
+      // Minor key enrichment
+      if (style === "jazz" || style === "rnb") {
+        enrich.push(E(5, "dom7"), E(3, "maj7"), E(6, "maj7"), E(7, "dom7"), E(3, "maj"));
+      } else if (soft) {
+        enrich.push(E(3, "maj"), E(6, "maj"), E(1, "madd9"), E(4, "m7"));
+      } else {
+        enrich.push(E(5, "dom7"), E(3, "maj"), E(6, "maj"), E(7, "maj"), E(3, "maj7"));
+      }
+      enrich.push(E(1, "m7"), E(4, "m7"), E(5, "m7"), E(2, "m7"), E(1, "madd9"));
+      if (style !== "yogaDeep") {
+        enrich.push(E(2, "m7b5"), E(1, "sus4"), E(4, "sus4"), E(5, "sus4"), E(2, "dim"));
+      }
+      if (style === "jazz") {
+        enrich.push(A("bII", "maj"), A("bVII", "dom7"), A("bVI", "maj"), A("tritV", "dom7"));
+      } else if (soft) {
+        enrich.push(A("bVII", "maj"), A("bVI", "maj"));
+      } else {
+        enrich.push(A("bII", "maj"), A("bVII", "maj"), A("bVI", "maj"), A("bVII", "dom7"));
+      }
+    }
+    for (var e = 0; e < enrich.length && out.length < limit; e++) {
+      var before = out.length;
+      pushItem(resolveEntry(key, enrich[e]));
+      if (out.length > before) out[out.length - 1].enrich = true;
     }
     return phraseBias(out);
   }
@@ -3631,10 +3694,12 @@ html.simple .phase-track { display: none !important; }
     return root + label;
   }
 
-  // Map the ranked pool into 4 lanes x 4 slots. Slot 0 prefers "up", slot 1
-  // prefers "down" (same as the old 4x2 view); slots 2–3 take the next-ranked
-  // leftovers in that lane. Collapsed paint shows slots 0–1; expanded shows all 4.
-  // No match = empty cell.
+  // Map the ranked pool into 4 lanes x 4 slots.
+  // Pass 1 (legacy, primary pool only): first "up" → [0], first "down" → [3]
+  // (was [1] in the old 4x2 grid). Enrichment candidates are skipped here so
+  // expanding does not move the ↑/↓ chips. Pass 2: fill remaining empty slots
+  // in rank order (enrichment fills mids). Collapsed paint shows [0]+[3];
+  // expanded shows all four (↑ · · ↓).
   function slotSuggestions(items) {
     var lanes = ["bright", "dark", "tension", "color"];
     var slots = {
@@ -3651,14 +3716,15 @@ html.simple .phase-track { display: none !important; }
       arr = slots[lane].slots;
       for (i = 0; i < items.length; i++) {
         item = items[i];
+        if (item.enrich) continue;
         if (suggestLane(item) !== lane) continue;
         sig = suggestionItemSig(item);
         if (used[sig]) continue;
         if (item.dir === "up" && !arr[0]) {
           arr[0] = item;
           used[sig] = true;
-        } else if (item.dir === "down" && !arr[1]) {
-          arr[1] = item;
+        } else if (item.dir === "down" && !arr[3]) {
+          arr[3] = item;
           used[sig] = true;
         }
       }
@@ -3698,7 +3764,7 @@ html.simple .phase-track { display: none !important; }
   function paintSuggestions(spec) {
     var expanded = !!state.suggestExpanded;
     var rowCount = expanded ? 4 : 2;
-    var items = nextChords(spec, expanded ? 48 : 20);
+    var items = nextChords(spec, expanded ? 64 : 24);
     var slots = slotSuggestions(items);
     var sig = (expanded ? "E|" : "C|") + state.style + "@" + currentLoopBar() + "|" + LANES.map(function (ln) {
       return slots[ln.id].slots.map(function (it) {
@@ -3795,14 +3861,16 @@ html.simple .phase-track { display: none !important; }
       });
     }
 
+    // Collapsed: slots 0 + 3 (up + down anchors). Expanded: all four.
     var rowMeta = expanded
       ? [["up", "\u2191"], ["mid1", "\u00b7"], ["mid2", "\u00b7"], ["down", "\u2193"]]
       : [["up", "\u2191"], ["down", "\u2193"]];
+    var rowSlots = expanded ? [0, 1, 2, 3] : [0, 3];
     for (var r = 0; r < rowCount; r++) {
       add("div", "rowlbl", rowMeta[r][1]).setAttribute("aria-hidden", "true");
-      (function (rowIdx, dirWord) {
-        LANES.forEach(function (ln) { addCell(slots[ln.id].slots[rowIdx], ln, dirWord); });
-      })(r, rowMeta[r][0]);
+      (function (slotIdx, dirWord) {
+        LANES.forEach(function (ln) { addCell(slots[ln.id].slots[slotIdx], ln, dirWord); });
+      })(rowSlots[r], rowMeta[r][0]);
     }
   }
 
