@@ -479,7 +479,7 @@ html.lay-pad-port .style-row { flex-wrap: wrap; overflow: visible; touch-action:
 html.lay-pad-port .style-row button, html.lay-pad-land .style-row button { height: 36px; min-height: 36px; padding: 0 14px; font-size: 14px; }
 html.lay-pad-land .style-row button { flex: 1 0 auto; }
 
-/* ===== Next 4x2 ===== */
+/* ===== Next 4x2 (default) / 4x4 (expanded) ===== */
 .next-card {
   border: 1px solid var(--line);
   background: var(--card);
@@ -498,6 +498,7 @@ html.lay-pad-port .next-card, html.lay-pad-land .next-card { padding: 8px 12px 1
   align-items: stretch;
   min-width: 0;
 }
+.next-wrap.is-expanded { grid-template-rows: auto repeat(4, var(--chip)); }
 html.lay-pad-port .next-wrap, html.lay-pad-land .next-wrap { gap: var(--next-vgap) 8px; }
 .next-wrap .axis {
   color: var(--muted);
@@ -511,6 +512,7 @@ html.lay-pad-port .next-wrap, html.lay-pad-land .next-wrap { gap: var(--next-vga
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* Corner is the expand/collapse control (tap works while Sustain is held). */
 .next-wrap .corner {
   color: var(--muted);
   font-size: 9px;
@@ -518,13 +520,41 @@ html.lay-pad-port .next-wrap, html.lay-pad-land .next-wrap { gap: var(--next-vga
   text-transform: uppercase;
   justify-self: start;
   align-self: end;
-  padding-bottom: 1px;
+  padding: 0 4px 1px 2px;
+  margin: 0;
   white-space: nowrap;
   overflow: visible;
   min-width: 0;
+  min-height: 0;
+  height: auto;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
-/* Phones: the corner word steals chip width; the arrows say enough. */
-html.lay-phone-port .next-wrap .corner, html.lay-phone-land .next-wrap .corner { font-size: 0; }
+.next-wrap .corner:focus-visible { outline: 2px solid var(--copper); outline-offset: 1px; }
+.next-wrap .corner .corner-chev {
+  font-size: 11px;
+  line-height: 1;
+  color: var(--copper);
+}
+/* Phones: hide the "Suggestions" word; keep the chevron as the affordance. */
+html.lay-phone-port .next-wrap .corner .corner-txt,
+html.lay-phone-land .next-wrap .corner .corner-txt { display: none; }
+html.lay-phone-port .next-wrap .corner,
+html.lay-phone-land .next-wrap .corner {
+  font-size: 0;
+  justify-self: center;
+  padding: 2px 4px;
+}
+html.lay-phone-port .next-wrap .corner .corner-chev,
+html.lay-phone-land .next-wrap .corner .corner-chev { font-size: 14px; }
 .next-wrap .rowlbl {
   color: var(--muted);
   font-size: 12px;
@@ -550,8 +580,9 @@ html.lay-phone-port .next-wrap .corner, html.lay-phone-land .next-wrap .corner {
   text-overflow: ellipsis;
 }
 html.lay-phone-port.simple .next-wrap button { font-size: 16px; }
-html.lay-pad-port .next-wrap .axis, html.lay-pad-land .next-wrap .axis,
+html.lay-pad-port .next-wrap .axis, html.lay-pad-land .next-wrap .axis { font-size: 11px; letter-spacing: 0.06em; }
 html.lay-pad-port .next-wrap .corner, html.lay-pad-land .next-wrap .corner { font-size: 11px; letter-spacing: 0.06em; }
+html.lay-pad-port .next-wrap .corner .corner-chev, html.lay-pad-land .next-wrap .corner .corner-chev { font-size: 13px; }
 html.lay-pad-port .next-wrap .rowlbl, html.lay-pad-land .next-wrap .rowlbl { font-size: 18px; }
 html.lay-pad-port .next-wrap button, html.lay-pad-land .next-wrap button { font-size: 19px; border-radius: 12px; }
 html.simple.lay-pad-port .next-wrap button, html.simple.lay-pad-land .next-wrap button { font-size: 22px; }
@@ -2191,7 +2222,8 @@ html.simple .phase-track { display: none !important; }
     holdPointer: null,
     forceChord: null,
     simple: false,               // Simple mode (v20): hides sound/FX/key/loop/layout controls
-    keyModeBeforeSimple: false   // Key mode is forced off while Simple is on; restored after
+    keyModeBeforeSimple: false,  // Key mode is forced off while Simple is on; restored after
+    suggestExpanded: false       // Next grid: false = 4x2 (8 chips), true = 4x4 (16 chips)
   };
 
   var loop = {
@@ -3443,7 +3475,8 @@ html.simple .phase-track { display: none !important; }
 
   // Builds a ranked candidate pool: style table hops first (unchanged order),
   // then diatonic fill, then tension fill (vii°/ii° and Vsus4). Phrase-bar bias
-  // reorders the pool; slotSuggestions() then maps it into the 8 grid cells.
+  // reorders the pool; slotSuggestions() then maps it into up to 16 grid cells
+  // (4 lanes x 4 slots; collapsed view shows the first 2 slots per lane).
   function nextChords(spec, limit) {
     limit = limit || 6;
     var key = suggestionKey(spec);
@@ -3598,32 +3631,34 @@ html.simple .phase-track { display: none !important; }
     return root + label;
   }
 
-  // Map the ranked pool into 4 lanes x (up, down). Each slot first takes the
-  // highest-ranked item moving in its direction; leftovers (or "same"-root
-  // items) fill any still-empty slot in their own lane. No match = empty cell.
+  // Map the ranked pool into 4 lanes x 4 slots. Slot 0 prefers "up", slot 1
+  // prefers "down" (same as the old 4x2 view); slots 2–3 take the next-ranked
+  // leftovers in that lane. Collapsed paint shows slots 0–1; expanded shows all 4.
+  // No match = empty cell.
   function slotSuggestions(items) {
     var lanes = ["bright", "dark", "tension", "color"];
     var slots = {
-      bright: { up: null, down: null },
-      dark: { up: null, down: null },
-      tension: { up: null, down: null },
-      color: { up: null, down: null }
+      bright: { slots: [null, null, null, null] },
+      dark: { slots: [null, null, null, null] },
+      tension: { slots: [null, null, null, null] },
+      color: { slots: [null, null, null, null] }
     };
     var used = {};
-    var i, item, sig, lane;
+    var i, item, sig, lane, row, arr;
 
     for (var L = 0; L < lanes.length; L++) {
       lane = lanes[L];
+      arr = slots[lane].slots;
       for (i = 0; i < items.length; i++) {
         item = items[i];
         if (suggestLane(item) !== lane) continue;
         sig = suggestionItemSig(item);
         if (used[sig]) continue;
-        if (item.dir === "up" && !slots[lane].up) {
-          slots[lane].up = item;
+        if (item.dir === "up" && !arr[0]) {
+          arr[0] = item;
           used[sig] = true;
-        } else if (item.dir === "down" && !slots[lane].down) {
-          slots[lane].down = item;
+        } else if (item.dir === "down" && !arr[1]) {
+          arr[1] = item;
           used[sig] = true;
         }
       }
@@ -3632,12 +3667,12 @@ html.simple .phase-track { display: none !important; }
         if (suggestLane(item) !== lane) continue;
         sig = suggestionItemSig(item);
         if (used[sig]) continue;
-        if (!slots[lane].up) {
-          slots[lane].up = item;
-          used[sig] = true;
-        } else if (!slots[lane].down) {
-          slots[lane].down = item;
-          used[sig] = true;
+        for (row = 0; row < 4; row++) {
+          if (!arr[row]) {
+            arr[row] = item;
+            used[sig] = true;
+            break;
+          }
         }
       }
     }
@@ -3651,18 +3686,29 @@ html.simple .phase-track { display: none !important; }
     { id: "color", label: "Color", tone: "color" }
   ];
 
+  function setSuggestExpanded(on) {
+    on = !!on;
+    if (on === state.suggestExpanded) return;
+    state.suggestExpanded = on;
+    suggestSig = "";
+    paintSuggestions(computeSpec());
+    scheduleSave(0);
+  }
+
   function paintSuggestions(spec) {
-    var items = nextChords(spec, 20);
+    var expanded = !!state.suggestExpanded;
+    var rowCount = expanded ? 4 : 2;
+    var items = nextChords(spec, expanded ? 48 : 20);
     var slots = slotSuggestions(items);
-    var sig = state.style + "@" + currentLoopBar() + "|" + LANES.map(function (ln) {
-      return [slots[ln.id].up, slots[ln.id].down].map(function (it) {
+    var sig = (expanded ? "E|" : "C|") + state.style + "@" + currentLoopBar() + "|" + LANES.map(function (ln) {
+      return slots[ln.id].slots.map(function (it) {
         return it ? (it.name + it.dir + it.degree + (it.qualityLabel || "")) : "-";
       }).join(",");
     }).join("|");
     if (sig === suggestSig) return;
     suggestSig = sig;
     var el = document.getElementById("suggest");
-    el.className = "next-wrap";
+    el.className = "next-wrap" + (expanded ? " is-expanded" : "");
     el.innerHTML = "";
 
     function add(tag, cls, text) {
@@ -3673,8 +3719,44 @@ html.simple .phase-track { display: none !important; }
       return n;
     }
 
-    // Header row: "Suggestions" corner label + column labels.
-    add("div", "corner", "Suggestions");
+    // Header: expand/collapse control + column labels.
+    var corner = add("button", "corner");
+    corner.type = "button";
+    corner.setAttribute("aria-expanded", expanded ? "true" : "false");
+    corner.setAttribute("aria-label", expanded ? "Show fewer suggestions" : "Show more suggestions");
+    corner.title = expanded ? "Fewer suggestions" : "More suggestions";
+    var cornerTxt = document.createElement("span");
+    cornerTxt.className = "corner-txt";
+    cornerTxt.textContent = "Suggestions";
+    corner.appendChild(cornerTxt);
+    var chev = document.createElement("span");
+    chev.className = "corner-chev";
+    chev.setAttribute("aria-hidden", "true");
+    chev.textContent = expanded ? "\u25B2" : "\u25BC";
+    corner.appendChild(chev);
+    // Same pointerup pattern as chips so expand works while Sustain is held.
+    var expandTapId = null;
+    var expandTapAt = 0;
+    corner.addEventListener("pointerdown", function (e) {
+      if (e.pointerType === "mouse") return;
+      expandTapId = e.pointerId;
+    });
+    corner.addEventListener("pointercancel", function () { expandTapId = null; });
+    corner.addEventListener("pointerup", function (e) {
+      if (expandTapId == null || e.pointerId !== expandTapId) return;
+      expandTapId = null;
+      var hit = document.elementFromPoint(e.clientX, e.clientY);
+      if (!hit || !corner.contains(hit)) return;
+      expandTapAt = Date.now();
+      setSuggestExpanded(!state.suggestExpanded);
+    });
+    corner.addEventListener("click", function () {
+      if (expandTapAt && Date.now() - expandTapAt < 800) {
+        expandTapAt = 0;
+        return;
+      }
+      setSuggestExpanded(!state.suggestExpanded);
+    });
     LANES.forEach(function (ln) { add("div", "axis", ln.label); });
 
     function addCell(item, ln, dirWord) {
@@ -3713,10 +3795,15 @@ html.simple .phase-track { display: none !important; }
       });
     }
 
-    [["up", "\u2191"], ["down", "\u2193"]].forEach(function (row) {
-      add("div", "rowlbl", row[1]).setAttribute("aria-hidden", "true");
-      LANES.forEach(function (ln) { addCell(slots[ln.id][row[0]], ln, row[0]); });
-    });
+    var rowMeta = expanded
+      ? [["up", "\u2191"], ["mid1", "\u00b7"], ["mid2", "\u00b7"], ["down", "\u2193"]]
+      : [["up", "\u2191"], ["down", "\u2193"]];
+    for (var r = 0; r < rowCount; r++) {
+      add("div", "rowlbl", rowMeta[r][1]).setAttribute("aria-hidden", "true");
+      (function (rowIdx, dirWord) {
+        LANES.forEach(function (ln) { addCell(slots[ln.id].slots[rowIdx], ln, dirWord); });
+      })(r, rowMeta[r][0]);
+    }
   }
 
   // Shrink the Now symbol only when a long name (e.g. F#6sus4(add9)) would
@@ -4149,7 +4236,8 @@ html.simple .phase-track { display: none !important; }
       delay: 0.14,
       bpm: 96,
       warmth: WARMTH_DEFAULT,
-      simple: false
+      simple: false,
+      suggestExpanded: false
     };
   }
 
@@ -4179,7 +4267,8 @@ html.simple .phase-track { display: none !important; }
       delay: num(raw.delay, 0, 1, d.delay),
       bpm: num(raw.bpm, 50, 180, d.bpm, true),
       warmth: num(raw.warmth, 0, 100, d.warmth, true),
-      simple: bool(raw.simple, d.simple)
+      simple: bool(raw.simple, d.simple),
+      suggestExpanded: bool(raw.suggestExpanded, d.suggestExpanded)
       // Legacy `latch` key (cce4d86) is ignored; Sustain is never persisted.
     };
   }
@@ -4225,7 +4314,8 @@ html.simple .phase-track { display: none !important; }
       delay: Number(document.getElementById("delay").value),
       bpm: state.bpm,
       warmth: clampWarmth(document.getElementById("warmth").value),
-      simple: !!state.simple
+      simple: !!state.simple,
+      suggestExpanded: !!state.suggestExpanded
     };
   }
 
@@ -4298,6 +4388,7 @@ html.simple .phase-track { display: none !important; }
     setWarmth(s.warmth);
     // Simple mode: Key mode is forced off while on (real value kept for later).
     state.simple = !!s.simple;
+    state.suggestExpanded = !!s.suggestExpanded;
     state.keyModeBeforeSimple = false;
     if (state.simple && state.keyMode) {
       state.keyModeBeforeSimple = true;
