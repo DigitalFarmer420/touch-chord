@@ -1050,6 +1050,8 @@ html.lay-phone-land .key-row { display: none; }
 .kp-box, .ht-box { background: #1a1612; box-shadow: 0 10px 40px rgba(0,0,0,.6); border: 1px solid var(--line); border-radius: 14px; padding: 14px; color: var(--ink); max-width: 560px; width: 100%; max-height: 90vh; overflow: auto; position: relative; }
 .kp-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 700; }
 .kp-roots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 8px; }
+.kp-alts { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin: -2px 0 8px; }
+.kp-alts button { font-size: 13px; opacity: .9; }
 .kp-modes { display: flex; gap: 6px; margin-bottom: 8px; }
 .kp-modes button { flex: 1; }
 .kp-box button.on { background: var(--copper); color: var(--copper-ink); border-color: transparent; }
@@ -1135,24 +1137,24 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section><h3>About Touch Chord</h3>
-      <img src="images/howto-why.webp?v=49" alt="Touch Chord on a phone: chord buttons, keys, Now and suggestions" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=50" alt="Touch Chord on a phone: chord buttons, keys, Now and suggestions" width="1200" height="555" loading="lazy" decoding="async">
       <p class="ht-why">Touch Chord turns one finger into a full chord.<br>It's for anyone who wants to play chords without reading music.<br>A chord is 3 or more notes played at once. Chords that sound good together make up a key.</p>
       <ul><li><b>Learn chords:</b> try a random chord and see its name and notes.</li><li><b>Sing along:</b> play chords under your voice.</li><li><b>Beginner to making music:</b> start with one chord, then follow the suggestions into a song.</li></ul></section>
       <h2 class="ht-howto">How-to</h2>
       <section><h3>1. Make a chord</h3>
-      <img src="images/howto-make-chord.webp?v=49" alt="Hold maj7, tap A, Now reads Amaj7" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-make-chord.webp?v=50" alt="Hold maj7, tap A, Now reads Amaj7" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Hold <b>maj7</b> (1), tap <b>A</b> (2) = <b>Amaj7</b>.</p></section>
       <section><h3>2. Chord Suggestion</h3>
-      <img src="images/howto-suggest-b.webp?v=49" alt="Tap a suggestion tile to hear the next chord" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-suggest-b.webp?v=50" alt="Tap a suggestion tile to hear the next chord" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Tap a chord (2)</p></section>
       <section><h3>3. Sustain</h3>
-      <img src="images/howto-sustain.webp?v=49" alt="Sustain lit while the chord rings" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-sustain.webp?v=50" alt="Sustain lit while the chord rings" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Play (1), hold <b>Sustain</b> (2): notes ring and fade. Let go to stop.</p></section>
       <section><h3>4. Style</h3>
-      <img src="images/howto-style.webp?v=49" alt="Style picker" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-style.webp?v=50" alt="Style picker" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Tap a style (1). It changes the sound, not the chords.</p></section>
       <section><h3>5. Full Range</h3>
-      <img src="images/howto-fullrange.webp?v=49" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-fullrange.webp?v=50" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Gray keys are outside your key. Tap <b>Full Range</b> (1) to play them all.</p></section>
       <p class="ht-end">Sound and FX live in the gear's <b>Advanced</b> settings.</p>
       <dl class="ht-legend"><dt>Simple</dt><dd>Simple on/off</dd><dt>&#9881;</dt><dd>Settings (Advanced: sound, FX)</dd><dt>?</dt><dd>This guide</dd></dl>
@@ -1298,7 +1300,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 49;
+var APP_VERSION = 50;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -1524,12 +1526,12 @@ function accSym(s) {
     throw new Error("unknown chord type " + type);
   }
 
-  function scaleDegrees(keyPc, mode) {
+  function scaleDegrees(keyPc, mode, rootSpellOpt) {
     var minor = mode === "minor" || mode === "natural-minor";
     var intervals = minor ? MINOR_SCALE : MAJOR_SCALE;
     var qualities = minor ? MINOR_QUALITY : MAJOR_QUALITY;
     var romans = minor ? MINOR_ROMAN : MAJOR_ROMAN;
-    var root = spellRoot(keyPc);
+    var root = rootSpellOpt || spellRoot(keyPc);
     return intervals.map(function (iv, i) {
       var spelled = spellInterval(root, iv);
       return {
@@ -1543,9 +1545,9 @@ function accSym(s) {
     });
   }
 
-  function degreeChord(keyPc, mode, degree) {
+  function degreeChord(keyPc, mode, degree, rootSpellOpt) {
     if (degree < 1 || degree > 7) throw new Error("degree out of range");
-    var d = scaleDegrees(keyPc, mode)[degree - 1];
+    var d = scaleDegrees(keyPc, mode, rootSpellOpt)[degree - 1];
     return {
       degree: d.degree,
       roman: d.roman,
@@ -2537,7 +2539,8 @@ function accSym(s) {
     forceChord: null,
     simple: false,               // Simple mode (v20): hides sound/FX/key/loop/layout controls
     keyModeBeforeSimple: false,  // Key mode is forced off while Simple is on; restored after
-    allKeys: false
+    allKeys: false,
+    keySpell: {}                 // v50: key root spelling picks, e.g. { "1major": "Db" }
   };
 
   var loop = {
@@ -2569,11 +2572,21 @@ function accSym(s) {
       rootPc = state.forceChord.rootPc;
       type = state.forceChord.type;
     } else if (state.keyMode) {
-      var d = Theory.degreeChord(state.keyRoot, state.keyScale, state.degree);
+      var d = Theory.degreeChord(state.keyRoot, state.keyScale, state.degree, keyRootSpell(modeKey()));
       rootPc = d.rootPc;
       type = d.type;
       extra.rootSpell = d.rootSpell;
       extra.rootName = d.rootName;
+    }
+    // v50: spell an in-key root the way the key (strip, 7-chord row) does.
+    if (!extra.rootSpell) {
+      var ak = activeKey();
+      if (ak) {
+        var kd = keyDegrees(ak);
+        for (var ki = 0; ki < kd.length; ki++) {
+          if (kd[ki].pc === wrap12(rootPc)) { extra.rootSpell = kd[ki].rootSpell; extra.rootName = kd[ki].name; break; }
+        }
+      }
     }
     // Pad register: root the chord at the pressed pad's MIDI. If the resolved
     // root pc differs (forced suggestion / key degree), snap to the nearest
@@ -2706,7 +2719,7 @@ function accSym(s) {
 
   function degreeAt(pc) {
     if (!state.keyMode) return null;
-    var degrees = Theory.scaleDegrees(state.keyRoot, state.keyScale);
+    var degrees = keyDegrees(modeKey());
     for (var i = 0; i < degrees.length; i++) {
       if (degrees[i].pc === pc) return degrees[i];
     }
@@ -3557,6 +3570,46 @@ function accSym(s) {
     if (state.keyMode) return { pc: state.keyRoot, mode: state.keyScale === "minor" ? "minor" : "major" };
     return lockKey;
   }
+  // v50: key root spelling (display). A key is still {pc, mode}; its spelling is
+  // the user's pick per pc+mode (popover / Layout dropdown, saved in settings),
+  // else a sensible default (D\u266d major, C\u266f minor, G\u266f minor; others as before).
+  var SPELL_LI = "CDEFGAB";
+  var KEY_NAMES = ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
+  var KEY_ALTS = ["C#", "D#", "Gb", "G#", "A#"];
+  function spellFromName(n) {
+    var li = SPELL_LI.indexOf(String(n).charAt(0));
+    if (li < 0) return null;
+    var acc = 0;
+    for (var i = 1; i < n.length; i++) { if (n.charAt(i) === "#") acc++; else if (n.charAt(i) === "b") acc--; }
+    return { li: li, acc: acc };
+  }
+  function namePc(n) {
+    var sp = spellFromName(n);
+    return sp ? wrap12([0, 2, 4, 5, 7, 9, 11][sp.li] + sp.acc) : -1;
+  }
+  function defaultKeyName(pc, mode) {
+    if (mode === "minor") { if (pc === 1) return "C#"; if (pc === 8) return "G#"; }
+    else if (pc === 1) return "Db";
+    return Theory.NOTE_NAMES[pc];
+  }
+  function keyRootName(k) {
+    var n = state.keySpell && state.keySpell[k.pc + k.mode];
+    return (n && namePc(n) === k.pc) ? n : defaultKeyName(k.pc, k.mode);
+  }
+  function keyRootSpell(k) { return spellFromName(keyRootName(k)); }
+  function keyDegrees(k) { return Theory.scaleDegrees(k.pc, k.mode, keyRootSpell(k)); }
+  function syncKeySel() {
+    var sel = document.getElementById("keyRoot");
+    if (sel) sel.value = keyRootName(modeKey());
+  }
+  function modeKey() { return { pc: state.keyRoot, mode: state.keyScale === "minor" ? "minor" : "major" }; }
+  function setKeySpell(pc, mode, name) {
+    if (!state.keySpell) state.keySpell = {};
+    if (name === defaultKeyName(pc, mode)) delete state.keySpell[pc + mode];
+    else state.keySpell[pc + mode] = name;
+    suggestSig = "";
+    scheduleSave(0);
+  }
   function suggestionKey(spec) {
     var ak = activeKey();
     if (ak) return ak;
@@ -3680,7 +3733,7 @@ function accSym(s) {
     var M = minor ? wrap12(key.pc + 3) : key.pc;
     var majPcs = Theory.scaleDegrees(M, "major").map(function (d) { return d.pc; });
     var byPc = {};
-    Theory.scaleDegrees(key.pc, key.mode).forEach(function (d) { byPc[d.pc] = d; });
+    keyDegrees(key).forEach(function (d) { byPc[d.pc] = d; });
     var order = minor ? [4, 5, 6, 7, 1, 2, 3] : [6, 7, 1, 2, 3, 4, 5];
     var notes = order.map(function (md, i) {
       var d = byPc[majPcs[md - 1]];
@@ -3739,14 +3792,14 @@ function accSym(s) {
 
   function paintSuggestions(spec) {
     var key = suggestionKey(spec || computeSpec());
-    var sig = key.pc + key.mode;
+    var sig = key.pc + key.mode + keyRootName(key);
     if (sig === suggestSig) return;
     suggestSig = sig;
     stripKey = key;
     var model = stripModel(key);
     var el = document.getElementById("suggest");
     el.className = "ss";
-    el.setAttribute("aria-label", "Scale strip, key of " + prettyAcc(Theory.noteName(Theory.spellRoot(key.pc))) + " " + key.mode);
+    el.setAttribute("aria-label", "Scale strip, key of " + prettyAcc(keyRootName(key)) + " " + key.mode);
     el.innerHTML = "";
     var ROWN = { happy: 1, scale: 2, sad: 3, tension: 4 };
     STRIP_ROWS.forEach(function (r) {
@@ -3836,7 +3889,7 @@ function accSym(s) {
   window.addEventListener("resize", function () { fitNowSymbol(); });
 
   function keyLabel(k) {
-    return accSym(Theory.noteName(Theory.spellRoot(k.pc))) + (k.mode === "minor" ? " minor" : " major");
+    return accSym(keyRootName(k)) + (k.mode === "minor" ? " minor" : " major");
   }
   function paintKeyChip(spec) {
     var chip = document.getElementById("keyChip");
@@ -3844,9 +3897,15 @@ function accSym(s) {
     var k = activeKey();
     chip.textContent = k ? "Key: " + keyLabel(k) : "Key: play a chord";
     var inKey = {};
-    if (k) Theory.scaleDegrees(k.pc, k.mode).forEach(function (d) { inKey[d.pc] = true; });
+    var spellPc = {};
+    if (k) keyDegrees(k).forEach(function (d) { inKey[d.pc] = true; spellPc[d.pc] = d.name; });
     Array.prototype.forEach.call(document.querySelectorAll("#pads .pad, .kb .pad"), function (pd) {
       pd.classList.toggle("nokey", !state.allKeys && !!k && !inKey[Number(pd.dataset.pc)]);
+      var nmEl = pd.querySelector(".nm");
+      if (nmEl) {
+        var nmT = accSym(spellPc[Number(pd.dataset.pc)] || Theory.NOTE_NAMES[Number(pd.dataset.pc)]);
+        if (nmEl.textContent !== nmT) nmEl.textContent = nmT;
+      }
     });
     // v31: chord buttons follow Full Range. A chord "fits" when every note of
     // it (same buildChord spelling as playback) is in the key's scale.
@@ -3874,7 +3933,7 @@ function accSym(s) {
     for (var hid2 in paletteHolds) if (paletteHolds[hid2].kind === "type") typeIsHeld = true;
     var baseType = "major";
     if (typeIsHeld) baseType = state.type;
-    else if (k) Theory.scaleDegrees(k.pc, k.mode).forEach(function (d) { if (d.pc === root) baseType = d.type; });
+    else if (k) keyDegrees(k).forEach(function (d) { if (d.pc === root) baseType = d.type; });
     Array.prototype.forEach.call(document.querySelectorAll("#palette button[data-type], #palette button[data-ext]"), function (cb) {
       var bad = false;
       if (rootIn) {
@@ -3893,7 +3952,7 @@ function accSym(s) {
     ak.setAttribute("aria-pressed", state.allKeys ? "true" : "false");
     row.innerHTML = "";
     if (!k) return;
-    Theory.scaleDegrees(k.pc, k.mode).forEach(function (d) {
+    keyDegrees(k).forEach(function (d) {
       var s = document.createElement("span");
       var b = document.createElement("b");
       b.textContent = d.roman + (d.type === "dim" ? "\u00b0" : "");
@@ -3941,19 +4000,28 @@ function accSym(s) {
     var sel = null;
     function paint() {
       var k = sel || activeKey() || { pc: 0, mode: "major" };
-      Array.prototype.forEach.call(roots.children, function (b) { b.classList.toggle("on", Number(b.dataset.pc) === k.pc); });
+      var kn = keyRootName(k);
+      Array.prototype.forEach.call(pick.querySelectorAll(".kp-roots button"), function (b) { b.classList.toggle("on", b.dataset.name === kn); });
       Array.prototype.forEach.call(pick.querySelectorAll(".kp-modes button"), function (b) { b.classList.toggle("on", b.dataset.mode === k.mode); });
     }
-    var FLATS = ["C", "D\u266d", "D", "E\u266d", "E", "F", "F\u266f", "G", "A\u266d", "A", "B\u266d", "B"];
-    FLATS.forEach(function (n, i) {
+    // v50: 12 keys plus the enharmonic spellings (C\u266f D\u266f G\u266d G\u266f A\u266f); the pick sets the spelling.
+    function addRoot(name, parent) {
+      var i = namePc(name);
       var b = document.createElement("button");
-      b.type = "button"; b.dataset.pc = String(i); b.textContent = n;
+      b.type = "button"; b.dataset.pc = String(i); b.dataset.name = name; b.textContent = accSym(name);
       b.addEventListener("click", function () {
         var k = sel || activeKey() || { pc: 0, mode: "major" };
+        setKeySpell(i, k.mode, name);
         sel = { pc: i, mode: k.mode }; setLockKey(sel); paint();
       });
-      roots.appendChild(b);
-    });
+      parent.appendChild(b);
+    }
+    KEY_NAMES.forEach(function (n) { addRoot(n, roots); });
+    var alts = document.createElement("div");
+    alts.className = "kp-alts";
+    alts.setAttribute("aria-label", "Other spellings");
+    roots.parentNode.insertBefore(alts, roots.nextSibling);
+    KEY_ALTS.forEach(function (n) { addRoot(n, alts); });
     Array.prototype.forEach.call(pick.querySelectorAll(".kp-modes button"), function (b) {
       b.addEventListener("click", function () {
         var k = sel || activeKey() || { pc: 0, mode: "major" };
@@ -4026,8 +4094,9 @@ function accSym(s) {
     bass.setAttribute("aria-pressed", state.bass ? "true" : "false");
     document.getElementById("keyMajor").classList.toggle("on", state.keyScale === "major");
     document.getElementById("keyMinor").classList.toggle("on", state.keyScale === "minor");
+    syncKeySel();
     document.getElementById("keyReadout").textContent = state.keyMode
-      ? "Key of " + accSym(Theory.NOTE_NAMES[state.keyRoot]) + (state.keyScale === "minor" ? " minor" : " major")
+      ? "Key of " + keyLabel(modeKey())
       : "Chromatic";
     paintKeyChip(spec);
     paintSuggestions(spec);
@@ -4127,23 +4196,23 @@ function accSym(s) {
   function setKeyModeState(on) {
     state.keyMode = !!on;
     if (state.keyMode) {
-      var degs = Theory.scaleDegrees(state.keyRoot, state.keyScale);
+      var degs = keyDegrees(modeKey());
       var found = 1;
       for (var i = 0; i < degs.length; i++) {
         if (degs[i].pc === state.rootPc) found = degs[i].degree;
       }
       state.degree = found;
     } else {
-      var d = Theory.degreeChord(state.keyRoot, state.keyScale, state.degree);
+      var d = Theory.degreeChord(state.keyRoot, state.keyScale, state.degree, keyRootSpell(modeKey()));
       state.rootPc = d.rootPc;
     }
   }
 
   function wire() {
     var keySel = document.getElementById("keyRoot");
-    Theory.NOTE_NAMES.forEach(function (name, i) {
+    KEY_NAMES.concat(KEY_ALTS).forEach(function (name) {
       var opt = document.createElement("option");
-      opt.value = String(i);
+      opt.value = name;
       opt.textContent = accSym(name);
       keySel.appendChild(opt);
     });
@@ -4175,7 +4244,10 @@ function accSym(s) {
     });
 
     keySel.addEventListener("change", function () {
-      state.keyRoot = Number(keySel.value);
+      var pcSel = namePc(keySel.value);
+      if (pcSel < 0) return;
+      state.keyRoot = pcSel;
+      setKeySpell(pcSel, modeKey().mode, keySel.value);
       renderPads();
       refreshHeld();
     });
@@ -4386,6 +4458,7 @@ function accSym(s) {
       keyMode: false,
       keyRoot: 0,
       keyScale: "major",
+      keySpell: {},
       rootPc: 0,
       degree: 1,
       voicing: "close",
@@ -4417,6 +4490,14 @@ function accSym(s) {
       keyMode: bool(raw.keyMode, d.keyMode),
       keyRoot: num(raw.keyRoot, 0, 11, d.keyRoot, true),
       keyScale: pick(raw.keyScale, SCALES, d.keyScale),
+      keySpell: (function (o) {
+        var out = {};
+        if (o && typeof o === "object") Object.keys(o).forEach(function (k) {
+          var m = /^(\d{1,2})(major|minor)$/.exec(k);
+          if (m && typeof o[k] === "string" && /^[A-G](#{1,2}|b{1,2})?$/.test(o[k]) && namePc(o[k]) === Number(m[1])) out[k] = o[k];
+        });
+        return out;
+      })(raw.keySpell),
       rootPc: num(raw.rootPc, 0, 11, d.rootPc, true),
       degree: num(raw.degree, 1, 7, d.degree, true),
       voicing: pick(raw.voicing, VOICINGS, d.voicing),
@@ -4464,6 +4545,7 @@ function accSym(s) {
       keyMode: !!(state.simple ? state.keyModeBeforeSimple : state.keyMode),
       keyRoot: state.keyRoot,
       keyScale: state.keyScale,
+      keySpell: state.keySpell || {},
       rootPc: state.rootPc,
       degree: state.degree,
       voicing: state.voicing,
@@ -4535,7 +4617,8 @@ function accSym(s) {
     markOn("#layouts", "layout", s.layout);
     paintSustainBtn();
     markOn("#styles", "style", s.style);
-    document.getElementById("keyRoot").value = String(s.keyRoot);
+    state.keySpell = s.keySpell || {};
+    syncKeySel();
     document.getElementById("voicing").value = String(Math.max(0, VOICINGS.indexOf(s.voicing)));
     document.getElementById("cutoff").value = String(s.cutoff);
     document.getElementById("reverb").value = String(s.reverb);
