@@ -1136,7 +1136,7 @@ html.lay-phone-port .key-row span, html.lay-phone-land .key-row span { font-size
 .key-row span b { display: none; }
 html.lay-phone-land .key-bar { flex-direction: column; gap: 3px; }
 html.lay-phone-land .key-bar button { height: 22px; min-height: 22px; }
-/* v28: All keys toggle */
+/* v28: Full Range toggle (was All keys) */
 .key-line { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
 .allkeys { margin-top: 2px; font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted); min-height: 0; height: auto; line-height: 1.4; white-space: nowrap; }
 .allkeys.on { background: var(--copper); color: var(--copper-ink); border-color: transparent; }
@@ -1170,7 +1170,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
       <ol><li>Hold a chord button on the left.</li><li>Tap a key.</li><li>The big letter shows your chord, so holding maj7 and tapping A gives you Amaj7.</li></ol>
       <h3>Next</h3>
       <p>Your first chord sets the key. Tap the <b>Key</b> button under Now to pick a different one.</p>
-      <p>Keys outside your key are grayed out. Turn on <b>All keys</b> to play every key.</p>
+      <p>Keys outside your key are grayed out. Turn on <b>Full Range</b> to play every key.</p>
       <ul><li>The row under the key shows the 7 chords in your key, and the one you're playing is lit.</li>
       <li>The tiles are good chords to play next. Tap one to hear it.</li>
       <li>The number (I, IV, V&hellip;) is where that chord sits in the key, and I is home.</li>
@@ -1193,7 +1193,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     <div id="tones">C E G</div>
     <div id="keyRow" class="key-row" aria-label="Chords in this key"></div>
   </div>
-  <div class="key-bar"><button type="button" id="keyChip" class="key-chip" aria-haspopup="dialog" title="Pick the key">Key: play a chord</button><button type="button" id="allKeys" class="allkeys" role="switch" aria-checked="false" title="All keys: unlock off-scale keys so every key plays">All keys</button></div>
+  <div class="key-bar"><button type="button" id="keyChip" class="key-chip" aria-haspopup="dialog" title="Pick the key">Key: play a chord</button><button type="button" id="allKeys" class="allkeys" aria-pressed="false" title="Full Range: unlock off-scale keys and chords so everything plays">Full Range</button></div>
   </div>
   <div id="keyPick" class="key-pick" role="dialog" aria-label="Choose key" hidden>
     <div class="kp-box">
@@ -1699,11 +1699,25 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     // iOS: interrupted/suspended after backgrounding or audio-route changes.
     if (typeof ctx.addEventListener === "function") {
       ctx.addEventListener("statechange", function () {
-        if (ctx.state === "suspended" || ctx.state === "interrupted") self.primed = false;
+        if (ctx.state === "suspended" || ctx.state === "interrupted") {
+          self.primed = false;
+          if (ctx.state === "interrupted" && !document.hidden) self.wake();
+        }
       });
     }
     return ctx;
   };
+
+  // v32: resume a paused/interrupted context (style taps, iOS interruptions, tab return).
+  ChordAudio.prototype.wake = function () {
+    var c = this.ctx;
+    if (c && c.state !== "running" && c.state !== "closed") {
+      try { var pr = c.resume(); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {}
+    }
+  };
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden && window.__tcAudioWake) window.__tcAudioWake();
+  });
 
   ChordAudio.prototype.ensure = function () {
     var ctx = this.ensureContext();
@@ -2479,7 +2493,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
 
   var api = new ChordAudio();
   if (typeof module !== "undefined" && module.exports) module.exports = api;
-  if (typeof window !== "undefined") window.ChordAudio = api;
+  if (typeof window !== "undefined") { window.ChordAudio = api; window.__tcAudioWake = function () { api.wake(); }; }
 })();
 
 "use strict";
@@ -4267,7 +4281,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     Array.prototype.forEach.call(document.querySelectorAll("#pads .pad, .kb .pad"), function (pd) {
       pd.classList.toggle("nokey", !state.allKeys && !!k && !inKey[Number(pd.dataset.pc)]);
     });
-    // v31: chord buttons follow All keys. A chord "fits" when every note of
+    // v31: chord buttons follow Full Range. A chord "fits" when every note of
     // it (same buildChord spelling as playback) is in the key's scale.
     var gate = !!k && !state.allKeys;
     function fits(rootPc, type, ext) {
@@ -4309,7 +4323,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     });
     var ak = document.getElementById("allKeys");
     ak.classList.toggle("on", !!state.allKeys);
-    ak.setAttribute("aria-checked", state.allKeys ? "true" : "false");
+    ak.setAttribute("aria-pressed", state.allKeys ? "true" : "false");
     row.innerHTML = "";
     if (!k) return;
     Theory.scaleDegrees(k.pc, k.mode).forEach(function (d) {
@@ -4739,6 +4753,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
 
   // Push one preset row into state, controls and audio together.
   function applyStylePreset(style) {
+    if (ChordAudio.wake) ChordAudio.wake();
     var p = STYLE_PRESETS[style];
     if (!p) return false;
     state.sound = p.sound;
