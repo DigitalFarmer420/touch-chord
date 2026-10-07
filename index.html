@@ -483,7 +483,7 @@ html.lay-phone-land:not(.simple) #ctlToggle .ctl-word { display: none; }
 html.lay-phone-land:not(.simple) #ctlToggle { min-width: 40px; padding: 0 10px; font-size: 18px; }
 html.lay-phone-land:not(.simple) .style-row { gap: 3px; }
 html.lay-phone-land:not(.simple) .style-row button { padding: 0 7px; font-size: 11.5px; }
-html.lay-phone-land:not(.simple) .style-row.more { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent); }
+html.lay-phone-port:not(.simple) .style-row.more, html.lay-phone-land .style-row.more { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent); }
 html.lay-phone-port.simple .style-row button { height: 34px; min-height: 34px; padding: 0 13px; font-size: 14px; }
 html.lay-pad-port .style-row { flex-wrap: wrap; overflow: visible; touch-action: manipulation; }
 html.lay-pad-port .style-row button, html.lay-pad-land .style-row button { height: 36px; min-height: 36px; padding: 0 14px; font-size: 14px; }
@@ -1240,6 +1240,76 @@ html.simple.lay-pad-port #app {
   grid-template-areas: "top top" "sty sty" "now sus" "nxt nxt";
 }
 
+/* ===== v53: strip rows by named lines (b = green bright-borrowed, h = happy, n = notes,
+   s = sad, t = tension; hi / si = the face groups). .nob collapses the green row: the gold
+   row takes its band (chips keep one row's height, centred) so the notes stay centred. ===== */
+#app { --ss-ico: 22px; --ss-arrow: 11px; --ss-fgap: 6px; }
+.ss { grid-template-rows: [hi-start b-start g-start] minmax(0, 1fr) [b-end h-start] minmax(0, 1fr) [h-end hi-end n-start] minmax(0, var(--ss-mid)) [n-end si-start s-start] minmax(0, 1fr) [s-end t-start] minmax(0, 1fr) [t-end si-end g-end]; }
+.ss.nob { grid-template-rows: [hi-start h-start g-start] minmax(0, 1fr) minmax(0, 1fr) [h-end hi-end n-start] minmax(0, var(--ss-mid)) [n-end si-start s-start] minmax(0, 1fr) [s-end t-start] minmax(0, 1fr) [t-end si-end g-end]; }
+.ss.nob .ss-chip.r-h { align-self: center; height: calc((100% - var(--ss-rg)) / 2); }
+.ss .ss-track { grid-row: n; }
+.ss .ss-lbl { gap: var(--ss-fgap); }
+.ss .ss-lbl svg.ss-arrow { width: calc(var(--ss-arrow) * 12 / 14); height: var(--ss-arrow); }
+/* Dark text on gold / green reads lighter than white on purple at the same size: same
+   font size everywhere, one weight step heavier on the light chips. */
+.ss .ss-chip.major, .ss .ss-chip.color { font-weight: 800; }
+.ss .ss-chip.color { border-color: rgba(255,255,255,.75); }
+html.lay-phone-port #app { --ss-lbl: 18px; --ss-ico: 18px; --ss-arrow: 10px; --ss-fgap: 6px; }
+html.lay-pad-port #app, html.lay-pad-land #app { --ss-lbl: 38px; --ss-ico: 28px; --ss-arrow: 14px; --ss-fgap: 7px; }
+html.simple #app { --ss-ico: 30px; --ss-arrow: 14px; --ss-fgap: 7px; }
+@media (max-width: 700px) { html.simple.lay-phone-land #app { --ss-ico: 28px; --ss-arrow: 13px; --ss-fgap: 6px; } }
+html.simple.lay-pad-land #app, html.simple.lay-pad-port #app { --ss-ico: 36px; --ss-arrow: 18px; --ss-fgap: 8px; }
+html.simple.lay-pad-land .ss .ss-chip, html.simple.lay-pad-port .ss .ss-chip { align-self: center; height: min(100%, 92px); }
+html.simple.lay-pad-land .ss.nob .ss-chip.r-h, html.simple.lay-pad-port .ss.nob .ss-chip.r-h { height: min(calc((100% - var(--ss-rg)) / 2), 92px); }
+/* Phone portrait (Simple): no face column. With the green row collapsed the rows close up and
+   the whole group is centred (no empty band at the top; notes sit half a row above centre). */
+/* Phone portrait (Simple): no face column. The happy face sits above the green/gold rows,
+   the sad face below the sad/tension rows (mirrored), so the 7 columns use the full width:
+   notes and chips about one column wide (44 px+), chips 44-48 px tall, one-line names. */
+html.simple.lay-phone-port #app { --ss-lbl: 0px; --ss-cgap: 3px; --ss-rg: 8px; --ss-pad: 7px; --ss-fs: 16px; --ss-ch: minmax(44px, 48px); --ss-ico: 28px; --ss-arrow: 14px; --ss-fgap: 7px; }
+@media (max-width: 370px) { html.simple.lay-phone-port #app { --ss-cgap: 2px; --ss-pad: 6px; } }
+@media (max-height: 700px) { html.simple.lay-phone-port #app { --ss-rg: 6px; --sym: 34px; grid-template-rows: auto auto 176px minmax(0, 1fr); }
+  html.simple.lay-phone-port .now-card .card-label { display: none; }
+  html.simple.lay-phone-port #tones { margin-top: 2px; font-size: 15px; } }
+html.simple.lay-phone-port .ss { margin-left: calc(-1 * var(--ss-cgap)); padding: 5px 0; align-content: safe center;
+  grid-template-rows: [hi-start] auto [hi-end b-start g-start] var(--ss-ch) [b-end h-start] var(--ss-ch) [h-end n-start] minmax(44px, 52px) [n-end s-start] var(--ss-ch) [s-end t-start] var(--ss-ch) [t-end g-end si-start] auto [si-end]; }
+html.simple.lay-phone-port .ss.nob { grid-template-rows: [hi-start] auto [hi-end h-start g-start] var(--ss-ch) [h-end n-start] minmax(44px, 52px) [n-end s-start] var(--ss-ch) [s-end t-start] var(--ss-ch) [t-end g-end si-start] auto [si-end]; }
+html.simple.lay-phone-port .ss.nob .ss-chip.r-h { height: auto; align-self: stretch; }
+html.simple.lay-phone-port .ss .ss-lbl { grid-column: 2 / -1; flex-direction: row; justify-content: center; align-items: center; }
+html.simple.lay-phone-port .ss .ss-chip { padding: 0 1px; border-radius: 10px; letter-spacing: -0.02em; }
+.ss.tight .ss-chip.sq, .ss.tight .ss-chip.sq .q { letter-spacing: -0.07em; }
+/* v53: faint grid: 7 note columns x the row bands (green, gold, notes, purple, tension; 7x4 when
+   the green row is collapsed). Inner dividers only, drawn in the gaps, behind chips and notes. */
+.ss .ss-gl { position: relative; z-index: 0; pointer-events: none; min-width: 0; min-height: 0; }
+.ss .ss-gl::after { content: ""; position: absolute; background: rgba(255, 255, 255, .05); }
+.ss .ss-gr { grid-column: 2 / -1; }
+.ss .ss-gr::after { left: 0; right: 0; height: 1px; bottom: calc(-0.5 * var(--ss-rg) - 0.5px); }
+.ss .ss-gc { grid-row: g-start / g-end; }
+.ss .ss-gc::after { top: 0; bottom: 0; width: 1px; right: calc(-0.5 * var(--ss-cgap) - 0.5px); }
+.ss .ss-gl.last::after { display: none; }
+.ss .ss-chip { position: relative; z-index: 1; }
+/* v53: chips and notes are held like keys: no panning, callouts or text selection mid-hold. */
+.ss .ss-chip, .ss .ss-note { touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+/* v53: Simple note buttons are rounded rectangles the size of a chip (one column wide, chip
+   height, chip corner radius); same fill, border, raised shadow, press look and gold home ring. */
+html.simple .ss .ss-note { justify-self: stretch; width: auto; height: var(--ss-nh, 54px); border-radius: 14px; }
+html.simple.lay-phone-port .ss .ss-note { border-radius: 10px; }
+/* Style row: Simple portrait wraps onto two rows (nothing off screen). */
+html.simple.lay-phone-port .style-row { flex-wrap: wrap; overflow: visible; row-gap: 6px; }
+html.simple.lay-phone-port .style-row button { height: 32px; min-height: 32px; padding: 0 12px; font-size: 14px; }
+@media (max-height: 700px) { html.simple.lay-phone-port .style-row { row-gap: 5px; } html.simple.lay-phone-port .style-row button { height: 30px; min-height: 30px; padding: 0 11px; font-size: 13.5px; } }
+/* Full mode, phone landscape: the style row is fitted by fitStyles() (tighter steps until every
+   button shows); .fit-N picks the step. */
+html.lay-phone-land .style-row.fit-1 { gap: 2px; }
+html.lay-phone-land .style-row.fit-1 button { padding: 0 5px; font-size: 11.5px; }
+html.lay-phone-land .style-row.fit-2 { gap: 2px; }
+html.lay-phone-land .style-row.fit-2 button { padding: 0 4px; font-size: 11px; letter-spacing: -0.01em; }
+html.lay-phone-land .style-row.fit-3 { gap: 2px; }
+html.lay-phone-land .style-row.fit-3 button { padding: 0 3px; font-size: 11px; letter-spacing: -0.03em; }
+/* Narrower phones (under ~790 px): two rows of smaller buttons instead of scrolling. */
+html.lay-phone-land .style-row.fit-4 { flex-wrap: wrap; overflow: visible; gap: 3px; row-gap: 3px; align-self: center; }
+html.lay-phone-land .style-row.fit-4 button { height: 21px; min-height: 21px; padding: 0 6px; font-size: 11px; }
+
 </style>
 </head>
 <body>
@@ -1262,34 +1332,34 @@ html.simple.lay-pad-port #app {
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section><h3>About Touch Chord</h3>
-      <img src="images/howto-why.webp?v=52" alt="Touch Chord on a phone: chord buttons, keys, Now and suggestions" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=53" alt="Touch Chord on a phone: chord buttons, keys, Now and suggestions" width="1200" height="555" loading="lazy" decoding="async">
       <p class="ht-why">Touch Chord turns one finger into a full chord.<br>It's for anyone who wants to play chords without reading music.<br>A chord is 3 or more notes played at once. Chords that sound good together make up a key.</p>
       <ul><li><b>Learn chords:</b> try a random chord and see its name and notes.</li><li><b>Sing along:</b> play chords under your voice.</li><li><b>Beginner to making music:</b> start with one chord, then follow the suggestions into a song.</li></ul></section>
       <h2 class="ht-howto">How-to</h2>
       <section><h3>1. Play a note</h3>
-      <img src="images/howto-simple-1-strip-note.webp?v=52" alt="Tap a note on the scale strip" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-strip-note.webp?v=53" alt="Tap a note on the scale strip" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Tap a note on the strip (1).</p></section>
       <section><h3>2. Key</h3>
-      <img src="images/howto-simple-2-key.webp?v=52" alt="Key control: swipe the note, tap Major or Minor" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-simple-2-key.webp?v=53" alt="Key control: swipe the note, tap Major or Minor" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Swipe the note (1) to change the key. Tap (2) for <b>Major</b> or <b>Minor</b>.</p></section>
       <section><h3>3. Chord chips</h3>
-      <img src="images/howto-simple-3-chips.webp?v=52" alt="Chord chips above and below the strip" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-simple-3-chips.webp?v=53" alt="Chord chips above and below the strip" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Tap a chip (1) to play its chord.</p></section>
       <section><h3>4. Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=52" alt="Sustain lit while the chord rings" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=53" alt="Sustain lit while the chord rings" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Play (1), hold <b>Sustain</b> (2): notes ring and fade. Let go to stop.</p></section>
       <section><h3>5. Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=52" alt="Style picker" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=53" alt="Style picker" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Tap a style (1). It changes the sound and the chords.</p></section>
       <h2 class="ht-howto">In full mode</h2>
       <section><h3>Make a chord</h3>
-      <img src="images/howto-full-1-make-chord.webp?v=52" alt="Hold maj7, tap A, Now reads Amaj7" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-full-1-make-chord.webp?v=53" alt="Hold maj7, tap A, Now reads Amaj7" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Hold <b>maj7</b> (1), tap <b>A</b> (2) = <b>Amaj7</b>.</p></section>
       <section><h3>Keyboard</h3>
-      <img src="images/howto-full-2-keyboard.webp?v=52" alt="Piano keyboard: each key plays a chord" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-keyboard.webp?v=53" alt="Piano keyboard: each key plays a chord" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Tap a key (1) to play its chord.</p></section>
       <section><h3>Full Range</h3>
-      <img src="images/howto-full-3-fullrange.webp?v=52" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-3-fullrange.webp?v=53" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Gray keys are outside your key. Tap <b>Full Range</b> (1) to play them all.</p></section>
       <p class="ht-end">Sound and FX live in the gear's <b>Advanced</b> settings.</p>
       <dl class="ht-legend"><dt>Simple</dt><dd>Simple on/off</dd><dt>&#9881;</dt><dd>Settings (Advanced: sound, FX)</dd><dt>?</dt><dd>This guide</dd></dl>
@@ -1443,7 +1513,7 @@ html.simple.lay-pad-port #app {
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 52;
+var APP_VERSION = 53;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -1663,13 +1733,13 @@ function accSym(s) {
 
     if (type === "sus4") {
       if (hasMaj7 && nine) return rootName + "maj9sus4";
-      if (hasMin7 && nine) return rootName + "9sus4";
+      if (hasMin7 && nine) return rootName + "9sus";   // v53: same text as the chip
       if (nine && six) return rootName + "6sus4(add9)";
       if (nine) return rootName + "sus4(add9)";
       if (hasMaj7) return rootName + "maj7sus4";
       if (hasMin7) return rootName + "7sus4";
       if (six) return rootName + "6sus4";
-      return rootName + " sus4";
+      return rootName + "sus4";
     }
 
     if (hasMaj7 && nine) {
@@ -3122,10 +3192,21 @@ function accSym(s) {
       if (!on) dumpSustain();
       // v47: pedal pressed while a suggestion preview still rings: hand it to
       // the pool (like a held key) so the 1.6 s preview timeout can't cut it.
-      else if (suggestPreview && !sustainPool["suggest"]) {
-        sustainPool["suggest"] = { pending: null };
-        ChordAudio.protectGroup("suggest");
-        ChordAudio.fadeGroup("suggest");
+      else {
+        if (suggestPreview && !sustainPool["suggest"]) {
+          sustainPool["suggest"] = { pending: null };
+          ChordAudio.protectGroup("suggest");
+          ChordAudio.fadeGroup("suggest");
+        }
+        // v53: chips / notes let go less than a preview ago are still ringing: the pedal
+        // catches them too. Chips still held join the pool when they are let go.
+        Object.keys(stripTails).forEach(function (g) {
+          clearTimeout(stripTails[g]);
+          delete stripTails[g];
+          sustainPool[g] = { pending: null };
+          ChordAudio.protectGroup(g);
+          ChordAudio.fadeGroup(g);
+        });
       }
     } else if (!on) {
       dumpSustain();
@@ -3885,6 +3966,7 @@ function accSym(s) {
       clearTimeout(suggestTimer);
       suggestTimer = 0;
     }
+    stopStripTails();
     if (!suggestPreview) return;
     suggestPreview = null;
     state.forceChord = null;
@@ -3900,7 +3982,61 @@ function accSym(s) {
     state.stripSpell = null;
   }
 
-  function applySuggestion(item) {
+  // v53: chips and strip notes hold like keys. pointerdown starts the chord in its own
+  // group and it sounds at full level until the finger lifts. Let go before the preview
+  // length (1.6 s) and it rings on to the end of the preview (a quick tap sounds as before);
+  // let go later and it releases now. With Sustain down, a lifted chip joins the pedal pool.
+  var PREVIEW_MS = 1600;
+  var stripHolds = {};   // pointerId -> { group, t0, silent }
+  var stripTails = {};   // group -> timer (let go, still ringing out its preview)
+  function stripHoldCount() { return Object.keys(stripHolds).length; }
+  function stripHeld(h) { for (var k in stripHolds) if (stripHolds[k] === h) return true; return false; }
+  function stopStripTails() {
+    Object.keys(stripTails).forEach(function (g) {
+      clearTimeout(stripTails[g]);
+      delete stripTails[g];
+      if (!sustainPool[g]) ChordAudio.stopChord(g);
+    });
+  }
+  function stripDown(item, pid) {
+    if (stripHolds[pid]) stripUp(pid);
+    if (!activeKey() && stripKey) { lockKey = { pc: stripKey.pc, mode: stripKey.mode }; }
+    var h = { group: null, t0: Date.now(), silent: false };
+    stripHolds[pid] = h;
+    applySuggestion(item, h);
+  }
+  function stripUp(pid) {
+    var h = stripHolds[pid];
+    if (!h) return;
+    delete stripHolds[pid];
+    var g = h.group;
+    var left = PREVIEW_MS - (Date.now() - h.t0);
+    if (g && !h.silent) {
+      if (sustainActive()) {
+        sustainPool[g] = { pending: null };
+        ChordAudio.protectGroup(g);
+        ChordAudio.fadeGroup(g);
+      } else if (left > 20) {
+        stripTails[g] = setTimeout(function () {
+          delete stripTails[g];
+          if (!sustainPool[g]) ChordAudio.stopChord(g);
+        }, left);
+      } else {
+        ChordAudio.stopChord(g);
+      }
+    }
+    if (!stripHoldCount()) {
+      if (suggestTimer) clearTimeout(suggestTimer);
+      suggestTimer = setTimeout(clearSuggestPreview, Math.max(0, left));
+    }
+  }
+  function releaseStripHolds() { Object.keys(stripHolds).forEach(stripUp); }
+  window.addEventListener("pointerup", function (e) { if (stripHolds[e.pointerId]) stripUp(e.pointerId); }, true);
+  window.addEventListener("pointercancel", function (e) { if (stripHolds[e.pointerId]) stripUp(e.pointerId); }, true);
+  window.addEventListener("blur", releaseStripHolds);
+  document.addEventListener("visibilitychange", function () { if (document.hidden) releaseStripHolds(); });
+
+  function applySuggestion(item, hold) {
     if (paletteTimer) {
       clearTimeout(paletteTimer);
       paletteTimer = 0;
@@ -3943,28 +4079,40 @@ function accSym(s) {
     // v36: with the pedal down each audition gets its own group in the
     // sustain pool (stacks like keys; released by dumpSustain).
     var sg = "suggest";
-    if (sustainActive()) {
+    var pool = false;
+    if (hold) {
+      // Held chip / note: its own group, not pooled while the finger is down.
+      sg = "hold-" + (++suggestSeq);
+      hold.group = sg;
+      if (!sustainActive()) { stopStripTails(); ChordAudio.stopChord("suggest"); }
+    } else if (sustainActive()) {
       sg = "suggest-" + (++suggestSeq);
       sustainPool[sg] = { pending: null };
+      pool = true;
     } else {
+      stopStripTails();
       ChordAudio.stopChord("suggest");
     }
     if (!state.holding) {
       ChordAudio.playChord(sg, spec.midis, { bass: spec.bassOut, sound: state.sound });
-      if (sg !== "suggest") { ChordAudio.protectGroup(sg); ChordAudio.fadeGroup(sg); }
+      if (pool) { ChordAudio.protectGroup(sg); ChordAudio.fadeGroup(sg); }
       if (needReplay && pending && typeof pending.then === "function") {
         pending.then(function () {
           if (state.holding) return;
           if (!(ChordAudio.ctx && ChordAudio.ctx.state === "running")) return;
+          if (hold && !stripTails[sg] && !sustainPool[sg] && !stripHeld(hold)) return;
           ChordAudio.stopChord(sg);
           ChordAudio.playChord(sg, spec.midis, { bass: spec.bassOut, sound: state.sound });
-          if (sg !== "suggest") { ChordAudio.protectGroup(sg); ChordAudio.fadeGroup(sg); }
+          if (pool || sustainPool[sg]) { ChordAudio.protectGroup(sg); ChordAudio.fadeGroup(sg); }
         });
       }
+    } else if (hold) {
+      hold.silent = true;   // pads held: the chip re-voices them instead (as before)
     }
     updateSymbol();
     if (suggestTimer) clearTimeout(suggestTimer);
-    suggestTimer = setTimeout(clearSuggestPreview, 1600);
+    if (!hold) suggestTimer = setTimeout(clearSuggestPreview, PREVIEW_MS);
+    else suggestTimer = 0;
   }
 
   // v48: scale strip. Middle row = the key's 7 notes in scale order with home
@@ -3981,8 +4129,8 @@ function accSym(s) {
     return "<svg class=\"ss-arrow\" viewBox=\"0 0 12 14\" aria-hidden=\"true\">" + (up ? "<path d=\"M6 13V2M2 6l4-4 4 4\"/>" : "<path d=\"M6 1v11M2 8l4 4 4-4\"/>") + "</svg>";
   }
   var STRIP_ICONS = [
-    { id: "happy", rows: "1 / 3", aria: "Happy chords", svg: faceSvg("M7.6 14.2c1.1 1.9 2.6 2.8 4.4 2.8s3.3-.9 4.4-2.8") + arrowSvg(true) },
-    { id: "sad", rows: "4 / 6", aria: "Sad and tense chords", svg: arrowSvg(false) + faceSvg("M7.6 17.2c1.1-1.9 2.6-2.8 4.4-2.8s3.3.9 4.4 2.8") }
+    { id: "happy", rows: "hi", aria: "Happy chords", svg: faceSvg("M7.6 14.2c1.1 1.9 2.6 2.8 4.4 2.8s3.3-.9 4.4-2.8") + arrowSvg(true) },
+    { id: "sad", rows: "si", aria: "Sad and tense chords", svg: arrowSvg(false) + faceSvg("M7.6 17.2c1.1-1.9 2.6-2.8 4.4-2.8s3.3.9 4.4 2.8") }
   ];
   var STRIP_ROWS = [
     { id: "happy", glyph: "\u2191", label: "Happy /<br>Color", aria: "Happy / Color" },
@@ -4011,37 +4159,76 @@ function accSym(s) {
     "13":   { type: "major", ext: { min7: true, thirteen: true }, label: "13" },
     "7b9":  { type: "major", ext: { min7: true, flat9: true }, label: "7\u266d9" },
     "7#9":  { type: "major", ext: { min7: true, sharp9: true }, label: "7\u266f9" },
-    overV:  { type: "major", ext: { over: 2 }, label: "/" }   // IV/V: bass a whole step up
+    "7sus4": { type: "sus4", ext: { min7: true }, label: "7sus4" },
+    overV:  { type: "major", ext: { over: 2 }, label: "/" },  // IV/V: bass a whole step up
+    moverV: { type: "minor", ext: { over: 2 }, label: "m/" }  // iv/V in minor (Dm/E)
   };
+  // v53: rows by sound. Entry: [degree of the key, quality, row, lowered root, borrowed].
+  // Rows: "bright" = green row on top (borrowed major / dominant / maj7 / open chords, dashed),
+  // "happy" (gold), "sad" (purple; a borrowed minor chord sits here dashed), "tension"
+  // (sus, half-diminished, V7b9 / V7#9, and in minor V / V7; solid unless truly borrowed).
+  // Major sets count degrees from the major home; minor sets from the minor home
+  // (natural minor: bIII / bVI / bVII are diatonic there, V is the tension chord,
+  // Picardy I and Dorian IV are bright borrowed).
   var STRIP_SETS = {
     pop: [[1, "maj", "happy"], [4, "maj", "happy"], [5, "maj", "happy"],
           [6, "min", "sad"], [2, "min", "sad"], [3, "min", "sad"],
-          [5, "sus4", "tension"], [7, "maj", "tension", true, true]],
+          [5, "sus4", "tension"], [7, "maj", "bright", true, true]],
     jazz: [[1, "maj7", "happy"], [4, "maj7", "happy"], [5, "7", "happy"],
            [2, "m7", "sad"], [3, "m7", "sad"], [6, "m7", "sad"],
-           [7, "m7b5", "tension"], [5, "7b9", "tension", false, true]],
-    rnb: [[1, "maj9", "happy"], [4, "maj9", "happy"], [5, "9sus", "happy"],
+           [7, "m7b5", "tension"], [5, "7b9", "tension"]],
+    rnb: [[1, "maj9", "happy"], [4, "maj9", "happy"], [5, "13", "happy"],
           [2, "m9", "sad"], [3, "m7", "sad"], [6, "m9", "sad"],
-          [7, "maj7", "tension", true, true], [5, "13", "tension"]],
+          [5, "9sus", "tension"], [7, "maj7", "bright", true, true]],
     romantic: [[1, "maj7", "happy"], [4, "maj", "happy"], [5, "7", "happy"],
-               [6, "min", "sad"], [3, "min", "sad"], [2, "min", "sad"],
-               [4, "min", "tension", false, true], [6, "maj", "tension", true, true]],
+               [6, "min", "sad"], [3, "min", "sad"], [2, "min", "sad"], [4, "min", "sad", false, true],
+               [5, "7sus4", "tension"], [6, "maj", "bright", true, true]],
     ballad: [[1, "add9", "happy"], [4, "add9", "happy"], [5, "maj", "happy"],
              [6, "m7", "sad"], [2, "m7", "sad"], [3, "min", "sad"],
-             [4, "overV", "tension"], [7, "maj", "tension", true, true]],
+             [4, "overV", "tension"], [7, "maj", "bright", true, true]],
     reggae: [[1, "maj", "happy"], [4, "maj", "happy"], [5, "maj", "happy"],
              [2, "min", "sad"], [6, "min", "sad"],
-             [7, "maj", "tension", true, true]],
+             [5, "sus4", "tension"], [7, "maj", "bright", true, true]],
     funk: [[1, "9", "happy"], [4, "9", "happy"], [5, "9", "happy"],
            [2, "m7", "sad"], [6, "m7", "sad"],
-           [5, "7#9", "tension", false, true], [7, "9", "tension", true, true]],
+           [5, "7#9", "tension"], [7, "9", "bright", true, true]],
     yoga: [[1, "sus2", "happy"], [4, "maj7", "happy"], [5, "sus2", "happy"],
            [6, "m7", "sad"], [2, "m7", "sad"],
-           [1, "sus4", "tension"], [7, "add9", "tension", true, true]],
+           [1, "sus4", "tension"], [7, "add9", "bright", true, true]],
     // Yoga Deep plays low and warm: open sus2 shapes keep the low register clear.
     yogaDeep: [[1, "sus2", "happy"], [4, "sus2", "happy"], [5, "sus2", "happy"],
                [6, "m7", "sad"], [2, "m7", "sad"],
-               [1, "sus4", "tension"], [7, "sus2", "tension", true, true]]
+               [1, "sus4", "tension"], [7, "sus2", "bright", true, true]]
+  };
+  var STRIP_SETS_MINOR = {
+    // Pop: Vsus4 and V share the V column in the tension row, so V alone.
+    pop: [[3, "maj", "happy"], [6, "maj", "happy"], [7, "maj", "happy"],
+          [1, "min", "sad"], [4, "min", "sad"], [5, "min", "sad"],
+          [5, "maj", "tension"]],
+    jazz: [[3, "maj7", "happy"], [6, "maj7", "happy"], [7, "7", "happy"],
+           [1, "m7", "sad"], [4, "m7", "sad"], [5, "m7", "sad"],
+           [2, "m7b5", "tension"], [5, "7b9", "tension"]],
+    rnb: [[3, "maj9", "happy"], [6, "maj9", "happy"], [7, "13", "happy"],
+          [1, "m9", "sad"], [4, "m9", "sad"], [5, "m7", "sad"],
+          [2, "m7b5", "tension"], [5, "7#9", "tension"], [4, "9", "bright", false, true]],
+    romantic: [[3, "maj7", "happy"], [6, "maj", "happy"], [7, "7", "happy"],
+               [1, "min", "sad"], [5, "min", "sad"], [4, "min", "sad"],
+               [5, "7", "tension"], [2, "maj", "bright", true, true], [1, "maj", "bright", false, true]],
+    ballad: [[3, "add9", "happy"], [6, "add9", "happy"], [7, "maj", "happy"],
+             [1, "m7", "sad"], [4, "m7", "sad"], [5, "min", "sad"],
+             [4, "moverV", "tension"], [5, "maj", "tension"]],
+    reggae: [[3, "maj", "happy"], [6, "maj", "happy"], [7, "maj", "happy"],
+             [1, "min", "sad"], [4, "min", "sad"],
+             [5, "maj", "tension"]],
+    funk: [[3, "maj7", "happy"], [6, "maj7", "happy"], [7, "9", "happy"],
+           [1, "m7", "sad"], [4, "m7", "sad"],
+           [5, "7#9", "tension"], [4, "9", "bright", false, true]],
+    yoga: [[3, "sus2", "happy"], [6, "maj7", "happy"], [7, "sus2", "happy"],
+           [1, "m7", "sad"], [4, "m7", "sad"],
+           [1, "sus4", "tension"], [5, "maj", "tension"]],
+    yogaDeep: [[3, "sus2", "happy"], [6, "sus2", "happy"], [7, "sus2", "happy"],
+               [1, "m7", "sad"], [4, "m7", "sad"],
+               [1, "sus4", "tension"], [5, "maj", "tension"]]
   };
   function prettyAcc(name) { return accSym(name); }
   function stripLabel(item) {
@@ -4055,25 +4242,26 @@ function accSym(s) {
   }
   function stripModel(key) {
     var minor = key.mode === "minor";
-    var M = minor ? wrap12(key.pc + 3) : key.pc;
-    var majPcs = Theory.scaleDegrees(M, "major").map(function (d) { return d.pc; });
-    var byPc = {};
-    keyDegrees(key).forEach(function (d) { byPc[d.pc] = d; });
-    var order = minor ? [4, 5, 6, 7, 1, 2, 3] : [6, 7, 1, 2, 3, 4, 5];
-    var notes = order.map(function (md, i) {
-      var d = byPc[majPcs[md - 1]];
+    // v53: the 7 scale notes run in keyboard order (by pitch class from C, spelling kept);
+    // the home note keeps its gold outline wherever it lands.
+    var kdegs = keyDegrees(key);
+    var dorder = kdegs.slice().sort(function (a, b) { return a.pc - b.pc; }).map(function (d) { return d.degree; });
+    var notes = dorder.map(function (deg, i) {
+      var d = kdegs[deg - 1];
       var tri = mapQuality(d.type === "minor" ? "min" : d.type === "dim" ? "dim" : "maj");
       return {
-        col: i, home: md === (minor ? 6 : 1), name: d.name, pc: d.pc,
+        col: i, home: deg === 1, name: d.name, pc: d.pc,
         roman: d.roman + (d.type === "dim" ? "\u00b0" : ""),
         item: { rootPc: d.pc, rootName: d.name, degree: d.degree, type: tri.type, extensions: tri.extensions, qualityLabel: d.type === "major" ? "" : d.type === "minor" ? "m" : "dim" }
       };
     });
     var inKey = {};
     keyDegrees(key).forEach(function (d) { inKey[d.pc] = true; });
-    var set = STRIP_SETS[state.style] || STRIP_SETS.pop;
+    var sets = minor ? STRIP_SETS_MINOR : STRIP_SETS;
+    var set = sets[state.style] || sets.pop;
+    var degs = kdegs;                        // degrees of the key itself (major or natural minor)
     var chips = set.map(function (c) {
-      var d = byPc[majPcs[c[0] - 1]];
+      var d = degs[c[0] - 1];
       var q = STRIP_QUAL[c[1]];
       var low = !!c[3];
       var pc = wrap12(d.pc - (low ? 1 : 0));
@@ -4087,10 +4275,11 @@ function accSym(s) {
       // root only when that is the way to avoid a double accidental.
       if (!diatonic || low) rs = cleanRootSpell(pc, q.type, ext, rs);
       var lab = q.label;
-      if (ext.over) lab = "/" + accSym(Theory.spellInterval(rs, ext.over).name);
+      if (ext.over) lab = (q.type === "minor" ? "m" : "") + "/" + accSym(Theory.spellInterval(rs, ext.over).name);
+      var row = c[2];
       return {
-        col: order.indexOf(c[0]), row: c[2], borrowed: !!c[4],
-        cls: c[2] === "happy" ? (c[4] ? "color" : "major") : c[2] === "sad" ? "minor" : "tension",
+        col: dorder.indexOf(c[0]), row: row, borrowed: !!c[4],
+        cls: row === "bright" ? "color" : row === "happy" ? "major" : row === "sad" ? "minor" : "tension",
         item: {
           rootPc: pc, rootName: Theory.noteName(rs), rootSpell: rs,
           degree: (!low && diatonic && q.type === d.type) ? d.degree : null,
@@ -4105,31 +4294,23 @@ function accSym(s) {
   // another finger is down (e.g. holding Sustain). Click stays for
   // mouse / keyboard, de-duplicated against the pointer tap.
   function wireStripTap(b, item) {
-    var tapId = null;
-    // v52: pressed look (scale + flash) for notes and chips.
-    var pressT = 0;
+    // v53: hold like a key (see stripDown / stripUp). Pressed look lasts the whole hold.
+    var pressT = 0, upAt = 0;
     function unpress() { clearTimeout(pressT); pressT = setTimeout(function () { b.classList.remove("press"); }, 120); }
-    b.addEventListener("pointerdown", function () { clearTimeout(pressT); b.classList.add("press"); });
-    b.addEventListener("pointerup", unpress);
-    b.addEventListener("pointerleave", unpress);
     b.addEventListener("pointerdown", function (e) {
-      if (e.pointerType === "mouse") return;
-      tapId = e.pointerId;
+      if (e.button != null && e.button !== 0) return;
+      clearTimeout(pressT);
+      b.classList.add("press");
+      try { b.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+      stripDown(item, e.pointerId);
     });
-    b.addEventListener("pointercancel", function () { tapId = null; unpress(); });
-    b.addEventListener("pointerup", function (e) {
-      if (tapId == null || e.pointerId !== tapId) return;
-      tapId = null;
-      var hit = document.elementFromPoint(e.clientX, e.clientY);
-      if (!hit || !b.contains(hit)) return;
-      suggestTapAt = Date.now();
-      stripTap(item);
-    });
+    function up(e) { upAt = Date.now(); unpress(); stripUp(e.pointerId); }
+    b.addEventListener("pointerup", up);
+    b.addEventListener("pointercancel", up);
+    b.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+    // Keyboard (Enter / Space) still plays a preview; the click after a pointer release is skipped.
     b.addEventListener("click", function () {
-      if (suggestTapAt && Date.now() - suggestTapAt < 800) {
-        suggestTapAt = 0;
-        return;
-      }
+      if (upAt && Date.now() - upAt < 700) { upAt = 0; return; }
       stripTap(item);
     });
   }
@@ -4154,7 +4335,11 @@ function accSym(s) {
     el.innerHTML = "";
     // Rows: 1 borrowed happy-group chips (dashed) | 2 happy | 3 scale | 4 sad | 5 tension.
     // Two rows above the scale and two below keep the scale row at the exact middle.
-    var ROWN = { borrowed: 1, happy: 2, scale: 3, sad: 4, tension: 5 };
+    // v53: named grid lines (b h n s t; faces hi / si) so each layout can arrange the rows;
+    // "nob" collapses the green row when no chip lands there.
+    var ROWN = { bright: "b", happy: "h", scale: "n", sad: "s", tension: "t" };
+    var hasBright = model.chips.some(function (c) { return c.row === "bright"; });
+    el.classList.toggle("nob", !hasBright);
     // v52: no text labels (young players): a happy face beside the row above the
     // scale, a sad face beside the Sad + Tension rows, nothing on the scale row.
     STRIP_ICONS.forEach(function (r) {
@@ -4166,6 +4351,21 @@ function accSym(s) {
       l.innerHTML = r.svg;
       el.appendChild(l);
     });
+    ["b", "h", "n", "s", "t"].forEach(function (r) {
+      if (r === "b" && !hasBright) return;
+      var g = document.createElement("div");
+      g.className = "ss-gl ss-gr" + (r === "t" ? " last" : "");
+      g.style.gridRow = r;
+      g.setAttribute("aria-hidden", "true");
+      el.appendChild(g);
+    });
+    for (var gci = 0; gci < 7; gci++) {
+      var gcEl = document.createElement("div");
+      gcEl.className = "ss-gl ss-gc" + (gci === 6 ? " last" : "");
+      gcEl.style.gridColumn = String(gci + 2);
+      gcEl.setAttribute("aria-hidden", "true");
+      el.appendChild(gcEl);
+    }
     var track = document.createElement("div");
     track.className = "ss-track";
     track.setAttribute("aria-hidden", "true");
@@ -4174,6 +4374,7 @@ function accSym(s) {
       var b = document.createElement("button");
       b.type = "button";
       b.className = "ss-note" + (n.home ? " home" : "");
+      b.style.gridRow = "n";
       b.style.gridColumn = String(n.col + 2);
       b.innerHTML = "<span class=\"nn\"></span><small></small>";
       b.firstChild.textContent = prettyAcc(n.name);
@@ -4185,15 +4386,15 @@ function accSym(s) {
     model.chips.forEach(function (c) {
       var b = document.createElement("button");
       b.type = "button";
-      b.className = "ss-chip " + c.cls + (c.borrowed ? " borrowed" : "");
-      b.style.gridRow = String(c.row === "happy" && c.borrowed ? ROWN.borrowed : ROWN[c.row]);
+      b.className = "ss-chip " + c.cls + " r-" + ROWN[c.row] + (c.borrowed ? " borrowed" : "");
+      b.style.gridRow = ROWN[c.row];
       b.style.gridColumn = String(c.col + 2);
       var lab = stripLabel(c.item), rn = prettyAcc(c.item.rootName);
       b.innerHTML = "<span class=\"r\"></span><span class=\"q\"></span>";
       b.firstChild.textContent = rn;
       b.lastChild.textContent = lab.slice(rn.length);
       if (lab.length - rn.length >= 5) b.classList.add("long");
-      b.setAttribute("aria-label", stripLabel(c.item) + " (" + (c.row === "happy" ? (c.borrowed ? "color, borrowed" : "happy") : c.row) + ")");
+      b.setAttribute("aria-label", stripLabel(c.item) + " (" + (c.row === "bright" ? "bright, borrowed" : c.row + (c.borrowed ? ", borrowed" : "")) + ")");
       wireStripTap(b, c.item);
       el.appendChild(b);
     });
@@ -4232,17 +4433,32 @@ function accSym(s) {
       var k = 1;
       el.style.setProperty("--ss-k", "1");
       while (k > floor && over()) {
-        k = Math.round((k - 0.05) * 100) / 100;
+        k = Math.max(floor, Math.round((k - 0.05) * 100) / 100);
         el.style.setProperty("--ss-k", String(k));
       }
       return !over();
     }
-    if (!run(false, 0.78)) run(true, 0.6);
+    // v53: Simple keeps every chip name on one line: one shared size for all chips, shrunk
+    // no lower than 11 px; if a name still doesn't fit, tighten its letter-spacing.
+    el.classList.remove("tight");
+    for (var c0 = 0; c0 < chips.length; c0++) chips[c0].classList.remove("sq");
+    if (document.documentElement.classList.contains("simple")) {
+      var fs = parseFloat(getComputedStyle(el).getPropertyValue("--ss-fs")) || 16;
+      if (!run(false, Math.ceil(11 / fs * 100) / 100)) {
+        el.classList.add("tight");
+        for (var ci = 0; ci < chips.length; ci++) chips[ci].classList.toggle("sq", chips[ci].scrollWidth > chips[ci].clientWidth + 0.5);
+      }
+    } else if (!run(false, 0.78) && !run(true, 0.6)) {
+      el.classList.add("tight");
+      for (var cj = 0; cj < chips.length; cj++) chips[cj].classList.toggle("sq", chips[cj].scrollWidth > chips[cj].clientWidth + 0.5);
+    }
     // Simple: note buttons are about chip height, and never wider than their column.
-    var gr = String(getComputedStyle(el).gridTemplateRows).split(" ");
-    var gc = String(getComputedStyle(el).gridTemplateColumns).split(" ");
-    var rowH = parseFloat(gr[1]) || 0, colW = parseFloat(gc[1]) || 0;
+    // v53: named grid lines show up in the computed track list; skip them.
+    var gc = String(getComputedStyle(el).gridTemplateColumns).replace(/\[[^\]]*\]/g, " ").trim().split(/\s+/);
+    var sadChip = el.querySelector(".ss-chip.r-s") || el.querySelector(".ss-chip");
+    var rowH = sadChip ? sadChip.offsetHeight : 0, colW = parseFloat(gc[1]) || 0;
     if (rowH && colW) el.style.setProperty("--ss-nb", Math.floor(Math.min(rowH, colW)) + "px");
+    if (rowH) el.style.setProperty("--ss-nh", Math.floor(rowH) + "px");
 
   }
   window.addEventListener("resize", function () { fitStrip(); });
@@ -5332,9 +5548,26 @@ function accSym(s) {
     (function () {
       var row = document.getElementById("styles");
       function fade() { row.classList.toggle("more", row.scrollWidth - row.clientWidth - row.scrollLeft > 2); }
+      // v53: full mode, phone landscape: step the buttons tighter until all of them show.
+      function fitStyles() {
+        var root = document.documentElement;
+        row.classList.remove("fit-1", "fit-2", "fit-3", "fit-4");
+        if (root.classList.contains("lay-phone-land")) {
+          var over = function () {
+            var last = row.lastElementChild.getBoundingClientRect(), rr = row.getBoundingClientRect();
+            return row.scrollWidth > row.clientWidth || last.right > rr.right - 1;
+          };
+          for (var i = 1; i <= 4 && over(); i++) {
+            row.classList.remove("fit-" + (i - 1));
+            row.classList.add("fit-" + i);
+          }
+        }
+        fade();
+      }
       row.addEventListener("scroll", fade, { passive: true });
-      window.addEventListener("resize", fade);
-      setTimeout(fade, 0); setTimeout(fade, 400);
+      window.addEventListener("resize", fitStyles);
+      if (window.MutationObserver) new MutationObserver(fitStyles).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+      setTimeout(fitStyles, 0); setTimeout(fitStyles, 400);
     })();
     var initial;
     try { initial = loadSettings(); } catch (err) { initial = factoryDefaults(); }
