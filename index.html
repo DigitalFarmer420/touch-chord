@@ -1146,6 +1146,10 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
 .kb .pad.nokey { opacity: 0.32; }
 /* v26: no focus ring on Sound picker / Style buttons (user request) */
 #engines button, #engines button:focus, #engines button:focus-visible, #styles button, #styles button:focus, #styles button:focus-visible { outline: none !important; box-shadow: none; -webkit-tap-highlight-color: transparent; }
+.topbar { flex-wrap: nowrap; }
+.top-btn.icon-btn { min-width: 44px; min-height: 44px; width: 44px; height: 44px; padding: 0; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+.top-btn.icon-btn svg { display: block; }
+.app-version { padding: 8px 12px 4px; font-size: 11px; color: var(--muted); opacity: .8; text-align: center; }
 </style>
 </head>
 <body>
@@ -1155,13 +1159,14 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     <span class="spacer"></span>
     <button id="ctlToggle" type="button" class="top-btn" aria-controls="ctl" aria-expanded="false" title="Sound, effects, key, loop and layout">&#9776; Controls</button>
     <button id="simpleBtn" type="button" class="top-btn simple-sw" role="switch" aria-checked="false" title="Simple mode: hide sound, effects, key, loop and layout controls">Simple<span class="knob" aria-hidden="true"></span></button>
-    <button id="howtoBtn" type="button" class="top-btn howto-btn" aria-haspopup="dialog" title="How to use Touch Chord">How to</button>
     <div class="config" id="configWrap">
-      <button id="configBtn" type="button" class="top-btn config-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="configMenu" title="Configuration">Config</button>
+      <button id="configBtn" type="button" class="top-btn config-btn icon-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="configMenu" aria-label="Config" title="Config"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
       <div id="configMenu" class="config-menu" role="menu" aria-label="Configuration" hidden>
         <button id="factoryReset" type="button" role="menuitem" class="danger">Factory reset</button>
+        <div id="appVersion" class="app-version" aria-live="off"></div>
       </div>
     </div>
+    <button id="howtoBtn" type="button" class="top-btn howto-btn icon-btn" aria-haspopup="dialog" aria-label="How to" title="How to"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r="0.6" fill="currentColor"/></svg></button>
   </header>
   <div id="howto" class="howto" role="dialog" aria-modal="true" aria-label="How to" hidden>
     <div class="ht-box">
@@ -1182,7 +1187,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
       <h3>Sustain</h3>
       <p>Hold Sustain to keep the notes ringing, and let go to stop.</p>
       <h3>Advanced</h3>
-      <p>Style, Sound (Piano, E.Piano, Strings, Pad, Reed, Bell), Bass, Voicing, Loop, Simple, and Config.</p>
+      <p>Style, Sound (Piano, E.Piano, Strings, Pad, Reed, Bell), Bass, Voicing, Loop, Simple, and the gear (settings).</p>
     </div>
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -1324,6 +1329,13 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
 </div>
 <script>
 "use strict";
+// Bump every build. Shown in Config so a cached copy reports its real version.
+var APP_VERSION = 36;
+document.addEventListener("DOMContentLoaded", function () {
+  var v = document.getElementById("appVersion");
+  if (v) v.textContent = "Version " + APP_VERSION;
+});
+
 
 (function () {
   var LETTERS = ["C", "D", "E", "F", "G", "A", "B"];
@@ -3987,6 +3999,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
   var suggestPreview = null;
   var suggestTapAt = 0;   // last touch/pen tap on a Next chip (click de-dupe)
   var suggestTimer = 0;
+  var suggestSeq = 0;
 
   function clearSuggestPreview() {
     if (suggestTimer) {
@@ -4038,15 +4051,25 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     // Finger-held pads already morphed to this chord above; don't stack a
     // duplicate audition on top (doubles level, can clip). Sustain-pool
     // voices don't count as holding, so Next still auditions over the pedal.
-    ChordAudio.stopChord("suggest");
+    // v36: with the pedal down each audition gets its own group in the
+    // sustain pool (stacks like keys; released by dumpSustain).
+    var sg = "suggest";
+    if (sustainActive()) {
+      sg = "suggest-" + (++suggestSeq);
+      sustainPool[sg] = { pending: null };
+    } else {
+      ChordAudio.stopChord("suggest");
+    }
     if (!state.holding) {
-      ChordAudio.playChord("suggest", spec.midis, { bass: spec.bassOut, sound: state.sound });
+      ChordAudio.playChord(sg, spec.midis, { bass: spec.bassOut, sound: state.sound });
+      if (sg !== "suggest") ChordAudio.protectGroup(sg);
       if (needReplay && pending && typeof pending.then === "function") {
         pending.then(function () {
           if (state.holding) return;
           if (!(ChordAudio.ctx && ChordAudio.ctx.state === "running")) return;
-          ChordAudio.stopChord("suggest");
-          ChordAudio.playChord("suggest", spec.midis, { bass: spec.bassOut, sound: state.sound });
+          ChordAudio.stopChord(sg);
+          ChordAudio.playChord(sg, spec.midis, { bass: spec.bassOut, sound: state.sound });
+          if (sg !== "suggest") ChordAudio.protectGroup(sg);
         });
       }
     }
