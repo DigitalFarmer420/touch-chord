@@ -477,6 +477,13 @@ html.lay-pad-port #tones, html.lay-pad-land #tones { font-size: 16px; letter-spa
 html.lay-phone-port .style-row .lbl, html.lay-phone-land .style-row .lbl { display: none; }
 html.lay-phone-land .style-row { align-self: center; }
 html.lay-phone-land .style-row button { height: 26px; min-height: 26px; padding: 0 9px; font-size: 12px; }
+/* v52: phone landscape (full): Controls shrinks to its icon and the style chips tighten so
+   Funk and the rest are no longer cut off behind Controls; any leftover scrolls with a fade. */
+html.lay-phone-land:not(.simple) #ctlToggle .ctl-word { display: none; }
+html.lay-phone-land:not(.simple) #ctlToggle { min-width: 40px; padding: 0 10px; font-size: 18px; }
+html.lay-phone-land:not(.simple) .style-row { gap: 3px; }
+html.lay-phone-land:not(.simple) .style-row button { padding: 0 7px; font-size: 11.5px; }
+html.lay-phone-land:not(.simple) .style-row.more { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent); }
 html.lay-phone-port.simple .style-row button { height: 34px; min-height: 34px; padding: 0 13px; font-size: 14px; }
 html.lay-pad-port .style-row { flex-wrap: wrap; overflow: visible; touch-action: manipulation; }
 html.lay-pad-port .style-row button, html.lay-pad-land .style-row button { height: 36px; min-height: 36px; padding: 0 14px; font-size: 14px; }
@@ -493,24 +500,37 @@ html.lay-pad-land .style-row button { flex: 1 0 auto; }
   justify-content: center;
 }
 html.lay-pad-port .next-card, html.lay-pad-land .next-card { padding: 8px 12px 10px; }
-#app { --ss-lbl: 62px; --ss-row: 26px; --ss-strip: 38px; --ss-gap: 5px; --ss-cgap: 4px; --ss-fs: 14px; --ss-note: 16px; --ss-small: 9px; --ss-lfs: 9px; }
-html.lay-phone-port #app { --ss-lbl: 14px; --ss-row: 30px; --ss-strip: 42px; --ss-cgap: 2px; --ss-fs: 13px; --ss-note: 15px; }
-html.lay-pad-port #app, html.lay-pad-land #app { --ss-lbl: 92px; --ss-row: 42px; --ss-strip: 58px; --ss-gap: 8px; --ss-cgap: 8px; --ss-fs: 19px; --ss-note: 22px; --ss-small: 12px; --ss-lfs: 11px; }
+#app { --ss-lbl: 30px; --ss-ico: 22px; --ss-arrow: 14px; --ss-happy: #e2b15a; --ss-sad: #8a7bc0; --ss-ico-stroke: 2; --ss-rg: 3px; --ss-mid: 1.4fr; --ss-pad: 4px; --ss-row: 26px; --ss-strip: 38px; --ss-gap: 5px; --ss-cgap: 4px; --ss-fs: 14px; --ss-note: 16px; --ss-small: 9px; --ss-lfs: 9px; }
+html.lay-phone-port #app { --ss-row: 30px; --ss-strip: 42px; --ss-cgap: 2px; --ss-fs: 13px; --ss-note: 15px; }
+html.lay-pad-port #app, html.lay-pad-land #app { --ss-lbl: 34px; --ss-rg: 5px; --ss-pad: 8px; --ss-row: 42px; --ss-strip: 58px; --ss-gap: 8px; --ss-cgap: 8px; --ss-fs: 19px; --ss-note: 22px; --ss-small: 12px; --ss-lfs: 11px; }
 .ss {
   position: relative;
   display: grid;
   grid-template-columns: var(--ss-lbl) repeat(7, minmax(0, 1fr));
-  grid-template-rows: var(--ss-row) var(--ss-strip) var(--ss-row) var(--ss-row);
-  gap: var(--ss-gap) var(--ss-cgap);
-  align-content: center;
+  /* v52: borrowed | happy | scale | sad | tension. Two rows above and two below put the
+     scale row at the box's vertical middle; right padding = face column centres it sideways.
+     Box height stays what the v51 four-row strip used. */
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) minmax(0, var(--ss-mid)) minmax(0, 1fr) minmax(0, 1fr);
+  height: calc(3 * var(--ss-row) + var(--ss-strip) + 3 * var(--ss-gap));
+  gap: var(--ss-rg) var(--ss-cgap);
+  padding-right: calc(var(--ss-lbl) + var(--ss-cgap));
+  box-sizing: border-box;
+  align-content: stretch;
   min-width: 0;
   --ss-k: 1;
 }
 .ss .ss-lbl { grid-column: 1; color: var(--muted); font-size: var(--ss-lfs); letter-spacing: .04em; text-transform: uppercase; display: flex; align-items: center; white-space: nowrap; line-height: 1.15; min-width: 0; overflow: hidden; }
 .ss .ss-lbl b { color: var(--copper); font-weight: 700; font-size: calc(var(--ss-lfs) + 2px); margin-right: 3px; }
-html.lay-phone-port .ss .ss-lbl { justify-content: center; }
-html.lay-phone-port .ss .ss-lbl span { display: none; }
-html.lay-phone-port .ss .ss-lbl b { margin-right: 0; }
+/* v52: row labels are two line-icon faces with arrows toward the scale row (no text).
+   Happy (gold) + up arrow beside the top row; down arrow + sad (purple) beside sad/tension. */
+.ss .ss-lbl { flex-direction: column; justify-content: center; align-items: center; gap: 2px; overflow: visible; }
+.ss .ss-lbl.ss-ico-happy { color: var(--ss-happy); }
+.ss .ss-lbl.ss-ico-sad { color: var(--ss-sad); }
+.ss .ss-lbl svg { display: block; flex: none; fill: none; stroke: currentColor; stroke-width: var(--ss-ico-stroke); stroke-linecap: round; stroke-linejoin: round; }
+.ss .ss-lbl svg.ss-face { width: var(--ss-ico); height: var(--ss-ico); }
+.ss .ss-lbl svg.ss-face .eye { fill: currentColor; stroke: none; }
+.ss .ss-lbl svg.ss-arrow { width: calc(var(--ss-arrow) * 12 / 14); height: var(--ss-arrow); }
+.next-card { padding: var(--ss-pad) !important; }
 .ss .ss-chip {
   grid-row: 1;
   display: flex; align-items: center; justify-content: center;
@@ -528,9 +548,19 @@ html.lay-phone-port .ss .ss-lbl b { margin-right: 0; }
 html.lay-phone-port .ss .ss-chip { border-radius: 7px; padding: 0 1px; }
 .ss.stack .ss-chip { flex-direction: column; gap: 1px; line-height: 1; font-size: calc((var(--ss-fs) - 2px) * var(--ss-k)); }
 .ss.stack .ss-chip .q { font-size: .85em; }
-.ss .ss-track { grid-row: 2; grid-column: 2 / 9; margin: 0 -2px; background: #1c1914; border: 1px solid var(--line); border-radius: 999px; box-shadow: inset 0 1px 3px rgba(0,0,0,.6); }
+/* v52: chip text never drops below 11 px on phones. */
+html.lay-phone-port .ss .ss-chip, html.lay-phone-land .ss .ss-chip { font-size: max(11px, calc(var(--ss-fs) * var(--ss-k))); }
+html.lay-phone-port .ss.stack .ss-chip, html.lay-phone-land .ss.stack .ss-chip { font-size: max(11px, calc((var(--ss-fs) - 2px) * var(--ss-k))); }
+html.lay-phone-port .ss.stack .ss-chip .q, html.lay-phone-land .ss.stack .ss-chip .q { font-size: max(11px, .85em); }
+html.lay-phone-port #app { --ss-lbl: 18px; --ss-ico: 18px; --ss-arrow: 12px; --ss-cgap: 1px; }
+html.lay-phone-port .ss .ss-chip { padding: 0; letter-spacing: -0.04em; }
+html.lay-phone-port .ss .ss-chip.borrowed { border-width: 1.5px; }
+html.lay-phone-port .ss.stack .ss-chip.long .q { letter-spacing: -0.09em; }
+html.lay-phone-land:not(.simple) .ss .ss-chip { padding: 0 1px; letter-spacing: -0.03em; }
+html.lay-phone-land:not(.simple) #app { --ss-row: 28px; --ss-rg: 2px; --ss-mid: 1fr; }
+.ss .ss-track { grid-row: 3; grid-column: 2 / 9; margin: 0 -2px; background: #1c1914; border: 1px solid var(--line); border-radius: 999px; box-shadow: inset 0 1px 3px rgba(0,0,0,.6); }
 .ss .ss-note {
-  grid-row: 2; position: relative; z-index: 1;
+  grid-row: 3; position: relative; z-index: 1;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   min-width: 0; min-height: 0; height: auto; margin: 0; padding: 0;
   background: transparent; border: 0; border-radius: 999px;
@@ -1103,6 +1133,9 @@ html.lay-phone-port .key-row span, html.lay-phone-land .key-row span { font-size
 html.lay-phone-port #keyRow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; width: calc(100% + 12px); margin-left: -6px; margin-right: -6px; }
 html.lay-phone-port #keyRow > span { font-size: 11px; padding: 2px 0; border-color: transparent; box-shadow: inset 0 0 0 1px var(--line); }
 html.lay-phone-port #keyRow > span.on { box-shadow: none; }
+/* v52: portrait always stacks root over quality so the row is the same height in every key. */
+html.lay-phone-port #keyRow > span { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.05; }
+html.lay-phone-port #keyRow > span .q { min-height: 1.05em; }
 html.lay-phone-land .key-bar { flex-direction: column; gap: 3px; }
 html.lay-phone-land .key-bar button { height: 22px; min-height: 22px; }
 /* v28: Full Range toggle (was All keys) */
@@ -1117,7 +1150,96 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
 .topbar { flex-wrap: nowrap; }
 .top-btn.icon-btn { min-width: 44px; min-height: 44px; width: 44px; height: 44px; padding: 0; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
 .top-btn.icon-btn svg { display: block; }
+/* v52: Simple key control (ages 5-9): swipe the note, tap Major/Minor. Full mode keeps the picker. */
+.kid-key { display: none; }
+html.simple .key-bar { display: none !important; }
+html.simple .kid-key { display: flex; flex-direction: column; gap: 6px; flex: 0 0 auto; }
+.kk-root { position: relative; display: flex; align-items: center; justify-content: space-between; height: var(--kk-h, 58px); border-radius: 14px; background: var(--bg-2, #221d17); border: 2px solid var(--copper); touch-action: none; cursor: grab; outline: none; overflow: hidden; }
+.kk-root:focus-visible { box-shadow: 0 0 0 2px var(--copper); }
+.kk-name { flex: 1 1 auto; text-align: center; font-family: Palatino, "Iowan Old Style", Georgia, serif; font-weight: 700; font-size: var(--kk-fs, 34px); line-height: 1; color: var(--ink); pointer-events: none; transition: transform .12s ease-out; }
+.kk-name.nudge-l { transform: translateX(-10px); } .kk-name.nudge-r { transform: translateX(10px); }
+.kk-arrow { flex: 0 0 auto; width: var(--kk-arrow, 36px); height: 100%; min-height: 0; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--copper); font-size: calc(var(--kk-fs, 34px) * .8); line-height: 1; touch-action: manipulation; }
+.kk-mode { display: flex; align-items: center; justify-content: center; gap: 8px; height: var(--kk-mh, 44px); min-height: 0; margin: 0; border-radius: 14px; border: 2px solid transparent; font-size: var(--kk-mfs, 17px); font-weight: 800; letter-spacing: .02em; touch-action: manipulation; }
+.kk-mode.major { background: #e2b15a; color: #2a1c0c; }
+.kk-mode.minor { background: #8a7bc0; color: #f7f3ff; }
+.kk-face svg { display: block; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.kk-face svg .eye { fill: currentColor; stroke: none; }
+html.simple.lay-pad-land .kid-key, html.simple.lay-pad-port .kid-key { --kk-h: 96px; --kk-fs: 56px; --kk-arrow: 56px; --kk-mh: 64px; --kk-mfs: 24px; gap: 10px; }
+html.simple.lay-pad-land .kk-face svg, html.simple.lay-pad-port .kk-face svg { width: 32px; height: 32px; }
+@media (max-height: 400px) { html.simple.lay-phone-land .kid-key { --kk-h: 50px; --kk-fs: 30px; --kk-mh: 36px; --kk-mfs: 15px; gap: 5px; } }
 .app-version { padding: 8px 12px 4px; font-size: 11px; color: var(--muted); opacity: .8; text-align: center; }
+/* ===== v52 Simple (simple-v2 mockup): Now, Key, Sustain on the left; the scale strip fills
+   the right. No keyboard, chord buttons, Full Range, Controls button or Roman numerals. ===== */
+html.simple #chords, html.simple .kb-wrap, html.simple #allKeys, html.simple #ctlToggle,
+html.simple #keyRow, html.simple .ss .ss-note small, html.simple .pad .roman,
+html.simple #keyPick .kp-alts, html.simple #keyPick .kp-auto { display: none !important; }
+html.simple #app { --ss-lbl: 44px; --ss-ico: 24px; --ss-arrow: 14px; --ss-rg: 7px; --ss-cgap: 7px; --ss-mid: 1.3fr; --ss-pad: 7px; --ss-fs: 17px; --ss-note: 26px; --ss-strip: 48px; }
+html.simple #styles { overflow-x: auto; }
+html.simple .now-col { gap: 8px; }
+html.simple .now-col .now-card { flex: 1 1 auto; justify-content: center; align-items: center; text-align: center; }
+html.simple #symbol { font-size: var(--sym); line-height: 1; }
+html.simple #tones { font-size: 16px; letter-spacing: .18em; margin-top: 8px; }
+html.simple .key-bar { flex: 0 0 auto; display: block; }
+html.simple .key-bar .key-chip { display: block; width: 100%; height: 46px; min-height: 46px; font-size: 15px; border-radius: 12px; }
+html.simple #sustainBtn { width: auto; height: auto; align-self: stretch; }
+html.simple .next-card { min-height: 0; justify-content: stretch; align-items: stretch; }
+html.simple .ss { height: 100%; }
+html.simple .ss .ss-chip { font-size: calc(var(--ss-fs) * var(--ss-k)); border-radius: 14px; padding: 0 2px; letter-spacing: normal; }
+html.simple .ss.stack .ss-chip { font-size: max(11px, calc((var(--ss-fs) - 2px) * var(--ss-k))); }
+html.simple .ss .ss-note .nn { font-size: var(--ss-note); }
+/* v52: Simple note buttons: raised round buttons instead of labels on a capsule. */
+html.simple .ss .ss-track { display: none; }
+html.simple .ss .ss-note { align-self: center; justify-self: center; width: var(--ss-nb, 54px); height: var(--ss-nb, 54px); border-radius: 50%;
+  background: rgba(245, 233, 210, .17); border: 1.5px solid rgba(245, 233, 210, .42); box-shadow: 0 3px 0 rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .14);
+  transition: transform .08s ease-out, background-color .08s ease-out, box-shadow .08s ease-out; }
+html.simple .ss .ss-note.home { background: rgba(226, 177, 90, .30); border: 2.5px solid var(--copper); }
+html.simple .ss .ss-note.home::before { display: none; }
+html.simple .ss .ss-note.press { transform: scale(.92); background: rgba(255, 244, 222, .42); box-shadow: 0 1px 0 rgba(0, 0, 0, .45); }
+html.simple .ss .ss-note.home.press { background: rgba(240, 196, 120, .55); }
+html.simple .ss .ss-chip { transition: transform .08s ease-out, filter .08s ease-out; }
+html.simple .ss .ss-chip.press { transform: scale(.92); filter: brightness(1.25); }
+html.simple .ss .ss-note.pulse { animation: ss-pulse .55s ease-in-out both; }
+@keyframes ss-pulse { 0%, 100% { transform: scale(1); } 45% { transform: scale(1.1); background-color: rgba(255, 244, 222, .40); } }
+@media (prefers-reduced-motion: reduce) { html.simple .ss .ss-note, html.simple .ss .ss-chip { transition: none; } html.simple .ss .ss-note.pulse { animation: none; } }
+/* Phone landscape: the mockup (844 x 390). */
+html.simple.lay-phone-land #app {
+  --sym: 60px;
+  grid-template-columns: 196px minmax(0, 1fr) auto;
+  grid-template-rows: 44px minmax(0, 1fr) 76px;
+  grid-template-areas: "sty sty top" "now nxt nxt" "sus nxt nxt";
+}
+html.simple.lay-phone-land .now-card .card-label { display: none; }
+@media (max-width: 700px) { html.simple.lay-phone-land #app { --sym: 48px; grid-template-columns: 160px minmax(0, 1fr) auto; grid-template-rows: 40px minmax(0, 1fr) 64px; --ss-lbl: 36px; --ss-rg: 5px; --ss-cgap: 5px; --ss-fs: 15px; --ss-note: 22px; } }
+/* Phone portrait: Now + Key on the left, Sustain on the right, strip fills the rest. */
+html.simple.lay-phone-port #app {
+  --sym: 46px; --ss-lbl: 30px; --ss-ico: 24px; --ss-rg: 8px; --ss-cgap: 4px; --ss-fs: 16px; --ss-note: 24px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto auto 236px minmax(0, 1fr);
+  grid-template-areas: "top top" "sty sty" "now sus" "nxt nxt";
+}
+html.simple.lay-phone-port #sustainBtn { font-size: 17px; }
+@media (max-height: 700px) { html.simple.lay-phone-port #app { --sym: 38px; grid-template-rows: auto auto 196px minmax(0, 1fr); --ss-rg: 5px; --ss-fs: 15px; --ss-note: 22px; }
+  html.simple.lay-phone-port .kid-key { --kk-h: 50px; --kk-fs: 30px; --kk-mh: 38px; --kk-mfs: 15px; gap: 5px; }
+  html.simple.lay-phone-port #tones { margin-top: 4px; } }
+/* iPad landscape: the phone-landscape mockup, scaled. */
+html.simple.lay-pad-land #app {
+  --sym: 110px; --ss-lbl: 56px; --ss-rg: 12px; --ss-cgap: 12px; --ss-pad: 12px; --ss-fs: 26px; --ss-note: 38px; --ss-strip: 72px;
+  grid-template-columns: 300px minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr) 140px;
+  grid-template-areas: "sty sty top" "now nxt nxt" "sus nxt nxt";
+}
+html.simple.lay-pad-land .brand { display: none; }
+html.simple.lay-pad-land .key-bar .key-chip, html.simple.lay-pad-port .key-bar .key-chip { height: 64px; min-height: 64px; font-size: 22px; }
+html.simple.lay-pad-land #tones, html.simple.lay-pad-port #tones { font-size: 22px; }
+html.simple.lay-pad-land #sustainBtn, html.simple.lay-pad-port #sustainBtn { font-size: 24px; }
+/* iPad portrait: like phone portrait. */
+html.simple.lay-pad-port #app {
+  --sym: 96px; --ss-lbl: 56px; --ss-rg: 14px; --ss-cgap: 10px; --ss-pad: 12px; --ss-fs: 26px; --ss-note: 38px; --ss-strip: 72px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto auto 380px minmax(0, 1fr);
+  grid-template-areas: "top top" "sty sty" "now sus" "nxt nxt";
+}
+
 </style>
 </head>
 <body>
@@ -1125,7 +1247,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
   <header class="topbar">
     <div class="brand">Touch Chord</div>
     <span class="spacer"></span>
-    <button id="ctlToggle" type="button" class="top-btn" aria-controls="ctl" aria-expanded="false" title="Sound, effects, key, loop and layout">&#9776; Controls</button>
+    <button id="ctlToggle" type="button" class="top-btn" aria-controls="ctl" aria-expanded="false" title="Sound, effects, key, loop and layout" aria-label="Controls">&#9776;<span class="ctl-word"> Controls</span></button>
     <button id="simpleBtn" type="button" class="top-btn simple-sw" role="switch" aria-checked="false" title="Simple mode: hide sound, effects, key, loop and layout controls">Simple<span class="knob" aria-hidden="true"></span></button>
     <div class="config" id="configWrap">
       <button id="configBtn" type="button" class="top-btn config-btn icon-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="configMenu" aria-label="Config" title="Config"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
@@ -1140,24 +1262,34 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section><h3>About Touch Chord</h3>
-      <img src="images/howto-why.webp?v=51" alt="Touch Chord on a phone: chord buttons, keys, Now and suggestions" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=52" alt="Touch Chord on a phone: chord buttons, keys, Now and suggestions" width="1200" height="555" loading="lazy" decoding="async">
       <p class="ht-why">Touch Chord turns one finger into a full chord.<br>It's for anyone who wants to play chords without reading music.<br>A chord is 3 or more notes played at once. Chords that sound good together make up a key.</p>
       <ul><li><b>Learn chords:</b> try a random chord and see its name and notes.</li><li><b>Sing along:</b> play chords under your voice.</li><li><b>Beginner to making music:</b> start with one chord, then follow the suggestions into a song.</li></ul></section>
       <h2 class="ht-howto">How-to</h2>
-      <section><h3>1. Make a chord</h3>
-      <img src="images/howto-make-chord.webp?v=51" alt="Hold maj7, tap A, Now reads Amaj7" width="1200" height="555" loading="lazy" decoding="async">
-      <p class="cap">Hold <b>maj7</b> (1), tap <b>A</b> (2) = <b>Amaj7</b>.</p></section>
-      <section><h3>2. Chord Suggestion</h3>
-      <img src="images/howto-suggest-b.webp?v=51" alt="Tap a suggestion tile to hear the next chord" width="1200" height="555" loading="lazy" decoding="async">
-      <p class="cap">Tap a chord (2)</p></section>
-      <section><h3>3. Sustain</h3>
-      <img src="images/howto-sustain.webp?v=51" alt="Sustain lit while the chord rings" width="1200" height="555" loading="lazy" decoding="async">
+      <section><h3>1. Play a note</h3>
+      <img src="images/howto-simple-1-strip-note.webp?v=52" alt="Tap a note on the scale strip" width="1200" height="555" loading="lazy" decoding="async">
+      <p class="cap">Tap a note on the strip (1).</p></section>
+      <section><h3>2. Key</h3>
+      <img src="images/howto-simple-2-key.webp?v=52" alt="Key control: swipe the note, tap Major or Minor" width="1200" height="555" loading="lazy" decoding="async">
+      <p class="cap">Swipe the note (1) to change the key. Tap (2) for <b>Major</b> or <b>Minor</b>.</p></section>
+      <section><h3>3. Chord chips</h3>
+      <img src="images/howto-simple-3-chips.webp?v=52" alt="Chord chips above and below the strip" width="1200" height="555" loading="lazy" decoding="async">
+      <p class="cap">Tap a chip (1) to play its chord.</p></section>
+      <section><h3>4. Sustain</h3>
+      <img src="images/howto-simple-4-sustain.webp?v=52" alt="Sustain lit while the chord rings" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Play (1), hold <b>Sustain</b> (2): notes ring and fade. Let go to stop.</p></section>
-      <section><h3>4. Style</h3>
-      <img src="images/howto-style.webp?v=51" alt="Style picker" width="1200" height="555" loading="lazy" decoding="async">
-      <p class="cap">Tap a style (1). It changes the sound, not the chords.</p></section>
-      <section><h3>5. Full Range</h3>
-      <img src="images/howto-fullrange.webp?v=51" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
+      <section><h3>5. Style</h3>
+      <img src="images/howto-simple-5-style.webp?v=52" alt="Style picker" width="1200" height="555" loading="lazy" decoding="async">
+      <p class="cap">Tap a style (1). It changes the sound and the chords.</p></section>
+      <h2 class="ht-howto">In full mode</h2>
+      <section><h3>Make a chord</h3>
+      <img src="images/howto-full-1-make-chord.webp?v=52" alt="Hold maj7, tap A, Now reads Amaj7" width="1200" height="555" loading="lazy" decoding="async">
+      <p class="cap">Hold <b>maj7</b> (1), tap <b>A</b> (2) = <b>Amaj7</b>.</p></section>
+      <section><h3>Keyboard</h3>
+      <img src="images/howto-full-2-keyboard.webp?v=52" alt="Piano keyboard: each key plays a chord" width="1200" height="555" loading="lazy" decoding="async">
+      <p class="cap">Tap a key (1) to play its chord.</p></section>
+      <section><h3>Full Range</h3>
+      <img src="images/howto-full-3-fullrange.webp?v=52" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Gray keys are outside your key. Tap <b>Full Range</b> (1) to play them all.</p></section>
       <p class="ht-end">Sound and FX live in the gear's <b>Advanced</b> settings.</p>
       <dl class="ht-legend"><dt>Simple</dt><dd>Simple on/off</dd><dt>&#9881;</dt><dd>Settings (Advanced: sound, FX)</dd><dt>?</dt><dd>This guide</dd></dl>
@@ -1173,6 +1305,14 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     <div id="keyRow" class="key-row" aria-label="Chords in this key"></div>
   </div>
   <div class="key-bar"><button type="button" id="keyChip" class="key-chip" aria-haspopup="dialog" title="Pick the key">Key: play a chord</button><button type="button" id="allKeys" class="allkeys" aria-pressed="false" title="Full Range: unlock off-scale keys and chords so everything plays">Full Range</button></div>
+  <div id="kidKey" class="kid-key" aria-label="Key">
+    <div class="kk-root" role="slider" tabindex="0" aria-label="Key note, swipe to change" aria-valuemin="0" aria-valuemax="11" aria-valuenow="0" aria-valuetext="C">
+      <button type="button" class="kk-arrow kk-prev" aria-label="Key down" tabindex="-1">&#8249;</button>
+      <span class="kk-name">C</span>
+      <button type="button" class="kk-arrow kk-next" aria-label="Key up" tabindex="-1">&#8250;</button>
+    </div>
+    <button type="button" class="kk-mode major" aria-label="Major key, tap for minor"><span class="kk-face" aria-hidden="true"></span><span class="kk-mtxt">Major</span></button>
+  </div>
   </div>
   <div id="keyPick" class="key-pick" role="dialog" aria-label="Choose key" hidden>
     <div class="kp-box">
@@ -1303,7 +1443,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 51;
+var APP_VERSION = 52;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -1313,6 +1453,7 @@ document.addEventListener("DOMContentLoaded", function () {
 // Internal names stay ASCII; call this only where text is shown.
 function accSym(s) {
   return String(s == null ? "" : s)
+    .replace(/([A-G])x/g, "$1\u266f\u266f")
     .replace(/([A-G])(bb|##|b|#)/g, function (m, l, a) { return l + a.replace(/b/g, "\u266d").replace(/#/g, "\u266f"); })
     .replace(/(\d|\()b(\d)/g, "$1\u266d$2")
     .replace(/(\d|\()#(\d)/g, "$1\u266f$2");
@@ -1352,7 +1493,10 @@ function accSym(s) {
     9: 5,
     10: 6,
     11: 6,
-    14: 1
+    13: 1,
+    14: 1,
+    15: 1,
+    21: 5
   };
 
   var VOICINGS = ["drop", "low", "close", "high", "bright"];
@@ -1409,7 +1553,15 @@ function accSym(s) {
       six: !!ext.six,
       min7: !!ext.min7,
       maj7: !!ext.maj7,
-      nine: !!(ext.nine || ext["9"])
+      nine: !!(ext.nine || ext["9"]),
+      // v52: strip-only colours (style chip sets). sus2 replaces the 3rd;
+      // flat9 / sharp9 are altered 9ths; thirteen adds the 13th (5th omitted);
+      // over = slash bass, semitones above the root (IV/V -> 2).
+      sus2: !!ext.sus2,
+      flat9: !!ext.flat9,
+      sharp9: !!ext.sharp9,
+      thirteen: !!ext.thirteen,
+      over: (typeof ext.over === "number" && ext.over > 0 && ext.over < 12) ? ext.over : 0
     };
   }
 
@@ -1426,17 +1578,38 @@ function accSym(s) {
     var hasMaj7 = e.maj7;
     var hasMin7 = e.min7 && !hasMaj7;
     var has7 = hasMaj7 || hasMin7;
+    if (e.sus2 && (type === "major" || type === "minor")) iv[1] = 2;
     if (e.six && !has7) iv.push(9);
     if (hasMin7) iv.push(10);
     if (hasMaj7) iv.push(11);
-    if (e.nine) iv.push(14);
+    if (e.flat9) iv.push(13);
+    else if (e.nine || e.thirteen) iv.push(14);
+    if (e.sharp9) iv.push(15);
+    if (e.thirteen) { iv.push(21); if (has7) iv.splice(iv.indexOf(7), 1); }
     return iv;
   }
 
+  // An altered 9th that would need a double accidental (A\u266f\u266f in G\u266f7\u266f9) is
+  // written as its single-accidental enharmonic (B), the usual chart spelling.
+  function spellTone(rootSpell, iv) {
+    var t = spellInterval(rootSpell, iv);
+    if ((iv === 13 || iv === 15) && Math.abs(t.acc) > 1) {
+      var li = (t.li + (t.acc > 0 ? 1 : 6)) % 7;
+      var acc = t.pc - NATURAL[li];
+      if (acc > 6) acc -= 12;
+      if (acc < -6) acc += 12;
+      t = { li: li, acc: acc, pc: t.pc, name: LETTERS[li] + accStr(acc) };
+    }
+    return t;
+  }
+
   function chordToneNames(rootSpell, type, ext) {
-    return chordIntervals(type, ext).map(function (iv) {
-      return spellInterval(rootSpell, iv).name;
+    var e = normalizeExt(ext);
+    var names = chordIntervals(type, e).map(function (iv) {
+      return spellTone(rootSpell, iv).name;
     });
+    if (e.over) names.unshift(spellInterval(rootSpell, e.over).name);
+    return names;
   }
 
   function tones(rootPc, type, ext) {
@@ -1462,6 +1635,8 @@ function accSym(s) {
   function voicedMidis(rootPc, type, ext, voicing, rootMidiOpt) {
     var rootMidi = (typeof rootMidiOpt === "number" && isFinite(rootMidiOpt)) ? rootMidiOpt : 60 + mod12(rootPc);
     var placed = chordIntervals(type, ext).map(function (iv) { return rootMidi + iv; });
+    var e = normalizeExt(ext);
+    if (e.over) placed.unshift(rootMidi + e.over - 12);
     return applyVoicing(placed, voicing || "close");
   }
 
@@ -1478,6 +1653,13 @@ function accSym(s) {
     var has7 = hasMaj7 || hasMin7;
     var nine = e.nine;
     var six = e.six && !has7;
+    if (e.thirteen && hasMin7) return rootName + (type === "minor" ? "m13" : "13");
+    if ((e.flat9 || e.sharp9) && hasMin7 && type === "major") return rootName + "7" + (e.flat9 ? "b9" : "") + (e.sharp9 ? "#9" : "");
+    if (e.sus2 && (type === "major" || type === "minor")) {
+      if (hasMaj7) return rootName + "maj7sus2";
+      if (hasMin7) return rootName + "7sus2";
+      return rootName + "sus2";
+    }
 
     if (type === "sus4") {
       if (hasMaj7 && nine) return rootName + "maj9sus4";
@@ -1584,11 +1766,11 @@ function accSym(s) {
       type: type,
       extensions: ext,
       voicing: voicing,
-      symbol: chordSymbol(rootName, type, ext),
+      symbol: chordSymbol(rootName, type, ext) + (ext.over ? "/" + names[0] : ""),
       names: names,
       midis: midis,
       pcs: pitchClasses(midis),
-      bassMidi: bassMidi(rootPc, rootMidi)
+      bassMidi: bassMidi(rootPc + ext.over, rootMidi == null ? null : rootMidi + ext.over)
     };
   }
 
@@ -2581,6 +2763,11 @@ function accSym(s) {
       extra.rootSpell = d.rootSpell;
       extra.rootName = d.rootName;
     }
+    // v52: a strip chip carries its own root spelling (flat borrowed roots).
+    var ss = state.stripSpell;
+    if (!extra.rootSpell && ss && ss.pc === wrap12(rootPc) && ss.type === type) {
+      extra.rootSpell = ss.rs; extra.rootName = Theory.noteName(ss.rs);
+    }
     // v50: spell an in-key root the way the key (strip, 7-chord row) does.
     if (!extra.rootSpell) {
       var ak = activeKey();
@@ -2617,27 +2804,37 @@ function accSym(s) {
     if (akD) { inKeyPcs = {}; keyDegrees(akD).forEach(function (dd) { inKeyPcs[dd.pc] = true; }); }
     var diatonic = !!inKeyPcs && chord.pcs.every(function (q) { return inKeyPcs[wrap12(q)]; });
     if (!diatonic && hasDoubleAcc(chord.names)) {
-      var rs = chord.rootSpell;
-      var alt = null;
-      if (rs.acc !== 0) {
-        var altLi = rs.acc < 0 ? (rs.li + 6) % 7 : (rs.li + 1) % 7;
-        var altAcc = wrap12(rootPc - [0, 2, 4, 5, 7, 9, 11][altLi]);
-        if (altAcc > 6) altAcc -= 12;
-        alt = { li: altLi, acc: altAcc };
-      }
-      if (alt && Math.abs(alt.acc) <= 1) {
-        {
-          var c2 = Theory.buildChord({ rootPc: rootPc, type: type, extensions: state.extensions, voicing: state.voicing, rootSpell: alt, rootMidi: rootMidi });
-          if (!hasDoubleAcc(c2.names)) chord = c2;
-        }
+      var alt = enharmonicSpell(rootPc, chord.rootSpell);
+      if (alt) {
+        var c2 = Theory.buildChord({ rootPc: rootPc, type: type, extensions: state.extensions, voicing: state.voicing, rootSpell: alt, rootMidi: rootMidi });
+        if (!hasDoubleAcc(c2.names)) chord = c2;
       }
     }
     chord.bassOut = state.bass ? chord.bassMidi : null;
     return chord;
   }
 
+  // The other single-accidental spelling of a root (E\u266d <-> D\u266f), or null.
+  function enharmonicSpell(rootPc, rs) {
+    if (!rs || rs.acc === 0) return null;
+    var li = rs.acc < 0 ? (rs.li + 6) % 7 : (rs.li + 1) % 7;
+    var acc = wrap12(rootPc - [0, 2, 4, 5, 7, 9, 11][li]);
+    if (acc > 6) acc -= 12;
+    return Math.abs(acc) <= 1 ? { li: li, acc: acc } : null;
+  }
+  // Root spelling for a chord, switched to the enharmonic root when the given
+  // spelling would need double accidentals and the switch avoids them.
+  function cleanRootSpell(rootPc, type, ext, rs) {
+    rs = rs || Theory.spellRoot(rootPc);
+    var names = Theory.chordToneNames(rs, type, ext || {});
+    if (!hasDoubleAcc(names)) return rs;
+    var alt = enharmonicSpell(rootPc, rs);
+    if (alt && !hasDoubleAcc(Theory.chordToneNames(alt, type, ext || {}))) return alt;
+    return rs;
+  }
   function hasDoubleAcc(names) {
-    for (var i = 0; i < names.length; i++) if (/bb|##/.test(names[i])) return true;
+    // v52: Theory writes a double sharp as "x" (Fx); treat it like ## / bb.
+    for (var i = 0; i < names.length; i++) if (/bb|##|x/.test(names[i])) return true;
     return false;
   }
 
@@ -3104,6 +3301,7 @@ function accSym(s) {
   function soundFinger(pointerId, pad) {
     if (!padPlayable(pad)) return;
     state.forceChord = null;
+    clearStripExt();
     var finger = fingers[pointerId];
     if (!finger) {
       // Unique group per finger-down so pooled (sustained) groups never
@@ -3605,8 +3803,21 @@ function accSym(s) {
   // the user's pick per pc+mode (popover / Layout dropdown, saved in settings),
   // else a sensible default (D\u266d major, C\u266f minor, G\u266f minor; others as before).
   var SPELL_LI = "CDEFGAB";
-  var KEY_NAMES = ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
-  var KEY_ALTS = ["C#", "D#", "Gb", "G#", "A#"];
+  // v52: only spellings that are real keys. First entry = default.
+  var KEY_SPELLINGS = {
+    major: [["C"], ["Db", "C#"], ["D"], ["Eb"], ["E"], ["F"], ["F#", "Gb"], ["G"], ["Ab"], ["A"], ["Bb"], ["B"]],
+    minor: [["C"], ["C#"], ["D"], ["Eb", "D#"], ["E"], ["F"], ["F#"], ["G"], ["G#", "Ab"], ["A"], ["Bb", "A#"], ["B"]]
+  };
+  function keyMainNames(mode) { return KEY_SPELLINGS[mode === "minor" ? "minor" : "major"].map(function (a) { return a[0]; }); }
+  function keyAltNames(mode) {
+    var out = [];
+    KEY_SPELLINGS[mode === "minor" ? "minor" : "major"].forEach(function (a) { for (var i = 1; i < a.length; i++) out.push(a[i]); });
+    return out;
+  }
+  function validKeyName(pc, mode, n) {
+    var a = KEY_SPELLINGS[mode === "minor" ? "minor" : "major"][pc];
+    return !!a && a.indexOf(n) >= 0;
+  }
   function spellFromName(n) {
     var li = SPELL_LI.indexOf(String(n).charAt(0));
     if (li < 0) return null;
@@ -3619,24 +3830,39 @@ function accSym(s) {
     return sp ? wrap12([0, 2, 4, 5, 7, 9, 11][sp.li] + sp.acc) : -1;
   }
   function defaultKeyName(pc, mode) {
-    if (mode === "minor") { if (pc === 1) return "C#"; if (pc === 8) return "G#"; }
-    else if (pc === 1) return "Db";
-    return Theory.NOTE_NAMES[pc];
+    return KEY_SPELLINGS[mode === "minor" ? "minor" : "major"][pc][0];
   }
   function keyRootName(k) {
+    // v52: Simple always uses the plain spellings (major C D\u266d ... B\u266d B; minor C C\u266f ... G\u266f ...).
+    if (state.simple) return defaultKeyName(k.pc, k.mode);
     var n = state.keySpell && state.keySpell[k.pc + k.mode];
-    return (n && namePc(n) === k.pc) ? n : defaultKeyName(k.pc, k.mode);
+    return (n && validKeyName(k.pc, k.mode, n)) ? n : defaultKeyName(k.pc, k.mode);
   }
   function keyRootSpell(k) { return spellFromName(keyRootName(k)); }
   function keyDegrees(k) { return Theory.scaleDegrees(k.pc, k.mode, keyRootSpell(k)); }
+  function buildKeySel() {
+    var sel = document.getElementById("keyRoot");
+    if (!sel) return;
+    var mode = modeKey().mode;
+    sel.innerHTML = "";
+    keyMainNames(mode).concat(keyAltNames(mode)).forEach(function (name) {
+      var opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = accSym(name);
+      sel.appendChild(opt);
+    });
+    sel.dataset.mode = mode;
+  }
   function syncKeySel() {
     var sel = document.getElementById("keyRoot");
-    if (sel) sel.value = keyRootName(modeKey());
+    if (!sel) return;
+    if (sel.dataset.mode !== modeKey().mode) buildKeySel();
+    sel.value = keyRootName(modeKey());
   }
   function modeKey() { return { pc: state.keyRoot, mode: state.keyScale === "minor" ? "minor" : "major" }; }
   function setKeySpell(pc, mode, name) {
     if (!state.keySpell) state.keySpell = {};
-    if (name === defaultKeyName(pc, mode)) delete state.keySpell[pc + mode];
+    if (!validKeyName(pc, mode, name) || name === defaultKeyName(pc, mode)) delete state.keySpell[pc + mode];
     else state.keySpell[pc + mode] = name;
     suggestSig = "";
     scheduleSave(0);
@@ -3667,6 +3893,13 @@ function accSym(s) {
     updateSymbol();
   }
 
+  // v52: chip-only chord colours; a pad press or palette touch drops them.
+  var STRIP_EXT = ["sus2", "flat9", "sharp9", "thirteen", "over"];
+  function clearStripExt() {
+    STRIP_EXT.forEach(function (k) { state.extensions[k] = k === "over" ? 0 : false; });
+    state.stripSpell = null;
+  }
+
   function applySuggestion(item) {
     if (paletteTimer) {
       clearTimeout(paletteTimer);
@@ -3677,8 +3910,10 @@ function accSym(s) {
     state.extensions.min7 = !!(item.extensions && item.extensions.min7);
     state.extensions.maj7 = !!(item.extensions && item.extensions.maj7);
     state.extensions.nine = !!(item.extensions && item.extensions.nine);
+    STRIP_EXT.forEach(function (k) { state.extensions[k] = (item.extensions && item.extensions[k]) || (k === "over" ? 0 : false); });
     state.rootPc = item.rootPc;
     state.type = item.type;
+    state.stripSpell = item.rootSpell ? { pc: item.rootPc, type: item.type, rs: item.rootSpell } : null;
     if (item.degree) {
       state.forceChord = null;
       if (state.keyMode) state.degree = item.degree;
@@ -3737,22 +3972,81 @@ function accSym(s) {
   // Chip rows sit in the column of the note they are built on, defined on the
   // relative major: Happy/Color = Imaj7 IVmaj7 V7 + borrowed II7 (dashed),
   // Sad = vi7 ii7 iii7 (m7), Tension = viim7b5, Vsus. Key = suggestionKey().
+  // v52: faces from the simple-v2 mockup (faces.js); colours come from CSS (--ss-happy / --ss-sad).
+  function faceSvg(mouth) {
+    return "<svg class=\"ss-face\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/>" +
+      "<circle class=\"eye\" cx=\"8.6\" cy=\"9.6\" r=\"1.2\"/><circle class=\"eye\" cx=\"15.4\" cy=\"9.6\" r=\"1.2\"/><path d=\"" + mouth + "\"/></svg>";
+  }
+  function arrowSvg(up) {
+    return "<svg class=\"ss-arrow\" viewBox=\"0 0 12 14\" aria-hidden=\"true\">" + (up ? "<path d=\"M6 13V2M2 6l4-4 4 4\"/>" : "<path d=\"M6 1v11M2 8l4 4 4-4\"/>") + "</svg>";
+  }
+  var STRIP_ICONS = [
+    { id: "happy", rows: "1 / 3", aria: "Happy chords", svg: faceSvg("M7.6 14.2c1.1 1.9 2.6 2.8 4.4 2.8s3.3-.9 4.4-2.8") + arrowSvg(true) },
+    { id: "sad", rows: "4 / 6", aria: "Sad and tense chords", svg: arrowSvg(false) + faceSvg("M7.6 17.2c1.1-1.9 2.6-2.8 4.4-2.8s3.3.9 4.4 2.8") }
+  ];
   var STRIP_ROWS = [
     { id: "happy", glyph: "\u2191", label: "Happy /<br>Color", aria: "Happy / Color" },
     { id: "scale", glyph: "\u266a", label: "Scale", aria: "Scale" },
     { id: "sad", glyph: "\u2193", label: "Sad", aria: "Sad" },
     { id: "tension", glyph: "\u21e3", label: "Tension", aria: "Tension" }
   ];
-  // [relative-major degree, quality, row, colour class, borrowed]
-  var STRIP_CHIPS = [
-    [1, "maj7", "happy", "major"], [4, "maj7", "happy", "major"], [5, "7", "happy", "major"],
-    [2, "7", "happy", "color", true],
-    [6, "m7", "sad", "minor"], [2, "m7", "sad", "minor"], [3, "m7", "sad", "minor"],
-    [7, "m7b5", "tension", "tension"], [5, "sus4", "tension", "tension"]
-  ];
+  // v52: each style has its own chip set (same rows and columns; strip notes still
+  // play triads). Entry: [relative-major degree, quality, row, lowered root, borrowed].
+  // A lowered root (\u266dVII, \u266dVI) sits in the column of the scale note with the same letter.
+  var STRIP_QUAL = {
+    maj:    { type: "major", ext: {}, label: "" },
+    min:    { type: "minor", ext: {}, label: "m" },
+    "7":    { type: "major", ext: { min7: true }, label: "7" },
+    maj7:   { type: "major", ext: { maj7: true }, label: "maj7" },
+    m7:     { type: "minor", ext: { min7: true }, label: "m7" },
+    m7b5:   { type: "dim",   ext: { min7: true }, label: "m7\u266d5" },
+    sus4:   { type: "sus4",  ext: {}, label: "sus4" },
+    sus2:   { type: "major", ext: { sus2: true }, label: "sus2" },
+    add9:   { type: "major", ext: { nine: true }, label: "add9" },
+    madd9:  { type: "minor", ext: { nine: true }, label: "madd9" },
+    "9":    { type: "major", ext: { min7: true, nine: true }, label: "9" },
+    maj9:   { type: "major", ext: { maj7: true, nine: true }, label: "maj9" },
+    m9:     { type: "minor", ext: { min7: true, nine: true }, label: "m9" },
+    "9sus": { type: "sus4",  ext: { min7: true, nine: true }, label: "9sus" },
+    "13":   { type: "major", ext: { min7: true, thirteen: true }, label: "13" },
+    "7b9":  { type: "major", ext: { min7: true, flat9: true }, label: "7\u266d9" },
+    "7#9":  { type: "major", ext: { min7: true, sharp9: true }, label: "7\u266f9" },
+    overV:  { type: "major", ext: { over: 2 }, label: "/" }   // IV/V: bass a whole step up
+  };
+  var STRIP_SETS = {
+    pop: [[1, "maj", "happy"], [4, "maj", "happy"], [5, "maj", "happy"],
+          [6, "min", "sad"], [2, "min", "sad"], [3, "min", "sad"],
+          [5, "sus4", "tension"], [7, "maj", "tension", true, true]],
+    jazz: [[1, "maj7", "happy"], [4, "maj7", "happy"], [5, "7", "happy"],
+           [2, "m7", "sad"], [3, "m7", "sad"], [6, "m7", "sad"],
+           [7, "m7b5", "tension"], [5, "7b9", "tension", false, true]],
+    rnb: [[1, "maj9", "happy"], [4, "maj9", "happy"], [5, "9sus", "happy"],
+          [2, "m9", "sad"], [3, "m7", "sad"], [6, "m9", "sad"],
+          [7, "maj7", "tension", true, true], [5, "13", "tension"]],
+    romantic: [[1, "maj7", "happy"], [4, "maj", "happy"], [5, "7", "happy"],
+               [6, "min", "sad"], [3, "min", "sad"], [2, "min", "sad"],
+               [4, "min", "tension", false, true], [6, "maj", "tension", true, true]],
+    ballad: [[1, "add9", "happy"], [4, "add9", "happy"], [5, "maj", "happy"],
+             [6, "m7", "sad"], [2, "m7", "sad"], [3, "min", "sad"],
+             [4, "overV", "tension"], [7, "maj", "tension", true, true]],
+    reggae: [[1, "maj", "happy"], [4, "maj", "happy"], [5, "maj", "happy"],
+             [2, "min", "sad"], [6, "min", "sad"],
+             [7, "maj", "tension", true, true]],
+    funk: [[1, "9", "happy"], [4, "9", "happy"], [5, "9", "happy"],
+           [2, "m7", "sad"], [6, "m7", "sad"],
+           [5, "7#9", "tension", false, true], [7, "9", "tension", true, true]],
+    yoga: [[1, "sus2", "happy"], [4, "maj7", "happy"], [5, "sus2", "happy"],
+           [6, "m7", "sad"], [2, "m7", "sad"],
+           [1, "sus4", "tension"], [7, "add9", "tension", true, true]],
+    // Yoga Deep plays low and warm: open sus2 shapes keep the low register clear.
+    yogaDeep: [[1, "sus2", "happy"], [4, "sus2", "happy"], [5, "sus2", "happy"],
+               [6, "m7", "sad"], [2, "m7", "sad"],
+               [1, "sus4", "tension"], [7, "sus2", "tension", true, true]]
+  };
   function prettyAcc(name) { return accSym(name); }
   function stripLabel(item) {
     var q = item.qualityLabel || "";
+    if (item.chipLabel != null) return prettyAcc(item.rootName) + item.chipLabel;
     if (q === "m7b5") q = "m7\u266d5";
     else if (q === "sus4") q = "sus";
     else if (q === "m" && item.type === "minor") q = "m";
@@ -3775,13 +4069,33 @@ function accSym(s) {
         item: { rootPc: d.pc, rootName: d.name, degree: d.degree, type: tri.type, extensions: tri.extensions, qualityLabel: d.type === "major" ? "" : d.type === "minor" ? "m" : "dim" }
       };
     });
-    var chips = STRIP_CHIPS.map(function (c) {
+    var inKey = {};
+    keyDegrees(key).forEach(function (d) { inKey[d.pc] = true; });
+    var set = STRIP_SETS[state.style] || STRIP_SETS.pop;
+    var chips = set.map(function (c) {
       var d = byPc[majPcs[c[0] - 1]];
-      var mq = mapQuality(c[1]);
-      var diatonic = mq.type === d.type || mq.type === "sus4";
+      var q = STRIP_QUAL[c[1]];
+      var low = !!c[3];
+      var pc = wrap12(d.pc - (low ? 1 : 0));
+      var rs = low ? { li: d.rootSpell.li, acc: d.rootSpell.acc - 1 } : d.rootSpell;
+      var ext = blankExt();
+      for (var ek in q.ext) ext[ek] = q.ext[ek];
+      var tonePcs = Theory.chordIntervals(q.type, ext).map(function (iv) { return wrap12(pc + iv); });
+      if (ext.over) tonePcs.push(wrap12(pc + ext.over));
+      var diatonic = tonePcs.every(function (t) { return inKey[t]; });
+      // Borrowed / altered chips: flat letter spelling, switched to the enharmonic
+      // root only when that is the way to avoid a double accidental.
+      if (!diatonic || low) rs = cleanRootSpell(pc, q.type, ext, rs);
+      var lab = q.label;
+      if (ext.over) lab = "/" + accSym(Theory.spellInterval(rs, ext.over).name);
       return {
-        col: order.indexOf(c[0]), row: c[2], cls: c[3], borrowed: !!c[4],
-        item: { rootPc: d.pc, rootName: d.name, degree: diatonic ? d.degree : null, type: mq.type, extensions: mq.extensions, qualityLabel: mq.label }
+        col: order.indexOf(c[0]), row: c[2], borrowed: !!c[4],
+        cls: c[2] === "happy" ? (c[4] ? "color" : "major") : c[2] === "sad" ? "minor" : "tension",
+        item: {
+          rootPc: pc, rootName: Theory.noteName(rs), rootSpell: rs,
+          degree: (!low && diatonic && q.type === d.type) ? d.degree : null,
+          type: q.type, extensions: ext, qualityLabel: q.label, chipLabel: lab
+        }
       };
     });
     return { key: key, notes: notes, chips: chips };
@@ -3792,11 +4106,17 @@ function accSym(s) {
   // mouse / keyboard, de-duplicated against the pointer tap.
   function wireStripTap(b, item) {
     var tapId = null;
+    // v52: pressed look (scale + flash) for notes and chips.
+    var pressT = 0;
+    function unpress() { clearTimeout(pressT); pressT = setTimeout(function () { b.classList.remove("press"); }, 120); }
+    b.addEventListener("pointerdown", function () { clearTimeout(pressT); b.classList.add("press"); });
+    b.addEventListener("pointerup", unpress);
+    b.addEventListener("pointerleave", unpress);
     b.addEventListener("pointerdown", function (e) {
       if (e.pointerType === "mouse") return;
       tapId = e.pointerId;
     });
-    b.addEventListener("pointercancel", function () { tapId = null; });
+    b.addEventListener("pointercancel", function () { tapId = null; unpress(); });
     b.addEventListener("pointerup", function (e) {
       if (tapId == null || e.pointerId !== tapId) return;
       tapId = null;
@@ -3823,7 +4143,7 @@ function accSym(s) {
 
   function paintSuggestions(spec) {
     var key = suggestionKey(spec || computeSpec());
-    var sig = key.pc + key.mode + keyRootName(key);
+    var sig = key.pc + key.mode + keyRootName(key) + state.style;
     if (sig === suggestSig) return;
     suggestSig = sig;
     stripKey = key;
@@ -3832,13 +4152,18 @@ function accSym(s) {
     el.className = "ss";
     el.setAttribute("aria-label", "Scale strip, key of " + prettyAcc(keyRootName(key)) + " " + key.mode);
     el.innerHTML = "";
-    var ROWN = { happy: 1, scale: 2, sad: 3, tension: 4 };
-    STRIP_ROWS.forEach(function (r) {
+    // Rows: 1 borrowed happy-group chips (dashed) | 2 happy | 3 scale | 4 sad | 5 tension.
+    // Two rows above the scale and two below keep the scale row at the exact middle.
+    var ROWN = { borrowed: 1, happy: 2, scale: 3, sad: 4, tension: 5 };
+    // v52: no text labels (young players): a happy face beside the row above the
+    // scale, a sad face beside the Sad + Tension rows, nothing on the scale row.
+    STRIP_ICONS.forEach(function (r) {
       var l = document.createElement("div");
-      l.className = "ss-lbl";
-      l.style.gridRow = ROWN[r.id];
-      l.title = r.aria;
-      l.innerHTML = "<b aria-hidden=\"true\">" + r.glyph + "</b><span>" + r.label + "</span>";
+      l.className = "ss-lbl ss-ico-" + r.id;
+      l.style.gridRow = r.rows;
+      l.setAttribute("role", "img");
+      l.setAttribute("aria-label", r.aria);
+      l.innerHTML = r.svg;
       el.appendChild(l);
     });
     var track = document.createElement("div");
@@ -3861,18 +4186,33 @@ function accSym(s) {
       var b = document.createElement("button");
       b.type = "button";
       b.className = "ss-chip " + c.cls + (c.borrowed ? " borrowed" : "");
-      b.style.gridRow = String(ROWN[c.row]);
+      b.style.gridRow = String(c.row === "happy" && c.borrowed ? ROWN.borrowed : ROWN[c.row]);
       b.style.gridColumn = String(c.col + 2);
       var lab = stripLabel(c.item), rn = prettyAcc(c.item.rootName);
       b.innerHTML = "<span class=\"r\"></span><span class=\"q\"></span>";
       b.firstChild.textContent = rn;
       b.lastChild.textContent = lab.slice(rn.length);
+      if (lab.length - rn.length >= 5) b.classList.add("long");
       b.setAttribute("aria-label", stripLabel(c.item) + " (" + (c.row === "happy" ? (c.borrowed ? "color, borrowed" : "happy") : c.row) + ")");
       wireStripTap(b, c.item);
       el.appendChild(b);
     });
     fitStrip();
+    // v52: one gentle left-to-right pulse across the note buttons, the first time
+    // the strip shows in Simple (skipped for reduced motion).
+    if (state.simple && !notesPulsed) {
+      notesPulsed = true;
+      var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!calm) {
+        Array.prototype.forEach.call(el.querySelectorAll(".ss-note"), function (n, i) {
+          n.style.animationDelay = (250 + i * 110) + "ms";
+          n.classList.add("pulse");
+          n.addEventListener("animationend", function () { n.classList.remove("pulse"); n.style.animationDelay = ""; }, { once: true });
+        });
+      }
+    }
   }
+  var notesPulsed = false;
 
   // Fit chip names to their column: shrink a little first; if a name still
   // overflows (narrow phones / portrait), stack root over quality, then shrink.
@@ -3897,7 +4237,13 @@ function accSym(s) {
       }
       return !over();
     }
-    if (!run(false, 0.8)) run(true, 0.6);
+    if (!run(false, 0.78)) run(true, 0.6);
+    // Simple: note buttons are about chip height, and never wider than their column.
+    var gr = String(getComputedStyle(el).gridTemplateRows).split(" ");
+    var gc = String(getComputedStyle(el).gridTemplateColumns).split(" ");
+    var rowH = parseFloat(gr[1]) || 0, colW = parseFloat(gc[1]) || 0;
+    if (rowH && colW) el.style.setProperty("--ss-nb", Math.floor(Math.min(rowH, colW)) + "px");
+
   }
   window.addEventListener("resize", function () { fitStrip(); });
 
@@ -3927,6 +4273,7 @@ function accSym(s) {
     var row = document.getElementById("keyRow");
     var k = activeKey();
     chip.textContent = k ? "Key: " + keyLabel(k) : "Key: play a chord";
+    paintKidKey();
     var inKey = {};
     var spellPc = {};
     if (k) keyDegrees(k).forEach(function (d) { inKey[d.pc] = true; spellPc[d.pc] = d.name; });
@@ -4026,6 +4373,80 @@ function accSym(s) {
     suggestSig = "";
     refreshHeld();
   }
+  // v52: Simple key control. Drag/swipe right = up a semitone, left = down (wraps);
+  // the arrows do the same; the mode button flips Major/Minor. Sets the key lock.
+  function kidKey() { return activeKey() || { pc: 0, mode: "major" }; }
+  function setKidKey(pc, mode) {
+    setLockKey({ pc: wrap12(pc), mode: mode });
+    scheduleSave(0);
+  }
+  function paintKidKey() {
+    var box = document.getElementById("kidKey");
+    if (!box) return;
+    var k = kidKey();
+    var nm = accSym(defaultKeyName(k.pc, k.mode));
+    var root = box.querySelector(".kk-root");
+    box.querySelector(".kk-name").textContent = nm;
+    root.setAttribute("aria-valuenow", String(k.pc));
+    root.setAttribute("aria-valuetext", nm + (k.mode === "minor" ? " minor" : " major"));
+    var mb = box.querySelector(".kk-mode");
+    var minor = k.mode === "minor";
+    mb.classList.toggle("major", !minor); mb.classList.toggle("minor", minor);
+    mb.setAttribute("aria-label", (minor ? "Minor" : "Major") + " key, tap for " + (minor ? "major" : "minor"));
+    mb.querySelector(".kk-mtxt").textContent = minor ? "Minor" : "Major";
+    var face = minor ? STRIP_ICONS[1] : STRIP_ICONS[0];
+    var fs = face.svg.replace(/<svg class="ss-arrow"[\s\S]*?<\/svg>/, "");
+    if (mb.dataset.face !== k.mode) { mb.querySelector(".kk-face").innerHTML = fs; mb.dataset.face = k.mode; }
+  }
+  function wireKidKey() {
+    var box = document.getElementById("kidKey");
+    if (!box) return;
+    var root = box.querySelector(".kk-root"), name = box.querySelector(".kk-name");
+    function step(d) {
+      var k = kidKey();
+      setKidKey(k.pc + d, k.mode);
+      name.classList.remove("nudge-l", "nudge-r");
+      void name.offsetWidth;
+      name.classList.add(d > 0 ? "nudge-r" : "nudge-l");
+      setTimeout(function () { name.classList.remove("nudge-l", "nudge-r"); }, 140);
+    }
+    box.querySelector(".kk-prev").addEventListener("click", function (e) { e.stopPropagation(); unlock(); step(-1); });
+    box.querySelector(".kk-next").addEventListener("click", function (e) { e.stopPropagation(); unlock(); step(1); });
+    var drag = null;
+    root.addEventListener("pointerdown", function (e) {
+      if (e.target.closest(".kk-arrow")) return;
+      e.preventDefault();
+      unlock();
+      // One step per ~quarter of the box (at least 36 px) so a small wobble does nothing.
+      drag = { id: e.pointerId, x: e.clientX, unit: Math.max(36, root.clientWidth / 4) };
+      try { root.setPointerCapture(e.pointerId); } catch (err) {}
+    });
+    root.addEventListener("pointermove", function (e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      e.preventDefault();
+      var dx = e.clientX - drag.x;
+      while (Math.abs(dx) >= drag.unit) {
+        var d = dx > 0 ? 1 : -1;
+        step(d);
+        drag.x += d * drag.unit;
+        dx = e.clientX - drag.x;
+      }
+    });
+    function end(e) { if (drag && e.pointerId === drag.id) drag = null; }
+    root.addEventListener("pointerup", end);
+    root.addEventListener("pointercancel", end);
+    root.addEventListener("touchmove", function (e) { e.preventDefault(); }, { passive: false });
+    root.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === "ArrowUp") { e.preventDefault(); step(1); }
+      else if (e.key === "ArrowLeft" || e.key === "ArrowDown") { e.preventDefault(); step(-1); }
+    });
+    box.querySelector(".kk-mode").addEventListener("click", function () {
+      unlock();
+      var k = kidKey();
+      setKidKey(k.pc, k.mode === "minor" ? "major" : "minor");
+    });
+    paintKidKey();
+  }
   function wireKeyPick() {
     var pick = document.getElementById("keyPick");
     var roots = pick.querySelector(".kp-roots");
@@ -4033,7 +4454,13 @@ function accSym(s) {
     function paint() {
       var k = sel || activeKey() || { pc: 0, mode: "major" };
       var kn = keyRootName(k);
-      Array.prototype.forEach.call(pick.querySelectorAll(".kp-roots button"), function (b) { b.classList.toggle("on", b.dataset.name === kn); });
+      if (alts.dataset.mode !== k.mode) buildRoots(k.mode);
+      // Simple hides the spelling row, so its picker highlights by pitch.
+      Array.prototype.forEach.call(pick.querySelectorAll(".kp-roots button, .kp-alts button"), function (b) {
+        var on = state.simple ? (b.parentNode === roots && Number(b.dataset.pc) === k.pc) : b.dataset.name === kn;
+        b.classList.toggle("on", on);
+        b.setAttribute("aria-pressed", on ? "true" : "false");
+      });
       Array.prototype.forEach.call(pick.querySelectorAll(".kp-modes button"), function (b) { b.classList.toggle("on", b.dataset.mode === k.mode); });
     }
     // v50: 12 keys plus the enharmonic spellings (C\u266f D\u266f G\u266d G\u266f A\u266f); the pick sets the spelling.
@@ -4048,12 +4475,17 @@ function accSym(s) {
       });
       parent.appendChild(b);
     }
-    KEY_NAMES.forEach(function (n) { addRoot(n, roots); });
     var alts = document.createElement("div");
     alts.className = "kp-alts";
     alts.setAttribute("aria-label", "Other spellings");
     roots.parentNode.insertBefore(alts, roots.nextSibling);
-    KEY_ALTS.forEach(function (n) { addRoot(n, alts); });
+    // Rows follow the quality: major offers C\u266f and G\u266d; minor D\u266f, A\u266d, A\u266f.
+    function buildRoots(mode) {
+      roots.innerHTML = ""; alts.innerHTML = "";
+      keyMainNames(mode).forEach(function (n) { addRoot(n, roots); });
+      keyAltNames(mode).forEach(function (n) { addRoot(n, alts); });
+      alts.dataset.mode = mode;
+    }
     Array.prototype.forEach.call(pick.querySelectorAll(".kp-modes button"), function (b) {
       b.addEventListener("click", function () {
         var k = sel || activeKey() || { pc: 0, mode: "major" };
@@ -4163,6 +4595,7 @@ function accSym(s) {
     state.type = nextType;
     var keys = ["six", "min7", "maj7", "nine"];
     for (var i = 0; i < keys.length; i++) state.extensions[keys[i]] = extStillHeld(keys[i]);
+    clearStripExt();
     if (paletteTimer) clearTimeout(paletteTimer);
     paletteTimer = setTimeout(function () {
       paletteTimer = 0;
@@ -4242,12 +4675,7 @@ function accSym(s) {
 
   function wire() {
     var keySel = document.getElementById("keyRoot");
-    KEY_NAMES.concat(KEY_ALTS).forEach(function (name) {
-      var opt = document.createElement("option");
-      opt.value = name;
-      opt.textContent = accSym(name);
-      keySel.appendChild(opt);
-    });
+    buildKeySel();
 
     var palette = document.getElementById("palette");
     palette.addEventListener("pointerdown", onPaletteDown);
@@ -4500,7 +4928,8 @@ function accSym(s) {
       bpm: 96,
       warmth: WARMTH_DEFAULT,
       simple: false,
-      allKeys: false
+      allKeys: false,
+      lockKey: null
     };
   }
 
@@ -4526,7 +4955,8 @@ function accSym(s) {
         var out = {};
         if (o && typeof o === "object") Object.keys(o).forEach(function (k) {
           var m = /^(\d{1,2})(major|minor)$/.exec(k);
-          if (m && typeof o[k] === "string" && /^[A-G](#{1,2}|b{1,2})?$/.test(o[k]) && namePc(o[k]) === Number(m[1])) out[k] = o[k];
+          // v52: invalid saved spellings (D\u266f major, G\u266d minor, ...) migrate to the default.
+          if (m && typeof o[k] === "string" && validKeyName(Number(m[1]), m[2], o[k]) && o[k] !== defaultKeyName(Number(m[1]), m[2])) out[k] = o[k];
         });
         return out;
       })(raw.keySpell),
@@ -4539,7 +4969,9 @@ function accSym(s) {
       bpm: num(raw.bpm, 50, 180, d.bpm, true),
       warmth: num(raw.warmth, 0, 100, d.warmth, true),
       simple: bool(raw.simple, d.simple),
-      allKeys: bool(raw.allKeys, d.allKeys)
+      allKeys: bool(raw.allKeys, d.allKeys),
+      lockKey: (raw.lockKey && typeof raw.lockKey === "object" && raw.lockKey.pc === (raw.lockKey.pc | 0) && raw.lockKey.pc >= 0 && raw.lockKey.pc < 12 && SCALES.indexOf(raw.lockKey.mode) >= 0)
+        ? { pc: raw.lockKey.pc, mode: raw.lockKey.mode } : null
       // Legacy `latch` key (cce4d86) is ignored; Sustain is never persisted.
     };
   }
@@ -4587,7 +5019,8 @@ function accSym(s) {
       bpm: state.bpm,
       warmth: clampWarmth(document.getElementById("warmth").value),
       simple: !!state.simple,
-      allKeys: !!state.allKeys
+      allKeys: !!state.allKeys,
+      lockKey: lockKey ? { pc: lockKey.pc, mode: lockKey.mode } : null
     };
   }
 
@@ -4633,6 +5066,9 @@ function accSym(s) {
     ChordAudio.setTrim((STYLE_PRESETS[s.style] && STYLE_PRESETS[s.style].trim) || 1);
     // v27: Key mode retired; the key picker is the only key control.
     if (s.keyMode) lockKey = { pc: s.keyRoot, mode: s.keyScale === "minor" ? "minor" : "major" };
+    // v52: Simple picks up where it left off (its key control has no Auto); full mode
+    // keeps its old behaviour (the first chord sets the key).
+    else if (s.simple) lockKey = s.lockKey || { pc: 0, mode: "major" };
     state.keyMode = false;
     state.keyRoot = s.keyRoot;
     state.keyScale = s.keyScale;
@@ -4769,6 +5205,10 @@ function accSym(s) {
       if (loop.recording || loop.playing || loop.transport) stopPlayback();
       state.keyModeBeforeSimple = !!state.keyMode;
       if (state.keyMode) setKeyModeState(false);
+      // Simple has no keyboard or chord buttons; let go of anything held there.
+      Object.keys(fingers).forEach(function (id) { liftFinger(id); });
+      if (Object.keys(paletteHolds).length) { paletteHolds = {}; syncPalette(); }
+      if (!activeKey()) lockKey = { pc: 0, mode: "major" };
       state.simple = true;
     } else {
       var restoreKey = state.keyModeBeforeSimple;
@@ -4886,7 +5326,16 @@ function accSym(s) {
     wire();
     wireConfig();
     wireKeyPick();
+    wireKidKey();
     wireLayoutUi();
+    // v52: fade the style row's right edge while more styles are scrolled out of view.
+    (function () {
+      var row = document.getElementById("styles");
+      function fade() { row.classList.toggle("more", row.scrollWidth - row.clientWidth - row.scrollLeft > 2); }
+      row.addEventListener("scroll", fade, { passive: true });
+      window.addEventListener("resize", fade);
+      setTimeout(fade, 0); setTimeout(fade, 400);
+    })();
     var initial;
     try { initial = loadSettings(); } catch (err) { initial = factoryDefaults(); }
     try { applySettings(initial); } catch (err2) { applySettings(factoryDefaults()); }
