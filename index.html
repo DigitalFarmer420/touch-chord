@@ -482,7 +482,7 @@ html.lay-pad-port .style-row { flex-wrap: wrap; overflow: visible; touch-action:
 html.lay-pad-port .style-row button, html.lay-pad-land .style-row button { height: 36px; min-height: 36px; padding: 0 14px; font-size: 14px; }
 html.lay-pad-land .style-row button { flex: 1 0 auto; }
 
-/* ===== Next 4x2 (default) / 4x4 (expanded) ===== */
+/* ===== v48: scale strip (Happy / Scale / Sad / Tension) ===== */
 .next-card {
   border: 1px solid var(--line);
   background: var(--card);
@@ -490,115 +490,58 @@ html.lay-pad-land .style-row button { flex: 1 0 auto; }
   padding: 5px 6px 6px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: center;
 }
 html.lay-pad-port .next-card, html.lay-pad-land .next-card { padding: 8px 12px 10px; }
-.next-wrap {
+#app { --ss-lbl: 62px; --ss-row: 26px; --ss-strip: 38px; --ss-gap: 5px; --ss-cgap: 4px; --ss-fs: 14px; --ss-note: 16px; --ss-small: 9px; --ss-lfs: 9px; }
+html.lay-phone-port #app { --ss-lbl: 14px; --ss-row: 30px; --ss-strip: 42px; --ss-cgap: 2px; --ss-fs: 13px; --ss-note: 15px; }
+html.lay-pad-port #app, html.lay-pad-land #app { --ss-lbl: 92px; --ss-row: 42px; --ss-strip: 58px; --ss-gap: 8px; --ss-cgap: 8px; --ss-fs: 19px; --ss-note: 22px; --ss-small: 12px; --ss-lfs: 11px; }
+.ss {
+  position: relative;
   display: grid;
-  grid-template-columns: max-content repeat(4, minmax(0, 1fr));
-  grid-template-rows: auto repeat(2, var(--chip));
-  gap: var(--next-vgap) 4px;
-  align-items: stretch;
+  grid-template-columns: var(--ss-lbl) repeat(7, minmax(0, 1fr));
+  grid-template-rows: var(--ss-row) var(--ss-strip) var(--ss-row) var(--ss-row);
+  gap: var(--ss-gap) var(--ss-cgap);
+  align-content: center;
   min-width: 0;
+  --ss-k: 1;
 }
-.next-wrap.is-expanded { grid-template-rows: auto repeat(4, var(--chip)); }
-.next-wrap.is-three { grid-template-rows: auto repeat(3, var(--chip)); }
-html.lay-pad-port .next-wrap, html.lay-pad-land .next-wrap { gap: var(--next-vgap) 8px; }
-.next-wrap .axis {
-  color: var(--muted);
-  font-size: 9px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  text-align: center;
-  align-self: end;
-  padding-bottom: 1px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-/* Corner is the expand/collapse control (tap works while Sustain is held). */
-.next-wrap .corner {
-  color: var(--muted);
-  font-size: 9px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  justify-self: start;
-  align-self: end;
-  padding: 0 4px 1px 2px;
-  margin: 0;
-  white-space: nowrap;
-  overflow: visible;
-  min-width: 0;
-  min-height: 0;
-  height: auto;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  line-height: 1;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
+.ss .ss-lbl { grid-column: 1; color: var(--muted); font-size: var(--ss-lfs); letter-spacing: .04em; text-transform: uppercase; display: flex; align-items: center; white-space: nowrap; line-height: 1.15; min-width: 0; overflow: hidden; }
+.ss .ss-lbl b { color: var(--copper); font-weight: 700; font-size: calc(var(--ss-lfs) + 2px); margin-right: 3px; }
+html.lay-phone-port .ss .ss-lbl { justify-content: center; }
+html.lay-phone-port .ss .ss-lbl span { display: none; }
+html.lay-phone-port .ss .ss-lbl b { margin-right: 0; }
+.ss .ss-chip {
+  grid-row: 1;
+  display: flex; align-items: center; justify-content: center;
+  min-width: 0; min-height: 0; height: auto; margin: 0; padding: 0 2px;
+  border-radius: 10px; border: 1px solid;
+  font-weight: 700; font-size: calc(var(--ss-fs) * var(--ss-k)); line-height: 1;
+  white-space: nowrap; overflow: hidden;
   touch-action: manipulation;
 }
-.next-wrap .corner:focus-visible { outline: 2px solid var(--copper); outline-offset: 1px; }
-.next-wrap .corner .corner-chev {
-  font-size: 11px;
-  line-height: 1;
-  color: var(--copper);
+.ss .ss-chip.major { background: #e2b15a; border-color: #c4923e; color: #2a1c0c; }
+.ss .ss-chip.minor { background: #7d6ea8; border-color: #6a5c96; color: #f7f3ff; }
+.ss .ss-chip.tension { background: #2a1f45; border-color: #4a3a72; color: #e8dff8; }
+.ss .ss-chip.color { background: #6a8f7e; color: #0f1f18; }
+.ss .ss-chip.borrowed { border: 2px dashed rgba(255,255,255,.75); }
+html.lay-phone-port .ss .ss-chip { border-radius: 7px; padding: 0 1px; }
+.ss.stack .ss-chip { flex-direction: column; gap: 1px; line-height: 1; font-size: calc((var(--ss-fs) - 2px) * var(--ss-k)); }
+.ss.stack .ss-chip .q { font-size: .85em; }
+.ss .ss-track { grid-row: 2; grid-column: 2 / 9; margin: 0 -2px; background: #1c1914; border: 1px solid var(--line); border-radius: 999px; box-shadow: inset 0 1px 3px rgba(0,0,0,.6); }
+.ss .ss-note {
+  grid-row: 2; position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-width: 0; min-height: 0; height: auto; margin: 0; padding: 0;
+  background: transparent; border: 0; border-radius: 999px;
+  color: var(--ink); font-weight: 700; font-size: var(--ss-note); line-height: 1;
+  touch-action: manipulation;
 }
-/* Phones: hide the "Suggestions" word; keep the chevron as the affordance. */
-html.lay-phone-port .next-wrap .corner .corner-txt,
-html.lay-phone-land .next-wrap .corner .corner-txt { display: none; }
-html.lay-phone-port .next-wrap .corner,
-html.lay-phone-land .next-wrap .corner {
-  font-size: 0;
-  justify-self: center;
-  padding: 2px 4px;
-}
-html.lay-phone-port .next-wrap .corner .corner-chev,
-html.lay-phone-land .next-wrap .corner .corner-chev { font-size: 14px; }
-.next-wrap .rowlbl {
-  color: var(--muted);
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 2px;
-}
-.next-wrap button {
-  height: auto;
-  min-height: 0;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 700;
-  border-radius: 10px;
-  padding: 0 2px;
-  line-height: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-html.lay-phone-port.simple .next-wrap button { font-size: 16px; }
-html.lay-pad-port .next-wrap .axis, html.lay-pad-land .next-wrap .axis { font-size: 11px; letter-spacing: 0.06em; }
-html.lay-pad-port .next-wrap .corner, html.lay-pad-land .next-wrap .corner { font-size: 11px; letter-spacing: 0.06em; }
-html.lay-pad-port .next-wrap .corner .corner-chev, html.lay-pad-land .next-wrap .corner .corner-chev { font-size: 13px; }
-html.lay-pad-port .next-wrap .rowlbl, html.lay-pad-land .next-wrap .rowlbl { font-size: 18px; }
-html.lay-pad-port .next-wrap button, html.lay-pad-land .next-wrap button { font-size: 19px; border-radius: 12px; }
-html.simple.lay-pad-port .next-wrap button, html.simple.lay-pad-land .next-wrap button { font-size: 22px; }
-.next-wrap .empty {
-  border: 1px dashed rgba(58, 51, 43, 0.7);
-  border-radius: 10px;
-  pointer-events: none;
-}
-.next-wrap button.major { background: #e2b15a; border-color: #c4923e; color: #2a1c0c; }
-.next-wrap button.minor { background: #7d6ea8; border-color: #6a5c96; color: #f7f3ff; }
-.next-wrap button.tension { background: #2a1f45; border-color: #4a3a72; color: #e8dff8; }
-.next-wrap button.color { background: #6a8f7e; border-color: #557866; color: #0f1f18; }
+.ss .ss-note small { font-size: var(--ss-small); font-weight: 600; color: var(--muted); margin-top: 2px; letter-spacing: .02em; }
+.ss .ss-note.home { color: var(--copper); }
+.ss .ss-note.home::before { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); aspect-ratio: 1; height: auto; width: min(calc(100% + 4px), calc(var(--ss-strip) + 6px)); border: 2.5px solid var(--copper); border-radius: 50%; background: rgba(226,161,90,.14); z-index: -1; box-sizing: border-box; }
+.ss .ss-note.home small { color: var(--copper); opacity: .85; }
+.ss .ss-note:focus-visible, .ss .ss-chip:focus-visible { outline: 2px solid var(--copper); outline-offset: 1px; }
 
 /* ===== Sustain ===== */
 #sustainBtn {
@@ -1102,12 +1045,6 @@ html.simple .phase-track { display: none !important; }
 html.lay-pad-port .key-chip, html.lay-pad-land .key-chip { font-size: 14px; padding: 3px 12px; }
 html.lay-pad-port .key-row span, html.lay-pad-land .key-row span { font-size: 13px; padding: 2px 6px; }
 html.lay-phone-land .key-row { display: none; }
-.next-wrap button { flex-direction: column; gap: 1px; }
-.next-wrap button .rn { font-size: 9px; font-weight: 600; opacity: .8; letter-spacing: .02em; }
-.next-wrap button .why { font-size: 9px; font-weight: 500; opacity: .8; }
-html.lay-phone-port .next-wrap button .why, html.lay-phone-land .next-wrap button .why { display: none; }
-html.lay-pad-port .next-wrap button .rn, html.lay-pad-land .next-wrap button .rn, html.lay-pad-port .next-wrap button .why, html.lay-pad-land .next-wrap button .why { font-size: 11px; }
-.next-wrap button.borrowed { border-style: dashed; border-width: 2px; border-color: rgba(255,255,255,.75); }
 .key-pick, .howto { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.82); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .key-pick[hidden], .howto[hidden] { display: none; }
 .kp-box, .ht-box { background: #1a1612; box-shadow: 0 10px 40px rgba(0,0,0,.6); border: 1px solid var(--line); border-radius: 14px; padding: 14px; color: var(--ink); max-width: 560px; width: 100%; max-height: 90vh; overflow: auto; position: relative; }
@@ -1188,24 +1125,24 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section><h3>About Touch Chord</h3>
-      <img src="images/howto-why.webp?v=47" alt="Touch Chord on a phone: chord buttons, keys, Now and suggestions" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=48" alt="Touch Chord on a phone: chord buttons, keys, Now and suggestions" width="1200" height="555" loading="lazy" decoding="async">
       <p class="ht-why">Touch Chord turns one finger into a full chord.<br>It's for anyone who wants to play chords without reading music.<br>A chord is 3 or more notes played at once. Chords that sound good together make up a key.</p>
       <ul><li><b>Learn chords:</b> try a random chord and see its name and notes.</li><li><b>Sing along:</b> play chords under your voice.</li><li><b>Beginner to making music:</b> start with one chord, then follow the suggestions into a song.</li></ul></section>
       <h2 class="ht-howto">How-to</h2>
       <section><h3>1. Make a chord</h3>
-      <img src="images/howto-make-chord.webp?v=47" alt="Hold maj7, tap A, Now reads Amaj7" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-make-chord.webp?v=48" alt="Hold maj7, tap A, Now reads Amaj7" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Hold <b>maj7</b> (1), tap <b>A</b> (2) = <b>Amaj7</b>.</p></section>
       <section><h3>2. Chord Suggestion</h3>
-      <img src="images/howto-suggest-b.webp?v=47" alt="Tap a suggestion tile to hear the next chord" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-suggest-b.webp?v=48" alt="Tap a suggestion tile to hear the next chord" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Tap <b>Key</b> (1), pick A, close. Then tap a tile (2) to hear the next chord.</p></section>
       <section><h3>3. Sustain</h3>
-      <img src="images/howto-sustain.webp?v=47" alt="Sustain lit while the chord rings" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-sustain.webp?v=48" alt="Sustain lit while the chord rings" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Play (1), hold <b>Sustain</b> (2): notes ring and fade. Let go to stop.</p></section>
       <section><h3>4. Style</h3>
-      <img src="images/howto-style.webp?v=47" alt="Style picker" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-style.webp?v=48" alt="Style picker" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Tap a style (1). It changes the sound and suggestions.</p></section>
       <section><h3>5. Full Range</h3>
-      <img src="images/howto-fullrange.webp?v=47" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-fullrange.webp?v=48" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Gray keys are outside your key. Tap <b>Full Range</b> (1) to play them all.</p></section>
       <p class="ht-end">Sound and FX live in the gear's <b>Advanced</b> settings.</p>
       <dl class="ht-legend"><dt>Simple</dt><dd>Simple on/off</dd><dt>&#9881;</dt><dd>Settings (Advanced: sound, FX)</dd><dt>?</dt><dd>This guide</dd></dl>
@@ -1245,7 +1182,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
   </div>
 
   <div class="next-card">
-    <div id="suggest" class="next-wrap" aria-label="Suggested next chords"></div>
+    <div id="suggest" class="ss" aria-label="Scale strip"></div>
   </div>
 
   <button type="button" id="sustainBtn" aria-pressed="false" aria-disabled="false" title="Sustain: hold to let tapped keys ring; release to damp">Sustain</button>
@@ -1351,7 +1288,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 47;
+var APP_VERSION = 48;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -2581,8 +2518,7 @@ document.addEventListener("DOMContentLoaded", function () {
     forceChord: null,
     simple: false,               // Simple mode (v20): hides sound/FX/key/loop/layout controls
     keyModeBeforeSimple: false,  // Key mode is forced off while Simple is on; restored after
-    allKeys: false,
-    suggestExpanded: false       // Next grid: false = 4x2 (8 chips), true = 4x4 (16 chips)
+    allKeys: false
   };
 
   var loop = {
@@ -3522,7 +3458,6 @@ document.addEventListener("DOMContentLoaded", function () {
       var beat = Math.floor((step % 16) / 4) + 1;
       base += " · " + bar + "." + beat;
       phaseEl.style.width = ((((pos % 64) + 64) % 64) / 64 * 100) + "%";
-      if (bar !== lastSuggestBar) paintSuggestions(computeSpec());
     } else if (!loop.transport) {
       phaseEl.style.width = "0%";
     }
@@ -3543,8 +3478,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 
-
-  var ALT_PC = { bII: 1, bIII: 3, III: 4, bVI: 8, bVII: 10, tritV: 1 };
 
   function blankExt() {
     return { six: false, min7: false, maj7: false, nine: false };
@@ -3586,198 +3519,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return { type: "major", extensions: ext, label: "" };
   }
 
-  function E(deg, quality) { return { deg: deg, q: quality }; }
-  function A(alt, quality) { return { alt: alt, q: quality }; }
-
-  var STYLE_TABLES = {
-    pop: {
-      major: {
-        1: [E(5,"maj"), E(4,"maj"), E(6,"min"), E(2,"min"), A("bVII","maj"), E(3,"min"), E(7,"dim")],
-        2: [E(5,"maj"), E(1,"maj"), E(4,"maj"), E(6,"min")],
-        3: [E(6,"min"), E(4,"maj"), E(1,"maj"), E(2,"min")],
-        4: [E(1,"maj"), E(5,"maj"), A("bVII","maj"), E(2,"min"), E(6,"min")],
-        5: [E(1,"maj"), E(6,"min"), E(4,"maj"), E(2,"min")],
-        6: [E(4,"maj"), E(2,"min"), E(5,"maj"), E(1,"maj")],
-        7: [E(1,"maj"), E(5,"maj"), E(3,"min")]
-      },
-      minor: {
-        1: [E(5,"min"), E(4,"min"), E(6,"maj"), E(7,"maj")],
-        2: [E(5,"min"), E(1,"min")],
-        3: [E(6,"maj"), E(4,"min"), E(1,"min")],
-        4: [E(1,"min"), E(5,"min"), E(6,"maj")],
-        5: [E(1,"min"), E(6,"maj"), E(4,"min")],
-        6: [E(4,"min"), E(1,"min"), E(7,"maj")],
-        7: [E(1,"min"), E(3,"maj"), E(6,"maj")]
-      }
-    },
-    jazz: {
-      major: {
-        1: [E(2,"m7"), E(5,"dom7"), E(6,"m7"), E(4,"maj7"), A("bVII","dom7"), E(4,"min")],
-        2: [E(5,"dom7"), E(1,"maj7"), E(7,"m7b5")],
-        3: [E(6,"m7"), A("tritV","dom7"), E(4,"maj")],
-        4: [E(7,"m7b5"), E(3,"dom7"), E(1,"maj7")],
-        5: [E(1,"maj7"), E(6,"m7"), A("bII","dom7")],
-        6: [E(2,"m7"), E(5,"dom7"), E(4,"maj7")],
-        7: [E(1,"maj7"), E(3,"dom7")]
-      },
-      minor: {
-        1: [E(4,"m7"), E(7,"dom7"), E(6,"maj7"), E(5,"m7")],
-        2: [E(5,"dom7"), E(1,"m7")],
-        3: [E(6,"maj7"), E(4,"m7")],
-        4: [E(7,"dom7"), E(1,"m7"), E(5,"dom7")],
-        5: [E(1,"m7"), E(6,"maj7"), E(4,"m7")],
-        6: [E(2,"m7b5"), E(5,"dom7"), E(1,"m7")],
-        7: [E(3,"maj7"), E(1,"m7"), E(6,"maj7")]
-      }
-    },
-    romantic: {
-      major: {
-        1: [A("bVI","maj"), E(3,"maj"), A("bIII","maj"), E(4,"maj7"), E(5,"maj"), E(6,"min")],
-        2: [E(5,"maj"), A("bII","maj"), E(1,"maj")],
-        3: [E(6,"min"), E(4,"maj7"), E(1,"maj")],
-        4: [A("bVII","maj"), E(2,"min"), E(1,"maj")],
-        5: [E(1,"maj"), A("bVI","maj"), E(6,"min")],
-        6: [A("bVI","maj"), E(4,"maj"), E(2,"min")],
-        7: [E(1,"maj"), E(5,"maj")]
-      },
-      minor: {
-        1: [A("bII","maj"), E(6,"maj"), E(3,"maj"), E(4,"maj7")],
-        2: [E(5,"maj"), E(1,"min")],
-        3: [E(6,"maj"), E(4,"min")],
-        4: [A("bVI","maj"), E(1,"min"), E(5,"maj")],
-        5: [E(1,"min"), E(6,"maj")],
-        6: [A("bII","maj"), E(1,"min")],
-        7: [E(3,"maj"), E(1,"min")]
-      }
-    },
-    rnb: {
-      major: {
-        1: [E(4,"maj7"), E(2,"m7"), E(5,"dom7"), E(6,"m7"), A("bVII","dom7")],
-        2: [E(5,"dom7"), E(1,"maj7")],
-        3: [E(6,"m7"), E(4,"maj7")],
-        4: [E(1,"maj7"), E(2,"m7"), A("bVII","dom7")],
-        5: [E(1,"maj7"), E(6,"m7")],
-        6: [E(2,"m7"), E(4,"maj"), E(5,"dom7")],
-        7: [E(1,"maj7"), A("bVII","dom7")]
-      },
-      minor: {
-        1: [E(4,"m7"), A("bVII","dom7"), E(6,"maj7"), E(5,"m7")],
-        2: [E(5,"m7"), E(1,"m7")],
-        3: [E(6,"maj7"), E(4,"m7")],
-        4: [A("bVII","dom7"), E(1,"m7")],
-        5: [E(1,"m7"), E(6,"maj7")],
-        6: [E(4,"m7"), E(1,"m7")],
-        7: [E(1,"m7"), E(3,"maj")]
-      }
-    },
-    ballad: {
-      major: {
-        1: [E(6,"min"), E(4,"maj7"), E(2,"min"), E(5,"maj"), A("bVII","maj"), E(1,"add9")],
-        2: [E(5,"maj"), E(1,"maj7"), E(4,"maj")],
-        3: [E(6,"min"), E(4,"maj7")],
-        4: [E(1,"maj7"), E(5,"maj"), A("bVI","maj"), E(2,"min")],
-        5: [E(6,"min"), E(1,"maj7")],
-        6: [E(4,"maj7"), E(2,"min"), E(5,"maj"), E(1,"maj")],
-        7: [E(1,"maj7"), E(5,"maj")]
-      },
-      minor: {
-        1: [E(6,"maj"), E(4,"min"), E(3,"maj"), E(7,"maj"), E(1,"madd9")],
-        2: [E(5,"min"), E(1,"min")],
-        3: [E(6,"maj"), E(4,"min")],
-        4: [E(1,"min"), E(5,"maj")],
-        5: [E(1,"min"), E(6,"maj")],
-        6: [E(4,"min"), E(1,"min")],
-        7: [E(3,"maj"), E(1,"min")]
-      }
-    },
-    // Reggae: triads, V as dom7, bVII as a fill colour.
-    reggae: {
-      major: {
-        1: [E(4,"maj"), E(5,"dom7"), E(6,"min"), E(2,"min"), A("bVII","maj")],
-        2: [E(5,"dom7"), E(1,"maj")],
-        3: [E(6,"min"), E(4,"maj"), E(1,"maj")],
-        4: [E(1,"maj"), E(5,"dom7"), E(2,"min"), A("bVII","maj")],
-        5: [E(1,"maj"), E(4,"maj"), E(6,"min")],
-        6: [E(4,"maj"), E(1,"maj"), E(5,"dom7")],
-        7: [E(1,"maj"), E(6,"min")]
-      },
-      minor: {
-        1: [E(4,"min"), E(7,"maj"), E(3,"maj")],
-        2: [E(5,"min"), E(1,"min")],
-        3: [E(7,"maj"), E(1,"min")],
-        4: [E(1,"min"), E(7,"maj")],
-        5: [E(1,"min"), E(4,"min")],
-        6: [E(7,"maj"), E(1,"min")],
-        7: [E(1,"min"), E(3,"maj")]
-      }
-    },
-    // Funk: dom7 / m7 on the moves, Vsus4 as a tension fill.
-    funk: {
-      major: {
-        1: [E(4,"dom7"), E(5,"dom7"), E(2,"m7"), E(6,"m7"), A("bVII","dom7"), E(5,"sus4")],
-        2: [E(5,"dom7"), E(1,"dom7"), E(5,"sus4")],
-        3: [E(6,"m7"), E(4,"dom7")],
-        4: [E(1,"dom7"), E(5,"dom7"), E(2,"m7"), E(5,"sus4")],
-        5: [E(1,"dom7"), E(4,"dom7")],
-        6: [E(2,"m7"), E(4,"dom7")],
-        7: [E(1,"dom7"), E(3,"m7")]
-      },
-      minor: {
-        1: [E(4,"m7"), E(5,"m7"), E(7,"dom7")],
-        2: [E(5,"m7"), E(1,"m7")],
-        3: [E(7,"dom7"), E(1,"m7")],
-        4: [E(1,"m7"), E(5,"m7")],
-        5: [E(1,"m7"), E(4,"m7")],
-        6: [E(7,"dom7"), E(1,"m7")],
-        7: [E(1,"m7"), E(3,"maj7")]
-      }
-    },
-    // Yoga: stillness — tonic float / plagal / relative / soft sus only.
-    yoga: {
-      major: {
-        1: [E(1,"add9"), E(4,"maj7"), E(6,"min"), E(2,"min"), E(1,"maj7"), E(5,"sus4")],
-        2: [E(1,"maj"), E(4,"maj7"), E(5,"sus4")],
-        3: [E(6,"min"), E(4,"maj7"), E(1,"maj")],
-        4: [E(1,"maj7"), E(1,"add9"), E(6,"min"), E(2,"min")],
-        5: [E(1,"maj"), E(1,"add9"), E(4,"maj7")],
-        6: [E(4,"maj7"), E(1,"maj"), E(2,"min")],
-        7: [E(1,"maj"), E(6,"min")]
-      },
-      minor: {
-        1: [E(1,"madd9"), E(4,"min"), E(6,"maj"), E(3,"maj"), E(5,"sus4")],
-        2: [E(1,"min"), E(4,"min")],
-        3: [E(6,"maj"), E(1,"min"), E(4,"min")],
-        4: [E(1,"min"), E(1,"madd9"), E(6,"maj")],
-        5: [E(1,"min"), E(4,"min"), E(6,"maj")],
-        6: [E(4,"min"), E(1,"min")],
-        7: [E(1,"min"), E(3,"maj"), E(6,"maj")]
-      }
-    },
-    // Yoga Deep: same stillness without sus; tension fills are skipped in nextChords.
-    yogaDeep: {
-      major: {
-        1: [E(1,"add9"), E(4,"maj7"), E(6,"min"), E(2,"min"), E(1,"maj7")],
-        2: [E(1,"maj"), E(4,"maj7"), E(6,"min")],
-        3: [E(6,"min"), E(4,"maj7"), E(1,"maj")],
-        4: [E(1,"maj7"), E(1,"add9"), E(6,"min")],
-        5: [E(1,"maj"), E(1,"add9"), E(4,"maj7")],
-        6: [E(4,"maj7"), E(1,"maj"), E(2,"min")],
-        7: [E(1,"maj"), E(6,"min")]
-      },
-      minor: {
-        1: [E(1,"madd9"), E(4,"min"), E(6,"maj"), E(3,"maj")],
-        2: [E(1,"min"), E(4,"min")],
-        3: [E(6,"maj"), E(1,"min"), E(4,"min")],
-        4: [E(1,"min"), E(1,"madd9"), E(6,"maj")],
-        5: [E(1,"min"), E(4,"min"), E(6,"maj")],
-        6: [E(4,"min"), E(1,"min")],
-        7: [E(1,"min"), E(3,"maj"), E(6,"maj")]
-      }
-    }
-  };
-
   var suggestSig = "";
-  var lastSuggestBar = 0;
 
   function wrap12(n) { return ((n % 12) + 12) % 12; }
 
@@ -3802,254 +3544,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (spec.type === "minor") return { pc: spec.rootPc, mode: "minor" };
     if (spec.type === "dim") return { pc: wrap12(spec.rootPc + 1), mode: "major" };
     return { pc: spec.rootPc, mode: "major" };
-  }
-
-  function currentLoopBar() {
-    if (!loop.transport || !ChordAudio.ctx) return 1;
-    var s = 60 / loop.bpm / 4;
-    var pos = (ChordAudio.currentTime() - loop.startTime) / s;
-    var step = Math.floor(((pos % 64) + 64) % 64);
-    return Math.floor(step / 16) + 1;
-  }
-
-  function resolveEntry(key, entry) {
-    var mapped = mapQuality(entry.q || "maj");
-    var rootPc;
-    var degree = null;
-    var name;
-    if (entry.alt) {
-      rootPc = wrap12(key.pc + (ALT_PC[entry.alt] || 0));
-      // Spell borrowed roots by letter from the key (bII in C = Db, not C#).
-      name = Theory.spellInterval(Theory.spellRoot(key.pc), ALT_PC[entry.alt] || 0).name;
-    } else {
-      var degrees = Theory.scaleDegrees(key.pc, key.mode);
-      var d = degrees[(entry.deg || 1) - 1];
-      if (!d) return null;
-      rootPc = d.pc;
-      degree = d.degree;
-      name = d.name;
-    }
-    var item = {
-      rootPc: rootPc,
-      degree: degree,
-      type: mapped.type,
-      extensions: mapped.extensions,
-      qualityLabel: mapped.label,
-      name: name + mapped.label,
-      quality: mapped.type === "dim" ? "dim" : mapped.type === "minor" ? "minor" : mapped.type === "sus4" ? "sus4" : "major",
-      mood: (mapped.type === "minor" || mapped.type === "dim") ? "sad" : "happy"
-    };
-    if (entry.alt) item.alt = entry.alt;
-    annotate(key, item);
-    return item;
-  }
-
-  var ALT_ROMAN = { bII: "\u266dII", bIII: "\u266dIII", III: "III", bVI: "\u266dVI", bVII: "\u266dVII", tritV: "\u266dII" };
-  var WHY_MAJOR = { 1: "home", 2: "leans to V", 3: "soft, dreamy", 4: "lifts away", 5: "pulls home", 6: "sad", 7: "tension" };
-  var WHY_MINOR = { 1: "home", 2: "tension", 3: "bright relief", 4: "deep, heavy", 5: "soft pull", 6: "warm", 7: "lift" };
-  var WHY_ALT = { bII: "spicy", bIII: "bold", III: "surprise", bVI: "darker", bVII: "rock color", tritV: "slides home" };
-  function romanCase(r, type) {
-    var up = r.replace(/^(\u266d?)(.*)$/, function (m, f, n) { return f + n.toUpperCase(); });
-    if (type === "minor") return up.replace(/[IV]+/, function (x) { return x.toLowerCase(); });
-    if (type === "dim") return up.replace(/[IV]+/, function (x) { return x.toLowerCase(); }) + "\u00b0";
-    return up;
-  }
-  function romanSuffix(item) {
-    var e = item.extensions || {};
-    if (item.type === "sus4") return "sus";
-    if (e.maj7) return "maj7";
-    if (e.min7) return item.qualityLabel === "m7b5" || /\u00f8|b5/.test(item.qualityLabel || "") ? "\u00f87" : "7";
-    if (e.nine) return "add9";
-    return "";
-  }
-  // Roman numeral + short reason + borrowed flag for a suggestion item.
-  function annotate(key, item) {
-    var minor = key.mode === "minor";
-    var base, why, borrowed = false;
-    if (item.alt) {
-      base = ALT_ROMAN[item.alt] || item.alt;
-      why = WHY_ALT[item.alt] || "borrowed";
-      borrowed = true;
-    } else {
-      var degs = Theory.scaleDegrees(key.pc, key.mode);
-      var d = degs[(item.degree || 1) - 1];
-      base = d ? d.roman : "I";
-      why = (minor ? WHY_MINOR : WHY_MAJOR)[item.degree] || "";
-      var tri = item.type === "sus4" ? null : item.type;
-      if (d && tri && tri !== d.type) {
-        borrowed = true;
-        if (!minor && item.degree === 2 && tri === "major") why = "pushes to V";
-        else if (!minor && item.degree === 4 && tri === "minor") why = "bittersweet";
-        else if (!minor && item.degree === 1 && tri === "minor") why = "dark home";
-        else if (!minor && item.degree === 3 && tri === "major") why = "surprise";
-        else if (minor && item.degree === 5 && tri === "major") why = "pulls home";
-        else why = "borrowed";
-        if (minor && item.degree === 5 && tri === "major") borrowed = false; // harmonic-minor V is standard
-      }
-      if (item.type === "sus4") why = "suspended";
-      if (item.extensions && item.extensions.min7 && !item.extensions.maj7 && item.type === "major" && item.degree === 5) why = minor ? "pulls home" : "pulls home";
-    }
-    var sfx = romanSuffix(item);
-    item.roman = romanCase(base, item.type === "sus4" ? "major" : item.type) + sfx;
-    if (sfx === "\u00f87") item.roman = item.roman.replace("\u00b0", "");
-    item.why = why;
-    item.borrowed = borrowed;
-  }
-
-  function phraseBias(items) {
-    var bar = currentLoopBar();
-    lastSuggestBar = bar;
-    if (bar <= 2) return items;
-    var prefer;
-    if (bar === 3) {
-      prefer = function (it) {
-        if (state.style === "jazz") return it.degree === 2 || it.degree === 5;
-        return it.degree === 5 || it.degree === 2;
-      };
-    } else {
-      prefer = function (it) { return it.degree === 1 || it.degree === 5; };
-    }
-    var a = [];
-    var b = [];
-    for (var i = 0; i < items.length; i++) {
-      if (prefer(items[i])) a.push(items[i]);
-      else b.push(items[i]);
-    }
-    if (bar === 3 && state.style === "jazz") {
-      a.sort(function (x, y) { return (x.degree === 2 ? 0 : 1) - (y.degree === 2 ? 0 : 1); });
-    }
-    if (bar === 4) {
-      a.sort(function (x, y) { return (x.degree === 1 ? 0 : 1) - (y.degree === 1 ? 0 : 1); });
-    }
-    return a.concat(b);
-  }
-
-  // Builds a ranked candidate pool: style table hops first (unchanged order),
-  // then diatonic fill, then tension fill (vii°/ii° and Vsus4), then lane
-  // enrichment (quality variants / borrows / extra sus / modal color) so each
-  // lane can reach ~4 distinct chips when expanded. Phrase-bar bias reorders
-  // the pool; slotSuggestions() maps it into up to 16 grid cells (4x4).
-  // Collapsed view shows the up + down anchors per lane (same top-2 quality).
-  function nextChords(spec, limit) {
-    limit = limit || 6;
-    var key = suggestionKey(spec);
-    var degrees = Theory.scaleDegrees(key.pc, key.mode);
-    var degree = 1;
-    var matched = false;
-    for (var i = 0; i < degrees.length; i++) {
-      if (degrees[i].pc === spec.rootPc && degrees[i].type === spec.type) {
-        degree = degrees[i].degree;
-        matched = true;
-        break;
-      }
-    }
-    if (!matched) {
-      for (var j = 0; j < degrees.length; j++) {
-        if (degrees[j].pc === spec.rootPc && degrees[j].type !== "dim") {
-          degree = degrees[j].degree;
-          matched = true;
-          break;
-        }
-      }
-    }
-    var pack = STYLE_TABLES[state.style] || STYLE_TABLES.pop;
-    var modeTables = pack[key.mode] || pack.major;
-    var hops = modeTables[degree] || modeTables[1] || [];
-    var out = [];
-    var seen = {};
-
-    function pushItem(item) {
-      if (!item || out.length >= limit) return;
-      var sig = item.rootPc + ":" + item.type + ":" + (item.qualityLabel || "");
-      if (seen[sig]) return;
-      if (item.rootPc === spec.rootPc && item.type === spec.type && !item.extensions.min7 && !item.extensions.maj7 && !item.extensions.nine) return;
-      if (item.rootPc === spec.rootPc && item.type === spec.type && item.qualityLabel === "") return;
-      seen[sig] = true;
-      var delta = wrap12(item.rootPc - spec.rootPc);
-      item.dir = delta === 0 ? "same" : (delta <= 6 ? "up" : "down");
-      out.push(item);
-    }
-
-    for (var h = 0; h < hops.length && out.length < limit; h++) {
-      pushItem(resolveEntry(key, hops[h]));
-    }
-    for (var deg = 1; deg <= 7 && out.length < limit; deg++) {
-      var other = degrees[deg - 1];
-      if (!other || other.type === "dim") continue;
-      pushItem(resolveEntry(key, E(deg, other.type === "minor" ? "min" : other.type === "dim" ? "dim" : "maj")));
-    }
-    // Yoga Deep: leave Tension lane empty rather than inventing dim/sus fillers.
-    if (state.style !== "yogaDeep") {
-      for (var deg2 = 1; deg2 <= 7 && out.length < limit; deg2++) {
-        var dimd = degrees[deg2 - 1];
-        if (!dimd || dimd.type !== "dim") continue;
-        pushItem(resolveEntry(key, E(deg2, "dim")));
-      }
-      // Real tension candidates: dominant sus4 (resolves to I/i).
-      if (out.length < limit) pushItem(resolveEntry(key, E(5, "sus4")));
-    }
-
-    // Lane enrichment: musically sensible extras so expanded 4x4 can fill
-    // ~4 distinct chips per lane. Only when limit is large (expanded paint
-    // asks for 64); collapsed (limit 24) keeps the pre-enrichment pool so
-    // top-2 quality matches ?v=20/?v=21. pushItem dedupes against the pool.
-    if (limit < 32) return phraseBias(out);
-    var style = state.style;
-    var soft = style === "yoga" || style === "yogaDeep";
-    var enrich = [];
-    if (key.mode === "major") {
-      // Bright: dominant / maj7 / add9 variants + V/V (II maj)
-      if (style === "jazz" || style === "rnb") {
-        enrich.push(E(5, "dom7"), E(4, "maj7"), E(1, "maj7"), E(2, "maj"), E(1, "add9"), E(6, "maj"));
-      } else if (style === "funk") {
-        enrich.push(E(5, "dom7"), E(4, "dom7"), E(1, "dom7"), E(2, "maj"), E(1, "add9"));
-      } else if (soft) {
-        enrich.push(E(1, "add9"), E(1, "maj7"), E(4, "maj7"), E(4, "add9"));
-      } else {
-        enrich.push(E(5, "dom7"), E(4, "maj7"), E(1, "maj7"), E(1, "add9"), E(2, "maj"), E(4, "add9"));
-      }
-      // Dark: m7 variants + borrowed iv / parallel i
-      enrich.push(E(2, "m7"), E(6, "m7"), E(3, "m7"), E(4, "min"), E(1, "min"));
-      // Tension: more sus + half-dim (skipped for Yoga Deep)
-      if (style !== "yogaDeep") {
-        enrich.push(E(7, "m7b5"), E(1, "sus4"), E(4, "sus4"), E(2, "sus4"));
-        if (!soft) enrich.push(E(6, "sus4"));
-      }
-      // Color: common modal / borrowed majors (alts)
-      if (style === "jazz") {
-        enrich.push(A("bVII", "dom7"), A("bII", "dom7"), A("tritV", "dom7"), A("bVI", "maj"), A("bIII", "maj"));
-      } else if (soft) {
-        enrich.push(A("bVII", "maj"), A("bVI", "maj"));
-      } else {
-        enrich.push(A("bVII", "maj"), A("bVI", "maj"), A("bIII", "maj"), A("bII", "maj"), A("bVII", "dom7"), A("III", "maj"));
-      }
-    } else {
-      // Minor key enrichment
-      if (style === "jazz" || style === "rnb") {
-        enrich.push(E(5, "dom7"), E(3, "maj7"), E(6, "maj7"), E(7, "dom7"), E(3, "maj"));
-      } else if (soft) {
-        enrich.push(E(3, "maj"), E(6, "maj"), E(1, "madd9"), E(4, "m7"));
-      } else {
-        enrich.push(E(5, "dom7"), E(3, "maj"), E(6, "maj"), E(7, "maj"), E(3, "maj7"));
-      }
-      enrich.push(E(1, "m7"), E(4, "m7"), E(5, "m7"), E(2, "m7"), E(1, "madd9"));
-      if (style !== "yogaDeep") {
-        enrich.push(E(2, "m7b5"), E(1, "sus4"), E(4, "sus4"), E(5, "sus4"), E(2, "dim"));
-      }
-      if (style === "jazz") {
-        enrich.push(A("bII", "maj"), A("bVII", "dom7"), A("bVI", "maj"), A("tritV", "dom7"));
-      } else if (soft) {
-        enrich.push(A("bVII", "maj"), A("bVI", "maj"));
-      } else {
-        enrich.push(A("bII", "maj"), A("bVII", "maj"), A("bVI", "maj"), A("bVII", "dom7"));
-      }
-    }
-    for (var e = 0; e < enrich.length && out.length < limit; e++) {
-      var before = out.length;
-      pushItem(resolveEntry(key, enrich[e]));
-      if (out.length > before) out[out.length - 1].enrich = true;
-    }
-    return phraseBias(out);
   }
 
   var suggestPreview = null;
@@ -4135,216 +3629,176 @@ document.addEventListener("DOMContentLoaded", function () {
     suggestTimer = setTimeout(clearSuggestPreview, 1600);
   }
 
-  // Bright = major-family (incl. maj7 / dom7 / add9), Dark = minor-family
-  // (Em lives here), Tension = diminished / half-diminished / sus only,
-  // Color = soft borrowed / modal hops tagged via entry.alt (checked first).
-  function suggestLane(item) {
-    if (item.alt) return "color";
-    if (item.type === "dim" || item.type === "sus4") return "tension";
-    if (item.type === "minor") return "dark";
-    return "bright";
-  }
-
-  function suggestionItemSig(item) {
-    return item.rootPc + ":" + item.type + ":" + (item.qualityLabel || "");
-  }
-
-  function chipSymbol(item) {
-    var label = item.qualityLabel || "";
-    var root = item.name.slice(0, item.name.length - label.length) || Theory.NOTE_NAMES[item.rootPc];
-    if (item.type === "dim" && (label === "dim" || label === "")) return root + "\u00b0";
-    if (item.type === "sus4") return root + label.replace(/^sus4/, "sus");
-    return root + label;
-  }
-
-  // Map the ranked pool into 4 lanes x 4 slots.
-  // Pass 1 (legacy, primary pool only): first "up" → [0], first "down" → [3]
-  // (was [1] in the old 4x2 grid). Enrichment candidates are skipped here so
-  // expanding does not move the ↑/↓ chips. Pass 2: fill remaining empty slots
-  // in rank order (enrichment fills mids). Collapsed paint shows [0]+[3];
-  // expanded shows all four (↑ · · ↓).
-  function slotSuggestions(items) {
-    var lanes = ["bright", "dark", "tension", "color"];
-    var slots = {
-      bright: { slots: [null, null, null, null] },
-      dark: { slots: [null, null, null, null] },
-      tension: { slots: [null, null, null, null] },
-      color: { slots: [null, null, null, null] }
-    };
-    var used = {};
-    var i, item, sig, lane, row, arr;
-
-    for (var L = 0; L < lanes.length; L++) {
-      lane = lanes[L];
-      arr = slots[lane].slots;
-      for (i = 0; i < items.length; i++) {
-        item = items[i];
-        if (item.enrich) continue;
-        if (suggestLane(item) !== lane) continue;
-        sig = suggestionItemSig(item);
-        if (used[sig]) continue;
-        if (item.dir === "up" && !arr[0]) {
-          arr[0] = item;
-          used[sig] = true;
-        } else if (item.dir === "down" && !arr[3]) {
-          arr[3] = item;
-          used[sig] = true;
-        }
-      }
-      for (i = 0; i < items.length; i++) {
-        item = items[i];
-        if (suggestLane(item) !== lane) continue;
-        sig = suggestionItemSig(item);
-        if (used[sig]) continue;
-        for (row = 0; row < 4; row++) {
-          if (!arr[row]) {
-            arr[row] = item;
-            used[sig] = true;
-            break;
-          }
-        }
-      }
-    }
-    return slots;
-  }
-
-  var LANES = [
-    { id: "bright", label: "Bright", tone: "major" },
-    { id: "dark", label: "Dark", tone: "minor" },
-    { id: "tension", label: "Tension", tone: "tension" },
-    { id: "color", label: "Color", tone: "color" }
+  // v48: scale strip. Middle row = the key's 7 notes in scale order with home
+  // in the middle (major: vi vii° I ii iii IV V; minor: VI VII i ii° III iv v).
+  // Chip rows sit in the column of the note they are built on, defined on the
+  // relative major: Happy/Color = Imaj7 IVmaj7 V7 + borrowed II7 (dashed),
+  // Sad = vi7 ii7 iii7 (m7), Tension = viim7b5, Vsus. Key = suggestionKey().
+  var STRIP_ROWS = [
+    { id: "happy", glyph: "\u2191", label: "Happy /<br>Color", aria: "Happy / Color" },
+    { id: "scale", glyph: "\u266a", label: "Scale", aria: "Scale" },
+    { id: "sad", glyph: "\u2193", label: "Sad", aria: "Sad" },
+    { id: "tension", glyph: "\u21e3", label: "Tension", aria: "Tension" }
   ];
+  // [relative-major degree, quality, row, colour class, borrowed]
+  var STRIP_CHIPS = [
+    [1, "maj7", "happy", "major"], [4, "maj7", "happy", "major"], [5, "7", "happy", "major"],
+    [2, "7", "happy", "color", true],
+    [6, "m7", "sad", "minor"], [2, "m7", "sad", "minor"], [3, "m7", "sad", "minor"],
+    [7, "m7b5", "tension", "tension"], [5, "sus4", "tension", "tension"]
+  ];
+  function prettyAcc(name) {
+    return name.charAt(0) + name.slice(1).replace(/b/g, "\u266d").replace(/#/g, "\u266f");
+  }
+  function stripLabel(item) {
+    var q = item.qualityLabel || "";
+    if (q === "m7b5") q = "m7\u266d5";
+    else if (q === "sus4") q = "sus";
+    else if (q === "m" && item.type === "minor") q = "m";
+    else if (item.type === "dim" && q === "dim") q = "\u00b0";
+    return prettyAcc(item.rootName) + q;
+  }
+  function stripModel(key) {
+    var minor = key.mode === "minor";
+    var M = minor ? wrap12(key.pc + 3) : key.pc;
+    var majPcs = Theory.scaleDegrees(M, "major").map(function (d) { return d.pc; });
+    var byPc = {};
+    Theory.scaleDegrees(key.pc, key.mode).forEach(function (d) { byPc[d.pc] = d; });
+    var order = minor ? [4, 5, 6, 7, 1, 2, 3] : [6, 7, 1, 2, 3, 4, 5];
+    var notes = order.map(function (md, i) {
+      var d = byPc[majPcs[md - 1]];
+      var tri = mapQuality(d.type === "minor" ? "min" : d.type === "dim" ? "dim" : "maj");
+      return {
+        col: i, home: md === (minor ? 6 : 1), name: d.name, pc: d.pc,
+        roman: d.roman + (d.type === "dim" ? "\u00b0" : ""),
+        item: { rootPc: d.pc, rootName: d.name, degree: d.degree, type: tri.type, extensions: tri.extensions, qualityLabel: d.type === "major" ? "" : d.type === "minor" ? "m" : "dim" }
+      };
+    });
+    var chips = STRIP_CHIPS.map(function (c) {
+      var d = byPc[majPcs[c[0] - 1]];
+      var mq = mapQuality(c[1]);
+      var diatonic = mq.type === d.type || mq.type === "sus4";
+      return {
+        col: order.indexOf(c[0]), row: c[2], cls: c[3], borrowed: !!c[4],
+        item: { rootPc: d.pc, rootName: d.name, degree: diatonic ? d.degree : null, type: mq.type, extensions: mq.extensions, qualityLabel: mq.label }
+      };
+    });
+    return { key: key, notes: notes, chips: chips };
+  }
 
-  function setSuggestExpanded(on) {
-    on = !!on;
-    if (on === state.suggestExpanded) return;
-    state.suggestExpanded = on;
-    suggestSig = "";
-    paintSuggestions(computeSpec());
-    scheduleSave(0);
+  // Touch/pen fire on pointerup: browsers drop the synthetic click when
+  // another finger is down (e.g. holding Sustain). Click stays for
+  // mouse / keyboard, de-duplicated against the pointer tap.
+  function wireStripTap(b, item) {
+    var tapId = null;
+    b.addEventListener("pointerdown", function (e) {
+      if (e.pointerType === "mouse") return;
+      tapId = e.pointerId;
+    });
+    b.addEventListener("pointercancel", function () { tapId = null; });
+    b.addEventListener("pointerup", function (e) {
+      if (tapId == null || e.pointerId !== tapId) return;
+      tapId = null;
+      var hit = document.elementFromPoint(e.clientX, e.clientY);
+      if (!hit || !b.contains(hit)) return;
+      suggestTapAt = Date.now();
+      stripTap(item);
+    });
+    b.addEventListener("click", function () {
+      if (suggestTapAt && Date.now() - suggestTapAt < 800) {
+        suggestTapAt = 0;
+        return;
+      }
+      stripTap(item);
+    });
+  }
+  // No key yet: the strip on screen becomes the key (same as the first chord
+  // locking it), so tapping a note doesn't re-key the strip under the finger.
+  var stripKey = null;
+  function stripTap(item) {
+    if (!activeKey() && stripKey) { lockKey = { pc: stripKey.pc, mode: stripKey.mode }; }
+    applySuggestion(item);
   }
 
   function paintSuggestions(spec) {
-    // v34: rows by mode. Simple = 3 (up, one middle, down); full = 4. No toggle.
-    var rowCount = state.simple ? 3 : 4;
-    var expanded = true;
-    var items = nextChords(spec, 64);
-    var slots = slotSuggestions(items);
-    var akS = activeKey();
-    var sig = (rowCount + "|") + (akS ? akS.pc + akS.mode : "auto") + "|" + state.style + "@" + currentLoopBar() + "|" + LANES.map(function (ln) {
-      return slots[ln.id].slots.map(function (it) {
-        return it ? (it.name + it.dir + it.degree + (it.qualityLabel || "")) : "-";
-      }).join(",");
-    }).join("|");
+    var key = suggestionKey(spec || computeSpec());
+    var sig = key.pc + key.mode;
     if (sig === suggestSig) return;
     suggestSig = sig;
+    stripKey = key;
+    var model = stripModel(key);
     var el = document.getElementById("suggest");
-    el.className = "next-wrap" + (rowCount === 4 ? " is-expanded" : " is-three");
+    el.className = "ss";
+    el.setAttribute("aria-label", "Scale strip, key of " + prettyAcc(Theory.noteName(Theory.spellRoot(key.pc))) + " " + key.mode);
     el.innerHTML = "";
-
-    function add(tag, cls, text) {
-      var n = document.createElement(tag);
-      if (cls) n.className = cls;
-      if (text != null) n.textContent = text;
-      el.appendChild(n);
-      return n;
-    }
-
-    // Header: expand/collapse control + column labels.
-    var corner = add("button", "corner");
-    corner.type = "button";
-    corner.disabled = true;
-    corner.style.pointerEvents = "none";
-    corner.setAttribute("aria-expanded", expanded ? "true" : "false");
-    corner.setAttribute("aria-label", expanded ? "Show fewer suggestions" : "Show more suggestions");
-    corner.title = expanded ? "Fewer suggestions" : "More suggestions";
-    var cornerTxt = document.createElement("span");
-    cornerTxt.className = "corner-txt";
-    cornerTxt.textContent = "Suggestions";
-    corner.appendChild(cornerTxt);
-    var chev = document.createElement("span");
-    chev.className = "corner-chev";
-    chev.setAttribute("aria-hidden", "true");
-    chev.textContent = "";
-    chev.style.display = "none";
-    corner.appendChild(chev);
-    // Same pointerup pattern as chips so expand works while Sustain is held.
-    var expandTapId = null;
-    var expandTapAt = 0;
-    corner.addEventListener("pointerdown", function (e) {
-      if (e.pointerType === "mouse") return;
-      expandTapId = e.pointerId;
+    var ROWN = { happy: 1, scale: 2, sad: 3, tension: 4 };
+    STRIP_ROWS.forEach(function (r) {
+      var l = document.createElement("div");
+      l.className = "ss-lbl";
+      l.style.gridRow = ROWN[r.id];
+      l.title = r.aria;
+      l.innerHTML = "<b aria-hidden=\"true\">" + r.glyph + "</b><span>" + r.label + "</span>";
+      el.appendChild(l);
     });
-    corner.addEventListener("pointercancel", function () { expandTapId = null; });
-    corner.addEventListener("pointerup", function (e) {
-      if (expandTapId == null || e.pointerId !== expandTapId) return;
-      expandTapId = null;
-      var hit = document.elementFromPoint(e.clientX, e.clientY);
-      if (!hit || !corner.contains(hit)) return;
-      expandTapAt = Date.now();
-      setSuggestExpanded(!state.suggestExpanded);
-    });
-    corner.addEventListener("click", function () {
-      if (expandTapAt && Date.now() - expandTapAt < 800) {
-        expandTapAt = 0;
-        return;
-      }
-      setSuggestExpanded(!state.suggestExpanded);
-    });
-    LANES.forEach(function (ln) { add("div", "axis", ln.label); });
-
-    function addCell(item, ln, dirWord) {
-      if (!item) {
-        add("div", "empty").setAttribute("aria-hidden", "true");
-        return;
-      }
-      var b = add("button", ln.tone + (item.borrowed ? " borrowed" : ""));
+    var track = document.createElement("div");
+    track.className = "ss-track";
+    track.setAttribute("aria-hidden", "true");
+    el.appendChild(track);
+    model.notes.forEach(function (n) {
+      var b = document.createElement("button");
       b.type = "button";
-      if (item.roman) { var rn = document.createElement("span"); rn.className = "rn"; rn.textContent = item.roman; b.appendChild(rn); }
-      var sy = document.createElement("span"); sy.className = "sym"; sy.textContent = chipSymbol(item); b.appendChild(sy);
-      if (item.why) { var wy = document.createElement("span"); wy.className = "why"; wy.textContent = item.why; b.appendChild(wy); }
-      b.title = (item.roman ? item.roman + " \u00b7 " : "") + (item.why || "") + (item.borrowed ? " (borrowed)" : "");
-      b.setAttribute("aria-label", item.name + (item.roman ? ", " + item.roman : "") + (item.why ? ", " + item.why : "") + (item.borrowed ? ", borrowed" : "") + " (" + ln.label + ", " + dirWord + ")");
-      // Touch/pen fire on pointerup: browsers drop the synthetic click when
-      // another finger is down (e.g. holding Sustain). Click stays for
-      // mouse / keyboard, de-duplicated against the pointer tap.
-      var tapId = null;
-      b.addEventListener("pointerdown", function (e) {
-        if (e.pointerType === "mouse") return;
-        tapId = e.pointerId;
-      });
-      b.addEventListener("pointercancel", function () { tapId = null; });
-      b.addEventListener("pointerup", function (e) {
-        if (tapId == null || e.pointerId !== tapId) return;
-        tapId = null;
-        var hit = document.elementFromPoint(e.clientX, e.clientY);
-        if (!hit || !b.contains(hit)) return;
-        suggestTapAt = Date.now();
-        applySuggestion(item);
-      });
-      b.addEventListener("click", function () {
-        // The grid may have been rebuilt by the pointer tap, so the click
-        // can land on a *different* chip; ignore any click right after a tap.
-        if (suggestTapAt && Date.now() - suggestTapAt < 800) {
-          suggestTapAt = 0;
-          return;
-        }
-        applySuggestion(item);
-      });
-    }
-
-    // Collapsed: slots 0 + 3 (up + down anchors). Expanded: all four.
-    var rowMeta = rowCount === 4
-      ? [["up", "\u2191"], ["mid1", "\u00b7"], ["mid2", "\u00b7"], ["down", "\u2193"]]
-      : [["up", "\u2191"], ["mid1", "\u00b7"], ["down", "\u2193"]];
-    var rowSlots = rowCount === 4 ? [0, 1, 2, 3] : [0, 1, 3];
-    for (var r = 0; r < rowCount; r++) {
-      add("div", "rowlbl", rowMeta[r][1]).setAttribute("aria-hidden", "true");
-      (function (slotIdx, dirWord) {
-        LANES.forEach(function (ln) { var sl = slots[ln.id].slots; addCell((rowCount === 3 && slotIdx === 1) ? (sl[1] || sl[2]) : sl[slotIdx], ln, dirWord); });
-      })(rowSlots[r], rowMeta[r][0]);
-    }
+      b.className = "ss-note" + (n.home ? " home" : "");
+      b.style.gridColumn = String(n.col + 2);
+      b.innerHTML = "<span class=\"nn\"></span><small></small>";
+      b.firstChild.textContent = prettyAcc(n.name);
+      b.lastChild.textContent = n.roman;
+      b.setAttribute("aria-label", prettyAcc(n.name) + ", " + n.roman + (n.home ? ", home" : "") + ", plays " + stripLabel(n.item));
+      wireStripTap(b, n.item);
+      el.appendChild(b);
+    });
+    model.chips.forEach(function (c) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "ss-chip " + c.cls + (c.borrowed ? " borrowed" : "");
+      b.style.gridRow = String(ROWN[c.row]);
+      b.style.gridColumn = String(c.col + 2);
+      var lab = stripLabel(c.item), rn = prettyAcc(c.item.rootName);
+      b.innerHTML = "<span class=\"r\"></span><span class=\"q\"></span>";
+      b.firstChild.textContent = rn;
+      b.lastChild.textContent = lab.slice(rn.length);
+      b.setAttribute("aria-label", stripLabel(c.item) + " (" + (c.row === "happy" ? (c.borrowed ? "color, borrowed" : "happy") : c.row) + ")");
+      wireStripTap(b, c.item);
+      el.appendChild(b);
+    });
+    fitStrip();
   }
+
+  // Fit chip names to their column: shrink a little first; if a name still
+  // overflows (narrow phones / portrait), stack root over quality, then shrink.
+  function fitStrip() {
+    var el = document.getElementById("suggest");
+    if (!el || !el.firstChild) return;
+    var chips = el.querySelectorAll(".ss-chip");
+    function over() {
+      for (var i = 0; i < chips.length; i++) {
+        var c = chips[i];
+        if (c.scrollWidth > c.clientWidth + 0.5 || c.scrollHeight > c.clientHeight + 0.5) return true;
+      }
+      return false;
+    }
+    function run(stack, floor) {
+      el.classList.toggle("stack", stack);
+      var k = 1;
+      el.style.setProperty("--ss-k", "1");
+      while (k > floor && over()) {
+        k = Math.round((k - 0.05) * 100) / 100;
+        el.style.setProperty("--ss-k", String(k));
+      }
+      return !over();
+    }
+    if (!run(false, 0.8)) run(true, 0.6);
+  }
+  window.addEventListener("resize", function () { fitStrip(); });
 
   // Shrink the Now symbol only when a long name (e.g. F#6sus4(add9)) would
   // overflow its card; short ones like Cmaj7 keep the full display size.
@@ -4896,8 +4350,7 @@ document.addEventListener("DOMContentLoaded", function () {
       bpm: 96,
       warmth: WARMTH_DEFAULT,
       simple: false,
-      allKeys: false,
-      suggestExpanded: false
+      allKeys: false
     };
   }
 
@@ -4928,8 +4381,7 @@ document.addEventListener("DOMContentLoaded", function () {
       bpm: num(raw.bpm, 50, 180, d.bpm, true),
       warmth: num(raw.warmth, 0, 100, d.warmth, true),
       simple: bool(raw.simple, d.simple),
-      allKeys: bool(raw.allKeys, d.allKeys),
-      suggestExpanded: bool(raw.suggestExpanded, d.suggestExpanded)
+      allKeys: bool(raw.allKeys, d.allKeys)
       // Legacy `latch` key (cce4d86) is ignored; Sustain is never persisted.
     };
   }
@@ -4976,8 +4428,7 @@ document.addEventListener("DOMContentLoaded", function () {
       bpm: state.bpm,
       warmth: clampWarmth(document.getElementById("warmth").value),
       simple: !!state.simple,
-      allKeys: !!state.allKeys,
-      suggestExpanded: !!state.suggestExpanded
+      allKeys: !!state.allKeys
     };
   }
 
@@ -5053,7 +4504,6 @@ document.addEventListener("DOMContentLoaded", function () {
     setWarmth(s.warmth);
     // Simple mode: Key mode is forced off while on (real value kept for later).
     state.simple = !!s.simple;
-    state.suggestExpanded = !!s.suggestExpanded;
     state.allKeys = !!s.allKeys;
     state.keyModeBeforeSimple = false;
     if (state.simple && state.keyMode) {
