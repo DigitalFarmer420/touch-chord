@@ -1330,7 +1330,7 @@ html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; paddin
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 39;
+var APP_VERSION = 40;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -2080,12 +2080,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-  ChordAudio.prototype.stopChord = function (group, when) {
+  ChordAudio.prototype.stopChord = function (group, when, tau) {
     if (!this.ctx) return;
     var t = when == null ? this.ctx.currentTime : when;
     for (var i = 0; i < this.voices.length; i++) {
       var v = this.voices[i];
-      if (v.group === group && !v.short && !v.released) v.release(t);
+      if (v.group === group && !v.short && !v.released) v.release(t, tau);
     }
   };
 
@@ -2868,13 +2868,14 @@ document.addEventListener("DOMContentLoaded", function () {
     finger.pending = null;
   }
 
+  var DAMPER_TAU = 0.035; // ~-37 dB at 150 ms, ~-50 dB at 200 ms
   function dumpSustain() {
     var groups = Object.keys(sustainPool);
     if (!groups.length) return;
     var now = ChordAudio.ctx ? ChordAudio.currentTime() : 0;
     groups.forEach(function (g) {
       var entry = sustainPool[g];
-      ChordAudio.stopChord(g);
+      ChordAudio.stopChord(g, null, DAMPER_TAU); // v40: gentle ~150 ms damper tail
       ChordAudio.unprotectGroup(g);
       if (entry.pending && loop.recording && ChordAudio.ctx) finalizeOne(entry, now);
       else entry.pending = null;
