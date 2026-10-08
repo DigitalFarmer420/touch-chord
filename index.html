@@ -1111,7 +1111,13 @@ html.lay-phone-land .key-row { display: none; }
 .ht-box img { display: block; max-width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--line); margin: 6px 0; background: #0f0d0b; }
 .ht-box .cap { margin: 2px 0 6px; color: var(--ink); }
 .ht-box .ht-end { margin-top: 18px; }
-.ht-box h2.ht-howto { margin: 18px 0 6px; }
+/* v58: one list. Intro (picture, two short lines), then steps 1-6; full-mode steps carry a pill. */
+.ht-box .ht-why { margin: 4px 0 0; }
+.ht-box .ht-uses { margin: 2px 0 4px; color: var(--muted); }
+.ht-box ol.ht-steps { list-style: none; margin: 0; padding: 0; }
+.ht-box ol.ht-steps > li { margin: 0; padding: 0; }
+.ht-pill { display: inline-block; vertical-align: 2px; margin-left: 6px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--copper);
+  color: var(--ink); background: rgba(200, 140, 70, .14); font-size: 11px; font-weight: 700; line-height: 1.4; letter-spacing: .02em; white-space: nowrap; }
 .ht-legend { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 13px; margin: 6px 0 0; opacity: .85; }
 .ht-legend dt { font-weight: 700; } .ht-legend dd { margin: 0; }
 .ht-box p, .ht-box li { font-size: 14px; line-height: 1.45; }
@@ -1513,45 +1519,30 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
   <div id="howto" class="howto" role="dialog" aria-modal="true" aria-label="How to" hidden>
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
-      <section><h3>About Touch Chord</h3>
-      <img src="images/howto-why.webp?v=57" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
-      <p class="ht-why">Touch Chord turns one finger into a full chord.<br>It's for anyone who wants to play chords without reading music.<br>A chord is 3 or more notes played at once. Chords that sound good together make up a key.</p>
-      <ul><li><b>Learn chords:</b> try a random chord and see its name and notes.</li><li><b>Sing along:</b> play chords under your voice.</li><li><b>Beginner to making music:</b> start with one chord, then follow the suggestions into a song.</li></ul></section>
-      <h2 class="ht-howto">How-to</h2>
-      <section><h3>1. Play a note</h3>
-      <img src="images/howto-simple-1-strip-note.webp?v=57" alt="Tap a note on the scale strip" width="1000" height="462" loading="lazy" decoding="async">
-      <p class="cap">Tap a note on the strip (1).</p></section>
-      <section><h3>2. Key</h3>
-      <img src="images/howto-simple-2-key.webp?v=57" alt="Key control: swipe the note, tap Major or Minor" width="1000" height="462" loading="lazy" decoding="async">
-      <p class="cap">Swipe the note (1) to change the key. Tap (2) for <b>Major</b> or <b>Minor</b>.</p></section>
-      <section><h3>3. Chord chips</h3>
-      <img src="images/howto-simple-3-chips.webp?v=57" alt="Chord chips above and below the strip" width="1000" height="462" loading="lazy" decoding="async">
-      <p class="cap">Tap or hold a chip (1) to play its chord.</p></section>
-      <section><h3>4. Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=57" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
-      <p class="cap">Play (1), hold <b>Sustain</b> (2): notes ring and fade. Let go to stop.</p></section>
-      <section><h3>5. Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=57" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
-      <p class="cap">Tap a style (1). It changes the sound and the chords.</p></section>
-      <section><h3>6. Songs</h3>
-      <img src="images/howto-simple-6-progressions.webp?v=57" alt="Progression row under Major and Minor: swipe the name, tap play" width="1000" height="462" loading="lazy" decoding="async">
-      <p class="cap">Swipe the name (1) to pick a song. Tap &#9654; (2) to play it over and over. The numbers (3) show the order: tap one to play it.</p></section>
-      <h2 class="ht-howto">In full mode</h2>
-      <section><h3>Suggestions</h3>
-      <img src="images/howto-full-1-suggestions.webp?v=57" alt="Full-mode suggestion box: chord chips with small Roman numerals" width="1000" height="462" loading="lazy" decoding="async">
-      <p class="cap">Same chips and notes as Simple (1). The small Roman numerals (2), like <b>I</b>, <b>IV</b> and <b>V</b>, show where each chord sits in the key.</p></section>
-      <section><h3>Make a chord</h3>
-      <img src="images/howto-full-2-make-chord.webp?v=57" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
-      <p class="cap">Hold <b>maj7</b> (1), tap <b>A</b> (2) = <b>Amaj7</b>.</p></section>
-      <section><h3>Keyboard</h3>
-      <img src="images/howto-full-3-keyboard.webp?v=57" alt="Piano keyboard: each key plays a chord" width="1000" height="462" loading="lazy" decoding="async">
-      <p class="cap">Tap a key (1) to play its chord.</p></section>
-      <section><h3>Full Range</h3>
-      <img src="images/howto-full-4-fullrange.webp?v=57" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
-      <p class="cap">Gray keys are outside your key. Tap <b>Full Range</b> (1) to play them all.</p></section>
-      <section><h3>Progressions</h3>
-      <img src="images/howto-full-5-progressions.webp?v=57" alt="Progression picker: Roman numerals between arrows, play and Next" width="1000" height="462" loading="lazy" decoding="async">
-      <p class="cap">&#8249; &#8250; (1) picks a progression, shown in Roman numerals. &#9654; (2) loops it, one chord per bar. <b>Next</b> (3) plays one chord at a time.</p></section>
+      <section class="ht-intro">
+      <img src="images/howto-why.webp?v=58" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <p class="ht-why">Touch Chord turns one finger into a full chord. No music reading needed.</p>
+      <p class="ht-uses">Learn chords &middot; Sing along &middot; Start a song.</p></section>
+      <ol class="ht-steps">
+      <li><section><h3>1. Play chord suggestion</h3>
+      <img src="images/howto-simple-1-play-suggestion.webp?v=58" alt="Key note, song name with play button, and a chord chip" width="1000" height="462" loading="lazy" decoding="async">
+      <p class="cap">Swipe the note (1) to pick the key, and tap for <b>Major</b> or <b>Minor</b>. Want a song? Swipe its name (2) and tap &#9654;. Then tap a chord (3) to play it. In full mode, <b>Next</b> plays one chord at a time.</p></section></li>
+      <li><section><h3>2. Sustain</h3>
+      <img src="images/howto-simple-4-sustain.webp?v=58" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <p class="cap">Play (1), hold <b>Sustain</b> (2): notes ring and fade. Let go to stop.</p></section></li>
+      <li><section><h3>3. Style</h3>
+      <img src="images/howto-simple-5-style.webp?v=58" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <p class="cap">Tap a style (1). It changes the sound and the chords.</p></section></li>
+      <li><section><h3>4. Make a chord <span class="ht-pill">Full mode</span></h3>
+      <img src="images/howto-full-2-make-chord.webp?v=58" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <p class="cap">Hold <b>maj7</b> (1), tap <b>A</b> (2) = <b>Amaj7</b>.</p></section></li>
+      <li><section><h3>5. Keyboard <span class="ht-pill">Full mode</span></h3>
+      <img src="images/howto-full-3-keyboard.webp?v=58" alt="Piano keyboard: each key plays a chord" width="1000" height="462" loading="lazy" decoding="async">
+      <p class="cap">Tap a key (1) to play its chord.</p></section></li>
+      <li><section><h3>6. Full Range <span class="ht-pill">Full mode</span></h3>
+      <img src="images/howto-full-4-fullrange.webp?v=58" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
+      <p class="cap">Gray keys are outside your key. Tap <b>Full Range</b> (1) to play them all.</p></section></li>
+      </ol>
       <p class="ht-end">Sound and FX live in the gear's <b>Advanced</b> settings.</p>
       <dl class="ht-legend"><dt>Simple</dt><dd>Simple on/off</dd><dt>&#9881;</dt><dd>Settings (Advanced: sound, FX)</dd><dt>?</dt><dd>This guide</dd></dl>
     </div>
@@ -1715,7 +1706,7 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 57;
+var APP_VERSION = 58;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
