@@ -1110,18 +1110,29 @@ html.lay-phone-land .key-row { display: none; }
 .ht-box { max-width: 1000px; max-height: calc(100vh - 16px); max-height: calc(100dvh - 16px); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
 .ht-box img { display: block; max-width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--line); margin: 6px 0; background: #0f0d0b; }
 .ht-box .cap { margin: 2px 0 6px; color: var(--ink); }
-.ht-box .ht-end { margin-top: 18px; }
 /* v58: one list. Intro (picture, two short lines), then steps 1-6; full-mode steps carry a pill. */
 .ht-box .ht-why { margin: 4px 0 0; }
-.ht-box .ht-uses { margin: 2px 0 4px; color: var(--muted); }
 .ht-box ol.ht-steps { list-style: none; margin: 0; padding: 0; }
 .ht-box ol.ht-steps > li { margin: 0; padding: 0; }
 .ht-pill { display: inline-block; vertical-align: 2px; margin-left: 6px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--copper);
   color: var(--ink); background: rgba(200, 140, 70, .14); font-size: 11px; font-weight: 700; line-height: 1.4; letter-spacing: .02em; white-space: nowrap; }
-.ht-legend { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 13px; margin: 6px 0 0; opacity: .85; }
-.ht-legend dt { font-weight: 700; } .ht-legend dd { margin: 0; }
 .ht-box p, .ht-box li { font-size: 14px; line-height: 1.45; }
 .ht-box ol, .ht-box ul { margin: 4px 0; padding-left: 20px; }
+/* v65: Welcome intro, sub-steps, yellow word links and the "Little words to know" box. */
+.ht-box .ht-thanks { margin-top: 8px; color: var(--muted); font-style: italic; }
+.ht-box a.ht-term { color: #f3c64f; font-weight: 700; text-decoration: underline dotted rgba(243,198,79,.7); text-underline-offset: 3px; -webkit-tap-highlight-color: transparent; }
+.ht-box a.ht-term:active { color: #ffe08a; }
+.ht-box ol.ht-sub { list-style: decimal; margin: 4px 0 2px; padding-left: 22px; }
+.ht-box ol.ht-sub > li { margin: 3px 0; padding-left: 2px; }
+.ht-box ol.ht-sub > li::marker { color: var(--copper); font-weight: 700; }
+.ht-box .ht-note { margin: 6px 0 6px; font-size: 13px; color: var(--muted); }
+.ht-words { margin-top: 18px; padding: 10px 12px 8px; border: 1px solid var(--line); border-top: 2px solid var(--copper); border-radius: 12px; background: rgba(226,161,90,.06); }
+.ht-box .ht-words h3 { margin: 0 0 6px; }
+.ht-words dl { margin: 0; display: grid; gap: 6px; }
+.ht-words dl > div { display: grid; grid-template-columns: 92px 1fr; gap: 8px; align-items: baseline; padding: 4px 6px; border-radius: 8px; transition: background .6s; outline: none; }
+.ht-words dt { font-weight: 700; color: #f3c64f; font-size: 14px; }
+.ht-words dd { margin: 0; font-size: 14px; line-height: 1.4; }
+.ht-words dl > div.ht-hit { background: rgba(243,198,79,.18); transition: background .15s; }
 
 /* v31: chord-type gating */
 .kb .pad.nochord { opacity: 0.32; }
@@ -1573,7 +1584,7 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
     <div class="config" id="configWrap">
       <button id="configBtn" type="button" class="top-btn config-btn icon-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="configMenu" aria-label="Config" title="Config"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
       <div id="configMenu" class="config-menu" role="menu" aria-label="Configuration" hidden>
-        <button id="progNumsBtn" type="button" role="menuitemcheckbox" aria-checked="false" class="cfg-toggle"><span>Progression numbers</span><span class="tgl" aria-hidden="true"></span></button>
+        <button id="progNumsBtn" type="button" role="menuitemcheckbox" aria-checked="true" class="cfg-toggle on"><span>Progression numbers</span><span class="tgl" aria-hidden="true"></span></button>
         <button id="factoryReset" type="button" role="menuitem" class="danger">Factory reset</button>
         <div id="appVersion" class="app-version" aria-live="off"></div>
       </div>
@@ -1584,31 +1595,45 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=64" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
-      <p class="ht-why">Touch Chord turns one finger into a full chord. No music reading needed.</p>
-      <p class="ht-uses">Learn chords &middot; Sing along &middot; Start a song.</p></section>
+      <img src="images/howto-why.webp?v=65" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
+      <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
-      <li><section><h3>1. Play chord suggestion</h3>
-      <img src="images/howto-simple-1-play-suggestion.webp?v=64" alt="Key note and Major/Minor, a chord chip, and the song picker" width="1000" height="462" loading="lazy" decoding="async">
-      <p class="cap">Swipe the note (1) to pick the key, and tap for <b>Major</b> or <b>Minor</b>. Then tap a chord (2) to play it. &#8249; &#8250; (3) picks a song, and <b>Next</b> plays it one chord at a time.</p></section></li>
+      <li><section><h3>1. Play chord progressions</h3>
+      <img src="images/howto-simple-1-play-progressions.webp?v=65" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <ol class="ht-sub">
+        <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
+        <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
+        <li><b>Pick a <a class="ht-term" href="#gl-progression">chord progression</a>.</b> Choose a set of <a class="ht-term" href="#gl-chord">chords</a> that belong together.</li>
+        <li><b>Make a <a class="ht-term" href="#gl-chord">chord</a> yourself.</b></li>
+      </ol>
+      <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p></section></li>
       <li><section><h3>2. Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=64" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=65" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play (1), hold <b>Sustain</b> (2): notes ring and fade. Let go to stop.</p></section></li>
       <li><section><h3>3. Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=64" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
-      <p class="cap">Tap a style (1). It changes the sound and the chords.</p></section></li>
-      <li><section><h3>4. Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=64" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
-      <p class="cap">Hold <b>maj7</b> (1), tap <b>A</b> (2) = <b>Amaj7</b>.</p></section></li>
-      <li><section><h3>5. Keyboard <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-3-keyboard.webp?v=64" alt="Piano keyboard: each key plays a chord" width="1000" height="462" loading="lazy" decoding="async">
-      <p class="cap">Tap a key (1) to play its chord.</p></section></li>
+      <img src="images/howto-simple-5-style.webp?v=65" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
+      <li><section><h3>4. Understand the suggestion grid</h3>
+      <img src="images/howto-simple-6-grid.webp?v=65" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
+      <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the smiley face, and sad ones sit below the frown. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
+      <li><section><h3>5. Make a chord <span class="ht-pill">Full mode</span></h3>
+      <img src="images/howto-full-2-make-chord.webp?v=65" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major 7, hold <b>Major 7</b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3>6. Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=64" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
-      <p class="cap">Gray keys are outside your key. Tap <b>Full Range</b> (1) to play them all.</p></section></li>
+      <img src="images/howto-full-4-fullrange.webp?v=65" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
+      <p class="cap">Full Range enables all keys to be available.</p></section></li>
       </ol>
-      <p class="ht-end">Sound and FX live in the gear's <b>Advanced</b> settings.</p>
-      <dl class="ht-legend"><dt>Simple</dt><dd>Simple on/off</dd><dt>&#9881;</dt><dd>Settings (Advanced: sound, FX)</dd><dt>?</dt><dd>This guide</dd></dl>
+      <section class="ht-words" aria-labelledby="htWordsH">
+        <h3 id="htWordsH">Little words to know</h3>
+        <dl>
+          <div id="gl-chord" tabindex="-1"><dt>Chord</dt><dd>a few notes played together as one sound.</dd></div>
+          <div id="gl-key" tabindex="-1"><dt>Key</dt><dd>the home note your song keeps coming back to.</dd></div>
+          <div id="gl-progression" tabindex="-1"><dt>Progression</dt><dd>a row of chords that a song follows.</dd></div>
+          <div id="gl-style" tabindex="-1"><dt>Style</dt><dd>a mood with its own sound and favorite chords.</dd></div>
+          <div id="gl-note" tabindex="-1"><dt>Note</dt><dd>a single sound with its own pitch.</dd></div>
+        </dl>
+      </section>
     </div>
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -1768,7 +1793,7 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 64;
+var APP_VERSION = 65;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -5807,6 +5832,25 @@ function accSym(s) {
     function closeHt() { ht.hidden = true; }
     document.getElementById("howtoBtn").addEventListener("click", function () { ht.hidden = false; ht.querySelector(".ht-x").focus(); });
     ht.querySelector(".ht-x").addEventListener("click", closeHt);
+    // v65: yellow words scroll the dialog (not the page, no hash change) to their entry in
+    // "Little words to know" and light it briefly. Works the same on phones (touch) and desktop.
+    var htBox = ht.querySelector(".ht-box"), htHitT = 0;
+    ht.addEventListener("click", function (e) {
+      var a = e.target.closest ? e.target.closest("a.ht-term") : null;
+      if (!a) return;
+      e.preventDefault();
+      var id = (a.getAttribute("href") || "").slice(1), tgt = id && document.getElementById(id);
+      if (!tgt) return;
+      var top = htBox.scrollTop + tgt.getBoundingClientRect().top - htBox.getBoundingClientRect().top - 12;
+      top = Math.max(0, Math.min(top, htBox.scrollHeight - htBox.clientHeight));
+      try { htBox.scrollTo({ top: top, behavior: "smooth" }); } catch (err) { htBox.scrollTop = top; }
+      var hits = ht.querySelectorAll(".ht-words .ht-hit");
+      for (var i = 0; i < hits.length; i++) hits[i].classList.remove("ht-hit");
+      tgt.classList.add("ht-hit");
+      try { tgt.focus({ preventScroll: true }); } catch (err) {}
+      clearTimeout(htHitT);
+      htHitT = setTimeout(function () { tgt.classList.remove("ht-hit"); }, 1600);
+    });
     ht.addEventListener("click", function (e) { if (e.target === ht) closeHt(); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") { closeHt(); close(); } });
   }
@@ -6230,7 +6274,9 @@ function accSym(s) {
       warmth: WARMTH_DEFAULT,
       simple: false,
       allKeys: false,
-      progNums: false,
+      // v65: on by default in both modes. A saved false (the switch turned off) is kept;
+      // a missing value (new user, or saved before v60) gets on.
+      progNums: true,
       lockKey: null
     };
   }
