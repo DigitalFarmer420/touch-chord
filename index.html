@@ -13,6 +13,20 @@
   <link rel="icon" href="data:,">
   <link rel="apple-touch-icon" href="data:,">
 <script>
+/* v57: text scale. Text and chord labels are 13% smaller on phones, easing to 8% smaller on
+   big screens (short side 400 -> 900 CSS px). Boxes and tap targets don't change; the strip
+   fits its chips at full size and then draws the names at this scale. */
+(function () {
+  function tx() {
+    var s = Math.min(window.innerWidth || 0, window.innerHeight || 0) || 400;
+    var t = 0.87 + 0.05 * Math.max(0, Math.min(1, (s - 400) / 500));
+    document.documentElement.style.setProperty("--tx", t.toFixed(3));
+  }
+  tx();
+  window.addEventListener("resize", tx);
+})();
+</script>
+<script>
 /* Hide controls until saved settings are applied (no default-then-jump flash). Failsafe unhides. */
 document.documentElement.className += " tc-boot";
 setTimeout(function () { document.documentElement.classList.remove("tc-boot"); }, 1500);
@@ -425,7 +439,7 @@ html.lay-phone-land .now-card .card-label { display: none; }
   display: inline-block;
   max-width: none;
   font-family: Palatino, "Iowan Old Style", Georgia, serif;
-  font-size: var(--sym);
+  font-size: calc(var(--sym) * var(--tx, 1));
   font-weight: 700;
   line-height: 0.95;
   letter-spacing: -0.02em;
@@ -442,7 +456,7 @@ html.lay-phone-land .now-card .card-label { display: none; }
   white-space: normal;
   overflow-wrap: anywhere;
 }
-html.lay-pad-port #tones, html.lay-pad-land #tones { font-size: 16px; letter-spacing: 0.12em; }
+html.lay-pad-port #tones, html.lay-pad-land #tones { font-size: calc(16px * var(--tx, 1)); letter-spacing: 0.12em; }
 
 /* ===== Style row ===== */
 .style-row {
@@ -536,7 +550,7 @@ html.lay-pad-port #app, html.lay-pad-land #app { --ss-lbl: 34px; --ss-rg: 5px; -
   display: flex; align-items: center; justify-content: center;
   min-width: 0; min-height: 0; height: auto; margin: 0; padding: 0 2px;
   border-radius: 10px; border: 1px solid;
-  font-weight: 700; font-size: calc(var(--ss-fs) * var(--ss-k)); line-height: 1;
+  font-weight: 700; font-size: calc(var(--ss-fs) * var(--ss-k) * var(--tx, 1)); line-height: 1;
   white-space: nowrap; overflow: hidden;
   touch-action: manipulation;
 }
@@ -546,11 +560,11 @@ html.lay-pad-port #app, html.lay-pad-land #app { --ss-lbl: 34px; --ss-rg: 5px; -
 .ss .ss-chip.color { background: #6a8f7e; color: #0f1f18; }
 .ss .ss-chip.borrowed { border: 2px dashed rgba(255,255,255,.75); }
 html.lay-phone-port .ss .ss-chip { border-radius: 7px; padding: 0 1px; }
-.ss.stack .ss-chip { flex-direction: column; gap: 1px; line-height: 1; font-size: calc((var(--ss-fs) - 2px) * var(--ss-k)); }
+.ss.stack .ss-chip { flex-direction: column; gap: 1px; line-height: 1; font-size: calc((var(--ss-fs) - 2px) * var(--ss-k) * var(--tx, 1)); }
 .ss.stack .ss-chip .q { font-size: .85em; }
 /* v52: chip text never drops below 11 px on phones. */
-html.lay-phone-port .ss .ss-chip, html.lay-phone-land .ss .ss-chip { font-size: max(11px, calc(var(--ss-fs) * var(--ss-k))); }
-html.lay-phone-port .ss.stack .ss-chip, html.lay-phone-land .ss.stack .ss-chip { font-size: max(11px, calc((var(--ss-fs) - 2px) * var(--ss-k))); }
+html.lay-phone-port .ss .ss-chip, html.lay-phone-land .ss .ss-chip { font-size: max(10px, calc(var(--ss-fs) * var(--ss-k) * var(--tx, 1))); }
+html.lay-phone-port .ss.stack .ss-chip, html.lay-phone-land .ss.stack .ss-chip { font-size: max(10px, calc((var(--ss-fs) - 2px) * var(--ss-k) * var(--tx, 1))); }
 html.lay-phone-port .ss.stack .ss-chip .q, html.lay-phone-land .ss.stack .ss-chip .q { font-size: max(11px, .85em); }
 html.lay-phone-port #app { --ss-lbl: 18px; --ss-ico: 18px; --ss-arrow: 12px; --ss-cgap: 1px; }
 html.lay-phone-port .ss .ss-chip { padding: 0; letter-spacing: -0.04em; }
@@ -564,10 +578,10 @@ html.lay-phone-land:not(.simple) #app { --ss-row: 28px; --ss-rg: 2px; --ss-mid: 
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   min-width: 0; min-height: 0; height: auto; margin: 0; padding: 0;
   background: transparent; border: 0; border-radius: 999px;
-  color: var(--ink); font-weight: 700; font-size: var(--ss-note); line-height: 1;
+  color: var(--ink); font-weight: 700; font-size: calc(var(--ss-note) * var(--tx, 1)); line-height: 1;
   touch-action: manipulation;
 }
-.ss .ss-note small { font-size: var(--ss-small); font-weight: 600; color: var(--muted); margin-top: 2px; letter-spacing: .02em; }
+.ss .ss-note small { font-size: max(9px, calc(var(--ss-small) * var(--tx, 1))); font-weight: 600; color: var(--muted); margin-top: 2px; letter-spacing: .02em; }
 .ss .ss-note.home { color: var(--copper); }
 .ss .ss-note.home::before { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); aspect-ratio: 1; height: auto; width: min(calc(100% + 4px), calc(var(--ss-strip) + 6px)); border: 2.5px solid var(--copper); border-radius: 50%; background: rgba(226,161,90,.14); z-index: -1; box-sizing: border-box; }
 .ss .ss-note.home small { color: var(--copper); opacity: .85; }
@@ -1156,10 +1170,10 @@ html.simple .key-bar { display: none !important; }
 html.simple .kid-key { display: flex; flex-direction: column; gap: 6px; flex: 0 0 auto; }
 .kk-root { position: relative; display: flex; align-items: center; justify-content: space-between; height: var(--kk-h, 58px); border-radius: 14px; background: var(--bg-2, #221d17); border: 2px solid var(--copper); touch-action: none; cursor: grab; outline: none; overflow: hidden; }
 .kk-root:focus-visible { box-shadow: 0 0 0 2px var(--copper); }
-.kk-name { flex: 1 1 auto; text-align: center; font-family: Palatino, "Iowan Old Style", Georgia, serif; font-weight: 700; font-size: var(--kk-fs, 34px); line-height: 1; color: var(--ink); pointer-events: none; transition: transform .12s ease-out; }
+.kk-name { flex: 1 1 auto; text-align: center; font-family: Palatino, "Iowan Old Style", Georgia, serif; font-weight: 700; font-size: calc(var(--kk-fs, 34px) * var(--tx, 1)); line-height: 1; color: var(--ink); pointer-events: none; transition: transform .12s ease-out; }
 .kk-name.nudge-l { transform: translateX(-10px); } .kk-name.nudge-r { transform: translateX(10px); }
 .kk-arrow { flex: 0 0 auto; width: var(--kk-arrow, 36px); height: 100%; min-height: 0; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--copper); font-size: calc(var(--kk-fs, 34px) * .8); line-height: 1; touch-action: manipulation; }
-.kk-mode { display: flex; align-items: center; justify-content: center; gap: 8px; height: var(--kk-mh, 44px); min-height: 0; margin: 0; border-radius: 14px; border: 2px solid transparent; font-size: var(--kk-mfs, 17px); font-weight: 800; letter-spacing: .02em; touch-action: manipulation; }
+.kk-mode { display: flex; align-items: center; justify-content: center; gap: 8px; height: var(--kk-mh, 44px); min-height: 0; margin: 0; border-radius: 14px; border: 2px solid transparent; font-size: calc(var(--kk-mfs, 17px) * var(--tx, 1)); font-weight: 800; letter-spacing: .02em; touch-action: manipulation; }
 .kk-mode.major { background: #e2b15a; color: #2a1c0c; }
 .kk-mode.minor { background: #8a7bc0; color: #f7f3ff; }
 .kk-face svg { display: block; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
@@ -1177,16 +1191,16 @@ html.simple #app { --ss-lbl: 44px; --ss-ico: 24px; --ss-arrow: 14px; --ss-rg: 7p
 html.simple #styles { overflow-x: auto; }
 html.simple .now-col { gap: 8px; }
 html.simple .now-col .now-card { flex: 1 1 auto; justify-content: center; align-items: center; text-align: center; }
-html.simple #symbol { font-size: var(--sym); line-height: 1; }
-html.simple #tones { font-size: 16px; letter-spacing: .18em; margin-top: 8px; }
+html.simple #symbol { font-size: calc(var(--sym) * var(--tx, 1)); line-height: 1; }
+html.simple #tones { font-size: calc(16px * var(--tx, 1)); letter-spacing: .18em; margin-top: 8px; }
 html.simple .key-bar { flex: 0 0 auto; display: block; }
 html.simple .key-bar .key-chip { display: block; width: 100%; height: 46px; min-height: 46px; font-size: 15px; border-radius: 12px; }
 html.simple #sustainBtn { width: auto; height: auto; align-self: stretch; }
 html.simple .next-card { min-height: 0; justify-content: stretch; align-items: stretch; }
 html.simple .ss { height: 100%; }
-html.simple .ss .ss-chip { font-size: calc(var(--ss-fs) * var(--ss-k)); border-radius: 14px; padding: 0 2px; letter-spacing: normal; }
-html.simple .ss.stack .ss-chip { font-size: max(11px, calc((var(--ss-fs) - 2px) * var(--ss-k))); }
-html.simple .ss .ss-note .nn { font-size: var(--ss-note); }
+html.simple .ss .ss-chip { font-size: max(10px, calc(var(--ss-fs) * var(--ss-k) * var(--tx, 1))); border-radius: 14px; padding: 0 2px; letter-spacing: normal; }
+html.simple .ss.stack .ss-chip { font-size: max(10px, calc((var(--ss-fs) - 2px) * var(--ss-k) * var(--tx, 1))); }
+html.simple .ss .ss-note .nn { font-size: calc(var(--ss-note) * var(--tx, 1)); }
 /* v52: Simple note buttons: raised round buttons instead of labels on a capsule. */
 html.simple .ss .ss-track { display: none; }
 html.simple .ss .ss-note { align-self: center; justify-self: center; width: var(--ss-nb, 54px); height: var(--ss-nb, 54px); border-radius: 50%;
@@ -1230,7 +1244,7 @@ html.simple.lay-pad-land #app {
 }
 html.simple.lay-pad-land .brand { display: none; }
 html.simple.lay-pad-land .key-bar .key-chip, html.simple.lay-pad-port .key-bar .key-chip { height: 64px; min-height: 64px; font-size: 22px; }
-html.simple.lay-pad-land #tones, html.simple.lay-pad-port #tones { font-size: 22px; }
+html.simple.lay-pad-land #tones, html.simple.lay-pad-port #tones { font-size: calc(22px * var(--tx, 1)); }
 html.simple.lay-pad-land #sustainBtn, html.simple.lay-pad-port #sustainBtn { font-size: 24px; }
 /* iPad portrait: like phone portrait. */
 html.simple.lay-pad-port #app {
@@ -1266,7 +1280,7 @@ html.simple.lay-phone-port #app { --ss-lbl: 0px; --ss-cgap: 3px; --ss-rg: 8px; -
 @media (max-width: 370px) { html.simple.lay-phone-port #app { --ss-cgap: 2px; --ss-pad: 6px; } }
 @media (max-height: 700px) { html.simple.lay-phone-port #app { --ss-rg: 6px; --sym: 34px; grid-template-rows: auto auto 176px minmax(0, 1fr); }
   html.simple.lay-phone-port .now-card .card-label { display: none; }
-  html.simple.lay-phone-port #tones { margin-top: 2px; font-size: 15px; } }
+  html.simple.lay-phone-port #tones { margin-top: 2px; font-size: calc(15px * var(--tx, 1)); } }
 html.simple.lay-phone-port .ss { padding: 5px 0; align-content: safe center;
   grid-template-rows: [hi-start] auto [hi-end b-start g-start] var(--ss-ch) [b-end h-start] var(--ss-ch) [h-end n-start] minmax(44px, 52px) [n-end s-start] var(--ss-ch) [s-end t-start] var(--ss-ch) [t-end g-end si-start] auto [si-end]; }
 html.simple.lay-phone-port .ss .ss-lbl { grid-column: 2 / -1; flex-direction: row; justify-content: center; align-items: center; }
@@ -1343,14 +1357,14 @@ html:not(.simple) .ss .ss-track { display: none; }
 /* The strip keeps v53's height as its share of the row, then fills whatever the row gives the
    panel (phone portrait: the Now column is taller once a key is set). Panel size is unchanged. */
 html:not(.simple) .ss { min-height: 100%; }
-html:not(.simple) .ss .ss-chip { border-radius: var(--ss-cr, 10px); padding: 0 2px; letter-spacing: normal; font-size: max(11px, calc(var(--ss-fs) * var(--ss-k)));
+html:not(.simple) .ss .ss-chip { border-radius: var(--ss-cr, 10px); padding: 0 2px; letter-spacing: normal; font-size: max(10px, calc(var(--ss-fs) * var(--ss-k) * var(--tx, 1)));
   transition: transform .08s ease-out, filter .08s ease-out; }
-html:not(.simple) .ss.stack .ss-chip { font-size: max(11px, calc((var(--ss-fs) - 2px) * var(--ss-k))); }
+html:not(.simple) .ss.stack .ss-chip { font-size: max(10px, calc((var(--ss-fs) - 2px) * var(--ss-k) * var(--tx, 1))); }
 html:not(.simple) .ss .ss-chip.press { transform: scale(.92); filter: brightness(1.25); }
 html:not(.simple) .ss .ss-note { align-self: stretch; justify-self: stretch; width: auto; height: auto; border-radius: var(--ss-cr, 10px);
   background: rgba(245, 233, 210, .17); border: 1.5px solid rgba(245, 233, 210, .42); box-shadow: 0 3px 0 rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .14);
   color: var(--ink); transition: transform .08s ease-out, background-color .08s ease-out, box-shadow .08s ease-out; }
-html:not(.simple) .ss .ss-note .nn { font-size: var(--ss-note); }
+html:not(.simple) .ss .ss-note .nn { font-size: calc(var(--ss-note) * var(--tx, 1)); }
 html:not(.simple) .ss .ss-note small { margin-top: 1px; }
 html:not(.simple) .ss .ss-note.home { background: rgba(226, 177, 90, .30); border: 2.5px solid var(--copper); color: var(--copper); }
 html:not(.simple) .ss .ss-note.home::before { display: none; }
@@ -1390,7 +1404,7 @@ html:not(.simple).lay-phone-port .ss .ss-chip .rn { display: none; }
 .pg-arrow { flex: 0 0 auto; width: var(--pg-arrow, 26px); height: auto; min-height: 0; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent;
   color: var(--copper); font-size: var(--pg-afs, 24px); line-height: 1; touch-action: manipulation; }
 .pg-txt { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; pointer-events: none; }
-.pg-t { display: block; max-width: 100%; text-align: center; font-weight: 800; font-size: var(--pg-fs, 14px); line-height: 1.12; color: var(--ink);
+.pg-t { display: block; max-width: 100%; text-align: center; font-weight: 800; font-size: max(9px, calc(var(--pg-fs, 14px) * var(--tx, 1))); line-height: 1.12; color: var(--ink);
   overflow-wrap: break-word; transition: transform .12s ease-out; }
 .pg-t.nudge-l { transform: translateX(-8px); } .pg-t.nudge-r { transform: translateX(8px); }
 .pg-btns { display: flex; gap: 4px; flex: 0 0 auto; }
@@ -1418,7 +1432,7 @@ html.simple.lay-phone-port #tones { margin-top: 4px; }
   html.simple.lay-phone-port .kid-key { --kk-h: 44px; --kk-fs: 28px; --kk-mh: 32px; --kk-mfs: 14px; gap: 4px; }
   html.simple.lay-phone-port .prog { --pg-h: 32px; --pg-afs: 22px; --pg-bw: 36px; --pg-ico: 15px; }
   html.simple.lay-phone-port #app { --sym: 30px; }
-  html.simple.lay-phone-port #tones { margin-top: 1px; font-size: 13px; } }
+  html.simple.lay-phone-port #tones { margin-top: 1px; font-size: max(11px, calc(13px * var(--tx, 1))); } }
 html.simple.lay-pad-port #app { --sym: 72px; }
 /* Full mode, phone landscape: cycler on top of the Now column (two lines: name, then Play + Next).
    The column never makes its row taller than the strip (keyboard unchanged); the Now card gives. */
@@ -1450,6 +1464,13 @@ html.simple .ss .pg-badge { min-width: 19px; height: 19px; line-height: 17px; fo
 html.lay-phone-port:not(.simple) .ss .pg-badge { min-width: 14px; height: 14px; line-height: 12px; font-size: 10px; padding: 0 2px; border-radius: 7px; }
 html.lay-pad-land .ss .pg-badge, html.lay-pad-port .ss .pg-badge { min-width: 22px; height: 22px; line-height: 20px; font-size: 14px; border-radius: 11px; padding: 0 5px; }
 .ss .ss-chip.tmp { opacity: .9; }
+/* v57: no Roman numerals on strip chips in full mode either (the note row keeps its degrees). */
+html:not(.simple) .ss .ss-chip .rn { display: none; }
+/* v57: the phone-landscape cycler name is already at its 9-10px floor: not scaled. */
+html.lay-phone-land:not(.simple) .pg-t { font-size: var(--pg-fs, 10px); }
+/* v57: full-mode badges at 11px. */
+.ss .pg-badge { min-width: 16px; height: 16px; line-height: 14px; font-size: 11px; }
+html.lay-phone-port:not(.simple) .ss .pg-badge { min-width: 15px; height: 15px; line-height: 13px; font-size: 11px; }
 /* v56: "3+4" = step 3 (current or next) and 4 more steps on this chord. */
 .ss .pg-badge small { font-size: 1em; font-weight: 600; opacity: .72; margin-left: 1px; }
 /* v56: bigger hit areas for Play / Next (drawn size and layout unchanged). */
@@ -1493,43 +1514,43 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section><h3>About Touch Chord</h3>
-      <img src="images/howto-why.webp?v=56" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=57" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Touch Chord turns one finger into a full chord.<br>It's for anyone who wants to play chords without reading music.<br>A chord is 3 or more notes played at once. Chords that sound good together make up a key.</p>
       <ul><li><b>Learn chords:</b> try a random chord and see its name and notes.</li><li><b>Sing along:</b> play chords under your voice.</li><li><b>Beginner to making music:</b> start with one chord, then follow the suggestions into a song.</li></ul></section>
       <h2 class="ht-howto">How-to</h2>
       <section><h3>1. Play a note</h3>
-      <img src="images/howto-simple-1-strip-note.webp?v=56" alt="Tap a note on the scale strip" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-strip-note.webp?v=57" alt="Tap a note on the scale strip" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a note on the strip (1).</p></section>
       <section><h3>2. Key</h3>
-      <img src="images/howto-simple-2-key.webp?v=56" alt="Key control: swipe the note, tap Major or Minor" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-2-key.webp?v=57" alt="Key control: swipe the note, tap Major or Minor" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Swipe the note (1) to change the key. Tap (2) for <b>Major</b> or <b>Minor</b>.</p></section>
       <section><h3>3. Chord chips</h3>
-      <img src="images/howto-simple-3-chips.webp?v=56" alt="Chord chips above and below the strip" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-3-chips.webp?v=57" alt="Chord chips above and below the strip" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap or hold a chip (1) to play its chord.</p></section>
       <section><h3>4. Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=56" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=57" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play (1), hold <b>Sustain</b> (2): notes ring and fade. Let go to stop.</p></section>
       <section><h3>5. Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=56" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=57" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style (1). It changes the sound and the chords.</p></section>
       <section><h3>6. Songs</h3>
-      <img src="images/howto-simple-6-progressions.webp?v=56" alt="Progression row under Major and Minor: swipe the name, tap play" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-progressions.webp?v=57" alt="Progression row under Major and Minor: swipe the name, tap play" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Swipe the name (1) to pick a song. Tap &#9654; (2) to play it over and over. The numbers (3) show the order: tap one to play it.</p></section>
       <h2 class="ht-howto">In full mode</h2>
       <section><h3>Suggestions</h3>
-      <img src="images/howto-full-1-suggestions.webp?v=56" alt="Full-mode suggestion box: chord chips with small Roman numerals" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-1-suggestions.webp?v=57" alt="Full-mode suggestion box: chord chips with small Roman numerals" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Same chips and notes as Simple (1). The small Roman numerals (2), like <b>I</b>, <b>IV</b> and <b>V</b>, show where each chord sits in the key.</p></section>
       <section><h3>Make a chord</h3>
-      <img src="images/howto-full-2-make-chord.webp?v=56" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=57" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Hold <b>maj7</b> (1), tap <b>A</b> (2) = <b>Amaj7</b>.</p></section>
       <section><h3>Keyboard</h3>
-      <img src="images/howto-full-3-keyboard.webp?v=56" alt="Piano keyboard: each key plays a chord" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-3-keyboard.webp?v=57" alt="Piano keyboard: each key plays a chord" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a key (1) to play its chord.</p></section>
       <section><h3>Full Range</h3>
-      <img src="images/howto-full-4-fullrange.webp?v=56" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=57" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Gray keys are outside your key. Tap <b>Full Range</b> (1) to play them all.</p></section>
       <section><h3>Progressions</h3>
-      <img src="images/howto-full-5-progressions.webp?v=56" alt="Progression picker: Roman numerals between arrows, play and Next" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-5-progressions.webp?v=57" alt="Progression picker: Roman numerals between arrows, play and Next" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">&#8249; &#8250; (1) picks a progression, shown in Roman numerals. &#9654; (2) loops it, one chord per bar. <b>Next</b> (3) plays one chord at a time.</p></section>
       <p class="ht-end">Sound and FX live in the gear's <b>Advanced</b> settings.</p>
       <dl class="ht-legend"><dt>Simple</dt><dd>Simple on/off</dd><dt>&#9881;</dt><dd>Settings (Advanced: sound, FX)</dd><dt>?</dt><dd>This guide</dd></dl>
@@ -1694,7 +1715,7 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 56;
+var APP_VERSION = 57;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -5135,11 +5156,16 @@ function accSym(s) {
     if (!el || !el.offsetParent) return;
     var box = el.querySelector(".pg-txt"), t = el.querySelector(".pg-t");
     t.style.fontSize = "";
+    t.style.letterSpacing = "";
     var fs = parseFloat(getComputedStyle(t).fontSize) || 14, floor = state.simple ? 11 : 9;
-    while (fs > floor && (t.scrollWidth > box.clientWidth + 0.5 || t.offsetHeight > box.clientHeight + 0.5)) {
+    function over() { return t.scrollWidth > box.clientWidth + 0.5 || t.offsetHeight > box.clientHeight + 0.5; }
+    while (fs > floor && over()) {
       fs = Math.max(floor, fs - 0.5);
       t.style.fontSize = fs + "px";
     }
+    // v57: the longest name (Smooth, 5 chords) at the floor: tighten, then 8.5px rather than clip.
+    if (over()) t.style.letterSpacing = "-0.03em";
+    if (over() && !state.simple) t.style.fontSize = "8.5px";
   }
   function wireProg() {
     var el = document.getElementById("prog");
@@ -5219,6 +5245,7 @@ function accSym(s) {
       el.classList.toggle("stack", m === "stack");
       el.classList.toggle("nonum", m === "stack" || m === "plain");
     }
+    el.style.setProperty("--tx", "1");
     el.classList.remove("tight");
     for (var c0 = 0; c0 < chips.length; c0++) chips[c0].classList.remove("sq", "st1", "c2");
     var fs = parseFloat(getComputedStyle(el).getPropertyValue("--ss-fs")) || 16;
@@ -5276,6 +5303,7 @@ function accSym(s) {
     var rowH = sadChip ? sadChip.offsetHeight : 0, colW = 2 * (parseFloat(gc[2]) || 0);
     if (rowH && colW) el.style.setProperty("--ss-nb", Math.floor(Math.min(rowH, colW)) + "px");
     if (rowH) el.style.setProperty("--ss-nh", Math.floor(rowH) + "px");
+    el.style.removeProperty("--tx");
     placeBadges();
   }
   window.addEventListener("resize", function () { fitStrip(); });
