@@ -1470,14 +1470,19 @@ html.simple .ss .pg-badge { min-width: 19px; height: 19px; line-height: 17px; fo
 html.lay-phone-port:not(.simple) .ss .pg-badge { min-width: 14px; height: 14px; line-height: 12px; font-size: 10px; padding: 0 2px; border-radius: 7px; }
 html.lay-pad-land .ss .pg-badge, html.lay-pad-port .ss .pg-badge { min-width: 22px; height: 22px; line-height: 20px; font-size: 14px; border-radius: 11px; padding: 0 5px; }
 .ss .ss-chip.tmp { opacity: .9; }
-/* v60: full mode, phone landscape: Now, Key, ‹ name ›, Next, Full Range (portrait keeps the v59 top bar). */
-html.lay-phone-land:not(.simple) .key-bar { display: contents; }
-html.lay-phone-land:not(.simple) .now-col > .now-card { order: 1; }
-html.lay-phone-land:not(.simple) #keyChip { order: 2; }
-html.lay-phone-land:not(.simple) .now-col > #prog { order: 3; }
-html.lay-phone-land:not(.simple) #allKeys { order: 4; }
-html.lay-phone-land:not(.simple) .key-bar button { flex: 0 0 auto; }
+/* v60/v61: full mode on phones: Now, Key, ‹ name ›, Next, Full Range. */
+html.lay-phone-land:not(.simple) .key-bar, html.lay-phone-port:not(.simple) .key-bar { display: contents; }
+html.lay-phone-land:not(.simple) .now-col > .now-card, html.lay-phone-port:not(.simple) .now-col > .now-card { order: 1; }
+html.lay-phone-land:not(.simple) #keyChip, html.lay-phone-port:not(.simple) #keyChip { order: 2; }
+html.lay-phone-land:not(.simple) .now-col > #prog, html.lay-phone-port:not(.simple) .now-col > #prog { order: 3; }
+html.lay-phone-land:not(.simple) #allKeys, html.lay-phone-port:not(.simple) #allKeys { order: 4; }
+html.lay-phone-land:not(.simple) .key-bar button, html.lay-phone-port:not(.simple) .key-bar button { flex: 0 0 auto; }
 html.lay-phone-land:not(.simple) .now-col { gap: 3px; }
+/* v61 portrait: the row grows (the keyboard gives up the height) so Now stays at its v59 91 px. */
+html.lay-phone-port:not(.simple) .now-col { gap: 4px; }
+html.lay-phone-port:not(.simple) .now-col > .now-card { flex: 1 0 auto; min-height: 91px; }
+html.lay-phone-port:not(.simple) .now-col > .prog { flex-direction: column; align-items: center; gap: 4px; flex: 0 0 auto; width: 100%; max-width: none; }
+html.lay-phone-port:not(.simple) .now-col > .prog .pg-sel { width: 100%; flex: 0 0 auto; }
 /* v60: wide cycler (iPad, desktop): name over small numerals. */
 .prog.pg-wide .pg-t { display: flex; flex-direction: column; align-items: center; gap: 1px; }
 .prog.pg-wide .pg-nm { display: block; white-space: nowrap; }
@@ -1547,27 +1552,27 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=60" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=61" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Touch Chord turns one finger into a full chord. No music reading needed.</p>
       <p class="ht-uses">Learn chords &middot; Sing along &middot; Start a song.</p></section>
       <ol class="ht-steps">
       <li><section><h3>1. Play chord suggestion</h3>
-      <img src="images/howto-simple-1-play-suggestion.webp?v=60" alt="Key note and Major/Minor, and a chord chip" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-suggestion.webp?v=61" alt="Key note and Major/Minor, and a chord chip" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Swipe the note (1) to pick the key, and tap for <b>Major</b> or <b>Minor</b>. Then tap a chord (2) to play it. &#8249; &#8250; picks a song, and <b>Next</b> plays it one chord at a time.</p></section></li>
       <li><section><h3>2. Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=60" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=61" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play (1), hold <b>Sustain</b> (2): notes ring and fade. Let go to stop.</p></section></li>
       <li><section><h3>3. Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=60" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=61" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style (1). It changes the sound and the chords.</p></section></li>
       <li><section><h3>4. Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=60" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=61" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Hold <b>maj7</b> (1), tap <b>A</b> (2) = <b>Amaj7</b>.</p></section></li>
       <li><section><h3>5. Keyboard <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-3-keyboard.webp?v=60" alt="Piano keyboard: each key plays a chord" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-3-keyboard.webp?v=61" alt="Piano keyboard: each key plays a chord" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a key (1) to play its chord.</p></section></li>
       <li><section><h3>6. Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=60" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=61" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Gray keys are outside your key. Tap <b>Full Range</b> (1) to play them all.</p></section></li>
       </ol>
       <p class="ht-end">Sound and FX live in the gear's <b>Advanced</b> settings.</p>
@@ -1731,7 +1736,7 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 60;
+var APP_VERSION = 61;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -5143,9 +5148,9 @@ function accSym(s) {
       where = "kid";
       var kid = document.getElementById("kidKey");
       if (el.previousElementSibling !== kid || el.parentNode !== nowCol) nowCol.insertBefore(el, kid.nextSibling);
-    } else if (de.classList.contains("lay-phone-land")) {
-      // v60: Now, Key, ‹ name ›, Next, Full Range (CSS order; the key bar's two buttons join the column).
-      // Phone portrait keeps the v59 top-bar cycler (no room in its Now column).
+    } else if (de.classList.contains("lay-phone-land") || de.classList.contains("lay-phone-port")) {
+      // v60/v61: Now, Key, ‹ name ›, Next, Full Range (CSS order; the key bar's two buttons join the
+      // column). v61: phone portrait too; its row grows so Now keeps its v59 height.
       where = "now";
       if (el.parentNode !== nowCol || el.previousElementSibling !== nowCol.querySelector(".key-bar")) nowCol.insertBefore(el, nowCol.querySelector(".key-bar").nextSibling);
     } else {
