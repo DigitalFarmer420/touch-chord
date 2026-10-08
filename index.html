@@ -1417,8 +1417,29 @@ html:not(.simple).lay-phone-port .ss .ss-chip .rn { display: none; }
 .pg-btn { flex: 0 0 auto; width: var(--pg-bw, 40px); height: var(--pg-h, 40px); min-height: 0; margin: 0; padding: 0; border-radius: 12px;
   display: inline-flex; align-items: center; justify-content: center; color: var(--copper); touch-action: manipulation; }
 .pg-btn svg { width: var(--pg-ico, 18px); height: var(--pg-ico, 18px); display: block; }
-/* v59: Simple has no progression row: its left column is Now, key, Major / Minor, Sustain again (v54 sizes). */
-html.simple #prog { display: none !important; }
+/* v60: Simple has the picker again (same component as full mode): ‹ name › with Next under it,
+   below Major / Minor. Kid look: serif name, rounded like the key slider. No numerals. */
+html.simple .prog { flex-direction: column; gap: 4px; --pg-h: 36px; --pg-arrow: 26px; --pg-afs: 26px; --pg-fs: 16px; --pg-ico: 16px; }
+html.simple .pg-sel { border-radius: 14px; }
+html.simple .pg-t { font-family: Palatino, "Iowan Old Style", Georgia, serif; font-weight: 700; }
+html.simple .pg-btns { width: 100%; }
+html.simple .pg-btn { flex: 1 1 0; width: auto; height: var(--pg-nh, 28px); border-radius: 12px; }
+/* v60 phones: room for ‹ name › + Next: Sustain at its 56 px floor (landscape), a slimmer key
+   control and tighter gaps, so Now stays at or above its v58 size. */
+html.simple.lay-phone-land #app { grid-template-rows: 44px minmax(0, 1fr) 56px; }
+@media (max-width: 700px) { html.simple.lay-phone-land #app { grid-template-rows: 40px minmax(0, 1fr) 56px; } }
+html.simple.lay-phone-land .now-col, html.simple.lay-phone-port .now-col { gap: 5px; }
+html.simple.lay-phone-land .kid-key, html.simple.lay-phone-port .kid-key { --kk-h: 42px; --kk-fs: 28px; --kk-mh: 30px; --kk-mfs: 15px; gap: 4px; }
+html.simple.lay-phone-land .prog, html.simple.lay-phone-port .prog { --pg-h: 30px; --pg-arrow: 24px; --pg-afs: 24px; --pg-fs: 15px; --pg-nh: 26px; gap: 4px; }
+@media (max-width: 700px) { html.simple.lay-phone-land .prog { --pg-nh: 22px; } html.simple.lay-phone-land .kid-key { --kk-h: 40px; --kk-mh: 28px; } }
+@media (max-height: 700px) { html.simple.lay-phone-port #app { grid-template-rows: auto auto 194px minmax(0, 1fr); } }
+@media (max-height: 700px) { html.simple.lay-phone-port .kid-key { --kk-h: 40px; --kk-mh: 28px; } html.simple.lay-phone-port .prog { --pg-nh: 24px; } }
+html.simple.lay-pad-land .prog, html.simple.lay-pad-port .prog { --pg-h: 48px; --pg-arrow: 40px; --pg-afs: 32px; --pg-fs: 22px; --pg-ico: 22px; --pg-nh: 40px; gap: 6px; }
+/* v60 iPad: room for the picker with Now at or above v58: slimmer key control, Sustain 124 (land),
+   the Now/Sustain row 8 px taller (port). */
+html.simple.lay-pad-land .kid-key, html.simple.lay-pad-port .kid-key { --kk-h: 84px; --kk-fs: 50px; --kk-mh: 56px; gap: 8px; }
+html.simple.lay-pad-land #app { grid-template-rows: auto minmax(0, 1fr) 124px; }
+html.simple.lay-pad-port #app { grid-template-rows: auto auto 388px minmax(0, 1fr); }
 /* Full mode, phone landscape: cycler on top of the Now column (two lines: name, then Play + Next).
    The column never makes its row taller than the strip (keyboard unchanged); the Now card gives. */
 html.lay-phone-land:not(.simple) .now-col { gap: 4px; }
@@ -1449,6 +1470,34 @@ html.simple .ss .pg-badge { min-width: 19px; height: 19px; line-height: 17px; fo
 html.lay-phone-port:not(.simple) .ss .pg-badge { min-width: 14px; height: 14px; line-height: 12px; font-size: 10px; padding: 0 2px; border-radius: 7px; }
 html.lay-pad-land .ss .pg-badge, html.lay-pad-port .ss .pg-badge { min-width: 22px; height: 22px; line-height: 20px; font-size: 14px; border-radius: 11px; padding: 0 5px; }
 .ss .ss-chip.tmp { opacity: .9; }
+/* v60: full mode, phone landscape: Now, Key, ‹ name ›, Next, Full Range (portrait keeps the v59 top bar). */
+html.lay-phone-land:not(.simple) .key-bar { display: contents; }
+html.lay-phone-land:not(.simple) .now-col > .now-card { order: 1; }
+html.lay-phone-land:not(.simple) #keyChip { order: 2; }
+html.lay-phone-land:not(.simple) .now-col > #prog { order: 3; }
+html.lay-phone-land:not(.simple) #allKeys { order: 4; }
+html.lay-phone-land:not(.simple) .key-bar button { flex: 0 0 auto; }
+html.lay-phone-land:not(.simple) .now-col { gap: 3px; }
+/* v60: wide cycler (iPad, desktop): name over small numerals. */
+.prog.pg-wide .pg-t { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.prog.pg-wide .pg-nm { display: block; white-space: nowrap; }
+.prog.pg-wide .pg-num { display: block; max-width: 100%; font-size: .68em; font-weight: 700; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: .01em; }
+/* v60: Config toggle. */
+.config-menu .cfg-toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; white-space: nowrap; }
+.cfg-toggle .tgl { position: relative; flex: 0 0 auto; width: 34px; height: 20px; border-radius: 10px; background: #3a332b; border: 1px solid var(--line); transition: background .15s; }
+.cfg-toggle .tgl::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #cfc4b2; transition: transform .15s; }
+.cfg-toggle.on .tgl { background: var(--copper); border-color: transparent; }
+.cfg-toggle.on .tgl::after { transform: translateX(14px); background: #2a1c0c; }
+/* v60: Simple Sustain in portrait gets a bigger label and a pedal icon (box unchanged). */
+html.simple.lay-phone-port #sustainBtn, html.simple.lay-pad-port #sustainBtn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+html.simple.lay-phone-port #sustainBtn { font-size: calc(24px * var(--tx, 1)); }
+html.simple.lay-pad-port #sustainBtn { font-size: calc(34px * var(--tx, 1)); }
+html.simple.lay-phone-port #sustainBtn::before, html.simple.lay-pad-port #sustainBtn::before { content: ""; width: 1.9em; height: 1.9em; background: currentColor; opacity: .85;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 18V6l10-2v12'/%3E%3Ccircle cx='6.5' cy='18' r='2.5'/%3E%3Ccircle cx='16.5' cy='16' r='2.5'/%3E%3Cpath d='M3 21.5h18'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 18V6l10-2v12'/%3E%3Ccircle cx='6.5' cy='18' r='2.5'/%3E%3Ccircle cx='16.5' cy='16' r='2.5'/%3E%3Cpath d='M3 21.5h18'/%3E%3C/svg%3E") center / contain no-repeat; }
+/* v60: Simple Now on iPad / desktop: bigger chord name and notes (the fit guard still shrinks long names). */
+html.simple.lay-pad-land #app { --sym: 150px; }
+html.simple.lay-pad-land #tones { font-size: calc(30px * var(--tx, 1)); }
 /* v57: no Roman numerals on strip chips in full mode either (the note row keeps its degrees). */
 html:not(.simple) .ss .ss-chip .rn { display: none; }
 /* v57: the phone-landscape cycler name is already at its 9-10px floor: not scaled. */
@@ -1487,6 +1536,7 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
     <div class="config" id="configWrap">
       <button id="configBtn" type="button" class="top-btn config-btn icon-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="configMenu" aria-label="Config" title="Config"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
       <div id="configMenu" class="config-menu" role="menu" aria-label="Configuration" hidden>
+        <button id="progNumsBtn" type="button" role="menuitemcheckbox" aria-checked="false" class="cfg-toggle"><span>Progression numbers</span><span class="tgl" aria-hidden="true"></span></button>
         <button id="factoryReset" type="button" role="menuitem" class="danger">Factory reset</button>
         <div id="appVersion" class="app-version" aria-live="off"></div>
       </div>
@@ -1497,27 +1547,27 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=59" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=60" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Touch Chord turns one finger into a full chord. No music reading needed.</p>
       <p class="ht-uses">Learn chords &middot; Sing along &middot; Start a song.</p></section>
       <ol class="ht-steps">
       <li><section><h3>1. Play chord suggestion</h3>
-      <img src="images/howto-simple-1-play-suggestion.webp?v=59" alt="Key note, song name with play button, and a chord chip" width="1000" height="462" loading="lazy" decoding="async">
-      <p class="cap">Swipe the note (1) to pick the key, and tap for <b>Major</b> or <b>Minor</b>. Then tap a chord (2) to play it. In full mode, &#8249; &#8250; picks a song and <b>Next</b> plays it one chord at a time.</p></section></li>
+      <img src="images/howto-simple-1-play-suggestion.webp?v=60" alt="Key note and Major/Minor, and a chord chip" width="1000" height="462" loading="lazy" decoding="async">
+      <p class="cap">Swipe the note (1) to pick the key, and tap for <b>Major</b> or <b>Minor</b>. Then tap a chord (2) to play it. &#8249; &#8250; picks a song, and <b>Next</b> plays it one chord at a time.</p></section></li>
       <li><section><h3>2. Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=59" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=60" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play (1), hold <b>Sustain</b> (2): notes ring and fade. Let go to stop.</p></section></li>
       <li><section><h3>3. Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=59" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=60" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style (1). It changes the sound and the chords.</p></section></li>
       <li><section><h3>4. Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=59" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=60" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Hold <b>maj7</b> (1), tap <b>A</b> (2) = <b>Amaj7</b>.</p></section></li>
       <li><section><h3>5. Keyboard <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-3-keyboard.webp?v=59" alt="Piano keyboard: each key plays a chord" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-3-keyboard.webp?v=60" alt="Piano keyboard: each key plays a chord" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a key (1) to play its chord.</p></section></li>
       <li><section><h3>6. Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=59" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=60" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Gray keys are outside your key. Tap <b>Full Range</b> (1) to play them all.</p></section></li>
       </ol>
       <p class="ht-end">Sound and FX live in the gear's <b>Advanced</b> settings.</p>
@@ -1567,12 +1617,11 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
     <button type="button" data-style="pop" class="on">Pop</button>
     <button type="button" data-style="jazz">Jazz</button>
     <button type="button" data-style="rnb">R&amp;B</button>
-    <button type="button" data-style="romantic">Romantic</button>
     <button type="button" data-style="ballad">Ballad</button>
     <button type="button" data-style="reggae">Reggae</button>
     <button type="button" data-style="funk">Funk</button>
-    <button type="button" data-style="yoga">Yoga</button>
     <button type="button" data-style="yogaDeep">Yoga Deep</button>
+    <button type="button" data-style="country">Country</button>
   </div>
 
   <div class="next-card">
@@ -1682,7 +1731,7 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 59;
+var APP_VERSION = 60;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -1945,7 +1994,7 @@ function accSym(s) {
       return rootName + "6";
     }
     if (type === "minor") return rootName + "m";
-    if (type === "dim") return rootName + "dim";
+    if (type === "dim") return rootName + "\u00b0";   // v60: B\u00b0, as on the chip
     if (type === "major") return rootName;
     throw new Error("unknown chord type " + type);
   }
@@ -4349,9 +4398,6 @@ function accSym(s) {
     rnb: [[1, "maj9", "happy"], [4, "maj9", "happy"], [5, "13", "happy"],
           [2, "m9", "sad"], [3, "m7", "sad"], [6, "m9", "sad"],
           [5, "9sus", "tension"], [7, "maj7", "bright", true, true]],
-    romantic: [[1, "maj7", "happy"], [4, "maj", "happy"], [5, "7", "happy"],
-               [6, "min", "sad"], [3, "min", "sad"], [2, "min", "sad"], [4, "min", "sad", false, true],
-               [5, "7sus4", "tension"], [6, "maj", "bright", true, true]],
     ballad: [[1, "add9", "happy"], [4, "add9", "happy"], [5, "maj", "happy"],
              [6, "m7", "sad"], [2, "m7", "sad"], [3, "min", "sad"],
              [4, "overV", "tension"], [7, "maj", "bright", true, true]],
@@ -4361,13 +4407,14 @@ function accSym(s) {
     funk: [[1, "9", "happy"], [4, "9", "happy"], [5, "9", "happy"],
            [2, "m7", "sad"], [6, "m7", "sad"],
            [5, "7#9", "tension"], [7, "9", "bright", true, true]],
-    yoga: [[1, "sus2", "happy"], [4, "maj7", "happy"], [5, "sus2", "happy"],
-           [6, "m7", "sad"], [2, "m7", "sad"],
-           [1, "sus4", "tension"], [7, "add9", "bright", true, true]],
     // Yoga Deep plays low and warm: open sus2 shapes keep the low register clear.
     yogaDeep: [[1, "sus2", "happy"], [4, "sus2", "happy"], [5, "sus2", "happy"],
                [6, "m7", "sad"], [2, "m7", "sad"],
-               [1, "sus4", "tension"], [7, "sus2", "bright", true, true]]
+               [1, "sus4", "tension"], [7, "sus2", "bright", true, true]],
+    // v60 Country: I IV V7, ii iii vi (iii plain), green borrowed II7 and bVII.
+    country: [[1, "maj", "happy"], [4, "maj", "happy"], [5, "7", "happy"],
+              [6, "min", "sad"], [2, "min", "sad"], [3, "min", "sad"],
+              [2, "7", "bright", false, true], [7, "maj", "bright", true, true]]
   };
   var STRIP_SETS_MINOR = {
     // Pop: Vsus4 and V share the V column in the tension row, so V alone.
@@ -4380,9 +4427,6 @@ function accSym(s) {
     rnb: [[3, "maj9", "happy"], [6, "maj9", "happy"], [7, "13", "happy"],
           [1, "m9", "sad"], [4, "m9", "sad"], [5, "m7", "sad"],
           [2, "m7b5", "tension"], [5, "7#9", "tension"], [4, "9", "bright", false, true]],
-    romantic: [[3, "maj7", "happy"], [6, "maj", "happy"], [7, "7", "happy"],
-               [1, "min", "sad"], [5, "min", "sad"], [4, "min", "sad"],
-               [5, "7", "tension"], [2, "maj", "bright", true, true], [1, "maj", "bright", false, true]],
     ballad: [[3, "add9", "happy"], [6, "add9", "happy"], [7, "maj", "happy"],
              [1, "m7", "sad"], [4, "m7", "sad"], [5, "min", "sad"],
              [4, "moverV", "tension"], [5, "maj", "tension"]],
@@ -4392,12 +4436,13 @@ function accSym(s) {
     funk: [[3, "maj7", "happy"], [6, "maj7", "happy"], [7, "9", "happy"],
            [1, "m7", "sad"], [4, "m7", "sad"],
            [5, "7#9", "tension"], [4, "9", "bright", false, true]],
-    yoga: [[3, "sus2", "happy"], [6, "maj7", "happy"], [7, "sus2", "happy"],
-           [1, "m7", "sad"], [4, "m7", "sad"],
-           [1, "sus4", "tension"], [5, "maj", "tension"]],
     yogaDeep: [[3, "sus2", "happy"], [6, "sus2", "happy"], [7, "sus2", "happy"],
                [1, "m7", "sad"], [4, "m7", "sad"],
-               [1, "sus4", "tension"], [5, "maj", "tension"]]
+               [1, "sus4", "tension"], [5, "maj", "tension"]],
+    // v60 Country minor: bIII bVI bVII, i iv v, V7 as the tension chord, Dorian IV green borrowed.
+    country: [[3, "maj", "happy"], [6, "maj", "happy"], [7, "maj", "happy"],
+              [1, "min", "sad"], [4, "min", "sad"], [5, "min", "sad"],
+              [5, "7", "tension"], [4, "maj", "bright", false, true]]
   };
   function prettyAcc(name) { return accSym(name); }
   function stripLabel(item) {
@@ -4650,50 +4695,55 @@ function accSym(s) {
   var PROG_BPM = 80;
   var PROG_BAR = 60 / PROG_BPM * 4;   // 3 s
   function P(name, s) { return { name: name, steps: s.split("|") }; }
+  // v60: labels are Style + feel (phones show the feel only). Steps: "degree quality [xBars]".
   var PROGRESSIONS = {
     pop: {
-      major: [P("Pop Hit", "1 maj|5 maj|6 min|4 maj"), P("Sad Pop", "6 min|4 maj|1 maj|5 maj"), P("Fifties", "1 maj|6 min|4 maj|5 maj")],
-      minor: [P("Pop Hit", "1 min|5 min|6 maj|4 min"), P("Sad Pop", "6 maj|4 min|1 min|5 min"), P("Fifties", "1 min|6 maj|4 min|5 maj")]
+      major: [P("Pop Four-Chord", "1 maj|5 maj|6 min|4 maj"), P("Pop Minor Start", "6 min|4 maj|1 maj|5 maj"), P("Pop Turnaround", "1 maj|6 min|4 maj|5 maj")],
+      minor: [P("Pop Four-Chord", "1 min|5 min|6 maj|4 min"), P("Pop Minor Start", "6 maj|4 min|1 min|5 min"), P("Pop Turnaround", "1 min|6 maj|4 min|5 maj")]
     },
     jazz: {
-      major: [P("Jazz Home", "2 m7|5 7|1 maj7"), P("Turnaround", "1 maj7|6 m7|2 m7|5 7"),
-              P("Blues", "1 7|4 7|1 7|1 7|4 7|4 7|1 7|6 7|2 m7|5 7|1 7|5 7"),
-              P("Minor Jazz", "2 m7b5|5 7b9|1 m7"), P("Backdoor", "4 m7|b7 7|1 maj7"), P("So What", "1 m9 x8|b2 m9 x8")],
-      // Minor home: Jazz Home already is the minor ii-V-i, so Minor Jazz is skipped here.
-      minor: [P("Jazz Home", "2 m7b5|5 7b9|1 m7"), P("Turnaround", "1 m7|6 maj7|2 m7b5|5 7b9"),
-              P("Blues", "1 m7|4 m7|1 m7|1 m7|4 m7|4 m7|1 m7|1 m7|6 7|5 7b9|1 m7|5 7b9"),
-              P("Backdoor", "4 m7|7 7|1 m7"), P("So What", "1 m9 x8|b2 m9 x8")]
+      major: [P("Jazz ii\u2013V\u2013I", "2 m7|5 7|1 maj7"), P("Jazz Turnaround", "1 maj7|6 m7|2 m7|5 7"),
+              P("Jazz Blues", "1 7|4 7|1 7|1 7|4 7|4 7|1 7|6 7|2 m7|5 7|1 7|5 7"),
+              P("Jazz Minor Blues", "1 m7|1 m7|1 m7|1 m7|4 m7|4 m7|1 m7|1 m7|b6 7|5 7|1 m7|5 7"),
+              // 8-bar A section, two chords in a bar where shown: I vi | ii V | iii VI7 | ii V | I I7 | IV iv | I V | I
+              P("Jazz Rhythm Changes", "1 maj7 x0.5|6 m7 x0.5|2 m7 x0.5|5 7 x0.5|3 m7 x0.5|6 7 x0.5|2 m7 x0.5|5 7 x0.5|1 maj7 x0.5|1 7 x0.5|4 maj7 x0.5|4 m7 x0.5|1 maj7 x0.5|5 7 x0.5|1 maj7"),
+              P("Jazz Minor ii\u2013V\u2013i", "2 m7b5|5 7b9|1 m7"), P("Jazz Backdoor", "4 m7|b7 7|1 maj7"), P("Jazz Modal Vamp", "1 m9 x8|b2 m9 x8")],
+      // Minor home: the major ii-V-I, the major 12-bar Blues and Rhythm Changes are skipped
+      // (the minor ii-V-i, Minor Blues and the rest cover them).
+      minor: [P("Jazz Turnaround", "1 m7|6 maj7|2 m7b5|5 7b9"),
+              P("Jazz Minor Blues", "1 m7|1 m7|1 m7|1 m7|4 m7|4 m7|1 m7|1 m7|6 7|5 7|1 m7|5 7"),
+              P("Jazz Minor ii\u2013V\u2013i", "2 m7b5|5 7b9|1 m7"), P("Jazz Backdoor", "4 m7|7 7|1 m7"), P("Jazz Modal Vamp", "1 m9 x8|b2 m9 x8")]
     },
     rnb: {
-      major: [P("Smooth", "1 maj9|3 m7|6 m9|2 m9|5 13"), P("Slow Jam", "4 maj7|3 m7|2 m7|1 maj7"), P("Neo Soul", "2 m9|5 13|1 maj9|6 m9")],
-      minor: [P("Smooth", "1 m9|3 maj9|6 maj9|2 m7b5|5 7#9"), P("Slow Jam", "4 m9|3 maj9|2 m7b5|1 m9"), P("Neo Soul", "2 m7b5|5 7#9|1 m9|6 maj9")]
-    },
-    romantic: {
-      major: [P("Canon", "1 maj|5 maj|6 min|3 min|4 maj|1 maj|4 maj|5 maj"), P("Love Song", "1 maj|3 min|4 maj|4 min"), P("Dreamy", "1 maj|b6 maj|b7 maj|1 maj")],
-      minor: [P("Canon", "1 min|5 min|6 maj|3 maj|4 min|1 min|4 min|5 min"), P("Love Song", "1 min|3 maj|4 maj|4 min"), P("Dreamy", "1 min|6 maj|7 maj|1 min")]
+      major: [P("R&B Classic", "1 maj7|6 m7|4 maj7|5 7"), P("R&B ii\u2013V\u2013I", "2 m9|5 13|1 maj9|6 m9"), P("R&B Smooth", "1 maj9|3 m7|6 m9|2 m9|5 13"), P("R&B Slow Jam", "4 maj7|3 m7|2 m7|1 maj7")],
+      minor: [P("R&B Classic", "1 m7|6 maj7|4 m7|5 7"), P("R&B ii\u2013V\u2013I", "2 m7b5|5 7#9|1 m9|6 maj9"), P("R&B Smooth", "1 m9|3 maj9|6 maj9|2 m7b5|5 7#9"), P("R&B Slow Jam", "4 m9|3 maj9|2 m7b5|1 m9")]
     },
     ballad: {
-      major: [P("Ballad", "1 maj|6 min|4 maj|5 maj"), P("Hymn", "1 maj|4 maj|1 over3|5 maj"), P("Big Ending", "4 maj|4 overV|3 min|6 min|2 min|5 maj|1 maj")],
-      minor: [P("Ballad", "1 min|6 maj|4 min|5 maj"), P("Hymn", "1 min|4 min|1 mover3|5 maj"), P("Big Ending", "4 min|4 moverV|3 maj|6 maj|2 dim|5 maj|1 min")]
+      major: [P("Ballad Classic", "1 maj|6 min|4 maj|5 maj"), P("Ballad Hymn", "1 maj|4 maj|1 over3|5 maj"), P("Ballad Big Finish", "4 maj|4 overV|3 min|6 min|2 min|5 maj|1 maj")],
+      minor: [P("Ballad Classic", "1 min|6 maj|4 min|5 maj"), P("Ballad Hymn", "1 min|4 min|1 mover3|5 maj"), P("Ballad Big Finish", "4 min|4 moverV|3 maj|6 maj|2 dim|5 maj|1 min")]
     },
     reggae: {
-      major: [P("Island", "1 maj|4 maj|5 maj|4 maj"), P("One Drop", "1 maj|b7 maj|4 maj|1 maj"), P("Minor Riddim", "1 min|4 min|5 min|4 min")],
-      // Minor home: Island becomes i-iv-v-iv, so Minor Riddim takes its minor-key form i-bVII.
-      minor: [P("Island", "1 min|4 min|5 min|4 min"), P("One Drop", "1 min|7 maj|4 min|1 min"), P("Minor Riddim", "1 min|7 maj")]
+      major: [P("Reggae Island Skank", "1 maj|4 maj|5 maj|4 maj"), P("Reggae One Drop", "1 maj|b7 maj|4 maj|1 maj"), P("Reggae Minor Riddim", "1 min|4 min|5 min|4 min")],
+      // Minor home: Island Skank becomes i-iv-v-iv, so Minor Riddim takes its minor-key form i-bVII.
+      minor: [P("Reggae Island Skank", "1 min|4 min|5 min|4 min"), P("Reggae One Drop", "1 min|7 maj|4 min|1 min"), P("Reggae Minor Riddim", "1 min|7 maj")]
     },
     funk: {
-      major: [P("Groove", "1 7|4 7"), P("Minor Funk", "1 m7|4 7"), P("Breakdown", "1 9|b7 9|4 9|1 9")],
-      minor: [P("Groove", "1 m7|4 m7"), P("Minor Funk", "1 m7|4 7"), P("Breakdown", "1 m9|7 9|4 9|1 m9")]
-    },
-    yoga: {
-      major: [P("Calm", "1 maj|4 maj"), P("Float", "1 sus2|4 maj7|6 m7|4 maj"), P("Sunrise", "1 maj|b7 add9|4 maj|1 maj")],
-      minor: [P("Calm", "1 min|4 min"), P("Float", "1 sus2|4 m7|6 maj7|4 min"), P("Sunrise", "1 min|7 add9|4 min|1 min")]
+      major: [P("Funk Vamp", "1 7|4 7"), P("Funk Minor Vamp", "1 m7|4 7"), P("Funk Breakdown", "1 9|b7 9|4 9|1 9")],
+      minor: [P("Funk Vamp", "1 m7|4 m7"), P("Funk Minor Vamp", "1 m7|4 7"), P("Funk Breakdown", "1 m9|7 9|4 9|1 m9")]
     },
     yogaDeep: {
-      major: [P("Deep", "1 sus2"), P("Open", "1 sus2|b7 sus2|4 sus2"), P("Still", "1 m9|b6 maj7|b7 6|1 m9")],
-      minor: [P("Deep", "1 sus2"), P("Open", "1 sus2|7 sus2|4 sus2"), P("Still", "1 m9|6 maj7|7 6|1 m9")]
+      major: [P("Deep Drone", "1 sus2"), P("Deep Open", "1 sus2|b7 sus2|4 sus2"), P("Deep Still", "1 m9|b6 maj7|b7 6|1 m9")],
+      minor: [P("Deep Drone", "1 sus2"), P("Deep Open", "1 sus2|7 sus2|4 sus2"), P("Deep Still", "1 m9|6 maj7|7 6|1 m9")]
+    },
+    // v60 Country. The strip's V chip is V7, so V steps use it (one G7 chip, no extra dashed G).
+    country: {
+      major: [P("Country Three-Chord", "1 maj|1 maj|4 maj|1 maj|5 7|5 7|1 maj|1 maj"), P("Country Two-Step", "1 maj|4 maj|1 maj|5 7"),
+              P("Country Swing", "1 maj|1 maj|2 7|2 7|5 7|5 7|1 maj|1 maj"), P("Country Modern", "1 maj|5 7|6 min|4 maj")],
+      minor: [P("Country Outlaw", "1 min|7 maj|6 maj|7 maj"), P("Country Minor Three-Chord", "1 min|4 min|1 min|5 min"), P("Country Holler", "1 min|3 maj|7 maj|4 min")]
     }
   };
+  // Phones: the feel only ("Jazz Turnaround" -> "Turnaround", "Deep Drone" -> "Drone").
+  function progFeel(name) { return String(name || "").replace(/^(Pop|Jazz|R&B|Ballad|Reggae|Funk|Deep|Country)\s+/, ""); }
   var PROG_SUFFIX = { maj: "", min: "", "7": "7", maj7: "maj7", m7: "7", m7b5: "\u00f87", sus4: "sus4", sus2: "sus2",
     add9: "add9", madd9: "add9", "9": "9", maj9: "maj9", m9: "9", "9sus": "9sus", "13": "13", "7b9": "7\u266d9",
     "7#9": "7\u266f9", "7sus4": "7sus4", "6": "6", dim: "\u00b0", overV: "/V", moverV: "/V", over3: "/3", mover3: "/3" };
@@ -4704,7 +4754,7 @@ function accSym(s) {
   function progParse(str) {
     var t = str.trim().split(/\s+/);
     var low = t[0].charAt(0) === "b";
-    var bars = t[2] ? parseInt(t[2].slice(1), 10) : 1;
+    var bars = t[2] ? parseFloat(t[2].slice(1)) : 1;
     return { deg: parseInt(low ? t[0].slice(1) : t[0], 10), q: t[1], low: low, bars: bars };
   }
   // One step -> a strip item, its numeral and its strip place (same rules as stripModel chips).
@@ -4760,7 +4810,9 @@ function accSym(s) {
     if (txt.length > 30) {
       var uniq = [];
       steps.forEach(function (s) { if (uniq.indexOf(s.roman) < 0) uniq.push(s.roman); });
-      txt = steps.length + " bars: " + uniq.join("\u2013");
+      var nb = 0;
+      steps.forEach(function (s) { nb += s.bars; });
+      txt = Math.round(nb) + " bars: " + uniq.join("\u2013");
     }
     return txt;
   }
@@ -4809,8 +4861,7 @@ function accSym(s) {
     Array.prototype.forEach.call(el.querySelectorAll(".pg-badge, .ss-chip.tmp"), function (n) { n.parentNode.removeChild(n); });
     prog.targets = []; prog.badges = []; prog.tmp = 0; prog.unplaced = 0;
     var p = prog.list[prog.idx];
-    // v59: Simple has no progression row, so no progression chips there.
-    prog.steps = p && !state.simple ? progSteps(model.key, p) : [];
+    prog.steps = p ? progSteps(model.key, p) : [];
     var ROWN = { bright: "b", happy: "h", scale: "n", sad: "s", tension: "t" };
     var PARTNER = { bright: "happy", happy: "bright", sad: "tension", tension: "sad" };
     var chipEls = Array.prototype.slice.call(el.querySelectorAll(".ss-chip"));
@@ -4855,7 +4906,21 @@ function accSym(s) {
     });
     el.classList.toggle("gutl", occ.some(function (o) { return o.hc === 0; }));
     el.classList.toggle("gutr", occ.some(function (o) { return o.hc === 14; }));
-    // v59: no order badges (the strip was too crowded); Next lights the current chip.
+    // v60: order badges only with Config > Progression numbers on (both modes; off by default).
+    if (state.progNums) {
+      groups.forEach(function (g) {
+        var t = g.el, bd = document.createElement("span");
+        var nums = g.steps.map(function (i) { return i + 1; });
+        bd.className = "pg-badge" + (t.classList.contains("ss-note") ? " on-note" : "") + (nums.length > 1 ? " multi" : "");
+        bd.setAttribute("role", "button");
+        bd.setAttribute("aria-label", "Progression step " + nums.join(", "));
+        bd.title = "Step " + nums.join(", ");
+        bd.addEventListener("pointerdown", function (e) { e.preventDefault(); e.stopPropagation(); progBadge(g.steps); });
+        bd.addEventListener("click", function (e) { e.stopPropagation(); });
+        el.appendChild(bd);
+        prog.badges.push({ el: bd, target: t, steps: g.steps });
+      });
+    }
     paintProgActive();
   }
   // v56: badge text. Up to 2 steps: all of them ("1\u00b76"). More (Blues C7 = 1, 3, 4, 7, 11): the
@@ -5079,8 +5144,10 @@ function accSym(s) {
       var kid = document.getElementById("kidKey");
       if (el.previousElementSibling !== kid || el.parentNode !== nowCol) nowCol.insertBefore(el, kid.nextSibling);
     } else if (de.classList.contains("lay-phone-land")) {
+      // v60: Now, Key, ‹ name ›, Next, Full Range (CSS order; the key bar's two buttons join the column).
+      // Phone portrait keeps the v59 top-bar cycler (no room in its Now column).
       where = "now";
-      if (nowCol.firstElementChild !== el) nowCol.insertBefore(el, nowCol.firstElementChild);
+      if (el.parentNode !== nowCol || el.previousElementSibling !== nowCol.querySelector(".key-bar")) nowCol.insertBefore(el, nowCol.querySelector(".key-bar").nextSibling);
     } else {
       where = "top";
       var brand = document.querySelector(".topbar .brand");
@@ -5097,7 +5164,7 @@ function accSym(s) {
     var txt = el.querySelector(".pg-t");
     var name = p ? p.name : "";
     var num = p ? progNumerals(prog.steps.length ? prog.steps : progSteps(prog.key || { pc: 0, mode: "major" }, p)) : "";
-    txt.textContent = state.simple ? name : num;
+    prog.label = { name: name, feel: progFeel(name), num: num };
     var sel = el.querySelector(".pg-sel");
     sel.setAttribute("aria-valuenow", String(prog.idx));
     sel.setAttribute("aria-valuemax", String(Math.max(0, prog.list.length - 1)));
@@ -5114,6 +5181,35 @@ function accSym(s) {
     var box = el.querySelector(".pg-txt"), t = el.querySelector(".pg-t");
     t.style.fontSize = "";
     t.style.letterSpacing = "";
+    t.style.whiteSpace = "";
+    // v60: a wide name area (iPad, desktop) shows "Jazz Turnaround" with small numerals under it;
+    // a narrow one (phones) shows the feel only, on one line when it fits. Width-based, no UA checks.
+    var L = prog.label || { name: "", feel: "", num: "" };
+    var wide = box.clientWidth >= 180;
+    el.classList.toggle("pg-wide", wide);
+    if (wide) {
+      t.innerHTML = "";
+      var a = document.createElement("span"); a.className = "pg-nm"; a.textContent = L.name;
+      t.appendChild(a);
+      // Simple (for kids): the name only, no numerals.
+      if (!state.simple) { var b = document.createElement("span"); b.className = "pg-num"; b.textContent = L.num; t.appendChild(b); }
+    } else {
+      t.textContent = L.feel;
+      t.style.whiteSpace = "nowrap";
+      var fs1 = parseFloat(getComputedStyle(t).fontSize) || 14;
+      while (fs1 > 9 && t.scrollWidth > box.clientWidth + 0.5) { fs1 = Math.max(9, fs1 - 0.5); t.style.fontSize = fs1 + "px"; }
+      if (t.scrollWidth <= box.clientWidth + 0.5) return;
+      // One word (e.g. "Turnaround") must not break mid-word: tighten, then an 8.5 px floor.
+      if (L.feel.indexOf(" ") < 0) {
+        var lsx = [-0.02, -0.04, -0.06];
+        for (var li = 0; li < lsx.length; li++) { t.style.letterSpacing = lsx[li] + "em"; if (t.scrollWidth <= box.clientWidth + 0.5) return; }
+        t.style.fontSize = "8.5px";
+        if (t.scrollWidth <= box.clientWidth + 0.5) return;
+        t.style.letterSpacing = "";
+      }
+      t.style.whiteSpace = "";
+      t.style.fontSize = "";
+    }
     var fs = parseFloat(getComputedStyle(t).fontSize) || 14, floor = state.simple ? 11 : 9;
     function over() { return t.scrollWidth > box.clientWidth + 0.5 || t.offsetHeight > box.clientHeight + 0.5; }
     while (fs > floor && over()) {
@@ -5173,6 +5269,7 @@ function accSym(s) {
       else if (e.key === " " || e.key === "Enter") { e.preventDefault(); unlock(); progNext(); }
     });
     window.addEventListener("resize", function () { setTimeout(fitProgName, 80); });
+    if (typeof ResizeObserver === "function") new ResizeObserver(function () { fitProgName(); }).observe(el.querySelector(".pg-txt"));
     placeProg();
     paintProg();
   }
@@ -5854,12 +5951,12 @@ function accSym(s) {
     pop:       { sound: "piano",   bass: true,  voicing: "close", cutoff: 0.72, reverb: 0.14, delay: 0.10, bpm: 112, warmth: 15 },
     jazz:      { sound: "epiano",  bass: true,  voicing: "drop",  cutoff: 0.48, reverb: 0.28, delay: 0.18, bpm: 120, warmth: 70 },
     rnb:       { sound: "epiano",  bass: true,  voicing: "close", cutoff: 0.55, reverb: 0.34, delay: 0.22, bpm: 78,  warmth: 45 },
-    romantic:  { sound: "strings", bass: true,  voicing: "low",   cutoff: 0.50, reverb: 0.44, delay: 0.12, bpm: 66,  warmth: 40 },
     ballad:    { sound: "strings", bass: true,  voicing: "close", cutoff: 0.44, reverb: 0.40, delay: 0.16, bpm: 68,  warmth: 30 },
     reggae:    { sound: "warm",    bass: true,  voicing: "low",   cutoff: 0.58, reverb: 0.24, delay: 0.20, bpm: 76,  warmth: 40 },
     funk:      { sound: "reed",    bass: true,  voicing: "bright", cutoff: 0.78, reverb: 0.10, delay: 0.08, bpm: 108, warmth: 22 },
-    yoga:      { sound: "bell",    bass: false, voicing: "close", cutoff: 0.40, reverb: 0.50, delay: 0.02, bpm: 60,  warmth: 20, trim: 2.0 },
-    yogaDeep:  { sound: "warm",    bass: false, voicing: "low",   cutoff: 0.32, reverb: 0.58, delay: 0.02, bpm: 52,  warmth: 30, trim: 5.5 }
+    yogaDeep:  { sound: "warm",    bass: false, voicing: "low",   cutoff: 0.32, reverb: 0.58, delay: 0.02, bpm: 52,  warmth: 30, trim: 5.5 },
+    // v60 Country: bright piano (the closest existing voice to a picked guitar), bass on, 100 BPM.
+    country:   { sound: "piano",   bass: true,  voicing: "bright", cutoff: 0.82, reverb: 0.12, delay: 0.06, bpm: 100, warmth: 12 }
   };
 
   // Yoga Deep: Dim/Sus4 type pads are unavailable (stillness palette).
@@ -5931,7 +6028,7 @@ function accSym(s) {
   var STORE_VERSION = 1;
   var LAYOUTS = ["octave", "piano", "fourths"];
   var SOUNDS = ["piano", "epiano", "strings", "warm", "bell", "reed"];
-  var STYLES = ["pop", "jazz", "rnb", "romantic", "ballad", "reggae", "funk", "yoga", "yogaDeep"];
+  var STYLES = ["pop", "jazz", "rnb", "ballad", "reggae", "funk", "yogaDeep", "country"];   // v60: Romantic and Yoga removed (saved ones fall back to Pop)
   var SCALES = ["major", "minor"];
 
   function factoryDefaults() {
@@ -5954,6 +6051,7 @@ function accSym(s) {
       warmth: WARMTH_DEFAULT,
       simple: false,
       allKeys: false,
+      progNums: false,
       lockKey: null
     };
   }
@@ -5995,6 +6093,7 @@ function accSym(s) {
       warmth: num(raw.warmth, 0, 100, d.warmth, true),
       simple: bool(raw.simple, d.simple),
       allKeys: bool(raw.allKeys, d.allKeys),
+      progNums: bool(raw.progNums, d.progNums),
       lockKey: (raw.lockKey && typeof raw.lockKey === "object" && raw.lockKey.pc === (raw.lockKey.pc | 0) && raw.lockKey.pc >= 0 && raw.lockKey.pc < 12 && SCALES.indexOf(raw.lockKey.mode) >= 0)
         ? { pc: raw.lockKey.pc, mode: raw.lockKey.mode } : null
       // Legacy `latch` key (cce4d86) is ignored; Sustain is never persisted.
@@ -6045,6 +6144,7 @@ function accSym(s) {
       warmth: clampWarmth(document.getElementById("warmth").value),
       simple: !!state.simple,
       allKeys: !!state.allKeys,
+      progNums: !!state.progNums,
       lockKey: lockKey ? { pc: lockKey.pc, mode: lockKey.mode } : null
     };
   }
@@ -6084,6 +6184,8 @@ function accSym(s) {
 
   // Push a settings object into state, controls and audio. Caller re-renders.
   function applySettings(s) {
+    state.progNums = !!s.progNums;
+    paintProgNumsBtn();
     state.layout = s.layout;
     state.sound = s.sound;
     state.bass = s.bass;
@@ -6146,6 +6248,10 @@ function accSym(s) {
     toastTimer = setTimeout(function () { el.classList.remove("show"); }, 1600);
   }
 
+  function paintProgNumsBtn() {
+    var b = document.getElementById("progNumsBtn");
+    if (b) { b.setAttribute("aria-checked", state.progNums ? "true" : "false"); b.classList.toggle("on", !!state.progNums); }
+  }
   function factoryReset() {
     if (saveTimer) {
       clearTimeout(saveTimer);
@@ -6186,6 +6292,13 @@ function accSym(s) {
     document.getElementById("factoryReset").addEventListener("click", function () {
       setOpen(false);
       factoryReset();
+    });
+    // v60: order badges on the strip (full mode only). Saved like the other settings.
+    document.getElementById("progNumsBtn").addEventListener("click", function () {
+      state.progNums = !state.progNums;
+      paintProgNumsBtn();
+      progRedecorate();
+      scheduleSave();
     });
     document.addEventListener("pointerdown", function (e) {
       if (!menu.hidden && !wrap.contains(e.target)) setOpen(false);
