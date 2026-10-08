@@ -1331,7 +1331,7 @@ html:not(.simple) .ss .ss-chip .rn { display: inline; font-size: var(--ss-rnfs, 
 html:not(.simple) .ss.rn2 .ss-chip { flex-direction: column; gap: 1px; }
 html:not(.simple) .ss.rn2 .ss-chip .nm { display: block; white-space: nowrap; }
 html:not(.simple) .ss.rn2 .ss-chip .rn { margin-left: 0; }
-html:not(.simple) .ss.nonum .ss-chip .rn { display: none; }
+html:not(.simple) .ss.nonum .ss-chip .rn, html:not(.simple) .ss .ss-chip.norn .rn { display: none; }
 /* Last-resort single chip: root over quality (stack fallback for one long name). */
 .ss .ss-chip.st1 { flex-direction: column; gap: 1px; }
 .ss .ss-chip.st1 .rn { display: none; }
@@ -1379,6 +1379,84 @@ html:not(.simple).lay-phone-port .ss .ss-chip { padding: 0; letter-spacing: -0.0
    the name only and the numerals stay under the note names (each chip sits in its note's column). */
 html:not(.simple).lay-phone-port .ss .ss-chip .rn { display: none; }
 
+/* ===== v55: chord progression picker. One element (#prog), placed by placeProg():
+   Simple = left column under Major / Minor (friendly name, styled like the key slider, small
+   Play / Stop beside it); full mode = numerals in a cycler by the style row (phone landscape:
+   top of the Now column; elsewhere the top bar), Play / Stop and Next inside it. ===== */
+.prog { display: flex; align-items: stretch; gap: 6px; flex: 0 0 auto; min-width: 0; }
+.pg-sel { position: relative; display: flex; align-items: stretch; flex: 1 1 auto; min-width: 0; height: var(--pg-h, 40px); border-radius: 12px;
+  background: var(--bg-2, #221d17); border: 2px solid var(--copper); touch-action: none; cursor: grab; outline: none; overflow: hidden; box-sizing: border-box; }
+.pg-sel:focus-visible { box-shadow: 0 0 0 2px var(--copper); }
+.pg-arrow { flex: 0 0 auto; width: var(--pg-arrow, 26px); height: auto; min-height: 0; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent;
+  color: var(--copper); font-size: var(--pg-afs, 24px); line-height: 1; touch-action: manipulation; }
+.pg-txt { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; pointer-events: none; }
+.pg-t { display: block; max-width: 100%; text-align: center; font-weight: 800; font-size: var(--pg-fs, 14px); line-height: 1.12; color: var(--ink);
+  overflow-wrap: break-word; transition: transform .12s ease-out; }
+.pg-t.nudge-l { transform: translateX(-8px); } .pg-t.nudge-r { transform: translateX(8px); }
+.pg-btns { display: flex; gap: 4px; flex: 0 0 auto; }
+.pg-btn { flex: 0 0 auto; width: var(--pg-bw, 40px); height: var(--pg-h, 40px); min-height: 0; margin: 0; padding: 0; border-radius: 12px;
+  display: inline-flex; align-items: center; justify-content: center; color: var(--copper); touch-action: manipulation; }
+.pg-btn svg { width: var(--pg-ico, 18px); height: var(--pg-ico, 18px); display: block; }
+.pg-play.on { background: var(--copper); color: #2a1c0c; border-color: transparent; }
+/* Simple: kid-slider look, serif name, no Next button (tap a number badge to step). */
+html.simple .pg-step { display: none; }
+html.simple .prog { --pg-h: 40px; --pg-arrow: 26px; --pg-afs: 26px; --pg-fs: 16px; --pg-bw: 40px; --pg-ico: 18px; }
+html.simple .pg-sel { border-radius: 14px; }
+html.simple .pg-btn { border-radius: 14px; }
+html.simple .pg-t { font-family: Palatino, "Iowan Old Style", Georgia, serif; font-weight: 700; }
+html.simple.lay-pad-land .prog, html.simple.lay-pad-port .prog { --pg-h: 64px; --pg-arrow: 48px; --pg-afs: 40px; --pg-fs: 26px; --pg-bw: 64px; --pg-ico: 28px; gap: 10px; }
+/* Simple phone landscape: Now, key, Major / Minor, progression, Sustain (Sustain and Now give a little). */
+html.simple.lay-phone-land #app { grid-template-rows: 44px minmax(0, 1fr) 64px; }
+@media (max-width: 700px) { html.simple.lay-phone-land #app { grid-template-rows: 40px minmax(0, 1fr) 56px; } html.simple.lay-phone-land .prog { --pg-arrow: 22px; --pg-bw: 36px; } }
+@media (max-height: 400px) { html.simple.lay-phone-land .prog { --pg-h: 36px; } html.simple.lay-phone-land .now-col { gap: 6px; } }
+/* Simple phone portrait: the row goes under Major / Minor in the left block (block height unchanged). */
+html.simple.lay-phone-port .kid-key { --kk-h: 50px; --kk-fs: 30px; --kk-mh: 38px; --kk-mfs: 15px; gap: 5px; }
+html.simple.lay-phone-port .now-card .card-label { display: none; }
+html.simple.lay-phone-port #tones { margin-top: 4px; }
+@media (max-height: 700px) {
+  html.simple.lay-phone-port .now-col { gap: 5px; }
+  html.simple.lay-phone-port .kid-key { --kk-h: 44px; --kk-fs: 28px; --kk-mh: 32px; --kk-mfs: 14px; gap: 4px; }
+  html.simple.lay-phone-port .prog { --pg-h: 32px; --pg-afs: 22px; --pg-bw: 36px; --pg-ico: 15px; }
+  html.simple.lay-phone-port #app { --sym: 30px; }
+  html.simple.lay-phone-port #tones { margin-top: 1px; font-size: 13px; } }
+html.simple.lay-pad-port #app { --sym: 72px; }
+/* Full mode, phone landscape: cycler on top of the Now column (two lines: name, then Play + Next).
+   The column never makes its row taller than the strip (keyboard unchanged); the Now card gives. */
+html.lay-phone-land:not(.simple) .now-col { gap: 4px; }
+html.lay-phone-land:not(.simple) .now-col .now-card { flex: 1 1 0; contain: size; }
+html.lay-phone-land:not(.simple) .prog { flex-direction: column; gap: 3px; --pg-h: 26px; --pg-arrow: 18px; --pg-afs: 19px; --pg-fs: 10px; --pg-ico: 13px; }
+html.lay-phone-land:not(.simple) .pg-sel { border-width: 1.5px; border-radius: 8px; }
+html.lay-phone-land:not(.simple) .pg-btns { gap: 4px; }
+html.lay-phone-land:not(.simple) .pg-btn { flex: 1 1 0; width: auto; height: 20px; border-radius: 8px; }
+html.lay-phone-land:not(.simple) #app { --sym: 26px; }
+html.lay-phone-land:not(.simple) .now-card { padding: 3px 8px; gap: 2px; }
+html.lay-phone-land:not(.simple) #tones { font-size: 10px; line-height: 1.15; }
+/* Full mode in the top bar (phone portrait: replaces the brand; iPad: after the brand). */
+html.prog-top:not(.simple) .prog { flex: 1 1 auto; max-width: 250px; }
+html.lay-phone-port.prog-top:not(.simple) .brand { display: none; }
+html.lay-phone-port:not(.simple) .prog { flex-direction: row; gap: 4px; --pg-h: 40px; --pg-arrow: 18px; --pg-afs: 19px; --pg-fs: 10.5px; --pg-ico: 14px; }
+html.lay-phone-port:not(.simple) .pg-sel { border-width: 1.5px; border-radius: 9px; }
+html.lay-phone-port:not(.simple) .pg-btns { flex-direction: column; gap: 2px; }
+html.lay-phone-port:not(.simple) .pg-btn { width: 30px; height: 19px; border-radius: 7px; }
+html.lay-pad-land:not(.simple) .prog, html.lay-pad-port:not(.simple) .prog { max-width: 420px; --pg-h: 40px; --pg-arrow: 30px; --pg-afs: 26px; --pg-fs: 15px; --pg-bw: 46px; --pg-ico: 18px; }
+html.lay-pad-land:not(.simple) .prog { margin-left: calc(var(--rail-w) + var(--gap) - 132px); }
+/* Step badges on the strip (1, 2, 3...); the playing step's chip lights like a press. */
+.ss .pg-badge { position: absolute; z-index: 3; left: 0; top: 0; box-sizing: border-box; min-width: 15px; height: 15px; padding: 0 3px;
+  border-radius: 8px; background: #f6ead0; color: #2a1c0c; border: 1px solid rgba(42, 28, 12, .55);
+  font-size: 10px; font-weight: 800; line-height: 13px; text-align: center; white-space: nowrap; letter-spacing: -0.02em;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .55); touch-action: none; cursor: pointer; }
+.ss .pg-badge.on { background: var(--copper); }
+html.simple .ss .pg-badge { min-width: 19px; height: 19px; line-height: 17px; font-size: 12.5px; border-radius: 10px; padding: 0 4px; }
+html.lay-phone-port:not(.simple) .ss .pg-badge { min-width: 12px; height: 12px; line-height: 10px; font-size: 8.5px; padding: 0 2px; }
+html.lay-pad-land .ss .pg-badge, html.lay-pad-port .ss .pg-badge { min-width: 22px; height: 22px; line-height: 20px; font-size: 14px; border-radius: 11px; padding: 0 5px; }
+.ss .ss-chip.tmp { opacity: .9; }
+/* Last-resort squeeze (one long name in a narrow column, e.g. B\266d7sus4 at 667 px): no side padding. */
+html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
+.ss .ss-chip.pg-on { transform: scale(.92); filter: brightness(1.25); }
+.ss .ss-note.pg-on { transform: scale(.92); background: rgba(255, 244, 222, .42); box-shadow: 0 1px 0 rgba(0, 0, 0, .45); }
+.ss .ss-note.home.pg-on { background: rgba(240, 196, 120, .55); }
+
+
 </style>
 </head>
 <body>
@@ -1401,38 +1479,44 @@ html:not(.simple).lay-phone-port .ss .ss-chip .rn { display: none; }
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section><h3>About Touch Chord</h3>
-      <img src="images/howto-why.webp?v=54" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=55" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1200" height="555" loading="lazy" decoding="async">
       <p class="ht-why">Touch Chord turns one finger into a full chord.<br>It's for anyone who wants to play chords without reading music.<br>A chord is 3 or more notes played at once. Chords that sound good together make up a key.</p>
       <ul><li><b>Learn chords:</b> try a random chord and see its name and notes.</li><li><b>Sing along:</b> play chords under your voice.</li><li><b>Beginner to making music:</b> start with one chord, then follow the suggestions into a song.</li></ul></section>
       <h2 class="ht-howto">How-to</h2>
       <section><h3>1. Play a note</h3>
-      <img src="images/howto-simple-1-strip-note.webp?v=54" alt="Tap a note on the scale strip" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-strip-note.webp?v=55" alt="Tap a note on the scale strip" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Tap a note on the strip (1).</p></section>
       <section><h3>2. Key</h3>
-      <img src="images/howto-simple-2-key.webp?v=54" alt="Key control: swipe the note, tap Major or Minor" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-simple-2-key.webp?v=55" alt="Key control: swipe the note, tap Major or Minor" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Swipe the note (1) to change the key. Tap (2) for <b>Major</b> or <b>Minor</b>.</p></section>
       <section><h3>3. Chord chips</h3>
-      <img src="images/howto-simple-3-chips.webp?v=54" alt="Chord chips above and below the strip" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-simple-3-chips.webp?v=55" alt="Chord chips above and below the strip" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Tap or hold a chip (1) to play its chord.</p></section>
       <section><h3>4. Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=54" alt="Sustain lit while the chord rings" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=55" alt="Sustain lit while the chord rings" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Play (1), hold <b>Sustain</b> (2): notes ring and fade. Let go to stop.</p></section>
       <section><h3>5. Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=54" alt="Style picker" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=55" alt="Style picker" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Tap a style (1). It changes the sound and the chords.</p></section>
+      <section><h3>6. Songs</h3>
+      <img src="images/howto-simple-6-progressions.webp?v=55" alt="Progression row under Major and Minor: swipe the name, tap play" width="1000" height="462" loading="lazy" decoding="async">
+      <p class="cap">Swipe the name (1) to pick a song. Tap &#9654; (2) to play it over and over. The numbers (3) show the order: tap one to play it.</p></section>
       <h2 class="ht-howto">In full mode</h2>
       <section><h3>Suggestions</h3>
-      <img src="images/howto-full-1-suggestions.webp?v=54" alt="Full-mode suggestion box: chord chips with small Roman numerals" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-full-1-suggestions.webp?v=55" alt="Full-mode suggestion box: chord chips with small Roman numerals" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Same chips and notes as Simple (1). The small Roman numerals (2), like <b>I</b>, <b>IV</b> and <b>V</b>, show where each chord sits in the key.</p></section>
       <section><h3>Make a chord</h3>
-      <img src="images/howto-full-2-make-chord.webp?v=54" alt="Hold maj7, tap A, Now reads Amaj7" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=55" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Hold <b>maj7</b> (1), tap <b>A</b> (2) = <b>Amaj7</b>.</p></section>
       <section><h3>Keyboard</h3>
-      <img src="images/howto-full-3-keyboard.webp?v=54" alt="Piano keyboard: each key plays a chord" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-full-3-keyboard.webp?v=55" alt="Piano keyboard: each key plays a chord" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a key (1) to play its chord.</p></section>
       <section><h3>Full Range</h3>
-      <img src="images/howto-full-4-fullrange.webp?v=54" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=55" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Gray keys are outside your key. Tap <b>Full Range</b> (1) to play them all.</p></section>
+      <section><h3>Progressions</h3>
+      <img src="images/howto-full-5-progressions.webp?v=55" alt="Progression picker: Roman numerals between arrows, play and Next" width="1000" height="462" loading="lazy" decoding="async">
+      <p class="cap">&#8249; &#8250; (1) picks a progression, shown in Roman numerals. &#9654; (2) loops it, one chord per bar. <b>Next</b> (3) plays one chord at a time.</p></section>
       <p class="ht-end">Sound and FX live in the gear's <b>Advanced</b> settings.</p>
       <dl class="ht-legend"><dt>Simple</dt><dd>Simple on/off</dd><dt>&#9881;</dt><dd>Settings (Advanced: sound, FX)</dd><dt>?</dt><dd>This guide</dd></dl>
     </div>
@@ -1454,6 +1538,17 @@ html:not(.simple).lay-phone-port .ss .ss-chip .rn { display: none; }
       <button type="button" class="kk-arrow kk-next" aria-label="Key up" tabindex="-1">&#8250;</button>
     </div>
     <button type="button" class="kk-mode major" aria-label="Major key, tap for minor"><span class="kk-face" aria-hidden="true"></span><span class="kk-mtxt">Major</span></button>
+  </div>
+  <div id="prog" class="prog" role="group" aria-label="Chord progression">
+    <div class="pg-sel" role="slider" tabindex="0" aria-label="Progression, swipe to change" aria-valuemin="0" aria-valuemax="2" aria-valuenow="0">
+      <button type="button" class="pg-arrow pg-prev" aria-label="Previous progression" tabindex="-1">&#8249;</button>
+      <span class="pg-txt"><span class="pg-t">Pop Hit</span></span>
+      <button type="button" class="pg-arrow pg-next" aria-label="Next progression" tabindex="-1">&#8250;</button>
+    </div>
+    <div class="pg-btns">
+      <button type="button" class="pg-btn pg-play" aria-pressed="false" aria-label="Loop progression"></button>
+      <button type="button" class="pg-btn pg-step" aria-label="Next chord" title="Next chord"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5v14l10-7z" fill="currentColor"/><rect x="16.5" y="5" width="2.6" height="14" rx="1" fill="currentColor"/></svg></button>
+    </div>
   </div>
   </div>
   <div id="keyPick" class="key-pick" role="dialog" aria-label="Choose key" hidden>
@@ -1585,7 +1680,7 @@ html:not(.simple).lay-phone-port .ss .ss-chip .rn { display: none; }
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 54;
+var APP_VERSION = 55;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -3789,6 +3884,7 @@ function accSym(s) {
 
   function onRecord() {
     unlock();
+    progStop();   // v55: one loop at a time
     if (loop.recording && !loop.overdub) {
       commitInitial(true);
       ensureScheduler();
@@ -3828,6 +3924,7 @@ function accSym(s) {
       return;
     }
     if (!loop.events.length) return;
+    progStop();   // v55: one loop at a time
     killLoopVoices();
     beginTransport();
     loop.playing = true;
@@ -4125,20 +4222,7 @@ function accSym(s) {
       paletteTimer = 0;
     }
     paletteHolds = {};
-    state.extensions.six = !!(item.extensions && item.extensions.six);
-    state.extensions.min7 = !!(item.extensions && item.extensions.min7);
-    state.extensions.maj7 = !!(item.extensions && item.extensions.maj7);
-    state.extensions.nine = !!(item.extensions && item.extensions.nine);
-    STRIP_EXT.forEach(function (k) { state.extensions[k] = (item.extensions && item.extensions[k]) || (k === "over" ? 0 : false); });
-    state.rootPc = item.rootPc;
-    state.type = item.type;
-    state.stripSpell = item.rootSpell ? { pc: item.rootPc, type: item.type, rs: item.rootSpell, keep: !!item.keepSpell } : null;
-    if (item.degree) {
-      state.forceChord = null;
-      if (state.keyMode) state.degree = item.degree;
-    } else {
-      state.forceChord = { rootPc: item.rootPc, type: item.type };
-    }
+    setItemState(item);   // v55: shared with the progression player
     var needReplay = !(ChordAudio.ctx && ChordAudio.ctx.state === "running");
     var pending = unlock();
     refreshHeld();
@@ -4409,8 +4493,14 @@ function accSym(s) {
     function hits(c, row) {
       return chips.some(function (o) { return o !== c && o.row === row && Math.abs(o.hc - c.hc) < 2; });
     }
+    // v55: of two colliding chips, move the one whose own column is empty in the partner row
+    // (A minor Romantic: the Picardy A goes to the empty gold A cell, green B\u266d stays put).
     chips.forEach(function (c) {
-      if (c.hc % 2 === 0 && hits(c, c.row) && PARTNER[c.row] && !hits(c, PARTNER[c.row])) c.row = PARTNER[c.row];
+      if (!hits(c, c.row)) return;
+      var group = [c].concat(chips.filter(function (o) { return o !== c && o.row === c.row && Math.abs(o.hc - c.hc) < 2; }));
+      var cands = group.filter(function (x) { return PARTNER[x.row] && !hits(x, PARTNER[x.row]); });
+      cands.sort(function (a, b) { return (a.hc % 2 === 0 ? 1 : 0) - (b.hc % 2 === 0 ? 1 : 0); });
+      if (cands.length) cands[0].row = PARTNER[cands[0].row];
     });
     return { key: key, notes: notes, chips: chips };
   }
@@ -4453,6 +4543,7 @@ function accSym(s) {
     if (sig === suggestSig) return;
     suggestSig = sig;
     stripKey = key;
+    progSync(key);   // v55: style change -> first progression; key / style change stops its loop
     var model = stripModel(key);
     var el = document.getElementById("suggest");
     el.className = "ss";
@@ -4503,6 +4594,7 @@ function accSym(s) {
       b.firstChild.textContent = prettyAcc(n.name);
       b.lastChild.textContent = n.roman;
       b.setAttribute("aria-label", prettyAcc(n.name) + ", " + n.roman + (n.home ? ", home" : "") + ", plays " + stripLabel(n.item));
+      b._tc = { item: n.item, hc: 1 + 2 * n.col, row: "scale" };
       wireStripTap(b, n.item);
       el.appendChild(b);
     });
@@ -4522,10 +4614,13 @@ function accSym(s) {
       b.querySelector(".rn").textContent = c.roman;
       if (lab.length - rn.length >= 5) b.classList.add("long");
       b.setAttribute("aria-label", stripLabel(c.item) + (state.simple ? "" : ", " + c.roman) + " (" + (c.row === "bright" ? "bright, borrowed" : c.row + (c.borrowed ? ", borrowed" : "")) + ")");
+      b._tc = { item: c.item, hc: c.hc, row: c.row };
       wireStripTap(b, c.item);
       el.appendChild(b);
     });
+    progDecorate(el, model);   // v55: progression badges + temporary chips
     fitStrip();
+    paintProg();
     // v52: one gentle left-to-right pulse across the note buttons, the first time
     // the strip shows in Simple (skipped for reduced motion).
     if (state.simple && !notesPulsed) {
@@ -4541,6 +4636,472 @@ function accSym(s) {
     }
   }
   var notesPulsed = false;
+
+  // ===== v55: chord progressions (PROGRESSIONS.md) =====
+  // A step is "degree quality [xBars]": degree counts from the key's own home (major: I..VII,
+  // minor: natural minor i..VII); a leading b lowers the root (bVII, bVI, bii). Quality names
+  // are STRIP_QUAL keys. Played at 80 BPM, 4/4, one chord per bar (So What: 8 bars each).
+  STRIP_QUAL["6"] = { type: "major", ext: { six: true }, label: "6" };
+  STRIP_QUAL.dim = { type: "dim", ext: {}, label: "\u00b0" };
+  STRIP_QUAL.over3 = { type: "major", ext: { over: 4 }, label: "/" };    // I/3 (C/E)
+  STRIP_QUAL.mover3 = { type: "minor", ext: { over: 3 }, label: "m/" };  // i/3 (Cm/Eb)
+  var PROG_BPM = 80;
+  var PROG_BAR = 60 / PROG_BPM * 4;   // 3 s
+  function P(name, s) { return { name: name, steps: s.split("|") }; }
+  var PROGRESSIONS = {
+    pop: {
+      major: [P("Pop Hit", "1 maj|5 maj|6 min|4 maj"), P("Sad Pop", "6 min|4 maj|1 maj|5 maj"), P("Fifties", "1 maj|6 min|4 maj|5 maj")],
+      minor: [P("Pop Hit", "1 min|5 min|6 maj|4 min"), P("Sad Pop", "6 maj|4 min|1 min|5 min"), P("Fifties", "1 min|6 maj|4 min|5 maj")]
+    },
+    jazz: {
+      major: [P("Jazz Home", "2 m7|5 7|1 maj7"), P("Turnaround", "1 maj7|6 m7|2 m7|5 7"),
+              P("Blues", "1 7|4 7|1 7|1 7|4 7|4 7|1 7|6 7|2 m7|5 7|1 7|5 7"),
+              P("Minor Jazz", "2 m7b5|5 7b9|1 m7"), P("Backdoor", "4 m7|b7 7|1 maj7"), P("So What", "1 m9 x8|b2 m9 x8")],
+      // Minor home: Jazz Home already is the minor ii-V-i, so Minor Jazz is skipped here.
+      minor: [P("Jazz Home", "2 m7b5|5 7b9|1 m7"), P("Turnaround", "1 m7|6 maj7|2 m7b5|5 7b9"),
+              P("Blues", "1 m7|4 m7|1 m7|1 m7|4 m7|4 m7|1 m7|1 m7|6 7|5 7b9|1 m7|5 7b9"),
+              P("Backdoor", "4 m7|7 7|1 m7"), P("So What", "1 m9 x8|b2 m9 x8")]
+    },
+    rnb: {
+      major: [P("Smooth", "1 maj9|3 m7|6 m9|2 m9|5 13"), P("Slow Jam", "4 maj7|3 m7|2 m7|1 maj7"), P("Neo Soul", "2 m9|5 13|1 maj9|6 m9")],
+      minor: [P("Smooth", "1 m9|3 maj9|6 maj9|2 m7b5|5 7#9"), P("Slow Jam", "4 m9|3 maj9|2 m7b5|1 m9"), P("Neo Soul", "2 m7b5|5 7#9|1 m9|6 maj9")]
+    },
+    romantic: {
+      major: [P("Canon", "1 maj|5 maj|6 min|3 min|4 maj|1 maj|4 maj|5 maj"), P("Love Song", "1 maj|3 min|4 maj|4 min"), P("Dreamy", "1 maj|b6 maj|b7 maj|1 maj")],
+      minor: [P("Canon", "1 min|5 min|6 maj|3 maj|4 min|1 min|4 min|5 min"), P("Love Song", "1 min|3 maj|4 maj|4 min"), P("Dreamy", "1 min|6 maj|7 maj|1 min")]
+    },
+    ballad: {
+      major: [P("Ballad", "1 maj|6 min|4 maj|5 maj"), P("Hymn", "1 maj|4 maj|1 over3|5 maj"), P("Big Ending", "4 maj|4 overV|3 min|6 min|2 min|5 maj|1 maj")],
+      minor: [P("Ballad", "1 min|6 maj|4 min|5 maj"), P("Hymn", "1 min|4 min|1 mover3|5 maj"), P("Big Ending", "4 min|4 moverV|3 maj|6 maj|2 dim|5 maj|1 min")]
+    },
+    reggae: {
+      major: [P("Island", "1 maj|4 maj|5 maj|4 maj"), P("One Drop", "1 maj|b7 maj|4 maj|1 maj"), P("Minor Riddim", "1 min|4 min|5 min|4 min")],
+      // Minor home: Island becomes i-iv-v-iv, so Minor Riddim takes its minor-key form i-bVII.
+      minor: [P("Island", "1 min|4 min|5 min|4 min"), P("One Drop", "1 min|7 maj|4 min|1 min"), P("Minor Riddim", "1 min|7 maj")]
+    },
+    funk: {
+      major: [P("Groove", "1 7|4 7"), P("Minor Funk", "1 m7|4 7"), P("Breakdown", "1 9|b7 9|4 9|1 9")],
+      minor: [P("Groove", "1 m7|4 m7"), P("Minor Funk", "1 m7|4 7"), P("Breakdown", "1 m9|7 9|4 9|1 m9")]
+    },
+    yoga: {
+      major: [P("Calm", "1 maj|4 maj"), P("Float", "1 sus2|4 maj7|6 m7|4 maj"), P("Sunrise", "1 maj|b7 add9|4 maj|1 maj")],
+      minor: [P("Calm", "1 min|4 min"), P("Float", "1 sus2|4 m7|6 maj7|4 min"), P("Sunrise", "1 min|7 add9|4 min|1 min")]
+    },
+    yogaDeep: {
+      major: [P("Deep", "1 sus2"), P("Open", "1 sus2|b7 sus2|4 sus2"), P("Still", "1 m9|b6 maj7|b7 6|1 m9")],
+      minor: [P("Deep", "1 sus2"), P("Open", "1 sus2|7 sus2|4 sus2"), P("Still", "1 m9|6 maj7|7 6|1 m9")]
+    }
+  };
+  var PROG_SUFFIX = { maj: "", min: "", "7": "7", maj7: "maj7", m7: "7", m7b5: "\u00f87", sus4: "sus4", sus2: "sus2",
+    add9: "add9", madd9: "add9", "9": "9", maj9: "maj9", m9: "9", "9sus": "9sus", "13": "13", "7b9": "7\u266d9",
+    "7#9": "7\u266f9", "7sus4": "7sus4", "6": "6", dim: "\u00b0", overV: "/V", moverV: "/V", over3: "/3", mover3: "/3" };
+  function progList(style, mode) {
+    var s = PROGRESSIONS[style] || PROGRESSIONS.pop;
+    return s[mode === "minor" ? "minor" : "major"];
+  }
+  function progParse(str) {
+    var t = str.trim().split(/\s+/);
+    var low = t[0].charAt(0) === "b";
+    var bars = t[2] ? parseInt(t[2].slice(1), 10) : 1;
+    return { deg: parseInt(low ? t[0].slice(1) : t[0], 10), q: t[1], low: low, bars: bars };
+  }
+  // One step -> a strip item, its numeral and its strip place (same rules as stripModel chips).
+  function progStep(key, str) {
+    var st = progParse(str);
+    var kdegs = keyDegrees(key);
+    var rowPcs = kdegs.map(function (d) { return d.pc; }).sort(function (a, b) { return a - b; });
+    var dorder = kdegs.slice().sort(function (a, b) { return a.pc - b.pc; }).map(function (d) { return d.degree; });
+    var inKey = {};
+    kdegs.forEach(function (d) { inKey[d.pc] = true; });
+    var d = kdegs[st.deg - 1];
+    var q = STRIP_QUAL[st.q];
+    var pc = wrap12(d.pc - (st.low ? 1 : 0));
+    var ext = blankExt();
+    for (var ek in q.ext) ext[ek] = q.ext[ek];
+    var tonePcs = Theory.chordIntervals(q.type, ext).map(function (iv) { return wrap12(pc + iv); });
+    if (ext.over) tonePcs.push(wrap12(pc + ext.over));
+    var diatonic = tonePcs.every(function (x) { return inKey[x]; });
+    var ni = rowPcs.indexOf(pc), hc, rs;
+    if (ni >= 0) { rs = kdegs[dorder[ni] - 1].rootSpell; hc = 1 + 2 * ni; }
+    else {
+      rs = plainRootSpell(pc, st.low ? { li: d.rootSpell.li, acc: d.rootSpell.acc - 1 } : d.rootSpell);
+      hc = 2 * rowPcs.filter(function (x) { return x < pc; }).length;
+    }
+    var lab = q.label;
+    if (ext.over) lab = (q.type === "minor" ? "m" : "") + "/" + accSym(Theory.spellInterval(rs, ext.over).name);
+    var base = String(d.roman).replace(/[^ivIV]/g, "").toUpperCase();
+    var lower = q.type === "minor" || q.type === "dim";
+    var roman = (st.low ? "\u266d" : "") + (lower ? base.toLowerCase() : base) + (PROG_SUFFIX[st.q] || "");
+    var row = (q.type === "minor" && !ext.over) ? "sad"
+      : (q.type === "dim" || q.type === "sus4" || ext.flat9 || ext.sharp9 || ext.over) ? "tension"
+      : (diatonic && ni >= 0) ? "happy" : "bright";
+    // Chip numeral (as on strip chips): degree, case, \u00b0 / \u00f8, /V or /3.
+    var rn = (st.low ? "\u266d" : "") + (lower ? base.toLowerCase() : base) + (q.type === "dim" ? (ext.min7 ? "\u00f8" : "\u00b0") : "") +
+      (ext.over ? (ext.over === 2 ? "/V" : "/3") : "");
+    return {
+      bars: st.bars, roman: roman, rn: rn, hc: hc, row: row,
+      item: { rootPc: pc, rootName: Theory.noteName(rs), rootSpell: rs,
+        degree: (!st.low && diatonic && q.type === d.type && !ext.over) ? d.degree : null,
+        type: q.type, extensions: ext, qualityLabel: q.label, chipLabel: lab, keepSpell: ni >= 0 }
+    };
+  }
+  function progSteps(key, p) { return p.steps.map(function (s) { return progStep(key, s); }); }
+  // Full mode label: the numerals (repeats folded as x2; very long ones list their chords).
+  function progNumerals(steps) {
+    var out = [];
+    steps.forEach(function (s) {
+      var last = out[out.length - 1];
+      if (last && last.r === s.roman && s.bars === 1 && last.single) { last.n++; return; }
+      out.push({ r: s.roman, n: s.bars, single: s.bars === 1 });
+    });
+    var txt = out.map(function (o) { return o.r + (o.n > 1 ? "\u00d7" + o.n : ""); }).join("\u2013");
+    if (txt.length > 30) {
+      var uniq = [];
+      steps.forEach(function (s) { if (uniq.indexOf(s.roman) < 0) uniq.push(s.roman); });
+      txt = steps.length + " bars: " + uniq.join("\u2013");
+    }
+    return txt;
+  }
+  var PROG_EXT_KEYS = ["six", "min7", "maj7", "nine", "sus2", "flat9", "sharp9", "thirteen", "over"];
+  function sameChord(a, b) {
+    if (!a || !b || wrap12(a.rootPc) !== wrap12(b.rootPc) || a.type !== b.type) return false;
+    var ea = a.extensions || {}, eb = b.extensions || {};
+    for (var i = 0; i < PROG_EXT_KEYS.length; i++) {
+      var k = PROG_EXT_KEYS[i];
+      if ((ea[k] || 0) !== (eb[k] || 0)) return false;
+    }
+    return true;
+  }
+
+  var prog = { style: null, mode: null, keySig: null, key: null, idx: 0, list: [], steps: [], targets: [], badges: [],
+    cur: -1, playing: false, timer: 0, si: 0, nextT: 0, groups: [], gid: 0, uiT: [], flashT: 0, log: [], tmp: 0, unplaced: 0, model: null };
+  window.__prog = prog;
+  // Test hook (read-only use in checks): data and the player entry points.
+  window.__progApi = { data: PROGRESSIONS, steps: function (k, p) { return progSteps(k, p); }, numerals: function (st) { return progNumerals(st); }, set: function (i) { progSet(i); }, play: function () { progPlay(); }, stop: function () { progStop(); }, next: function () { progNext(); }, bar: PROG_BAR };
+
+  // Called when the strip is rebuilt: a style change goes back to the style's first
+  // progression; a key or style change stops the progression loop.
+  function progSync(key) {
+    var sig = key.pc + key.mode + keyRootName(key);
+    var styleChanged = prog.style !== null && prog.style !== state.style;
+    var keyChanged = prog.keySig !== null && prog.keySig !== sig;
+    if (styleChanged || keyChanged) progStop();
+    var oldName = prog.list[prog.idx] ? prog.list[prog.idx].name : null;
+    prog.list = progList(state.style, key.mode);
+    if (styleChanged) prog.idx = 0;
+    else if (prog.mode !== null && prog.mode !== key.mode) {
+      var ix = -1;
+      prog.list.forEach(function (p, i) { if (p.name === oldName) ix = i; });
+      prog.idx = Math.max(0, ix);
+    }
+    if (prog.idx >= prog.list.length) prog.idx = 0;
+    prog.style = state.style; prog.mode = key.mode; prog.keySig = sig; prog.key = key;
+    prog.cur = -1;
+  }
+
+  // Badges (1, 2, 3...) on the chips / notes that play each step; a step chord that is not on
+  // the strip gets a temporary dashed chip in its root's column (or half column).
+  function progDecorate(el, model) {
+    prog.model = model;
+    Array.prototype.forEach.call(el.querySelectorAll(".pg-badge, .ss-chip.tmp"), function (n) { n.parentNode.removeChild(n); });
+    prog.targets = []; prog.badges = []; prog.tmp = 0; prog.unplaced = 0;
+    var p = prog.list[prog.idx];
+    prog.steps = p ? progSteps(model.key, p) : [];
+    var ROWN = { bright: "b", happy: "h", scale: "n", sad: "s", tension: "t" };
+    var PARTNER = { bright: "happy", happy: "bright", sad: "tension", tension: "sad" };
+    var chipEls = Array.prototype.slice.call(el.querySelectorAll(".ss-chip"));
+    var noteEls = Array.prototype.slice.call(el.querySelectorAll(".ss-note"));
+    var occ = model.chips.map(function (c) { return { row: c.row, hc: c.hc }; });
+    function free(row, hc) { return !occ.some(function (o) { return o.row === row && Math.abs(o.hc - hc) < 2; }); }
+    var groups = [];   // { el, steps: [i...] }
+    prog.steps.forEach(function (s, i) {
+      for (var g = 0; g < groups.length; g++) {
+        if (sameChord(groups[g].item, s.item)) { groups[g].steps.push(i); prog.targets[i] = groups[g].el; return; }
+      }
+      var tgt = null;
+      for (var c = 0; c < chipEls.length && !tgt; c++) if (sameChord(chipEls[c]._tc && chipEls[c]._tc.item, s.item)) tgt = chipEls[c];
+      for (var n = 0; n < noteEls.length && !tgt; n++) if (sameChord(noteEls[n]._tc && noteEls[n]._tc.item, s.item)) tgt = noteEls[n];
+      if (!tgt) {
+        var order = [s.row, PARTNER[s.row]].concat(["happy", "bright", "sad", "tension"].filter(function (r) { return r !== s.row && r !== PARTNER[s.row]; }));
+        var row = null;
+        for (var o = 0; o < order.length; o++) if (free(order[o], s.hc)) { row = order[o]; break; }
+        if (!row) { row = s.row; prog.unplaced++; }
+        occ.push({ row: row, hc: s.hc });
+        var cls = s.row === "bright" ? "color" : s.row === "happy" ? "major" : s.row === "sad" ? "minor" : "tension";
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "ss-chip tmp borrowed " + cls + " r-" + ROWN[row] + (s.hc % 2 === 0 ? " half" : "");
+        b.style.gridRow = ROWN[row];
+        b.style.gridColumn = (2 + s.hc) + " / span 2";
+        var lab = stripLabel(s.item), rn = prettyAcc(s.item.rootName);
+        b.innerHTML = "<span class=\"nm\"><span class=\"r\"></span><span class=\"q\"></span></span><span class=\"rn\"></span>";
+        b.querySelector(".r").textContent = rn;
+        b.querySelector(".q").textContent = lab.slice(rn.length);
+        b.querySelector(".rn").textContent = s.rn;
+        if (lab.length - rn.length >= 5) b.classList.add("long");
+        b.setAttribute("aria-label", lab + (state.simple ? "" : ", " + s.roman) + " (progression chord, not on the strip)");
+        b._tc = { item: s.item, hc: s.hc, row: row };
+        wireStripTap(b, s.item);
+        el.appendChild(b);
+        prog.tmp++;
+        tgt = b;
+      }
+      groups.push({ el: tgt, item: s.item, steps: [i] });
+      prog.targets[i] = tgt;
+    });
+    el.classList.toggle("gutl", occ.some(function (o) { return o.hc === 0; }));
+    el.classList.toggle("gutr", occ.some(function (o) { return o.hc === 14; }));
+    groups.forEach(function (g) {
+      var t = g.el, bd = document.createElement("span");
+      var nums = g.steps.map(function (i) { return i + 1; });
+      bd.className = "pg-badge" + (t.classList.contains("ss-note") ? " on-note" : "") + (nums.length > 1 ? " multi" : "");
+      bd.textContent = nums.length > 3 ? nums.slice(0, 2).join("\u00b7") + "\u2026" : nums.join("\u00b7");
+      bd.setAttribute("role", "button");
+      bd.setAttribute("aria-label", "Progression step " + nums.join(", "));
+      bd.addEventListener("pointerdown", function (e) { e.preventDefault(); e.stopPropagation(); progBadge(g.steps); });
+      bd.addEventListener("click", function (e) { e.stopPropagation(); });
+      el.appendChild(bd);
+      prog.badges.push({ el: bd, target: t, steps: g.steps });
+    });
+    paintProgActive();
+  }
+  // Badges sit on their chip's top-left corner (absolute, so they never change the grid or the
+  // chip fit); placed after every fit / resize.
+  function placeBadges() {
+    prog.badges.forEach(function (b) {
+      var t = b.target;
+      b.el.style.left = Math.round(t.offsetLeft - b.el.offsetWidth * 0.3) + "px";
+      b.el.style.top = Math.round(t.offsetTop - b.el.offsetHeight * 0.38) + "px";
+    });
+  }
+  function progRedecorate() {
+    var el = document.getElementById("suggest");
+    if (!el || !prog.model) return;
+    progDecorate(el, prog.model);
+    fitStrip();
+  }
+
+  function progLockKey() {
+    if (!activeKey() && stripKey) lockKey = { pc: stripKey.pc, mode: stripKey.mode };
+  }
+  function paintProgActive() {
+    Array.prototype.forEach.call(document.querySelectorAll("#suggest .pg-on"), function (n) { n.classList.remove("pg-on"); });
+    var t = prog.cur >= 0 ? prog.targets[prog.cur] : null;
+    if (t) t.classList.add("pg-on");
+    prog.badges.forEach(function (b) { b.el.classList.toggle("on", prog.cur >= 0 && b.steps.indexOf(prog.cur) >= 0); });
+  }
+  // Manual step (Next button / badge): play one step like a chip tap, lit while it rings.
+  function progJump(i) {
+    if (!prog.steps.length) return;
+    progStop();
+    progLockKey();
+    prog.cur = ((i % prog.steps.length) + prog.steps.length) % prog.steps.length;
+    applySuggestion(prog.steps[prog.cur].item);
+    paintProgActive();
+    if (prog.flashT) clearTimeout(prog.flashT);
+    prog.flashT = setTimeout(function () {
+      prog.flashT = 0;
+      if (!prog.playing) Array.prototype.forEach.call(document.querySelectorAll("#suggest .pg-on"), function (n) { n.classList.remove("pg-on"); });
+    }, PREVIEW_MS);
+    paintProg();
+  }
+  function progNext() { progJump(prog.cur + 1); }
+  function progBadge(steps) {
+    var s = steps[0];
+    for (var i = 0; i < steps.length; i++) if (steps[i] > prog.cur) { s = steps[i]; break; }
+    progJump(s);
+  }
+
+  // Loop: its own lookahead scheduler on the Web Audio clock (like the phrase loop's).
+  function progPlay() {
+    if (prog.playing) { progStop(); return; }
+    if (!prog.steps.length) return;
+    unlock();
+    if (loop.transport || loop.recording || loop.playing) stopPlayback();   // one loop at a time
+    progLockKey();
+    if (prog.flashT) { clearTimeout(prog.flashT); prog.flashT = 0; }
+    prog.playing = true;
+    prog.si = 0;
+    prog.log = [];
+    prog.nextT = ChordAudio.currentTime() + 0.06;
+    prog.timer = setInterval(progTick, 25);
+    progTick();
+    paintProg();
+  }
+  function progTick() {
+    if (!prog.playing || !ChordAudio.ctx) return;
+    var now = ChordAudio.currentTime();
+    if (prog.nextT < now - 0.3) prog.nextT = now + 0.05;   // fell behind (tab asleep): carry on from now
+    var guard = 0;
+    while (prog.nextT < now + 0.12 && guard++ < 4) {
+      var i = prog.si, st = prog.steps[i];
+      progSchedule(i, prog.nextT);
+      prog.nextT += st.bars * PROG_BAR;
+      prog.si = (i + 1) % prog.steps.length;
+    }
+  }
+  function setItemState(item) {
+    state.extensions.six = !!(item.extensions && item.extensions.six);
+    state.extensions.min7 = !!(item.extensions && item.extensions.min7);
+    state.extensions.maj7 = !!(item.extensions && item.extensions.maj7);
+    state.extensions.nine = !!(item.extensions && item.extensions.nine);
+    STRIP_EXT.forEach(function (k) { state.extensions[k] = (item.extensions && item.extensions[k]) || (k === "over" ? 0 : false); });
+    state.rootPc = item.rootPc;
+    state.type = item.type;
+    state.stripSpell = item.rootSpell ? { pc: item.rootPc, type: item.type, rs: item.rootSpell, keep: !!item.keepSpell } : null;
+    if (item.degree) {
+      state.forceChord = null;
+      if (state.keyMode) state.degree = item.degree;
+    } else {
+      state.forceChord = { rootPc: item.rootPc, type: item.type };
+    }
+  }
+  function progSchedule(i, t) {
+    var st = prog.steps[i];
+    setItemState(st.item);
+    var spec = computeSpec();
+    var g = "P" + (++prog.gid);
+    ChordAudio.playChord(g, spec.midis, { bass: spec.bassOut, sound: state.sound, time: t });
+    prog.groups.forEach(function (o) { ChordAudio.stopChord(o.g, Math.max(t, o.t)); });
+    prog.groups = [{ g: g, t: t }];
+    prog.log.push({ i: i, t: t, sym: spec.symbol });
+    if (prog.log.length > 64) prog.log.shift();
+    var tid = setTimeout(function () {
+      prog.uiT = prog.uiT.filter(function (x) { return x !== tid; });
+      if (!prog.playing) return;
+      prog.cur = i;
+      setItemState(st.item);
+      suggestPreview = { type: spec.type, extensions: { six: !!state.extensions.six, min7: !!state.extensions.min7, maj7: !!state.extensions.maj7, nine: !!state.extensions.nine }, midis: highlightMidisFromSpec(spec.midis) };
+      updateSymbol();
+      paintProgActive();
+    }, Math.max(0, (t - ChordAudio.currentTime()) * 1000));
+    prog.uiT.push(tid);
+  }
+  function progStop() {
+    if (!prog.playing) return;
+    prog.playing = false;
+    clearInterval(prog.timer); prog.timer = 0;
+    prog.uiT.forEach(clearTimeout); prog.uiT = [];
+    var now = ChordAudio.ctx ? ChordAudio.currentTime() : 0;
+    prog.groups.forEach(function (o) { ChordAudio.stopChord(o.g, Math.max(now, o.t + 0.01)); });
+    prog.groups = [];
+    prog.cur = -1;
+    paintProgActive();
+    if (suggestPreview) clearSuggestPreview();
+    paintProg();
+  }
+  function progSet(i) {
+    var n = prog.list.length;
+    if (!n) return;
+    progStop();
+    prog.idx = ((i % n) + n) % n;
+    prog.cur = -1;
+    progRedecorate();
+    paintProg();
+  }
+
+  // The picker: Simple = friendly name in the left column under Major / Minor; full mode =
+  // the numerals in a cycler by the style row (phone landscape: top of the Now column; other
+  // layouts: the top bar). Play/Stop sits inside it; full mode adds Next.
+  function placeProg() {
+    var el = document.getElementById("prog");
+    if (!el) return;
+    var de = document.documentElement;
+    var nowCol = document.querySelector(".now-col");
+    var where;
+    if (state.simple) {
+      where = "kid";
+      var kid = document.getElementById("kidKey");
+      if (el.previousElementSibling !== kid || el.parentNode !== nowCol) nowCol.insertBefore(el, kid.nextSibling);
+    } else if (de.classList.contains("lay-phone-land")) {
+      where = "now";
+      if (nowCol.firstElementChild !== el) nowCol.insertBefore(el, nowCol.firstElementChild);
+    } else {
+      where = "top";
+      var brand = document.querySelector(".topbar .brand");
+      if (el.previousElementSibling !== brand) brand.parentNode.insertBefore(el, brand.nextSibling);
+    }
+    el.dataset.at = where;
+    de.classList.toggle("prog-top", where === "top");
+    fitProgName();
+  }
+  function paintProg() {
+    var el = document.getElementById("prog");
+    if (!el) return;
+    var p = prog.list[prog.idx];
+    var txt = el.querySelector(".pg-t");
+    var name = p ? p.name : "";
+    var num = p ? progNumerals(prog.steps.length ? prog.steps : progSteps(prog.key || { pc: 0, mode: "major" }, p)) : "";
+    txt.textContent = state.simple ? name : num;
+    var sel = el.querySelector(".pg-sel");
+    sel.setAttribute("aria-valuenow", String(prog.idx));
+    sel.setAttribute("aria-valuemax", String(Math.max(0, prog.list.length - 1)));
+    sel.setAttribute("aria-valuetext", name + " (" + prog.steps.map(function (s) { return s.roman; }).join(" ") + ")");
+    sel.title = name + ": " + prog.steps.map(function (s) { return s.roman; }).join(" ");
+    var play = el.querySelector(".pg-play");
+    play.classList.toggle("on", prog.playing);
+    play.setAttribute("aria-pressed", prog.playing ? "true" : "false");
+    play.setAttribute("aria-label", prog.playing ? "Stop progression loop" : "Loop progression " + name);
+    play.innerHTML = prog.playing ? PROG_STOP_SVG : PROG_PLAY_SVG;
+    fitProgName();
+  }
+  var PROG_PLAY_SVG = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 4.5v15l12.5-7.5z\" fill=\"currentColor\"/></svg>";
+  var PROG_STOP_SVG = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"6\" y=\"6\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"currentColor\"/></svg>";
+  // Name fits its box: shrink the font (not below 9 px full / 11 px Simple), up to 2 lines.
+  function fitProgName() {
+    var el = document.getElementById("prog");
+    if (!el || !el.offsetParent) return;
+    var box = el.querySelector(".pg-txt"), t = el.querySelector(".pg-t");
+    t.style.fontSize = "";
+    var fs = parseFloat(getComputedStyle(t).fontSize) || 14, floor = state.simple ? 11 : 9;
+    while (fs > floor && (t.scrollWidth > box.clientWidth + 0.5 || t.offsetHeight > box.clientHeight + 0.5)) {
+      fs = Math.max(floor, fs - 0.5);
+      t.style.fontSize = fs + "px";
+    }
+  }
+  function wireProg() {
+    var el = document.getElementById("prog");
+    if (!el) return;
+    var sel = el.querySelector(".pg-sel"), txt = el.querySelector(".pg-t");
+    function step(d) {
+      unlock();
+      progSet(prog.idx + d);
+      txt.classList.remove("nudge-l", "nudge-r");
+      void txt.offsetWidth;
+      txt.classList.add(d > 0 ? "nudge-r" : "nudge-l");
+      setTimeout(function () { txt.classList.remove("nudge-l", "nudge-r"); }, 140);
+    }
+    el.querySelector(".pg-prev").addEventListener("click", function (e) { e.stopPropagation(); step(-1); });
+    el.querySelector(".pg-next").addEventListener("click", function (e) { e.stopPropagation(); step(1); });
+    el.querySelector(".pg-play").addEventListener("click", function () { progPlay(); });
+    el.querySelector(".pg-step").addEventListener("click", function () { unlock(); progNext(); });
+    // Swipe: one progression per swipe (like the key slider, but never more than one step).
+    var drag = null;
+    sel.addEventListener("pointerdown", function (e) {
+      if (e.target.closest(".pg-arrow")) return;
+      e.preventDefault();
+      drag = { id: e.pointerId, x: e.clientX, done: false, unit: Math.max(28, sel.clientWidth / 5) };
+      try { sel.setPointerCapture(e.pointerId); } catch (err) {}
+    });
+    sel.addEventListener("pointermove", function (e) {
+      if (!drag || e.pointerId !== drag.id || drag.done) return;
+      e.preventDefault();
+      var dx = e.clientX - drag.x;
+      if (Math.abs(dx) >= drag.unit) { drag.done = true; step(dx > 0 ? 1 : -1); }
+    });
+    function end(e) { if (drag && e.pointerId === drag.id) drag = null; }
+    sel.addEventListener("pointerup", end);
+    sel.addEventListener("pointercancel", end);
+    sel.addEventListener("touchmove", function (e) { e.preventDefault(); }, { passive: false });
+    sel.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === "ArrowUp") { e.preventDefault(); step(1); }
+      else if (e.key === "ArrowLeft" || e.key === "ArrowDown") { e.preventDefault(); step(-1); }
+      else if (e.key === " " || e.key === "Enter") { e.preventDefault(); progPlay(); }
+    });
+    window.addEventListener("resize", function () { setTimeout(fitProgName, 80); });
+    placeProg();
+    paintProg();
+  }
 
   // Fit chip names to their column: shrink a little first; if a name still
   // overflows (narrow phones / portrait), stack root over quality, then shrink.
@@ -4567,27 +5128,35 @@ function accSym(s) {
       el.classList.toggle("nonum", m === "stack" || m === "plain");
     }
     el.classList.remove("tight");
-    for (var c0 = 0; c0 < chips.length; c0++) chips[c0].classList.remove("sq", "st1");
+    for (var c0 = 0; c0 < chips.length; c0++) chips[c0].classList.remove("sq", "st1", "c2");
     var fs = parseFloat(getComputedStyle(el).getPropertyValue("--ss-fs")) || 16;
     var fl = Math.ceil(11 / fs * 100) / 100;   // chip names never below 11 px
-    // v53 Simple: one line only. v54 full mode tries, in order: numeral beside the name,
-    // numeral under the name (.rn2), and only if neither fits, no numerals with the root over
-    // the quality (.stack). First layout with nothing overflowing wins (biggest text among the
-    // numeral layouts); otherwise the one with the fewest overflowing chips.
-    var modes = ["inline"];
-    if (!document.documentElement.classList.contains("simple")) {
-      var rnEl = el.querySelector(".ss-chip .rn");
-      var rnOn = !!rnEl && getComputedStyle(rnEl).display !== "none";
-      modes = rnOn ? ["inline", "rn2", "stack"] : ["inline", "stack"];
+    // v53 Simple: one line only. v55 full mode: the numeral sits beside the name; a chip where
+    // it doesn't fit drops its numeral (the note row shows it underneath). Numerals never wrap.
+    // Only if names alone still don't fit: no numerals with the root over the quality (.stack).
+    var full = !document.documentElement.classList.contains("simple");
+    for (var c1 = 0; c1 < chips.length; c1++) chips[c1].classList.remove("norn");
+    setMode("inline");
+    var rnEl = el.querySelector(".ss-chip .rn");
+    var rnOn = full && !!rnEl && getComputedStyle(rnEl).display !== "none";
+    var flN = rnOn ? Math.max(fl, 0.88) : fl;
+    var n = run(flN);
+    while (n && rnOn) {
+      var added = 0;
+      for (var c2i = 0; c2i < chips.length; c2i++) {
+        if (overC(chips[c2i]) && !chips[c2i].classList.contains("norn")) { chips[c2i].classList.add("norn"); added++; }
+      }
+      if (!added) break;
+      n = run(flN);
     }
-    var best = null;
-    for (var mi = 0; mi < modes.length; mi++) {
-      setMode(modes[mi]);
-      var n = run(fl);
-      var eff = (modes[mi] === "stack" ? fs - 2 : fs) * curK();
-      if (!best || n < best.n || (n === best.n && n === 0 && modes[mi] !== "stack" && eff > best.eff + 0.5)) best = { m: modes[mi], n: n, eff: eff };
-      if (n === 0 && (modes[mi] === "rn2" || (modes[mi] === "inline" && curK() >= 1))) break;
-      if (n === 0 && modes[mi] === "stack") break;
+    if (n) n = run(fl);
+    var best = { m: "inline" };
+    if (n && full) {
+      var kIn = curK();
+      setMode("stack");
+      var ns = run(fl);
+      if (ns < n) best = { m: "stack" };
+      else { setMode("inline"); el.style.setProperty("--ss-k", String(kIn)); }
     }
     setMode(best.m);
     if (run(fl)) {
@@ -4597,8 +5166,16 @@ function accSym(s) {
         var ch = chips[ci];
         if (!overC(ch)) continue;
         ch.classList.add("sq");
-        if (overC(ch) && best.m === "inline") { ch.classList.add("c2"); if (overC(ch)) ch.classList.remove("c2"); }
         if (overC(ch) && best.m !== "stack") { ch.classList.add("st1"); if (overC(ch)) ch.classList.remove("st1"); }
+      }
+    }
+    // The final size may leave room again: give a numeral back wherever it now fits.
+    if (rnOn && best.m === "inline") {
+      for (var cr = 0; cr < chips.length; cr++) {
+        var chr = chips[cr];
+        if (!chr.classList.contains("norn") || chr.classList.contains("sq") || chr.classList.contains("st1")) continue;
+        chr.classList.remove("norn");
+        if (overC(chr)) chr.classList.add("norn");
       }
     }
     // Simple: note buttons are about chip height, and never wider than their column.
@@ -4607,6 +5184,7 @@ function accSym(s) {
     var rowH = sadChip ? sadChip.offsetHeight : 0, colW = 2 * (parseFloat(gc[2]) || 0);
     if (rowH && colW) el.style.setProperty("--ss-nb", Math.floor(Math.min(rowH, colW)) + "px");
     if (rowH) el.style.setProperty("--ss-nh", Math.floor(rowH) + "px");
+    placeBadges();
   }
   window.addEventListener("resize", function () { fitStrip(); });
   // v54: the panel can change height without a resize (Now column grows when a key is set).
@@ -5564,6 +6142,7 @@ function accSym(s) {
     var btn = document.getElementById("simpleBtn");
     if (btn) btn.setAttribute("aria-checked", state.simple ? "true" : "false");
     if (state.simple) setDrawer(false);
+    placeProg();
   }
 
   // One switch. ON: hide Sound/FX/Key/Loop/Layout controls (CSS: html.simple),
@@ -5652,6 +6231,7 @@ function accSym(s) {
       refreshHeld();
     }
     paintCtl();
+    placeProg();
     fitNowSymbol();
   }
 
@@ -5698,6 +6278,7 @@ function accSym(s) {
     wireConfig();
     wireKeyPick();
     wireKidKey();
+    wireProg();
     wireLayoutUi();
     // v52: fade the style row's right edge while more styles are scrolled out of view.
     (function () {
