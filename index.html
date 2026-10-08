@@ -1447,9 +1447,23 @@ html.lay-pad-land:not(.simple) .prog { margin-left: calc(var(--rail-w) + var(--g
   box-shadow: 0 1px 2px rgba(0, 0, 0, .55); touch-action: none; cursor: pointer; }
 .ss .pg-badge.on { background: var(--copper); }
 html.simple .ss .pg-badge { min-width: 19px; height: 19px; line-height: 17px; font-size: 12.5px; border-radius: 10px; padding: 0 4px; }
-html.lay-phone-port:not(.simple) .ss .pg-badge { min-width: 12px; height: 12px; line-height: 10px; font-size: 8.5px; padding: 0 2px; }
+html.lay-phone-port:not(.simple) .ss .pg-badge { min-width: 14px; height: 14px; line-height: 12px; font-size: 10px; padding: 0 2px; border-radius: 7px; }
 html.lay-pad-land .ss .pg-badge, html.lay-pad-port .ss .pg-badge { min-width: 22px; height: 22px; line-height: 20px; font-size: 14px; border-radius: 11px; padding: 0 5px; }
 .ss .ss-chip.tmp { opacity: .9; }
+/* v56: "3+4" = step 3 (current or next) and 4 more steps on this chord. */
+.ss .pg-badge small { font-size: 1em; font-weight: 600; opacity: .72; margin-left: 1px; }
+/* v56: bigger hit areas for Play / Next (drawn size and layout unchanged). */
+.pg-btn { position: relative; }
+.pg-btn::after { content: ""; position: absolute; inset: -3px; }
+html.lay-phone-land:not(.simple) .pg-btn { z-index: 2; }
+html.lay-phone-land:not(.simple) .pg-btn::after { inset: -2px -2px -21px; }
+html.lay-phone-port:not(.simple) .pg-btn::after { inset: -1px -4px; }
+html.lay-phone-port:not(.simple) .pg-play::after { top: -6px; }
+html.lay-phone-port:not(.simple) .pg-step::after { bottom: -8px; }
+/* v56: phone portrait full mode: the cycler width comes from the bar, not from its text. */
+html.lay-phone-port.prog-top:not(.simple) .prog { flex: 1 1 0; width: 0; min-width: 0; max-width: none; }
+html.lay-phone-port.prog-top:not(.simple) .topbar .spacer { flex: 0 0 0; }
+html.lay-phone-port:not(.simple) .pg-btn { width: 38px; }
 /* Last-resort squeeze (one long name in a narrow column, e.g. B\266d7sus4 at 667 px): no side padding. */
 html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
 .ss .ss-chip.pg-on { transform: scale(.92); filter: brightness(1.25); }
@@ -1479,43 +1493,43 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section><h3>About Touch Chord</h3>
-      <img src="images/howto-why.webp?v=55" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=56" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Touch Chord turns one finger into a full chord.<br>It's for anyone who wants to play chords without reading music.<br>A chord is 3 or more notes played at once. Chords that sound good together make up a key.</p>
       <ul><li><b>Learn chords:</b> try a random chord and see its name and notes.</li><li><b>Sing along:</b> play chords under your voice.</li><li><b>Beginner to making music:</b> start with one chord, then follow the suggestions into a song.</li></ul></section>
       <h2 class="ht-howto">How-to</h2>
       <section><h3>1. Play a note</h3>
-      <img src="images/howto-simple-1-strip-note.webp?v=55" alt="Tap a note on the scale strip" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-strip-note.webp?v=56" alt="Tap a note on the scale strip" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a note on the strip (1).</p></section>
       <section><h3>2. Key</h3>
-      <img src="images/howto-simple-2-key.webp?v=55" alt="Key control: swipe the note, tap Major or Minor" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-simple-2-key.webp?v=56" alt="Key control: swipe the note, tap Major or Minor" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Swipe the note (1) to change the key. Tap (2) for <b>Major</b> or <b>Minor</b>.</p></section>
       <section><h3>3. Chord chips</h3>
-      <img src="images/howto-simple-3-chips.webp?v=55" alt="Chord chips above and below the strip" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-simple-3-chips.webp?v=56" alt="Chord chips above and below the strip" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap or hold a chip (1) to play its chord.</p></section>
       <section><h3>4. Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=55" alt="Sustain lit while the chord rings" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=56" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play (1), hold <b>Sustain</b> (2): notes ring and fade. Let go to stop.</p></section>
       <section><h3>5. Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=55" alt="Style picker" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=56" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style (1). It changes the sound and the chords.</p></section>
       <section><h3>6. Songs</h3>
-      <img src="images/howto-simple-6-progressions.webp?v=55" alt="Progression row under Major and Minor: swipe the name, tap play" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-progressions.webp?v=56" alt="Progression row under Major and Minor: swipe the name, tap play" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Swipe the name (1) to pick a song. Tap &#9654; (2) to play it over and over. The numbers (3) show the order: tap one to play it.</p></section>
       <h2 class="ht-howto">In full mode</h2>
       <section><h3>Suggestions</h3>
-      <img src="images/howto-full-1-suggestions.webp?v=55" alt="Full-mode suggestion box: chord chips with small Roman numerals" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-1-suggestions.webp?v=56" alt="Full-mode suggestion box: chord chips with small Roman numerals" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Same chips and notes as Simple (1). The small Roman numerals (2), like <b>I</b>, <b>IV</b> and <b>V</b>, show where each chord sits in the key.</p></section>
       <section><h3>Make a chord</h3>
-      <img src="images/howto-full-2-make-chord.webp?v=55" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=56" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Hold <b>maj7</b> (1), tap <b>A</b> (2) = <b>Amaj7</b>.</p></section>
       <section><h3>Keyboard</h3>
-      <img src="images/howto-full-3-keyboard.webp?v=55" alt="Piano keyboard: each key plays a chord" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-3-keyboard.webp?v=56" alt="Piano keyboard: each key plays a chord" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a key (1) to play its chord.</p></section>
       <section><h3>Full Range</h3>
-      <img src="images/howto-full-4-fullrange.webp?v=55" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=56" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Gray keys are outside your key. Tap <b>Full Range</b> (1) to play them all.</p></section>
       <section><h3>Progressions</h3>
-      <img src="images/howto-full-5-progressions.webp?v=55" alt="Progression picker: Roman numerals between arrows, play and Next" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-5-progressions.webp?v=56" alt="Progression picker: Roman numerals between arrows, play and Next" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">&#8249; &#8250; (1) picks a progression, shown in Roman numerals. &#9654; (2) loops it, one chord per bar. <b>Next</b> (3) plays one chord at a time.</p></section>
       <p class="ht-end">Sound and FX live in the gear's <b>Advanced</b> settings.</p>
       <dl class="ht-legend"><dt>Simple</dt><dd>Simple on/off</dd><dt>&#9881;</dt><dd>Settings (Advanced: sound, FX)</dd><dt>?</dt><dd>This guide</dd></dl>
@@ -1680,7 +1694,7 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 55;
+var APP_VERSION = 56;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -4775,9 +4789,10 @@ function accSym(s) {
 
   var prog = { style: null, mode: null, keySig: null, key: null, idx: 0, list: [], steps: [], targets: [], badges: [],
     cur: -1, playing: false, timer: 0, si: 0, nextT: 0, groups: [], gid: 0, uiT: [], flashT: 0, log: [], tmp: 0, unplaced: 0, model: null };
-  window.__prog = prog;
-  // Test hook (read-only use in checks): data and the player entry points.
-  window.__progApi = { data: PROGRESSIONS, steps: function (k, p) { return progSteps(k, p); }, numerals: function (st) { return progNumerals(st); }, set: function (i) { progSet(i); }, play: function () { progPlay(); }, stop: function () { progStop(); }, next: function () { progNext(); }, bar: PROG_BAR };
+  // Test hooks only with ?test=1 (not in normal use).
+  var PROG_TEST = /[?&]test=1(&|$)/.test(location.search);
+  if (PROG_TEST) window.__prog = prog;
+  if (PROG_TEST) window.__progApi = { data: PROGRESSIONS, steps: function (k, p) { return progSteps(k, p); }, numerals: function (st) { return progNumerals(st); }, set: function (i) { progSet(i); }, play: function () { progPlay(); }, stop: function () { progStop(); }, next: function () { progNext(); }, bar: PROG_BAR };
 
   // Called when the strip is rebuilt: a style change goes back to the style's first
   // progression; a key or style change stops the progression loop.
@@ -4855,9 +4870,9 @@ function accSym(s) {
       var t = g.el, bd = document.createElement("span");
       var nums = g.steps.map(function (i) { return i + 1; });
       bd.className = "pg-badge" + (t.classList.contains("ss-note") ? " on-note" : "") + (nums.length > 1 ? " multi" : "");
-      bd.textContent = nums.length > 3 ? nums.slice(0, 2).join("\u00b7") + "\u2026" : nums.join("\u00b7");
       bd.setAttribute("role", "button");
       bd.setAttribute("aria-label", "Progression step " + nums.join(", "));
+      bd.title = "Step " + nums.join(", ");
       bd.addEventListener("pointerdown", function (e) { e.preventDefault(); e.stopPropagation(); progBadge(g.steps); });
       bd.addEventListener("click", function (e) { e.stopPropagation(); });
       el.appendChild(bd);
@@ -4865,13 +4880,73 @@ function accSym(s) {
     });
     paintProgActive();
   }
-  // Badges sit on their chip's top-left corner (absolute, so they never change the grid or the
-  // chip fit); placed after every fit / resize.
+  // v56: badge text. Up to 2 steps: all of them ("1\u00b76"). More (Blues C7 = 1, 3, 4, 7, 11): the
+  // current or next step for that chip and how many more ("3 +4"); the full list is in the label.
+  function badgeText(b) {
+    var nums = b.steps.map(function (i) { return i + 1; });
+    if (nums.length <= 2) return nums.join("\u00b7");
+    var at = b.steps.indexOf(prog.cur) >= 0 ? prog.cur : null;
+    if (at === null) {
+      for (var i = 0; i < b.steps.length; i++) if (b.steps[i] > prog.cur) { at = b.steps[i]; break; }
+      if (at === null) at = b.steps[0];
+    }
+    return (at + 1) + "<small>+" + (nums.length - 1) + "</small>";
+  }
+  // v56: badges sit just OUTSIDE their chip, on a corner or edge, never on any chord name,
+  // numeral or note name: each badge takes the first spot (corners, then along the edges) that
+  // covers no text, stays inside the panel and misses the other badges.
   function placeBadges() {
+    var el = document.getElementById("suggest");
+    if (!el || !prog.badges.length) return;
+    var sr = el.getBoundingClientRect();
+    var pr = el.parentNode.getBoundingClientRect();
+    var texts = [];
+    Array.prototype.forEach.call(el.querySelectorAll(".ss-chip .r, .ss-chip .q, .ss-chip .rn, .ss-note .nn, .ss-note small"), function (n) {
+      if (!n.textContent || getComputedStyle(n).display === "none") return;
+      var q = n.getBoundingClientRect();
+      if (q.width > 0 && q.height > 0) texts.push(q);
+    });
+    // Never over the buttons above the panel either (a badge may poke a little above it).
+    Array.prototype.forEach.call(document.querySelectorAll("button, .prog"), function (n) {
+      if (el.contains(n)) return;
+      var q = n.getBoundingClientRect();
+      if (q.width > 0 && q.bottom > pr.top - 12 && q.top < pr.top) texts.push(q);
+    });
+    var placed = [];
+    function ov(a, b) {
+      var w = Math.min(a.right, b.right) - Math.max(a.left, b.left), h = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+      return w > 0 && h > 0 ? w * h : 0;
+    }
     prog.badges.forEach(function (b) {
-      var t = b.target;
-      b.el.style.left = Math.round(t.offsetLeft - b.el.offsetWidth * 0.3) + "px";
-      b.el.style.top = Math.round(t.offsetTop - b.el.offsetHeight * 0.38) + "px";
+      b.el.innerHTML = badgeText(b);
+      var t = b.target.getBoundingClientRect();
+      var bw = b.el.offsetWidth, bh = b.el.offsetHeight, k = 3;
+      var L = t.left - bw + k, R = t.right - k, T = t.top - bh + k, B = t.bottom - k, ym = t.top + (t.height - bh) / 2, f;
+      // Corners on top, then the sides, then along the top edge, then the bottom (reads as the
+      // chip below, so last), then just inside a corner as a fallback.
+      var cands = [[L, T], [R, T], [t.left - bw + 1, ym], [t.right - 1, ym]];
+      for (f = 0.25; f < 1; f += 0.25) cands.push([t.left + (t.width - bw) * f, t.top - bh + 2]);
+      cands.push([t.left - bw + 1, t.top - bh / 2], [t.right - 1, t.top - bh / 2], [t.left - bw + 1, t.bottom - bh / 2], [t.right - 1, t.bottom - bh / 2]);
+      cands.push([L, B], [R, B]);
+      for (f = 0.25; f < 1; f += 0.25) cands.push([t.left + (t.width - bw) * f, t.bottom - 2]);
+      cands.push([L, t.top + 1], [R, t.top + 1], [t.left - bw * 0.3, t.top - bh * 0.38], [t.right - bw * 0.7, t.top - bh * 0.38]);
+      var best = null;
+      cands.forEach(function (c, ci) {
+        var r = { left: c[0], top: c[1], right: c[0] + bw, bottom: c[1] + bh };
+        var sc = 0;
+        texts.forEach(function (q) { sc += ov(r, q) * 100; });
+        placed.forEach(function (q) { sc += ov(r, q) * 50; });
+        // Inside the panel; poking up to 60% of its height over the top edge (like a notification badge) only
+        // when nothing inside is free.
+        var up = Math.max(0, pr.top - r.top);
+        var allow = Math.round(bh * 0.6);
+        var out = Math.max(0, pr.left - r.left) + Math.max(0, r.right - pr.right) + Math.max(0, up - allow) + Math.max(0, r.bottom - pr.bottom);
+        sc += out * 2000 + Math.min(up, allow) * 5 + ci * 0.01;
+        if (!best || sc < best.sc) best = { sc: sc, r: r };
+      });
+      placed.push(best.r);
+      b.el.style.left = Math.round(best.r.left - sr.left) + "px";
+      b.el.style.top = Math.round(best.r.top - sr.top) + "px";
     });
   }
   function progRedecorate() {
@@ -4889,6 +4964,7 @@ function accSym(s) {
     var t = prog.cur >= 0 ? prog.targets[prog.cur] : null;
     if (t) t.classList.add("pg-on");
     prog.badges.forEach(function (b) { b.el.classList.toggle("on", prog.cur >= 0 && b.steps.indexOf(prog.cur) >= 0); });
+    if (prog.badges.some(function (b) { return b.steps.length > 2; })) placeBadges();
   }
   // Manual step (Next button / badge): play one step like a chip tap, lit while it rings.
   function progJump(i) {
@@ -4960,11 +5036,16 @@ function accSym(s) {
     var st = prog.steps[i];
     setItemState(st.item);
     var spec = computeSpec();
-    var g = "P" + (++prog.gid);
-    ChordAudio.playChord(g, spec.midis, { bass: spec.bassOut, sound: state.sound, time: t });
-    prog.groups.forEach(function (o) { ChordAudio.stopChord(o.g, Math.max(t, o.t)); });
-    prog.groups = [{ g: g, t: t }];
-    prog.log.push({ i: i, t: t, sym: spec.symbol });
+    // v56: the same chord again (Deep drone, Blues C7 C7) is held through, not struck again.
+    var tied = !!(prog.lastItem && prog.groups.length && sameChord(prog.lastItem, st.item));
+    if (!tied) {
+      var g = "P" + (++prog.gid);
+      ChordAudio.playChord(g, spec.midis, { bass: spec.bassOut, sound: state.sound, time: t });
+      prog.groups.forEach(function (o) { ChordAudio.stopChord(o.g, Math.max(t, o.t)); });
+      prog.groups = [{ g: g, t: t }];
+    }
+    prog.lastItem = st.item;
+    prog.log.push({ i: i, t: t, sym: spec.symbol, tied: tied });
     if (prog.log.length > 64) prog.log.shift();
     var tid = setTimeout(function () {
       prog.uiT = prog.uiT.filter(function (x) { return x !== tid; });
@@ -4985,6 +5066,7 @@ function accSym(s) {
     var now = ChordAudio.ctx ? ChordAudio.currentTime() : 0;
     prog.groups.forEach(function (o) { ChordAudio.stopChord(o.g, Math.max(now, o.t + 0.01)); });
     prog.groups = [];
+    prog.lastItem = null;
     prog.cur = -1;
     paintProgActive();
     if (suggestPreview) clearSuggestPreview();
@@ -5071,25 +5153,35 @@ function accSym(s) {
       txt.classList.add(d > 0 ? "nudge-r" : "nudge-l");
       setTimeout(function () { txt.classList.remove("nudge-l", "nudge-r"); }, 140);
     }
-    el.querySelector(".pg-prev").addEventListener("click", function (e) { e.stopPropagation(); step(-1); });
-    el.querySelector(".pg-next").addEventListener("click", function (e) { e.stopPropagation(); step(1); });
     el.querySelector(".pg-play").addEventListener("click", function () { progPlay(); });
     el.querySelector(".pg-step").addEventListener("click", function () { unlock(); progNext(); });
-    // Swipe: one progression per swipe (like the key slider, but never more than one step).
+    // v56: the whole row swipes, arrows included. A tap on an arrow steps once; a horizontal drag
+    // past the threshold steps once (and is not also a tap). One step per gesture.
     var drag = null;
     sel.addEventListener("pointerdown", function (e) {
-      if (e.target.closest(".pg-arrow")) return;
+      if (e.button != null && e.button !== 0) return;
       e.preventDefault();
-      drag = { id: e.pointerId, x: e.clientX, done: false, unit: Math.max(28, sel.clientWidth / 5) };
+      // Tap zones: each arrow plus the outer 30% of the row on its side (small arrows, big targets).
+      var arrow = e.target.closest ? e.target.closest(".pg-arrow") : null, r = sel.getBoundingClientRect();
+      var side = arrow ? (arrow.classList.contains("pg-prev") ? -1 : 1)
+        : e.clientX < r.left + r.width * 0.3 ? -1 : e.clientX > r.right - r.width * 0.3 ? 1 : 0;
+      drag = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: false, done: false,
+        arrow: side, unit: Math.max(24, Math.min(40, sel.clientWidth / 6)) };
       try { sel.setPointerCapture(e.pointerId); } catch (err) {}
     });
     sel.addEventListener("pointermove", function (e) {
-      if (!drag || e.pointerId !== drag.id || drag.done) return;
+      if (!drag || e.pointerId !== drag.id) return;
       e.preventDefault();
       var dx = e.clientX - drag.x;
-      if (Math.abs(dx) >= drag.unit) { drag.done = true; step(dx > 0 ? 1 : -1); }
+      if (Math.abs(dx) > 8 || Math.abs(e.clientY - drag.y) > 8) drag.moved = true;
+      if (!drag.done && Math.abs(dx) >= drag.unit) { drag.done = true; step(dx > 0 ? 1 : -1); }
     });
-    function end(e) { if (drag && e.pointerId === drag.id) drag = null; }
+    function end(e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      var d = drag;
+      drag = null;
+      if (e.type === "pointerup" && !d.done && !d.moved && d.arrow) step(d.arrow);
+    }
     sel.addEventListener("pointerup", end);
     sel.addEventListener("pointercancel", end);
     sel.addEventListener("touchmove", function (e) { e.preventDefault(); }, { passive: false });
