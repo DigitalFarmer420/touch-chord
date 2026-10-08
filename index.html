@@ -1483,7 +1483,7 @@ html.lay-phone-port:not(.simple) .ss .pg-badge { min-width: 15px; height: 15px; 
 .pg-btn { position: relative; }
 .pg-btn::after { content: ""; position: absolute; inset: -3px; }
 html.lay-phone-land:not(.simple) .pg-btn { z-index: 2; }
-html.lay-phone-land:not(.simple) .pg-btn::after { inset: -2px -2px -21px; }
+html.lay-phone-land:not(.simple) .pg-btn::after { inset: -2px -3px -3px; }  /* v58: never over the Now card below */
 html.lay-phone-port:not(.simple) .pg-btn::after { inset: -1px -4px; }
 html.lay-phone-port:not(.simple) .pg-play::after { top: -6px; }
 html.lay-phone-port:not(.simple) .pg-step::after { bottom: -8px; }
@@ -4911,12 +4911,15 @@ function accSym(s) {
     var el = document.getElementById("suggest");
     if (!el || !prog.badges.length) return;
     var sr = el.getBoundingClientRect();
-    var pr = el.parentNode.getBoundingClientRect();
+    var pc = el.parentNode.getBoundingClientRect();
+    // v58: inside the strip horizontally (and the panel vertically).
+    var pr = { left: Math.max(pc.left, sr.left), right: Math.min(pc.right, sr.right), top: pc.top, bottom: pc.bottom };
     var texts = [];
     Array.prototype.forEach.call(el.querySelectorAll(".ss-chip .r, .ss-chip .q, .ss-chip .rn, .ss-note .nn, .ss-note small"), function (n) {
       if (!n.textContent || getComputedStyle(n).display === "none") return;
       var q = n.getBoundingClientRect();
-      if (q.width > 0 && q.height > 0) texts.push(q);
+      // v58: keep at least 1.5px clear of any text.
+      if (q.width > 0 && q.height > 0) texts.push({ left: q.left - 1.5, top: q.top - 1.5, right: q.right + 1.5, bottom: q.bottom + 1.5 });
     });
     // Never over the buttons above the panel either (a badge may poke a little above it).
     Array.prototype.forEach.call(document.querySelectorAll("button, .prog"), function (n) {
@@ -4942,6 +4945,8 @@ function accSym(s) {
       cands.push([L, B], [R, B]);
       for (f = 0.25; f < 1; f += 0.25) cands.push([t.left + (t.width - bw) * f, t.bottom - 2]);
       cands.push([L, t.top + 1], [R, t.top + 1], [t.left - bw * 0.3, t.top - bh * 0.38], [t.right - bw * 0.7, t.top - bh * 0.38]);
+      // v58: corners just touching, when tight (portrait phones).
+      cands.push([t.left - bw, t.top - bh + 1], [t.right, t.top - bh + 1], [t.left - bw, t.bottom - 1], [t.right, t.bottom - 1], [t.left - bw, ym], [t.right, ym]);
       var best = null;
       cands.forEach(function (c, ci) {
         var r = { left: c[0], top: c[1], right: c[0] + bw, bottom: c[1] + bh };
