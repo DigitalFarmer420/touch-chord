@@ -1469,6 +1469,8 @@ html.lay-pad-land:not(.simple) .prog { margin-left: calc(var(--rail-w) + var(--g
 html.simple .ss .pg-badge { min-width: 19px; height: 19px; line-height: 17px; font-size: 12.5px; border-radius: 10px; padding: 0 4px; }
 html.lay-phone-port:not(.simple) .ss .pg-badge { min-width: 14px; height: 14px; line-height: 12px; font-size: 10px; padding: 0 2px; border-radius: 7px; }
 html.lay-pad-land .ss .pg-badge, html.lay-pad-port .ss .pg-badge { min-width: 22px; height: 22px; line-height: 20px; font-size: 14px; border-radius: 11px; padding: 0 5px; }
+html.lay-pad-land .ss .pg-badge.cmp, html.lay-pad-port .ss .pg-badge.cmp { min-width: 17px; height: 17px; line-height: 15px; font-size: 12px; border-radius: 9px; padding: 0 3px; }
+html.lay-phone-land .ss .pg-badge.cmp, html.simple .ss .pg-badge.cmp { min-width: 15px; height: 15px; line-height: 13px; font-size: 11px; border-radius: 8px; padding: 0 2px; }
 .ss .ss-chip.tmp { opacity: .9; }
 /* v60/v61: full mode on phones: Now, Key, ‹ name ›, Next, Full Range. */
 html.lay-phone-land:not(.simple) .key-bar, html.lay-phone-port:not(.simple) .key-bar { display: contents; }
@@ -1478,6 +1480,21 @@ html.lay-phone-land:not(.simple) .now-col > #prog, html.lay-phone-port:not(.simp
 html.lay-phone-land:not(.simple) #allKeys, html.lay-phone-port:not(.simple) #allKeys { order: 4; }
 html.lay-phone-land:not(.simple) .key-bar button, html.lay-phone-port:not(.simple) .key-bar button { flex: 0 0 auto; }
 html.lay-phone-land:not(.simple) .now-col { gap: 3px; }
+/* v63: the Now card's 'Chords in this key' row never shifts the layout. Phones hide it (portrait too
+   now, like landscape); iPad / desktop keep it on ONE line at a fixed 20 px height, reserved from first
+   load (before any chord). Small trims pay for it so the keyboard keeps its v62 first-load height. */
+html.lay-phone-port #keyRow { display: none !important; }
+/* v63: Simple on tablet portrait has a fixed 130 px Now card: tighter padding and gaps so the name can
+   stay as large as possible (the height fit guard sizes it). */
+html.simple.lay-pad-port .now-card { padding: 7px 18px; gap: 2px; }
+html.simple.lay-pad-port #tones { margin-top: 2px; }
+/* v63: tablets (full): the name keeps its line height when the fit guard shrinks a long name, so the
+   Now card (which sizes the column) never changes height from chord to chord. */
+html.lay-pad-land:not(.simple) #symbol, html.lay-pad-port:not(.simple) #symbol { display: inline-flex; align-items: center; height: calc(var(--sym) * var(--tx, 1) * 0.95); }
+html.lay-pad-land:not(.simple) #keyRow, html.lay-pad-port:not(.simple) #keyRow { display: flex; flex: 0 0 auto; height: 20px; min-height: 20px; gap: 3px; align-items: stretch; }
+html.lay-pad-land:not(.simple) #keyRow > span, html.lay-pad-port:not(.simple) #keyRow > span { display: flex; align-items: center; justify-content: center; padding: 0 1px; line-height: 1; font-size: 13px; }
+html.lay-pad-land:not(.simple) .now-card, html.lay-pad-port:not(.simple) .now-card { padding: 8px 14px; gap: 4px; }
+html.lay-pad-land:not(.simple) .now-col, html.lay-pad-port:not(.simple) .now-col { gap: 4px; }
 /* v62: iPad / desktop full mode: the same column. Key and Full Range stack full width; the name
    (with numerals under it) and a full-width Next sit between them. */
 html.lay-pad-land:not(.simple) .key-bar, html.lay-pad-port:not(.simple) .key-bar { display: contents; }
@@ -1486,10 +1503,10 @@ html.lay-pad-land:not(.simple) #keyChip, html.lay-pad-port:not(.simple) #keyChip
 html.lay-pad-land:not(.simple) .now-col > #prog, html.lay-pad-port:not(.simple) .now-col > #prog { order: 3; }
 html.lay-pad-land:not(.simple) #allKeys, html.lay-pad-port:not(.simple) #allKeys { order: 4; }
 html.lay-pad-land:not(.simple) .key-bar button, html.lay-pad-port:not(.simple) .key-bar button { flex: 0 0 auto; height: 40px; min-height: 40px; }
-html.lay-pad-land:not(.simple) .now-col > .prog, html.lay-pad-port:not(.simple) .now-col > .prog { flex-direction: column; gap: 6px; flex: 0 0 auto; width: 100%; max-width: none; margin: 0; --pg-h: 42px; }
+html.lay-pad-land:not(.simple) .now-col > .prog, html.lay-pad-port:not(.simple) .now-col > .prog { flex-direction: column; gap: 4px; flex: 0 0 auto; width: 100%; max-width: none; margin: 0; --pg-h: 42px; }
 html.lay-pad-land:not(.simple) .now-col > .prog .pg-sel, html.lay-pad-port:not(.simple) .now-col > .prog .pg-sel { width: 100%; flex: 0 0 auto; }
 html.lay-pad-land:not(.simple) .now-col > .prog .pg-btns, html.lay-pad-port:not(.simple) .now-col > .prog .pg-btns { width: 100%; }
-html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.simple) .now-col > .prog .pg-btn { flex: 1 1 0; width: auto; height: 34px; }
+html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.simple) .now-col > .prog .pg-btn { flex: 1 1 0; width: auto; height: 30px; }
 /* v61 portrait: the row grows (the keyboard gives up the height) so Now stays at its v59 91 px. */
 html.lay-phone-port:not(.simple) .now-col { gap: 4px; }
 html.lay-phone-port:not(.simple) .now-col > .now-card { flex: 1 0 auto; min-height: 91px; }
@@ -1564,27 +1581,27 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=62" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=63" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Touch Chord turns one finger into a full chord. No music reading needed.</p>
       <p class="ht-uses">Learn chords &middot; Sing along &middot; Start a song.</p></section>
       <ol class="ht-steps">
       <li><section><h3>1. Play chord suggestion</h3>
-      <img src="images/howto-simple-1-play-suggestion.webp?v=62" alt="Key note and Major/Minor, a chord chip, and the song picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-suggestion.webp?v=63" alt="Key note and Major/Minor, a chord chip, and the song picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Swipe the note (1) to pick the key, and tap for <b>Major</b> or <b>Minor</b>. Then tap a chord (2) to play it. &#8249; &#8250; (3) picks a song, and <b>Next</b> plays it one chord at a time.</p></section></li>
       <li><section><h3>2. Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=62" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=63" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play (1), hold <b>Sustain</b> (2): notes ring and fade. Let go to stop.</p></section></li>
       <li><section><h3>3. Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=62" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=63" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style (1). It changes the sound and the chords.</p></section></li>
       <li><section><h3>4. Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=62" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=63" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Hold <b>maj7</b> (1), tap <b>A</b> (2) = <b>Amaj7</b>.</p></section></li>
       <li><section><h3>5. Keyboard <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-3-keyboard.webp?v=62" alt="Piano keyboard: each key plays a chord" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-3-keyboard.webp?v=63" alt="Piano keyboard: each key plays a chord" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a key (1) to play its chord.</p></section></li>
       <li><section><h3>6. Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=62" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=63" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Gray keys are outside your key. Tap <b>Full Range</b> (1) to play them all.</p></section></li>
       </ol>
       <p class="ht-end">Sound and FX live in the gear's <b>Advanced</b> settings.</p>
@@ -1748,7 +1765,7 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 62;
+var APP_VERSION = 63;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -4980,10 +4997,10 @@ function accSym(s) {
       var w = Math.min(a.right, b.right) - Math.max(a.left, b.left), h = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
       return w > 0 && h > 0 ? w * h : 0;
     }
-    prog.badges.forEach(function (b) {
-      b.el.innerHTML = badgeText(b);
+    function place(b) {
       var t = b.target.getBoundingClientRect();
-      var bw = b.el.offsetWidth, bh = b.el.offsetHeight, k = 3;
+      var bq = b.el.getBoundingClientRect();
+      var bw = bq.width, bh = bq.height, k = 3;
       var L = t.left - bw + k, R = t.right - k, T = t.top - bh + k, B = t.bottom - k, ym = t.top + (t.height - bh) / 2, f;
       // Corners on top, then the sides, then along the top edge, then the bottom (reads as the
       // chip below, so last), then just inside a corner as a fallback.
@@ -5015,6 +5032,24 @@ function accSym(s) {
       // Last resort: clamp (only if every spot was outside, e.g. a strip smaller than the badge).
       var cl = Math.min(Math.max(best.r.left, pr.left), pr.right - bw), ct = Math.min(Math.max(best.r.top, pr.top), pr.bottom - bh);
       best.r = { left: cl, top: ct, right: cl + bw, bottom: ct + bh };
+      best.sc = 0;
+      texts.forEach(function (q) { best.sc += ov(best.r, q) * 100; });
+      placed.forEach(function (q) { best.sc += ov(best.r, q) * 50; });
+      best.bw = bw; best.bh = bh;
+      return best;
+    }
+    prog.badges.forEach(function (b) {
+      b.el.innerHTML = badgeText(b);
+      b.el.classList.remove("cmp");
+      var best = place(b);
+      // v63: crowded (a 10+ step progression on a tablet): when every spot still touches text or
+      // another badge, try a compact badge (still >= 11 px text) and keep it if it fits better.
+      if (best.sc > 0.5) {
+        b.el.classList.add("cmp");
+        var b2 = place(b);
+        if (b2.sc < best.sc) best = b2; else b.el.classList.remove("cmp");
+      }
+      var bw = best.bw, bh = best.bh;
       placed.push(best.r);
       var px = Math.round(best.r.left - sr.left), py = Math.round(best.r.top - sr.top);
       px = Math.max(Math.ceil(pr.left - sr.left), Math.min(px, Math.floor(pr.right - bw - sr.left)));
@@ -5215,6 +5250,7 @@ function accSym(s) {
     t.style.fontSize = "";
     t.style.letterSpacing = "";
     t.style.whiteSpace = "";
+    t.style.lineHeight = "";
     // v60: a wide name area (iPad, desktop) shows "Jazz Turnaround" with small numerals under it;
     // a narrow one (phones) shows the feel only, on one line when it fits. Width-based, no UA checks.
     var L = prog.label || { name: "", feel: "", num: "" };
@@ -5239,10 +5275,21 @@ function accSym(s) {
         for (var g = 13; g > low; g -= 0.5) { t.style.fontSize = g + "px"; if (t.scrollWidth <= bw0 && t.offsetHeight <= bh0) return; }
         if (L.feel.indexOf(" ") >= 0) {
           t.style.whiteSpace = "";
-          for (g = 12; g > base; g -= 0.5) {
-            t.style.fontSize = g + "px";
-            if (t.scrollWidth <= bw0 && t.offsetHeight <= bh0 && t.offsetHeight <= g * 1.12 * 2 + 1 && !splitWord()) return;
+          // v63: two lines only with >= 2 px clear of the picker border (glyph bounds, not line boxes);
+          // tight line-height where the picker is short (phone landscape).
+          var selEl = el.querySelector(".pg-sel"), selR = selEl.getBoundingClientRect(), bT = selEl.clientTop;
+          function clear2() {
+            var rg = document.createRange(); rg.selectNodeContents(t); var q = rg.getBoundingClientRect();
+            return q.top >= selR.top + bT + 2 - 0.01 && q.bottom <= selR.bottom - bT - 2 + 0.01;
           }
+          for (var lh = 0; lh < 2; lh++) {
+            t.style.lineHeight = lh ? "1" : "";
+            for (g = 12; g > base - 1.01; g -= 0.5) {
+              t.style.fontSize = g + "px";
+              if (t.scrollWidth <= bw0 && t.offsetHeight <= bh0 && t.offsetHeight <= g * 1.12 * 2 + 1 && !splitWord() && clear2()) return;
+            }
+          }
+          t.style.lineHeight = "";
           t.style.whiteSpace = "nowrap";
           for (g = Math.max(base, 11) - 0.5; g > base; g -= 0.5) { t.style.fontSize = g + "px"; if (t.scrollWidth <= bw0) return; }
         }
@@ -5430,10 +5477,36 @@ function accSym(s) {
     sym.style.fontSize = "";
     var cs = getComputedStyle(card);
     var avail = card.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    var tones = document.getElementById("tones");
+    if (tones) tones.style.fontSize = "";
     var w = sym.getBoundingClientRect().width;
-    if (!(avail > 0) || !(w > avail)) return;
     var base = parseFloat(getComputedStyle(sym).fontSize) || 48;
-    sym.style.fontSize = Math.max(14, Math.floor(base * (avail / w) * 0.98)) + "px";
+    if (avail > 0 && w > avail) sym.style.fontSize = Math.max(14, Math.floor(base * (avail / w) * 0.98)) + "px";
+    // v63: HEIGHT too: label + name + notes (+ key row) must fit inside the card with its padding
+    // (Simple on tablet portrait has a fixed 130 px card). Shrink the name first, then the notes.
+    function need() {
+      var g = parseFloat(cs.rowGap) || 0, h = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom), n = 0;
+      for (var c = 0; c < card.children.length; c++) {
+        var ch = card.children[c];
+        if (ch.offsetParent === null || getComputedStyle(ch).display === "none") continue;
+        var ccs = getComputedStyle(ch);
+        h += ch.getBoundingClientRect().height + (parseFloat(ccs.marginTop) || 0) + (parseFloat(ccs.marginBottom) || 0); n++;
+      }
+      return h + g * Math.max(0, n - 1);   // the card padding keeps the text clear of the border
+    }
+    var availH = card.clientHeight;
+    if (!(availH > 0) || need() <= availH + 0.5) return;
+    for (var k = 0; k < 40 && need() > availH + 0.5; k++) {
+      var fsS = parseFloat(getComputedStyle(sym).fontSize);
+      if (fsS > 14) {
+        var over = need() - availH, symH = sym.getBoundingClientRect().height;
+        sym.style.fontSize = Math.max(14, Math.floor(fsS * Math.max(0.5, (symH - over) / symH))) + "px";
+        continue;
+      }
+      var fsT = tones ? parseFloat(getComputedStyle(tones).fontSize) : 0;
+      if (fsT > 10) { tones.style.fontSize = (fsT - 1) + "px"; continue; }
+      break;
+    }
   }
 
   window.addEventListener("resize", function () { fitNowSymbol(); });
@@ -5532,9 +5605,15 @@ function accSym(s) {
     var i;
     for (i = 0; i < spans.length; i++) spans[i].style.fontSize = "";
     if (!over()) return;
+    // v63: iPad / desktop: stay on one line (fixed-height row), shrinking the font down to 9 px.
+    if (document.documentElement.className.indexOf("lay-pad") >= 0) {
+      var f1 = parseFloat(getComputedStyle(spans[0]).fontSize) || 13;
+      while (f1 > 9 && over()) { f1 -= 0.5; for (i = 0; i < spans.length; i++) spans[i].style.fontSize = f1 + "px"; }
+      return;
+    }
     row.classList.add("stack");
     var fs = parseFloat(getComputedStyle(spans[0]).fontSize) || 9;
-    var floor = document.documentElement.className.indexOf("lay-pad") >= 0 ? 13 : 11;
+    var floor = 11;
     while (fs > floor && over()) {
       fs -= 0.5;
       for (i = 0; i < spans.length; i++) spans[i].style.fontSize = fs + "px";
