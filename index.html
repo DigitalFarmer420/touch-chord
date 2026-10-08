@@ -1241,12 +1241,9 @@ html.simple.lay-pad-port #app {
 }
 
 /* ===== v53: strip rows by named lines (b = green bright-borrowed, h = happy, n = notes,
-   s = sad, t = tension; hi / si = the face groups). .nob collapses the green row: the gold
-   row takes its band (chips keep one row's height, centred) so the notes stay centred. ===== */
+   s = sad, t = tension; hi / si = the face groups). v54: always 5 rows (no collapse). ===== */
 #app { --ss-ico: 22px; --ss-arrow: 11px; --ss-fgap: 6px; }
 .ss { grid-template-rows: [hi-start b-start g-start] minmax(0, 1fr) [b-end h-start] minmax(0, 1fr) [h-end hi-end n-start] minmax(0, var(--ss-mid)) [n-end si-start s-start] minmax(0, 1fr) [s-end t-start] minmax(0, 1fr) [t-end si-end g-end]; }
-.ss.nob { grid-template-rows: [hi-start h-start g-start] minmax(0, 1fr) minmax(0, 1fr) [h-end hi-end n-start] minmax(0, var(--ss-mid)) [n-end si-start s-start] minmax(0, 1fr) [s-end t-start] minmax(0, 1fr) [t-end si-end g-end]; }
-.ss.nob .ss-chip.r-h { align-self: center; height: calc((100% - var(--ss-rg)) / 2); }
 .ss .ss-track { grid-row: n; }
 .ss .ss-lbl { gap: var(--ss-fgap); }
 .ss .ss-lbl svg.ss-arrow { width: calc(var(--ss-arrow) * 12 / 14); height: var(--ss-arrow); }
@@ -1260,7 +1257,6 @@ html.simple #app { --ss-ico: 30px; --ss-arrow: 14px; --ss-fgap: 7px; }
 @media (max-width: 700px) { html.simple.lay-phone-land #app { --ss-ico: 28px; --ss-arrow: 13px; --ss-fgap: 6px; } }
 html.simple.lay-pad-land #app, html.simple.lay-pad-port #app { --ss-ico: 36px; --ss-arrow: 18px; --ss-fgap: 8px; }
 html.simple.lay-pad-land .ss .ss-chip, html.simple.lay-pad-port .ss .ss-chip { align-self: center; height: min(100%, 92px); }
-html.simple.lay-pad-land .ss.nob .ss-chip.r-h, html.simple.lay-pad-port .ss.nob .ss-chip.r-h { height: min(calc((100% - var(--ss-rg)) / 2), 92px); }
 /* Phone portrait (Simple): no face column. With the green row collapsed the rows close up and
    the whole group is centred (no empty band at the top; notes sit half a row above centre). */
 /* Phone portrait (Simple): no face column. The happy face sits above the green/gold rows,
@@ -1271,10 +1267,8 @@ html.simple.lay-phone-port #app { --ss-lbl: 0px; --ss-cgap: 3px; --ss-rg: 8px; -
 @media (max-height: 700px) { html.simple.lay-phone-port #app { --ss-rg: 6px; --sym: 34px; grid-template-rows: auto auto 176px minmax(0, 1fr); }
   html.simple.lay-phone-port .now-card .card-label { display: none; }
   html.simple.lay-phone-port #tones { margin-top: 2px; font-size: 15px; } }
-html.simple.lay-phone-port .ss { margin-left: calc(-1 * var(--ss-cgap)); padding: 5px 0; align-content: safe center;
+html.simple.lay-phone-port .ss { padding: 5px 0; align-content: safe center;
   grid-template-rows: [hi-start] auto [hi-end b-start g-start] var(--ss-ch) [b-end h-start] var(--ss-ch) [h-end n-start] minmax(44px, 52px) [n-end s-start] var(--ss-ch) [s-end t-start] var(--ss-ch) [t-end g-end si-start] auto [si-end]; }
-html.simple.lay-phone-port .ss.nob { grid-template-rows: [hi-start] auto [hi-end h-start g-start] var(--ss-ch) [h-end n-start] minmax(44px, 52px) [n-end s-start] var(--ss-ch) [s-end t-start] var(--ss-ch) [t-end g-end si-start] auto [si-end]; }
-html.simple.lay-phone-port .ss.nob .ss-chip.r-h { height: auto; align-self: stretch; }
 html.simple.lay-phone-port .ss .ss-lbl { grid-column: 2 / -1; flex-direction: row; justify-content: center; align-items: center; }
 html.simple.lay-phone-port .ss .ss-chip { padding: 0 1px; border-radius: 10px; letter-spacing: -0.02em; }
 .ss.tight .ss-chip.sq, .ss.tight .ss-chip.sq .q { letter-spacing: -0.07em; }
@@ -1282,9 +1276,7 @@ html.simple.lay-phone-port .ss .ss-chip { padding: 0 1px; border-radius: 10px; l
    the green row is collapsed). Inner dividers only, drawn in the gaps, behind chips and notes. */
 .ss .ss-gl { position: relative; z-index: 0; pointer-events: none; min-width: 0; min-height: 0; }
 .ss .ss-gl::after { content: ""; position: absolute; background: rgba(255, 255, 255, .05); }
-.ss .ss-gr { grid-column: 2 / -1; }
-.ss .ss-gr::after { left: 0; right: 0; height: 1px; bottom: calc(-0.5 * var(--ss-rg) - 0.5px); }
-.ss .ss-gc { grid-row: g-start / g-end; }
+.ss .ss-gc { grid-row: n; }
 .ss .ss-gc::after { top: 0; bottom: 0; width: 1px; right: calc(-0.5 * var(--ss-cgap) - 0.5px); }
 .ss .ss-gl.last::after { display: none; }
 .ss .ss-chip { position: relative; z-index: 1; }
@@ -1294,9 +1286,11 @@ html.simple.lay-phone-port .ss .ss-chip { padding: 0 1px; border-radius: 10px; l
    height, chip corner radius); same fill, border, raised shadow, press look and gold home ring. */
 html.simple .ss .ss-note { justify-self: stretch; width: auto; height: var(--ss-nh, 54px); border-radius: 14px; }
 html.simple.lay-phone-port .ss .ss-note { border-radius: 10px; }
-/* Style row: Simple portrait wraps onto two rows (nothing off screen). */
-html.simple.lay-phone-port .style-row { flex-wrap: wrap; overflow: visible; row-gap: 6px; }
+/* Style row: Simple portrait wraps onto two rows (nothing off screen). v54: full portrait too. */
+html.simple.lay-phone-port .style-row, html.lay-phone-port .style-row { flex-wrap: wrap; overflow: visible; row-gap: 6px; }
 html.simple.lay-phone-port .style-row button { height: 32px; min-height: 32px; padding: 0 12px; font-size: 14px; }
+html.lay-phone-port:not(.simple) .style-row { row-gap: 4px; gap: 4px; -webkit-mask-image: none; mask-image: none; }
+html.lay-phone-port:not(.simple) .style-row button { height: 28px; min-height: 28px; padding: 0 10px; font-size: 13px; }
 @media (max-height: 700px) { html.simple.lay-phone-port .style-row { row-gap: 5px; } html.simple.lay-phone-port .style-row button { height: 30px; min-height: 30px; padding: 0 11px; font-size: 13.5px; } }
 /* Full mode, phone landscape: the style row is fitted by fitStyles() (tighter steps until every
    button shows); .fit-N picks the step. */
@@ -1309,6 +1303,81 @@ html.lay-phone-land .style-row.fit-3 button { padding: 0 3px; font-size: 11px; l
 /* Narrower phones (under ~790 px): two rows of smaller buttons instead of scrolling. */
 html.lay-phone-land .style-row.fit-4 { flex-wrap: wrap; overflow: visible; gap: 3px; row-gap: 3px; align-self: center; }
 html.lay-phone-land .style-row.fit-4 button { height: 21px; min-height: 21px; padding: 0 6px; font-size: 11px; }
+
+/* ===== v54: one strip in both modes. Full mode (Simple off) gets the Simple look: no capsule,
+   gray rounded-rect note buttons with the gold home outline, the same chips, faces, press look
+   and hold. Sizes are scaled to the full-mode panel (same panel box as v53). Full mode adds a
+   small Roman numeral after each chip name (.rn); Simple never shows it. ===== */
+/* Faint lines frame only the note row (above, below, and between its 7 cells). */
+/* v54: 16 half columns after the face column: a half-column gutter, the 7 notes (2 halves
+   each), a half-column gutter. Notes and in-key chips span their note's 2 halves; chips on a
+   root outside the row span the halves either side of a note boundary (.half). Column gaps
+   are margins on the buttons, so the half columns stay equal. */
+.ss { grid-template-columns: var(--ss-lbl) var(--ss-gutl, minmax(0, 1fr)) repeat(14, minmax(0, 1fr)) var(--ss-gutr, minmax(0, 1fr)); column-gap: 0; padding-right: var(--ss-lbl); }
+/* Phone portrait (and the narrowest landscape phones): an end gutter only opens when a chip
+   needs it (.gutl / .gutr), so the 7 notes keep their full width in most keys. */
+html.lay-phone-port .ss:not(.gutl), html.lay-pad-port:not(.simple) .ss:not(.gutl) { --ss-gutl: 0px; }
+html.lay-phone-port .ss:not(.gutr), html.lay-pad-port:not(.simple) .ss:not(.gutr) { --ss-gutr: 0px; }
+@media (max-width: 700px) { html.lay-phone-land .ss:not(.gutl) { --ss-gutl: 0px; } html.lay-phone-land .ss:not(.gutr) { --ss-gutr: 0px; } }
+.ss .ss-chip, .ss .ss-note { margin-left: calc(var(--ss-cgap) / 2); margin-right: calc(var(--ss-cgap) / 2); }
+.ss .ss-gc::after { right: -0.5px; }
+.ss .ss-gn { grid-row: n; grid-column: 3 / 17; }
+.ss .ss-gn::before, .ss .ss-gn::after { content: ""; position: absolute; left: 0; right: 0; height: 1px; background: rgba(255, 255, 255, .05); }
+.ss .ss-gn::before { top: calc(-0.5 * var(--ss-rg) - 0.5px); }
+.ss .ss-gn::after { bottom: calc(-0.5 * var(--ss-rg) - 0.5px); }
+.ss .ss-chip .rn { display: none; }
+html:not(.simple) .ss .ss-chip .rn { display: inline; font-size: var(--ss-rnfs, 10px); font-weight: 700; letter-spacing: 0; margin-left: .28em; opacity: .78; line-height: 1; }
+.ss .ss-chip .nm { display: contents; }
+html:not(.simple) .ss.rn2 .ss-chip { flex-direction: column; gap: 1px; }
+html:not(.simple) .ss.rn2 .ss-chip .nm { display: block; white-space: nowrap; }
+html:not(.simple) .ss.rn2 .ss-chip .rn { margin-left: 0; }
+html:not(.simple) .ss.nonum .ss-chip .rn { display: none; }
+/* Last-resort single chip: root over quality (stack fallback for one long name). */
+.ss .ss-chip.st1 { flex-direction: column; gap: 1px; }
+.ss .ss-chip.st1 .rn { display: none; }
+html:not(.simple) .ss .ss-chip.c2 { flex-direction: column; gap: 0; }
+html:not(.simple) .ss .ss-chip.c2 .nm { display: block; white-space: nowrap; }
+html:not(.simple) .ss .ss-chip.c2 .rn { margin-left: 0; font-size: 9px; }
+html.lay-phone-port .ss.stack.tight .ss-chip.sq .q { letter-spacing: -0.12em; }
+html:not(.simple) .ss .ss-track { display: none; }
+/* The strip keeps v53's height as its share of the row, then fills whatever the row gives the
+   panel (phone portrait: the Now column is taller once a key is set). Panel size is unchanged. */
+html:not(.simple) .ss { min-height: 100%; }
+html:not(.simple) .ss .ss-chip { border-radius: var(--ss-cr, 10px); padding: 0 2px; letter-spacing: normal; font-size: max(11px, calc(var(--ss-fs) * var(--ss-k)));
+  transition: transform .08s ease-out, filter .08s ease-out; }
+html:not(.simple) .ss.stack .ss-chip { font-size: max(11px, calc((var(--ss-fs) - 2px) * var(--ss-k))); }
+html:not(.simple) .ss .ss-chip.press { transform: scale(.92); filter: brightness(1.25); }
+html:not(.simple) .ss .ss-note { align-self: stretch; justify-self: stretch; width: auto; height: auto; border-radius: var(--ss-cr, 10px);
+  background: rgba(245, 233, 210, .17); border: 1.5px solid rgba(245, 233, 210, .42); box-shadow: 0 3px 0 rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .14);
+  color: var(--ink); transition: transform .08s ease-out, background-color .08s ease-out, box-shadow .08s ease-out; }
+html:not(.simple) .ss .ss-note .nn { font-size: var(--ss-note); }
+html:not(.simple) .ss .ss-note small { margin-top: 1px; }
+html:not(.simple) .ss .ss-note.home { background: rgba(226, 177, 90, .30); border: 2.5px solid var(--copper); color: var(--copper); }
+html:not(.simple) .ss .ss-note.home::before { display: none; }
+html:not(.simple) .ss .ss-note.press { transform: scale(.92); background: rgba(255, 244, 222, .42); box-shadow: 0 1px 0 rgba(0, 0, 0, .45); }
+html:not(.simple) .ss .ss-note.home.press { background: rgba(240, 196, 120, .55); }
+@media (prefers-reduced-motion: reduce) { html:not(.simple) .ss .ss-note, html:not(.simple) .ss .ss-chip { transition: none; } }
+/* Phone landscape (panel 137 px tall as in v53): faces left, notes one and a half rows tall. */
+html:not(.simple).lay-phone-land #app { --ss-lbl: 28px; --ss-ico: 22px; --ss-arrow: 11px; --ss-fgap: 5px; --ss-rg: 3px; --ss-cgap: 4px; --ss-mid: 1.4fr; --ss-fs: 17px; --ss-note: 20px; --ss-small: 9px; --ss-rnfs: 10px; --ss-cr: 8px; }
+html:not(.simple).lay-phone-land .ss .ss-chip { padding: 0 1px; letter-spacing: normal; }
+html:not(.simple).lay-phone-land .ss .ss-chip.borrowed { border-width: 1.5px; }
+html:not(.simple).lay-phone-land .ss.rn2 .ss-chip { gap: 0; --ss-rnfs: 9px; }
+/* Full mode keeps the face column on the left only (no mirrored right margin): more room per column. */
+html:not(.simple).lay-phone-land .ss, html:not(.simple).lay-pad-land .ss, html:not(.simple).lay-pad-port .ss { padding-right: 0; }
+@media (max-width: 700px) { html:not(.simple).lay-phone-land #app { --ss-lbl: 24px; --ss-ico: 20px; --ss-cgap: 4px; --ss-fs: 15px; --ss-note: 19px; } }
+/* iPad: faces left, Simple's font sizes. */
+html:not(.simple).lay-pad-land #app, html:not(.simple).lay-pad-port #app { --ss-lbl: 38px; --ss-ico: 28px; --ss-arrow: 14px; --ss-fgap: 7px; --ss-rg: 5px; --ss-cgap: 8px; --ss-mid: 1.5fr; --ss-fs: 26px; --ss-note: 30px; --ss-small: 12px; --ss-rnfs: 13px; --ss-cr: 12px; }
+html:not(.simple).lay-pad-port #app { --ss-fs: 22px; --ss-note: 26px; --ss-cgap: 6px; }
+/* Phone portrait: the faces sit above and below their rows (as in Simple), so the 7 columns use
+   the panel's full width. */
+html:not(.simple).lay-phone-port #app { --ss-lbl: 0px; --ss-ico: 16px; --ss-arrow: 10px; --ss-fgap: 4px; --ss-rg: 2px; --ss-cgap: 2px; --ss-fs: 13px; --ss-note: 15px; --ss-small: 9px; --ss-rnfs: 9px; --ss-cr: 7px; }
+html:not(.simple).lay-phone-port .ss { padding: 0;
+  grid-template-rows: [hi-start] auto [hi-end b-start g-start] minmax(0, 1fr) [b-end h-start] minmax(0, 1fr) [h-end n-start] minmax(0, 1.1fr) [n-end s-start] minmax(0, 1fr) [s-end t-start] minmax(0, 1fr) [t-end g-end si-start] auto [si-end]; }
+html:not(.simple).lay-phone-port .ss .ss-lbl { grid-column: 2 / -1; flex-direction: row; justify-content: center; align-items: center; }
+html:not(.simple).lay-phone-port .ss .ss-chip { padding: 0; letter-spacing: -0.02em; }
+/* Columns here are ~30 px wide: no room for a numeral beside the chord name, so the chips show
+   the name only and the numerals stay under the note names (each chip sits in its note's column). */
+html:not(.simple).lay-phone-port .ss .ss-chip .rn { display: none; }
 
 </style>
 </head>
@@ -1332,34 +1401,37 @@ html.lay-phone-land .style-row.fit-4 button { height: 21px; min-height: 21px; pa
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section><h3>About Touch Chord</h3>
-      <img src="images/howto-why.webp?v=53" alt="Touch Chord on a phone: chord buttons, keys, Now and suggestions" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=54" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1200" height="555" loading="lazy" decoding="async">
       <p class="ht-why">Touch Chord turns one finger into a full chord.<br>It's for anyone who wants to play chords without reading music.<br>A chord is 3 or more notes played at once. Chords that sound good together make up a key.</p>
       <ul><li><b>Learn chords:</b> try a random chord and see its name and notes.</li><li><b>Sing along:</b> play chords under your voice.</li><li><b>Beginner to making music:</b> start with one chord, then follow the suggestions into a song.</li></ul></section>
       <h2 class="ht-howto">How-to</h2>
       <section><h3>1. Play a note</h3>
-      <img src="images/howto-simple-1-strip-note.webp?v=53" alt="Tap a note on the scale strip" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-strip-note.webp?v=54" alt="Tap a note on the scale strip" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Tap a note on the strip (1).</p></section>
       <section><h3>2. Key</h3>
-      <img src="images/howto-simple-2-key.webp?v=53" alt="Key control: swipe the note, tap Major or Minor" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-simple-2-key.webp?v=54" alt="Key control: swipe the note, tap Major or Minor" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Swipe the note (1) to change the key. Tap (2) for <b>Major</b> or <b>Minor</b>.</p></section>
       <section><h3>3. Chord chips</h3>
-      <img src="images/howto-simple-3-chips.webp?v=53" alt="Chord chips above and below the strip" width="1200" height="555" loading="lazy" decoding="async">
-      <p class="cap">Tap a chip (1) to play its chord.</p></section>
+      <img src="images/howto-simple-3-chips.webp?v=54" alt="Chord chips above and below the strip" width="1200" height="555" loading="lazy" decoding="async">
+      <p class="cap">Tap or hold a chip (1) to play its chord.</p></section>
       <section><h3>4. Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=53" alt="Sustain lit while the chord rings" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=54" alt="Sustain lit while the chord rings" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Play (1), hold <b>Sustain</b> (2): notes ring and fade. Let go to stop.</p></section>
       <section><h3>5. Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=53" alt="Style picker" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=54" alt="Style picker" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Tap a style (1). It changes the sound and the chords.</p></section>
       <h2 class="ht-howto">In full mode</h2>
+      <section><h3>Suggestions</h3>
+      <img src="images/howto-full-1-suggestions.webp?v=54" alt="Full-mode suggestion box: chord chips with small Roman numerals" width="1200" height="555" loading="lazy" decoding="async">
+      <p class="cap">Same chips and notes as Simple (1). The small Roman numerals (2), like <b>I</b>, <b>IV</b> and <b>V</b>, show where each chord sits in the key.</p></section>
       <section><h3>Make a chord</h3>
-      <img src="images/howto-full-1-make-chord.webp?v=53" alt="Hold maj7, tap A, Now reads Amaj7" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=54" alt="Hold maj7, tap A, Now reads Amaj7" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Hold <b>maj7</b> (1), tap <b>A</b> (2) = <b>Amaj7</b>.</p></section>
       <section><h3>Keyboard</h3>
-      <img src="images/howto-full-2-keyboard.webp?v=53" alt="Piano keyboard: each key plays a chord" width="1200" height="555" loading="lazy" decoding="async">
+      <img src="images/howto-full-3-keyboard.webp?v=54" alt="Piano keyboard: each key plays a chord" width="1200" height="555" loading="lazy" decoding="async">
       <p class="cap">Tap a key (1) to play its chord.</p></section>
       <section><h3>Full Range</h3>
-      <img src="images/howto-full-3-fullrange.webp?v=53" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=54" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Gray keys are outside your key. Tap <b>Full Range</b> (1) to play them all.</p></section>
       <p class="ht-end">Sound and FX live in the gear's <b>Advanced</b> settings.</p>
       <dl class="ht-legend"><dt>Simple</dt><dd>Simple on/off</dd><dt>&#9881;</dt><dd>Settings (Advanced: sound, FX)</dd><dt>?</dt><dd>This guide</dd></dl>
@@ -1513,7 +1585,7 @@ html.lay-phone-land .style-row.fit-4 button { height: 21px; min-height: 21px; pa
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 53;
+var APP_VERSION = 54;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -2834,9 +2906,10 @@ function accSym(s) {
       extra.rootName = d.rootName;
     }
     // v52: a strip chip carries its own root spelling (flat borrowed roots).
-    var ss = state.stripSpell;
+    var ss = state.stripSpell, keepSpell = false;
     if (!extra.rootSpell && ss && ss.pc === wrap12(rootPc) && ss.type === type) {
       extra.rootSpell = ss.rs; extra.rootName = Theory.noteName(ss.rs);
+      keepSpell = !!ss.keep;
     }
     // v50: spell an in-key root the way the key (strip, 7-chord row) does.
     if (!extra.rootSpell) {
@@ -2873,7 +2946,11 @@ function accSym(s) {
     var akD = activeKey();
     if (akD) { inKeyPcs = {}; keyDegrees(akD).forEach(function (dd) { inKeyPcs[dd.pc] = true; }); }
     var diatonic = !!inKeyPcs && chord.pcs.every(function (q) { return inKeyPcs[wrap12(q)]; });
-    if (!diatonic && hasDoubleAcc(chord.names)) {
+    if (!diatonic && hasDoubleAcc(chord.names) && keepSpell) {
+      // v54: a chip spelled to match its row note keeps that root (D# in G# minor, Gbm in Db);
+      // only the tone names drop their double accidentals (F## -> G) for display.
+      chord.names = chord.names.map(plainToneName);
+    } else if (!diatonic && hasDoubleAcc(chord.names)) {
       var alt = enharmonicSpell(rootPc, chord.rootSpell);
       if (alt) {
         var c2 = Theory.buildChord({ rootPc: rootPc, type: type, extensions: state.extensions, voicing: state.voicing, rootSpell: alt, rootMidi: rootMidi });
@@ -2901,6 +2978,12 @@ function accSym(s) {
     var alt = enharmonicSpell(rootPc, rs);
     if (alt && !hasDoubleAcc(Theory.chordToneNames(alt, type, ext || {}))) return alt;
     return rs;
+  }
+  function plainToneName(n) {
+    if (!/bb|##|x/.test(n)) return n;
+    var pc = wrap12({ C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[n.charAt(0)] + (n.split("#").length - 1) + 2 * (n.split("x").length - 1) - (n.split("b").length - 1));
+    var sharp = /#|x/.test(n);
+    return (sharp ? ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"] : ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"])[pc];
   }
   function hasDoubleAcc(names) {
     // v52: Theory writes a double sharp as "x" (Fx); treat it like ## / bb.
@@ -4049,7 +4132,7 @@ function accSym(s) {
     STRIP_EXT.forEach(function (k) { state.extensions[k] = (item.extensions && item.extensions[k]) || (k === "over" ? 0 : false); });
     state.rootPc = item.rootPc;
     state.type = item.type;
-    state.stripSpell = item.rootSpell ? { pc: item.rootPc, type: item.type, rs: item.rootSpell } : null;
+    state.stripSpell = item.rootSpell ? { pc: item.rootPc, type: item.type, rs: item.rootSpell, keep: !!item.keepSpell } : null;
     if (item.degree) {
       state.forceChord = null;
       if (state.keyMode) state.degree = item.degree;
@@ -4240,6 +4323,26 @@ function accSym(s) {
     else if (item.type === "dim" && q === "dim") q = "\u00b0";
     return prettyAcc(item.rootName) + q;
   }
+  // v54: Roman numeral for a strip chip (full mode). Degree counted from the key's own home
+  // (major: I ii iii IV V vi vii; minor: i ii III iv v VI VII), case from the chip's
+  // quality (minor / dim lower case), a flat for a lowered root (bVII, bVI, bII),
+  // \u00b0 for a diminished triad, \u00f8 for half-diminished, /V for a chord over the 5th.
+  function chipRoman(d, q, ext, low) {
+    var base = d.roman.toUpperCase();
+    var lower = q.type === "minor" || q.type === "dim";
+    var r = (low ? "\u266d" : "") + (lower ? base.toLowerCase() : base);
+    if (q.type === "dim") r += ext.min7 ? "\u00f8" : "\u00b0";
+    if (ext.over) r += "/V";
+    return r;
+  }
+  // v54: lowered-letter spelling for an out-of-row chip root, written as the plain letter when
+  // it would read Cb, Fb, E#, B# or need a double accidental (those are all white keys).
+  function plainRootSpell(pc, rs) {
+    var odd = Math.abs(rs.acc) >= 2 || (rs.acc === -1 && (rs.li === 0 || rs.li === 3)) || (rs.acc === 1 && (rs.li === 2 || rs.li === 6));
+    if (!odd) return rs;
+    var nat = [0, -1, 1, -1, 2, 3, -1, 4, -1, 5, -1, 6][wrap12(pc)];
+    return nat >= 0 ? { li: nat, acc: 0 } : Theory.spellRoot(pc);
+  }
   function stripModel(key) {
     var minor = key.mode === "minor";
     // v53: the 7 scale notes run in keyboard order (by pitch class from C, spelling kept);
@@ -4257,6 +4360,7 @@ function accSym(s) {
     });
     var inKey = {};
     keyDegrees(key).forEach(function (d) { inKey[d.pc] = true; });
+    var rowPcs = notes.map(function (n) { return n.pc; });   // ascending (piano order)
     var sets = minor ? STRIP_SETS_MINOR : STRIP_SETS;
     var set = sets[state.style] || sets.pop;
     var degs = kdegs;                        // degrees of the key itself (major or natural minor)
@@ -4265,27 +4369,48 @@ function accSym(s) {
       var q = STRIP_QUAL[c[1]];
       var low = !!c[3];
       var pc = wrap12(d.pc - (low ? 1 : 0));
-      var rs = low ? { li: d.rootSpell.li, acc: d.rootSpell.acc - 1 } : d.rootSpell;
       var ext = blankExt();
       for (var ek in q.ext) ext[ek] = q.ext[ek];
       var tonePcs = Theory.chordIntervals(q.type, ext).map(function (iv) { return wrap12(pc + iv); });
       if (ext.over) tonePcs.push(wrap12(pc + ext.over));
       var diatonic = tonePcs.every(function (t) { return inKey[t]; });
-      // Borrowed / altered chips: flat letter spelling, switched to the enharmonic
-      // root only when that is the way to avoid a double accidental.
-      if (!diatonic || low) rs = cleanRootSpell(pc, q.type, ext, rs);
+      // v54: one spelling rule for every style. A root that is one of the 7 row notes is
+      // spelled like that note and sits in its column (half-column 1 + 2n). Any other root
+      // (bVII, bVI, bII) is the lowered letter, with Cb / Fb / E# / B# / doubles written as the
+      // plain letter (B, E, F, C), and sits half a column off, centred between its piano
+      // neighbours like a black key (half-column 2 + 2j; 0 or 14 = the end gutters).
+      var ni = rowPcs.indexOf(pc), hc, rs;
+      if (ni >= 0) {
+        rs = kdegs[dorder[ni] - 1].rootSpell;
+        hc = 1 + 2 * ni;
+      } else {
+        rs = plainRootSpell(pc, low ? { li: d.rootSpell.li, acc: d.rootSpell.acc - 1 } : d.rootSpell);
+        var below = rowPcs.filter(function (x) { return x < pc; }).length;
+        hc = 2 * below;
+      }
       var lab = q.label;
       if (ext.over) lab = (q.type === "minor" ? "m" : "") + "/" + accSym(Theory.spellInterval(rs, ext.over).name);
       var row = c[2];
       return {
-        col: dorder.indexOf(c[0]), row: row, borrowed: !!c[4],
+        col: ni, hc: hc, row: row, borrowed: !!c[4], roman: chipRoman(d, q, ext, low),
         cls: row === "bright" ? "color" : row === "happy" ? "major" : row === "sad" ? "minor" : "tension",
         item: {
           rootPc: pc, rootName: Theory.noteName(rs), rootSpell: rs,
           degree: (!low && diatonic && q.type === d.type) ? d.degree : null,
-          type: q.type, extensions: ext, qualityLabel: q.label, chipLabel: lab
+          type: q.type, extensions: ext, qualityLabel: q.label, chipLabel: lab,
+          keepSpell: ni >= 0
         }
       };
+    });
+    // v54: a half-column chip that would overlap another chip in its row (A minor Romantic:
+    // green bII next to the green Picardy I) moves to the other row of its group
+    // (green <-> gold, purple <-> tension), keeping its colour.
+    var PARTNER = { bright: "happy", happy: "bright", sad: "tension", tension: "sad" };
+    function hits(c, row) {
+      return chips.some(function (o) { return o !== c && o.row === row && Math.abs(o.hc - c.hc) < 2; });
+    }
+    chips.forEach(function (c) {
+      if (c.hc % 2 === 0 && hits(c, c.row) && PARTNER[c.row] && !hits(c, PARTNER[c.row])) c.row = PARTNER[c.row];
     });
     return { key: key, notes: notes, chips: chips };
   }
@@ -4336,10 +4461,10 @@ function accSym(s) {
     // Rows: 1 borrowed happy-group chips (dashed) | 2 happy | 3 scale | 4 sad | 5 tension.
     // Two rows above the scale and two below keep the scale row at the exact middle.
     // v53: named grid lines (b h n s t; faces hi / si) so each layout can arrange the rows;
-    // "nob" collapses the green row when no chip lands there.
     var ROWN = { bright: "b", happy: "h", scale: "n", sad: "s", tension: "t" };
-    var hasBright = model.chips.some(function (c) { return c.row === "bright"; });
-    el.classList.toggle("nob", !hasBright);
+    // v54: fixed 5 rows: the green row keeps its band even when empty (gold stays row 2).
+    el.classList.toggle("gutl", model.chips.some(function (c) { return c.hc === 0; }));
+    el.classList.toggle("gutr", model.chips.some(function (c) { return c.hc === 14; }));
     // v52: no text labels (young players): a happy face beside the row above the
     // scale, a sad face beside the Sad + Tension rows, nothing on the scale row.
     STRIP_ICONS.forEach(function (r) {
@@ -4351,18 +4476,16 @@ function accSym(s) {
       l.innerHTML = r.svg;
       el.appendChild(l);
     });
-    ["b", "h", "n", "s", "t"].forEach(function (r) {
-      if (r === "b" && !hasBright) return;
-      var g = document.createElement("div");
-      g.className = "ss-gl ss-gr" + (r === "t" ? " last" : "");
-      g.style.gridRow = r;
-      g.setAttribute("aria-hidden", "true");
-      el.appendChild(g);
-    });
+    // v54: faint lines frame only the note row: one line above, one below, and
+    // dividers between its 7 cells. No lines anywhere else.
+    var gn = document.createElement("div");
+    gn.className = "ss-gl ss-gn";
+    gn.setAttribute("aria-hidden", "true");
+    el.appendChild(gn);
     for (var gci = 0; gci < 7; gci++) {
       var gcEl = document.createElement("div");
       gcEl.className = "ss-gl ss-gc" + (gci === 6 ? " last" : "");
-      gcEl.style.gridColumn = String(gci + 2);
+      gcEl.style.gridColumn = (3 + 2 * gci) + " / span 2";
       gcEl.setAttribute("aria-hidden", "true");
       el.appendChild(gcEl);
     }
@@ -4375,7 +4498,7 @@ function accSym(s) {
       b.type = "button";
       b.className = "ss-note" + (n.home ? " home" : "");
       b.style.gridRow = "n";
-      b.style.gridColumn = String(n.col + 2);
+      b.style.gridColumn = (3 + 2 * n.col) + " / span 2";
       b.innerHTML = "<span class=\"nn\"></span><small></small>";
       b.firstChild.textContent = prettyAcc(n.name);
       b.lastChild.textContent = n.roman;
@@ -4388,13 +4511,17 @@ function accSym(s) {
       b.type = "button";
       b.className = "ss-chip " + c.cls + " r-" + ROWN[c.row] + (c.borrowed ? " borrowed" : "");
       b.style.gridRow = ROWN[c.row];
-      b.style.gridColumn = String(c.col + 2);
+      b.style.gridColumn = (2 + c.hc) + " / span 2";
+      if (c.hc % 2 === 0) b.classList.add("half");
       var lab = stripLabel(c.item), rn = prettyAcc(c.item.rootName);
-      b.innerHTML = "<span class=\"r\"></span><span class=\"q\"></span>";
-      b.firstChild.textContent = rn;
-      b.lastChild.textContent = lab.slice(rn.length);
+      // v54: .rn = Roman numeral, shown in full mode only (CSS).
+      // .nm wraps the name (display: contents unless the numeral goes on its own line).
+      b.innerHTML = "<span class=\"nm\"><span class=\"r\"></span><span class=\"q\"></span></span><span class=\"rn\"></span>";
+      b.querySelector(".r").textContent = rn;
+      b.querySelector(".q").textContent = lab.slice(rn.length);
+      b.querySelector(".rn").textContent = c.roman;
       if (lab.length - rn.length >= 5) b.classList.add("long");
-      b.setAttribute("aria-label", stripLabel(c.item) + " (" + (c.row === "bright" ? "bright, borrowed" : c.row + (c.borrowed ? ", borrowed" : "")) + ")");
+      b.setAttribute("aria-label", stripLabel(c.item) + (state.simple ? "" : ", " + c.roman) + " (" + (c.row === "bright" ? "bright, borrowed" : c.row + (c.borrowed ? ", borrowed" : "")) + ")");
       wireStripTap(b, c.item);
       el.appendChild(b);
     });
@@ -4421,47 +4548,75 @@ function accSym(s) {
     var el = document.getElementById("suggest");
     if (!el || !el.firstChild) return;
     var chips = el.querySelectorAll(".ss-chip");
-    function over() {
-      for (var i = 0; i < chips.length; i++) {
-        var c = chips[i];
-        if (c.scrollWidth > c.clientWidth + 0.5 || c.scrollHeight > c.clientHeight + 0.5) return true;
-      }
-      return false;
-    }
-    function run(stack, floor) {
-      el.classList.toggle("stack", stack);
+    function overC(c) { return c.scrollWidth > c.clientWidth + 0.5 || c.scrollHeight > c.clientHeight + 0.5; }
+    function nOver() { var n = 0; for (var i = 0; i < chips.length; i++) if (overC(chips[i])) n++; return n; }
+    function curK() { return parseFloat(el.style.getPropertyValue("--ss-k")) || 1; }
+    // One shared size for all chips, shrunk from 1 toward the floor until nothing overflows.
+    function run(floor) {
       var k = 1;
       el.style.setProperty("--ss-k", "1");
-      while (k > floor && over()) {
+      while (k > floor && nOver()) {
         k = Math.max(floor, Math.round((k - 0.05) * 100) / 100);
         el.style.setProperty("--ss-k", String(k));
       }
-      return !over();
+      return nOver();
     }
-    // v53: Simple keeps every chip name on one line: one shared size for all chips, shrunk
-    // no lower than 11 px; if a name still doesn't fit, tighten its letter-spacing.
+    function setMode(m) {
+      el.classList.toggle("rn2", m === "rn2");
+      el.classList.toggle("stack", m === "stack");
+      el.classList.toggle("nonum", m === "stack" || m === "plain");
+    }
     el.classList.remove("tight");
-    for (var c0 = 0; c0 < chips.length; c0++) chips[c0].classList.remove("sq");
-    if (document.documentElement.classList.contains("simple")) {
-      var fs = parseFloat(getComputedStyle(el).getPropertyValue("--ss-fs")) || 16;
-      if (!run(false, Math.ceil(11 / fs * 100) / 100)) {
-        el.classList.add("tight");
-        for (var ci = 0; ci < chips.length; ci++) chips[ci].classList.toggle("sq", chips[ci].scrollWidth > chips[ci].clientWidth + 0.5);
-      }
-    } else if (!run(false, 0.78) && !run(true, 0.6)) {
+    for (var c0 = 0; c0 < chips.length; c0++) chips[c0].classList.remove("sq", "st1");
+    var fs = parseFloat(getComputedStyle(el).getPropertyValue("--ss-fs")) || 16;
+    var fl = Math.ceil(11 / fs * 100) / 100;   // chip names never below 11 px
+    // v53 Simple: one line only. v54 full mode tries, in order: numeral beside the name,
+    // numeral under the name (.rn2), and only if neither fits, no numerals with the root over
+    // the quality (.stack). First layout with nothing overflowing wins (biggest text among the
+    // numeral layouts); otherwise the one with the fewest overflowing chips.
+    var modes = ["inline"];
+    if (!document.documentElement.classList.contains("simple")) {
+      var rnEl = el.querySelector(".ss-chip .rn");
+      var rnOn = !!rnEl && getComputedStyle(rnEl).display !== "none";
+      modes = rnOn ? ["inline", "rn2", "stack"] : ["inline", "stack"];
+    }
+    var best = null;
+    for (var mi = 0; mi < modes.length; mi++) {
+      setMode(modes[mi]);
+      var n = run(fl);
+      var eff = (modes[mi] === "stack" ? fs - 2 : fs) * curK();
+      if (!best || n < best.n || (n === best.n && n === 0 && modes[mi] !== "stack" && eff > best.eff + 0.5)) best = { m: modes[mi], n: n, eff: eff };
+      if (n === 0 && (modes[mi] === "rn2" || (modes[mi] === "inline" && curK() >= 1))) break;
+      if (n === 0 && modes[mi] === "stack") break;
+    }
+    setMode(best.m);
+    if (run(fl)) {
+      // Last resort, per chip: tighter letter-spacing, then that one chip's root over its quality.
       el.classList.add("tight");
-      for (var cj = 0; cj < chips.length; cj++) chips[cj].classList.toggle("sq", chips[cj].scrollWidth > chips[cj].clientWidth + 0.5);
+      for (var ci = 0; ci < chips.length; ci++) {
+        var ch = chips[ci];
+        if (!overC(ch)) continue;
+        ch.classList.add("sq");
+        if (overC(ch) && best.m === "inline") { ch.classList.add("c2"); if (overC(ch)) ch.classList.remove("c2"); }
+        if (overC(ch) && best.m !== "stack") { ch.classList.add("st1"); if (overC(ch)) ch.classList.remove("st1"); }
+      }
     }
     // Simple: note buttons are about chip height, and never wider than their column.
-    // v53: named grid lines show up in the computed track list; skip them.
     var gc = String(getComputedStyle(el).gridTemplateColumns).replace(/\[[^\]]*\]/g, " ").trim().split(/\s+/);
     var sadChip = el.querySelector(".ss-chip.r-s") || el.querySelector(".ss-chip");
-    var rowH = sadChip ? sadChip.offsetHeight : 0, colW = parseFloat(gc[1]) || 0;
+    var rowH = sadChip ? sadChip.offsetHeight : 0, colW = 2 * (parseFloat(gc[2]) || 0);
     if (rowH && colW) el.style.setProperty("--ss-nb", Math.floor(Math.min(rowH, colW)) + "px");
     if (rowH) el.style.setProperty("--ss-nh", Math.floor(rowH) + "px");
-
   }
   window.addEventListener("resize", function () { fitStrip(); });
+  // v54: the panel can change height without a resize (Now column grows when a key is set).
+  if (typeof ResizeObserver === "function") {
+    var ssH = 0;
+    new ResizeObserver(function (en) {
+      var h = Math.round(en[0].contentRect.height);
+      if (h !== ssH) { ssH = h; fitStrip(); }
+    }).observe(document.getElementById("suggest"));
+  }
 
   // Shrink the Now symbol only when a long name (e.g. F#6sus4(add9)) would
   // overflow its card; short ones like Cmaj7 keep the full display size.
