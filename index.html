@@ -1417,29 +1417,8 @@ html:not(.simple).lay-phone-port .ss .ss-chip .rn { display: none; }
 .pg-btn { flex: 0 0 auto; width: var(--pg-bw, 40px); height: var(--pg-h, 40px); min-height: 0; margin: 0; padding: 0; border-radius: 12px;
   display: inline-flex; align-items: center; justify-content: center; color: var(--copper); touch-action: manipulation; }
 .pg-btn svg { width: var(--pg-ico, 18px); height: var(--pg-ico, 18px); display: block; }
-.pg-play.on { background: var(--copper); color: #2a1c0c; border-color: transparent; }
-/* Simple: kid-slider look, serif name, no Next button (tap a number badge to step). */
-html.simple .pg-step { display: none; }
-html.simple .prog { --pg-h: 40px; --pg-arrow: 26px; --pg-afs: 26px; --pg-fs: 16px; --pg-bw: 40px; --pg-ico: 18px; }
-html.simple .pg-sel { border-radius: 14px; }
-html.simple .pg-btn { border-radius: 14px; }
-html.simple .pg-t { font-family: Palatino, "Iowan Old Style", Georgia, serif; font-weight: 700; }
-html.simple.lay-pad-land .prog, html.simple.lay-pad-port .prog { --pg-h: 64px; --pg-arrow: 48px; --pg-afs: 40px; --pg-fs: 26px; --pg-bw: 64px; --pg-ico: 28px; gap: 10px; }
-/* Simple phone landscape: Now, key, Major / Minor, progression, Sustain (Sustain and Now give a little). */
-html.simple.lay-phone-land #app { grid-template-rows: 44px minmax(0, 1fr) 64px; }
-@media (max-width: 700px) { html.simple.lay-phone-land #app { grid-template-rows: 40px minmax(0, 1fr) 56px; } html.simple.lay-phone-land .prog { --pg-arrow: 22px; --pg-bw: 36px; } }
-@media (max-height: 400px) { html.simple.lay-phone-land .prog { --pg-h: 36px; } html.simple.lay-phone-land .now-col { gap: 6px; } }
-/* Simple phone portrait: the row goes under Major / Minor in the left block (block height unchanged). */
-html.simple.lay-phone-port .kid-key { --kk-h: 50px; --kk-fs: 30px; --kk-mh: 38px; --kk-mfs: 15px; gap: 5px; }
-html.simple.lay-phone-port .now-card .card-label { display: none; }
-html.simple.lay-phone-port #tones { margin-top: 4px; }
-@media (max-height: 700px) {
-  html.simple.lay-phone-port .now-col { gap: 5px; }
-  html.simple.lay-phone-port .kid-key { --kk-h: 44px; --kk-fs: 28px; --kk-mh: 32px; --kk-mfs: 14px; gap: 4px; }
-  html.simple.lay-phone-port .prog { --pg-h: 32px; --pg-afs: 22px; --pg-bw: 36px; --pg-ico: 15px; }
-  html.simple.lay-phone-port #app { --sym: 30px; }
-  html.simple.lay-phone-port #tones { margin-top: 1px; font-size: max(11px, calc(13px * var(--tx, 1))); } }
-html.simple.lay-pad-port #app { --sym: 72px; }
+/* v59: Simple has no progression row: its left column is Now, key, Major / Minor, Sustain again (v54 sizes). */
+html.simple #prog { display: none !important; }
 /* Full mode, phone landscape: cycler on top of the Now column (two lines: name, then Play + Next).
    The column never makes its row taller than the strip (keyboard unchanged); the Now card gives. */
 html.lay-phone-land:not(.simple) .now-col { gap: 4px; }
@@ -1485,12 +1464,10 @@ html.lay-phone-port:not(.simple) .ss .pg-badge { min-width: 15px; height: 15px; 
 html.lay-phone-land:not(.simple) .pg-btn { z-index: 2; }
 html.lay-phone-land:not(.simple) .pg-btn::after { inset: -2px -3px -3px; }  /* v58: never over the Now card below */
 html.lay-phone-port:not(.simple) .pg-btn::after { inset: -1px -4px; }
-html.lay-phone-port:not(.simple) .pg-play::after { top: -6px; }
-html.lay-phone-port:not(.simple) .pg-step::after { bottom: -8px; }
 /* v56: phone portrait full mode: the cycler width comes from the bar, not from its text. */
 html.lay-phone-port.prog-top:not(.simple) .prog { flex: 1 1 0; width: 0; min-width: 0; max-width: none; }
 html.lay-phone-port.prog-top:not(.simple) .topbar .spacer { flex: 0 0 0; }
-html.lay-phone-port:not(.simple) .pg-btn { width: 38px; }
+html.lay-phone-port:not(.simple) .pg-btn { width: 38px; height: 40px; }  /* v59: Next alone, full bar height */
 /* Last-resort squeeze (one long name in a narrow column, e.g. B\266d7sus4 at 667 px): no side padding. */
 html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
 .ss .ss-chip.pg-on { transform: scale(.92); filter: brightness(1.25); }
@@ -1520,27 +1497,27 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=58" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=59" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Touch Chord turns one finger into a full chord. No music reading needed.</p>
       <p class="ht-uses">Learn chords &middot; Sing along &middot; Start a song.</p></section>
       <ol class="ht-steps">
       <li><section><h3>1. Play chord suggestion</h3>
-      <img src="images/howto-simple-1-play-suggestion.webp?v=58" alt="Key note, song name with play button, and a chord chip" width="1000" height="462" loading="lazy" decoding="async">
-      <p class="cap">Swipe the note (1) to pick the key, and tap for <b>Major</b> or <b>Minor</b>. Want a song? Swipe its name (2) and tap &#9654;. Then tap a chord (3) to play it. In full mode, <b>Next</b> plays one chord at a time.</p></section></li>
+      <img src="images/howto-simple-1-play-suggestion.webp?v=59" alt="Key note, song name with play button, and a chord chip" width="1000" height="462" loading="lazy" decoding="async">
+      <p class="cap">Swipe the note (1) to pick the key, and tap for <b>Major</b> or <b>Minor</b>. Then tap a chord (2) to play it. In full mode, &#8249; &#8250; picks a song and <b>Next</b> plays it one chord at a time.</p></section></li>
       <li><section><h3>2. Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=58" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=59" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play (1), hold <b>Sustain</b> (2): notes ring and fade. Let go to stop.</p></section></li>
       <li><section><h3>3. Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=58" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=59" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style (1). It changes the sound and the chords.</p></section></li>
       <li><section><h3>4. Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=58" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=59" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Hold <b>maj7</b> (1), tap <b>A</b> (2) = <b>Amaj7</b>.</p></section></li>
       <li><section><h3>5. Keyboard <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-3-keyboard.webp?v=58" alt="Piano keyboard: each key plays a chord" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-3-keyboard.webp?v=59" alt="Piano keyboard: each key plays a chord" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a key (1) to play its chord.</p></section></li>
       <li><section><h3>6. Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=58" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=59" alt="Before: gray keys. After Full Range: all keys on" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Gray keys are outside your key. Tap <b>Full Range</b> (1) to play them all.</p></section></li>
       </ol>
       <p class="ht-end">Sound and FX live in the gear's <b>Advanced</b> settings.</p>
@@ -1572,7 +1549,6 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
       <button type="button" class="pg-arrow pg-next" aria-label="Next progression" tabindex="-1">&#8250;</button>
     </div>
     <div class="pg-btns">
-      <button type="button" class="pg-btn pg-play" aria-pressed="false" aria-label="Loop progression"></button>
       <button type="button" class="pg-btn pg-step" aria-label="Next chord" title="Next chord"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5v14l10-7z" fill="currentColor"/><rect x="16.5" y="5" width="2.6" height="14" rx="1" fill="currentColor"/></svg></button>
     </div>
   </div>
@@ -1706,7 +1682,7 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 58;
+var APP_VERSION = 59;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -4833,7 +4809,8 @@ function accSym(s) {
     Array.prototype.forEach.call(el.querySelectorAll(".pg-badge, .ss-chip.tmp"), function (n) { n.parentNode.removeChild(n); });
     prog.targets = []; prog.badges = []; prog.tmp = 0; prog.unplaced = 0;
     var p = prog.list[prog.idx];
-    prog.steps = p ? progSteps(model.key, p) : [];
+    // v59: Simple has no progression row, so no progression chips there.
+    prog.steps = p && !state.simple ? progSteps(model.key, p) : [];
     var ROWN = { bright: "b", happy: "h", scale: "n", sad: "s", tension: "t" };
     var PARTNER = { bright: "happy", happy: "bright", sad: "tension", tension: "sad" };
     var chipEls = Array.prototype.slice.call(el.querySelectorAll(".ss-chip"));
@@ -4878,18 +4855,7 @@ function accSym(s) {
     });
     el.classList.toggle("gutl", occ.some(function (o) { return o.hc === 0; }));
     el.classList.toggle("gutr", occ.some(function (o) { return o.hc === 14; }));
-    groups.forEach(function (g) {
-      var t = g.el, bd = document.createElement("span");
-      var nums = g.steps.map(function (i) { return i + 1; });
-      bd.className = "pg-badge" + (t.classList.contains("ss-note") ? " on-note" : "") + (nums.length > 1 ? " multi" : "");
-      bd.setAttribute("role", "button");
-      bd.setAttribute("aria-label", "Progression step " + nums.join(", "));
-      bd.title = "Step " + nums.join(", ");
-      bd.addEventListener("pointerdown", function (e) { e.preventDefault(); e.stopPropagation(); progBadge(g.steps); });
-      bd.addEventListener("click", function (e) { e.stopPropagation(); });
-      el.appendChild(bd);
-      prog.badges.push({ el: bd, target: t, steps: g.steps });
-    });
+    // v59: no order badges (the strip was too crowded); Next lights the current chip.
     paintProgActive();
   }
   // v56: badge text. Up to 2 steps: all of them ("1\u00b76"). More (Blues C7 = 1, 3, 4, 7, 11): the
@@ -5137,11 +5103,6 @@ function accSym(s) {
     sel.setAttribute("aria-valuemax", String(Math.max(0, prog.list.length - 1)));
     sel.setAttribute("aria-valuetext", name + " (" + prog.steps.map(function (s) { return s.roman; }).join(" ") + ")");
     sel.title = name + ": " + prog.steps.map(function (s) { return s.roman; }).join(" ");
-    var play = el.querySelector(".pg-play");
-    play.classList.toggle("on", prog.playing);
-    play.setAttribute("aria-pressed", prog.playing ? "true" : "false");
-    play.setAttribute("aria-label", prog.playing ? "Stop progression loop" : "Loop progression " + name);
-    play.innerHTML = prog.playing ? PROG_STOP_SVG : PROG_PLAY_SVG;
     fitProgName();
   }
   var PROG_PLAY_SVG = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 4.5v15l12.5-7.5z\" fill=\"currentColor\"/></svg>";
@@ -5175,7 +5136,6 @@ function accSym(s) {
       txt.classList.add(d > 0 ? "nudge-r" : "nudge-l");
       setTimeout(function () { txt.classList.remove("nudge-l", "nudge-r"); }, 140);
     }
-    el.querySelector(".pg-play").addEventListener("click", function () { progPlay(); });
     el.querySelector(".pg-step").addEventListener("click", function () { unlock(); progNext(); });
     // v56: the whole row swipes, arrows included. A tap on an arrow steps once; a horizontal drag
     // past the threshold steps once (and is not also a tap). One step per gesture.
@@ -5210,7 +5170,7 @@ function accSym(s) {
     sel.addEventListener("keydown", function (e) {
       if (e.key === "ArrowRight" || e.key === "ArrowUp") { e.preventDefault(); step(1); }
       else if (e.key === "ArrowLeft" || e.key === "ArrowDown") { e.preventDefault(); step(-1); }
-      else if (e.key === " " || e.key === "Enter") { e.preventDefault(); progPlay(); }
+      else if (e.key === " " || e.key === "Enter") { e.preventDefault(); unlock(); progNext(); }
     });
     window.addEventListener("resize", function () { setTimeout(fitProgName, 80); });
     placeProg();
