@@ -1532,6 +1532,10 @@ html.lay-phone-port:not(.simple) .now-col > .prog .pg-sel { width: 100%; flex: 0
 .prog.pg-wide .pg-t { display: flex; flex-direction: column; align-items: center; gap: 1px; }
 .prog.pg-wide .pg-nm { display: block; white-space: nowrap; }
 .prog.pg-wide .pg-num { display: block; max-width: 100%; font-size: .68em; font-weight: 700; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: .01em; }
+/* v68: Config Volume slider (top of the menu). */
+.config-menu .cfg-vol { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 12px; font-size: 14px; color: var(--ink); }
+.config-menu .cfg-vol input { flex: 1 1 auto; min-width: 0; width: 120px; accent-color: var(--copper); }
+.config-menu .cfg-vol b { flex: 0 0 auto; min-width: 2.2em; text-align: right; font-size: 12px; font-weight: 700; color: var(--muted); }
 /* v60: Config toggle. */
 .config-menu .cfg-toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; white-space: nowrap; }
 .cfg-toggle .tgl { position: relative; flex: 0 0 auto; width: 34px; height: 20px; border-radius: 10px; background: #3a332b; border: 1px solid var(--line); transition: background .15s; }
@@ -1574,6 +1578,22 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
 .ss .ss-note.home.pg-on { background: rgba(240, 196, 120, .55); }
 
 
+/* v68 "next chord" hint (full mode): pulsing gold outline + root dot, distinct from the lit fill */
+.kb .pad.nx:not(.black) { position: relative; }
+.kb .pad.nx::after { content: ""; position: absolute; inset: 1px; border-radius: inherit; pointer-events: none; z-index: 3;
+  box-shadow: inset 0 0 0 3px #c4853f, inset 0 0 0 5px rgba(20, 12, 4, .35); animation: nxPulse 1.5s ease-in-out infinite; }
+.kb .pad.nx-root::before { content: ""; position: absolute; left: 50%; top: 9px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%;
+  background: #c4853f; box-shadow: 0 0 0 1.5px rgba(20, 12, 4, .45); pointer-events: none; z-index: 4; }
+.ss .ss-chip.nx, .ss .ss-note.nx { outline: 2px solid #c4853f; outline-offset: 1px; animation: nxPulseO 1.5s ease-in-out infinite; }
+html.simple .nx::after, html.simple .nx::before { display: none; }
+html.simple .ss .nx { outline: none; animation: none; }
+.nx-arrow { position: fixed; z-index: 50; width: 22px; height: 22px; border-radius: 50%; background: rgba(20, 14, 8, .82); color: #c4853f;
+  border: 1.5px solid #c4853f; font-size: 11px; line-height: 19px; text-align: center; pointer-events: none; animation: nxPulse 1.5s ease-in-out infinite; }
+.nx-arrow[hidden] { display: none; }
+@keyframes nxPulse { 0%, 100% { opacity: .6; } 50% { opacity: 1; } }
+@keyframes nxPulseO { 0%, 100% { outline-color: rgba(196, 133, 63, .45); } 50% { outline-color: rgba(196, 133, 63, 1); } }
+@media (prefers-reduced-motion: reduce) { .kb .pad.nx::after, .ss .nx, .nx-arrow { animation: none; } }
+
 </style>
 </head>
 <body>
@@ -1586,6 +1606,7 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
     <div class="config" id="configWrap">
       <button id="configBtn" type="button" class="top-btn config-btn icon-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="configMenu" aria-label="Config" title="Config"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
       <div id="configMenu" class="config-menu" role="menu" aria-label="Configuration" hidden>
+        <label class="cfg-vol" role="none"><span>Volume</span><input id="volume" type="range" min="0" max="100" step="1" value="100" aria-label="Volume" aria-valuetext="100"><b id="volVal" aria-hidden="true">100</b></label>
         <button id="progNumsBtn" type="button" role="menuitemcheckbox" aria-checked="true" class="cfg-toggle on"><span>Progression numbers</span><span class="tgl" aria-hidden="true"></span></button>
         <button id="factoryReset" type="button" role="menuitem" class="danger">Factory reset</button>
         <div id="appVersion" class="app-version" aria-live="off"></div>
@@ -1597,12 +1618,12 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=67" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=68" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=67" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=68" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1611,19 +1632,19 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
       </ol>
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=67" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=68" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=67" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=68" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=67" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=68" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the smiley face, and sad ones sit below the frown. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=67" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=68" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=67" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=68" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Full Range enables all keys to be available.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
@@ -1679,12 +1700,13 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
   <div id="styles" class="style-row seg" role="radiogroup" aria-label="Style">
     <span class="lbl">Style</span>
     <button type="button" data-style="pop" class="on">Pop</button>
+    <button type="button" data-style="kids" title="Kids: bright and bouncy, like a music box.">Kids</button>
     <button type="button" data-style="jazz">Jazz</button>
     <button type="button" data-style="rnb">R&amp;B</button>
     <button type="button" data-style="ballad">Ballad</button>
     <button type="button" data-style="reggae">Reggae</button>
     <button type="button" data-style="funk">Funk</button>
-    <button type="button" data-style="yogaDeep">Yoga Deep</button>
+    <button type="button" data-style="yogaDeep">Yoga</button>
     <button type="button" data-style="country">Country</button>
   </div>
 
@@ -1795,7 +1817,7 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 67;
+var APP_VERSION = 68;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -2179,7 +2201,19 @@ function accSym(s) {
     this.pulse = null;
     this.ready = false;
     this.protectedGroups = {};
+    this.art = null;     // v68: style articulation ("chop" Reggae, "stab" Funk): short decaying chords
+    this.volume = 1;     // v68: master Volume gain ((slider/100)^2; 1 = the level before v68)
   }
+
+  // v68: Reggae / Funk articulation (no rhythm engine: each tap is one short chop / stab).
+  ChordAudio.prototype.setArt = function (a) { this.art = a === "chop" || a === "stab" || a === "box" ? a : null; };
+  // v68: master Volume, one gain right before the safety clipper; everything passes through it.
+  ChordAudio.prototype.setVolume = function (g) {
+    this.volume = Math.max(0, Math.min(1, g));
+    if (this.vol && this.ctx) {
+      try { this.vol.gain.setTargetAtTime(this.volume, this.ctx.currentTime, 0.03); } catch (err) { this.vol.gain.value = this.volume; }
+    }
+  };
 
   ChordAudio.prototype.protectGroup = function (group) {
     if (group == null) return;
@@ -2287,6 +2321,8 @@ function accSym(s) {
     // Transparent safety clipper (no lookahead latency): identity below 0.8,
     // soft knee up to 1.0. Stacked fingers + bass + reverb could otherwise
     // exceed 0 dBFS at the destination and hard-clip (crackle / static).
+    var vol = ctx.createGain();
+    vol.gain.value = this.volume;
     var clipPre = ctx.createGain();
     clipPre.gain.value = 0.5;
     var clipper = ctx.createWaveShaper();
@@ -2320,7 +2356,8 @@ function accSym(s) {
     warmHigh.connect(warmDrive);
     warmDrive.connect(warmShaper);
     warmShaper.connect(warmMakeup);
-    warmMakeup.connect(clipPre);
+    warmMakeup.connect(vol);
+    vol.connect(clipPre);
     clipPre.connect(clipper);
     clipper.connect(ctx.destination);
 
@@ -2335,6 +2372,7 @@ function accSym(s) {
     this.warmHigh = warmHigh;
     this.warmDrive = warmDrive;
     this.warmMakeup = warmMakeup;
+    this.vol = vol;
     this.ready = true;
     this.applyMix(true);
     this.applyWarmth(true);
@@ -2420,7 +2458,15 @@ function accSym(s) {
   // v32: per-style output trim (linear) so soft styles aren't near-silent.
   ChordAudio.prototype.setTrim = function (t) {
     this.trim = t;
-    if (this.bus && this.ctx) this.bus.gain.setTargetAtTime(t, this.ctx.currentTime, 0.05);
+    // v68: a 50 ms ramp on style switch (no jump).
+    if (this.bus && this.ctx) {
+      var g = this.bus.gain, now = this.ctx.currentTime;
+      try {
+        if (g.cancelAndHoldAtTime) g.cancelAndHoldAtTime(now);
+        else { var v0 = g.value; g.cancelScheduledValues(now); g.setValueAtTime(v0, now); }
+        g.linearRampToValueAtTime(t, now + 0.05);
+      } catch (err) { g.setTargetAtTime(t, now, 0.017); }
+    }
   };
 
   ChordAudio.prototype.setCutoff = function (norm) {
@@ -2514,6 +2560,7 @@ function accSym(s) {
     glide(this.delay.delayTime, t, this.ctx.currentTime, 0.12);
   };
 
+  var BASS_PEAK = 0.05;
   function chordVelocity(n) {
     return 1 / Math.sqrt(Math.max(1, n));
   }
@@ -2596,12 +2643,12 @@ function accSym(s) {
     }
   };
 
-  ChordAudio.prototype.stopChord = function (group, when, tau) {
+  ChordAudio.prototype.stopChord = function (group, when, tau, force) {
     if (!this.ctx) return;
     var t = when == null ? this.ctx.currentTime : when;
     for (var i = 0; i < this.voices.length; i++) {
       var v = this.voices[i];
-      if (v.group === group && !v.short && !v.released) v.release(t, tau);
+      if (v.group === group && !v.short && (!v.released || force)) v.release(t, tau, force);
     }
   };
 
@@ -2693,8 +2740,16 @@ function accSym(s) {
       saw.connect(sawG);
       sineG.connect(filter);
       sawG.connect(filter);
-      oscs.push(sine, saw);
-      nodes.push(sineG, sawG);
+      // v68: a 2nd harmonic so small speakers still carry the bass line.
+      var h2 = ctx.createOscillator();
+      h2.type = "sine";
+      h2.frequency.setValueAtTime(freq * 2, time);
+      var h2G = ctx.createGain();
+      h2G.gain.value = 0.32;
+      h2.connect(h2G);
+      h2G.connect(filter);
+      oscs.push(sine, saw, h2);
+      nodes.push(sineG, sawG, h2G);
     } else if (engine === "piano") {
       // Hammer-ish transient + decaying harmonic partials (not a toy beep).
       var partials = [
@@ -2812,12 +2867,28 @@ function accSym(s) {
       oscs.push(pulse);
     }
 
-    filter.connect(env);
+    if (spec.bass) {
+      // v68: high-pass the bass below ~50 Hz (rumble no speaker can play).
+      var hp = ctx.createBiquadFilter();
+      hp.type = "highpass";
+      hp.frequency.value = 50;
+      hp.Q.value = 0.7;
+      filter.connect(hp);
+      hp.connect(env);
+      nodes.push(hp);
+    } else {
+      filter.connect(env);
+    }
     env.connect(level);
     level.connect(gate);
     gate.connect(this.bus);
 
-    var peak = spec.bass ? 0.26
+    var art = !spec.short ? this.art : null;
+    // v68: bass 0.26 -> BASS_PEAK (about 14 dB lower against the chords).
+    var peak = spec.bass ? BASS_PEAK * (art ? 0.8 : 1)
+      : art === "stab" ? 0.16
+      : art === "chop" ? 0.15
+      : art === "box" ? 0.12
       : engine === "bell" ? 0.15
       : engine === "reed" ? 0.11
       : engine === "piano" ? 0.14
@@ -2829,13 +2900,15 @@ function accSym(s) {
     // ramp from 1e-4 does nothing for most of its length then jumps at the
     // end, which reads as a click on short attacks.)
     var attack;
-    if (spec.bass) attack = 0.03;
+    if (spec.bass) attack = art ? 0.008 : 0.03;
     else if (spec.short) {
       attack = engine === "reed" ? 0.006
         : engine === "piano" ? 0.004
         : engine === "epiano" ? 0.006
         : engine === "strings" ? 0.04
         : 0.008;
+    } else if (art) {
+      attack = art === "stab" ? 0.002 : art === "box" ? 0.003 : 0.004;
     } else {
       attack = engine === "reed" ? 0.014
         : engine === "bell" ? 0.012
@@ -2865,6 +2938,47 @@ function accSym(s) {
       env.gain.exponentialRampToValueAtTime(0.0001, time + attack + dur);
       env.gain.linearRampToValueAtTime(0, time + attack + dur + 0.02);
       expire = time + attack + dur + 0.05;
+      oscs.forEach(function (o) { o.stop(expire); });
+    } else if (art) {
+      // v68: Reggae chop / Funk stab: a short, dry articulation that dies away on its own.
+      // The bass plucks along: a bit longer than the chord (Reggae rounder, Funk tighter).
+      var aDur = spec.bass ? (art === "stab" ? 0.32 : art === "box" ? 0.5 : 0.55) : art === "stab" ? 0.16 : art === "box" ? 0.6 : 0.24;
+      if (art === "box" && !spec.bass) {
+        // Kids music box: a high sparkle (2 octaves up, fast decay) and a soft ukulele-like pluck under the bell.
+        var spk = ctx.createOscillator(), spkG = ctx.createGain();
+        spk.type = "sine";
+        spk.frequency.setValueAtTime(freq * 4, time);
+        spkG.gain.setValueAtTime(0.0001, time);
+        spkG.gain.exponentialRampToValueAtTime(0.16, time + 0.002);
+        spkG.gain.exponentialRampToValueAtTime(0.0001, time + 0.22);
+        spk.connect(spkG); spkG.connect(filter);
+        var plk = ctx.createOscillator(), plkG = ctx.createGain(), plkF = ctx.createBiquadFilter();
+        plk.type = "triangle";
+        plk.frequency.setValueAtTime(freq, time);
+        plkF.type = "lowpass";
+        plkF.frequency.setValueAtTime(Math.min(6000, freq * 6), time);
+        plkF.frequency.exponentialRampToValueAtTime(Math.max(200, freq * 1.5), time + 0.25);
+        plkG.gain.setValueAtTime(0.0001, time);
+        plkG.gain.exponentialRampToValueAtTime(0.45, time + 0.004);
+        plkG.gain.exponentialRampToValueAtTime(0.0001, time + 0.5);
+        plk.connect(plkF); plkF.connect(plkG); plkG.connect(filter);
+        spk.start(time); plk.start(time);
+        oscs.push(spk, plk);
+        nodes.push(spkG, plkG, plkF);
+      }
+      if (art === "stab" && !spec.bass) {
+        // Clav-like: the filter snaps open, then closes fast.
+        try {
+          filter.frequency.cancelScheduledValues(time);
+          filter.Q.cancelScheduledValues(time);
+          filter.frequency.setValueAtTime(Math.min(9000, Math.max(cut, 1200) * 2.6), time);
+          filter.frequency.exponentialRampToValueAtTime(Math.max(300, cut * 0.7), time + 0.09);
+          filter.Q.setValueAtTime(2.2, time);
+        } catch (errA) { /* ignore */ }
+      }
+      env.gain.exponentialRampToValueAtTime(0.0008, time + attack + aDur);
+      env.gain.linearRampToValueAtTime(0, time + attack + aDur + 0.03);
+      expire = time + attack + aDur + 0.06;
       oscs.forEach(function (o) { o.stop(expire); });
     } else {
       var sustainLevel = spec.bass ? peak
@@ -2936,10 +3050,13 @@ function accSym(s) {
         oscs.forEach(function (o) { try { o.stop(stopAt); } catch (err2) {} });
         voice.done = Math.min(voice.done == null ? Infinity : voice.done, stopAt + 0.05);
       },
-      release: function (when, tau) {
-        if (voice.released) return;
-        voice.released = true;
+      // v68: force = cut a voice whose release is already scheduled LATER (magic Next ring end)
+      // at an earlier time; the gate is still 1 until that scheduled release, so it ramps from 1.
+      release: function (when, tau, force) {
         var t = Math.max(ctx.currentTime, when == null ? ctx.currentTime : when);
+        if (voice.released && !(force && voice.relAt != null && t < voice.relAt - 0.002)) return;
+        voice.released = true;
+        voice.relAt = t;
         var k = tau || (spec.bass ? REL_TAU_BASS : REL_TAU);
         try {
           gate.gain.cancelScheduledValues(t);
@@ -3167,7 +3284,7 @@ function accSym(s) {
         if (!hasDoubleAcc(c2.names)) chord = c2;
       }
     }
-    chord.bassOut = state.bass ? chord.bassMidi : null;
+    chord.bassOut = state.bass ? chord.bassMidi + 12 : null;   // v68: bass an octave up (C3-B3) so phones play it
     return chord;
   }
 
@@ -3448,14 +3565,14 @@ function accSym(s) {
     finger.pending = null;
   }
 
-  var DAMPER_TAU = 0.045; // ~-37 dB at 150 ms, ~-50 dB at 200 ms
+  var DAMPER_TAU = 0.2;   // v68: pedal up = smooth exponential fade, -40 dB at ~0.9 s, -60 dB at ~1.4 s (was 0.045)
   function dumpSustain() {
     var groups = Object.keys(sustainPool);
     if (!groups.length) return;
     var now = ChordAudio.ctx ? ChordAudio.currentTime() : 0;
     groups.forEach(function (g) {
       var entry = sustainPool[g];
-      ChordAudio.stopChord(g, null, DAMPER_TAU); // v40: gentle ~150 ms damper tail
+      ChordAudio.stopChord(g, null, DAMPER_TAU); // v68: ~1.4 s fade (v40: ~150 ms damper)
       ChordAudio.unprotectGroup(g);
       if (entry.pending && loop.recording && ChordAudio.ctx) finalizeOne(entry, now);
       else entry.pending = null;
@@ -3650,6 +3767,7 @@ function accSym(s) {
         b.classList.add(state.type);
       }
     }
+    if (typeof magic !== "undefined" && magic && magic.hint) paintNextHint();   // v68: re-apply after a rebuild
   }
 
   function specFromFinger(finger) {
@@ -3801,7 +3919,7 @@ function accSym(s) {
       finger.sig = sig;
       // v36: decaying engines (piano, e-piano, bell) re-strike on a chord
       // change; morphing kept faded notes, so the new chord was near-silent.
-      if (paletteStrike || PERCUSSIVE_SOUNDS[state.sound]) { // v41: any chord-button press re-strikes on every sound
+      if (paletteStrike || PERCUSSIVE_SOUNDS[state.sound] || ChordAudio.art) { // v41: any chord-button press re-strikes on every sound
         ChordAudio.stopChord(finger.group);
         ChordAudio.playChord(finger.group, spec.midis, { bass: spec.bassOut, sound: state.sound });
       } else {
@@ -4456,6 +4574,10 @@ function accSym(s) {
     pop: [[1, "maj", "happy"], [4, "maj", "happy"], [5, "maj", "happy"],
           [6, "min", "sad"], [2, "min", "sad"], [3, "min", "sad"],
           [5, "sus4", "tension"], [7, "maj", "bright", true, true]],
+    // v68 Kids: plain happy triads, the same chips as Pop.
+    kids: [[1, "maj", "happy"], [4, "maj", "happy"], [5, "maj", "happy"],
+          [6, "min", "sad"], [2, "min", "sad"], [3, "min", "sad"],
+          [5, "sus4", "tension"], [7, "maj", "bright", true, true]],
     jazz: [[1, "maj7", "happy"], [4, "maj7", "happy"], [5, "7", "happy"],
            [2, "m7", "sad"], [3, "m7", "sad"], [6, "m7", "sad"],
            [7, "m7b5", "tension"], [5, "7b9", "tension"]],
@@ -4471,7 +4593,7 @@ function accSym(s) {
     funk: [[1, "9", "happy"], [4, "9", "happy"], [5, "9", "happy"],
            [2, "m7", "sad"], [6, "m7", "sad"],
            [5, "7#9", "tension"], [7, "9", "bright", true, true]],
-    // Yoga Deep plays low and warm: open sus2 shapes keep the low register clear.
+    // v68: shown as "Yoga" (internal id stays yogaDeep, so saved settings keep it). Plays low and warm: open sus2 shapes keep the low register clear.
     yogaDeep: [[1, "sus2", "happy"], [4, "sus2", "happy"], [5, "sus2", "happy"],
                [6, "m7", "sad"], [2, "m7", "sad"],
                [1, "sus4", "tension"], [7, "sus2", "bright", true, true]],
@@ -4483,6 +4605,9 @@ function accSym(s) {
   var STRIP_SETS_MINOR = {
     // Pop: Vsus4 and V share the V column in the tension row, so V alone.
     pop: [[3, "maj", "happy"], [6, "maj", "happy"], [7, "maj", "happy"],
+          [1, "min", "sad"], [4, "min", "sad"], [5, "min", "sad"],
+          [5, "maj", "tension"]],
+    kids: [[3, "maj", "happy"], [6, "maj", "happy"], [7, "maj", "happy"],
           [1, "min", "sad"], [4, "min", "sad"], [5, "min", "sad"],
           [5, "maj", "tension"]],
     jazz: [[3, "maj7", "happy"], [6, "maj7", "happy"], [7, "7", "happy"],
@@ -4730,6 +4855,7 @@ function accSym(s) {
       el.appendChild(b);
     });
     progDecorate(el, model);   // v55: progression badges + temporary chips
+    paintNextHint();   // v68: queued chord recomputed for the new key / style / progression
     fitStrip();
     paintProg();
     // v52: one gentle left-to-right pulse across the note buttons, the first time
@@ -4765,6 +4891,12 @@ function accSym(s) {
       major: [P("Pop Four-Chord", "1 maj|5 maj|6 min|4 maj"), P("Pop Minor Start", "6 min|4 maj|1 maj|5 maj"), P("Pop Turnaround", "1 maj|6 min|4 maj|5 maj")],
       minor: [P("Pop Four-Chord", "1 min|5 min|6 maj|4 min"), P("Pop Minor Start", "6 maj|4 min|1 min|5 min"), P("Pop Turnaround", "1 min|6 maj|4 min|5 maj")]
     },
+    // v68 Kids. Minor degrees count from the minor home (natural minor), so VI and VII need no flat.
+    kids: {
+      major: [P("Kids Twinkle", "1 maj|4 maj|1 maj|5 maj"), P("Kids Sunny Day", "1 maj|4 maj|5 maj|1 maj"),
+              P("Kids Lullaby", "1 maj|6 min|4 maj|5 maj"), P("Kids Silly Walk", "1 maj|1 7|4 maj|5 maj")],
+      minor: [P("Kids Spooky", "1 min|4 min|5 maj|1 min"), P("Kids Rainy Day", "1 min|6 maj|7 maj|1 min")]
+    },
     jazz: {
       major: [P("Jazz ii\u2013V\u2013I", "2 m7|5 7|1 maj7"), P("Jazz Turnaround", "1 maj7|6 m7|2 m7|5 7"),
               P("Jazz Blues", "1 7|4 7|1 7|1 7|4 7|4 7|1 7|6 7|2 m7|5 7|1 7|5 7"),
@@ -4783,7 +4915,7 @@ function accSym(s) {
       minor: [P("R&B Classic", "1 m7|6 maj7|4 m7|5 7"), P("R&B ii\u2013V\u2013I", "2 m7b5|5 7#9|1 m9|6 maj9"), P("R&B Smooth", "1 m9|3 maj9|6 maj9|2 m7b5|5 7#9"), P("R&B Slow Jam", "4 m9|3 maj9|2 m7b5|1 m9")]
     },
     ballad: {
-      major: [P("Ballad Classic", "1 maj|6 min|4 maj|5 maj"), P("Ballad Hymn", "1 maj|4 maj|1 over3|5 maj"), P("Ballad Big Finish", "4 maj|4 overV|3 min|6 min|2 min|5 maj|1 maj")],
+      major: [P("Ballad Classic", "1 maj|6 min|4 maj|5 maj"), P("Ballad Hymn", "1 maj|4 maj|1 over3|5 maj"), P("Ballad Big Finish", "4 maj|4 overV|3 min|6 min|2 min|5 maj|1 maj"), P("Ballad All I Ask", "1 maj|5 maj|6 min|4 maj")],
       minor: [P("Ballad Classic", "1 min|6 maj|4 min|5 maj"), P("Ballad Hymn", "1 min|4 min|1 mover3|5 maj"), P("Ballad Big Finish", "4 min|4 moverV|3 maj|6 maj|2 dim|5 maj|1 min")]
     },
     reggae: {
@@ -4796,8 +4928,8 @@ function accSym(s) {
       minor: [P("Funk Vamp", "1 m7|4 m7"), P("Funk Minor Vamp", "1 m7|4 7"), P("Funk Breakdown", "1 m9|7 9|4 9|1 m9")]
     },
     yogaDeep: {
-      major: [P("Deep Drone", "1 sus2"), P("Deep Open", "1 sus2|b7 sus2|4 sus2"), P("Deep Still", "1 m9|b6 maj7|b7 6|1 m9")],
-      minor: [P("Deep Drone", "1 sus2"), P("Deep Open", "1 sus2|7 sus2|4 sus2"), P("Deep Still", "1 m9|6 maj7|7 6|1 m9")]
+      major: [P("Yoga Drone", "1 sus2"), P("Yoga Open", "1 sus2|b7 sus2|4 sus2"), P("Yoga Still", "1 m9|b6 maj7|b7 6|1 m9")],
+      minor: [P("Yoga Drone", "1 sus2"), P("Yoga Open", "1 sus2|7 sus2|4 sus2"), P("Yoga Still", "1 m9|6 maj7|7 6|1 m9")]
     },
     // v60 Country. The strip's V chip is V7, so V steps use it (one G7 chip, no extra dashed G).
     country: {
@@ -4806,8 +4938,8 @@ function accSym(s) {
       minor: [P("Country Outlaw", "1 min|7 maj|6 maj|7 maj"), P("Country Minor Three-Chord", "1 min|4 min|1 min|5 min"), P("Country Holler", "1 min|3 maj|7 maj|4 min")]
     }
   };
-  // Phones: the feel only ("Jazz Turnaround" -> "Turnaround", "Deep Drone" -> "Drone").
-  function progFeel(name) { return String(name || "").replace(/^(Pop|Jazz|R&B|Ballad|Reggae|Funk|Deep|Country)\s+/, ""); }
+  // Phones: the feel only ("Jazz Turnaround" -> "Turnaround", "Yoga Drone" -> "Drone").
+  function progFeel(name) { return String(name || "").replace(/^(Pop|Kids|Jazz|R&B|Ballad|Reggae|Funk|Yoga|Country)\s+/, ""); }
   var PROG_SUFFIX = { maj: "", min: "", "7": "7", maj7: "maj7", m7: "7", m7b5: "\u00f87", sus4: "sus4", sus2: "sus2",
     add9: "add9", madd9: "add9", "9": "9", maj9: "maj9", m9: "9", "9sus": "9sus", "13": "13", "7b9": "7\u266d9",
     "7#9": "7\u266f9", "7sus4": "7sus4", "6": "6", dim: "\u00b0", overV: "/V", moverV: "/V", over3: "/3", mover3: "/3" };
@@ -4896,6 +5028,8 @@ function accSym(s) {
   // Test hooks only with ?test=1 (not in normal use).
   var PROG_TEST = /[?&]test=1(&|$)/.test(location.search);
   if (PROG_TEST) window.__prog = prog;
+  // v68: magic Next (state; logic after progNext).
+  var magic = { pos: 0, last: null, since: 0, cycle: 4, item: null, lit: false, endAt: 0, rng: Math.random, log: [], next: null, hint: false };
   if (PROG_TEST) window.__progApi = { data: PROGRESSIONS, steps: function (k, p) { return progSteps(k, p); }, numerals: function (st) { return progNumerals(st); }, set: function (i) { progSet(i); }, play: function () { progPlay(); }, stop: function () { progStop(); }, next: function () { progNext(); }, bar: PROG_BAR };
 
   // Called when the strip is rebuilt: a style change goes back to the style's first
@@ -4916,6 +5050,7 @@ function accSym(s) {
     if (prog.idx >= prog.list.length) prog.idx = 0;
     prog.style = state.style; prog.mode = key.mode; prog.keySig = sig; prog.key = key;
     prog.cur = -1;
+    magicReset();   // v68: key / mode / style change: the walk starts again
   }
 
   // Badges (1, 2, 3...) on the chips / notes that play each step; a step chord that is not on
@@ -4926,6 +5061,7 @@ function accSym(s) {
     prog.targets = []; prog.badges = []; prog.tmp = 0; prog.unplaced = 0;
     var p = prog.list[prog.idx];
     prog.steps = p ? progSteps(model.key, p) : [];
+    magic.next = null;   // v68: the queued chord is recomputed against the new strip
     var ROWN = { bright: "b", happy: "h", scale: "n", sad: "s", tension: "t" };
     var PARTNER = { bright: "happy", happy: "bright", sad: "tension", tension: "sad" };
     var chipEls = Array.prototype.slice.call(el.querySelectorAll(".ss-chip"));
@@ -5099,6 +5235,7 @@ function accSym(s) {
     if (!el || !prog.model) return;
     progDecorate(el, prog.model);
     fitStrip();
+    paintNextHint();
   }
 
   function progLockKey() {
@@ -5106,7 +5243,7 @@ function accSym(s) {
   }
   function paintProgActive() {
     Array.prototype.forEach.call(document.querySelectorAll("#suggest .pg-on"), function (n) { n.classList.remove("pg-on"); });
-    var t = prog.cur >= 0 ? prog.targets[prog.cur] : null;
+    var t = prog.cur >= 0 ? prog.targets[prog.cur] : (magic.lit ? magicTarget(magic.item) : null);
     if (t) t.classList.add("pg-on");
     prog.badges.forEach(function (b) { b.el.classList.toggle("on", prog.cur >= 0 && b.steps.indexOf(prog.cur) >= 0); });
     if (prog.badges.some(function (b) { return b.steps.length > 2; })) placeBadges();
@@ -5126,16 +5263,230 @@ function accSym(s) {
     }, PREVIEW_MS);
     paintProg();
   }
-  function progNext() { progJump(prog.cur + 1); }
+  // v68: magic Next. Each tap plays ONE chord: the first N taps walk the progression in order
+  // (1 bar each at the style's BPM), then each tap is a random chord from the board (never the
+  // same twice in a row, weighted toward strong moves), every 4th or 8th one the home chord for
+  // 2 bars. A tap cuts the ringing chord (gate ramp, no click); otherwise it ends after its bars.
+  // One timer owner (suggestTimer), cleared before each new one; the release is set on the
+  // AudioContext clock. With Sustain down the chord joins the pedal pool exactly like a chip tap.
+  var MAGIC_LOOK = 0.04;   // s: the ring-end release is scheduled this far ahead on the audio clock
+  function magicCycle() { return magic.rng() < 0.5 ? 4 : 8; }
+  function magicReset() { if (!magic) return; magic.pos = 0; magic.last = null; magic.since = 0; magic.cycle = magicCycle(); magic.next = null; }
+  function magicPool() {
+    var m = prog.model, out = [];
+    if (!m) return out;
+    function add(it) { if (!it) return; for (var i = 0; i < out.length; i++) if (sameChord(out[i], it)) return; out.push(it); }
+    m.chips.forEach(function (c) { add(c.item); });   // chord chips (incl. dashed borrowed ones)
+    m.notes.forEach(function (n) { add(n.item); });   // scale-row notes (their triads)
+    return out;
+  }
+  function magicHome() {
+    var m = prog.model;
+    if (!m) return null;
+    var k = m.key, home = null;
+    m.chips.forEach(function (c) { if (!home && wrap12(c.item.rootPc) === wrap12(k.pc) && (c.row === "happy" || c.row === "sad")) home = c.item; });
+    if (!home) m.notes.forEach(function (n) { if (!home && n.home) home = n.item; });
+    return home;
+  }
+  function magicDeg(item) {
+    var kd = keyDegrees(prog.model.key);
+    for (var i = 0; i < kd.length; i++) if (wrap12(kd[i].pc) === wrap12(item.rootPc)) return kd[i].degree;
+    return 0;
+  }
+  function magicWeight(from, to) {
+    var w = 1;
+    if (!from) return w;
+    var a = magicDeg(from), b = magicDeg(to);
+    if (wrap12(to.rootPc - from.rootPc) === 5) w += 3;   // down a fifth
+    if ((a === 5 && b === 1) || (a === 4 && b === 1) || (a === 6 && b === 4)) w += 3;   // V-I, IV-I, vi-IV
+    if (a === 2 && b === 5) w += 2;   // ii-V (also down a fifth)
+    if (to.type === "dim") w *= 0.5;
+    return w;
+  }
+  function magicPick(home) {
+    var pool = magicPool(), last = magic.last;
+    var homeNext = magic.since + 2 >= magic.cycle;   // the tap after this one is the home chord
+    var c = pool.filter(function (it) { return !sameChord(it, last) && !(homeNext && home && sameChord(it, home)); });
+    if (!c.length) c = pool.filter(function (it) { return !sameChord(it, last); });
+    if (!c.length) return null;
+    var ws = c.map(function (it) { return magicWeight(last, it); }), sum = 0;
+    ws.forEach(function (x) { sum += x; });
+    var r = magic.rng() * sum;
+    for (var i = 0; i < c.length; i++) { r -= ws[i]; if (r < 0) return c[i]; }
+    return c[c.length - 1];
+  }
+  function magicTarget(item) {
+    var el = document.getElementById("suggest");
+    if (!el || !item) return null;
+    var groups = [el.querySelectorAll(".ss-chip:not(.tmp)"), el.querySelectorAll(".ss-note"), el.querySelectorAll(".ss-chip.tmp")];
+    for (var g = 0; g < groups.length; g++)
+      for (var i = 0; i < groups[g].length; i++) if (groups[g][i]._tc && sameChord(groups[g][i]._tc.item, item)) return groups[g][i];
+    return null;
+  }
+  function magicEnd() {
+    suggestTimer = 0;
+    // Ring end: release on the audio clock (a chord the Sustain pedal adopted keeps ringing, as before).
+    if (ChordAudio.ctx && !sustainPool["suggest"]) ChordAudio.stopChord("suggest", Math.max(ChordAudio.currentTime(), magic.endAt));
+    magic.lit = false;
+    magicHintClear();
+    if (!prog.playing) Array.prototype.forEach.call(document.querySelectorAll("#suggest .pg-on"), function (n) { n.classList.remove("pg-on"); });
+    clearSuggestPreview();
+  }
+  function magicPlay(item, bars, step) {
+    // Cut the chord still ringing, even when its release is already scheduled (gate ramp, no click).
+    if (ChordAudio.ctx && !sustainPool["suggest"]) ChordAudio.stopChord("suggest", null, null, true);
+    if (prog.flashT) { clearTimeout(prog.flashT); prog.flashT = 0; }
+    prog.cur = step;   // -1 in the random part: no progression badge lit
+    magic.item = item; magic.lit = true; magic.last = item;
+    applySuggestion(item);
+    var ring = bars * 240 / (state.bpm || 96);
+    magic.endAt = (ChordAudio.ctx ? ChordAudio.currentTime() : 0) + ring;
+    if (suggestTimer) clearTimeout(suggestTimer);
+    suggestTimer = setTimeout(magicEnd, Math.max(0, (ring - MAGIC_LOOK) * 1000));
+    paintProgActive();
+    paintProg();
+    if (PROG_TEST) { magic.log.push({ step: step, sym: stripLabel(item), bars: bars, home: !!magic.wasHome, at: magic.endAt - ring }); if (magic.log.length > 5000) magic.log.shift(); }
+  }
+  // v68: what the next Next tap will play, decided ONE TAP AHEAD (a one-item queue) so the
+  // "next chord" hint is always the chord the tap really plays. Same RNG order as deciding at
+  // tap time: the decision for tap k+1 is made right after tap k, from the same committed state.
+  function magicDecide() {
+    if (!prog.steps.length) return null;
+    var n = prog.steps.length;
+    var d = { item: null, bars: 1, step: -1, home: false, pos: magic.pos + 1, since: magic.since, cycle: magic.cycle };
+    if (magic.pos < n) {
+      d.step = magic.pos;
+      d.item = prog.steps[d.step].item;
+    } else {
+      var home = magicHome();
+      if (magic.since + 1 >= magic.cycle && home && !sameChord(home, magic.last)) {
+        d.item = home; d.bars = 2; d.since = 0; d.cycle = magicCycle(); d.home = true;
+      } else {
+        d.item = magicPick(home);
+        if (!d.item) return null;
+        var r = magic.rng();
+        d.bars = r < 0.15 ? 0.5 : r < 0.35 ? 2 : 1;
+        d.since = magic.since + 1;
+      }
+    }
+    return d;
+  }
+  function magicQueue() {
+    if (!magic.next && prog.steps.length) magic.next = magicDecide();
+    return magic.next;
+  }
+  // The ONE advance entry point (Next button in both modes, test hook). A future auto-advance
+  // should call this too. It commits the queued chord, plays it, queues the one after and
+  // repaints the next-chord hint.
+  function magicAdvance() {
+    if (!prog.steps.length) return;
+    progStop();
+    progLockKey();
+    var d = magicQueue();
+    magic.next = null;
+    if (!d) return;
+    magic.pos = d.pos; magic.since = d.since; magic.cycle = d.cycle; magic.wasHome = d.home;
+    magicPlay(d.item, d.bars, d.step);
+    magic.hint = true;
+    magicQueue();
+    paintNextHint();
+  }
+  function progNext() { magicAdvance(); }
+  // Badge: plays that step (1 bar) and the walk carries on from it.
   function progBadge(steps) {
     var s = steps[0];
     for (var i = 0; i < steps.length; i++) if (steps[i] > prog.cur) { s = steps[i]; break; }
-    progJump(s);
+    progStop();
+    progLockKey();
+    magic.pos = s + 1;
+    magic.next = null;
+    magicPlay(prog.steps[s].item, 1, s);
+    magic.hint = true;
+    magicQueue();
+    paintNextHint();
   }
+  // v68 "next chord" hint (full mode only): a soft pulsing gold outline on the exact keys the
+  // next Next tap will play, a gold dot on its root key, the same outline on its strip chip,
+  // and a small gold edge arrow if an outlined key is off-screen. Shown from a Next / badge tap
+  // until that chord's ring ends (or Simple / the loop player takes over).
+  function nextHintSpec(item) {
+    var ext = {}, k;
+    for (k in state.extensions) ext[k] = state.extensions[k];
+    var keep = { rootPc: state.rootPc, type: state.type, stripSpell: state.stripSpell, forceChord: state.forceChord, degree: state.degree };
+    setItemState(item);
+    var spec = computeSpec();
+    for (k in ext) state.extensions[k] = ext[k];
+    for (k in keep) state[k] = keep[k];
+    return spec;
+  }
+  function clearNextHintDom() {
+    Array.prototype.forEach.call(document.querySelectorAll(".nx, .nx-root"), function (n) { n.classList.remove("nx", "nx-root"); });
+    var a = document.getElementById("nxArrow");
+    if (a) a.hidden = true;
+  }
+  function magicHintClear() {
+    if (magic) magic.hint = false;
+    clearNextHintDom();
+  }
+  function paintNextHint() {
+    clearNextHintDom();
+    if (!magic || !magic.hint || state.simple || prog.playing) return;
+    var d = magicQueue();
+    if (!d) return;
+    var spec = nextHintSpec(d.item);
+    var mids = highlightMidisFromSpec(spec.midis);
+    var pads = padsEl.querySelectorAll(".pad"), seen = {}, root = null, outlined = [];
+    for (var i = 0; i < pads.length; i++) {
+      var m = pads[i].dataset.midi;
+      if (!mids[m] || seen[m] || pads[i].classList.contains("out")) continue;
+      seen[m] = true;
+      pads[i].classList.add("nx");
+      outlined.push(pads[i]);
+      if (wrap12(Number(m)) === wrap12(d.item.rootPc) && (!root || Number(m) < Number(root.dataset.midi))) root = pads[i];
+    }
+    if (root) root.classList.add("nx-root");
+    var chip = magicTarget(d.item);
+    if (chip) chip.classList.add("nx");
+    nextHintArrow(outlined);
+  }
+  function nextHintArrow(els) {
+    var a = document.getElementById("nxArrow");
+    if (!a) return;
+    var vw = window.innerWidth, vh = window.innerHeight, wrap = padsEl.getBoundingClientRect();
+    var L = Math.max(0, wrap.left), R = Math.min(vw, wrap.right), T = Math.max(0, wrap.top), B = Math.min(vh, wrap.bottom);
+    var dir = null, at = 0;
+    els.forEach(function (e) {
+      if (dir) return;
+      var r = e.getBoundingClientRect();
+      if (r.right <= L + 4) { dir = "left"; at = (Math.max(T, r.top) + Math.min(B, r.bottom)) / 2; }
+      else if (r.left >= R - 4) { dir = "right"; at = (Math.max(T, r.top) + Math.min(B, r.bottom)) / 2; }
+      else if (r.bottom <= T + 4) { dir = "up"; at = (Math.max(L, r.left) + Math.min(R, r.right)) / 2; }
+      else if (r.top >= B - 4) { dir = "down"; at = (Math.max(L, r.left) + Math.min(R, r.right)) / 2; }
+    });
+    if (!dir) { a.hidden = true; return; }
+    a.className = "nx-arrow " + dir;
+    a.textContent = { left: "\u25C0", right: "\u25B6", up: "\u25B2", down: "\u25BC" }[dir];
+    a.style.left = a.style.top = "";
+    if (dir === "left") { a.style.left = (L + 2) + "px"; a.style.top = (at - 11) + "px"; }
+    else if (dir === "right") { a.style.left = (R - 24) + "px"; a.style.top = (at - 11) + "px"; }
+    else if (dir === "up") { a.style.top = (T + 2) + "px"; a.style.left = (at - 11) + "px"; }
+    else { a.style.top = (B - 24) + "px"; a.style.left = (at - 11) + "px"; }
+    a.hidden = false;
+  }
+
+  if (PROG_TEST) window.__magic = {
+    state: magic,
+    seed: function (n) { var a = n >>> 0; magic.rng = function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; magicReset(); magic.log = []; },
+    pool: function () { return magicPool().map(stripLabel); },
+    home: function () { var h = magicHome(); return h ? stripLabel(h) : null; },
+    tap: function () { progNext(); },
+    timer: function () { return suggestTimer; }
+  };
 
   // Loop: its own lookahead scheduler on the Web Audio clock (like the phrase loop's).
   function progPlay() {
     if (prog.playing) { progStop(); return; }
+    magicHintClear();   // v68: the loop player takes over from the Next walk
     if (!prog.steps.length) return;
     unlock();
     if (loop.transport || loop.recording || loop.playing) stopPlayback();   // one loop at a time
@@ -5181,7 +5532,7 @@ function accSym(s) {
     var st = prog.steps[i];
     setItemState(st.item);
     var spec = computeSpec();
-    // v56: the same chord again (Deep drone, Blues C7 C7) is held through, not struck again.
+    // v56: the same chord again (Yoga Drone, Blues C7 C7) is held through, not struck again.
     var tied = !!(prog.lastItem && prog.groups.length && sameChord(prog.lastItem, st.item));
     if (!tied) {
       var g = "P" + (++prog.gid);
@@ -5223,6 +5574,7 @@ function accSym(s) {
     progStop();
     prog.idx = ((i % n) + n) % n;
     prog.cur = -1;
+    magicReset();   // v68
     progRedecorate();
     paintProg();
   }
@@ -5512,7 +5864,7 @@ function accSym(s) {
     el.style.removeProperty("--tx");
     placeBadges();
   }
-  window.addEventListener("resize", function () { fitStrip(); });
+  window.addEventListener("resize", function () { fitStrip(); if (magic.hint) setTimeout(paintNextHint, 120); });
   // v54: the panel can change height without a resize (Now column grows when a key is set).
   if (typeof ResizeObserver === "function") {
     var ssH = 0;
@@ -6174,17 +6526,25 @@ function accSym(s) {
   // Applied on Style change. Never touches Key, layout or the Next grid.
   var STYLE_PRESETS = {
     pop:       { sound: "piano",   bass: true,  voicing: "close", cutoff: 0.72, reverb: 0.14, delay: 0.10, bpm: 112, warmth: 15 },
+    // v68 Kids: "Bright and bouncy, like a music box." Bell top + soft pluck, short happy notes (art "box").
+    kids:      { sound: "bell",    bass: true,  voicing: "close", cutoff: 0.78, reverb: 0.12, delay: 0.05, bpm: 100, warmth: 10, art: "box" },
     jazz:      { sound: "epiano",  bass: true,  voicing: "drop",  cutoff: 0.48, reverb: 0.28, delay: 0.18, bpm: 120, warmth: 70 },
     rnb:       { sound: "epiano",  bass: true,  voicing: "close", cutoff: 0.55, reverb: 0.34, delay: 0.22, bpm: 78,  warmth: 45 },
     ballad:    { sound: "strings", bass: true,  voicing: "close", cutoff: 0.44, reverb: 0.40, delay: 0.16, bpm: 68,  warmth: 30 },
-    reggae:    { sound: "warm",    bass: true,  voicing: "low",   cutoff: 0.58, reverb: 0.24, delay: 0.20, bpm: 76,  warmth: 40 },
-    funk:      { sound: "reed",    bass: true,  voicing: "bright", cutoff: 0.78, reverb: 0.10, delay: 0.08, bpm: 108, warmth: 22 },
+    // v68: Reggae = short dry organ-like chops around middle C; Funk = short bright clav-like stabs, mid register.
+    reggae:    { sound: "reed",    bass: true,  voicing: "close", cutoff: 0.52, reverb: 0.08, delay: 0.06, bpm: 76,  warmth: 30, art: "chop" },
+    funk:      { sound: "reed",    bass: true,  voicing: "close", cutoff: 0.74, reverb: 0.06, delay: 0.04, bpm: 108, warmth: 18, art: "stab" },
     yogaDeep:  { sound: "warm",    bass: false, voicing: "low",   cutoff: 0.32, reverb: 0.58, delay: 0.02, bpm: 52,  warmth: 30, trim: 5.5 },
     // v60 Country: bright piano (the closest existing voice to a picked guitar), bass on, 100 BPM.
-    country:   { sound: "piano",   bass: true,  voicing: "bright", cutoff: 0.82, reverb: 0.12, delay: 0.06, bpm: 100, warmth: 12 }
+    // v68: close voicing (was bright: plain C reached G6, A7 in A).
+    country:   { sound: "piano",   bass: true,  voicing: "close", cutoff: 0.82, reverb: 0.12, delay: 0.06, bpm: 100, warmth: 12 }
   };
 
-  // Yoga Deep: Dim/Sus4 type pads are unavailable (stillness palette).
+  // v68: per-style loudness trims (bus gain), measured so every style plays within ~2 dB.
+  var STYLE_TRIM = { pop: 1.35, kids: 2.07, jazz: 0.69, rnb: 0.75, ballad: 1.97, reggae: 3.63, funk: 4.79, yogaDeep: 3.94, country: 1.36 };
+  function styleTrim(style) { return STYLE_TRIM[style] || 1; }
+
+  // Yoga (id yogaDeep): Dim/Sus4 type pads are unavailable (stillness palette).
   function enforceYogaDeepPaletteGate() {
     var gated = false; // v35: no style gates chord types
     var types = document.querySelectorAll("#types button[data-type]");
@@ -6236,7 +6596,8 @@ function accSym(s) {
     document.getElementById("reverb").value = String(p.reverb);
     document.getElementById("delay").value = String(p.delay);
     ChordAudio.setSound(p.sound);
-    ChordAudio.setTrim(p.trim || 1);
+    ChordAudio.setTrim(styleTrim(style));
+    ChordAudio.setArt(p.art);
     ChordAudio.setCutoff(p.cutoff);
     ChordAudio.setReverb(p.reverb);
     ChordAudio.setDelay(p.delay);
@@ -6253,7 +6614,7 @@ function accSym(s) {
   var STORE_VERSION = 1;
   var LAYOUTS = ["octave", "piano", "fourths"];
   var SOUNDS = ["piano", "epiano", "strings", "warm", "bell", "reed"];
-  var STYLES = ["pop", "jazz", "rnb", "ballad", "reggae", "funk", "yogaDeep", "country"];   // v60: Romantic and Yoga removed (saved ones fall back to Pop)
+  var STYLES = ["pop", "kids", "jazz", "rnb", "ballad", "reggae", "funk", "yogaDeep", "country"];   // v60: Romantic and the old "yoga" removed (saved ones fall back to Pop). v68: "yogaDeep" is shown as "Yoga"; its id is unchanged, so a saved "yogaDeep" restores to it and an old saved "yoga" still falls back to Pop.
   var SCALES = ["major", "minor"];
 
   function factoryDefaults() {
@@ -6279,6 +6640,7 @@ function accSym(s) {
       // v65: on by default in both modes. A saved false (the switch turned off) is kept;
       // a missing value (new user, or saved before v60) gets on.
       progNums: true,
+      volume: 100,
       lockKey: null
     };
   }
@@ -6321,6 +6683,7 @@ function accSym(s) {
       simple: bool(raw.simple, d.simple),
       allKeys: bool(raw.allKeys, d.allKeys),
       progNums: bool(raw.progNums, d.progNums),
+      volume: num(raw.volume, 0, 100, d.volume, true),
       lockKey: (raw.lockKey && typeof raw.lockKey === "object" && raw.lockKey.pc === (raw.lockKey.pc | 0) && raw.lockKey.pc >= 0 && raw.lockKey.pc < 12 && SCALES.indexOf(raw.lockKey.mode) >= 0)
         ? { pc: raw.lockKey.pc, mode: raw.lockKey.mode } : null
       // Legacy `latch` key (cce4d86) is ignored; Sustain is never persisted.
@@ -6372,6 +6735,7 @@ function accSym(s) {
       simple: !!state.simple,
       allKeys: !!state.allKeys,
       progNums: !!state.progNums,
+      volume: state.volume == null ? 100 : state.volume,
       lockKey: lockKey ? { pc: lockKey.pc, mode: lockKey.mode } : null
     };
   }
@@ -6417,7 +6781,7 @@ function accSym(s) {
     state.sound = s.sound;
     state.bass = s.bass;
     state.style = s.style;
-    ChordAudio.setTrim((STYLE_PRESETS[s.style] && STYLE_PRESETS[s.style].trim) || 1);
+    ChordAudio.setTrim(styleTrim(s.style));
     // v27: Key mode retired; the key picker is the only key control.
     if (s.keyMode) lockKey = { pc: s.keyRoot, mode: s.keyScale === "minor" ? "minor" : "major" };
     // v52: Simple picks up where it left off (its key control has no Auto); full mode
@@ -6463,6 +6827,9 @@ function accSym(s) {
     paintSimple();
     suggestSig = "";
     enforceYogaDeepPaletteGate();
+    // v68: the active style's sound preset always applies at load (cold Pop has its bass).
+    applyStylePreset(s.style);
+    setVolume(s.volume);
   }
 
   var toastTimer = 0;
@@ -6475,6 +6842,19 @@ function accSym(s) {
     toastTimer = setTimeout(function () { el.classList.remove("show"); }, 1600);
   }
 
+  // v68: master Volume (Config). 0..100, gain = (v/100)^2 (perceptual), 100 = the old level.
+  function setVolume(v) {
+    v = Math.round(Number(v));
+    if (!isFinite(v)) v = 100;
+    v = Math.max(0, Math.min(100, v));
+    state.volume = v;
+    var el = document.getElementById("volume");
+    if (el && el.value !== String(v)) el.value = String(v);
+    if (el) el.setAttribute("aria-valuetext", String(v));
+    var out = document.getElementById("volVal");
+    if (out) out.textContent = String(v);
+    ChordAudio.setVolume((v / 100) * (v / 100));
+  }
   function paintProgNumsBtn() {
     var b = document.getElementById("progNumsBtn");
     if (b) { b.setAttribute("aria-checked", state.progNums ? "true" : "false"); b.classList.toggle("on", !!state.progNums); }
@@ -6520,6 +6900,9 @@ function accSym(s) {
       setOpen(false);
       factoryReset();
     });
+    var volEl = document.getElementById("volume");
+    volEl.addEventListener("input", function () { setVolume(volEl.value); scheduleSave(150); });
+    volEl.addEventListener("change", function () { setVolume(volEl.value); scheduleSave(0); });
     // v60: order badges on the strip (full mode only). Saved like the other settings.
     document.getElementById("progNumsBtn").addEventListener("click", function () {
       state.progNums = !state.progNums;
@@ -6576,6 +6959,7 @@ function accSym(s) {
       if (Object.keys(paletteHolds).length) { paletteHolds = {}; syncPalette(); }
       if (!activeKey()) lockKey = { pc: 0, mode: "major" };
       state.simple = true;
+      magicHintClear();   // v68: the next-chord hint is full mode only
     } else {
       var restoreKey = state.keyModeBeforeSimple;
       state.keyModeBeforeSimple = false;
@@ -6736,5 +7120,6 @@ function accSym(s) {
 </script>
 
 
+<div id="nxArrow" class="nx-arrow" hidden aria-hidden="true"></div>
 </body>
 </html>
