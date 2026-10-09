@@ -1595,11 +1595,17 @@ html.simple .ss .nx { outline: none; animation: none; }
 @media (prefers-reduced-motion: reduce) { .kb .pad.nx::after, .ss .nx, .nx-arrow { animation: none; } }
 
 /* v70 Kids strip: one big basic triad chip; the rest of the board stays built but hidden */
-#suggest.kids1 > :not(.ss-kid) { visibility: hidden !important; pointer-events: none !important; }
-#suggest.kids1 .ss-kid { grid-row: 1 / -1; grid-column: 1 / -1; justify-self: center; align-self: center; z-index: 5;
-  width: min(62%, 240px); height: min(84%, 150px); margin-right: calc(-1 * var(--ss-lbl)); border-radius: 22px; border-width: 2px;
-  font-size: clamp(30px, 11vmin, 64px); font-weight: 800; letter-spacing: 0; padding: 0 8px; }
+#suggest.kids1 > :not(.ss-kidwrap) { visibility: hidden !important; pointer-events: none !important; }
+#suggest.kids1 .ss-kidwrap { position: absolute; inset: 6px; z-index: 5; display: flex; flex-direction: column; gap: 6px; min-height: 0; }
+#suggest.kids1 .ss-kidnow { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+#suggest.kids1 .ss-kid { width: min(62%, 240px); height: min(100%, 150px); min-height: 0; border-radius: 22px; border-width: 2px;
+  font-size: clamp(26px, 9vmin, 60px); font-weight: 800; letter-spacing: 0; padding: 0 8px; }
 html.simple #suggest.kids1 .ss-kid { border-radius: 26px; }
+#suggest.kids1 .ss-kidpads { flex: 0 0 auto; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; height: clamp(36px, 7vmin, 56px); }
+#suggest.kids1 .ss-kidpad { grid-row: auto; grid-column: auto; min-width: 0; height: 100%; border-radius: 10px; border-width: 1px; padding: 0 1px; font-size: clamp(12px, 3.4vmin, 18px); font-weight: 800; letter-spacing: -0.02em; }
+/* narrow strips (phone portrait, full mode): 2 rows (4 + 3) */
+html.lay-phone-port:not(.simple) #suggest.kids1 .ss-kidpads { grid-template-columns: repeat(4, minmax(0, 1fr)); height: auto; grid-auto-rows: 38px; }
+
 
 /* v70: master Volume on the main screen, beside the transport (Next) button, every mode */
 .pg-btns { align-items: center; }
@@ -1614,6 +1620,13 @@ html.lay-phone-land:not(.simple) .pg-vol { flex: 2 1 0; height: 20px; padding: 0
 html.lay-phone-port:not(.simple) .pg-vol { padding: 0 2px 0 4px; }
 html.lay-phone-port:not(.simple) .pg-vol svg, html.lay-phone-land:not(.simple) .pg-vol svg { display: none; }
 html.lay-phone-port:not(.simple) .pg-btn.pg-step { width: 32px; }
+
+/* v71 Kids next-note hint on the seven pads (both modes) */
+#suggest.kids1 .ss-kidpad { position: relative; overflow: visible; }
+#suggest.kids1 .ss-kidpad.nx, html.simple #suggest.kids1 .ss-kidpad.nx { outline: 3px solid #c4853f; outline-offset: 1px; animation: nxPulseO 1.5s ease-in-out infinite; }
+#suggest.kids1 .ss-kidpad.nx-root::before, html.simple #suggest.kids1 .ss-kidpad.nx-root::before { content: ""; display: block; position: absolute; left: 50%; top: 3px; width: 7px; height: 7px; margin-left: -3.5px;
+  border-radius: 50%; background: #c4853f; box-shadow: 0 0 0 1.5px rgba(20, 12, 4, .5); pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { #suggest.kids1 .ss-kidpad.nx { animation: none; } }
 
 </style>
 </head>
@@ -1638,12 +1651,12 @@ html.lay-phone-port:not(.simple) .pg-btn.pg-step { width: 32px; }
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=70" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=71" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=70" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=71" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1652,19 +1665,19 @@ html.lay-phone-port:not(.simple) .pg-btn.pg-step { width: 32px; }
       </ol>
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=70" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=71" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=70" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=71" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=70" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=71" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the smiley face, and sad ones sit below the frown. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=70" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=71" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=70" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=71" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Full Range enables all keys to be available.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
@@ -1838,7 +1851,7 @@ html.lay-phone-port:not(.simple) .pg-btn.pg-step { width: 32px; }
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 70;
+var APP_VERSION = 71;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -3788,7 +3801,7 @@ function accSym(s) {
         b.classList.add(state.type);
       }
     }
-    if (typeof magic !== "undefined" && magic && magic.hint) paintNextHint();   // v68: re-apply after a rebuild
+    if (typeof magic !== "undefined" && magic && (magic.hint || state.style === "kids")) paintNextHint();   // v68/v71: re-apply after a rebuild
   }
 
   function specFromFinger(finger) {
@@ -4935,8 +4948,8 @@ function accSym(s) {
     },
     // v68 Kids. Minor degrees count from the minor home (natural minor), so VI and VII need no flat.
     kids: {
-      major: [P("Kids Twinkle", "1 maj|1 maj|5 maj|5 maj|6 min|6 min|5 maj|4 maj|4 maj|1 maj|1 maj|5 maj|5 maj|1 maj"), P("Kids Sunny Day", "1 maj|5 maj|6 min|4 maj"),
-              P("Kids Lullaby", "1 maj|6 min|4 maj|5 maj"), P("Kids Silly Walk", "1 maj|1 maj|1 maj|1 maj|5 maj|5 maj|1 maj|1 maj|4 maj|4 maj|1 maj|1 maj|5 maj|5 maj|1 maj|1 maj")],
+      major: [P("Kids Twinkle", "1 maj|1 maj|5 maj|6 min|5 maj"), P("Kids Sunny Day", "1 maj|5 maj|6 min|4 maj"),
+              P("Kids Lullaby", "1 maj|6 min|4 maj|5 maj"), P("Kids Silly Walk", "1 maj|5 maj|1 maj|4 maj|1 maj")],
       minor: [P("Kids Spooky", "1 min|4 min|5 maj|1 min"), P("Kids Rainy Day", "1 min|6 maj|7 maj|1 min")]
     },
     jazz: {
@@ -5290,6 +5303,7 @@ function accSym(s) {
     prog.badges.forEach(function (b) { b.el.classList.toggle("on", prog.cur >= 0 && b.steps.indexOf(prog.cur) >= 0); });
     if (prog.badges.some(function (b) { return b.steps.length > 2; })) placeBadges();
     paintKidChip();
+    if (state.style === "kids") paintNextHint();   // v71: Kids next-note hint advances with each step
   }
   // v70: Kids strip = ONE big basic triad chip: the chord now current in the walk / loop
   // (or the home triad before anything plays). The full board is still built underneath
@@ -5310,27 +5324,65 @@ function accSym(s) {
     if (typeof magic !== "undefined" && magic && magic.item) return magic.item;
     return magicHome();
   }
+  function kidName(item) {
+    var t = item.type === "minor" ? "m" : item.type === "dim" ? "dim" : "";
+    return prettyAcc(item.rootName) + t;
+  }
+  function kidCls(item) { return item.type === "minor" ? "minor" : item.type === "dim" ? "tension" : "major"; }
+  // v71: Kids = the big Now chip + the key's seven basic chords (I ii iii IV V vi vii°;
+  // C Dm Em F G Am Bdim in C) as tappable pads. A pad tap plays its full triad (like a chip tap).
   function paintKidChip() {
     var el = document.getElementById("suggest");
     if (!el) return;
     var kids = state.style === "kids";
     el.classList.toggle("kids1", kids);
-    var old = el.querySelector(".ss-kid");
-    if (!kids) { if (old) old.parentNode.removeChild(old); return; }
+    var wrap = el.querySelector(".ss-kidwrap");
+    if (!kids) { if (wrap) wrap.parentNode.removeChild(wrap); return; }
+    var m = prog.model;
+    var ksig = m ? m.key.pc + m.key.mode + keyRootName(m.key) : "";
+    if (wrap && wrap._ksig !== ksig) { wrap.parentNode.removeChild(wrap); wrap = null; }
+    if (!wrap) {
+      wrap = document.createElement("div");
+      wrap.className = "ss-kidwrap";
+      wrap._ksig = ksig;
+      var now = document.createElement("div");
+      now.className = "ss-kidnow";
+      wrap.appendChild(now);
+      var row = document.createElement("div");
+      row.className = "ss-kidpads";
+      row.setAttribute("role", "group");
+      row.setAttribute("aria-label", "Seven basic chords");
+      var notes = m ? m.notes.slice().sort(function (x, y) { return (x.item.degree || 0) - (y.item.degree || 0); }) : [];
+      notes.forEach(function (n) {
+        var it = kidTriad(n.item);
+        var pb = document.createElement("button");
+        pb.type = "button";
+        pb.className = "ss-chip ss-kidpad " + kidCls(it);
+        pb.textContent = kidName(it);
+        pb.setAttribute("aria-label", kidName(it) + ", play");
+        pb._tc = { item: it, hc: 1, row: "scale" };
+        wireStripTap(pb, it);
+        row.appendChild(pb);
+      });
+      wrap.appendChild(row);
+      el.appendChild(wrap);
+    }
+    var slot = wrap.querySelector(".ss-kidnow");
+    var old = slot.querySelector(".ss-kid");
     var item = kidTriad(kidCurrent());
     var sig = item ? item.rootPc + item.type + item.rootName : "";
     if (old && old._sig === sig) return;
-    if (old) old.parentNode.removeChild(old);
+    if (old) slot.removeChild(old);
     if (!item) return;
     var b = document.createElement("button");
     b.type = "button";
-    b.className = "ss-chip ss-kid " + (item.type === "minor" ? "minor" : item.type === "dim" ? "tension" : "major");
-    b.textContent = stripLabel(item);
-    b.setAttribute("aria-label", "Now " + stripLabel(item) + ", tap to play");
+    b.className = "ss-chip ss-kid " + kidCls(item);
+    b.textContent = kidName(item);
+    b.setAttribute("aria-label", "Now " + kidName(item) + ", tap to play");
     b._tc = { item: item, hc: 7, row: item.type === "minor" ? "sad" : "happy" };
     b._sig = sig;
     wireStripTap(b, item);
-    el.appendChild(b);
+    slot.appendChild(b);
   }
   // Manual step (Next button / badge): play one step like a chip tap, lit while it rings.
   function progJump(i) {
@@ -5513,9 +5565,50 @@ function accSym(s) {
   function magicHintClear() {
     if (magic) magic.hint = false;
     clearNextHintDom();
+    if (state.style === "kids") paintNextHint();   // v71: the Kids song hint stays until the pass ends
+  }
+  // v71 Kids: the UPCOMING song step (Next walk or Play's one pass) is outlined on BOTH the
+  // keyboard (its single root key, full mode; Simple has no keyboard) and the matching one of
+  // the seven chord pads, plus the big Now chip in full mode. Shown from the start of the song,
+  // advances every step, clears when the song pass ends (random part) or Kids is left.
+  function kidsHintItem() {
+    if (!prog.steps.length) return null;
+    if (prog.playing) {
+      if (prog.tail) return null;
+      var nx = prog.cur + 1;
+      return nx < prog.steps.length ? prog.steps[nx].item : null;
+    }
+    var d = magicQueue();
+    return d && d.step >= 0 ? d.item : null;
+  }
+  function paintKidsHint() {
+    var item = kidsHintItem();
+    if (!item) return;
+    var pads = document.querySelectorAll("#suggest .ss-kidpad");
+    for (var i = 0; i < pads.length; i++) {
+      var it = pads[i]._tc && pads[i]._tc.item;
+      if (it && wrap12(it.rootPc) === wrap12(item.rootPc) && (it.type === "minor") === (item.type === "minor")) { pads[i].classList.add("nx", "nx-root"); break; }
+    }
+    var outlined = [];
+    if (!state.simple) {
+      var chip = document.querySelector("#suggest .ss-kid");
+      if (chip) chip.classList.add("nx");
+      var spec = kidsSoloSpec(nextHintSpec(item), item.rootPc);
+      var mids = highlightMidisFromSpec(spec.midis);
+      var keys = padsEl.querySelectorAll(".pad");
+      for (var k = 0; k < keys.length; k++) {
+        if (!mids[keys[k].dataset.midi] || keys[k].classList.contains("out")) continue;
+        keys[k].classList.add("nx", "nx-root");
+        outlined.push(keys[k]);
+        break;
+      }
+    }
+    nextHintArrow(outlined);
   }
   function paintNextHint() {
     clearNextHintDom();
+    if (typeof magic === "undefined" || !magic) return;
+    if (state.style === "kids") { paintKidsHint(); return; }
     if (!magic || !magic.hint || state.simple || prog.playing) return;
     var d = magicQueue();
     if (!d) return;
@@ -5678,6 +5771,30 @@ function accSym(s) {
     if (suggestPreview) clearSuggestPreview();
     paintProg();
   }
+  // v71: song.key -> app key. Same shape as the song contract's key {tonic, mode}; a future
+  // song Upload should call applySongKey(song.key.tonic, song.key.mode) too (not built yet).
+  function applySongKey(tonic, mode) {
+    var pc = typeof tonic === "number" ? wrap12(tonic) : namePc(String(tonic || ""));
+    if (!(pc >= 0)) return false;
+    mode = mode === "minor" ? "minor" : "major";
+    var ak = activeKey();
+    if (ak && ak.pc === pc && ak.mode === mode && state.keyRoot === pc && state.keyScale === mode) return true;
+    state.keyRoot = pc;
+    state.keyScale = mode;
+    lockKey = { pc: pc, mode: mode };
+    if (typeof tonic === "string") setKeySpell(pc, mode, tonic);
+    if (state.keyMode) renderPads();
+    suggestSig = "";
+    refreshHeld();
+    paintSuggestions(computeSpec());
+    scheduleSave();
+    return true;
+  }
+  var KIDS_SONG_KEY = {
+    "Kids Twinkle": ["C", "major"], "Kids Sunny Day": ["C", "major"], "Kids Lullaby": ["C", "major"], "Kids Silly Walk": ["C", "major"],
+    "Kids Spooky": ["A", "minor"], "Kids Rainy Day": ["A", "minor"]
+  };
+  if (PROG_TEST) window.__applySongKey = function (t, m) { return applySongKey(t, m); };
   function progSet(i) {
     var n = prog.list.length;
     if (!n) return;
@@ -5685,6 +5802,10 @@ function accSym(s) {
     prog.idx = ((i % n) + n) % n;
     prog.cur = -1;
     magicReset();   // v68
+    if (state.style === "kids") {
+      var sk = KIDS_SONG_KEY[prog.list[prog.idx].name];
+      if (sk) applySongKey(sk[0], sk[1]);   // v71: a Kids song picks its own key
+    }
     progRedecorate();
     paintProg();
   }
@@ -6537,7 +6658,9 @@ function accSym(s) {
       var b = e.target.closest("button");
       if (!b || !b.dataset.style) return;
       var changed = b.dataset.style !== state.style;
+      var leftKids = state.style === "kids" && b.dataset.style !== "kids";
       state.style = b.dataset.style;
+      if (leftKids && magic) magic.hint = false;   // v71: leaving Kids clears its next-note hint
       if (state.style === "kids") {
         // v70: picking Kids always starts in C major (other styles keep the current key).
         state.keyRoot = 0;
@@ -6556,6 +6679,7 @@ function accSym(s) {
         enforceYogaDeepPaletteGate();
         paintSuggestions(computeSpec());
       }
+      if (state.style === "kids" && prog.idx !== 0) progSet(0);   // v71: picking Kids starts on Twinkle
     });
 
     document.getElementById("layouts").addEventListener("click", function (e) {
