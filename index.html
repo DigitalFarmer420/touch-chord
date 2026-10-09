@@ -1631,6 +1631,13 @@ html.lay-phone-land:not(.simple) .pg-vol { flex: 2 1 0; height: 20px; padding: 0
 html.lay-phone-port:not(.simple) .pg-vol { padding: 0 2px 0 4px; }
 html.lay-phone-port:not(.simple) .pg-vol svg, html.lay-phone-land:not(.simple) .pg-vol svg { display: none; }
 html.lay-phone-port:not(.simple) .pg-btn.pg-step { width: 32px; }
+/* v74: Play song beside Next (both modes) */
+html.lay-phone-port:not(.simple) .pg-btn.pg-song { width: 32px; }
+/* phone portrait (full): Next / Play song / Upload share the row, Volume gets its own thin row below */
+html.lay-phone-port:not(.simple) .pg-btns { flex-wrap: wrap; row-gap: 3px; height: auto; }
+html.lay-phone-port:not(.simple) .pg-btns > .pg-btn { flex: 1 1 0; width: auto; height: 27px; }
+html.lay-phone-port:not(.simple) .pg-btns > .pg-vol { flex: 1 0 100%; height: 14px; padding: 0 6px; }
+.pg-btn.pg-song.on { background: var(--copper); color: #1a1209; border-color: var(--copper); }
 
 /* v71 Kids next-note hint on the seven pads (both modes) */
 #suggest.kids1 .ss-kidpad { position: relative; overflow: visible; }
@@ -1750,12 +1757,12 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=73" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=74" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=73" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=74" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1764,19 +1771,19 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
       </ol>
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=73" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=74" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=73" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=74" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=73" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=74" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the smiley face, and sad ones sit below the frown. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=73" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=74" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=73" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=74" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Full Range enables all keys to be available.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
@@ -1817,6 +1824,7 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     </div>
     <div class="pg-btns">
       <button type="button" class="pg-btn pg-step" aria-label="Next chord" title="Next chord"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5v14l10-7z" fill="currentColor"/><rect x="16.5" y="5" width="2.6" height="14" rx="1" fill="currentColor"/></svg></button>
+      <button type="button" class="pg-btn pg-song" aria-label="Play song" aria-pressed="false" title="Play song: the whole song / progression once, then random chords"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z" fill="currentColor"/></svg></button>
       <button type="button" id="uploadBtn" class="pg-btn pg-up" aria-label="Upload a song" title="Upload a song: paste chords from any AI" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 14v4.5a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
       <label class="pg-vol" title="Volume"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.6 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="volume" type="range" min="0" max="100" step="1" value="100" aria-label="Volume" aria-valuetext="100"><b id="volVal" aria-hidden="true">100</b></label>
     </div>
@@ -2112,7 +2120,7 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 73;
+var APP_VERSION = 74;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -7064,6 +7072,15 @@ function accSym(s) {
     sel.setAttribute("aria-valuemax", String(Math.max(0, prog.list.length - 1)));
     sel.setAttribute("aria-valuetext", name + " (" + prog.steps.map(function (s) { return s.roman; }).join(" ") + ")");
     sel.title = name + ": " + prog.steps.map(function (s) { return s.roman; }).join(" ");
+    var ps = el.querySelector(".pg-song"), pon = !!prog.playing;   // v74: Play song shows Stop while the pass / random tail runs
+    if (ps && PROG_PLAY_SVG && ps._on !== pon) {
+      ps._on = pon;
+      ps.innerHTML = pon ? PROG_STOP_SVG : PROG_PLAY_SVG;
+      ps.classList.toggle("on", pon);
+      ps.setAttribute("aria-pressed", pon ? "true" : "false");
+      ps.setAttribute("aria-label", pon ? "Stop song" : "Play song");
+      ps.title = pon ? "Stop" : "Play song: the whole song / progression once, then random chords";
+    }
     fitProgName();
   }
   var PROG_PLAY_SVG = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 4.5v15l12.5-7.5z\" fill=\"currentColor\"/></svg>";
@@ -7187,6 +7204,9 @@ function accSym(s) {
       setTimeout(function () { txt.classList.remove("nudge-l", "nudge-r"); }, 140);
     }
     el.querySelector(".pg-step").addEventListener("click", function () { unlock(); progNext(); });
+    // v74: Play song = the progression / uploaded song once through (song BPM when a song is
+    // selected), then the random tail; tap again to stop. The Loop tab's Play stays the phrase loop.
+    el.querySelector(".pg-song").addEventListener("click", function () { unlock(); progPlay(); });
     // v56: the whole row swipes, arrows included. A tap on an arrow steps once; a horizontal drag
     // past the threshold steps once (and is not also a tap). One step per gesture.
     var drag = null;
