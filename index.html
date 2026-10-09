@@ -1628,6 +1628,75 @@ html.lay-phone-port:not(.simple) .pg-btn.pg-step { width: 32px; }
   border-radius: 50%; background: #c4853f; box-shadow: 0 0 0 1.5px rgba(20, 12, 4, .5); pointer-events: none; }
 @media (prefers-reduced-motion: reduce) { #suggest.kids1 .ss-kidpad.nx { animation: none; } }
 
+/* ===== Song Upload (full mode only; Simple never shows any of it) ===== */
+.pg-btn.pg-up svg { width: var(--pg-ico, 18px); height: var(--pg-ico, 18px); }
+html.simple .pg-up, html.simple #songBar { display: none !important; }
+html.lay-phone-port:not(.simple) .pg-btn.pg-up { width: 32px; }
+#songBar { display: flex; align-items: center; gap: 5px; min-width: 0; min-height: 0; width: 100%; box-shadow: none; flex: 0 0 auto; height: 22px; margin: 0 0 3px; padding: 0 4px 0 2px; font-size: 11.5px; line-height: 1; color: var(--ink); background: none; border: 0; border-radius: 8px; text-align: left; cursor: pointer; overflow: hidden; }
+#songBar[hidden] { display: none !important; }
+#songBar .sb-sec { flex: 0 0 auto; padding: 3px 6px; border-radius: 7px; background: rgba(226, 161, 90, .18); color: var(--copper); font-weight: 700; text-transform: capitalize; }
+#songBar .sb-line { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+#songBar .sb-ch { display: inline-block; margin: 0 2px; padding: 1px 4px; border-radius: 5px; background: rgba(255,255,255,.07); color: var(--ink); font-weight: 700; }
+#songBar .sb-ch.on { background: var(--copper); color: #1a1209; }
+#songBar .sb-ch.flag::after, .up-ch.flag::after { content: "?"; display: inline-block; margin-left: 2px; padding: 0 3px; border-radius: 6px; background: #f08a24; color: #1a1209; font-size: .85em; font-weight: 800; }
+#songBar .sb-alt { flex: 0 0 auto; color: var(--copper); font-weight: 700; }
+.ss .ss-chip.up-flag { box-shadow: 0 0 0 2px #f08a24; }
+html.lay-pad-port #songBar, html.lay-pad-land #songBar { height: 28px; font-size: 14px; }
+.up-pick .kp-box { max-width: 640px; display: flex; flex-direction: column; gap: 8px; }
+.up-pick .kp-box > * { flex: 0 0 auto; }
+.up-intro { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.35; }
+.up-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.up-fields label { display: flex; flex-direction: column; gap: 3px; font-size: 11px; color: var(--muted); font-weight: 700; min-width: 0; }
+.up-fields input, .up-paste textarea, .up-fallback textarea { width: 100%; box-sizing: border-box; min-width: 0; font: inherit; font-size: 15px; color: var(--ink); background: rgba(255,255,255,.06); border: 1px solid var(--line); border-radius: 9px; padding: 7px 8px; }
+.up-key { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 8px 12px; border: 2px solid var(--copper); border-radius: 12px; background: rgba(226,161,90,.10); }
+.up-key .uk-l { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.up-key .uk-k { font-family: Palatino, "Iowan Old Style", Georgia, serif; font-size: 34px; font-weight: 700; line-height: 1.05; color: var(--copper); }
+.up-key .uk-t { font-size: 13px; color: var(--muted); text-align: right; }
+.up-review { border: 1px solid #f08a24; border-radius: 10px; padding: 6px 8px; font-size: 13px; }
+.up-review[hidden] { display: none; }
+.up-review b { color: #f08a24; }
+.up-review .ur-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 4px; }
+.up-review button, .up-alts button { min-height: 30px; height: 30px; padding: 0 8px; font-size: 13px; border-radius: 8px; }
+.up-secs { max-height: 44vh; overflow: auto; border: 1px solid var(--line); border-radius: 10px; padding: 4px 6px; overscroll-behavior: contain; }
+.up-secs .up-empty { padding: 10px 4px; font-size: 13px; color: var(--muted); }
+.up-sec { padding: 6px 0; border-bottom: 1px solid var(--line); }
+.up-sec:last-child { border-bottom: 0; }
+.up-sec .us-h { font-size: 12px; font-weight: 800; color: var(--copper); margin-bottom: 4px; }
+.up-sec .us-h span, .up-review .ur-row span { text-transform: capitalize; }
+.up-sec .us-h small { color: var(--muted); font-weight: 700; margin-left: 4px; }
+.up-chs { display: flex; flex-wrap: wrap; gap: 4px; }
+.up-ch { min-height: 30px; height: 30px; padding: 0 8px; font-size: 14px; font-weight: 700; border-radius: 8px; }
+.up-ch.on { background: var(--copper); color: #1a1209; border-color: transparent; }
+.up-ch .alt { font-size: 10px; margin-left: 3px; color: var(--copper); }
+.up-ch.on .alt { color: #1a1209; }
+.up-alts { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; padding: 4px; border-radius: 8px; background: rgba(255,255,255,.05); font-size: 12px; align-items: center; }
+.up-alts button.on { background: var(--copper); color: #1a1209; }
+.up-ly { margin-top: 5px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.25; white-space: pre; overflow-x: auto; }
+.up-ly .ly-c { color: var(--copper); font-weight: 700; }
+.up-ly .ly-t { color: var(--ink); }
+.up-ly .ly-t .mk { text-decoration: underline 2px var(--copper); text-underline-offset: 2px; }
+.up-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.up-row button { min-height: 36px; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 10px; }
+.up-row .up-ok { font-size: 13px; color: #8fd18f; font-weight: 700; }
+.up-paste textarea { min-height: 70px; resize: vertical; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; }
+.up-fallback[hidden], .up-err[hidden], .up-msg[hidden] { display: none; }
+.up-fallback textarea { min-height: 70px; font-size: 11px; }
+.up-err { border: 1px solid #e0605a; background: rgba(224,96,90,.12); border-radius: 10px; padding: 6px 8px; font-size: 13px; color: #ffd0cc; }
+.up-err ul { margin: 4px 0 0; padding-left: 18px; }
+.up-err code { font-size: 12px; color: #fff; }
+.up-msg { font-size: 13px; color: #8fd18f; font-weight: 700; }
+.up-warn { font-size: 12px; color: var(--muted); }
+html.lay-phone-land .up-pick .kp-box { max-height: 96vh; padding: 10px; }
+html.lay-phone-land .up-key .uk-k { font-size: 26px; }
+/* The song bar sits above the strip inside the same card: the strip gives it the room
+   (it fills what is left instead of the whole card). */
+html.up-on:not(.simple) .next-card > .ss { min-height: 0; flex: 1 1 0; height: auto; }
+html.up-on:not(.simple):not(.lay-phone-port) .next-card > .ss { flex: 0 0 auto; height: calc(3 * var(--ss-row) + var(--ss-strip) + 3 * var(--ss-gap) - var(--sb-h, 25px)); }
+html.lay-phone-land #app { --sb-h: 20px; }
+html.lay-pad-port #app, html.lay-pad-land #app { --sb-h: 31px; }
+html.up-on.lay-phone-land:not(.simple) #songBar { height: 18px; margin-bottom: 2px; font-size: 11px; }
+/* iPad / desktop: Next and Upload keep a real tap size beside the Volume slider. */
+html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.simple) .now-col > .prog .pg-btn { flex: 0 0 44px; }
 </style>
 </head>
 <body>
@@ -1651,12 +1720,12 @@ html.lay-phone-port:not(.simple) .pg-btn.pg-step { width: 32px; }
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=71" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=72" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=71" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=72" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1665,19 +1734,19 @@ html.lay-phone-port:not(.simple) .pg-btn.pg-step { width: 32px; }
       </ol>
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=71" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=72" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=71" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=72" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=71" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=72" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the smiley face, and sad ones sit below the frown. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=71" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=72" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=71" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=72" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Full Range enables all keys to be available.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
@@ -1718,6 +1787,7 @@ html.lay-phone-port:not(.simple) .pg-btn.pg-step { width: 32px; }
     </div>
     <div class="pg-btns">
       <button type="button" class="pg-btn pg-step" aria-label="Next chord" title="Next chord"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5v14l10-7z" fill="currentColor"/><rect x="16.5" y="5" width="2.6" height="14" rx="1" fill="currentColor"/></svg></button>
+      <button type="button" id="uploadBtn" class="pg-btn pg-up" aria-label="Upload a song" title="Upload a song: paste chords from any AI" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 14v4.5a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
       <label class="pg-vol" title="Volume"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.6 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="volume" type="range" min="0" max="100" step="1" value="100" aria-label="Volume" aria-valuetext="100"><b id="volVal" aria-hidden="true">100</b></label>
     </div>
   </div>
@@ -1730,6 +1800,163 @@ html.lay-phone-port:not(.simple) .pg-btn.pg-step { width: 32px; }
       <button type="button" class="kp-auto">Auto: next chord I play sets the key</button>
     </div>
   </div>
+
+  <div id="uploadPick" class="key-pick up-pick" role="dialog" aria-modal="true" aria-labelledby="upTitleH" hidden>
+    <div class="kp-box">
+      <div class="kp-head"><span id="upTitleH">Upload a song</span><button type="button" class="kp-x up-x" aria-label="Close">&#10005;</button></div>
+      <p class="up-intro">Ask any AI to fill in this song form, then paste its answer back here. The app checks it before loading.</p>
+      <div class="up-fields">
+        <label>Song title<input id="upTitle" type="text" autocomplete="off" spellcheck="false" placeholder="Hotel California"></label>
+        <label>Artist<input id="upArtist" type="text" autocomplete="off" spellcheck="false" placeholder="Eagles"></label>
+      </div>
+      <div class="up-key" aria-live="polite"><div><div class="uk-l">Key</div><div class="uk-k" id="upKey">&mdash;</div></div><div class="uk-t" id="upTempo">No song loaded</div></div>
+      <div class="up-review" id="upReview" hidden></div>
+      <div class="up-secs" id="upSecs" aria-label="Song sections in play order"><div class="up-empty">No song yet. Copy the form for an AI below, then paste its answer.</div></div>
+      <div class="up-row"><button type="button" id="upCopy">Copy for AI</button><span class="up-ok" id="upCopied" hidden>Copied</span></div>
+      <div class="up-fallback" id="upFallback" hidden><div class="up-warn">Copy did not work here. Select all of this text and copy it:</div><textarea id="upFallbackTxt" readonly></textarea></div>
+      <label class="up-paste"><span class="up-warn">Paste the AI&rsquo;s answer</span><textarea id="upPaste" spellcheck="false" placeholder="{ &quot;contractVersion&quot;: &quot;1.0&quot;, ... }"></textarea></label>
+      <div class="up-row"><button type="button" id="upLoad">Load</button><button type="button" id="upRemove" hidden>Remove song</button></div>
+      <div class="up-err" id="upErr" role="alert" hidden></div>
+      <div class="up-msg" id="upMsg" role="status" hidden></div>
+    </div>
+  </div>
+  <script type="application/json" id="songSchemaJson">
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://digitalfarmer420.github.io/touch-chord/schema/song-contract-v1.json",
+  "title": "Touch Chord Song Contract v1",
+  "description": "A song's key, timed chords by section, lyric chord markers and per-chord confidence, for upload into Touch Chord.",
+  "type": "object",
+  "required": ["contractVersion", "song", "timing", "sections"],
+  "additionalProperties": false,
+  "properties": {
+    "contractVersion": { "const": "1.0" },
+    "song": {
+      "type": "object",
+      "required": ["title", "artist", "key"],
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "artist": { "type": "string", "minLength": 1 },
+        "album": { "type": "string" },
+        "year": { "type": "integer", "minimum": 1000, "maximum": 2100 },
+        "key": {
+          "description": "The app auto-selects this key. tonic + mode is the machine field; display is free text.",
+          "type": "object",
+          "required": ["tonic", "mode"],
+          "additionalProperties": false,
+          "properties": {
+            "tonic": { "enum": ["C","C#","Db","D","D#","Eb","E","F","F#","Gb","G","G#","Ab","A","A#","Bb","B"] },
+            "mode": { "enum": ["major", "minor"] },
+            "display": { "type": "string", "examples": ["F# major", "B minor"] },
+            "confidence": { "$ref": "#/$defs/confidence" }
+          }
+        },
+        "capo": { "type": "integer", "minimum": 0, "maximum": 12, "description": "Capo fret if the source chart uses one; chords below must be CONCERT pitch regardless." },
+        "sources": { "type": "array", "items": { "type": "string" }, "description": "Where the AI got the chords (URLs or names)." }
+      }
+    },
+    "timing": {
+      "type": "object",
+      "required": ["bpm", "timeSignature"],
+      "additionalProperties": false,
+      "properties": {
+        "bpm": { "type": "number", "exclusiveMinimum": 0, "maximum": 300 },
+        "timeSignature": { "type": "string", "pattern": "^[0-9]{1,2}/(2|4|8|16)$", "examples": ["4/4", "3/4", "6/8"] },
+        "durationSeconds": { "type": "number", "minimum": 0 }
+      }
+    },
+    "sections": {
+      "description": "Song sections in play order. Repeat a section by listing it again (or use repeat).",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/section" }
+    },
+    "notes": { "type": "string", "description": "Anything the AI was unsure about." }
+  },
+  "$defs": {
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1, "description": "0 = guess, 1 = certain. The app flags anything below 0.6." },
+    "chordSymbol": {
+      "type": "string",
+      "description": "Concert-pitch chord symbol, slash bass allowed: e.g. Bm, F#7, Amaj7, Dsus4, G/B, Bbm7b5.",
+      "pattern": "^[A-G](#|b)?(m|maj|min|dim|aug|sus2|sus4|add|M)?[0-9]*(b5|#5|b9|#9|#11|b13|add9|sus4)*(\\/[A-G](#|b)?)?$"
+    },
+    "position": {
+      "description": "Where the chord starts. bar/beat are 1-based and count from the start of the SONG; startSeconds is optional.",
+      "type": "object",
+      "required": ["bar", "beat"],
+      "additionalProperties": false,
+      "properties": {
+        "bar": { "type": "integer", "minimum": 1 },
+        "beat": { "type": "number", "minimum": 1 },
+        "startSeconds": { "type": "number", "minimum": 0 }
+      }
+    },
+    "chordEvent": {
+      "type": "object",
+      "required": ["index", "chord", "position", "durationBeats", "confidence"],
+      "additionalProperties": false,
+      "properties": {
+        "index": { "type": "integer", "minimum": 0, "description": "Order within the section, starting at 0." },
+        "chord": { "$ref": "#/$defs/chordSymbol" },
+        "roman": { "type": "string", "description": "Optional numeral relative to song.key, e.g. i, V, bVII." },
+        "position": { "$ref": "#/$defs/position" },
+        "durationBeats": { "type": "number", "exclusiveMinimum": 0 },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "alternates": {
+          "description": "Suggested substitutes for this spot, best first.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["chord"],
+            "additionalProperties": false,
+            "properties": {
+              "chord": { "$ref": "#/$defs/chordSymbol" },
+              "reason": { "type": "string", "examples": ["simpler", "common live version", "jazzier"] },
+              "confidence": { "$ref": "#/$defs/confidence" }
+            }
+          }
+        }
+      }
+    },
+    "lyricLine": {
+      "type": "object",
+      "required": ["text", "markers"],
+      "additionalProperties": false,
+      "properties": {
+        "text": { "type": "string" },
+        "markers": {
+          "description": "Chord changes on this line. charIndex is the 0-based character in text where the chord hits; chordIndex points into the section's chords array.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["charIndex", "chordIndex"],
+            "additionalProperties": false,
+            "properties": {
+              "charIndex": { "type": "integer", "minimum": 0 },
+              "chordIndex": { "type": "integer", "minimum": 0 },
+              "beforeLine": { "type": "boolean", "description": "true if the chord hits before the first sung word (pickup/instrumental)." }
+            }
+          }
+        }
+      }
+    },
+    "section": {
+      "type": "object",
+      "required": ["id", "type", "chords"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "description": "Unique, e.g. verse1, chorus2." },
+        "type": { "enum": ["intro", "verse", "prechorus", "chorus", "bridge", "solo", "instrumental", "interlude", "outro", "other"] },
+        "label": { "type": "string" },
+        "repeat": { "type": "integer", "minimum": 1, "default": 1 },
+        "chords": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/chordEvent" } },
+        "lyrics": { "type": "array", "items": { "$ref": "#/$defs/lyricLine" } }
+      }
+    }
+  }
+}
+  </script>
 
   <div id="styles" class="style-row seg" role="radiogroup" aria-label="Style">
     <span class="lbl">Style</span>
@@ -1745,6 +1972,7 @@ html.lay-phone-port:not(.simple) .pg-btn.pg-step { width: 32px; }
   </div>
 
   <div class="next-card">
+    <button type="button" id="songBar" hidden></button>
     <div id="suggest" class="ss" aria-label="Scale strip"></div>
   </div>
 
@@ -1851,7 +2079,7 @@ html.lay-phone-port:not(.simple) .pg-btn.pg-step { width: 32px; }
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 71;
+var APP_VERSION = 72;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -4994,13 +5222,14 @@ function accSym(s) {
     }
   };
   // Phones: the feel only ("Jazz Turnaround" -> "Turnaround", "Yoga Drone" -> "Drone").
-  function progFeel(name) { return String(name || "").replace(/^(Pop|Kids|Jazz|R&B|Ballad|Reggae|Funk|Yoga|Country)\s+/, ""); }
+  function progFeel(name) { if (upProgObj && U && name === upProgObj.name) return U.title; return String(name || "").replace(/^(Pop|Kids|Jazz|R&B|Ballad|Reggae|Funk|Yoga|Country)\s+/, ""); }
   var PROG_SUFFIX = { maj: "", min: "", "7": "7", maj7: "maj7", m7: "7", m7b5: "\u00f87", sus4: "sus4", sus2: "sus2",
     add9: "add9", madd9: "add9", "9": "9", maj9: "maj9", m9: "9", "9sus": "9sus", "13": "13", "7b9": "7\u266d9",
     "7#9": "7\u266f9", "7sus4": "7sus4", "6": "6", dim: "\u00b0", overV: "/V", moverV: "/V", over3: "/3", mover3: "/3" };
   function progList(style, mode) {
     var s = PROGRESSIONS[style] || PROGRESSIONS.pop;
-    return s[mode === "minor" ? "minor" : "major"];
+    var l = s[mode === "minor" ? "minor" : "major"];
+    return upInList() ? l.concat([upProgObj]) : l;   // Upload: the song goes last (full mode, not Kids)
   }
   function progParse(str) {
     var t = str.trim().split(/\s+/);
@@ -5048,7 +5277,7 @@ function accSym(s) {
         type: q.type, extensions: ext, qualityLabel: q.label, chipLabel: lab, keepSpell: ni >= 0 }
     };
   }
-  function progSteps(key, p) { return p.steps.map(function (s) { return progStep(key, s); }); }
+  function progSteps(key, p) { if (p && p.up) return U ? upSteps(key) : []; return p.steps.map(function (s) { return progStep(key, s); }); }
   // Full mode label: the numerals (repeats folded as x2; very long ones list their chords).
   function progNumerals(steps) {
     var out = [];
@@ -5095,6 +5324,7 @@ function accSym(s) {
     var keyChanged = prog.keySig !== null && prog.keySig !== sig;
     if (styleChanged || keyChanged) progStop();
     var oldName = prog.list[prog.idx] ? prog.list[prog.idx].name : null;
+    var wasUp = !!(prog.list[prog.idx] && prog.list[prog.idx].up);   // Upload: a style change keeps the song
     prog.list = progList(state.style, key.mode);
     if (styleChanged) prog.idx = 0;
     else if (prog.mode !== null && prog.mode !== key.mode) {
@@ -5102,6 +5332,7 @@ function accSym(s) {
       prog.list.forEach(function (p, i) { if (p.name === oldName) ix = i; });
       prog.idx = Math.max(0, ix);
     }
+    if (wasUp) for (var uj = 0; uj < prog.list.length; uj++) if (prog.list[uj].up) prog.idx = uj;
     if (prog.idx >= prog.list.length) prog.idx = 0;
     prog.style = state.style; prog.mode = key.mode; prog.keySig = sig; prog.key = key;
     prog.cur = -1;
@@ -5303,6 +5534,7 @@ function accSym(s) {
     prog.badges.forEach(function (b) { b.el.classList.toggle("on", prog.cur >= 0 && b.steps.indexOf(prog.cur) >= 0); });
     if (prog.badges.some(function (b) { return b.steps.length > 2; })) placeBadges();
     paintKidChip();
+    paintSongBar();   // Upload: song bar + review flags
     if (state.style === "kids") paintNextHint();   // v71: Kids next-note hint advances with each step
   }
   // v70: Kids strip = ONE big basic triad chip: the chord now current in the walk / loop
@@ -5477,7 +5709,7 @@ function accSym(s) {
     magic.item = item; magic.lit = true; magic.last = item;
     kidsSolo = state.style === "kids";
     try { applySuggestion(item); } finally { kidsSolo = false; }
-    var ring = bars * 240 / (state.bpm || 96);
+    var ring = bars * progRingSec();   // Upload: the song BPM when a song is selected
     magic.endAt = (ChordAudio.ctx ? ChordAudio.currentTime() : 0) + ring;
     if (suggestTimer) clearTimeout(suggestTimer);
     suggestTimer = setTimeout(magicEnd, Math.max(0, (ring - MAGIC_LOOK) * 1000));
@@ -5701,12 +5933,12 @@ function accSym(s) {
         }
         S.last = d.item;
         progSchedule(-1, prog.nextT, d);
-        prog.nextT += d.bars * PROG_BAR;
+        prog.nextT += d.bars * progLoopBar();
         continue;
       }
       var i = prog.si, st = prog.steps[i];
       progSchedule(i, prog.nextT);
-      prog.nextT += st.bars * PROG_BAR;
+      prog.nextT += st.bars * progLoopBar();   // Upload: song BPM when a song is selected
       prog.si = i + 1;
       if (prog.si >= prog.steps.length) prog.tail = { last: st.item, since: 0, cycle: magicCycle() };
     }
@@ -5806,9 +6038,573 @@ function accSym(s) {
       var sk = KIDS_SONG_KEY[prog.list[prog.idx].name];
       if (sk) applySongKey(sk[0], sk[1]);   // v71: a Kids song picks its own key
     }
+    if (prog.list[prog.idx] && prog.list[prog.idx].up && U) upKeyApply(U.key.tonic, U.key.mode);   // Upload: the song picks its key
     progRedecorate();
     paintProg();
   }
+
+  // ===== Song Upload (full mode only) =====
+  // Contract: contract/song-contract.schema.json (embedded below as #songSchemaJson, copied to the
+  // clipboard verbatim). A validated song becomes the "Uploaded" progression at the END of the
+  // picker list (never in Simple or Kids), so the factory progressions keep their indexes.
+  // TEMPO: while the uploaded song is the selected progression, its timing.bpm drives Next (ring
+  // length) and the Play autoplay (bar length); a style change swaps the sound (and the style's
+  // phrase-loop BPM) but never this song tempo. songTempo() is the single source.
+  // BAND HOOK: when Band (bass + drums) is built it must take its tempo from songTempo() when it
+  // returns a song (else the style / loop BPM), exactly like progLoopBar() / progRingSec() below.
+  var UP_STORE = "touchChord.upload.v1";
+  var UP_FLAG = 0.6;   // confidence below this is flagged for review
+  var UP_PASTE_LINE = "Look up the song I name, then fill in the JSON contract below for it and return ONLY valid JSON that matches the schema: use concert-pitch chords, count bars from the start of the song, give every chord a 0-1 confidence (be honest, low when unsure), list alternates where players commonly differ, and put anything you're unsure of in \"notes\". Song: <ARTIST - TITLE>";
+  var upSchemaText = "", upSchema = null;
+  (function () {
+    var s = document.getElementById("songSchemaJson");
+    upSchemaText = s ? s.textContent.replace(/^\s+|\s+$/g, "") : "";
+    try { upSchema = JSON.parse(upSchemaText); } catch (err) { upSchema = null; }
+  })();
+  var U = null;   // the loaded song (see upBuild)
+  var upProgObj = null;
+
+  // --- chord symbols (the contract's chordSymbol pattern) -> app chord items ---
+  var UP_CHORD_RE = /^([A-G])(#|b)?(maj|min|dim|aug|sus2|sus4|add|m|M)?([0-9]*)((?:b5|#5|b9|#9|#11|b13|add9|sus4)*)(?:\/([A-G])(#|b)?)?$/;
+  function upParseChord(sym) {
+    var m = UP_CHORD_RE.exec(String(sym));
+    if (!m) return { error: "is not a chord symbol the app can read (e.g. Bm, F#7, G/B)" };
+    var rs = { li: SPELL_LI.indexOf(m[1]), acc: m[2] === "#" ? 1 : m[2] === "b" ? -1 : 0 };
+    var pc = wrap12([0, 2, 4, 5, 7, 9, 11][rs.li] + rs.acc);
+    var q = m[3] || "", n = m[4] || "", alts = m[5] ? m[5].match(/b5|#5|b9|#9|#11|b13|add9|sus4/g) : [];
+    var type = "major", ext = { six: false, min7: false, maj7: false, nine: false, sus2: false, flat9: false, sharp9: false, thirteen: false, over: 0 };
+    var warn = [], maj = q === "maj" || q === "M", add = q === "add";
+    if (q === "m" || q === "min") type = "minor";
+    else if (q === "dim") type = "dim";
+    else if (q === "aug") warn.push("augmented is played as a major chord");
+    else if (q === "sus2") ext.sus2 = true;
+    else if (q === "sus4") type = "sus4";
+    function seven() { if (maj) ext.maj7 = true; else if (type === "dim" && q === "dim") ext.six = true; else ext.min7 = true; }
+    if (n === "") { if (add) return { error: "\"add\" needs a number (e.g. Cadd9)" }; }
+    else if (n === "2") { if (add) ext.nine = true; else ext.sus2 = true; }
+    else if (n === "4") { if (add) warn.push("add4 is played without the 4th"); else type = "sus4"; }
+    else if (n === "5") { warn.push("a power chord (5) is played as a full major chord"); }
+    else if (n === "6") { ext.six = true; }
+    else if (n === "7") { seven(); }
+    else if (n === "9") { if (add) ext.nine = true; else { seven(); ext.nine = true; } }
+    else if (n === "11") { seven(); ext.nine = true; if (type === "major") type = "sus4"; else warn.push("the 11th is left out"); }
+    else if (n === "13") { seven(); ext.thirteen = true; }
+    else return { error: "has a chord number (" + n + ") the app does not play" };
+    for (var i = 0; i < alts.length; i++) {
+      var a = alts[i];
+      if (a === "b5") { if (type === "minor") type = "dim"; else if (type !== "dim") warn.push("\u266d5 is left out"); }
+      else if (a === "#5") warn.push("\u266f5 is left out");
+      else if (a === "b9") { if (!ext.min7 && !ext.maj7) ext.min7 = true; ext.flat9 = true; ext.nine = false; }
+      else if (a === "#9") { if (!ext.min7 && !ext.maj7) ext.min7 = true; ext.sharp9 = true; }
+      else if (a === "#11" || a === "b13") warn.push(a.replace("b", "\u266d").replace("#", "\u266f") + " is left out");
+      else if (a === "add9") ext.nine = true;
+      else if (a === "sus4") { if (type === "minor") warn.push("minor sus4 is played as sus4"); type = "sus4"; }
+    }
+    if (m[6]) {
+      var bs = { li: SPELL_LI.indexOf(m[6]), acc: m[7] === "#" ? 1 : m[7] === "b" ? -1 : 0 };
+      ext.over = wrap12([0, 2, 4, 5, 7, 9, 11][bs.li] + bs.acc - pc);
+    }
+    var label = String(sym).slice(m[1].length + (m[2] ? 1 : 0)).replace(/b/g, "\u266d").replace(/#/g, "\u266f");
+    return { pc: pc, rs: rs, type: type, ext: ext, label: label, warn: warn };
+  }
+  // One uploaded chord as a progression step (same shape as progStep's, so badges, the strip's
+  // dashed chips, magic Next and the next-chord hint work unchanged).
+  function upStep(key, sym, bars, ei) {
+    var c = upParseChord(sym);
+    if (c.error) c = upParseChord("C");
+    var kdegs = keyDegrees(key);
+    var rowPcs = kdegs.map(function (d) { return d.pc; }).sort(function (a, b) { return a - b; });
+    var inKey = {};
+    kdegs.forEach(function (d) { inKey[d.pc] = true; });
+    var tonePcs = Theory.chordIntervals(c.type, c.ext).map(function (iv) { return wrap12(c.pc + iv); });
+    if (c.ext.over) tonePcs.push(wrap12(c.pc + c.ext.over));
+    var diatonic = tonePcs.every(function (x) { return inKey[x]; });
+    var ni = rowPcs.indexOf(c.pc);
+    var hc = ni >= 0 ? 1 + 2 * ni : 2 * rowPcs.filter(function (x) { return x < c.pc; }).length;
+    var d = null, acc = "";
+    kdegs.forEach(function (k) { if (!d && k.pc === c.pc) d = k; });
+    if (!d) kdegs.forEach(function (k) { if (!d && k.pc === wrap12(c.pc + 1)) { d = k; acc = "\u266d"; } });
+    if (!d) kdegs.forEach(function (k) { if (!d && k.pc === wrap12(c.pc - 1)) { d = k; acc = "\u266f"; } });
+    var base = String(d.roman).replace(/[^ivIV]/g, "").toUpperCase();
+    var lower = c.type === "minor" || c.type === "dim";
+    var num = lower ? base.toLowerCase() : base;
+    var suffix = c.label.replace(/^(m(?!aj)|min)/, "");
+    var roman = acc + num + suffix;
+    var rn = acc + num + (c.type === "dim" ? (c.ext.min7 ? "\u00f8" : "\u00b0") : "");
+    var row = (c.type === "minor" && !c.ext.over) ? "sad"
+      : (c.type === "dim" || c.type === "sus4" || c.ext.flat9 || c.ext.sharp9 || c.ext.over) ? "tension"
+      : (diatonic && ni >= 0) ? "happy" : "bright";
+    return {
+      bars: bars, roman: roman, rn: rn, hc: hc, row: row, ei: ei,
+      item: { rootPc: c.pc, rootName: Theory.noteName(c.rs), rootSpell: c.rs,
+        degree: (!acc && diatonic && c.type === d.type && !c.ext.over) ? d.degree : null,
+        type: c.type, extensions: c.ext, qualityLabel: c.label, chipLabel: c.label, keepSpell: true }
+    };
+  }
+
+  // --- validator: the subset of JSON Schema the contract uses (types, required, enum, const,
+  // min/max, exclusiveMinimum, minLength, minItems, pattern, items, additionalProperties, $ref) ---
+  function upType(v) {
+    if (v === null) return "null";
+    if (Array.isArray(v)) return "array";
+    if (typeof v === "number") return isFinite(v) ? (Math.floor(v) === v ? "integer" : "number") : "nan";
+    return typeof v;
+  }
+  function upValidate(node, sch, path, errs, refName) {
+    if (!sch) return;
+    if (sch.$ref) {
+      var nm = sch.$ref.split("/").pop();
+      return upValidate(node, upSchema.$defs[nm], path, errs, nm);
+    }
+    var at = path || "(top level)";
+    if (Object.prototype.hasOwnProperty.call(sch, "const") && node !== sch["const"]) { errs.push({ path: at, msg: "must be " + JSON.stringify(sch["const"]) }); return; }
+    if (sch["enum"] && sch["enum"].indexOf(node) < 0) {
+      errs.push({ path: at, msg: (node === undefined ? "is missing" : JSON.stringify(node) + " is not allowed") + "; use one of " + sch["enum"].join(", ") });
+      return;
+    }
+    var t = upType(node), want = sch.type;
+    if (want) {
+      var ok = want === t || (want === "number" && t === "integer");
+      if (!ok) { errs.push({ path: at, msg: "must be " + (want === "integer" ? "a whole number" : want === "object" ? "an object { }" : want === "array" ? "a list [ ]" : "a " + want) + " (got " + (t === "nan" ? "an invalid number" : t) + ")" }); return; }
+    }
+    if (t === "string") {
+      if (sch.minLength && node.length < sch.minLength) errs.push({ path: at, msg: "must not be empty" });
+      if (sch.pattern && !(new RegExp(sch.pattern)).test(node)) {
+        errs.push({ path: at, msg: refName === "chordSymbol" ? JSON.stringify(node) + " is not a chord symbol the app can read (e.g. Bm, F#7, G/B)"
+          : /timeSignature$/.test(at) ? JSON.stringify(node) + " must look like \"4/4\", \"3/4\" or \"6/8\"" : JSON.stringify(node) + " does not match " + sch.pattern });
+      }
+    }
+    if (t === "number" || t === "integer") {
+      var lo = sch.minimum, hi = sch.maximum;
+      if (lo != null && hi != null && (node < lo || node > hi)) errs.push({ path: at, msg: "must be between " + lo + " and " + hi + " (got " + node + ")" });
+      else if (lo != null && node < lo) errs.push({ path: at, msg: "must be at least " + lo + " (got " + node + ")" });
+      else if (hi != null && node > hi) errs.push({ path: at, msg: "must be at most " + hi + " (got " + node + ")" });
+      if (sch.exclusiveMinimum != null && !(node > sch.exclusiveMinimum)) errs.push({ path: at, msg: "must be more than " + sch.exclusiveMinimum + " (got " + node + ")" });
+    }
+    if (t === "array") {
+      if (sch.minItems && node.length < sch.minItems) errs.push({ path: at, msg: "must have at least " + sch.minItems + " item" + (sch.minItems > 1 ? "s" : "") });
+      if (sch.items) for (var i = 0; i < node.length; i++) upValidate(node[i], sch.items, path + "[" + i + "]", errs);
+    }
+    if (t === "object") {
+      var props = sch.properties || {};
+      (sch.required || []).forEach(function (k) {
+        if (!Object.prototype.hasOwnProperty.call(node, k)) errs.push({ path: path ? path + "." + k : k, msg: "is required" });
+      });
+      Object.keys(node).forEach(function (k) {
+        var p = path ? path + "." + k : k;
+        if (props[k]) upValidate(node[k], props[k], p, errs);
+        else if (sch.additionalProperties === false) errs.push({ path: p, msg: "is not a field of the song form" });
+      });
+    }
+  }
+  // Text -> { ok, song, errors: [{path, msg}], warnings: [] }. Strips ``` fences and any prose
+  // around the JSON (first "{" to last "}").
+  function upCheck(text) {
+    var out = { ok: false, song: null, errors: [], warnings: [] };
+    var s = String(text || "");
+    var a = s.indexOf("{"), b = s.lastIndexOf("}");
+    if (!s.replace(/\s+/g, "")) { out.errors.push({ path: "(paste)", msg: "is empty: paste the AI's answer first" }); return out; }
+    if (a < 0 || b <= a) { out.errors.push({ path: "(paste)", msg: "has no JSON object in it (nothing between { and })" }); return out; }
+    var body = s.slice(a, b + 1), obj;
+    try { obj = JSON.parse(body); }
+    catch (err) {
+      var msg = String(err && err.message || err), pos = /position (\d+)/.exec(msg), where = "";
+      var lc = /line (\d+) column (\d+)/.exec(msg);
+      if (lc) where = " (line " + lc[1] + ", column " + lc[2] + ")";
+      else if (pos) { var pre = body.slice(0, +pos[1]).split("\n"); where = " (line " + pre.length + ", column " + (pre[pre.length - 1].length + 1) + ")"; }
+      out.errors.push({ path: "(JSON)", msg: "is not valid JSON" + where + ": " + msg.replace(/^JSON\.parse: /, "") });
+      return out;
+    }
+    if (!upSchema) { out.errors.push({ path: "(app)", msg: "song schema missing from this build" }); return out; }
+    upValidate(obj, upSchema, "", out.errors);
+    if (!out.errors.length) {
+      var ids = {};
+      obj.sections.forEach(function (sec, si) {
+        var P = "sections[" + si + "]";
+        if (ids[sec.id]) out.errors.push({ path: P + ".id", msg: "\"" + sec.id + "\" is used twice; each section id must be unique" });
+        ids[sec.id] = true;
+        sec.chords.forEach(function (c, ci) {
+          var pc = upParseChord(c.chord);
+          if (pc.error) out.errors.push({ path: P + ".chords[" + ci + "].chord", msg: JSON.stringify(c.chord) + " " + pc.error });
+          else pc.warn.forEach(function (w) { out.warnings.push(P + ".chords[" + ci + "].chord " + c.chord + ": " + w); });
+          if (c.index !== ci) out.warnings.push(P + ".chords[" + ci + "].index is " + c.index + "; played in list order");
+          (c.alternates || []).forEach(function (al, ai) {
+            var pa = upParseChord(al.chord);
+            if (pa.error) out.errors.push({ path: P + ".chords[" + ci + "].alternates[" + ai + "].chord", msg: JSON.stringify(al.chord) + " " + pa.error });
+          });
+        });
+        (sec.lyrics || []).forEach(function (ln, li) {
+          ln.markers.forEach(function (mk, mi) {
+            var MP = P + ".lyrics[" + li + "].markers[" + mi + "]";
+            if (mk.chordIndex >= sec.chords.length) out.errors.push({ path: MP + ".chordIndex", msg: "points to chord " + mk.chordIndex + " but this section has " + sec.chords.length + " chords (0-" + (sec.chords.length - 1) + ")" });
+            if (mk.charIndex > ln.text.length) out.errors.push({ path: MP + ".charIndex", msg: "is " + mk.charIndex + " but the line has only " + ln.text.length + " characters" });
+          });
+        });
+      });
+      var tsn = parseInt(obj.timing.timeSignature, 10);
+      if (!(tsn > 0)) out.errors.push({ path: "timing.timeSignature", msg: "needs at least 1 beat per bar" });
+    }
+    if (!out.errors.length) { out.ok = true; out.song = obj; }
+    return out;
+  }
+
+  // --- the loaded song ---
+  // U = { raw, title, artist, key, bpm, bpb, ts, events: [{ si, ci, rep, dur }], choice: {"si:ci": sym}, reviewed: {"si:ci": true} }
+  function upBuild(raw, choice, reviewed) {
+    var u = { raw: raw, title: raw.song.title, artist: raw.song.artist, key: raw.song.key,
+      bpm: raw.timing.bpm, ts: raw.timing.timeSignature, bpb: parseInt(raw.timing.timeSignature, 10) || 4,
+      events: [], choice: choice || {}, reviewed: reviewed || {} };
+    raw.sections.forEach(function (sec, si) {
+      var reps = sec.repeat || 1;
+      for (var r = 0; r < reps; r++) sec.chords.forEach(function (c, ci) { u.events.push({ si: si, ci: ci, rep: r, dur: c.durationBeats }); });
+    });
+    upProgObj = { name: u.title + " \u2014 " + u.artist, steps: u.events.map(function () { return "up"; }), up: true };
+    return u;
+  }
+  function upEv(si, ci) { return U.raw.sections[si].chords[ci]; }
+  function upSym(si, ci) { return U.choice[si + ":" + ci] || upEv(si, ci).chord; }
+  function upConf(si, ci) {
+    var c = upEv(si, ci), s = U.choice[si + ":" + ci];
+    if (!s || s === c.chord) return c.confidence;
+    var al = (c.alternates || []).filter(function (a) { return a.chord === s; })[0];
+    return al && al.confidence != null ? al.confidence : 1;
+  }
+  function upFlagged(si, ci) {
+    if (U.reviewed[si + ":" + ci]) return false;
+    if (U.choice[si + ":" + ci] && U.choice[si + ":" + ci] !== upEv(si, ci).chord) return false;   // the player picked it
+    return upConf(si, ci) < UP_FLAG;
+  }
+  function upFlagList() {
+    var out = [];
+    if (!U) return out;
+    U.raw.sections.forEach(function (sec, si) { sec.chords.forEach(function (c, ci) { if (upFlagged(si, ci)) out.push({ si: si, ci: ci }); }); });
+    return out;
+  }
+  function upSecName(si) {
+    var sec = U.raw.sections[si];
+    if (sec.label) return sec.label;
+    var m = /(\d+)$/.exec(sec.id || "");
+    return sec.type + (m ? " " + m[1] : "");
+  }
+  function upSave() {
+    try {
+      if (!window.localStorage) return;
+      if (!U) { window.localStorage.removeItem(UP_STORE); return; }
+      window.localStorage.setItem(UP_STORE, JSON.stringify({ v: 1, song: U.raw, choice: U.choice, reviewed: U.reviewed, sel: upSelected() }));
+    } catch (err) {}
+  }
+  var upRestoreSel = false;
+  (function () {
+    try {
+      var st = window.localStorage && JSON.parse(window.localStorage.getItem(UP_STORE) || "null");
+      if (st && st.song) {
+        var chk = upCheck(JSON.stringify(st.song));
+        if (chk.ok) { U = upBuild(chk.song, st.choice, st.reviewed); upRestoreSel = !!st.sel; }
+      }
+    } catch (err) { U = null; }
+  })();
+  // Shown in full mode only, never for Kids (Kids plays its own songs).
+  function upInList() { return !!U && !state.simple && state.style !== "kids"; }
+  function upSelected() { var p = prog.list[prog.idx]; return !!(p && p.up && U); }
+  function songTempo() { return upSelected() ? { bpm: U.bpm, bpb: U.bpb, ts: U.ts } : null; }
+  // Bar length for the Play autoplay (factory progressions: PROG_BAR, 80 BPM 4/4).
+  function progLoopBar() { var t = songTempo(); return t ? t.bpb * 60 / t.bpm : PROG_BAR; }
+  // Ring length per bar for Next (factory progressions: the style / loop BPM, 4 beats).
+  function progRingSec() { var t = songTempo(); return t ? t.bpb * 60 / t.bpm : 240 / (state.bpm || 96); }
+  function upSteps(key) { return U.events.map(function (e, i) { return upStep(key, upSym(e.si, e.ci), e.dur / U.bpb, i); }); }
+
+  // Key from song.key: applySongKey(tonic, mode) (added with Kids v71; reused here). Tonic spellings
+  // that are not keys in the app (A# major, Gb minor) fall back to its default spelling (Bb, F#).
+  function upKeyApply(tonic, mode) {
+    applySongKey(tonic, mode);
+    var k = { pc: namePc(tonic), mode: mode === "minor" ? "minor" : "major" };
+    return { pc: k.pc, mode: k.mode, name: keyRootName(k) };
+  }
+  function upSelect() {
+    suggestSig = "";
+    paintSuggestions(computeSpec());
+    for (var i = 0; i < prog.list.length; i++) if (prog.list[i].up) { progSet(i); break; }
+    upSave();
+  }
+  function upLoad(text) {
+    var r = upCheck(text);
+    if (!r.ok) return r;
+    progStop();
+    if (state.style === "kids") { var pb = document.querySelector("#styles button[data-style=\"pop\"]"); if (pb) pb.click(); }
+    U = upBuild(r.song, {}, {});
+    r.key = upKeyApply(r.song.song.key.tonic, r.song.song.key.mode);
+    upSelect();
+    return r;
+  }
+  function upRemove() {
+    var was = upSelected();
+    U = null; upProgObj = null;
+    upSave();
+    suggestSig = "";
+    paintSuggestions(computeSpec());
+    if (was) progSet(0);
+  }
+  // Step index of the first walk step for chord (si, ci).
+  function upStepOf(si, ci) {
+    for (var i = 0; i < U.events.length; i++) if (U.events[i].si === si && U.events[i].ci === ci) return i;
+    return -1;
+  }
+  var upLastStep = -1;
+  function upCurStep() {
+    if (!upSelected()) return -1;
+    if (prog.cur >= 0) upLastStep = prog.cur;
+    return upLastStep;
+  }
+  function upPickAlt(si, ci, sym) {
+    if (sym === upEv(si, ci).chord) delete U.choice[si + ":" + ci]; else U.choice[si + ":" + ci] = sym;
+    U.reviewed[si + ":" + ci] = true;
+    upSave();
+    if (upSelected()) {
+      magic.next = null;
+      progRedecorate();
+      paintProg();
+      var i = upStepOf(si, ci);
+      if (i >= 0) { unlock(); progBadge([i]); }
+    }
+    paintUpload();
+  }
+
+  // --- main screen: song bar over the strip (section, current lyric line / chords, flags) ---
+  function upEsc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]; }); }
+  function paintSongBar() {
+    var bar = document.getElementById("songBar");
+    if (!bar) return;
+    var el = document.getElementById("suggest");
+    if (el) Array.prototype.forEach.call(el.querySelectorAll(".up-flag"), function (n) { n.classList.remove("up-flag"); });
+    var on = upSelected() && !state.simple;
+    if (bar.hidden === on) {
+      bar.hidden = !on;
+      document.documentElement.classList.toggle("up-on", on);   // CSS: the strip rows give the bar its room
+      setTimeout(function () { fitStrip(); placeBadges(); }, 0);
+    }
+    if (!on) { paintUploadActive(-1); return; }
+    prog.steps.forEach(function (s, i) {
+      var e = U.events[i];
+      if (e && upFlagged(e.si, e.ci) && prog.targets[i]) prog.targets[i].classList.add("up-flag");
+    });
+    var cur = upCurStep(), e0 = U.events[cur >= 0 ? cur : 0], si = e0.si, sec = U.raw.sections[si];
+    var curCi = cur >= 0 ? e0.ci : -1;
+    function chTag(ci) { return "<span class=\"sb-ch" + (ci === curCi ? " on" : "") + (upFlagged(si, ci) ? " flag" : "") + "\">" + upEsc(accSym(upSym(si, ci))) + "</span>"; }
+    var html = "", line = null;
+    (sec.lyrics || []).forEach(function (ln) {
+      var has = ln.markers.some(function (m) { return m.chordIndex === Math.max(0, curCi); });
+      if (has && !line) line = ln;
+    });
+    if (!line && sec.lyrics && sec.lyrics.length && curCi >= 0) {
+      sec.lyrics.forEach(function (ln) { if (ln.markers.some(function (m) { return m.chordIndex <= curCi; })) line = ln; });
+    }
+    if (line) {
+      var mk = line.markers.slice().sort(function (a, b) { return a.charIndex - b.charIndex; }), p = 0;
+      mk.forEach(function (m) { html += upEsc(line.text.slice(p, m.charIndex)) + chTag(m.chordIndex); p = Math.max(p, m.charIndex); });
+      html += upEsc(line.text.slice(p));
+    } else {
+      sec.chords.forEach(function (c, ci) { html += chTag(ci); });
+    }
+    var alts = curCi >= 0 && (upEv(si, curCi).alternates || []).length;
+    var key = "<span class=\"sb-sec\">" + upEsc(upSecName(si)) + "</span><span class=\"sb-line\">" + html + "</span>" + (alts ? "<span class=\"sb-alt\">alt \u25be</span>" : "");
+    if (bar._html !== key) { bar.innerHTML = key; bar._html = key; }
+    bar.setAttribute("aria-label", "Song " + upProgObj.name + ", " + upSecName(si) + (curCi >= 0 ? ", now " + upSym(si, curCi) : "") + ". Open the song");
+    paintUploadActive(cur >= 0 ? cur : -1);
+  }
+
+  // --- the Upload panel ---
+  var upOpenAlt = null;   // "si:ci" whose alternates row is open
+  function paintUploadActive(step) {
+    var box = document.getElementById("upSecs");
+    if (!box) return;
+    var e = step >= 0 && U ? U.events[step] : null;
+    Array.prototype.forEach.call(box.querySelectorAll(".up-ch"), function (b) {
+      b.classList.toggle("on", !!e && +b.dataset.s === e.si && +b.dataset.c === e.ci);
+    });
+  }
+  function upLyricHtml(sec, ln) {
+    var mk = ln.markers.slice().sort(function (a, b) { return a.charIndex - b.charIndex; });
+    var top = "", col = 0, marks = {};
+    mk.forEach(function (m, k) {
+      var nm = accSym(upSym(U.raw.sections.indexOf(sec), m.chordIndex));
+      var at = Math.max(m.charIndex, col);
+      while (top.length < at) top += " ";
+      top += nm + " ";
+      col = top.length;
+      marks[m.charIndex] = true;
+    });
+    var t = "";
+    for (var i = 0; i < ln.text.length; i++) t += marks[i] ? "<span class=\"mk\">" + upEsc(ln.text.charAt(i)) + "</span>" : upEsc(ln.text.charAt(i));
+    return "<div class=\"up-ly\"><div class=\"ly-c\">" + upEsc(top.replace(/\s+$/, "")) + "</div><div class=\"ly-t\">" + t + "</div></div>";
+  }
+  function paintUpload() {
+    var pick = document.getElementById("uploadPick");
+    if (!pick) return;
+    var keyEl = document.getElementById("upKey"), tEl = document.getElementById("upTempo"), secs = document.getElementById("upSecs");
+    var rev = document.getElementById("upReview");
+    document.getElementById("upRemove").hidden = !U;
+    if (!U) {
+      keyEl.textContent = "\u2014";
+      tEl.textContent = "No song loaded";
+      secs.innerHTML = "<div class=\"up-empty\">No song yet. Fill in the title and artist, tap Copy for AI, paste it into any AI, then paste its answer below and tap Load.</div>";
+      rev.hidden = true;
+      return;
+    }
+    var k = { pc: namePc(U.key.tonic), mode: U.key.mode === "minor" ? "minor" : "major" };
+    keyEl.textContent = accSym(keyRootName(k)) + " " + k.mode;
+    tEl.innerHTML = upEsc(U.title) + " \u2014 " + upEsc(U.artist) + "<br>" + U.bpm + " BPM \u00b7 " + upEsc(U.ts);
+    var fl = upFlagList();
+    if (fl.length) {
+      var h = "<b>" + fl.length + " chord" + (fl.length > 1 ? "s" : "") + " need" + (fl.length > 1 ? "" : "s") + " review</b> (the AI was not sure). Keep it or pick another:";
+      fl.forEach(function (f) {
+        var c = upEv(f.si, f.ci);
+        h += "<div class=\"ur-row\"><span>" + upEsc(upSecName(f.si)) + " #" + (f.ci + 1) + ": <b>" + upEsc(accSym(c.chord)) + "</b> (" + Math.round(c.confidence * 100) + "%)</span>" +
+          "<button type=\"button\" data-act=\"accept\" data-s=\"" + f.si + "\" data-c=\"" + f.ci + "\">Keep " + upEsc(accSym(c.chord)) + "</button>";
+        (c.alternates || []).forEach(function (a) { h += "<button type=\"button\" data-act=\"alt\" data-s=\"" + f.si + "\" data-c=\"" + f.ci + "\" data-sym=\"" + upEsc(a.chord) + "\">" + upEsc(accSym(a.chord)) + "</button>"; });
+        h += "</div>";
+      });
+      rev.innerHTML = h;
+      rev.hidden = false;
+    } else { rev.hidden = true; rev.innerHTML = ""; }
+    var html = "";
+    U.raw.sections.forEach(function (sec, si) {
+      html += "<div class=\"up-sec\" data-s=\"" + si + "\"><div class=\"us-h\"><span>" + upEsc(upSecName(si)) + "</span>" + (sec.repeat > 1 ? "<small>\u00d7" + sec.repeat + "</small>" : "") +
+        "<small>" + sec.chords.length + " chord" + (sec.chords.length > 1 ? "s" : "") + "</small></div><div class=\"up-chs\">";
+      sec.chords.forEach(function (c, ci) {
+        var alts = (c.alternates || []).length;
+        html += "<button type=\"button\" class=\"up-ch" + (upFlagged(si, ci) ? " flag" : "") + "\" data-act=\"play\" data-s=\"" + si + "\" data-c=\"" + ci + "\" aria-label=\"" +
+          upEsc(upSym(si, ci) + (upFlagged(si, ci) ? ", needs review" : "") + (alts ? ", has alternates" : "")) + "\">" + upEsc(accSym(upSym(si, ci))) +
+          (alts ? "<span class=\"alt\" data-act=\"alts\">alt\u25be</span>" : "") + "</button>";
+      });
+      html += "</div>";
+      if (upOpenAlt && +upOpenAlt.split(":")[0] === si) {
+        var ci0 = +upOpenAlt.split(":")[1], c0 = sec.chords[ci0], cur = upSym(si, ci0);
+        html += "<div class=\"up-alts\"><span>#" + (ci0 + 1) + ":</span><button type=\"button\" data-act=\"alt\" data-s=\"" + si + "\" data-c=\"" + ci0 + "\" data-sym=\"" + upEsc(c0.chord) + "\"" + (cur === c0.chord ? " class=\"on\"" : "") + ">" + upEsc(accSym(c0.chord)) + " (original)</button>";
+        (c0.alternates || []).forEach(function (a) {
+          html += "<button type=\"button\" data-act=\"alt\" data-s=\"" + si + "\" data-c=\"" + ci0 + "\" data-sym=\"" + upEsc(a.chord) + "\"" + (cur === a.chord ? " class=\"on\"" : "") + ">" + upEsc(accSym(a.chord)) + (a.reason ? " \u00b7 " + upEsc(a.reason) : "") + "</button>";
+        });
+        html += "</div>";
+      }
+      (sec.lyrics || []).forEach(function (ln) { html += upLyricHtml(sec, ln); });
+      html += "</div>";
+    });
+    secs.innerHTML = html;
+    paintUploadActive(upSelected() ? upCurStep() : -1);
+  }
+  function upShowErrors(r) {
+    var box = document.getElementById("upErr"), msg = document.getElementById("upMsg");
+    msg.hidden = true;
+    if (r.ok) { box.hidden = true; box.innerHTML = ""; return; }
+    var h = "<b>Could not load the song: " + r.errors.length + " problem" + (r.errors.length > 1 ? "s" : "") + "</b><ul>";
+    r.errors.slice(0, 5).forEach(function (e) { h += "<li><code>" + upEsc(e.path) + "</code>: " + upEsc(e.msg) + "</li>"; });
+    if (r.errors.length > 5) h += "<li>and " + (r.errors.length - 5) + " more</li>";
+    box.innerHTML = h + "</ul>Ask the AI to fix these and paste its new answer.";
+    box.hidden = false;
+  }
+  function upCopyText() {
+    var t = (document.getElementById("upTitle").value || "").trim(), a = (document.getElementById("upArtist").value || "").trim();
+    return UP_PASTE_LINE.replace("<ARTIST - TITLE>", (a || "ARTIST") + " - " + (t || "TITLE")) + "\n\n" + upSchemaText;
+  }
+  function upCopy() {
+    var txt = upCopyText(), ok = document.getElementById("upCopied"), fb = document.getElementById("upFallback"), fbt = document.getElementById("upFallbackTxt");
+    var t = (document.getElementById("upTitle").value || "").trim(), a = (document.getElementById("upArtist").value || "").trim();
+    var err = document.getElementById("upErr");
+    if (!t || !a) {
+      upShowErrors({ ok: false, errors: [{ path: !t ? "Song title" : "Artist", msg: "is empty: type it so the AI knows which song to look up" }] });
+      (document.getElementById(!t ? "upTitle" : "upArtist")).focus();
+      return;
+    }
+    err.hidden = true;
+    function done() { ok.hidden = false; ok.textContent = "Copied"; fb.hidden = true; clearTimeout(upCopy.t); upCopy.t = setTimeout(function () { ok.hidden = true; }, 2500); }
+    function legacy() {
+      var ta = document.createElement("textarea");
+      ta.value = txt; ta.setAttribute("readonly", ""); ta.style.cssText = "position:fixed;left:-9999px;top:0;opacity:0";
+      document.body.appendChild(ta); ta.select();
+      var good = false;
+      try { good = document.execCommand("copy"); } catch (e2) { good = false; }
+      document.body.removeChild(ta);
+      if (good) done();
+      else { fbt.value = txt; fb.hidden = false; ok.hidden = true; fbt.focus(); fbt.select(); }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, legacy);
+    else legacy();
+  }
+  function openUpload() {
+    var pick = document.getElementById("uploadPick");
+    if (U) {
+      document.getElementById("upTitle").value = U.title;
+      document.getElementById("upArtist").value = U.artist;
+    }
+    paintUpload();
+    pick.hidden = false;
+  }
+  function wireUpload() {
+    var pick = document.getElementById("uploadPick"), btn = document.getElementById("uploadBtn");
+    if (!pick || !btn) return;
+    btn.addEventListener("click", function () { openUpload(); });
+    document.getElementById("songBar").addEventListener("click", function () { openUpload(); });
+    function close() { pick.hidden = true; }
+    pick.querySelector(".up-x").addEventListener("click", close);
+    pick.addEventListener("click", function (e) { if (e.target === pick) close(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !pick.hidden) close(); });
+    document.getElementById("upCopy").addEventListener("click", upCopy);
+    document.getElementById("upLoad").addEventListener("click", function () {
+      unlock();
+      var r = upLoad(document.getElementById("upPaste").value);
+      upShowErrors(r);
+      if (r.ok) {
+        var msg = document.getElementById("upMsg"), n = U.events.length, fl = upFlagList().length;
+        msg.textContent = "Loaded " + U.title + ": " + U.raw.sections.length + " sections, " + n + " chords, key " + accSym(r.key ? r.key.name : U.key.tonic) + " " + U.key.mode + ", " + U.bpm + " BPM." +
+          (fl ? " " + fl + " need review." : "") + (r.warnings.length ? " Note: " + r.warnings.slice(0, 3).join("; ") + (r.warnings.length > 3 ? "\u2026" : "") : "") + " Close this and tap Next or Play.";
+        msg.hidden = false;
+        document.getElementById("upTitle").value = U.title;
+        document.getElementById("upArtist").value = U.artist;
+        document.getElementById("upPaste").value = "";
+        upOpenAlt = null;
+        paintUpload();
+      }
+    });
+    document.getElementById("upRemove").addEventListener("click", function () {
+      upRemove();
+      upOpenAlt = null;
+      document.getElementById("upMsg").textContent = "Song removed.";
+      document.getElementById("upMsg").hidden = false;
+      document.getElementById("upErr").hidden = true;
+      paintUpload();
+    });
+    function act(e) {
+      var t = e.target.closest ? e.target.closest("[data-act]") : null;
+      if (!t || !U) return;
+      var a = t.dataset.act, b = t.closest("[data-s]"), si = +(t.dataset.s != null ? t.dataset.s : b.dataset.s), ci = +(t.dataset.c != null ? t.dataset.c : (t.closest(".up-ch") || {}).dataset.c);
+      if (a === "alts") { e.stopPropagation(); upOpenAlt = upOpenAlt === si + ":" + ci ? null : si + ":" + ci; paintUpload(); return; }
+      if (a === "play") {
+        if (!upSelected()) upSelect();
+        var i = upStepOf(si, ci);
+        if (i >= 0) { unlock(); progBadge([i]); }
+        if ((upEv(si, ci).alternates || []).length) { upOpenAlt = si + ":" + ci; paintUpload(); }
+        return;
+      }
+      if (a === "accept") { U.reviewed[si + ":" + ci] = true; upSave(); if (upSelected()) progRedecorate(); paintUpload(); return; }
+      if (a === "alt") { upPickAlt(si, ci, t.dataset.sym); return; }
+    }
+    document.getElementById("upSecs").addEventListener("click", act);
+    document.getElementById("upReview").addEventListener("click", act);
+    // Reload: the saved song comes back selected, in its own key (full-mode key locks are not saved).
+    if (upRestoreSel) setTimeout(function () { if (U && upInList()) { upKeyApply(U.key.tonic, U.key.mode); upSelect(); } }, 0);
+  }
+  if (PROG_TEST) window.__upload = {
+    check: function (t) { return upCheck(t); },
+    load: function (t) { var r = upLoad(t); upShowErrors(r); paintUpload(); return { ok: r.ok, errors: r.errors, warnings: r.warnings }; },
+    remove: function () { upRemove(); paintUpload(); },
+    song: function () { return U ? { title: U.title, artist: U.artist, key: U.key, bpm: U.bpm, ts: U.ts, events: U.events.length, sections: U.raw.sections.map(function (s) { return s.id; }), selected: upSelected() } : null; },
+    steps: function () { return prog.steps.map(function (s) { return { sym: stripLabel(s.item), roman: s.roman, bars: s.bars }; }); },
+    tempo: function () { return { song: songTempo(), loopBar: progLoopBar(), ringSec: progRingSec(), stateBpm: state.bpm }; },
+    flagged: function () { return upFlagList().map(function (f) { return U.raw.sections[f.si].id + "#" + f.ci + ":" + upSym(f.si, f.ci); }); },
+    alternates: function () { var o = []; if (U) U.raw.sections.forEach(function (s) { s.chords.forEach(function (c, ci) { (c.alternates || []).forEach(function (a) { o.push(s.id + "#" + ci + ":" + c.chord + "->" + a.chord); }); }); }); return o; },
+    copyText: function () { return upCopyText(); },
+    parse: function (s) { return upParseChord(s); },
+    applySongKey: function (t, m) { return upKeyApply(t, m); }
+  };
 
   // The picker: Simple = friendly name in the left column under Major / Minor; full mode =
   // the numerals in a cycler by the style row (phone landscape: top of the Now column; other
@@ -7321,6 +8117,7 @@ function accSym(s) {
     wireKeyPick();
     wireKidKey();
     wireProg();
+    wireUpload();
     wireLayoutUi();
     // v52: fade the style row's right edge while more styles are scrolled out of view.
     (function () {
