@@ -1594,6 +1594,27 @@ html.simple .ss .nx { outline: none; animation: none; }
 @keyframes nxPulseO { 0%, 100% { outline-color: rgba(196, 133, 63, .45); } 50% { outline-color: rgba(196, 133, 63, 1); } }
 @media (prefers-reduced-motion: reduce) { .kb .pad.nx::after, .ss .nx, .nx-arrow { animation: none; } }
 
+/* v70 Kids strip: one big basic triad chip; the rest of the board stays built but hidden */
+#suggest.kids1 > :not(.ss-kid) { visibility: hidden !important; pointer-events: none !important; }
+#suggest.kids1 .ss-kid { grid-row: 1 / -1; grid-column: 1 / -1; justify-self: center; align-self: center; z-index: 5;
+  width: min(62%, 240px); height: min(84%, 150px); margin-right: calc(-1 * var(--ss-lbl)); border-radius: 22px; border-width: 2px;
+  font-size: clamp(30px, 11vmin, 64px); font-weight: 800; letter-spacing: 0; padding: 0 8px; }
+html.simple #suggest.kids1 .ss-kid { border-radius: 26px; }
+
+/* v70: master Volume on the main screen, beside the transport (Next) button, every mode */
+.pg-btns { align-items: center; }
+.pg-vol { display: flex; align-items: center; gap: 4px; flex: 1 1 auto; min-width: 0; height: 100%; padding: 0 4px 0 6px; color: var(--muted, #b9ad9a); }
+.pg-vol svg { flex: 0 0 auto; width: 16px; height: 16px; }
+.pg-vol input { flex: 1 1 auto; min-width: 0; width: 100%; margin: 0; accent-color: var(--copper); }
+.pg-vol b { display: none; }
+html.lay-phone-port:not(.simple) .pg-btns { flex-direction: row; gap: 2px; }
+html.lay-phone-port:not(.simple) .now-col > .prog, html.lay-phone-port:not(.simple) .pg-btns { width: 100%; }
+html.simple .pg-vol { flex: 1.5 1 0; }
+html.lay-phone-land:not(.simple) .pg-vol { flex: 2 1 0; height: 20px; padding: 0 2px; }
+html.lay-phone-port:not(.simple) .pg-vol { padding: 0 2px 0 4px; }
+html.lay-phone-port:not(.simple) .pg-vol svg, html.lay-phone-land:not(.simple) .pg-vol svg { display: none; }
+html.lay-phone-port:not(.simple) .pg-btn.pg-step { width: 32px; }
+
 </style>
 </head>
 <body>
@@ -1606,7 +1627,6 @@ html.simple .ss .nx { outline: none; animation: none; }
     <div class="config" id="configWrap">
       <button id="configBtn" type="button" class="top-btn config-btn icon-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="configMenu" aria-label="Config" title="Config"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
       <div id="configMenu" class="config-menu" role="menu" aria-label="Configuration" hidden>
-        <label class="cfg-vol" role="none"><span>Volume</span><input id="volume" type="range" min="0" max="100" step="1" value="100" aria-label="Volume" aria-valuetext="100"><b id="volVal" aria-hidden="true">100</b></label>
         <button id="progNumsBtn" type="button" role="menuitemcheckbox" aria-checked="true" class="cfg-toggle on"><span>Progression numbers</span><span class="tgl" aria-hidden="true"></span></button>
         <button id="factoryReset" type="button" role="menuitem" class="danger">Factory reset</button>
         <div id="appVersion" class="app-version" aria-live="off"></div>
@@ -1618,12 +1638,12 @@ html.simple .ss .nx { outline: none; animation: none; }
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=69" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=70" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=69" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=70" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1632,19 +1652,19 @@ html.simple .ss .nx { outline: none; animation: none; }
       </ol>
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=69" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=70" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=69" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=70" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=69" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=70" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the smiley face, and sad ones sit below the frown. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=69" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=70" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=69" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=70" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Full Range enables all keys to be available.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
@@ -1685,6 +1705,7 @@ html.simple .ss .nx { outline: none; animation: none; }
     </div>
     <div class="pg-btns">
       <button type="button" class="pg-btn pg-step" aria-label="Next chord" title="Next chord"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5v14l10-7z" fill="currentColor"/><rect x="16.5" y="5" width="2.6" height="14" rx="1" fill="currentColor"/></svg></button>
+      <label class="pg-vol" title="Volume"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.6 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="volume" type="range" min="0" max="100" step="1" value="100" aria-label="Volume" aria-valuetext="100"><b id="volVal" aria-hidden="true">100</b></label>
     </div>
   </div>
   </div>
@@ -1817,7 +1838,7 @@ html.simple .ss .nx { outline: none; animation: none; }
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 69;
+var APP_VERSION = 70;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -4156,7 +4177,12 @@ function accSym(s) {
       stopPlayback();
       return;
     }
-    if (!loop.events.length) return;
+    if (!loop.events.length) {
+      // v70: no phrase loop recorded: Play = play the progression once, then random chords.
+      progPlay();   // toggles: a second tap stops it
+      paintLoop();
+      return;
+    }
     progStop();   // v55: one loop at a time
     killLoopVoices();
     beginTransport();
@@ -4225,8 +4251,9 @@ function accSym(s) {
     rec.classList.toggle("on", loop.recording);
     rec.setAttribute("aria-pressed", loop.recording ? "true" : "false");
     rec.textContent = loop.recording ? "Stop rec" : "Record";
-    play.classList.toggle("on", loop.playing);
-    play.textContent = loop.playing ? "Stop" : "Play";
+    var seq = !loop.events.length && typeof prog !== "undefined" && prog && prog.playing;   // v70 sequence autoplay
+    play.classList.toggle("on", loop.playing || !!seq);
+    play.textContent = loop.playing || seq ? "Stop" : "Play";
     document.getElementById("loopStatus").textContent = loopLabel();
     var sym = document.getElementById("symbol");
     sym.classList.toggle("sounding", state.holding || poolCount() > 0 || loop.active.length > 0 || loop.playing);
@@ -4370,6 +4397,19 @@ function accSym(s) {
   }
 
   var suggestPreview = null;
+  // v70: Kids progression playback (Next / badge / loop Play) sounds ONLY the step's root:
+  // one MIDI note, no triad, no bass. Pad and chip taps are not affected.
+  var kidsSolo = false;
+  function kidsSoloSpec(spec, rootPc) {
+    var m = spec.midis || [], pick = null;
+    for (var i = 0; i < m.length; i++) if (wrap12(m[i]) === wrap12(rootPc) && (pick === null || m[i] < pick)) pick = m[i];
+    if (pick === null && m.length) pick = m[0] - wrap12(m[0] - rootPc);
+    var o = {}, k;
+    for (k in spec) o[k] = spec[k];
+    o.midis = pick === null ? [] : [pick];
+    o.bassOut = null;
+    return o;
+  }
   var suggestTapAt = 0;   // last touch/pen tap on a Next chip (click de-dupe)
   var suggestTimer = 0;
   var suggestSeq = 0;
@@ -4460,6 +4500,7 @@ function accSym(s) {
     var pending = unlock();
     refreshHeld();
     var spec = computeSpec();
+    if (kidsSolo) spec = kidsSoloSpec(spec, item.rootPc);
     // Highlight uses exact pad midis when present; otherwise nearest same-pc
     // pad so drop/low/bright (and off-keyboard registers) still light the
     // notes the suggestion is sounding. Audio keeps the true voiced midis.
@@ -4855,6 +4896,7 @@ function accSym(s) {
       el.appendChild(b);
     });
     progDecorate(el, model);   // v55: progression badges + temporary chips
+    paintKidChip();   // v70: Kids shows one big chip instead of the board
     paintNextHint();   // v68: queued chord recomputed for the new key / style / progression
     fitStrip();
     paintProg();
@@ -5247,6 +5289,48 @@ function accSym(s) {
     if (t) t.classList.add("pg-on");
     prog.badges.forEach(function (b) { b.el.classList.toggle("on", prog.cur >= 0 && b.steps.indexOf(prog.cur) >= 0); });
     if (prog.badges.some(function (b) { return b.steps.length > 2; })) placeBadges();
+    paintKidChip();
+  }
+  // v70: Kids strip = ONE big basic triad chip: the chord now current in the walk / loop
+  // (or the home triad before anything plays). The full board is still built underneath
+  // (hidden) so the progression, badges logic and magic Next pool are exactly as before.
+  function kidTriad(item) {
+    if (!item) return null;
+    var minor = item.type === "minor", dim = item.type === "dim";
+    var t = {}, k;
+    for (k in item) t[k] = item[k];
+    t.type = minor ? "minor" : dim ? "dim" : "major";
+    t.qualityLabel = minor ? "m" : dim ? "dim" : "";
+    t.chipLabel = minor ? "m" : dim ? "\u00b0" : "";
+    t.extensions = {};
+    return t;
+  }
+  function kidCurrent() {
+    if (prog.playing && prog.cur >= 0 && prog.steps[prog.cur]) return prog.steps[prog.cur].item;
+    if (typeof magic !== "undefined" && magic && magic.item) return magic.item;
+    return magicHome();
+  }
+  function paintKidChip() {
+    var el = document.getElementById("suggest");
+    if (!el) return;
+    var kids = state.style === "kids";
+    el.classList.toggle("kids1", kids);
+    var old = el.querySelector(".ss-kid");
+    if (!kids) { if (old) old.parentNode.removeChild(old); return; }
+    var item = kidTriad(kidCurrent());
+    var sig = item ? item.rootPc + item.type + item.rootName : "";
+    if (old && old._sig === sig) return;
+    if (old) old.parentNode.removeChild(old);
+    if (!item) return;
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "ss-chip ss-kid " + (item.type === "minor" ? "minor" : item.type === "dim" ? "tension" : "major");
+    b.textContent = stripLabel(item);
+    b.setAttribute("aria-label", "Now " + stripLabel(item) + ", tap to play");
+    b._tc = { item: item, hc: 7, row: item.type === "minor" ? "sad" : "happy" };
+    b._sig = sig;
+    wireStripTap(b, item);
+    el.appendChild(b);
   }
   // Manual step (Next button / badge): play one step like a chip tap, lit while it rings.
   function progJump(i) {
@@ -5271,7 +5355,7 @@ function accSym(s) {
   // AudioContext clock. With Sustain down the chord joins the pedal pool exactly like a chip tap.
   var MAGIC_LOOK = 0.04;   // s: the ring-end release is scheduled this far ahead on the audio clock
   function magicCycle() { return magic.rng() < 0.5 ? 4 : 8; }
-  function magicReset() { if (!magic) return; magic.pos = 0; magic.last = null; magic.since = 0; magic.cycle = magicCycle(); magic.next = null; }
+  function magicReset() { if (!magic) return; magic.pos = 0; magic.last = null; magic.since = 0; magic.cycle = magicCycle(); magic.next = null; magic.item = null; }
   function magicPool() {
     var m = prog.model, out = [];
     if (!m) return out;
@@ -5303,9 +5387,10 @@ function accSym(s) {
     if (to.type === "dim") w *= 0.5;
     return w;
   }
-  function magicPick(home) {
-    var pool = magicPool(), last = magic.last;
-    var homeNext = magic.since + 2 >= magic.cycle;   // the tap after this one is the home chord
+  function magicPick(home, S) {
+    S = S || magic;
+    var pool = magicPool(), last = S.last;
+    var homeNext = S.since + 2 >= S.cycle;   // the tap after this one is the home chord
     var c = pool.filter(function (it) { return !sameChord(it, last) && !(homeNext && home && sameChord(it, home)); });
     if (!c.length) c = pool.filter(function (it) { return !sameChord(it, last); });
     if (!c.length) return null;
@@ -5338,7 +5423,8 @@ function accSym(s) {
     if (prog.flashT) { clearTimeout(prog.flashT); prog.flashT = 0; }
     prog.cur = step;   // -1 in the random part: no progression badge lit
     magic.item = item; magic.lit = true; magic.last = item;
-    applySuggestion(item);
+    kidsSolo = state.style === "kids";
+    try { applySuggestion(item); } finally { kidsSolo = false; }
     var ring = bars * 240 / (state.bpm || 96);
     magic.endAt = (ChordAudio.ctx ? ChordAudio.currentTime() : 0) + ring;
     if (suggestTimer) clearTimeout(suggestTimer);
@@ -5434,6 +5520,7 @@ function accSym(s) {
     var d = magicQueue();
     if (!d) return;
     var spec = nextHintSpec(d.item);
+    if (state.style === "kids") spec = kidsSoloSpec(spec, d.item.rootPc);   // v70: Kids plays the root only
     var mids = highlightMidisFromSpec(spec.midis);
     var pads = padsEl.querySelectorAll(".pad"), seen = {}, root = null, outlined = [];
     for (var i = 0; i < pads.length; i++) {
@@ -5445,7 +5532,7 @@ function accSym(s) {
       if (wrap12(Number(m)) === wrap12(d.item.rootPc) && (!root || Number(m) < Number(root.dataset.midi))) root = pads[i];
     }
     if (root) root.classList.add("nx-root");
-    var chip = magicTarget(d.item);
+    var chip = state.style === "kids" ? document.querySelector("#suggest .ss-kid") : magicTarget(d.item);
     if (chip) chip.classList.add("nx");
     nextHintArrow(outlined);
   }
@@ -5495,6 +5582,7 @@ function accSym(s) {
     prog.playing = true;
     prog.si = 0;
     prog.log = [];
+    prog.tail = null;   // v70: set after one pass through the progression -> random chords
     prog.nextT = ChordAudio.currentTime() + 0.06;
     prog.timer = setInterval(progTick, 25);
     progTick();
@@ -5506,10 +5594,28 @@ function accSym(s) {
     if (prog.nextT < now - 0.3) prog.nextT = now + 0.05;   // fell behind (tab asleep): carry on from now
     var guard = 0;
     while (prog.nextT < now + 0.12 && guard++ < 4) {
+      if (prog.tail) {
+        // v70: after the one pass: random board chords, same rules as magic Next's random part
+        // (weighted strong moves, never the same twice, every 4th/8th the home chord for 2 bars).
+        var S = prog.tail, home = magicHome(), d;
+        if (S.since + 1 >= S.cycle && home && !sameChord(home, S.last)) {
+          d = { item: home, bars: 2, home: true }; S.since = 0; S.cycle = magicCycle();
+        } else {
+          var it = magicPick(home, S);
+          if (!it) { progStop(); return; }
+          var r = magic.rng();
+          d = { item: it, bars: r < 0.15 ? 0.5 : r < 0.35 ? 2 : 1 }; S.since++;
+        }
+        S.last = d.item;
+        progSchedule(-1, prog.nextT, d);
+        prog.nextT += d.bars * PROG_BAR;
+        continue;
+      }
       var i = prog.si, st = prog.steps[i];
       progSchedule(i, prog.nextT);
       prog.nextT += st.bars * PROG_BAR;
-      prog.si = (i + 1) % prog.steps.length;
+      prog.si = i + 1;
+      if (prog.si >= prog.steps.length) prog.tail = { last: st.item, since: 0, cycle: magicCycle() };
     }
   }
   function setItemState(item) {
@@ -5528,10 +5634,11 @@ function accSym(s) {
       state.forceChord = { rootPc: item.rootPc, type: item.type };
     }
   }
-  function progSchedule(i, t) {
-    var st = prog.steps[i];
+  function progSchedule(i, t, tail) {
+    var st = tail ? { item: tail.item, bars: tail.bars } : prog.steps[i];
     setItemState(st.item);
     var spec = computeSpec();
+    if (state.style === "kids") spec = kidsSoloSpec(spec, st.item.rootPc);   // v70: Kids loop = root only
     // v56: the same chord again (Yoga Drone, Blues C7 C7) is held through, not struck again.
     var tied = !!(prog.lastItem && prog.groups.length && sameChord(prog.lastItem, st.item));
     if (!tied) {
@@ -5541,12 +5648,13 @@ function accSym(s) {
       prog.groups = [{ g: g, t: t }];
     }
     prog.lastItem = st.item;
-    prog.log.push({ i: i, t: t, sym: spec.symbol, tied: tied });
+    prog.log.push({ i: tail ? -1 : i, t: t, sym: spec.symbol, tied: tied, bars: st.bars, home: !!(tail && tail.home), n: spec.midis.length, bass: spec.bassOut });
     if (prog.log.length > 64) prog.log.shift();
     var tid = setTimeout(function () {
       prog.uiT = prog.uiT.filter(function (x) { return x !== tid; });
       if (!prog.playing) return;
-      prog.cur = i;
+      prog.cur = tail ? -1 : i;
+      if (tail) { magic.item = st.item; magic.lit = true; } else magic.lit = false;
       setItemState(st.item);
       suggestPreview = { type: spec.type, extensions: { six: !!state.extensions.six, min7: !!state.extensions.min7, maj7: !!state.extensions.maj7, nine: !!state.extensions.nine }, midis: highlightMidisFromSpec(spec.midis) };
       updateSymbol();
@@ -5564,6 +5672,8 @@ function accSym(s) {
     prog.groups = [];
     prog.lastItem = null;
     prog.cur = -1;
+    prog.tail = null;
+    magic.lit = false;
     paintProgActive();
     if (suggestPreview) clearSuggestPreview();
     paintProg();
@@ -5603,6 +5713,7 @@ function accSym(s) {
     fitProgName();
   }
   function paintProg() {
+    paintLoop();   // v70: the Loop Play button shows Stop while the sequence autoplay runs
     var el = document.getElementById("prog");
     if (!el) return;
     var p = prog.list[prog.idx];
@@ -6427,6 +6538,13 @@ function accSym(s) {
       if (!b || !b.dataset.style) return;
       var changed = b.dataset.style !== state.style;
       state.style = b.dataset.style;
+      if (state.style === "kids") {
+        // v70: picking Kids always starts in C major (other styles keep the current key).
+        state.keyRoot = 0;
+        state.keyScale = "major";
+        lockKey = { pc: 0, mode: "major" };
+        if (state.keyMode) renderPads();
+      }
       var all = document.querySelectorAll("#styles button");
       for (var i = 0; i < all.length; i++) all[i].classList.toggle("on", all[i] === b);
       suggestSig = "";
