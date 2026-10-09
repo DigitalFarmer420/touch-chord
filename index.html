@@ -1591,6 +1591,11 @@ html.simple .ss .nx { outline: none; animation: none; }
   border: 1.5px solid #c4853f; font-size: 11px; line-height: 19px; text-align: center; pointer-events: none; animation: nxPulse 1.5s ease-in-out infinite; }
 .nx-arrow[hidden] { display: none; }
 @keyframes nxPulse { 0%, 100% { opacity: .6; } 50% { opacity: 1; } }
+/* v73: uploaded song NEXT chord (replaces the sequence numbers): thin, softly pulsing gold outline */
+@keyframes upNxSoft { 0%, 100% { outline-color: rgba(196, 133, 63, .5); } 50% { outline-color: rgba(196, 133, 63, .95); } }
+#suggest .upnx, #songBar .sb-ch.upnx, #upSecs .up-ch.upnx, html.simple #suggest .upnx { outline: 1.5px solid rgba(196, 133, 63, .8); outline-offset: 1px; animation: upNxSoft 1.8s ease-in-out infinite; }
+#suggest.kids1 .ss-kidpad.nx.nx, html.simple #suggest.kids1 .ss-kidpad.nx.nx { outline-width: 2px; animation: upNxSoft 1.8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { #suggest .upnx, #songBar .upnx, #upSecs .upnx, #suggest.kids1 .ss-kidpad.nx.nx { animation: none; } }
 @keyframes nxPulseO { 0%, 100% { outline-color: rgba(196, 133, 63, .45); } 50% { outline-color: rgba(196, 133, 63, 1); } }
 @media (prefers-reduced-motion: reduce) { .kb .pad.nx::after, .ss .nx, .nx-arrow { animation: none; } }
 
@@ -1605,6 +1610,12 @@ html.simple #suggest.kids1 .ss-kid { border-radius: 26px; }
 #suggest.kids1 .ss-kidpad { grid-row: auto; grid-column: auto; min-width: 0; height: 100%; border-radius: 10px; border-width: 1px; padding: 0 1px; font-size: clamp(12px, 3.4vmin, 18px); font-weight: 800; letter-spacing: -0.02em; }
 /* narrow strips (phone portrait, full mode): 2 rows (4 + 3) */
 html.lay-phone-port:not(.simple) #suggest.kids1 .ss-kidpads { grid-template-columns: repeat(4, minmax(0, 1fr)); height: auto; grid-auto-rows: 38px; }
+/* v73 Kids: no big Now chip; the seven pads fill the strip */
+#suggest.kids1 .ss-kidnow { display: none; }
+#suggest.kids1 .ss-kidwrap { justify-content: center; }
+#suggest.kids1 .ss-kidpads { flex: 1 1 auto; height: auto; max-height: 132px; min-height: 44px; }
+#suggest.kids1 .ss-kidpad { font-size: clamp(15px, 4.6vmin, 26px); border-width: 2px; border-radius: 14px; }
+html.lay-phone-port:not(.simple) #suggest.kids1 .ss-kidpads { grid-auto-rows: minmax(44px, 1fr); max-height: 150px; }
 
 
 /* v70: master Volume on the main screen, beside the transport (Next) button, every mode */
@@ -1630,10 +1641,22 @@ html.lay-phone-port:not(.simple) .pg-btn.pg-step { width: 32px; }
 
 /* ===== Song Upload (full mode only; Simple never shows any of it) ===== */
 .pg-btn.pg-up svg { width: var(--pg-ico, 18px); height: var(--pg-ico, 18px); }
-html.simple .pg-up, html.simple #songBar { display: none !important; }
+html.simple .pg-up { display: none !important; }   /* v73: Simple shows the song bar (lyrics + chords), not the Upload button */
+html.simple #songBar { cursor: default; }
 html.lay-phone-port:not(.simple) .pg-btn.pg-up { width: 32px; }
 #songBar { display: flex; align-items: center; gap: 5px; min-width: 0; min-height: 0; width: 100%; box-shadow: none; flex: 0 0 auto; height: 22px; margin: 0 0 3px; padding: 0 4px 0 2px; font-size: 11.5px; line-height: 1; color: var(--ink); background: none; border: 0; border-radius: 8px; text-align: left; cursor: pointer; overflow: hidden; }
 #songBar[hidden] { display: none !important; }
+/* v73 song chord Lock (song bar + Upload panel) */
+.next-card { position: relative; }
+#sbLock { position: absolute; z-index: 6; top: 0; right: 0; display: flex; align-items: center; gap: 3px; min-width: 0; min-height: 0; height: 22px; padding: 0 7px; font-size: 11px; font-weight: 700; line-height: 1; border-radius: 8px; box-shadow: none; color: var(--muted); background: rgba(255,255,255,.06); border: 1px solid var(--line); }
+#sbLock[hidden], html.simple #sbLock { display: none !important; }
+#sbLock svg, #upLock svg { width: 12px; height: 12px; flex: 0 0 auto; }
+#sbLock[aria-pressed="true"], #upLock[aria-pressed="true"] { color: #1a1209; background: var(--copper); border-color: var(--copper); }
+#sbLock[aria-pressed="false"] .shk, #upLock[aria-pressed="false"] .shk { transform: translate(5px, -1.5px); }
+#upLock { display: inline-flex; align-items: center; gap: 5px; }
+.up-lockrow[hidden] { display: none; }
+.up-lockrow .up-lockhint { font-size: 12px; color: var(--muted); flex: 1 1 160px; }
+html.up-locked .up-ch .alt { display: none; }
 #songBar .sb-sec { flex: 0 0 auto; padding: 3px 6px; border-radius: 7px; background: rgba(226, 161, 90, .18); color: var(--copper); font-weight: 700; text-transform: capitalize; }
 #songBar .sb-line { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
 #songBar .sb-ch { display: inline-block; margin: 0 2px; padding: 1px 4px; border-radius: 5px; background: rgba(255,255,255,.07); color: var(--ink); font-weight: 700; }
@@ -1685,6 +1708,13 @@ html.lay-pad-port #songBar, html.lay-pad-land #songBar { height: 28px; font-size
 .up-err ul { margin: 4px 0 0; padding-left: 18px; }
 .up-err code { font-size: 12px; color: #fff; }
 .up-msg { font-size: 13px; color: #8fd18f; font-weight: 700; }
+/* v73: "Song loaded" line at the top of the panel, with its own New song button */
+.up-note { font-size: 13px; color: #8fd18f; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.up-note[hidden] { display: none; }
+.up-note button { min-height: 30px; height: 30px; padding: 0 10px; font-size: 13px; border-radius: 9px; }
+/* v73: an uploaded song on the grid shows no sequence numbers (badges, Roman numerals) */
+html.up-nonum .ss .pg-badge, html.up-nonum .prog .pg-num { display: none !important; }
+html.up-nonum .ss .ss-chip .rn, html.up-nonum .ss .ss-note small { visibility: hidden; }
 .up-warn { font-size: 12px; color: var(--muted); }
 html.lay-phone-land .up-pick .kp-box { max-height: 96vh; padding: 10px; }
 html.lay-phone-land .up-key .uk-k { font-size: 26px; }
@@ -1720,12 +1750,12 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=72" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=73" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=72" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=73" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1734,19 +1764,19 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
       </ol>
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=72" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=73" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=72" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=73" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=72" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=73" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the smiley face, and sad ones sit below the frown. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=72" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=73" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=72" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=73" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Full Range enables all keys to be available.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
@@ -1805,17 +1835,19 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     <div class="kp-box">
       <div class="kp-head"><span id="upTitleH">Upload a song</span><button type="button" class="kp-x up-x" aria-label="Close">&#10005;</button></div>
       <p class="up-intro">Ask any AI to fill in this song form, then paste its answer back here. The app checks it before loading.</p>
+      <div class="up-note" id="upNote" role="status" hidden><span>Song loaded. Tap New song to start another.</span><button type="button" id="upNew2">New song</button></div>
       <div class="up-fields">
         <label>Song title<input id="upTitle" type="text" autocomplete="off" spellcheck="false" placeholder="Hotel California"></label>
         <label>Artist<input id="upArtist" type="text" autocomplete="off" spellcheck="false" placeholder="Eagles"></label>
       </div>
       <div class="up-key" aria-live="polite"><div><div class="uk-l">Key</div><div class="uk-k" id="upKey">&mdash;</div></div><div class="uk-t" id="upTempo">No song loaded</div></div>
+      <div class="up-row up-lockrow" id="upLockRow" hidden><button type="button" id="upLock" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2" fill="currentColor"/><path class="shk" d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.2"/></svg><span>Lock</span></button><span class="up-lockhint" id="upLockHint"></span></div>
       <div class="up-review" id="upReview" hidden></div>
       <div class="up-secs" id="upSecs" aria-label="Song sections in play order"><div class="up-empty">No song yet. Copy the form for an AI below, then paste its answer.</div></div>
       <div class="up-row"><button type="button" id="upCopy">Copy for AI</button><span class="up-ok" id="upCopied" hidden>Copied</span></div>
       <div class="up-fallback" id="upFallback" hidden><div class="up-warn">Copy did not work here. Select all of this text and copy it:</div><textarea id="upFallbackTxt" readonly></textarea></div>
       <label class="up-paste"><span class="up-warn">Paste the AI&rsquo;s answer</span><textarea id="upPaste" spellcheck="false" placeholder="{ &quot;contractVersion&quot;: &quot;1.0&quot;, ... }"></textarea></label>
-      <div class="up-row"><button type="button" id="upLoad">Load</button><button type="button" id="upRemove" hidden>Remove song</button></div>
+      <div class="up-row"><button type="button" id="upLoad">Load</button><button type="button" id="upNew">New song</button><button type="button" id="upRemove" hidden>Remove song</button></div>
       <div class="up-err" id="upErr" role="alert" hidden></div>
       <div class="up-msg" id="upMsg" role="status" hidden></div>
     </div>
@@ -1973,6 +2005,7 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
 
   <div class="next-card">
     <button type="button" id="songBar" hidden></button>
+    <button type="button" id="sbLock" aria-pressed="true" title="Lock the song chords" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2" fill="currentColor"/><path class="shk" d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.2"/></svg><span>Lock</span></button>
     <div id="suggest" class="ss" aria-label="Scale strip"></div>
   </div>
 
@@ -2079,7 +2112,7 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 72;
+var APP_VERSION = 73;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -2461,6 +2494,9 @@ function accSym(s) {
     this.sound = "piano";
     this.voices = [];
     this.pulse = null;
+    this.pulse12 = null;
+    this.flavor = null;      // v73: active style voice (setFlavor)
+    this.grooveBpm = null;   // v73: uploaded song BPM for the style grooves
     this.ready = false;
     this.protectedGroups = {};
     this.art = null;     // v68: style articulation ("chop" Reggae, "stab" Funk): short decaying chords
@@ -2832,6 +2868,13 @@ function accSym(s) {
     opts = opts || {};
     var time = opts.time == null ? this.ctx.currentTime : opts.time;
     var engine = opts.sound || this.sound;
+    // v73: Jazz plays rootless (the upright bass has the root): drop the lowest chord tone that
+    // doubles the bass pitch class when 4+ notes remain.
+    if (this.flavor === "jazz" && engine === "epiano" && opts.bass != null && midis.length >= 4) {
+      var bpc = ((opts.bass % 12) + 12) % 12, lo = -1;
+      for (var r = 0; r < midis.length; r++) if (((midis[r] % 12) + 12) % 12 === bpc && (lo < 0 || midis[r] < midis[lo])) lo = r;
+      if (lo >= 0) midis = midis.slice(0, lo).concat(midis.slice(lo + 1));
+    }
     var vel = chordVelocity(midis.length);
     for (var i = 0; i < midis.length; i++) {
       this.voices.push(this.makeVoice({
@@ -2941,6 +2984,8 @@ function accSym(s) {
   // The gate only ever holds a constant 1 until release, so a release can
   // start from a *known* value at any (even future) time without stepping.
   ChordAudio.prototype.makeVoice = function (spec) {
+    var fl = this.flavorFor(spec);   // v73: the active style's own voice
+    if (fl) return this.makeStyleVoice(spec, fl);
     var ctx = this.ctx;
     var now = ctx.currentTime;
     var time = Math.max(spec.time, now);
@@ -3334,6 +3379,270 @@ function accSym(s) {
       }
     };
     return voice;
+  };
+
+  // v73: the voice object shared by makeVoice-style voices (same release / fade contract).
+  function voiceObject(ctx, spec, filter, env, level, gate, oscs, nodes, time, expire) {
+    // Free the graph once the last oscillator has ended so finished voices
+    // stop costing render time.
+    var last = oscs[oscs.length - 1];
+    last.onended = function () {
+      oscs.forEach(function (o) { try { o.disconnect(); } catch (e) {} });
+      nodes.forEach(function (n) { try { n.disconnect(); } catch (e) {} });
+    };
+
+    var voice = {
+      group: spec.group,
+      engine: spec.bass ? "bass" : spec.engine,
+      srcEngine: spec.engine,
+      midi: spec.midi,
+      bass: !!spec.bass,
+      short: !!spec.short,
+      filter: filter,
+      amp: env,
+      gate: gate,
+      oscs: oscs,
+      released: false,
+      born: time,
+      startTime: time,
+      done: expire,
+      setLevel: function (v) {
+        glide(level.gain, Math.max(0.001, v), ctx.currentTime, 0.03);
+      },
+      // v39: damper-pedal decay. Exponential fade on the level stage, then
+      // free the voice once it is near silent (no flat hold, no loop).
+      fade: function (tau) {
+        if (voice.released || voice.fading) return;
+        voice.fading = true;
+        var t = ctx.currentTime;
+        try {
+          var cur = level.gain.value;
+          level.gain.cancelScheduledValues(t);
+          level.gain.setValueAtTime(cur, t);
+          level.gain.setTargetAtTime(0.0001, t, tau);
+        } catch (err) { /* ignore */ }
+        var stopAt = t + tau * 5.5;
+        if (expire != null) stopAt = Math.min(stopAt, Math.max(expire, t + 0.01));
+        oscs.forEach(function (o) { try { o.stop(stopAt); } catch (err2) {} });
+        voice.done = Math.min(voice.done == null ? Infinity : voice.done, stopAt + 0.05);
+      },
+      // v68: force = cut a voice whose release is already scheduled LATER (magic Next ring end)
+      // at an earlier time; the gate is still 1 until that scheduled release, so it ramps from 1.
+      release: function (when, tau, force) {
+        var t = Math.max(ctx.currentTime, when == null ? ctx.currentTime : when);
+        if (voice.released && !(force && voice.relAt != null && t < voice.relAt - 0.002)) return;
+        voice.released = true;
+        voice.relAt = t;
+        var k = tau || (spec.bass ? REL_TAU_BASS : REL_TAU);
+        try {
+          gate.gain.cancelScheduledValues(t);
+          gate.gain.setValueAtTime(1, t);
+          gate.gain.setTargetAtTime(0, t, k);
+        } catch (err) { /* ignore */ }
+        var stopAt = Math.max(t + k * TAIL_TAUS, voice.startTime + 0.03);
+        if (expire != null) stopAt = Math.min(stopAt, Math.max(expire, t + 0.01));
+        oscs.forEach(function (o) {
+          try { o.stop(stopAt); } catch (err2) { /* already stopped */ }
+        });
+        voice.done = stopAt + 0.05;
+      }
+    };
+    return voice;
+  }
+
+  // ===== v73: style voices (sound distinctness) =====
+  // Each style plays its own voice when the Sound is the style's own engine (a manual Sound pick
+  // falls back to the plain engine). Chords AND bass get a style timbre, attack and (where it fits)
+  // a light built-in groove on the voice's own envelope: Reggae offbeat skank + one-drop bass,
+  // Funk clav stabs + slap bass, Country boom-chick, Jazz walking root-fifth upright bass.
+  // A groove plays at most 4 bars per tap (then rings out); every tap / Next / Play restarts it.
+  // Tempo: grooveBpm (the uploaded song's BPM when one is playing) else the style / loop BPM.
+  var FLAVOR_ENGINE = { pop: "piano", country: "piano", jazz: "epiano", rnb: "epiano", ballad: "strings", reggae: "warm", funk: "reed" };
+  var GROOVE_STYLES = { reggae: true, funk: true, country: true };
+  var FIFTH = Math.pow(2, 7 / 12);
+  ChordAudio.prototype.setFlavor = function (f) { this.flavor = FLAVOR_ENGINE[f] ? f : null; };
+  ChordAudio.prototype.grooving = function () { return !!(this.flavor && GROOVE_STYLES[this.flavor] && this.sound === FLAVOR_ENGINE[this.flavor]); };
+  ChordAudio.prototype.flavorFor = function (spec) {
+    var f = this.flavor;
+    if (!f || spec.short || FLAVOR_ENGINE[f] !== spec.engine) return null;
+    if (f === "pop" && !spec.bass) return null;   // Pop chords: the classic bright piano path
+    return f;
+  };
+  // Bars of [beat, amp, pitch ratio] repeated over `bars` bars of 4 beats (first bar may differ).
+  function barHits(first, rest, bars) {
+    var out = [];
+    for (var b = 0; b < bars; b++) (b === 0 ? first : rest).forEach(function (h) { out.push({ at: b * 4 + h[0], amp: h[1], r: h[2] || 1 }); });
+    return out;
+  }
+  function narrowPulse(ctx, duty) {
+    var h = 32, re = new Float32Array(h), im = new Float32Array(h);
+    for (var k = 1; k < h; k++) im[k] = Math.sin(Math.PI * k * duty) / (k * Math.PI);
+    return ctx.createPeriodicWave(re, im);
+  }
+  ChordAudio.prototype.makeStyleVoice = function (spec, fl) {
+    var ctx = this.ctx, now = ctx.currentTime, time = Math.max(spec.time, now);
+    var freq = 440 * Math.pow(2, (spec.midi - 69) / 12);
+    var beat = 60 / (this.grooveBpm || this.bpm || 96);
+    var cut = this.cutoffHz();
+    var bass = !!spec.bass;
+    var filter = ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    var env = ctx.createGain(), level = ctx.createGain(), gate = ctx.createGain();
+    env.gain.setValueAtTime(0, now);
+    level.gain.setValueAtTime(Math.max(0.001, spec.velocity || 1), now);
+    gate.gain.setValueAtTime(1, now);
+    var nodes = [filter, env, level, gate], oscs = [], pitched = [];
+    var into = filter;           // oscillators feed this
+    var post = env;              // filter (and extras) feed this
+    function osc(type, mul, g, dest, detune, follow) {
+      var o = ctx.createOscillator(), a = ctx.createGain();
+      if (type === "pulse12") o.setPeriodicWave(spec._pw); else if (type === "pulse") o.setPeriodicWave(spec._pw28); else o.type = type;
+      o.frequency.setValueAtTime(freq * mul, time);
+      if (detune) o.detune.setValueAtTime(detune, time);
+      a.gain.value = g;
+      o.connect(a); a.connect(dest || into);
+      oscs.push(o); nodes.push(a);
+      if (follow !== false) pitched.push({ o: o, mul: mul });
+      return o;
+    }
+    function lfo(rate, depth, param) {
+      var l = ctx.createOscillator(), lg = ctx.createGain();
+      l.type = "sine"; l.frequency.value = rate; lg.gain.value = depth;
+      l.connect(lg); lg.connect(param);
+      oscs.push(l); nodes.push(lg);
+    }
+    var hits, peak, atk, tau, floor, snap = null, groove = false;
+    spec._pw28 = this.pulse;
+    if (!this.pulse12) this.pulse12 = narrowPulse(ctx, 0.12);
+    spec._pw = this.pulse12;
+    if (!bass) {
+      if (fl === "jazz") {
+        // Rhodes: soft bark (1:1 FM, index falls fast), a bell tine partial that skips the dark
+        // filter, and a 4.6 Hz tremolo. No hammer, softer attack than the Pop piano.
+        filter.frequency.setValueAtTime(Math.max(500, cut * 1.25), time); filter.Q.setValueAtTime(0.7, time);
+        var trem = ctx.createGain(); trem.gain.value = 0.8; nodes.push(trem);
+        filter.connect(trem); post = null; trem.connect(env);
+        lfo(4.6, 0.2, trem.gain);
+        var car = osc("sine", 1, 0.8), mod = ctx.createOscillator(), mg = ctx.createGain();
+        mod.type = "sine"; mod.frequency.setValueAtTime(freq, time);
+        mg.gain.setValueAtTime(freq * 1.1, time); mg.gain.exponentialRampToValueAtTime(Math.max(2, freq * 0.12), time + 0.5);
+        mod.connect(mg); mg.connect(car.frequency); oscs.push(mod); nodes.push(mg);
+        osc("sine", 1, 0.25);
+        var bm = freq * 7 > 6000 ? 4 : 7, bo = ctx.createOscillator(), bg = ctx.createGain();
+        bo.type = "sine"; bo.frequency.setValueAtTime(freq * bm, time);
+        bg.gain.setValueAtTime(0.0001, time); bg.gain.exponentialRampToValueAtTime(0.07, time + 0.003); bg.gain.exponentialRampToValueAtTime(0.0001, time + 0.35);
+        bo.connect(bg); bg.connect(trem); oscs.push(bo); nodes.push(bg);
+        hits = [{ at: 0, amp: 1 }]; peak = 0.13; atk = 0.014; tau = 0.9; floor = 0.55;
+      } else if (fl === "rnb") {
+        // Round, chorused Rhodes: low FM index, two carriers +-7 cents, extra body and low-mids.
+        filter.frequency.setValueAtTime(Math.max(400, cut * 1.0), time); filter.Q.setValueAtTime(0.5, time);
+        var m2 = ctx.createOscillator(), m2g = ctx.createGain();
+        m2.type = "sine"; m2.frequency.setValueAtTime(freq, time);
+        m2g.gain.setValueAtTime(freq * 0.5, time); m2g.gain.exponentialRampToValueAtTime(Math.max(2, freq * 0.06), time + 0.9);
+        m2.connect(m2g); oscs.push(m2); nodes.push(m2g);
+        var c1 = osc("sine", 1, 0.42, null, -7), c2 = osc("sine", 1, 0.42, null, 7);
+        m2g.connect(c1.frequency); m2g.connect(c2.frequency);
+        osc("sine", 1, 0.35);
+        if (spec.midi >= 57) osc("sine", 0.5, 0.12);
+        hits = [{ at: 0, amp: 1 }]; peak = 0.11; atk = 0.009; tau = 1.3; floor = 0.72;
+      } else if (fl === "ballad") {
+        // Lush string pad: 100 ms bow, slow filter swell, 5.2 Hz vibrato. No piano attack.
+        filter.frequency.setValueAtTime(Math.max(200, cut * 0.45), time);
+        filter.frequency.exponentialRampToValueAtTime(Math.max(260, cut * 0.95), time + 0.7);
+        filter.Q.setValueAtTime(0.5, time);
+        [-16, -6, 6, 15].forEach(function (d) { var o = osc("sawtooth", 1, 0.2, null, d); lfo(5.2, 7, o.detune); });
+        hits = [{ at: 0, amp: 1 }]; peak = 0.09; atk = 0.1; tau = 0.6; floor = 0.9;
+      } else if (fl === "reggae") {
+        // Skank: short muted mid chop on the offbeats (2 and 4), a softer chop on the tap itself.
+        filter.frequency.setValueAtTime(Math.min(5000, cut * 2.2), time); filter.Q.setValueAtTime(1.8, time);
+        var hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 380; hp.Q.value = 0.7; nodes.push(hp);
+        filter.connect(hp); hp.connect(env); post = null;
+        osc("sawtooth", 1, 0.3, null, -8); osc("sawtooth", 1, 0.3, null, 8); osc("pulse", 1, 0.25);
+        hits = barHits([[0, 0.7], [1, 1], [3, 1]], [[1, 1], [3, 1]], 4); peak = 0.16; atk = 0.003; tau = 0.045; floor = 0; groove = true;
+      } else if (fl === "funk") {
+        // Clav stab: narrow pulse, resonant filter that snaps open on every hit, very short decay;
+        // syncopated ghost stabs (the "a" of 2, the "and" of 3).
+        filter.Q.setValueAtTime(3.2, time);
+        osc("pulse12", 1, 0.5); osc("sawtooth", 1, 0.18);
+        snap = { hi: Math.min(9000, Math.max(cut, 1500) * 2.4), lo: Math.max(400, cut * 0.6), dur: 0.08 };
+        hits = barHits([[0, 1], [1.5, 0.45], [2.75, 0.65]], [[0, 0.9], [1.5, 0.45], [2.75, 0.65]], 4); peak = 0.17; atk = 0.002; tau = 0.05; floor = 0; groove = true;
+      } else if (fl === "country") {
+        // Honky-tonk piano: two detuned partial sets (+-9 cents), bright strike, then "chick" on 2 and 4.
+        filter.Q.setValueAtTime(0.6, time);
+        [-9, 9].forEach(function (d) { osc("sine", 1, 0.42, null, d); osc("sine", 2, 0.2, null, d); osc("triangle", 3, 0.1, null, d); });
+        snap = { hi: Math.min(7000, cut * 1.6), lo: Math.max(500, cut * 0.6), dur: 0.18 };
+        hits = barHits([[0, 1], [1, 0.55], [3, 0.55]], [[1, 0.55], [3, 0.55]], 4); peak = 0.13; atk = 0.004; tau = 0.3; floor = 0.15; groove = true;
+        hits[0].tau = 0.45; hits[0].floor = 0.3;
+      }
+    } else {
+      filter.Q.setValueAtTime(0.7, time);
+      var bhp = ctx.createBiquadFilter(); bhp.type = "highpass"; bhp.frequency.value = 50; bhp.Q.value = 0.7; nodes.push(bhp);
+      filter.connect(bhp); bhp.connect(env); post = null;
+      if (fl === "pop") {
+        filter.frequency.setValueAtTime(Math.min(900, cut), time);
+        osc("sine", 1, 0.85); osc("sine", 2, 0.28); osc("sawtooth", 1, 0.05);
+        hits = [{ at: 0, amp: 1 }]; peak = BASS_PEAK * 0.85; atk = 0.01; tau = 0.55; floor = 0.5;
+      } else if (fl === "jazz") {
+        // Upright: plucked, woody, walks root - fifth each bar (half notes).
+        filter.frequency.setValueAtTime(750, time); filter.Q.setValueAtTime(0.9, time);
+        osc("triangle", 1, 0.6); osc("sine", 1, 0.5); osc("sine", 2, 0.2);
+        hits = barHits([[0, 1], [2, 0.85, FIFTH]], [[0, 0.95], [2, 0.85, FIFTH]], 4); peak = BASS_PEAK * 1.15; atk = 0.006; tau = 0.32; floor = 0.1; groove = true;
+      } else if (fl === "rnb") {
+        // Smooth sub: soft attack, a tiny slide into the note, held.
+        filter.frequency.setValueAtTime(500, time);
+        var s1 = osc("sine", 1, 0.9); osc("sine", 2, 0.18);
+        s1.frequency.setValueAtTime(freq * 0.97, time); s1.frequency.exponentialRampToValueAtTime(freq, time + 0.06);
+        pitched = pitched.filter(function (p) { return p.o !== s1; });
+        hits = [{ at: 0, amp: 1 }]; peak = BASS_PEAK * 1.1; atk = 0.03; tau = 0.8; floor = 0.85;
+      } else if (fl === "ballad") {
+        // Cello-ish: bowed saws, slow attack, vibrato.
+        filter.frequency.setValueAtTime(650, time); filter.Q.setValueAtTime(1, time);
+        [-5, 5].forEach(function (d) { var o = osc("sawtooth", 1, 0.35, null, d); lfo(5, 6, o.detune); });
+        osc("sine", 1, 0.3);
+        hits = [{ at: 0, amp: 1 }]; peak = BASS_PEAK * 0.9; atk = 0.09; tau = 1.0; floor = 0.9;
+      } else if (fl === "reggae") {
+        // One drop: light on 1, the weight on 3.
+        filter.frequency.setValueAtTime(420, time);
+        osc("sine", 1, 0.95); osc("sine", 2, 0.25);
+        hits = barHits([[0, 0.45], [2, 1]], [[0, 0.45], [2, 1]], 4); peak = BASS_PEAK * 1.3; atk = 0.012; tau = 0.35; floor = 0.05; groove = true;
+      } else if (fl === "funk") {
+        // Slap: thumb on 1, octave pop on the "and" of 2, ghost root on the "and" of 3.
+        filter.Q.setValueAtTime(2, time);
+        osc("sawtooth", 1, 0.4); osc("sine", 1, 0.6);
+        snap = { hi: 2000, lo: 450, dur: 0.1 };
+        hits = barHits([[0, 1], [1.5, 0.7, 2], [2.5, 0.6]], [[0, 1], [1.5, 0.7, 2], [2.5, 0.6]], 4); peak = BASS_PEAK * 1.1; atk = 0.003; tau = 0.14; floor = 0.05; groove = true;
+      } else {   // country
+        // Boom: root on 1, fifth on 3 (the "chick" is the piano on 2 and 4).
+        filter.frequency.setValueAtTime(900, time);
+        osc("sine", 1, 0.7); osc("triangle", 1, 0.4);
+        hits = barHits([[0, 1], [2, 0.9, FIFTH]], [[0, 1], [2, 0.9, FIFTH]], 4); peak = BASS_PEAK; atk = 0.005; tau = 0.25; floor = 0.03; groove = true;
+      }
+    }
+    if (post) filter.connect(post);
+    env.connect(level); level.connect(gate); gate.connect(this.bus);
+    // Envelope: each hit ramps from the exact current value (no steps) to its peak, then decays
+    // (setTarget) toward floor * that peak. Pitch / filter snaps ride on the same hit times.
+    var g = env.gain, last = null;
+    g.setValueAtTime(0, time);
+    hits.forEach(function (h, i) {
+      var T = time + h.at * beat, hp2 = peak * h.amp, hf = h.floor != null ? h.floor : floor, ht = h.tau || tau;
+      if (i > 0) {
+        var v = last.fv + (last.pv - last.fv) * Math.exp(-(T - last.pt) / last.tau);
+        g.setValueAtTime(v, T);
+      }
+      g.linearRampToValueAtTime(hp2, T + atk);
+      g.setTargetAtTime(hp2 * hf, T + atk, ht);
+      last = { pt: T + atk, pv: hp2, fv: hp2 * hf, tau: ht };
+      if (h.r && i > 0) pitched.forEach(function (p) { p.o.frequency.setValueAtTime(freq * p.mul * h.r, T); });
+      if (snap) { filter.frequency.setValueAtTime(snap.hi, T); filter.frequency.exponentialRampToValueAtTime(snap.lo, T + snap.dur); }
+    });
+    var expire = null;
+    oscs.forEach(function (o) { o.start(time); });
+    if (groove) {
+      expire = last.pt + Math.min(3, last.tau * 9) + 0.05;
+      oscs.forEach(function (o) { o.stop(expire); });
+    }
+    return voiceObject(ctx, spec, filter, env, level, gate, oscs, nodes, time, expire);
   };
 
   ChordAudio.prototype.enforceLimit = function () {
@@ -4181,7 +4490,7 @@ function accSym(s) {
       finger.sig = sig;
       // v36: decaying engines (piano, e-piano, bell) re-strike on a chord
       // change; morphing kept faded notes, so the new chord was near-silent.
-      if (paletteStrike || PERCUSSIVE_SOUNDS[state.sound] || ChordAudio.art) { // v41: any chord-button press re-strikes on every sound
+      if (paletteStrike || PERCUSSIVE_SOUNDS[state.sound] || ChordAudio.art || ChordAudio.grooving()) { // v41: any chord-button press re-strikes on every sound
         ChordAudio.stopChord(finger.group);
         ChordAudio.playChord(finger.group, spec.midis, { bass: spec.bassOut, sound: state.sound });
       } else {
@@ -4309,12 +4618,12 @@ function accSym(s) {
       var e = evs[k];
       if (e.kind === "chord") {
         var g = "L" + (++loop.gid);
-        ChordAudio.playChord(g, e.midis, { bass: e.bass, sound: e.sound, time: time });
+        ChordAudio.playChord(g, e.midis, { bass: e.bass, sound: state.sound, time: time });   // v73: replay in the active style sound
         loop.active.push({ group: g, offIndex: N + e.dur });
       } else if (e.kind === "strum") {
-        ChordAudio.pluck(e.midi, { sound: e.sound, time: time, group: "loop-strum" });
+        ChordAudio.pluck(e.midi, { sound: state.sound, time: time, group: "loop-strum" });
       } else if (e.kind === "bass") {
-        ChordAudio.pluck(e.midi, { sound: e.sound, time: time, bass: true, group: "loop-strum" });
+        ChordAudio.pluck(e.midi, { sound: state.sound, time: time, bass: true, group: "loop-strum" });
       }
     }
     while (loop.active.length > 6) {
@@ -5334,6 +5643,10 @@ function accSym(s) {
     }
     if (wasUp) for (var uj = 0; uj < prog.list.length; uj++) if (prog.list[uj].up) prog.idx = uj;
     if (prog.idx >= prog.list.length) prog.idx = 0;
+    if (U && U.locked && prog.list[prog.idx] && prog.list[prog.idx].up) {   // v73 Lock: the key change is the transpose target
+      var lk0 = U.liveKey, nk = { tonic: keyRootName(key), mode: key.mode };
+      if (!lk0 || lk0.tonic !== nk.tonic || lk0.mode !== nk.mode) { U.liveKey = nk; upSave(); }
+    }
     prog.style = state.style; prog.mode = key.mode; prog.keySig = sig; prog.key = key;
     prog.cur = -1;
     magicReset();   // v68: key / mode / style change: the walk starts again
@@ -5599,22 +5912,8 @@ function accSym(s) {
       wrap.appendChild(row);
       el.appendChild(wrap);
     }
-    var slot = wrap.querySelector(".ss-kidnow");
-    var old = slot.querySelector(".ss-kid");
-    var item = kidTriad(kidCurrent());
-    var sig = item ? item.rootPc + item.type + item.rootName : "";
-    if (old && old._sig === sig) return;
-    if (old) slot.removeChild(old);
-    if (!item) return;
-    var b = document.createElement("button");
-    b.type = "button";
-    b.className = "ss-chip ss-kid " + kidCls(item);
-    b.textContent = kidName(item);
-    b.setAttribute("aria-label", "Now " + kidName(item) + ", tap to play");
-    b._tc = { item: item, hc: 7, row: item.type === "minor" ? "sad" : "happy" };
-    b._sig = sig;
-    wireStripTap(b, item);
-    slot.appendChild(b);
+    // v73: no big Now chip any more: Kids shows only the seven pads. Next / Play still walk
+    // prog.steps (kidCurrent() feeds the walk), the gold next-note outline stays on the pads.
   }
   // Manual step (Next button / badge): play one step like a chip tap, lit while it rings.
   function progJump(i) {
@@ -5751,6 +6050,7 @@ function accSym(s) {
   function magicAdvance() {
     if (!prog.steps.length) return;
     progStop();
+    upNxOff = false;
     progLockKey();
     var d = magicQueue();
     magic.next = null;
@@ -5770,6 +6070,7 @@ function accSym(s) {
     progLockKey();
     magic.pos = s + 1;
     magic.next = null;
+    upNxOff = false;
     magicPlay(prog.steps[s].item, 1, s);
     magic.hint = true;
     magicQueue();
@@ -5844,6 +6145,7 @@ function accSym(s) {
     if (!magic || !magic.hint || state.simple || prog.playing) return;
     var d = magicQueue();
     if (!d) return;
+    if (upSelected() && d.step < 0) return;   // v73: the song is over: no hint on the random tail
     var spec = nextHintSpec(d.item);
     if (state.style === "kids") spec = kidsSoloSpec(spec, d.item.rootPc);   // v70: Kids plays the root only
     var mids = highlightMidisFromSpec(spec.midis);
@@ -5904,6 +6206,7 @@ function accSym(s) {
     if (loop.transport || loop.recording || loop.playing) stopPlayback();   // one loop at a time
     progLockKey();
     if (prog.flashT) { clearTimeout(prog.flashT); prog.flashT = 0; }
+    upNxOff = false;
     prog.playing = true;
     prog.si = 0;
     prog.log = [];
@@ -5989,6 +6292,7 @@ function accSym(s) {
   }
   function progStop() {
     if (!prog.playing) return;
+    if (upSelected()) upNxOff = true;   // v73: Stop clears the song's next-chord outline
     prog.playing = false;
     clearInterval(prog.timer); prog.timer = 0;
     prog.uiT.forEach(clearTimeout); prog.uiT = [];
@@ -6033,12 +6337,14 @@ function accSym(s) {
     progStop();
     prog.idx = ((i % n) + n) % n;
     prog.cur = -1;
+    upNxOff = false;   // v73: a (re)selected song points at its first chord
     magicReset();   // v68
     if (state.style === "kids") {
       var sk = KIDS_SONG_KEY[prog.list[prog.idx].name];
       if (sk) applySongKey(sk[0], sk[1]);   // v71: a Kids song picks its own key
     }
-    if (prog.list[prog.idx] && prog.list[prog.idx].up && U) upKeyApply(U.key.tonic, U.key.mode);   // Upload: the song picks its key
+    if (U && upInList()) U.keep = !!(prog.list[prog.idx] && prog.list[prog.idx].up);   // v73: the song stays picked across Kids
+    if (prog.list[prog.idx] && prog.list[prog.idx].up && U) upKeyApply(upKeyNow().tonic, upKeyNow().mode);   // Upload: the song picks its key (Lock: the live key)
     progRedecorate();
     paintProg();
   }
@@ -6290,7 +6596,7 @@ function accSym(s) {
     try {
       if (!window.localStorage) return;
       if (!U) { window.localStorage.removeItem(UP_STORE); return; }
-      window.localStorage.setItem(UP_STORE, JSON.stringify({ v: 1, song: U.raw, choice: U.choice, reviewed: U.reviewed, sel: upSelected() }));
+      window.localStorage.setItem(UP_STORE, JSON.stringify({ v: 1, song: U.raw, choice: U.choice, reviewed: U.reviewed, sel: upSelected(), locked: !!U.locked, liveKey: U.liveKey || null }));
     } catch (err) {}
   }
   var upRestoreSel = false;
@@ -6299,19 +6605,71 @@ function accSym(s) {
       var st = window.localStorage && JSON.parse(window.localStorage.getItem(UP_STORE) || "null");
       if (st && st.song) {
         var chk = upCheck(JSON.stringify(st.song));
-        if (chk.ok) { U = upBuild(chk.song, st.choice, st.reviewed); upRestoreSel = !!st.sel; }
+        if (chk.ok) { U = upBuild(chk.song, st.choice, st.reviewed); upRestoreSel = !!st.sel; U.locked = st.locked !== false; U.liveKey = st.liveKey || null; U.keep = upRestoreSel; }
       }
     } catch (err) { U = null; }
   })();
   // Shown in full mode only, never for Kids (Kids plays its own songs).
-  function upInList() { return !!U && !state.simple && state.style !== "kids"; }
+  // v73: a LOCKED song also stays in Simple (Next / Play keep walking it; the song bar / Upload stay hidden there).
+  function upInList() { return !!U && state.style !== "kids" && (!state.simple || !!U.locked); }
   function upSelected() { var p = prog.list[prog.idx]; return !!(p && p.up && U); }
   function songTempo() { return upSelected() ? { bpm: U.bpm, bpb: U.bpb, ts: U.ts } : null; }
   // Bar length for the Play autoplay (factory progressions: PROG_BAR, 80 BPM 4/4).
   function progLoopBar() { var t = songTempo(); return t ? t.bpb * 60 / t.bpm : PROG_BAR; }
   // Ring length per bar for Next (factory progressions: the style / loop BPM, 4 beats).
   function progRingSec() { var t = songTempo(); return t ? t.bpb * 60 / t.bpm : 240 / (state.bpm || 96); }
-  function upSteps(key) { return U.events.map(function (e, i) { return upStep(key, upSym(e.si, e.ci), e.dur / U.bpb, i); }); }
+  // v73 Lock: while locked, the song's chords follow the key: every chord moves by (live key tonic -
+  // song key tonic), keeping quality and slash bass; U.key stays the reference, U.liveKey the target.
+  function upTr(key) { return U && U.locked && key ? wrap12(key.pc - namePc(U.key.tonic)) : 0; }
+  function upLiveKeyObj() { return U && U.locked && U.liveKey ? { pc: namePc(U.liveKey.tonic), mode: U.liveKey.mode === "minor" ? "minor" : "major" } : null; }
+  function upSpellPc(pc, key) {
+    var kd = key ? keyDegrees(key) : [], flat = false, nat = [0, 2, 4, 5, 7, 9, 11];
+    for (var i = 0; i < kd.length; i++) {
+      var rs = kd[i].rootSpell;
+      if (rs && rs.acc < 0) flat = true;
+      if (kd[i].pc === pc && rs && Math.abs(rs.acc) <= 1) return SPELL_LI.charAt(rs.li) + (rs.acc > 0 ? "#" : rs.acc < 0 ? "b" : "");
+    }
+    var j = nat.indexOf(pc);
+    if (j >= 0) return SPELL_LI.charAt(j);
+    return flat ? SPELL_LI.charAt(nat.indexOf(wrap12(pc + 1))) + "b" : SPELL_LI.charAt(nat.indexOf(wrap12(pc - 1))) + "#";
+  }
+  function upTransSym(sym, tr, key) {
+    if (!tr) return sym;
+    var m = /^([A-G])(#|b)?(.*)$/.exec(String(sym));
+    if (!m) return sym;
+    var rest = m[3], bass = "", sl = rest.lastIndexOf("/");
+    if (sl >= 0 && /^[A-G](#|b)?$/.test(rest.slice(sl + 1))) { bass = rest.slice(sl + 1); rest = rest.slice(0, sl); }
+    var out = upSpellPc(wrap12(namePc(m[1] + (m[2] || "")) + tr), key) + rest;
+    if (bass) out += "/" + upSpellPc(wrap12(namePc(bass) + tr), key);
+    return out;
+  }
+  function upT(sym) { var k = upLiveKeyObj(); return upTransSym(sym, upTr(k), k); }   // display (transposed when locked)
+  function upA(sym) { return accSym(upT(sym)); }
+  function upSteps(key) { var tr = upTr(key); return U.events.map(function (e, i) { return upStep(key, upTransSym(upSym(e.si, e.ci), tr, key), e.dur / U.bpb, i); }); }
+  function upKeyNow() { return U.locked && U.liveKey ? U.liveKey : U.key; }   // the key the song plays in
+  function upSetLock(on) {
+    if (!U) return;
+    U.locked = !!on;
+    U.liveKey = null;   // locking / unlocking starts from the song's own key
+    if (upSelected()) { progStop(); upKeyApply(U.key.tonic, U.key.mode); suggestSig = ""; paintSuggestions(computeSpec()); }
+    upSave();
+    paintUpload();
+    paintSongBar();
+  }
+  function upPlaceLock() {
+    var bar = document.getElementById("songBar"), lk = document.getElementById("sbLock");
+    if (!bar || !lk) return;
+    var on = !bar.hidden && !!U;
+    lk.hidden = !on;
+    if (!on) { bar.style.paddingRight = ""; return; }
+    var lock = !!U.locked;
+    lk.setAttribute("aria-pressed", lock ? "true" : "false");
+    lk.title = lock ? "Song chords locked: tap to unlock" : "Lock the song chords";
+    lk.style.top = bar.offsetTop + "px";
+    lk.style.height = bar.offsetHeight + "px";
+    lk.style.right = Math.max(0, bar.offsetParent ? bar.offsetParent.clientWidth - bar.offsetLeft - bar.offsetWidth : 0) + "px";
+    bar.style.paddingRight = (lk.offsetWidth + 6) + "px";
+  }
 
   // Key from song.key: applySongKey(tonic, mode) (added with Kids v71; reused here). Tonic spellings
   // that are not keys in the app (A# major, Gb minor) fall back to its default spelling (Bb, F#).
@@ -6332,6 +6690,7 @@ function accSym(s) {
     progStop();
     if (state.style === "kids") { var pb = document.querySelector("#styles button[data-style=\"pop\"]"); if (pb) pb.click(); }
     U = upBuild(r.song, {}, {});
+    U.locked = true; U.liveKey = null; U.keep = true;   // v73: Lock is ON the moment a song loads
     r.key = upKeyApply(r.song.song.key.tonic, r.song.song.key.mode);
     upSelect();
     return r;
@@ -6356,6 +6715,7 @@ function accSym(s) {
     return upLastStep;
   }
   function upPickAlt(si, ci, sym) {
+    if (U.locked) return;
     if (sym === upEv(si, ci).chord) delete U.choice[si + ":" + ci]; else U.choice[si + ":" + ci] = sym;
     U.reviewed[si + ":" + ci] = true;
     upSave();
@@ -6371,25 +6731,52 @@ function accSym(s) {
 
   // --- main screen: song bar over the strip (section, current lyric line / chords, flags) ---
   function upEsc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]; }); }
+  // v73: the uploaded song's NEXT chord (gold outline; the grid has no sequence numbers).
+  // Next walk: magic.pos while it is inside the song; Play: the chord after the one sounding
+  // (0 before the first); the random tail after the song, Stop, another progression: none.
+  var upNxOff = false;
+  function upNextStep() {
+    if (!upSelected() || upNxOff || !prog.steps.length) return -1;
+    var n = prog.steps.length;
+    if (prog.playing) {
+      if (prog.cur >= 0) return prog.cur + 1 < n ? prog.cur + 1 : -1;
+      return magic.lit ? -1 : 0;
+    }
+    return magic.pos < n ? magic.pos : -1;
+  }
+  function paintUpNext() {
+    Array.prototype.forEach.call(document.querySelectorAll(".upnx"), function (n) { n.classList.remove("upnx"); });
+    var i = upNextStep();
+    if (i < 0) return;
+    var t = prog.targets[i];
+    if (t) t.classList.add("upnx");
+    var e = U.events[i];
+    if (!e) return;
+    Array.prototype.forEach.call(document.querySelectorAll("#upSecs .up-ch[data-s=\"" + e.si + "\"][data-c=\"" + e.ci + "\"]"), function (n) { n.classList.add("upnx"); });
+    var bar = document.getElementById("songBar");
+    if (bar && !bar.hidden && +bar.dataset.si === e.si) Array.prototype.forEach.call(bar.querySelectorAll(".sb-ch[data-c=\"" + e.ci + "\"]"), function (n) { n.classList.add("upnx"); });
+  }
   function paintSongBar() {
+    document.documentElement.classList.toggle("up-nonum", upSelected());   // v73: no sequence numbers on an uploaded song's grid
     var bar = document.getElementById("songBar");
     if (!bar) return;
     var el = document.getElementById("suggest");
     if (el) Array.prototype.forEach.call(el.querySelectorAll(".up-flag"), function (n) { n.classList.remove("up-flag"); });
-    var on = upSelected() && !state.simple;
+    var on = upSelected();   // v73: Simple shows the song bar too (lyrics + chords); the Upload panel stays full-mode only
+    ChordAudio.grooveBpm = upSelected() ? U.bpm : null;   // v73: style grooves follow the song tempo
     if (bar.hidden === on) {
       bar.hidden = !on;
       document.documentElement.classList.toggle("up-on", on);   // CSS: the strip rows give the bar its room
       setTimeout(function () { fitStrip(); placeBadges(); }, 0);
     }
-    if (!on) { paintUploadActive(-1); return; }
+    if (!on) { paintUploadActive(-1); upPlaceLock(); paintUpNext(); return; }
     prog.steps.forEach(function (s, i) {
       var e = U.events[i];
       if (e && upFlagged(e.si, e.ci) && prog.targets[i]) prog.targets[i].classList.add("up-flag");
     });
     var cur = upCurStep(), e0 = U.events[cur >= 0 ? cur : 0], si = e0.si, sec = U.raw.sections[si];
     var curCi = cur >= 0 ? e0.ci : -1;
-    function chTag(ci) { return "<span class=\"sb-ch" + (ci === curCi ? " on" : "") + (upFlagged(si, ci) ? " flag" : "") + "\">" + upEsc(accSym(upSym(si, ci))) + "</span>"; }
+    function chTag(ci) { return "<span data-c=\"" + ci + "\" class=\"sb-ch" + (ci === curCi ? " on" : "") + (upFlagged(si, ci) ? " flag" : "") + "\">" + upEsc(upA(upSym(si, ci))) + "</span>"; }
     var html = "", line = null;
     (sec.lyrics || []).forEach(function (ln) {
       var has = ln.markers.some(function (m) { return m.chordIndex === Math.max(0, curCi); });
@@ -6405,10 +6792,13 @@ function accSym(s) {
     } else {
       sec.chords.forEach(function (c, ci) { html += chTag(ci); });
     }
-    var alts = curCi >= 0 && (upEv(si, curCi).alternates || []).length;
+    var alts = curCi >= 0 && !U.locked && (upEv(si, curCi).alternates || []).length;
     var key = "<span class=\"sb-sec\">" + upEsc(upSecName(si)) + "</span><span class=\"sb-line\">" + html + "</span>" + (alts ? "<span class=\"sb-alt\">alt \u25be</span>" : "");
     if (bar._html !== key) { bar.innerHTML = key; bar._html = key; }
-    bar.setAttribute("aria-label", "Song " + upProgObj.name + ", " + upSecName(si) + (curCi >= 0 ? ", now " + upSym(si, curCi) : "") + ". Open the song");
+    bar.dataset.si = si;
+    upPlaceLock();
+    paintUpNext();
+    bar.setAttribute("aria-label", "Song " + upProgObj.name + ", " + upSecName(si) + (curCi >= 0 ? ", now " + upT(upSym(si, curCi)) : "") + ". Open the song");
     paintUploadActive(cur >= 0 ? cur : -1);
   }
 
@@ -6426,7 +6816,7 @@ function accSym(s) {
     var mk = ln.markers.slice().sort(function (a, b) { return a.charIndex - b.charIndex; });
     var top = "", col = 0, marks = {};
     mk.forEach(function (m, k) {
-      var nm = accSym(upSym(U.raw.sections.indexOf(sec), m.chordIndex));
+      var nm = upA(upSym(U.raw.sections.indexOf(sec), m.chordIndex));
       var at = Math.max(m.charIndex, col);
       while (top.length < at) top += " ";
       top += nm + " ";
@@ -6443,6 +6833,13 @@ function accSym(s) {
     var keyEl = document.getElementById("upKey"), tEl = document.getElementById("upTempo"), secs = document.getElementById("upSecs");
     var rev = document.getElementById("upReview");
     document.getElementById("upRemove").hidden = !U;
+    var lrow = document.getElementById("upLockRow");
+    lrow.hidden = !U;
+    document.documentElement.classList.toggle("up-locked", !!(U && U.locked));
+    if (U) {
+      document.getElementById("upLock").setAttribute("aria-pressed", U.locked ? "true" : "false");
+      document.getElementById("upLockHint").textContent = U.locked ? "Chords locked: styles change the sound only, a key change moves every chord. Unlock to review or change chords." : "Unlocked: you can review and change chords.";
+    }
     if (!U) {
       keyEl.textContent = "\u2014";
       tEl.textContent = "No song loaded";
@@ -6452,15 +6849,17 @@ function accSym(s) {
     }
     var k = { pc: namePc(U.key.tonic), mode: U.key.mode === "minor" ? "minor" : "major" };
     keyEl.textContent = accSym(keyRootName(k)) + " " + k.mode;
+    var lko = upLiveKeyObj();
+    if (lko && upTr(lko)) keyEl.innerHTML = upEsc(accSym(keyRootName(lko)) + " " + lko.mode) + " <small style=\"font-size:.4em\">song: " + upEsc(accSym(keyRootName(k)) + " " + k.mode) + "</small>";
     tEl.innerHTML = upEsc(U.title) + " \u2014 " + upEsc(U.artist) + "<br>" + U.bpm + " BPM \u00b7 " + upEsc(U.ts);
     var fl = upFlagList();
-    if (fl.length) {
+    if (fl.length && !U.locked) {
       var h = "<b>" + fl.length + " chord" + (fl.length > 1 ? "s" : "") + " need" + (fl.length > 1 ? "" : "s") + " review</b> (the AI was not sure). Keep it or pick another:";
       fl.forEach(function (f) {
         var c = upEv(f.si, f.ci);
-        h += "<div class=\"ur-row\"><span>" + upEsc(upSecName(f.si)) + " #" + (f.ci + 1) + ": <b>" + upEsc(accSym(c.chord)) + "</b> (" + Math.round(c.confidence * 100) + "%)</span>" +
-          "<button type=\"button\" data-act=\"accept\" data-s=\"" + f.si + "\" data-c=\"" + f.ci + "\">Keep " + upEsc(accSym(c.chord)) + "</button>";
-        (c.alternates || []).forEach(function (a) { h += "<button type=\"button\" data-act=\"alt\" data-s=\"" + f.si + "\" data-c=\"" + f.ci + "\" data-sym=\"" + upEsc(a.chord) + "\">" + upEsc(accSym(a.chord)) + "</button>"; });
+        h += "<div class=\"ur-row\"><span>" + upEsc(upSecName(f.si)) + " #" + (f.ci + 1) + ": <b>" + upEsc(upA(c.chord)) + "</b> (" + Math.round(c.confidence * 100) + "%)</span>" +
+          "<button type=\"button\" data-act=\"accept\" data-s=\"" + f.si + "\" data-c=\"" + f.ci + "\">Keep " + upEsc(upA(c.chord)) + "</button>";
+        (c.alternates || []).forEach(function (a) { h += "<button type=\"button\" data-act=\"alt\" data-s=\"" + f.si + "\" data-c=\"" + f.ci + "\" data-sym=\"" + upEsc(a.chord) + "\">" + upEsc(upA(a.chord)) + "</button>"; });
         h += "</div>";
       });
       rev.innerHTML = h;
@@ -6473,15 +6872,15 @@ function accSym(s) {
       sec.chords.forEach(function (c, ci) {
         var alts = (c.alternates || []).length;
         html += "<button type=\"button\" class=\"up-ch" + (upFlagged(si, ci) ? " flag" : "") + "\" data-act=\"play\" data-s=\"" + si + "\" data-c=\"" + ci + "\" aria-label=\"" +
-          upEsc(upSym(si, ci) + (upFlagged(si, ci) ? ", needs review" : "") + (alts ? ", has alternates" : "")) + "\">" + upEsc(accSym(upSym(si, ci))) +
+          upEsc(upT(upSym(si, ci)) + (upFlagged(si, ci) ? ", needs review" : "") + (alts ? ", has alternates" : "")) + "\">" + upEsc(upA(upSym(si, ci))) +
           (alts ? "<span class=\"alt\" data-act=\"alts\">alt\u25be</span>" : "") + "</button>";
       });
       html += "</div>";
       if (upOpenAlt && +upOpenAlt.split(":")[0] === si) {
         var ci0 = +upOpenAlt.split(":")[1], c0 = sec.chords[ci0], cur = upSym(si, ci0);
-        html += "<div class=\"up-alts\"><span>#" + (ci0 + 1) + ":</span><button type=\"button\" data-act=\"alt\" data-s=\"" + si + "\" data-c=\"" + ci0 + "\" data-sym=\"" + upEsc(c0.chord) + "\"" + (cur === c0.chord ? " class=\"on\"" : "") + ">" + upEsc(accSym(c0.chord)) + " (original)</button>";
+        html += "<div class=\"up-alts\"><span>#" + (ci0 + 1) + ":</span><button type=\"button\" data-act=\"alt\" data-s=\"" + si + "\" data-c=\"" + ci0 + "\" data-sym=\"" + upEsc(c0.chord) + "\"" + (cur === c0.chord ? " class=\"on\"" : "") + ">" + upEsc(upA(c0.chord)) + " (original)</button>";
         (c0.alternates || []).forEach(function (a) {
-          html += "<button type=\"button\" data-act=\"alt\" data-s=\"" + si + "\" data-c=\"" + ci0 + "\" data-sym=\"" + upEsc(a.chord) + "\"" + (cur === a.chord ? " class=\"on\"" : "") + ">" + upEsc(accSym(a.chord)) + (a.reason ? " \u00b7 " + upEsc(a.reason) : "") + "</button>";
+          html += "<button type=\"button\" data-act=\"alt\" data-s=\"" + si + "\" data-c=\"" + ci0 + "\" data-sym=\"" + upEsc(a.chord) + "\"" + (cur === a.chord ? " class=\"on\"" : "") + ">" + upEsc(upA(a.chord)) + (a.reason ? " \u00b7 " + upEsc(a.reason) : "") + "</button>";
         });
         html += "</div>";
       }
@@ -6490,6 +6889,7 @@ function accSym(s) {
     });
     secs.innerHTML = html;
     paintUploadActive(upSelected() ? upCurStep() : -1);
+    paintUpNext();
   }
   function upShowErrors(r) {
     var box = document.getElementById("upErr"), msg = document.getElementById("upMsg");
@@ -6531,10 +6931,8 @@ function accSym(s) {
   }
   function openUpload() {
     var pick = document.getElementById("uploadPick");
-    if (U) {
-      document.getElementById("upTitle").value = U.title;
-      document.getElementById("upArtist").value = U.artist;
-    }
+    var ti = document.getElementById("upTitle"), ar = document.getElementById("upArtist");
+    if (U && !ti.value.trim() && !ar.value.trim()) { ti.value = U.title; ar.value = U.artist; }   // v73: never overwrite a new song being typed
     paintUpload();
     pick.hidden = false;
   }
@@ -6542,7 +6940,7 @@ function accSym(s) {
     var pick = document.getElementById("uploadPick"), btn = document.getElementById("uploadBtn");
     if (!pick || !btn) return;
     btn.addEventListener("click", function () { openUpload(); });
-    document.getElementById("songBar").addEventListener("click", function () { openUpload(); });
+    document.getElementById("songBar").addEventListener("click", function () { if (!state.simple) openUpload(); });
     function close() { pick.hidden = true; }
     pick.querySelector(".up-x").addEventListener("click", close);
     pick.addEventListener("click", function (e) { if (e.target === pick) close(); });
@@ -6552,6 +6950,7 @@ function accSym(s) {
       unlock();
       var r = upLoad(document.getElementById("upPaste").value);
       upShowErrors(r);
+      if (!r.ok) document.getElementById("upNote").hidden = true;
       if (r.ok) {
         var msg = document.getElementById("upMsg"), n = U.events.length, fl = upFlagList().length;
         msg.textContent = "Loaded " + U.title + ": " + U.raw.sections.length + " sections, " + n + " chords, key " + accSym(r.key ? r.key.name : U.key.tonic) + " " + U.key.mode + ", " + U.bpm + " BPM." +
@@ -6562,11 +6961,26 @@ function accSym(s) {
         document.getElementById("upPaste").value = "";
         upOpenAlt = null;
         paintUpload();
+        document.getElementById("upNote").hidden = false;   // v73: clear path to the next song
+        pick.querySelector(".kp-box").scrollTop = 0;
       }
     });
+    // v73: New song = a fresh form (song removed, fields cleared), panel stays open.
+    function newSong() {
+      upRemove();
+      upOpenAlt = null;
+      ["upPaste", "upTitle", "upArtist", "upFallbackTxt"].forEach(function (id) { document.getElementById(id).value = ""; });
+      ["upMsg", "upErr", "upNote", "upFallback", "upCopied"].forEach(function (id) { document.getElementById(id).hidden = true; });
+      paintUpload();
+      pick.querySelector(".kp-box").scrollTop = 0;
+      document.getElementById("upTitle").focus();
+    }
+    document.getElementById("upNew").addEventListener("click", newSong);
+    document.getElementById("upNew2").addEventListener("click", newSong);
     document.getElementById("upRemove").addEventListener("click", function () {
       upRemove();
       upOpenAlt = null;
+      document.getElementById("upNote").hidden = true;
       document.getElementById("upMsg").textContent = "Song removed.";
       document.getElementById("upMsg").hidden = false;
       document.getElementById("upErr").hidden = true;
@@ -6576,12 +6990,13 @@ function accSym(s) {
       var t = e.target.closest ? e.target.closest("[data-act]") : null;
       if (!t || !U) return;
       var a = t.dataset.act, b = t.closest("[data-s]"), si = +(t.dataset.s != null ? t.dataset.s : b.dataset.s), ci = +(t.dataset.c != null ? t.dataset.c : (t.closest(".up-ch") || {}).dataset.c);
+      if (U.locked && (a === "alts" || a === "alt" || a === "accept")) { e.stopPropagation(); return; }   // v73: Lock = no chord edits
       if (a === "alts") { e.stopPropagation(); upOpenAlt = upOpenAlt === si + ":" + ci ? null : si + ":" + ci; paintUpload(); return; }
       if (a === "play") {
         if (!upSelected()) upSelect();
         var i = upStepOf(si, ci);
         if (i >= 0) { unlock(); progBadge([i]); }
-        if ((upEv(si, ci).alternates || []).length) { upOpenAlt = si + ":" + ci; paintUpload(); }
+        if (!U.locked && (upEv(si, ci).alternates || []).length) { upOpenAlt = si + ":" + ci; paintUpload(); }
         return;
       }
       if (a === "accept") { U.reviewed[si + ":" + ci] = true; upSave(); if (upSelected()) progRedecorate(); paintUpload(); return; }
@@ -6590,7 +7005,10 @@ function accSym(s) {
     document.getElementById("upSecs").addEventListener("click", act);
     document.getElementById("upReview").addEventListener("click", act);
     // Reload: the saved song comes back selected, in its own key (full-mode key locks are not saved).
-    if (upRestoreSel) setTimeout(function () { if (U && upInList()) { upKeyApply(U.key.tonic, U.key.mode); upSelect(); } }, 0);
+    if (upRestoreSel) setTimeout(function () { if (U && upInList()) { upKeyApply(upKeyNow().tonic, upKeyNow().mode); upSelect(); } }, 0);
+    document.getElementById("upLock").addEventListener("click", function () { upSetLock(!U || !U.locked); });
+    document.getElementById("sbLock").addEventListener("click", function (e) { e.stopPropagation(); upSetLock(!U || !U.locked); });
+    window.addEventListener("resize", function () { setTimeout(upPlaceLock, 0); });
   }
   if (PROG_TEST) window.__upload = {
     check: function (t) { return upCheck(t); },
@@ -6603,7 +7021,10 @@ function accSym(s) {
     alternates: function () { var o = []; if (U) U.raw.sections.forEach(function (s) { s.chords.forEach(function (c, ci) { (c.alternates || []).forEach(function (a) { o.push(s.id + "#" + ci + ":" + c.chord + "->" + a.chord); }); }); }); return o; },
     copyText: function () { return upCopyText(); },
     parse: function (s) { return upParseChord(s); },
-    applySongKey: function (t, m) { return upKeyApply(t, m); }
+    applySongKey: function (t, m) { return upKeyApply(t, m); },
+    lock: function () { return U ? { locked: !!U.locked, liveKey: U.liveKey, key: U.key } : null; },
+    setLock: function (on) { upSetLock(on); },
+    next: function () { return upNextStep(); }
   };
 
   // The picker: Simple = friendly name in the left column under Major / Minor; full mode =
@@ -7476,6 +7897,7 @@ function accSym(s) {
         paintSuggestions(computeSpec());
       }
       if (state.style === "kids" && prog.idx !== 0) progSet(0);   // v71: picking Kids starts on Twinkle
+      if (leftKids && U && U.locked && U.keep && upInList()) { for (var ui = 0; ui < prog.list.length; ui++) if (prog.list[ui].up) { progSet(ui); break; } }   // v73 Lock
     });
 
     document.getElementById("layouts").addEventListener("click", function (e) {
@@ -7563,23 +7985,26 @@ function accSym(s) {
 
   // Applied on Style change. Never touches Key, layout or the Next grid.
   var STYLE_PRESETS = {
-    pop:       { sound: "piano",   bass: true,  voicing: "close", cutoff: 0.72, reverb: 0.14, delay: 0.10, bpm: 112, warmth: 15 },
+    pop:       { sound: "piano",   bass: true,  voicing: "close", cutoff: 0.75, reverb: 0.12, delay: 0.08, bpm: 112, warmth: 15 },
     // v68 Kids: "Bright and bouncy, like a music box." Bell top + soft pluck, short happy notes (art "box").
     kids:      { sound: "bell",    bass: true,  voicing: "close", cutoff: 0.78, reverb: 0.12, delay: 0.05, bpm: 100, warmth: 10, art: "box" },
-    jazz:      { sound: "epiano",  bass: true,  voicing: "drop",  cutoff: 0.48, reverb: 0.28, delay: 0.18, bpm: 120, warmth: 70 },
-    rnb:       { sound: "epiano",  bass: true,  voicing: "close", cutoff: 0.55, reverb: 0.34, delay: 0.22, bpm: 78,  warmth: 45 },
-    ballad:    { sound: "strings", bass: true,  voicing: "close", cutoff: 0.44, reverb: 0.40, delay: 0.16, bpm: 68,  warmth: 30 },
-    // v68: Reggae = short dry organ-like chops around middle C; Funk = short bright clav-like stabs, mid register.
-    reggae:    { sound: "reed",    bass: true,  voicing: "close", cutoff: 0.52, reverb: 0.08, delay: 0.06, bpm: 76,  warmth: 30, art: "chop" },
-    funk:      { sound: "reed",    bass: true,  voicing: "close", cutoff: 0.74, reverb: 0.06, delay: 0.04, bpm: 108, warmth: 18, art: "stab" },
+    jazz:      { sound: "epiano",  bass: true,  voicing: "drop",  cutoff: 0.42, reverb: 0.32, delay: 0.22, bpm: 120, warmth: 55 },
+    rnb:       { sound: "epiano",  bass: true,  voicing: "close", cutoff: 0.50, reverb: 0.36, delay: 0.24, bpm: 78,  warmth: 50 },
+    ballad:    { sound: "strings", bass: true,  voicing: "close", cutoff: 0.40, reverb: 0.48, delay: 0.14, bpm: 68,  warmth: 35 },
+    // v73: Reggae = muted offbeat skank + one-drop bass (style voice, warm engine); Funk = clav stabs + slap bass.
+    // Jazz = Rhodes + rootless + walking upright; R&B = round chorused Rhodes + sub; Ballad = string pad + cello;
+    // Country = honky-tonk boom-chick; Pop = bright piano + light round bass. Kids / Yoga unchanged.
+    reggae:    { sound: "warm",    bass: true,  voicing: "close", cutoff: 0.55, reverb: 0.22, delay: 0.18, bpm: 76,  warmth: 40 },
+    funk:      { sound: "reed",    bass: true,  voicing: "close", cutoff: 0.80, reverb: 0.08, delay: 0.06, bpm: 108, warmth: 20 },
     yogaDeep:  { sound: "warm",    bass: false, voicing: "low",   cutoff: 0.32, reverb: 0.58, delay: 0.02, bpm: 52,  warmth: 30, trim: 5.5 },
     // v60 Country: bright piano (the closest existing voice to a picked guitar), bass on, 100 BPM.
     // v68: close voicing (was bright: plain C reached G6, A7 in A).
-    country:   { sound: "piano",   bass: true,  voicing: "close", cutoff: 0.82, reverb: 0.12, delay: 0.06, bpm: 100, warmth: 12 }
+    country:   { sound: "piano",   bass: true,  voicing: "close", cutoff: 0.82, reverb: 0.10, delay: 0.05, bpm: 100, warmth: 12 }
   };
 
   // v68: per-style loudness trims (bus gain), measured so every style plays within ~2 dB.
-  var STYLE_TRIM = { pop: 1.35, kids: 2.07, jazz: 0.69, rnb: 0.75, ballad: 1.97, reggae: 3.63, funk: 4.79, yogaDeep: 3.94, country: 1.36 };
+  // v73: re-measured for the style voices (A-weighted 400 ms loudness, 90th percentile, -32 dBA target; v73-sound/TABLE.md).
+  var STYLE_TRIM = { pop: 1.41, kids: 2.07, jazz: 0.86, rnb: 0.90, ballad: 2.91, reggae: 4.07, funk: 4.60, yogaDeep: 3.94, country: 1.24 };
   function styleTrim(style) { return STYLE_TRIM[style] || 1; }
 
   // Yoga (id yogaDeep): Dim/Sus4 type pads are unavailable (stillness palette).
@@ -7636,6 +8061,7 @@ function accSym(s) {
     ChordAudio.setSound(p.sound);
     ChordAudio.setTrim(styleTrim(style));
     ChordAudio.setArt(p.art);
+    ChordAudio.setFlavor(style);   // v73: style voice (Kids / Yoga keep their engines)
     ChordAudio.setCutoff(p.cutoff);
     ChordAudio.setReverb(p.reverb);
     ChordAudio.setDelay(p.delay);
