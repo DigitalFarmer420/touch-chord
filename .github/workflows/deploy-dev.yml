@@ -1,0 +1,49 @@
+# Deploys the `dev` branch of touch-chord to the separate DEV Pages site:
+#   https://digitalfarmer420.github.io/touch-chord-dev/
+# Production (branch main, https://digitalfarmer420.github.io/touch-chord/) is never touched.
+name: Deploy dev preview
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dev branch
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          path: src
+      - name: Clone touch-chord-dev with deploy key
+        env:
+          DEV_DEPLOY_KEY: ${{ secrets.DEV_DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEV_DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null
+          git clone git@github.com:DigitalFarmer420/touch-chord-dev.git site || (mkdir site && cd site && git init -b main && git remote add origin git@github.com:DigitalFarmer420/touch-chord-dev.git)
+      - name: Build site (copy tree + DEV badge)
+        run: |
+          cd site
+          git rm -rq --ignore-unmatch . >/dev/null 2>&1 || true
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cd ..
+          rsync -a --exclude .git --exclude .github src/ site/
+          touch site/.nojekyll
+          python3 src/.github/dev/inject-dev-badge.py site/index.html
+      - name: Commit and push (normal push, no force)
+        run: |
+          cd site
+          git config user.name "DigitalFarmer420"
+          git config user.email "vinteedle@gmail.com"
+          git add -A
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
+          git commit -q -m "Deploy touch-chord dev@${GITHUB_SHA::7}"
+          git push origin HEAD:main
+          echo "Deployed $(git rev-parse HEAD) from dev@${GITHUB_SHA}"
