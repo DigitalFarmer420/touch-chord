@@ -1536,6 +1536,9 @@ html.lay-phone-port:not(.simple) .now-col > .prog .pg-sel { width: 100%; flex: 0
 .config-menu .cfg-vol { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 12px; font-size: 14px; color: var(--ink); }
 .config-menu .cfg-vol input { flex: 1 1 auto; min-width: 0; width: 120px; accent-color: var(--copper); }
 .config-menu .cfg-vol b { flex: 0 0 auto; min-width: 2.2em; text-align: right; font-size: 12px; font-weight: 700; color: var(--muted); }
+/* v75: Config Band slider (where Volume used to sit) + "for now" note; dimmed on styles without a band. */
+.config-menu .cfg-band-note { padding: 0 12px 6px; font-size: 11.5px; color: var(--muted); }
+.config-menu .cfg-band.dim { opacity: .45; }
 /* v60: Config toggle. */
 .config-menu .cfg-toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; white-space: nowrap; }
 .cfg-toggle .tgl { position: relative; flex: 0 0 auto; width: 34px; height: 20px; border-radius: 10px; background: #3a332b; border: 1px solid var(--line); transition: background .15s; }
@@ -1746,6 +1749,8 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     <div class="config" id="configWrap">
       <button id="configBtn" type="button" class="top-btn config-btn icon-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="configMenu" aria-label="Config" title="Config"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
       <div id="configMenu" class="config-menu" role="menu" aria-label="Configuration" hidden>
+        <label class="cfg-vol cfg-band" title="Band: bass and drums under your chords (0 = off)"><span>Band</span><input id="band" type="range" min="0" max="100" step="1" value="0" aria-label="Band" aria-valuetext="Off"><b id="bandVal">Off</b></label>
+        <div class="cfg-band-note" id="bandNote">Pop, Country, Jazz &amp; Kids for now</div>
         <button id="progNumsBtn" type="button" role="menuitemcheckbox" aria-checked="true" class="cfg-toggle on"><span>Progression numbers</span><span class="tgl" aria-hidden="true"></span></button>
         <button id="factoryReset" type="button" role="menuitem" class="danger">Factory reset</button>
         <div id="appVersion" class="app-version" aria-live="off"></div>
@@ -1757,12 +1762,12 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=74" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=75" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=74" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=75" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1771,19 +1776,19 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
       </ol>
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=74" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=75" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=74" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=75" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=74" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=75" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the smiley face, and sad ones sit below the frown. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=74" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=75" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=74" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=75" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Full Range enables all keys to be available.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
@@ -2120,7 +2125,7 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 74;
+var APP_VERSION = 75;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -2876,6 +2881,7 @@ function accSym(s) {
     opts = opts || {};
     var time = opts.time == null ? this.ctx.currentTime : opts.time;
     var engine = opts.sound || this.sound;
+    this.bandTouch(time, midis, opts.bass);   // v75 Band: harmony change / first-tap start (no-op at Band 0)
     // v73: Jazz plays rootless (the upright bass has the root): drop the lowest chord tone that
     // doubles the bass pitch class when 4+ notes remain.
     if (this.flavor === "jazz" && engine === "epiano" && opts.bass != null && midis.length >= 4) {
@@ -2890,7 +2896,7 @@ function accSym(s) {
         time: time, velocity: vel, bass: false
       }));
     }
-    if (opts.bass != null) {
+    if (opts.bass != null && !this.bandOwnsBass()) {   // v75: with Band on, the band plays the bass line
       this.voices.push(this.makeVoice({
         midi: opts.bass, engine: engine, short: false, group: group,
         time: time, velocity: 1, bass: true
@@ -2912,7 +2918,8 @@ function accSym(s) {
     var vel = chordVelocity(midis.length);
     var want = {};
     for (var i = 0; i < midis.length; i++) want[midis[i]] = (want[midis[i]] || 0) + 1;
-    var wantBass = opts.bass != null ? opts.bass : null;
+    var wantBass = opts.bass != null && !this.bandOwnsBass() ? opts.bass : null;
+    this.bandTouch(now, midis, opts.bass);   // v75 Band
     for (var j = 0; j < this.voices.length; j++) {
       var v = this.voices[j];
       if (v.group !== group || v.short || v.released) continue;
@@ -3742,7 +3749,264 @@ function accSym(s) {
     return ctx.createPeriodicWave(real, imag);
   }
 
+  // ===== v75 Band, STEP ONE: a separate groove layer (bass + drums, Jazz adds soft comping) =====
+  // Spec: v69/GROOVE-STEP1-SPEC.md (+ amendments). Own gain bus -> limiter -> master Volume (vol), so
+  // the chord path is untouched. Band 0 (or a style without a band) = no nodes, no timer, no CPU.
+  // Lookahead scheduler on the audio clock (25 ms tick, 100 ms ahead). The first chord (tap, Next,
+  // Play song) starts it on beat 1 at that chord's time; later chords change the harmony without
+  // restarting the beat; ~2 bars after the last chord it fades out and stops.
+  // Clock (no own tempo): clock() from the app = the selected song's BPM / beats per bar, else the
+  // Play song bar (PROG_BAR) while it runs, else the Config (style / loop) BPM.
+  var BAND_STYLES = { pop: true, country: true, jazz: true, kids: true };
+  // Per-style band level, measured (A-weighted) so Band 50 sits ~3 dB under the chords, 100 ~3 dB over.
+  var BAND_TRIM = { pop: 0.27, country: 0.63, jazz: 0.42, kids: 0.65 };
+  function bandPc(m) { return ((m % 12) + 12) % 12; }
+  function Band(audio) {
+    this.audio = audio; this.level = 0; this.style = null;
+    this.timer = 0; this.running = false; this.bus = null; this.lim = null;
+    this.harm = []; this.lastTouch = -1; this.nextBeat = 0; this.beat = 0; this.fadeAt = 0;
+    this.clock = null; this.keepAlive = null; this.peek = null; this.manual = false; this.noiseBuf = null; this.noiseCtx = null;
+    this.stats = { started: 0, beats: 0, notes: 0 };
+  }
+  Band.prototype.active = function () { return this.level > 0 && !!BAND_STYLES[this.style]; };
+  Band.prototype.target = function () { return 0.9 * Math.pow(this.level, 1.25) * (BAND_TRIM[this.style] || 0.5); };
+  Band.prototype.setLevel = function (v) {
+    this.level = Math.max(0, Math.min(1, +v || 0));
+    if (!this.active()) { this.stop(0.05); return; }
+    if (this.running && !this.fadeAt && this.bus) this.bus.gain.setTargetAtTime(this.target(), this.audio.ctx.currentTime, 0.05);
+  };
+  Band.prototype.setStyle = function (s) {
+    this.style = s;
+    if (!this.active()) { this.stop(0.08); return; }
+    if (this.running && !this.fadeAt && this.bus) this.bus.gain.setTargetAtTime(this.target(), this.audio.ctx.currentTime, 0.05);   // same 50 ms style ramp
+  };
+  Band.prototype.ck = function () {
+    var c = this.clock ? this.clock() : null;
+    return { bpm: Math.max(30, Math.min(260, (c && c.bpm) || this.audio.bpm || 96)), bpb: Math.max(2, Math.min(7, (c && c.bpb) || 4)) };
+  };
+  // A chord sounded at time t (midis + bass) -> harmony change; starts the groove if needed.
+  Band.prototype.touch = function (t, midis, bass) {
+    if (!this.active() || !this.audio.ctx || !midis || !midis.length) return;
+    var ctx = this.audio.ctx, now = ctx.currentTime;
+    t = Math.max(t == null ? now : t, now);
+    var root = bass != null ? bass : Math.min.apply(null, midis), pcs = {};
+    midis.forEach(function (m) { pcs[bandPc(m)] = true; });
+    pcs[bandPc(root)] = true;
+    var h = { t: t, rootPc: bandPc(root), pcs: pcs };
+    var i = this.harm.length;
+    while (i > 0 && this.harm[i - 1].t > t) i--;
+    this.harm.splice(i, 0, h);
+    while (this.harm.length > 2 && this.harm[1].t < now - 1) this.harm.shift();
+    if (this.harm.length > 64) this.harm.shift();
+    this.lastTouch = Math.max(this.lastTouch, t);
+    if (!this.running) this.start(t);
+    else if (this.fadeAt) {   // a chord during the fade: back up, same beat
+      this.fadeAt = 0;
+      this.bus.gain.cancelScheduledValues(now);
+      this.bus.gain.setValueAtTime(this.bus.gain.value, now);
+      this.bus.gain.setTargetAtTime(this.target(), now, 0.05);
+    }
+  };
+  // Re-phase beat 1 (Play song start), only while running.
+  Band.prototype.resync = function (t) { if (this.running && !this.fadeAt) { this.nextBeat = t; this.beat = 0; } };
+  Band.prototype.start = function (t) {
+    var ctx = this.audio.ctx, self = this;
+    this.audio.ensure();
+    if (this.noiseCtx !== ctx) {
+      var n = Math.floor(ctx.sampleRate), buf = ctx.createBuffer(1, n, ctx.sampleRate), d = buf.getChannelData(0);
+      for (var i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+      this.noiseBuf = buf; this.noiseCtx = ctx;
+    }
+    var bus = ctx.createGain(), lim = ctx.createDynamicsCompressor();
+    bus.gain.setValueAtTime(0, ctx.currentTime);
+    bus.gain.setTargetAtTime(this.target(), ctx.currentTime, 0.02);
+    lim.threshold.value = -9; lim.knee.value = 3; lim.ratio.value = 20; lim.attack.value = 0.002; lim.release.value = 0.12;
+    bus.connect(lim); lim.connect(this.audio.vol);
+    this.bus = bus; this.lim = lim; this.running = true; this.fadeAt = 0;
+    this.nextBeat = t; this.beat = 0; this.stats.started++;
+    if (!this.manual) this.timer = setInterval(function () { self.tick(); }, 25);
+    this.tick();
+  };
+  Band.prototype.tick = function (nowArg) {
+    if (!this.running) return;
+    var ctx = this.audio.ctx, now = nowArg == null ? ctx.currentTime : nowArg, c = this.ck(), spb = 60 / c.bpm, bar = spb * c.bpb;
+    if (!this.fadeAt && !(this.keepAlive && this.keepAlive()) && now > this.lastTouch + 2 * bar) {
+      this.fadeAt = now + bar * 1.25;
+      this.bus.gain.cancelScheduledValues(now);
+      this.bus.gain.setValueAtTime(this.bus.gain.value, now);
+      this.bus.gain.setTargetAtTime(0, now, bar / 4);
+    }
+    if (this.fadeAt && now >= this.fadeAt) { this.kill(); return; }
+    if (this.nextBeat < now - 0.25) this.nextBeat = now + 0.05;   // tab slept: carry on from now
+    var g = 0;
+    while (this.nextBeat < now + 0.1 && g++ < 16) {
+      this.playBeat(this.nextBeat, this.beat % c.bpb, c.bpb, spb, Math.floor(this.beat / c.bpb));
+      this.nextBeat += spb; this.beat++; this.stats.beats++;
+    }
+  };
+  Band.prototype.release = function (tau, wait) {
+    if (this.timer) { clearInterval(this.timer); this.timer = 0; }
+    var bus = this.bus, lim = this.lim, ctx = this.audio.ctx;
+    if (bus && tau) { try { var now = ctx.currentTime; bus.gain.cancelScheduledValues(now); bus.gain.setValueAtTime(bus.gain.value, now); bus.gain.setTargetAtTime(0, now, tau); } catch (e) {} }
+    this.bus = this.lim = null; this.running = false; this.fadeAt = 0; this.harm = []; this.lastTouch = -1;
+    if (bus) setTimeout(function () { try { bus.disconnect(); lim.disconnect(); } catch (e) {} }, wait);
+  };
+  Band.prototype.kill = function () { this.release(0, 400); };   // after the fade: already silent
+  Band.prototype.stop = function (tau) { if (this.running) this.release(tau, Math.max(80, tau * 6000)); };
+  Band.prototype.harmAt = function (t) {
+    var h = this.harm[0] || null;
+    for (var i = 0; i < this.harm.length; i++) if (this.harm[i].t <= t + 0.03) h = this.harm[i];
+    return h;
+  };
+  // Root pc of the chord that starts within (t, t + span], if known (scheduled or queued).
+  Band.prototype.nextRootPc = function (t, span, cur) {
+    for (var i = 0; i < this.harm.length; i++) if (this.harm[i].t > t + 0.03 && this.harm[i].t <= t + span) return this.harm[i].rootPc;
+    var p = this.peek ? this.peek() : null;
+    return p == null ? null : p;
+  };
+
+  // --- instruments (all synthesized) ---
+  Band.prototype.env = function (t, peak, atk, dec, dest) {
+    var g = this.audio.ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t + atk);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + atk + dec);
+    g.connect(dest || this.bus);
+    return g;
+  };
+  Band.prototype.noise = function (t, dur, type, freq, q, peak, atk, dec, dest) {
+    var ctx = this.audio.ctx, s = ctx.createBufferSource(), f = ctx.createBiquadFilter();
+    s.buffer = this.noiseBuf;
+    f.type = type; f.frequency.value = freq; f.Q.value = q || 0.7;
+    var g = this.env(t, peak, atk, dec, dest);
+    s.connect(f); f.connect(g);
+    s.start(t, Math.random() * 0.5, dur);
+    this.stats.notes++;
+  };
+  Band.prototype.kick = function (t, v) {
+    var ctx = this.audio.ctx, o = ctx.createOscillator(), g = this.env(t, 0.9 * v, 0.004, 0.32);
+    o.type = "sine";
+    o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(48, t + 0.12);
+    o.connect(g); o.start(t); o.stop(t + 0.4);
+    this.noise(t, 0.02, "highpass", 2500, 0.7, 0.12 * v, 0.001, 0.015);
+  };
+  Band.prototype.snare = function (t, v) {
+    var ctx = this.audio.ctx, o = ctx.createOscillator(), g = this.env(t, 0.22 * v, 0.002, 0.09);
+    o.type = "triangle"; o.frequency.setValueAtTime(200, t); o.frequency.exponentialRampToValueAtTime(160, t + 0.08);
+    o.connect(g); o.start(t); o.stop(t + 0.15);
+    this.noise(t, 0.25, "bandpass", 1900, 0.8, 0.5 * v, 0.002, 0.16);
+  };
+  Band.prototype.brush = function (t, v, len) { this.noise(t, (len || 0.25) + 0.05, "bandpass", 3200, 0.6, 0.16 * v, 0.03, len || 0.2); };
+  Band.prototype.hat = function (t, v, open) { this.noise(t, open ? 0.35 : 0.08, "highpass", 7500, 0.8, 0.18 * v, 0.001, open ? 0.28 : 0.045); };
+  Band.prototype.hatFoot = function (t, v) { this.noise(t, 0.06, "bandpass", 6000, 1.2, 0.1 * v, 0.003, 0.04); };
+  Band.prototype.ride = function (t, v) {
+    var ctx = this.audio.ctx;
+    this.noise(t, 0.5, "bandpass", 8500, 3, 0.1 * v, 0.001, 0.35);
+    [3150, 4620].forEach(function (f, k) {
+      var o = ctx.createOscillator(), g = this.env(t, (k ? 0.012 : 0.018) * v, 0.001, 0.5);
+      o.type = "square"; o.frequency.value = f; o.connect(g); o.start(t); o.stop(t + 0.6);
+    }, this);
+  };
+  Band.prototype.clap = function (t, v) {
+    for (var k = 0; k < 3; k++) this.noise(t + k * 0.011, 0.03, "bandpass", 1300, 1.1, 0.35 * v, 0.001, 0.012);
+    this.noise(t + 0.033, 0.2, "bandpass", 1300, 0.9, 0.3 * v, 0.002, 0.13);
+  };
+  Band.prototype.shaker = function (t, v) { this.noise(t, 0.1, "highpass", 6500, 0.7, 0.09 * v, 0.012, 0.05); };
+  // Bass: sine + a little 2nd (and 3rd) harmonic so phone speakers carry it.
+  Band.prototype.bass = function (t, midi, dur, v, kind) {
+    var ctx = this.audio.ctx, f = 440 * Math.pow(2, (midi - 69) / 12), lp = ctx.createBiquadFilter();
+    lp.type = "lowpass"; lp.frequency.value = kind === "upright" ? 900 : kind === "bouncy" ? 1400 : 1000; lp.Q.value = 0.7;
+    var g = ctx.createGain(), pk = 0.42 * v, atk = kind === "round" ? 0.012 : 0.005, end = t + dur;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(pk, t + atk);
+    if (kind === "round") g.gain.setTargetAtTime(pk * 0.55, t + atk, dur * 0.5);
+    else g.gain.exponentialRampToValueAtTime(pk * (kind === "upright" ? 0.35 : 0.2), t + Math.max(atk + 0.01, dur * 0.8));
+    g.gain.setTargetAtTime(0.0001, end, 0.03);
+    lp.connect(g); g.connect(this.bus);
+    var parts = kind === "upright" ? [[1, "triangle", 0.8], [2, "sine", 0.3]] : [[1, "sine", 0.85], [2, "sine", 0.32], [3, "triangle", kind === "bouncy" ? 0.12 : 0.06]];
+    parts.forEach(function (p) {
+      var o = ctx.createOscillator(), a = ctx.createGain();
+      o.type = p[1]; o.frequency.value = f * p[0]; a.gain.value = p[2];
+      o.connect(a); a.connect(lp); o.start(t); o.stop(end + 0.25);
+    });
+    this.stats.notes++;
+  };
+  // Jazz comping: soft FM electric piano stab (on top of the untouched chord sound).
+  Band.prototype.ep = function (t, midis, dur, v) {
+    var ctx = this.audio.ctx, self = this;
+    midis.forEach(function (m) {
+      var f = 440 * Math.pow(2, (m - 69) / 12), c = ctx.createOscillator(), md = ctx.createOscillator(), mg = ctx.createGain();
+      var g = self.env(t, 0.05 * v, 0.006, dur);
+      c.type = "sine"; md.type = "sine"; c.frequency.value = f; md.frequency.value = f;
+      mg.gain.setValueAtTime(f * 0.9, t); mg.gain.exponentialRampToValueAtTime(f * 0.08, t + 0.15);
+      md.connect(mg); mg.connect(c.frequency); c.connect(g);
+      c.start(t); md.start(t); c.stop(t + dur + 0.1); md.stop(t + dur + 0.1);
+    });
+    this.stats.notes++;
+  };
+  // Bass register E1..D#2 (40..51) for the root.
+  function bandBassMidi(pc) { var m = 36 + pc; return m < 40 ? m + 12 : m; }
+  function bandIv(h, cands, dflt) { for (var i = 0; i < cands.length; i++) if (h.pcs[bandPc(h.rootPc + cands[i])]) return cands[i]; return dflt; }
+
+  Band.prototype.playBeat = function (t, b, bpb, spb, barN) {
+    var L = this.level, dense = L >= 0.5, full = L >= 0.8, st = this.style, h = this.harmAt(t);
+    if (!h) return;
+    var R = bandBassMidi(h.rootPc), third = bandIv(h, [4, 3, 5], 4), fifth = bandIv(h, [7, 6, 8], 7), last = b === bpb - 1;
+    var mid = Math.floor(bpb / 2);   // "beat 3" in 4/4
+    if (st === "pop") {
+      if (b === 0 || b === mid) this.kick(t, 1);
+      if (full && b === mid) this.kick(t + spb * 0.5, 0.6);
+      if (b % 2 === 1) this.snare(t, 0.9);
+      if (full && last) this.snare(t + spb * 0.75, 0.25);
+      this.hat(t, b % 2 ? 0.7 : 0.9);
+      if (dense) this.hat(t + spb * 0.5, full && last ? 0.6 : 0.5, full && last);
+      if (b === 0 || b === mid) this.bass(t, R, spb * 1.8, 1, "round");
+    } else if (st === "country") {
+      // train beat: brushy 8ths, accents on 2 & 4; boom-chick bass root / fifth
+      var acc = b % 2 === 1;
+      this.snare(t, acc ? 0.55 : 0.18);
+      if (dense) this.brush(t + spb * 0.5, 0.7, 0.12);
+      if (full) this.brush(t + spb * 0.25, 0.35, 0.08), this.brush(t + spb * 0.75, 0.35, 0.08);
+      if (b === 0 || b === mid) this.kick(t, 0.55);
+      if (b === 0) this.bass(t, R, spb * 0.75, 1, "pluck");
+      else if (b === mid) this.bass(t, R + fifth - (R + fifth > 52 ? 12 : 0), spb * 0.75, 0.95, "pluck");
+    } else if (st === "jazz") {
+      var sw = spb * 2 / 3;   // swung 8th
+      this.ride(t, b % 2 ? 0.8 : 1);
+      if (dense && b % 2 === 1) this.ride(t + sw, 0.55);
+      if (b % 2 === 1) { this.brush(t, 0.9, 0.22); this.hatFoot(t, 0.9); }
+      if (full && b % 2 === 0) this.brush(t + sw, 0.35, 0.1);
+      // walking bass: quarters, root on 1, chord / passing tones, chromatic approach into a new root
+      var seventh = bandIv(h, [10, 11, 9], 10), n;
+      var nx = last ? this.nextRootPc(t, spb * 1.6, h.rootPc) : null;
+      if (b === 0) n = R;
+      else if (last && nx != null && nx !== h.rootPc) { var tgt = bandBassMidi(nx); n = (barN % 2 ? tgt + 1 : tgt - 1); }
+      else {
+        var walk = barN % 2 ? [0, fifth, third + 12, seventh, fifth] : [0, third, fifth, fifth + 2 > 11 ? 9 : fifth + 2, 12];
+        n = R + walk[Math.min(b, walk.length - 1)];
+      }
+      while (n > 58) n -= 12;
+      this.bass(t, n, spb * 0.92, 0.95, "upright");
+      // comping: rootless 3-5-7-9, short swung stabs (Charleston-ish), quiet
+      var shell = [third, fifth, seventh, 2].map(function (iv) { var m = 48 + bandPc(h.rootPc + iv); while (m < 53) m += 12; while (m > 66) m -= 12; return m; }).sort(function (a, c) { return a - c; });
+      var stab = barN % 2 ? (b === 1 ? sw : b === mid ? sw : -1) : (b === 0 ? 0 : b === 1 ? sw : -1);
+      if (stab >= 0 && (dense || barN % 2 === 0)) this.ep(t + stab, shell, spb * 0.35, dense ? 1 : 0.8);
+      if (full && last) this.ep(t + sw, shell, spb * 0.25, 0.6);
+    } else if (st === "kids") {
+      if (b % 2 === 1) this.clap(t, 0.9);
+      if (full && last) this.clap(t + spb * 0.5, 0.45);
+      this.shaker(t, 1);
+      if (dense) this.shaker(t + spb * 0.5, 0.7);
+      if (b === 0) this.bass(t, R, spb * 0.45, 1, "bouncy");
+      else if (b === mid) this.bass(t, R + fifth - (R + fifth > 52 ? 12 : 0), spb * 0.45, 0.9, "bouncy");
+      else if (dense && b % 2 === 1) this.bass(t + spb * 0.5, (b === 1 ? R : R + fifth - (R + fifth > 52 ? 12 : 0)) + 12, spb * 0.3, 0.6, "bouncy");
+    }
+  };
+  ChordAudio.prototype.bandTouch = function (t, midis, bass) { if (this.band) this.band.touch(t, midis, bass); };
+  ChordAudio.prototype.bandOwnsBass = function () { return !!(this.band && this.band.active()); };
+
   var api = new ChordAudio();
+  api.band = new Band(api);   // v75: off (level 0) until the Config Band slider is raised
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   if (typeof window !== "undefined") { window.ChordAudio = api; window.__tcAudioWake = function () { api.wake(); }; }
 })();
@@ -5631,6 +5895,20 @@ function accSym(s) {
   if (PROG_TEST) window.__prog = prog;
   // v68: magic Next (state; logic after progNext).
   var magic = { pos: 0, last: null, since: 0, cycle: 4, item: null, lit: false, endAt: 0, rng: Math.random, log: [], next: null, hint: false };
+  // v75 Band clock = the app's clock: the selected song (BPM, beats per bar), else the Play song
+  // bar while it runs, else the Config (style / loop) BPM. keepAlive: Play song / the phrase loop.
+  ChordAudio.band.clock = function () {
+    var t = songTempo();
+    if (t) return { bpm: t.bpm, bpb: t.bpb };
+    if (prog.playing) return { bpm: 240 / PROG_BAR, bpb: 4 };
+    return { bpm: state.bpm || 96, bpb: 4 };
+  };
+  ChordAudio.band.keepAlive = function () { return !!(prog.playing || (typeof loop !== "undefined" && loop.playing)); };
+  ChordAudio.band.peek = function () {   // next chord root, for the Jazz walking-bass approach note
+    if (prog.playing) return !prog.tail && prog.si < prog.steps.length ? prog.steps[prog.si].item.rootPc : null;
+    return magic && magic.next && magic.next.step >= 0 && magic.next.item ? magic.next.item.rootPc : null;
+  };
+  if (PROG_TEST) window.__band = ChordAudio.band;
   if (PROG_TEST) window.__progApi = { data: PROGRESSIONS, steps: function (k, p) { return progSteps(k, p); }, numerals: function (st) { return progNumerals(st); }, set: function (i) { progSet(i); }, play: function () { progPlay(); }, stop: function () { progStop(); }, next: function () { progNext(); }, bar: PROG_BAR };
 
   // Called when the strip is rebuilt: a style change goes back to the style's first
@@ -6220,6 +6498,7 @@ function accSym(s) {
     prog.log = [];
     prog.tail = null;   // v70: set after one pass through the progression -> random chords
     prog.nextT = ChordAudio.currentTime() + 0.06;
+    ChordAudio.band.resync(prog.nextT);   // v75: Play song starts on the band's beat 1
     prog.timer = setInterval(progTick, 25);
     progTick();
     paintProg();
@@ -8082,6 +8361,7 @@ function accSym(s) {
     ChordAudio.setTrim(styleTrim(style));
     ChordAudio.setArt(p.art);
     ChordAudio.setFlavor(style);   // v73: style voice (Kids / Yoga keep their engines)
+    ChordAudio.band.setStyle(style); paintBand();   // v75 Band: Pop / Country / Jazz / Kids only
     ChordAudio.setCutoff(p.cutoff);
     ChordAudio.setReverb(p.reverb);
     ChordAudio.setDelay(p.delay);
@@ -8125,6 +8405,7 @@ function accSym(s) {
       // a missing value (new user, or saved before v60) gets on.
       progNums: true,
       volume: 100,
+      band: 0,
       lockKey: null
     };
   }
@@ -8168,6 +8449,7 @@ function accSym(s) {
       allKeys: bool(raw.allKeys, d.allKeys),
       progNums: bool(raw.progNums, d.progNums),
       volume: num(raw.volume, 0, 100, d.volume, true),
+      band: num(raw.band, 0, 100, d.band, true),
       lockKey: (raw.lockKey && typeof raw.lockKey === "object" && raw.lockKey.pc === (raw.lockKey.pc | 0) && raw.lockKey.pc >= 0 && raw.lockKey.pc < 12 && SCALES.indexOf(raw.lockKey.mode) >= 0)
         ? { pc: raw.lockKey.pc, mode: raw.lockKey.mode } : null
       // Legacy `latch` key (cce4d86) is ignored; Sustain is never persisted.
@@ -8220,6 +8502,7 @@ function accSym(s) {
       allKeys: !!state.allKeys,
       progNums: !!state.progNums,
       volume: state.volume == null ? 100 : state.volume,
+      band: state.band | 0,
       lockKey: lockKey ? { pc: lockKey.pc, mode: lockKey.mode } : null
     };
   }
@@ -8314,6 +8597,7 @@ function accSym(s) {
     // v68: the active style's sound preset always applies at load (cold Pop has its bass).
     applyStylePreset(s.style);
     setVolume(s.volume);
+    setBand(s.band);
   }
 
   var toastTimer = 0;
@@ -8338,6 +8622,27 @@ function accSym(s) {
     var out = document.getElementById("volVal");
     if (out) out.textContent = String(v);
     ChordAudio.setVolume((v / 100) * (v / 100));
+  }
+  // v75 Band level 0..100 (0 = off: no scheduler, no nodes). Saved; applies in both modes.
+  function setBand(v) {
+    v = Math.round(Number(v));
+    if (!isFinite(v)) v = 0;
+    v = Math.max(0, Math.min(100, v));
+    state.band = v;
+    ChordAudio.band.setLevel(v / 100);
+    paintBand();
+  }
+  function paintBand() {
+    var el = document.getElementById("band");
+    if (!el) return;
+    var v = state.band | 0, on = !!ChordAudio.band && !!{ pop: 1, country: 1, jazz: 1, kids: 1 }[state.style];
+    if (el.value !== String(v)) el.value = String(v);
+    var txt = v ? String(v) : "Off";
+    el.setAttribute("aria-valuetext", txt + (on ? "" : ", no band for this style yet"));
+    document.getElementById("bandVal").textContent = txt;
+    el.closest(".cfg-band").classList.toggle("dim", !on);
+    var note = document.getElementById("bandNote");
+    note.textContent = on ? "Pop, Country, Jazz & Kids for now" : "Pop, Country, Jazz & Kids for now (no band on this style yet)";
   }
   function paintProgNumsBtn() {
     var b = document.getElementById("progNumsBtn");
@@ -8384,6 +8689,9 @@ function accSym(s) {
       setOpen(false);
       factoryReset();
     });
+    var bandEl = document.getElementById("band");
+    bandEl.addEventListener("input", function () { setBand(bandEl.value); scheduleSave(150); });
+    bandEl.addEventListener("change", function () { setBand(bandEl.value); scheduleSave(0); });
     var volEl = document.getElementById("volume");
     volEl.addEventListener("input", function () { setVolume(volEl.value); scheduleSave(150); });
     volEl.addEventListener("change", function () { setVolume(volEl.value); scheduleSave(0); });
