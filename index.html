@@ -1769,6 +1769,9 @@ html.lay-phone-land .up-lib .ul-open, html.lay-phone-land .up-lib .ul-del { min-
 .up-lib .ul-ver { align-self: center; }
 .up-lib .ul-ver button { height: 28px; min-height: 28px; padding: 0 6px; font-size: 11.5px; }
 .up-row .up-ok { font-size: 13px; color: #8fd18f; font-weight: 700; }
+/* v91: the action row on top of the Upload screen wraps cleanly */
+.up-actions { row-gap: 6px; }
+.up-actions > * { flex: 0 0 auto; }
 .up-paste textarea { min-height: 70px; resize: vertical; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; }
 .up-fallback[hidden], .up-err[hidden], .up-msg[hidden] { display: none; }
 .up-fallback textarea { min-height: 70px; font-size: 11px; }
@@ -1835,12 +1838,12 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=90" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=91" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=90" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=91" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1849,19 +1852,19 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
       </ol>
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=90" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=91" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=90" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=91" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=90" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=91" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the smiley face, and sad ones sit below the frown. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=90" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=91" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=90" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=91" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Full Range enables all keys to be available.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
@@ -1922,10 +1925,14 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
   <div id="uploadPick" class="key-pick up-pick" role="dialog" aria-modal="true" aria-labelledby="upTitleH" hidden>
     <div class="kp-box">
       <div class="kp-head"><span id="upTitleH">Upload song or album</span><button type="button" class="kp-x up-x" aria-label="Close">&#10005;</button></div>
+      <!-- v91: actions on top, status right under them, fields / song / answer in the middle, My songs at the bottom -->
+      <div class="up-row up-actions" id="upActions" role="group" aria-label="Song actions"><button type="button" id="upCopy">Copy for AI</button><span class="up-pv" id="upPv" role="radiogroup" aria-label="Chords to ask for"><button type="button" role="radio" data-pv="simple" aria-checked="true">Simple</button><button type="button" role="radio" data-pv="full" aria-checked="false">Simple and Full</button></span><button type="button" id="upLoad">Load</button><button type="button" id="upNew">New song</button><button type="button" id="upRemove" hidden>Remove song</button><span class="up-ok" id="upCopied" hidden>Copied</span></div>
       <p class="up-intro">Ask any AI to fill in this song form, then paste its answer back here. The app checks it before loading.</p>
-      <div class="up-lib" id="upLib" hidden><div class="ul-h">My songs <small id="upLibN"></small></div><ul class="ul-list" id="upLibList" role="list"></ul></div>
-      <div class="up-err" id="upSaveErr" role="alert" hidden></div>
+      <div class="up-err" id="upErr" role="alert" hidden></div>
+      <div class="up-msg" id="upMsg" role="status" hidden></div>
       <div class="up-note" id="upNote" role="status" hidden><span>Song loaded. Tap New song to start another.</span><button type="button" id="upNew2">New song</button></div>
+      <div class="up-err" id="upSaveErr" role="alert" hidden></div>
+      <div class="up-fallback" id="upFallback" hidden><div class="up-warn">Copy did not work here. Select all of this text and copy it:</div><textarea id="upFallbackTxt" readonly></textarea></div>
       <div class="up-fields">
         <label>Song title or album<input id="upTitle" type="text" autocomplete="off" spellcheck="false" placeholder="Hotel California"></label>
         <label>Artist<input id="upArtist" type="text" autocomplete="off" spellcheck="false" placeholder="Eagles"></label>
@@ -1935,12 +1942,8 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
       <div class="up-row up-lockrow" id="upLockRow" hidden><button type="button" id="upLock" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2" fill="currentColor"/><path class="shk" d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.2"/></svg><span>Lock</span></button><span class="up-lockhint" id="upLockHint"></span></div>
       <div class="up-review" id="upReview" hidden></div>
       <div class="up-secs" id="upSecs" aria-label="Song sections in play order"><div class="up-empty">No song yet. Copy the form for an AI below, then paste its answer.</div></div>
-      <div class="up-row"><button type="button" id="upCopy">Copy for AI</button><span class="up-pv" id="upPv" role="radiogroup" aria-label="Chords to ask for"><button type="button" role="radio" data-pv="simple" aria-checked="true">Simple</button><button type="button" role="radio" data-pv="full" aria-checked="false">Simple and Full</button></span><span class="up-ok" id="upCopied" hidden>Copied</span></div>
-      <div class="up-fallback" id="upFallback" hidden><div class="up-warn">Copy did not work here. Select all of this text and copy it:</div><textarea id="upFallbackTxt" readonly></textarea></div>
       <label class="up-paste"><span class="up-warn">Paste the AI&rsquo;s answer</span><textarea id="upPaste" spellcheck="false" placeholder="{ &quot;contractVersion&quot;: &quot;1.2&quot;, &quot;songs&quot;: [ ... ] }"></textarea></label>
-      <div class="up-row"><button type="button" id="upLoad">Load</button><button type="button" id="upNew">New song</button><button type="button" id="upRemove" hidden>Remove song</button></div>
-      <div class="up-err" id="upErr" role="alert" hidden></div>
-      <div class="up-msg" id="upMsg" role="status" hidden></div>
+      <div class="up-lib" id="upLib" hidden><div class="ul-h">My songs <small id="upLibN"></small></div><ul class="ul-list" id="upLibList" role="list"></ul></div>
     </div>
   </div>
   <script type="application/json" id="songSchemaJson">
@@ -2422,7 +2425,7 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 90;
+var APP_VERSION = 91;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -8247,6 +8250,7 @@ function accSym(s) {
     if (!a) {   // v89: the title is optional (empty = songs by the artist)
       upShowErrors({ ok: false, errors: [{ path: "Artist", msg: "is empty: type it so the AI knows whose songs to look up" }] });
       document.getElementById("upArtist").focus();
+      var eb = document.getElementById("upErr"); if (eb.scrollIntoView) eb.scrollIntoView({ block: "nearest" });   // v91: the error is near the top
       return;
     }
     err.hidden = true;
@@ -8287,13 +8291,18 @@ function accSym(s) {
     document.getElementById("upCopy").addEventListener("click", upCopy);
     document.getElementById("upPv").addEventListener("click", function (e) { var b = e.target.closest ? e.target.closest("[data-pv]") : null; if (b) upSetPrompt(b.dataset.pv); });
     var upLoading = false;
+    // v91: the summary / errors sit right under the action row; bring them into view
+    function upStatusIntoView() {
+      var box = pick.querySelector(".kp-box"), acts = document.getElementById("upActions");
+      box.scrollTop = Math.max(0, acts.offsetTop - box.offsetTop - 8);
+    }
     function loadDone(r) {
       upLoading = false;
       var msg = document.getElementById("upMsg"), note = document.getElementById("upNote");
       upShowErrors(r);
       if (r.full) { var fe = document.getElementById("upErr"); fe.textContent = "My songs is full, remove one first"; fe.hidden = false; }
       if (r.saveFail) { var se = document.getElementById("upErr"); se.textContent = "Couldn't save, storage is full"; se.hidden = false; }
-      if (!r.ok) { note.hidden = true; return; }
+      if (!r.ok) { note.hidden = true; upStatusIntoView(); return; }
       if (!r.list) {
         var n = U.events.length, fl = upFlagList().length;
         msg.textContent = "Loaded " + U.title + ": " + U.secs.length + " sections, " + n + " chords, " + U.bpm + " BPM." +   // v87: no key on the Upload form
@@ -8313,7 +8322,7 @@ function accSym(s) {
       paintUpload();
       upEmptyRefresh();
       note.hidden = false;   // v73: clear path to the next song
-      pick.querySelector(".kp-box").scrollTop = 0;
+      upStatusIntoView();
     }
     document.getElementById("upLoad").addEventListener("click", function () {
       if (upLoading) return;   // v89: a Load tap during a run is ignored (Load itself stays tappable)
@@ -8328,6 +8337,7 @@ function accSym(s) {
       (function step() {
         if (k >= N) { loadDone(upLoadCommit(L)); return; }
         msg.textContent = "Checking song " + (k + 1) + " of " + N + "\u2026"; msg.hidden = false;
+        if (k === 0) upStatusIntoView();
         upLoadCheck(L, k++);
         setTimeout(step, 0);
       })();
