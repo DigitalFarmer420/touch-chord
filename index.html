@@ -1617,6 +1617,11 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
   box-shadow: inset 0 0 0 3px #c4853f, inset 0 0 0 5px rgba(20, 12, 4, .35); animation: nxPulse 1.5s ease-in-out infinite; }
 .kb .pad.nx-root::before { content: ""; position: absolute; left: 50%; top: 9px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%;
   background: #c4853f; box-shadow: 0 0 0 1.5px rgba(20, 12, 4, .45); pointer-events: none; z-index: 4; }
+/* v79 Kids tap-to-advance: a quick gold flash on the tapped gold pad / key and on the new gold */
+@keyframes kgTap { 0% { filter: brightness(1.8); box-shadow: 0 0 0 0 rgba(236, 178, 92, .95); } 100% { filter: none; box-shadow: 0 0 0 10px rgba(236, 178, 92, 0); } }
+@keyframes kgTapR { 0% { filter: brightness(1.8); } 100% { filter: none; } }
+#suggest.kids1 .ss-kidpad.kgtap, html.simple #suggest.kids1 .ss-kidpad.kgtap, .kb .pad.kgtap { animation: kgTap .4s ease-out 1 !important; }
+@media (prefers-reduced-motion: reduce) { #suggest.kids1 .ss-kidpad.kgtap, html.simple #suggest.kids1 .ss-kidpad.kgtap, .kb .pad.kgtap { animation: kgTapR .4s ease-out 1 !important; } }
 .ss .ss-chip.nx, .ss .ss-note.nx { outline: 2px solid #c4853f; outline-offset: 1px; animation: nxPulseO 1.5s ease-in-out infinite; }
 html.simple .nx::after, html.simple .nx::before { display: none; }
 html.simple .ss .nx { outline: none; animation: none; }
@@ -1813,12 +1818,12 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=78" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=79" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=78" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=79" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1827,19 +1832,19 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
       </ol>
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=78" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=79" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=78" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=79" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=78" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=79" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the smiley face, and sad ones sit below the frown. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=78" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=79" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=78" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=79" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Full Range enables all keys to be available.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
@@ -2181,7 +2186,7 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 78;
+var APP_VERSION = 79;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -4840,6 +4845,7 @@ function accSym(s) {
   function onPadDown(e) {
     if (e.button != null && e.button !== 0) return;
     e.preventDefault();
+    if (kidsGoldKey(e.currentTarget)) { kidsGoldGo(e.currentTarget, "key"); return; }   // v79
     var needReplay = !(ChordAudio.ctx && ChordAudio.ctx.state === "running");
     var pending = unlock();
     try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
@@ -5746,6 +5752,7 @@ function accSym(s) {
       clearTimeout(pressT);
       b.classList.add("press");
       try { b.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+      if (kidsGoldPad(b)) { kidsGoldGo(b, "pad"); return; }   // v79
       stripDown(item, e.pointerId);
     });
     function up(e) { upAt = Date.now(); unpress(); stripUp(e.pointerId); }
@@ -5755,6 +5762,7 @@ function accSym(s) {
     // Keyboard (Enter / Space) still plays a preview; the click after a pointer release is skipped.
     b.addEventListener("click", function () {
       if (upAt && Date.now() - upAt < 700) { upAt = 0; return; }
+      if (kidsGoldPad(b)) { kidsGoldGo(b, "pad"); return; }   // v79 (Enter / Space)
       stripTap(item);
     });
   }
@@ -6533,26 +6541,85 @@ function accSym(s) {
   function paintKidsHint() {
     var item = kidsHintItem();
     if (!item) return;
-    var pads = document.querySelectorAll("#suggest .ss-kidpad");
-    for (var i = 0; i < pads.length; i++) {
-      var it = pads[i]._tc && pads[i]._tc.item;
-      if (it && wrap12(it.rootPc) === wrap12(item.rootPc) && (it.type === "minor") === (item.type === "minor")) { pads[i].classList.add("nx", "nx-root"); break; }
-    }
+    var gp = kidsGoldPadEl(item);
+    if (gp) gp.classList.add("nx", "nx-root");
     var outlined = [];
     if (!state.simple) {
       var chip = document.querySelector("#suggest .ss-kid");
       if (chip) chip.classList.add("nx");
-      var spec = kidsSoloSpec(nextHintSpec(item), item.rootPc);
-      var mids = highlightMidisFromSpec(spec.midis);
-      var keys = padsEl.querySelectorAll(".pad");
-      for (var k = 0; k < keys.length; k++) {
-        if (!mids[keys[k].dataset.midi] || keys[k].classList.contains("out")) continue;
-        keys[k].classList.add("nx", "nx-root");
-        outlined.push(keys[k]);
-        break;
-      }
+      var gk = kidsGoldKeyEl(item);
+      if (gk) { gk.classList.add("nx", "nx-root"); outlined.push(gk); }
     }
     nextHintArrow(outlined);
+  }
+  // The gold pad: the pad with the step's root and major/minor; v79: if no pad has that
+  // quality (Spooky's major V in a minor key: the pad is the minor v), the pad with that root.
+  function kidsGoldPadEl(item) {
+    var pads = document.querySelectorAll("#suggest .ss-kidpad"), byRoot = null;
+    for (var i = 0; i < pads.length; i++) {
+      var it = pads[i]._tc && pads[i]._tc.item;
+      if (!it || wrap12(it.rootPc) !== wrap12(item.rootPc)) continue;
+      if ((it.type === "minor") === (item.type === "minor")) return pads[i];
+      if (!byRoot) byRoot = pads[i];
+    }
+    return byRoot;
+  }
+  // The gold key: the keyboard key that shows the step's song note (the same key the hint paints).
+  function kidsGoldKeyEl(item) {
+    var spec = kidsSoloSpec(nextHintSpec(item), item.rootPc);
+    var mids = highlightMidisFromSpec(spec.midis);
+    var keys = padsEl.querySelectorAll(".pad");
+    for (var k = 0; k < keys.length; k++) {
+      if (!mids[keys[k].dataset.midi] || keys[k].classList.contains("out")) continue;
+      return keys[k];
+    }
+    return null;
+  }
+  // v79 Kids tap-to-advance: tapping the gold PAD (that chord pad) or the gold KEY (that exact
+  // MIDI key) plays the step's single song note and moves the walk on, exactly like Next
+  // (magicAdvance). Repeated notes advance too. After the last step the walk goes back to the
+  // start. Not during Play song (its timer owns the walk). Any other tap: unchanged (chord).
+  function kidsGoldStep() {
+    if (state.style !== "kids" || prog.playing || !prog.steps.length || typeof magic === "undefined" || !magic) return null;
+    var d = magicQueue();
+    return d && d.step >= 0 && d.item ? d : null;
+  }
+  function kidsGoldPad(b) {
+    if (!b || !b.classList.contains("ss-kidpad") || !b._tc) return false;
+    var d = kidsGoldStep();
+    return !!(d && kidsGoldPadEl(d.item) === b);
+  }
+  function kidsGoldKey(pad) {   // exact key: the gold key itself, not the same note in another octave
+    if (!pad || state.simple || pad.dataset.midi == null || pad.dataset.midi === "") return false;
+    var d = kidsGoldStep();
+    var gk = d ? kidsGoldKeyEl(d.item) : null;
+    return !!(gk && Number(pad.dataset.midi) === Number(gk.dataset.midi));
+  }
+  function kidsTapPulse(el) {
+    if (!el) return;
+    el.classList.remove("kgtap");
+    void el.offsetWidth;   // restart the flash on a repeated tap
+    el.classList.add("kgtap");
+    clearTimeout(el._kgT);
+    el._kgT = setTimeout(function () { el.classList.remove("kgtap"); }, 450);
+    if (PROG_TEST) kidsTapLog.pulses++;
+  }
+  var kidsTapLog = { taps: [], pulses: 0 };
+  if (PROG_TEST) window.__kidsTap = kidsTapLog;
+  function kidsGoldGo(el, kind) {
+    var d = kidsGoldStep();
+    if (!d) return;
+    var last = d.step === prog.steps.length - 1;
+    magicAdvance();   // plays the single song note (kidsSolo), queues and paints the next gold
+    if (last) {
+      // end of the song: wrap to step 1 (the gold goes back to the first note)
+      magic.pos = 0; magic.next = null;
+      magicQueue();
+      paintNextHint();
+    }
+    if (PROG_TEST) kidsTapLog.taps.push({ kind: kind, step: d.step, pos: magic.pos, wrap: last });
+    kidsTapPulse(el);
+    Array.prototype.forEach.call(document.querySelectorAll("#suggest .ss-kidpad.nx-root, #pads .pad.nx-root"), function (n) { if (n !== el) kidsTapPulse(n); });
   }
   function paintNextHint() {
     clearNextHintDom();
