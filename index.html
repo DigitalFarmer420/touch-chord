@@ -1779,6 +1779,23 @@ html.lay-phone-land .up-lib .ul-open, html.lay-phone-land .up-lib .ul-del { min-
 /* v73: "Song loaded" line at the top of the panel, with its own New song button */
 .up-note { font-size: 13px; color: #8fd18f; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .up-note[hidden] { display: none; }
+/* v89: mode hint, multi-song summary, album line in My songs */
+.up-ask { font-size: 12px; color: var(--muted); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: -2px; }
+.up-ask[hidden] { display: none; }
+.up-msg .us-l { display: block; }
+.up-msg .us-l + .us-l { font-weight: 600; color: #b9dcb9; }
+.up-msg details { margin-top: 4px; font-weight: 600; color: var(--ink); }
+.up-msg summary { cursor: pointer; color: #8fd18f; font-weight: 700; }
+.up-msg .us-list { list-style: none; margin: 4px 0 0; padding: 0 2px 0 0; max-height: 168px; overflow-y: auto; overscroll-behavior: contain; font-size: 12.5px; }
+html.lay-phone-land .up-msg .us-list { max-height: 120px; }
+.up-msg .us-list li { padding: 3px 0; border-top: 1px solid rgba(255,255,255,.06); overflow-wrap: anywhere; }
+.up-msg .us-list li.sk { color: #ffd0cc; }
+.up-msg .us-list li.fl { color: #f0c987; }
+.up-msg .us-list code { font-size: 11.5px; }
+.up-lib .ul-open .ul-sub { display: flex; min-width: 0; max-width: 100%; }
+.up-lib .ul-open .ul-sub span { max-width: none; }
+.up-lib .ul-open .ul-art { flex: 0 1 auto; min-width: 0; }
+.up-lib .ul-open .ul-alb { flex: 0 1000 auto; min-width: 0; }
 .up-note button { min-height: 30px; height: 30px; padding: 0 10px; font-size: 13px; border-radius: 9px; }
 /* v73: an uploaded song on the grid shows no sequence numbers (badges, Roman numerals) */
 html.up-nonum .ss .pg-badge, html.up-nonum .prog .pg-num { display: none !important; }
@@ -1818,12 +1835,12 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=88" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=89" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=88" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=89" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1832,19 +1849,19 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
       </ol>
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=88" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=89" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=88" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=89" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=88" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=89" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the smiley face, and sad ones sit below the frown. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=88" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=89" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=88" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=89" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Full Range enables all keys to be available.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
@@ -1910,16 +1927,17 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
       <div class="up-err" id="upSaveErr" role="alert" hidden></div>
       <div class="up-note" id="upNote" role="status" hidden><span>Song loaded. Tap New song to start another.</span><button type="button" id="upNew2">New song</button></div>
       <div class="up-fields">
-        <label>Song title<input id="upTitle" type="text" autocomplete="off" spellcheck="false" placeholder="Hotel California"></label>
+        <label>Song title or album<input id="upTitle" type="text" autocomplete="off" spellcheck="false" placeholder="Hotel California"></label>
         <label>Artist<input id="upArtist" type="text" autocomplete="off" spellcheck="false" placeholder="Eagles"></label>
       </div>
+      <div class="up-ask" id="upAsk" aria-live="polite" hidden></div>
       <div class="up-key" aria-live="polite"><div class="uk-kbox" hidden><div class="uk-l">Key</div><div class="uk-k" id="upKey">&mdash;</div></div><div class="uk-t" id="upTempo">No song loaded</div></div>
       <div class="up-row up-lockrow" id="upLockRow" hidden><button type="button" id="upLock" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2" fill="currentColor"/><path class="shk" d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.2"/></svg><span>Lock</span></button><span class="up-lockhint" id="upLockHint"></span></div>
       <div class="up-review" id="upReview" hidden></div>
       <div class="up-secs" id="upSecs" aria-label="Song sections in play order"><div class="up-empty">No song yet. Copy the form for an AI below, then paste its answer.</div></div>
       <div class="up-row"><button type="button" id="upCopy">Copy for AI</button><span class="up-pv" id="upPv" role="radiogroup" aria-label="Chords to ask for"><button type="button" role="radio" data-pv="simple" aria-checked="true">Simple</button><button type="button" role="radio" data-pv="full" aria-checked="false">Simple and Full</button></span><span class="up-ok" id="upCopied" hidden>Copied</span></div>
       <div class="up-fallback" id="upFallback" hidden><div class="up-warn">Copy did not work here. Select all of this text and copy it:</div><textarea id="upFallbackTxt" readonly></textarea></div>
-      <label class="up-paste"><span class="up-warn">Paste the AI&rsquo;s answer</span><textarea id="upPaste" spellcheck="false" placeholder="{ &quot;contractVersion&quot;: &quot;1.1&quot;, ... }"></textarea></label>
+      <label class="up-paste"><span class="up-warn">Paste the AI&rsquo;s answer</span><textarea id="upPaste" spellcheck="false" placeholder="{ &quot;contractVersion&quot;: &quot;1.2&quot;, &quot;songs&quot;: [ ... ] }"></textarea></label>
       <div class="up-row"><button type="button" id="upLoad">Load</button><button type="button" id="upNew">New song</button><button type="button" id="upRemove" hidden>Remove song</button></div>
       <div class="up-err" id="upErr" role="alert" hidden></div>
       <div class="up-msg" id="upMsg" role="status" hidden></div>
@@ -1929,64 +1947,171 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://digitalfarmer420.github.io/touch-chord/schema/song-contract-v1.json",
-  "title": "Touch Chord Song Contract v1.1",
-  "description": "A song's key, timed chords by section, lyric chord markers and per-chord confidence, for upload into Touch Chord. 1.1 adds the optional sectionsFull (a second, fuller version of the chords).",
+  "title": "Touch Chord Song Contract v1.2",
+  "description": "A song's key, timed chords by section, lyric chord markers and per-chord confidence, for upload into Touch Chord. 1.1 adds the optional sectionsFull (a second, fuller version of the chords). 1.2 adds the song list (song-list-contract.schema.json) and tightens song.album (optional, never empty). This file is ONE song; 1.0 and 1.1 answers still load.",
   "type": "object",
-  "required": ["contractVersion", "song", "timing", "sections"],
+  "required": [
+    "contractVersion",
+    "song",
+    "timing",
+    "sections"
+  ],
   "additionalProperties": false,
   "properties": {
-    "contractVersion": { "enum": ["1.0", "1.1"], "description": "1.1 adds the optional sectionsFull; 1.0 answers still load." },
+    "contractVersion": {
+      "enum": [
+        "1.0",
+        "1.1",
+        "1.2"
+      ],
+      "description": "1.2 adds song lists (see song-list-contract.schema.json); 1.0 and 1.1 answers still load."
+    },
     "song": {
       "type": "object",
-      "required": ["title", "artist", "key"],
+      "required": [
+        "title",
+        "artist",
+        "key"
+      ],
       "additionalProperties": false,
       "properties": {
-        "title": { "type": "string", "minLength": 1 },
-        "artist": { "type": "string", "minLength": 1 },
-        "album": { "type": "string" },
-        "year": { "type": "integer", "minimum": 1000, "maximum": 2100 },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "artist": {
+          "type": "string",
+          "minLength": 1
+        },
+        "album": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The album the song is on. Only when known; leave it out otherwise (never an empty string)."
+        },
+        "year": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 2100
+        },
         "key": {
           "description": "The app auto-selects this key. tonic + mode is the machine field; display is free text.",
           "type": "object",
-          "required": ["tonic", "mode"],
+          "required": [
+            "tonic",
+            "mode"
+          ],
           "additionalProperties": false,
           "properties": {
-            "tonic": { "enum": ["C","C#","Db","D","D#","Eb","E","F","F#","Gb","G","G#","Ab","A","A#","Bb","B"] },
-            "mode": { "enum": ["major", "minor"] },
-            "display": { "type": "string", "examples": ["F# major", "B minor"] },
-            "confidence": { "$ref": "#/$defs/confidence" }
+            "tonic": {
+              "enum": [
+                "C",
+                "C#",
+                "Db",
+                "D",
+                "D#",
+                "Eb",
+                "E",
+                "F",
+                "F#",
+                "Gb",
+                "G",
+                "G#",
+                "Ab",
+                "A",
+                "A#",
+                "Bb",
+                "B"
+              ]
+            },
+            "mode": {
+              "enum": [
+                "major",
+                "minor"
+              ]
+            },
+            "display": {
+              "type": "string",
+              "examples": [
+                "F# major",
+                "B minor"
+              ]
+            },
+            "confidence": {
+              "$ref": "#/$defs/confidence"
+            }
           }
         },
-        "capo": { "type": "integer", "minimum": 0, "maximum": 12, "description": "Capo fret if the source chart uses one; chords below must be CONCERT pitch regardless." },
-        "sources": { "type": "array", "items": { "type": "string" }, "description": "Where the AI got the chords (URLs or names)." }
+        "capo": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 12,
+          "description": "Capo fret if the source chart uses one; chords below must be CONCERT pitch regardless."
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Where the AI got the chords (URLs or names)."
+        }
       }
     },
     "timing": {
       "type": "object",
-      "required": ["bpm", "timeSignature"],
+      "required": [
+        "bpm",
+        "timeSignature"
+      ],
       "additionalProperties": false,
       "properties": {
-        "bpm": { "type": "number", "exclusiveMinimum": 0, "maximum": 300 },
-        "timeSignature": { "type": "string", "pattern": "^[0-9]{1,2}/(2|4|8|16)$", "examples": ["4/4", "3/4", "6/8"] },
-        "durationSeconds": { "type": "number", "minimum": 0 }
+        "bpm": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 300
+        },
+        "timeSignature": {
+          "type": "string",
+          "pattern": "^[0-9]{1,2}/(2|4|8|16)$",
+          "examples": [
+            "4/4",
+            "3/4",
+            "6/8"
+          ]
+        },
+        "durationSeconds": {
+          "type": "number",
+          "minimum": 0
+        }
       }
     },
     "sections": {
       "description": "Song sections in play order. Repeat a section by listing it again (or use repeat). With sectionsFull this is the Simple version.",
       "type": "array",
       "minItems": 1,
-      "items": { "$ref": "#/$defs/section" }
+      "items": {
+        "$ref": "#/$defs/section"
+      }
     },
     "sectionsFull": {
       "description": "Optional, only when asked for both versions: the Full version of the same song, faithful to the record (passing chords, slash chords, richer voicings), each section listed once with repeat, about 15 to 25 chord entries in all. Same section shape as sections; it shares song (and its key), timing and the lyric text, and its lyric markers point into its own chords.",
       "type": "array",
       "minItems": 1,
-      "items": { "$ref": "#/$defs/section" }
+      "items": {
+        "$ref": "#/$defs/section"
+      }
     },
-    "notes": { "type": "string", "description": "Anything the AI was unsure about." }
+    "notes": {
+      "type": "string",
+      "description": "Anything the AI was unsure about."
+    }
   },
   "$defs": {
-    "confidence": { "type": "number", "minimum": 0, "maximum": 1, "description": "0 = guess, 1 = certain. The app flags anything below 0.6." },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "0 = guess, 1 = certain. The app flags anything below 0.6."
+    },
     "chordSymbol": {
       "type": "string",
       "description": "Concert-pitch chord symbol, slash bass allowed: e.g. Bm, F#7, Amaj7, Dsus4, G/B, Bbm7b5.",
@@ -1995,36 +2120,83 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     "position": {
       "description": "Where the chord starts. bar/beat are 1-based and count from the start of the SONG; startSeconds is optional.",
       "type": "object",
-      "required": ["bar", "beat"],
+      "required": [
+        "bar",
+        "beat"
+      ],
       "additionalProperties": false,
       "properties": {
-        "bar": { "type": "integer", "minimum": 1 },
-        "beat": { "type": "number", "minimum": 1 },
-        "startSeconds": { "type": "number", "minimum": 0 }
+        "bar": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "beat": {
+          "type": "number",
+          "minimum": 1
+        },
+        "startSeconds": {
+          "type": "number",
+          "minimum": 0
+        }
       }
     },
     "chordEvent": {
       "type": "object",
-      "required": ["index", "chord", "position", "durationBeats", "confidence"],
+      "required": [
+        "index",
+        "chord",
+        "position",
+        "durationBeats",
+        "confidence"
+      ],
       "additionalProperties": false,
       "properties": {
-        "index": { "type": "integer", "minimum": 0, "description": "Order within the section, starting at 0." },
-        "chord": { "$ref": "#/$defs/chordSymbol" },
-        "roman": { "type": "string", "description": "Optional numeral relative to song.key, e.g. i, V, bVII." },
-        "position": { "$ref": "#/$defs/position" },
-        "durationBeats": { "type": "number", "exclusiveMinimum": 0 },
-        "confidence": { "$ref": "#/$defs/confidence" },
+        "index": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Order within the section, starting at 0."
+        },
+        "chord": {
+          "$ref": "#/$defs/chordSymbol"
+        },
+        "roman": {
+          "type": "string",
+          "description": "Optional numeral relative to song.key, e.g. i, V, bVII."
+        },
+        "position": {
+          "$ref": "#/$defs/position"
+        },
+        "durationBeats": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "confidence": {
+          "$ref": "#/$defs/confidence"
+        },
         "alternates": {
           "description": "Suggested substitutes for this spot, best first.",
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["chord"],
+            "required": [
+              "chord"
+            ],
             "additionalProperties": false,
             "properties": {
-              "chord": { "$ref": "#/$defs/chordSymbol" },
-              "reason": { "type": "string", "examples": ["simpler", "common live version", "jazzier"] },
-              "confidence": { "$ref": "#/$defs/confidence" }
+              "chord": {
+                "$ref": "#/$defs/chordSymbol"
+              },
+              "reason": {
+                "type": "string",
+                "examples": [
+                  "simpler",
+                  "common live version",
+                  "jazzier"
+                ]
+              },
+              "confidence": {
+                "$ref": "#/$defs/confidence"
+              }
             }
           }
         }
@@ -2032,21 +2204,38 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     },
     "lyricLine": {
       "type": "object",
-      "required": ["text", "markers"],
+      "required": [
+        "text",
+        "markers"
+      ],
       "additionalProperties": false,
       "properties": {
-        "text": { "type": "string" },
+        "text": {
+          "type": "string"
+        },
         "markers": {
           "description": "Chord changes on this line. charIndex is the 0-based character in text where the chord hits; chordIndex points into the section's chords array.",
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["charIndex", "chordIndex"],
+            "required": [
+              "charIndex",
+              "chordIndex"
+            ],
             "additionalProperties": false,
             "properties": {
-              "charIndex": { "type": "integer", "minimum": 0 },
-              "chordIndex": { "type": "integer", "minimum": 0 },
-              "beforeLine": { "type": "boolean", "description": "true if the chord hits before the first sung word (pickup/instrumental)." }
+              "charIndex": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "chordIndex": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "beforeLine": {
+                "type": "boolean",
+                "description": "true if the chord hits before the first sung word (pickup/instrumental)."
+              }
             }
           }
         }
@@ -2054,15 +2243,52 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     },
     "section": {
       "type": "object",
-      "required": ["id", "type", "chords"],
+      "required": [
+        "id",
+        "type",
+        "chords"
+      ],
       "additionalProperties": false,
       "properties": {
-        "id": { "type": "string", "description": "Unique, e.g. verse1, chorus2." },
-        "type": { "enum": ["intro", "verse", "prechorus", "chorus", "bridge", "solo", "instrumental", "interlude", "outro", "other"] },
-        "label": { "type": "string" },
-        "repeat": { "type": "integer", "minimum": 1, "default": 1 },
-        "chords": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/chordEvent" } },
-        "lyrics": { "type": "array", "items": { "$ref": "#/$defs/lyricLine" } }
+        "id": {
+          "type": "string",
+          "description": "Unique, e.g. verse1, chorus2."
+        },
+        "type": {
+          "enum": [
+            "intro",
+            "verse",
+            "prechorus",
+            "chorus",
+            "bridge",
+            "solo",
+            "instrumental",
+            "interlude",
+            "outro",
+            "other"
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "repeat": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        },
+        "chords": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/chordEvent"
+          }
+        },
+        "lyrics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/lyricLine"
+          }
+        }
       }
     }
   }
@@ -2196,7 +2422,7 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 88;
+var APP_VERSION = 89;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -7029,14 +7255,42 @@ function accSym(s) {
   var UP_FLAG = 0.6;   // confidence below this is flagged for review
   // v80: two prompts. "Simple" (default) asks for sections only; "Simple and Full" asks for both
   // versions in one answer (sections + sectionsFull). Neither asks for a key: the AI returns song.key.
-  var UP_PASTE_LINE = "Look up the song I name and fill in the JSON contract below. Return ONLY valid JSON. Keep it simple, for kids learning chords. List each section in play order, but use repeat for back-to-back repeats instead of writing them out. In each section give only the chord changes, and merge the same chord played twice in a row into one longer chord. Use plain beginner chords: major, minor, 7 or sus. Leave out passing chords, slash chords and extensions unless the song really needs them, and put the fancier version in alternates. Aim for 4 to 8 chords per section. Use concert pitch, count bars from the start of the song, give each chord an honest 0-1 confidence, and put anything unsure in notes. Song: <ARTIST - TITLE>";
-  var UP_PASTE_LINE_2 = "Look up the song I name and fill in the JSON contract below. Return ONLY valid JSON. Study the song once and give TWO versions of its chords in the same JSON. 1) \"sections\" is the Simple version, for kids learning chords: list each section in play order, but use repeat for back-to-back repeats instead of writing them out; give only the chord changes and merge the same chord played twice in a row into one longer chord; use plain beginner chords (major, minor, 7 or sus), leave out passing chords, slash chords and extensions unless the song really needs them, put the fancier version in alternates, and aim for 4 to 8 chords per section. 2) \"sectionsFull\" is the Full version, faithful to the record: keep the passing chords, slash chords and richer voicings as played; list each section once and mark repeats with repeat; about 15 to 25 chord entries across the whole song. Both versions share one song block, one timing block and the same lyric text, but each version's lyric markers point into that version's own chords array. Use concert pitch, count bars from the start of the song, give each chord an honest 0-1 confidence, and put anything unsure in notes. Song: <ARTIST - TITLE>";
+  // v89: one prompt template for every mode (contract 1.2 song list): HEAD + RULES(variant) + TAIL + ASK(mode) + SKIP(mode).
+  // UP_PASTE_LINE / UP_PASTE_LINE_2 are now the Simple and Simple-and-Full RULES.
+  var UP_HEAD = "Fill in the song form in the JSON contract below once for each song I ask for. Return ONLY valid JSON: one object with \"contractVersion\": \"1.2\" and a \"songs\" list holding one filled-in song form per song (song, timing, sections; leave contractVersion out of each song). Put the album in song.album only if you know it; otherwise leave album out, never an empty string. If the list has more than 3 songs, leave out lyrics to keep the answer short.";
+  var UP_PASTE_LINE = "Keep it simple, for kids learning chords. List each section in play order, but use repeat for back-to-back repeats instead of writing them out. In each section give only the chord changes, and merge the same chord played twice in a row into one longer chord. Use plain beginner chords: major, minor, 7 or sus. Leave out passing chords, slash chords and extensions unless the song really needs them, and put the fancier version in alternates. Aim for 4 to 8 chords per section.";
+  var UP_PASTE_LINE_2 = "Study each song once and give TWO versions of its chords in its song form. 1) \"sections\" is the Simple version, for kids learning chords: list each section in play order, but use repeat for back-to-back repeats instead of writing them out; give only the chord changes and merge the same chord played twice in a row into one longer chord; use plain beginner chords (major, minor, 7 or sus), leave out passing chords, slash chords and extensions unless the song really needs them, put the fancier version in alternates, and aim for 4 to 8 chords per section. 2) \"sectionsFull\" is the Full version, faithful to the record: keep the passing chords, slash chords and richer voicings as played; list each section once and mark repeats with repeat; about 15 to 25 chord entries across the whole song. Both versions share one song block, one timing block and the same lyric text, but each version's lyric markers point into that version's own chords array.";
+  var UP_TAIL = "Use concert pitch, count bars from the start of each song, give each chord an honest 0-1 confidence, and put anything unsure in that song's notes. If you can't find a song's chords, leave that song out rather than guess, and name it in the top-level notes.";
+  var UP_ARTIST_MAX = 10, UP_ALBUM_MAX = 25, UP_SKIP_MAX = 40, UP_LIST_MAX = 25;
   var upPromptVer = "simple";
-  var upSchemaText = "", upSchema = null;
+  var upSchemaText = "", upSchema = null, upListSchemaText = "";
   (function () {
     var s = document.getElementById("songSchemaJson");
     upSchemaText = s ? s.textContent.replace(/^\s+|\s+$/g, "") : "";
     try { upSchema = JSON.parse(upSchemaText); } catch (err) { upSchema = null; }
+    // v89: the song-list schema (song-list-contract.schema.json) is built from the one-song schema
+    if (upSchema) {
+      var item = { description: "One song: the same form as song-contract.schema.json v1.2, without contractVersion (the list carries it).",
+        type: "object", required: ["song", "timing", "sections"], additionalProperties: false, properties: {} };
+      Object.keys(upSchema.properties).forEach(function (k) {
+        item.properties[k] = k === "contractVersion" ? { "enum": upSchema.properties.contractVersion["enum"], description: "Optional here; leave it out." } : upSchema.properties[k];
+      });
+      var defs = { songItem: item };
+      Object.keys(upSchema.$defs || {}).forEach(function (k) { defs[k] = upSchema.$defs[k]; });
+      upListSchemaText = JSON.stringify({
+        "$schema": upSchema.$schema,
+        "$id": "https://digitalfarmer420.github.io/touch-chord/schema/song-list-contract-v1.json",
+        title: "Touch Chord Song List Contract v1.2",
+        description: "Several songs in one answer (all songs on an album, or several songs by one artist). Each item in songs is one song form. A bare JSON list of song forms also loads.",
+        type: "object", required: ["contractVersion", "songs"], additionalProperties: false,
+        properties: {
+          contractVersion: { "const": "1.2" },
+          songs: { type: "array", minItems: 1, maxItems: UP_LIST_MAX, description: "One entry per song. Album: every song in track order. Artist: at most 10.", items: { "$ref": "#/$defs/songItem" } },
+          notes: { type: "string", description: "Anything about the whole list, e.g. songs left out because their chords could not be found." }
+        },
+        "$defs": defs
+      }, null, 2);
+    }
   })();
   var U = null;   // the loaded song (see upBuild)
   var upProgObj = null;
@@ -7174,6 +7428,53 @@ function accSym(s) {
       });
     }
   }
+  // v89: answer parsing (port of v89-multi-song/ref.js): fences, string-aware brace matching,
+  // single / envelope / bare list, and salvage of the complete songs from a cut-off list.
+  function upStripFences(s) { var m = /```[a-zA-Z]*\s*\n?([\s\S]*?)(```|$)/.exec(s); return m ? m[1] : s; }
+  function upMatchEnd(s, i) {
+    var depth = 0, str = false, esc = false;
+    for (var j = i; j < s.length; j++) {
+      var c = s[j];
+      if (str) { if (esc) esc = false; else if (c === "\\") esc = true; else if (c === "\"") str = false; continue; }
+      if (c === "\"") str = true; else if (c === "{" || c === "[") depth++;
+      else if (c === "}" || c === "]") { depth--; if (depth === 0) return j + 1; }
+    }
+    return -1;
+  }
+  function upSalvageList(s, i) {
+    var out = [], j = i + 1;
+    for (;;) {
+      while (j < s.length && /[\s,]/.test(s[j])) j++;
+      if (j >= s.length || s[j] !== "{") break;
+      var e = upMatchEnd(s, j);
+      if (e < 0) break;
+      try { out.push(JSON.parse(s.slice(j, e))); } catch (err) { break; }
+      j = e;
+    }
+    return out;
+  }
+  // -> { kind: "single"|"list", items, envelope, truncated } or { error: "empty"|"nojson"|"badjson", listy }
+  function upParseAnswer(text) {
+    var s = upStripFences(String(text || "")), a = s.indexOf("{"), b = s.indexOf("[");
+    if (!s.trim()) return { error: "empty" };
+    var starts = [a, b].filter(function (n) { return n >= 0; }).sort(function (x, y) { return x - y; });
+    if (!starts.length) return { error: "nojson" };
+    for (var k = 0; k < starts.length; k++) {
+      var st = starts[k], end = upMatchEnd(s, st);
+      if (end < 0) continue;
+      var v; try { v = JSON.parse(s.slice(st, end)); } catch (err) { continue; }
+      if (Array.isArray(v) && !(v.length && v.every(function (x) { return x && typeof x === "object" && !Array.isArray(x); }))) continue;
+      if (Array.isArray(v)) return { kind: "list", items: v, envelope: null, truncated: false };
+      if (v && Array.isArray(v.songs)) return { kind: "list", items: v.songs, envelope: v, truncated: false };
+      if (v && typeof v === "object") return { kind: "single", items: [v], envelope: null, truncated: false };
+    }
+    var m = /"songs"\s*:\s*\[/.exec(s), li = m ? m.index + m[0].length - 1 : (b >= 0 && (a < 0 || b < a) ? b : -1);
+    if (li >= 0) {
+      var items = upSalvageList(s, li);
+      if (items.length) return { kind: "list", items: items, envelope: null, truncated: true };
+    }
+    return { error: "badjson", listy: li >= 0 };
+  }
   // Text -> { ok, song, errors: [{path, msg}], warnings: [] }. Strips ``` fences and any prose
   // around the JSON (first "{" to last "}").
   function upCheck(text) {
@@ -7192,7 +7493,18 @@ function accSym(s) {
       out.errors.push({ path: "(JSON)", msg: "is not valid JSON" + where + ": " + msg.replace(/^JSON\.parse: /, "") });
       return out;
     }
+    return upCheckObj(obj);
+  }
+  // v89: check one parsed song form. Empty song.album is dropped (with a warning) so 1.0 / 1.1 answers
+  // with "album": "" still load; album is trimmed.
+  function upCheckObj(obj) {
+    var out = { ok: false, song: null, errors: [], warnings: [] };
     if (!upSchema) { out.errors.push({ path: "(app)", msg: "song schema missing from this build" }); return out; }
+    if (obj && typeof obj === "object" && obj.song && typeof obj.song === "object" && typeof obj.song.album === "string") {
+      var al = obj.song.album.trim();
+      if (!al) { delete obj.song.album; out.warnings.push("song.album was empty; left out"); }
+      else obj.song.album = al;
+    }
     upValidate(obj, upSchema, "", out.errors);
     if (!out.errors.length) {
       var lists = [["sections", obj.sections]];
@@ -7438,22 +7750,139 @@ function accSym(s) {
     for (var i = 0; i < prog.list.length; i++) if (prog.list[i].up) { progSet(i); break; }
     upSave();
   }
+  // v89: stored song = a copy stamped 1.1 (so v77-v88 builds read it); entry.album from song.album
+  function upStoreCopy(song) { var c = JSON.parse(JSON.stringify(song)); c.contractVersion = "1.1"; return c; }
   function upLoad(text) {
     var r = upCheck(text);
     if (!r.ok) return r;
+    return upLoadOne(r);
+  }
+  function upLoadOne(r) {
     // v77: same title + artist updates that song (same id); a new one needs room (never evict).
     var ent = libFind(r.song.song.title, r.song.song.artist);
     if (!ent && LIB.songs.length >= LIB_MAX) { r.ok = false; r.full = true; r.errors = [{ path: "My songs", msg: "is full" }]; return r; }
     progStop();
     if (state.style === "kids") { var pb = document.querySelector("#styles button[data-style=\"pop\"]"); if (pb) pb.click(); }
-    if (ent) { ent.title = String(r.song.song.title).trim(); ent.artist = String(r.song.song.artist).trim(); ent.song = r.song; ent.choice = {}; ent.reviewed = {}; ent.locked = true; ent.liveKey = null; delete ent.ver; r.updated = true; }
-    else { ent = { id: libId(), title: String(r.song.song.title).trim(), artist: String(r.song.song.artist).trim(), added: Date.now(), song: r.song, choice: {}, reviewed: {}, locked: true, liveKey: null }; LIB.songs.push(ent); }
+    if (ent) { ent.title = String(r.song.song.title).trim(); ent.artist = String(r.song.song.artist).trim(); ent.song = upStoreCopy(r.song); ent.choice = {}; ent.reviewed = {}; ent.locked = true; ent.liveKey = null; delete ent.ver; r.updated = true; }
+    else { ent = { id: libId(), title: String(r.song.song.title).trim(), artist: String(r.song.song.artist).trim(), added: Date.now(), song: upStoreCopy(r.song), choice: {}, reviewed: {}, locked: true, liveKey: null }; LIB.songs.push(ent); }
+    if (r.song.song.album) ent.album = r.song.song.album;
     U = upBuild(r.song, {}, {});
     U.id = ent.id;
     U.locked = true; U.liveKey = null; U.keep = true;   // v73: Lock is ON the moment a song loads
     r.key = upKeyApply(r.song.song.key.tonic, r.song.song.key.mode);
     upSelect();
     return r;
+  }
+  // v89: Load for every answer shape. Single objects (and a list giving exactly one song with no skips)
+  // keep the old path and message. Lists: each song is checked on its own, then committed in one write.
+  function upFlagCount(song) {
+    var n = 0, L = [song.sections].concat(song.sectionsFull && song.sectionsFull.length ? [song.sectionsFull] : []);
+    L.forEach(function (secs) { secs.forEach(function (sec) { sec.chords.forEach(function (c) { if (c.confidence < UP_FLAG) n++; }); }); });
+    return n;
+  }
+  function upEmptyErr(pa) {
+    return pa.error === "empty" ? { path: "(paste)", msg: "is empty: paste the AI's answer first" } : { path: "(paste)", msg: "has no JSON object in it (nothing between { and })" };
+  }
+  // Phase 1: parse. -> { done: result } (an error or the single path) or { list: {...} } to check song by song.
+  function upLoadBegin(text) {
+    var pa = upParseAnswer(text);
+    if (pa.error === "empty" || pa.error === "nojson") return { done: { ok: false, single: true, errors: [upEmptyErr(pa)], warnings: [] } };
+    if (pa.error) {
+      var r0 = upCheck(text);   // the old JSON error text (line, column)
+      if (r0.ok) return { done: upLoadOne(r0) };
+      if (pa.listy) {   // a cut-off song list with no complete song in it
+        var je = r0.errors.filter(function (e) { return e.path === "(JSON)"; })[0], lc = je && /\(line \d+, column \d+\)/.exec(je.msg);
+        if (!lc) { var ls = String(text).replace(/\s+$/, "").split("\n"); lc = ["(line " + ls.length + ", column " + (ls[ls.length - 1].length + 1) + ")"]; }
+        r0.errors = [{ path: "(JSON)", msg: "is not valid JSON " + lc[0] + ": the answer was cut off. Ask the AI for fewer songs, or ask it to continue." }];
+      }
+      r0.single = !pa.listy;
+      return { done: r0 };
+    }
+    if (pa.kind === "single") {
+      var r1 = upCheckObj(pa.items[0]); r1.single = true;
+      return { done: r1.ok ? upLoadOne(r1) : r1 };
+    }
+    var L = { items: pa.items, envelope: pa.envelope, truncated: pa.truncated, warnings: [], errors: [], rows: [] };
+    if (pa.envelope) {
+      upValidate(pa.envelope.contractVersion, { "enum": ["1.2"] }, "contractVersion", L.errors);
+      Object.keys(pa.envelope).forEach(function (k) { if (k !== "contractVersion" && k !== "songs" && k !== "notes") L.warnings.push(k + " is not a field of the song list"); });
+    }
+    if (!pa.items.length) L.errors.push({ path: "songs", msg: "has no songs in it" });
+    if (L.errors.length) return { done: { ok: false, list: true, errors: L.errors, warnings: L.warnings, rows: [] } };
+    return { list: L };
+  }
+  // Phase 2: check song i (answer order).
+  function upLoadCheck(L, i) {
+    var it = L.items[i], row = { i: i, title: it && it.song && typeof it.song.title === "string" && it.song.title.trim() ? it.song.title.trim() : "" };
+    L.rows.push(row);
+    if (i >= UP_LIST_MAX) { row.status = "skipped"; row.reason = "more than " + UP_LIST_MAX + " in one answer"; return; }
+    if (!it || typeof it !== "object" || Array.isArray(it)) { row.status = "skipped"; row.reason = "is not a song form"; row.errors = [{ path: "songs[" + i + "]", msg: "must be an object { }" }]; return; }
+    var o = JSON.parse(JSON.stringify(it));
+    if (!Object.prototype.hasOwnProperty.call(o, "contractVersion")) o.contractVersion = "1.2";
+    var r = upCheckObj(o);
+    if (!r.ok) { row.status = "skipped"; row.reason = "has problems"; row.errors = r.errors; return; }
+    var k = libKey(r.song.song.title, r.song.song.artist);
+    for (var j = 0; j < L.rows.length - 1; j++) if (L.rows[j].key === k && L.rows[j].song) { row.status = "skipped"; row.reason = "listed twice in this answer"; return; }
+    row.key = k; row.song = r.song; row.warnings = r.warnings; row.flags = upFlagCount(r.song);
+  }
+  // Phase 3: commit in answer order on the library (one write; rolled back if storage is full).
+  function upLoadCommit(L) {
+    var R = { ok: false, list: true, rows: L.rows, loaded: 0, updated: 0, skipped: 0, capSkipped: 0, truncated: L.truncated, warnings: L.warnings, errors: [],
+      notes: L.envelope && typeof L.envelope.notes === "string" ? L.envelope.notes : "" };
+    var snap = JSON.stringify(LIB), room = LIB_MAX - LIB.songs.length, now = Date.now(), first = null, firstUp = null;
+    L.rows.forEach(function (row) {
+      if (!row.song) return;
+      var song = row.song, ent = libFind(song.song.title, song.song.artist);
+      if (ent) {
+        var oldAl = ent.album || (ent.song && ent.song.song && ent.song.song.album) || "";
+        ent.title = String(song.song.title).trim(); ent.artist = String(song.song.artist).trim(); ent.song = upStoreCopy(song);
+        ent.choice = {}; ent.reviewed = {}; ent.locked = true; ent.liveKey = null; delete ent.ver;
+        if (song.song.album) { ent.album = song.song.album; if (song.song.album !== oldAl) row.albumNow = song.song.album; }
+        else if (oldAl) ent.album = oldAl;
+        row.status = "updated"; row.ent = ent; if (!firstUp) firstUp = row;
+      } else if (room > 0) {
+        ent = { id: libId(), title: String(song.song.title).trim(), artist: String(song.song.artist).trim(), added: now - row.i, song: upStoreCopy(song), choice: {}, reviewed: {}, locked: true, liveKey: null };
+        if (song.song.album) ent.album = song.song.album;
+        LIB.songs.push(ent); room--;
+        row.status = "new"; row.ent = ent; if (!first) first = row;
+      } else { row.status = "skipped"; row.reason = "My songs is full"; R.capSkipped++; }
+    });
+    L.rows.forEach(function (row) { if (row.status === "new") R.loaded++; else if (row.status === "updated") R.updated++; else R.skipped++; });
+    var act = first || firstUp;
+    if (!act) {
+      R.errors = upListErrors(L.rows);
+      return R;
+    }
+    if (!libWrite()) { LIB = JSON.parse(snap); R.loaded = R.updated = 0; R.saveFail = true; R.errors = [{ path: "My songs", msg: "Couldn't save, storage is full" }]; paintLib(); return R; }
+    progStop();
+    if (state.style === "kids") { var pb = document.querySelector("#styles button[data-style=\"pop\"]"); if (pb) pb.click(); }
+    U = upBuild(act.song, {}, {});
+    U.id = act.ent.id;
+    U.locked = true; U.liveKey = null; U.keep = true;
+    R.key = upKeyApply(act.song.song.key.tonic, act.song.song.key.mode);
+    R.active = act.ent.title;
+    upSelect();
+    R.ok = true;
+    // exactly one song and nothing skipped: the old single-song result
+    if (L.rows.length === 1 && !R.skipped) { R.list = false; R.single = true; R.warnings = R.warnings.concat(act.warnings || []); R.updated1 = act.status === "updated"; }
+    return R;
+  }
+  function upListErrors(rows) {
+    var out = [];
+    rows.forEach(function (row) {
+      if (row.status !== "skipped") return;
+      var who = "Song " + (row.i + 1) + (row.title ? " (" + row.title + ")" : "");
+      if (row.errors && row.errors.length) row.errors.forEach(function (e) { out.push({ path: who + ": " + e.path, msg: e.msg }); });
+      else out.push({ path: who, msg: row.reason === "My songs is full" ? "My songs: is full" : row.reason });
+    });
+    return out;
+  }
+  // Synchronous Load (the test hook; the button runs the same phases with a progress line).
+  function upLoadAll(text) {
+    var b = upLoadBegin(text);
+    if (b.done) return b.done;
+    for (var i = 0; i < b.list.items.length; i++) upLoadCheck(b.list, i);
+    return upLoadCommit(b.list);
   }
   function upRemove() {
     var was = upSelected();
@@ -7515,6 +7944,11 @@ function accSym(s) {
   }
   function libConfirm(e) { return window.confirm("Remove " + (e ? e.title : "this song") + "?"); }
   var TRASH_SVG = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6\"/></svg>";
+  function upLibAlbum(e) { var a = e.album || (e.song && e.song.song && typeof e.song.song.album === "string" ? e.song.song.album : ""); return String(a || "").trim(); }
+  function upLibSub(e) {
+    var al = upLibAlbum(e);
+    return "<span class=\"ul-sub\"><span class=\"ul-art\">" + upEsc(e.artist) + "</span>" + (al ? "<span class=\"ul-alb\">&nbsp;\u00b7 " + upEsc(al) + "</span>" : "") + "</span>";
+  }
   function paintLib() {
     var box = document.getElementById("upLib"), list = document.getElementById("upLibList");
     if (!box || !list) return;
@@ -7525,7 +7959,7 @@ function accSym(s) {
     var act = U ? U.id : null, h = "";
     rows.forEach(function (e) {
       var on = e.id === act;
-      h += "<li class=\"ul-row" + (on ? " on" : "") + "\" data-id=\"" + upEsc(e.id) + "\"><button type=\"button\" class=\"ul-open\" data-lib=\"open\"" + (on ? " aria-current=\"true\"" : "") + "><b>" + upEsc(e.title) + "</b><span>" + upEsc(e.artist) + "</span></button>" +
+      h += "<li class=\"ul-row" + (on ? " on" : "") + "\" data-id=\"" + upEsc(e.id) + "\"><button type=\"button\" class=\"ul-open\" data-lib=\"open\"" + (on ? " aria-current=\"true\"" : "") + "><b>" + upEsc(e.title) + "</b>" + upLibSub(e) + "</button>" +
         (e.song && e.song.sectionsFull && e.song.sectionsFull.length ? "<span class=\"ul-ver\" role=\"radiogroup\" aria-label=\"" + upEsc(e.title) + " chords\">" + ["simple", "full"].map(function (v) { var on = (e.ver === "full" ? "full" : "simple") === v; return "<button type=\"button\" role=\"radio\" data-lib=\"ver\" data-ver=\"" + v + "\" aria-checked=\"" + on + "\">" + (v === "full" ? "Full" : "Simple") + "</button>"; }).join("") + "</span>" : "") +
         "<button type=\"button\" class=\"ul-del\" data-lib=\"del\" aria-label=\"Remove " + upEsc(e.title) + "\" title=\"Remove\">" + TRASH_SVG + "</button></li>";
     });
@@ -7656,15 +8090,48 @@ function accSym(s) {
     return "<div class=\"up-ly\"><div class=\"ly-c\">" + upEsc(top.replace(/\s+$/, "")) + "</div><div class=\"ly-t\">" + t + "</div></div>";
   }
   // v88: the empty-state hint shortens once both title and artist are filled in (live on input)
-  var UP_EMPTY_FULL = "No song yet. Fill in the title and artist, tap Copy for AI, paste it into any AI, then paste its answer below and tap Load.";
+  // v89: "ready" = the Artist box is filled (an empty title asks for songs by the artist)
+  var UP_EMPTY_FULL = "No song yet. Fill in the artist, and a song or album if you like. Tap Copy for AI, paste it into any AI, then paste its answer below and tap Load.";
   var UP_EMPTY_READY = "Tap Copy for AI. Paste it into any AI, then paste its answer below and tap Load.";
   function upEmptyText() {
     var ti = document.getElementById("upTitle"), ar = document.getElementById("upArtist");
-    return (ti && ar && ti.value.trim() && ar.value.trim()) ? UP_EMPTY_READY : UP_EMPTY_FULL;
+    return (ar && ar.value.trim()) ? UP_EMPTY_READY : UP_EMPTY_FULL;
   }
   function upEmptyRefresh() {
     var e = document.querySelector("#upSecs .up-empty");
     if (!U && e) { var t = upEmptyText(); if (e.textContent !== t) e.textContent = t; }
+    upAskRefresh();
+  }
+  // v89: the mode comes from the two fields (artist required; "... album" forces album mode; empty box = artist mode)
+  function upMode(text, artist) {
+    var a = String(artist || "").trim(), x = String(text || "").trim(), m = /^(.*?)\s*\balbum$/i.exec(x);
+    if (!a) return { mode: "none", x: x, artist: "" };
+    if (m) { x = m[1].replace(/[\s,:\-\u2013\u2014]+$/, ""); return x ? { mode: "album", x: x, artist: a } : { mode: "artist", x: "", artist: a }; }
+    return x ? { mode: "either", x: x, artist: a } : { mode: "artist", x: "", artist: a };
+  }
+  function upModeNow() { return upMode(document.getElementById("upTitle").value, document.getElementById("upArtist").value); }
+  function upAskRefresh() {
+    var el = document.getElementById("upAsk");
+    if (!el) return;
+    var md = upModeNow(), t = md.mode === "either" ? "Asks for: this song, or every song if it's an album" : md.mode === "album" ? "Asks for: every song on " + md.x : md.mode === "artist" ? "Asks for: up to " + UP_ARTIST_MAX + " songs by " + md.artist : "";
+    if (el.textContent !== t) el.textContent = t;
+    el.title = t;
+    el.hidden = !t;
+  }
+  function upAskLine(md) {
+    function q(v) { return "\"" + v + "\""; }
+    if (md.mode === "either") return "What I want: " + q(md.x) + " by " + md.artist + ". First decide whether " + q(md.x) + " is a song by " + md.artist + " or an album by " + md.artist + ". If it is a song, return just that one song. If it is an album, return every song on it in track order (at most " + UP_ALBUM_MAX + "), with song.album set to the album's name in each. If it is both (a title track or a self-titled album), treat it as the song.";
+    if (md.mode === "album") return "What I want: every song on the album " + q(md.x) + " by " + md.artist + ", in track order (at most " + UP_ALBUM_MAX + "), with song.album set to the album's name in each.";
+    return "What I want: up to " + UP_ARTIST_MAX + " of the best-known songs by " + md.artist + ", the ones whose chords you know best.";
+  }
+  function upSkipLine(md, have) {
+    if (md.mode === "either") return "";
+    var k = function (v) { return String(v || "").trim().toLowerCase(); };
+    var t = have.filter(function (e) { return k(e.artist) === k(md.artist) && (md.mode === "artist" || k(e.album) === k(md.x)); }).map(function (e) { return e.title; }).slice(0, UP_SKIP_MAX);
+    return t.length ? " Leave out these songs, I already have them: " + t.join("; ") + "." : "";
+  }
+  function upPromptFor(md, ver, have) {
+    return UP_HEAD + " " + (ver === "full" ? UP_PASTE_LINE_2 : UP_PASTE_LINE) + " " + UP_TAIL + " " + upAskLine(md) + upSkipLine(md, have || []);
   }
   function paintUpload() {
     var pick = document.getElementById("uploadPick");
@@ -7731,19 +8198,43 @@ function accSym(s) {
     paintUploadActive(upSelected() ? upCurStep() : -1);
     paintUpNext();
   }
+  // v89: the multi-song summary in #upMsg (no key anywhere, per v87)
+  function upSummaryHtml(r) {
+    var L = ["Loaded " + r.loaded + ", updated " + r.updated + ", skipped " + r.skipped + "."];
+    if (r.active) L.push("Now playing: " + r.active + ".");
+    if (r.truncated) { L.push("The answer was cut off: " + r.rows.length + " song" + (r.rows.length > 1 ? "s" : "") + " arrived complete."); }
+    if (r.capSkipped) L.push("My songs is full: " + r.capSkipped + " song" + (r.capSkipped > 1 ? "s" : "") + " not saved. Remove some and tap Load again.");
+    var nf = r.rows.filter(function (x) { return x.status !== "skipped" && x.flags; }).length;
+    if (nf) L.push(nf + " song" + (nf > 1 ? "s have" : " has") + " chords to review.");
+    if (r.notes) L.push(r.notes.length > 140 ? r.notes.slice(0, 139) + "\u2026" : r.notes);
+    var h = L.map(function (t) { return "<span class=\"us-l\">" + upEsc(t) + "</span>"; }).join("");
+    h += "<details" + (r.skipped ? " open" : "") + "><summary>Show songs (" + r.rows.length + ")</summary><ul class=\"us-list\">";
+    r.rows.forEach(function (x) {
+      var nm = upEsc(x.title || "Song " + (x.i + 1));
+      if (x.status === "skipped") {
+        h += "<li class=\"sk\">\u2717 " + nm + " \u00b7 skipped: " + upEsc(x.reason) + ((x.errors || []).slice(0, 3).map(function (e) { return "<br><code>songs[" + x.i + "]" + (e.path.charAt(0) === "(" ? " " : ".") + upEsc(e.path) + "</code>: " + upEsc(e.msg); }).join("")) + "</li>";
+      } else if (x.flags) {
+        h += "<li class=\"fl\">\u26a0 " + nm + " \u00b7 " + x.status + (x.albumNow ? " (album now " + upEsc(x.albumNow) + ")" : "") + " \u00b7 " + x.flags + " chord" + (x.flags > 1 ? "s" : "") + " to review</li>";
+      } else {
+        h += "<li>\u2713 " + nm + " \u00b7 " + x.status + (x.albumNow ? " (album now " + upEsc(x.albumNow) + ")" : "") + "</li>";
+      }
+    });
+    return h + "</ul></details>";
+  }
   function upShowErrors(r) {
     var box = document.getElementById("upErr"), msg = document.getElementById("upMsg");
     msg.hidden = true;
     if (r.ok) { box.hidden = true; box.innerHTML = ""; return; }
-    var h = "<b>Could not load the song: " + r.errors.length + " problem" + (r.errors.length > 1 ? "s" : "") + "</b><ul>";
+    var h = "<b>Could not load " + (r.list ? "any songs" : "the song") + ": " + r.errors.length + " problem" + (r.errors.length > 1 ? "s" : "") + "</b><ul>";
     r.errors.slice(0, 5).forEach(function (e) { h += "<li><code>" + upEsc(e.path) + "</code>: " + upEsc(e.msg) + "</li>"; });
     if (r.errors.length > 5) h += "<li>and " + (r.errors.length - 5) + " more</li>";
     box.innerHTML = h + "</ul>Ask the AI to fix these and paste its new answer.";
     box.hidden = false;
   }
   function upCopyText() {
-    var t = (document.getElementById("upTitle").value || "").trim(), a = (document.getElementById("upArtist").value || "").trim();
-    return (upPromptVer === "full" ? UP_PASTE_LINE_2 : UP_PASTE_LINE).replace("<ARTIST - TITLE>", (a || "ARTIST") + " - " + (t || "TITLE")) + "\n\n" + upSchemaText;
+    var md = upModeNow(), have = LIB.songs.map(function (e) { return { title: e.title, artist: e.artist, album: upLibAlbum(e) }; });
+    if (md.mode === "none") md = { mode: "artist", x: "", artist: "ARTIST" };
+    return upPromptFor(md, upPromptVer, have) + "\n\n" + upListSchemaText;
   }
   function upSetPrompt(v) {
     upPromptVer = v === "full" ? "full" : "simple";
@@ -7753,9 +8244,9 @@ function accSym(s) {
     var txt = upCopyText(), ok = document.getElementById("upCopied"), fb = document.getElementById("upFallback"), fbt = document.getElementById("upFallbackTxt");
     var t = (document.getElementById("upTitle").value || "").trim(), a = (document.getElementById("upArtist").value || "").trim();
     var err = document.getElementById("upErr");
-    if (!t || !a) {
-      upShowErrors({ ok: false, errors: [{ path: !t ? "Song title" : "Artist", msg: "is empty: type it so the AI knows which song to look up" }] });
-      (document.getElementById(!t ? "upTitle" : "upArtist")).focus();
+    if (!a) {   // v89: the title is optional (empty = songs by the artist)
+      upShowErrors({ ok: false, errors: [{ path: "Artist", msg: "is empty: type it so the AI knows whose songs to look up" }] });
+      document.getElementById("upArtist").focus();
       return;
     }
     err.hidden = true;
@@ -7778,6 +8269,7 @@ function accSym(s) {
     var ti = document.getElementById("upTitle"), ar = document.getElementById("upArtist");
     if (U && !ti.value.trim() && !ar.value.trim()) { ti.value = U.title; ar.value = U.artist; }   // v73: never overwrite a new song being typed
     paintUpload();
+    upAskRefresh();
     pick.hidden = false;
     var ul = document.getElementById("upLibList"), on = ul && ul.querySelector(".ul-row.on");   // v77: the active song in view
     if (on) ul.scrollTop = Math.max(0, on.offsetTop - ul.offsetTop - 4);
@@ -7794,25 +8286,51 @@ function accSym(s) {
     document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !pick.hidden) close(); });
     document.getElementById("upCopy").addEventListener("click", upCopy);
     document.getElementById("upPv").addEventListener("click", function (e) { var b = e.target.closest ? e.target.closest("[data-pv]") : null; if (b) upSetPrompt(b.dataset.pv); });
-    document.getElementById("upLoad").addEventListener("click", function () {
-      unlock();
-      var r = upLoad(document.getElementById("upPaste").value);
+    var upLoading = false;
+    function loadDone(r) {
+      upLoading = false;
+      var msg = document.getElementById("upMsg"), note = document.getElementById("upNote");
       upShowErrors(r);
       if (r.full) { var fe = document.getElementById("upErr"); fe.textContent = "My songs is full, remove one first"; fe.hidden = false; }
-      if (!r.ok) document.getElementById("upNote").hidden = true;
-      if (r.ok) {
-        var msg = document.getElementById("upMsg"), n = U.events.length, fl = upFlagList().length;
+      if (r.saveFail) { var se = document.getElementById("upErr"); se.textContent = "Couldn't save, storage is full"; se.hidden = false; }
+      if (!r.ok) { note.hidden = true; return; }
+      if (!r.list) {
+        var n = U.events.length, fl = upFlagList().length;
         msg.textContent = "Loaded " + U.title + ": " + U.secs.length + " sections, " + n + " chords, " + U.bpm + " BPM." +   // v87: no key on the Upload form
           (fl ? " " + fl + " need review." : "") + (U.two ? " Simple and Full versions: pick one in My songs." : "") + (r.warnings.length ? " Note: " + r.warnings.slice(0, 3).join("; ") + (r.warnings.length > 3 ? "\u2026" : "") : "") + " Close this and tap Next or Play.";
         msg.hidden = false;
         document.getElementById("upTitle").value = U.title;
         document.getElementById("upArtist").value = U.artist;
         document.getElementById("upPaste").value = "";
-        upOpenAlt = null;
-        paintUpload();
-        document.getElementById("upNote").hidden = false;   // v73: clear path to the next song
-        pick.querySelector(".kp-box").scrollTop = 0;
+        note.firstElementChild.textContent = "Song loaded. Tap New song to start another.";
+      } else {
+        msg.innerHTML = upSummaryHtml(r);
+        msg.hidden = false;
+        if (!r.skipped) document.getElementById("upPaste").value = "";   // kept so Load can run again after making room
+        note.firstElementChild.textContent = "Songs loaded. Tap New song to start another.";
       }
+      upOpenAlt = null;
+      paintUpload();
+      upEmptyRefresh();
+      note.hidden = false;   // v73: clear path to the next song
+      pick.querySelector(".kp-box").scrollTop = 0;
+    }
+    document.getElementById("upLoad").addEventListener("click", function () {
+      if (upLoading) return;   // v89: a Load tap during a run is ignored (Load itself stays tappable)
+      unlock();
+      var b = upLoadBegin(document.getElementById("upPaste").value);
+      if (b.done) { loadDone(b.done); return; }
+      var L = b.list, N = L.items.length, msg = document.getElementById("upMsg");
+      if (N <= 3) { for (var i = 0; i < N; i++) upLoadCheck(L, i); loadDone(upLoadCommit(L)); return; }
+      upLoading = true;
+      document.getElementById("upErr").hidden = true;
+      var k = 0;
+      (function step() {
+        if (k >= N) { loadDone(upLoadCommit(L)); return; }
+        msg.textContent = "Checking song " + (k + 1) + " of " + N + "\u2026"; msg.hidden = false;
+        upLoadCheck(L, k++);
+        setTimeout(step, 0);
+      })();
     });
     // v73: New song = a fresh form (song removed, fields cleared), panel stays open.
     function newSong() {
@@ -7821,6 +8339,7 @@ function accSym(s) {
       ["upPaste", "upTitle", "upArtist", "upFallbackTxt"].forEach(function (id) { document.getElementById(id).value = ""; });
       ["upMsg", "upErr", "upNote", "upFallback", "upCopied"].forEach(function (id) { document.getElementById(id).hidden = true; });
       paintUpload();
+      upAskRefresh();
       pick.querySelector(".kp-box").scrollTop = 0;
       document.getElementById("upTitle").focus();
     }
@@ -7873,7 +8392,7 @@ function accSym(s) {
         return;
       }
       unlock();
-      if (!libOpen(id)) { upShowErrors({ ok: false, errors: [{ path: ent.title, msg: "could not be opened" }] }); return; }
+      if (!libOpen(id)) { var ne = document.getElementById("upErr"); ne.textContent = "This song needs a newer app"; ne.hidden = false; return; }   // v89: kept, never erased
       document.getElementById("upTitle").value = U.title;
       document.getElementById("upArtist").value = U.artist;
       document.getElementById("upPaste").value = "";
@@ -7891,7 +8410,12 @@ function accSym(s) {
   }
   if (PROG_TEST) window.__upload = {
     check: function (t) { return upCheck(t); },
-    load: function (t) { var r = upLoad(t); upShowErrors(r); paintUpload(); return { ok: r.ok, errors: r.errors, warnings: r.warnings }; },
+    load: function (t) { var r = upLoadAll(t); upShowErrors(r); paintUpload(); return { ok: r.ok, errors: r.errors, warnings: r.warnings, list: !!r.list, loaded: r.loaded, updated: r.updated, skipped: r.skipped, truncated: !!r.truncated,
+      rows: (r.rows || []).map(function (x) { return { i: x.i, title: x.title, status: x.status, reason: x.reason, albumNow: x.albumNow, flags: x.flags, errors: x.errors }; }) }; },
+    parseAnswer: function (t) { var p = upParseAnswer(t); return { kind: p.kind, n: p.items ? p.items.length : 0, truncated: !!p.truncated, error: p.error || null }; },
+    mode: function (t, a) { return upMode(t, a); },
+    promptFor: function (md, ver, have) { return upPromptFor(md, ver, have); },
+    listSchema: function () { return upListSchemaText; },
     remove: function () { upRemove(); paintUpload(); },
     song: function () { return U ? { title: U.title, artist: U.artist, key: U.key, bpm: U.bpm, ts: U.ts, events: U.events.length, sections: U.secs.map(function (s) { return s.id; }), selected: upSelected(), two: !!U.two, ver: U.ver } : null; },
     setVer: function (id, v) { var r = libSetVer(id, v); paintUpload(); return r; },
@@ -7907,7 +8431,7 @@ function accSym(s) {
     lock: function () { return U ? { locked: !!U.locked, liveKey: U.liveKey, key: U.key } : null; },
     setLock: function (on) { upSetLock(on); },
     next: function () { return upNextStep(); },
-    lib: function () { return JSON.parse(JSON.stringify({ active: LIB.active, sel: LIB.sel, n: LIB.songs.length, songs: LIB.songs.map(function (e) { return { id: e.id, title: e.title, artist: e.artist, added: e.added, locked: e.locked, liveKey: e.liveKey, choice: e.choice, reviewed: e.reviewed, ver: e.ver }; }), err: libSaveErr, uid: U ? U.id : null })); },
+    lib: function () { return JSON.parse(JSON.stringify({ active: LIB.active, sel: LIB.sel, n: LIB.songs.length, songs: LIB.songs.map(function (e) { return { id: e.id, title: e.title, artist: e.artist, album: e.album, cv: e.song && e.song.contractVersion, added: e.added, locked: e.locked, liveKey: e.liveKey, choice: e.choice, reviewed: e.reviewed, ver: e.ver }; }), err: libSaveErr, uid: U ? U.id : null })); },
     libOpen: function (id) { return libOpen(id); },
     libDelete: function (id) { return libDelete(id); },
     pickAlt: function (si, ci, sym) { upPickAlt(si, ci, sym); },
