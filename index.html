@@ -1547,16 +1547,12 @@ html.lay-phone-port:not(.simple) .now-col > .prog .pg-sel { width: 100%; flex: 0
 .now-band .band-row span { flex: 0 0 auto; }
 .now-band .band-row input { flex: 1 1 auto; min-width: 0; width: 100%; margin: 0; accent-color: var(--copper); }
 .now-band .band-row b { flex: 0 0 auto; min-width: 2.1em; text-align: right; font-size: 11px; font-weight: 700; color: var(--ink); }
-.now-band .cfg-band-note { display: none; flex: 1 1 auto; min-width: 0; font-size: 9.5px; line-height: 1.1; color: var(--muted); overflow: hidden; display: none; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-/* No band for this style yet: the row shows the note instead of the slider (same height, dimmed). */
-.now-band.dim .band-row { flex: 0 0 auto; opacity: .55; }
-.now-band.dim .band-row input, .now-band.dim .band-row b { display: none; }
-.now-band.dim .cfg-band-note { display: -webkit-box; }
+/* v78: no band for this style yet (Funk, Reggae, Yoga): the row is dimmed, nothing else changes. */
+.now-band.dim .band-row { opacity: .45; }
 /* phone Full: tight rows, no value readout (like Volume). */
 html.lay-phone-port:not(.simple) .now-mix > .now-band, html.lay-phone-land:not(.simple) .now-mix > .now-band { height: 16px; padding: 0 4px; gap: 4px; }
 html.lay-phone-port:not(.simple) .now-band .band-row, html.lay-phone-land:not(.simple) .now-band .band-row { font-size: 10px; gap: 4px; }
 html.lay-phone-port:not(.simple) .now-band .band-row b, html.lay-phone-land:not(.simple) .now-band .band-row b { display: none; }
-html.lay-phone-port:not(.simple) .now-band .cfg-band-note, html.lay-phone-land:not(.simple) .now-band .cfg-band-note { font-size: 8.5px; line-height: 1.05; }
 /* phone landscape Full: Volume and Band side by side on one row. */
 html.lay-phone-land:not(.simple) .now-col > .now-mix { flex-direction: row; align-items: center; gap: 4px; }
 html.lay-phone-land:not(.simple) .now-mix > .now-vol { flex: 1 1 0; min-width: 0; }
@@ -1564,29 +1560,15 @@ html.lay-phone-land:not(.simple) .now-mix > .now-band { flex: 1.15 1 0; min-widt
 html.lay-phone-land:not(.simple) .now-band .band-row { font-size: 9px; gap: 3px; }
 html.lay-phone-land:not(.simple) .now-mix > .now-vol .pg-vol { gap: 3px; padding: 0 2px; }
 /* dimmed in phone landscape Full: the note takes the Band cell (label hidden, Volume narrower) so it reads in two short lines. */
-html.lay-phone-land:not(.simple) .now-mix > .now-band.dim { flex: 1 1 auto; }
 html.lay-phone-land:not(.simple) .now-mix > .now-vol { min-width: 40px; }
-html.lay-phone-land:not(.simple) .now-mix:has(.now-band.dim) > .now-vol { flex: 0 0 32px; min-width: 32px; }
-html.lay-phone-land:not(.simple) .now-mix:has(.now-band.dim) > .now-vol .pg-vol svg { display: none; }
-html.lay-phone-land:not(.simple) .now-band.dim .band-row { display: none; }
-html.lay-phone-land:not(.simple) .now-band.dim .cfg-band-note { font-size: 8px; line-height: 1; letter-spacing: -0.1px; }
-html.lay-phone-land:not(.simple) .now-mix > .now-band.dim { padding: 0; }
 /* phone portrait Full: the dimmed row may take a third line (keyboard gives 8 px; the Now card is untouched). */
-html.lay-phone-port:not(.simple) .now-mix > .now-band.dim { height: auto; min-height: 16px; }
-html.lay-phone-port:not(.simple) .now-band.dim .cfg-band-note { -webkit-line-clamp: 3; }
 html.lay-phone-land:not(.simple) .now-mix > .now-vol .pg-vol svg { display: block; width: 11px; height: 11px; }
 /* Simple (every size): Volume and Band side by side on one row; no value readout. */
 html.simple .now-col > .now-mix { flex-direction: row; align-items: center; gap: 6px; }
 html.simple .now-mix > .now-vol { flex: 1 1 0; min-width: 44px; }
 html.simple .now-mix > .now-band { flex: 1.25 1 0; min-width: 0; height: 22px; padding: 0 4px 0 2px; }
 html.simple .now-band .band-row b { display: none; }
-html.simple .now-mix:has(.now-band.dim) > .now-vol { flex: 0 0 38px; min-width: 38px; }
-html.simple .now-mix:has(.now-band.dim) > .now-vol .pg-vol svg { display: none; }
-html.simple .now-mix > .now-band.dim { flex: 1 1 auto; padding: 0; gap: 4px; }
-html.simple .now-band.dim .band-row { flex: 0 0 auto; }
-html.simple .now-band.dim .cfg-band-note { font-size: 9px; line-height: 1.05; }
 html.lay-phone-land.simple .now-mix > .now-vol, html.lay-phone-land.simple .now-mix > .now-band { height: 16px; min-height: 16px; }
-html.lay-phone-land.simple .now-band.dim .cfg-band-note { font-size: 8px; line-height: 1; }
 /* v60: Config toggle. */
 .config-menu .cfg-toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; white-space: nowrap; }
 .cfg-toggle .tgl { position: relative; flex: 0 0 auto; width: 34px; height: 20px; border-radius: 10px; background: #3a332b; border: 1px solid var(--line); transition: background .15s; }
@@ -1831,12 +1813,12 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=77" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=78" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=77" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=78" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1845,19 +1827,19 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
       </ol>
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=77" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=78" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=77" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=78" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=77" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=78" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the smiley face, and sad ones sit below the frown. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=77" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=78" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=77" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=78" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Full Range enables all keys to be available.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
@@ -1883,7 +1865,7 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
   </div>
   <div class="now-mix" id="nowMix">
     <div class="now-vol" id="nowVol"><label class="pg-vol" title="Volume"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.6 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="volume" type="range" min="0" max="100" step="1" value="100" aria-label="Volume" aria-valuetext="100"><b id="volVal" aria-hidden="true">100</b></label></div>
-    <div class="now-band cfg-band" id="nowBand"><label class="band-row" title="Band: bass and drums under your chords (0 = off)"><span>Band</span><input id="band" type="range" min="0" max="100" step="1" value="0" aria-label="Band" aria-valuetext="Off"><b id="bandVal">Off</b></label><div class="cfg-band-note" id="bandNote">Pop, Country, Jazz &amp; Kids for now</div></div>
+    <div class="now-band cfg-band" id="nowBand"><label class="band-row" title="Band: bass and drums under your chords (0 = off)"><span>Band</span><input id="band" type="range" min="0" max="100" step="1" value="0" aria-label="Band" aria-valuetext="Off"><b id="bandVal">Off</b></label></div>
   </div>
   <div class="key-bar"><button type="button" id="keyChip" class="key-chip" aria-haspopup="dialog" title="Pick the key">Key: play a chord</button><button type="button" id="allKeys" class="allkeys" aria-pressed="false" title="Full Range: unlock off-scale keys and chords so everything plays">Full Range</button></div>
   <div id="kidKey" class="kid-key" aria-label="Key">
@@ -2199,7 +2181,7 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 77;
+var APP_VERSION = 78;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -3831,9 +3813,9 @@ function accSym(s) {
   // restarting the beat; ~2 bars after the last chord it fades out and stops.
   // Clock (no own tempo): clock() from the app = the selected song's BPM / beats per bar, else the
   // Play song bar (PROG_BAR) while it runs, else the Config (style / loop) BPM.
-  var BAND_STYLES = { pop: true, country: true, jazz: true, kids: true };
+  var BAND_STYLES = { pop: true, country: true, jazz: true, kids: true, ballad: true, rnb: true };   // v78: + Ballad, R&B
   // Per-style band level, measured (A-weighted) so Band 50 sits ~3 dB under the chords, 100 ~3 dB over.
-  var BAND_TRIM = { pop: 0.27, country: 0.63, jazz: 0.42, kids: 0.65 };
+  var BAND_TRIM = { pop: 0.27, country: 0.63, jazz: 0.42, kids: 0.65, ballad: 0.16, rnb: 0.175 };   // v78: Ballad / R&B at 100 <= chord level (measured)
   function bandPc(m) { return ((m % 12) + 12) % 12; }
   function Band(audio) {
     this.audio = audio; this.level = 0; this.style = null;
@@ -4005,6 +3987,32 @@ function accSym(s) {
     });
     this.stats.notes++;
   };
+  // v78: sub bass for Ballad / R&B: fundamental + a touch of 2nd, low-passed at ~240 Hz so it stays out of
+  // the low-mids (no mud under strings / keys). glideTo: short slide (R&B approach notes).
+  Band.prototype.sub = function (t, midi, dur, v, atk, glideTo) {
+    var ctx = this.audio.ctx, f = 440 * Math.pow(2, (midi - 69) / 12), lp = ctx.createBiquadFilter(), g = ctx.createGain(), pk = 0.5 * v, end = t + dur;
+    lp.type = "lowpass"; lp.frequency.value = 240; lp.Q.value = 0.5;
+    atk = atk || 0.02;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(pk, t + atk);
+    g.gain.setTargetAtTime(pk * 0.7, t + atk, Math.max(0.1, dur * 0.6));
+    g.gain.setTargetAtTime(0.0001, end, 0.05);
+    lp.connect(g); g.connect(this.bus);
+    [[1, 1], [2, 0.16]].forEach(function (p) {
+      var o = ctx.createOscillator(), a = ctx.createGain();
+      o.type = "sine"; o.frequency.setValueAtTime(f * p[0], t);
+      if (glideTo != null) o.frequency.exponentialRampToValueAtTime(440 * Math.pow(2, (glideTo - 69) / 12) * p[0], end);
+      a.gain.value = p[1]; o.connect(a); a.connect(lp); o.start(t); o.stop(end + 0.4);
+    });
+    this.stats.notes++;
+  };
+  Band.prototype.crossStick = function (t, v) {
+    var ctx = this.audio.ctx, o = ctx.createOscillator(), g = this.env(t, 0.1 * v, 0.001, 0.05);
+    o.type = "triangle"; o.frequency.value = 820; o.connect(g); o.start(t); o.stop(t + 0.08);
+    this.noise(t, 0.05, "bandpass", 2400, 2.2, 0.22 * v, 0.001, 0.03);
+  };
+  Band.prototype.rim = function (t, v) { this.noise(t, 0.04, "bandpass", 3000, 3, 0.16 * v, 0.001, 0.02); };
+  Band.prototype.swell = function (t, len, v) { this.noise(t, len + 0.1, "highpass", 6000, 0.7, 0.06 * v, len * 0.92, 0.07); };
   // Jazz comping: soft FM electric piano stab (on top of the untouched chord sound).
   Band.prototype.ep = function (t, midis, dur, v) {
     var ctx = this.audio.ctx, self = this;
@@ -4066,6 +4074,45 @@ function accSym(s) {
       var stab = barN % 2 ? (b === 1 ? sw : b === mid ? sw : -1) : (b === 0 ? 0 : b === 1 ? sw : -1);
       if (stab >= 0 && (dense || barN % 2 === 0)) this.ep(t + stab, shell, spb * 0.35, dense ? 1 : 0.8);
       if (full && last) this.ep(t + sw, shell, spb * 0.25, 0.6);
+    } else if (st === "ballad") {
+      // soft and spacious: light kick on 1, brush (cross-stick from 50) on 2 & 4, long held root bass that
+      // moves on chord changes; shaker swell into the next bar and a soft ride on 1 only from 80. No hats.
+      if (b === 0) this.kick(t, 0.5);
+      if (full && b === mid) this.kick(t, 0.28);
+      if (b % 2 === 1) { this.brush(t, 0.75, 0.3); if (dense) this.crossStick(t, 0.85); }
+      if (full && b === 0) this.ride(t, 0.45);
+      if (full && last && barN % 2 === 1) this.swell(t, spb, 1);
+      var hb = this.harmAt(t), chg = b === 0 || hb !== this.balH;
+      if (chg) {
+        this.balH = hb;
+        var nxT = null;
+        for (var hi = 0; hi < this.harm.length; hi++) if (this.harm[hi].t > t + 0.03) { nxT = this.harm[hi].t; break; }
+        var held = Math.min(nxT != null ? nxT - t : spb * (bpb - b), spb * (bpb - b)) * 0.96;
+        this.sub(t, R, Math.max(spb * 0.8, held), 0.95, 0.06);
+      }
+    } else if (st === "rnb") {
+      // laid-back neo-soul pocket: kick 1, pickup into 3 (the "a" of 2), 3; snare + soft clap on 2 & 4 a little
+      // behind; swung 16th hats (8ths under 50); round sub bass with a short slide / approach into chord changes;
+      // rimshot ghosts from 80.
+      var lay = Math.min(0.035, spb * 0.05), sw16 = spb * 0.29;   // swung 16th: 0, .29, .5, .79 of a beat
+      if (b === 0 || b === mid) this.kick(t, b === 0 ? 0.85 : 0.65);
+      if (b === mid - 1) this.kick(t + spb * 0.79, 0.45);
+      if (dense && last) this.kick(t + spb * 0.5, 0.35);
+      if (b % 2 === 1) { this.snare(t + lay, 0.62); this.clap(t + lay + 0.008, 0.22); }
+      this.hat(t, b % 2 ? 0.5 : 0.62);
+      this.hat(t + spb * 0.5, 0.42);
+      if (dense) { this.hat(t + sw16, 0.24); this.hat(t + spb * 0.5 + sw16, 0.26); }
+      if (full) { if (b === 0) this.rim(t + spb * 0.79, 0.5); if (b === mid) this.rim(t + sw16, 0.45); }
+      var nxr = last ? this.nextRootPc(t, spb * 1.6, h.rootPc) : null;
+      if (b === 0) this.sub(t, R, spb * 1.35, 1, 0.015);
+      else if (b === mid - 1) this.sub(t + spb * 0.79, R, spb * 0.2, 0.7, 0.01);
+      else if (b === mid) this.sub(t, dense ? R : R, spb * 0.9, 0.9, 0.015);
+      if (last) {
+        if (nxr != null && nxr !== h.rootPc) {
+          var tg = bandBassMidi(nxr), ap = tg + (barN % 2 ? 1 : -1);
+          this.sub(t + spb * 0.62, ap, spb * 0.36, 0.7, 0.01, tg);   // approach note sliding into the new root
+        } else if (dense) this.sub(t + spb * 0.5, R + 12 > 55 ? R : R + 12, spb * 0.22, 0.5, 0.01);
+      }
     } else if (st === "kids") {
       if (b % 2 === 1) this.clap(t, 0.9);
       if (full && last) this.clap(t + spb * 0.5, 0.45);
@@ -8868,15 +8915,14 @@ function accSym(s) {
   function paintBand() {
     var el = document.getElementById("band");
     if (!el) return;
-    var v = state.band | 0, on = !!ChordAudio.band && !!{ pop: 1, country: 1, jazz: 1, kids: 1 }[state.style];
+    var v = state.band | 0, on = !!ChordAudio.band && !!{ pop: 1, country: 1, jazz: 1, kids: 1, ballad: 1, rnb: 1 }[state.style];
     if (el.value !== String(v)) el.value = String(v);
     var txt = v ? String(v) : "Off";
     el.setAttribute("aria-valuetext", txt + (on ? "" : ", no band for this style yet"));
     document.getElementById("bandVal").textContent = txt;
-    el.closest(".cfg-band").classList.toggle("dim", !on);
-    var note = document.getElementById("bandNote");
-    note.textContent = "Pop, Country, Jazz & Kids for now";
-    note.title = on ? "" : "No band on this style yet";
+    var row = el.closest(".cfg-band");
+    row.classList.toggle("dim", !on);
+    row.title = on ? "" : "No band on this style yet";
   }
   function paintProgNumsBtn() {
     var b = document.getElementById("progNumsBtn");
