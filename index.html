@@ -1613,6 +1613,12 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
 @keyframes kgTapR { 0% { filter: brightness(1.8); } 100% { filter: none; } }
 #suggest.kids1 .ss-kidpad.kgtap, html.simple #suggest.kids1 .ss-kidpad.kgtap, .kb .pad.kgtap { animation: kgTap .4s ease-out 1 !important; }
 @media (prefers-reduced-motion: reduce) { #suggest.kids1 .ss-kidpad.kgtap, html.simple #suggest.kids1 .ss-kidpad.kgtap, .kb .pad.kgtap { animation: kgTapR .4s ease-out 1 !important; } }
+/* v93: the Kids tap flash in full mode (chip tap, Next, Play song): same flash + expanding ring, a little
+   smaller and shorter; paint-only (filter + box-shadow), so nothing moves; reduced motion = the flash only */
+@keyframes fxTap { 0% { filter: brightness(1.55); box-shadow: 0 0 0 0 rgba(236, 178, 92, .8); } 100% { filter: none; box-shadow: 0 0 0 7px rgba(236, 178, 92, 0); } }
+@keyframes fxTapR { 0% { filter: brightness(1.4); } 100% { filter: none; } }
+html:not(.simple) #suggest:not(.kids1) .fxtap { animation: fxTap .32s ease-out 1; }
+@media (prefers-reduced-motion: reduce) { html:not(.simple) #suggest:not(.kids1) .fxtap { animation: fxTapR .32s ease-out 1; } }
 .ss .ss-chip.nx, .ss .ss-note.nx { outline: 2px solid #c4853f; outline-offset: 1px; animation: nxPulseO 1.5s ease-in-out infinite; }
 html.simple .nx::after, html.simple .nx::before { display: none; }
 html.simple .ss .nx { outline: none; animation: none; }
@@ -1838,12 +1844,12 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=92" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=93" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=92" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=93" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1852,19 +1858,19 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
       </ol>
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=92" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=93" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=92" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=93" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=92" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=93" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the smiley face, and sad ones sit below the frown. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=92" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=93" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=92" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=93" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Full Range enables all keys to be available.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
@@ -2425,7 +2431,7 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 92;
+var APP_VERSION = 93;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -6157,6 +6163,7 @@ function accSym(s) {
       b.classList.add("press");
       try { b.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
       if (kidsGoldPad(b)) { kidsGoldGo(b, "pad"); return; }   // v79
+      fxTapPulse(b);   // v93
       stripDown(item, e.pointerId);
     });
     function up(e) { upAt = Date.now(); unpress(); stripUp(e.pointerId); }
@@ -6167,6 +6174,7 @@ function accSym(s) {
     b.addEventListener("click", function () {
       if (upAt && Date.now() - upAt < 700) { upAt = 0; return; }
       if (kidsGoldPad(b)) { kidsGoldGo(b, "pad"); return; }   // v79 (Enter / Space)
+      fxTapPulse(b);   // v93
       stripTap(item);
     });
   }
@@ -6751,6 +6759,7 @@ function accSym(s) {
     prog.cur = ((i % prog.steps.length) + prog.steps.length) % prog.steps.length;
     applySuggestion(prog.steps[prog.cur].item);
     paintProgActive();
+    fxStepPulse();   // v93
     if (prog.flashT) clearTimeout(prog.flashT);
     prog.flashT = setTimeout(function () {
       prog.flashT = 0;
@@ -6841,6 +6850,7 @@ function accSym(s) {
     if (suggestTimer) clearTimeout(suggestTimer);
     suggestTimer = setTimeout(magicEnd, Math.max(0, (ring - MAGIC_LOOK) * 1000));
     paintProgActive();
+    fxStepPulse();   // v93
     paintProg();
     if (PROG_TEST) { magic.log.push({ step: step, sym: stripLabel(item), bars: bars, home: !!magic.wasHome, at: magic.endAt - ring }); if (magic.log.length > 5000) magic.log.shift(); }
   }
@@ -7012,6 +7022,20 @@ function accSym(s) {
     el._kgT = setTimeout(function () { el.classList.remove("kgtap"); }, 450);
     if (PROG_TEST) kidsTapLog.pulses++;
   }
+  // v93: the same flash for full mode (not Simple, not Kids): a tapped chip, and the chip Next / Play song lights
+  var fxTapLog = { n: 0, last: "" };
+  function fxOn() { return !state.simple && state.style !== "kids"; }
+  function fxTapPulse(el) {
+    if (!el || !fxOn()) return;
+    el.classList.remove("fxtap");
+    void el.offsetWidth;   // restart on a repeated tap / step
+    el.classList.add("fxtap");
+    clearTimeout(el._fxT);
+    el._fxT = setTimeout(function () { el.classList.remove("fxtap"); }, 380);
+    if (PROG_TEST) { fxTapLog.n++; fxTapLog.last = el.textContent; }
+  }
+  function fxStepPulse() { if (fxOn()) fxTapPulse(document.querySelector("#suggest .pg-on")); }
+  if (PROG_TEST) window.__fxTap = fxTapLog;
   var kidsTapLog = { taps: [], pulses: 0 };
   if (PROG_TEST) window.__kidsTap = kidsTapLog;
   function kidsGoldGo(el, kind) {
@@ -7183,6 +7207,7 @@ function accSym(s) {
       suggestPreview = { type: spec.type, extensions: { six: !!state.extensions.six, min7: !!state.extensions.min7, maj7: !!state.extensions.maj7, nine: !!state.extensions.nine }, midis: highlightMidisFromSpec(spec.midis) };
       updateSymbol();
       paintProgActive();
+      fxStepPulse();   // v93: Play song
     }, Math.max(0, (t - ChordAudio.currentTime()) * 1000));
     prog.uiT.push(tid);
   }
