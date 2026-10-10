@@ -1832,6 +1832,22 @@ html.up-on:not(.simple):not(.lay-phone-port) .next-card > .ss { flex: 0 0 auto; 
 html.lay-phone-land #app { --sb-h: 20px; }
 html.lay-pad-port #app, html.lay-pad-land #app { --sb-h: 31px; }
 html.up-on.lay-phone-land:not(.simple) #songBar { height: 18px; margin-bottom: 2px; font-size: 11px; }
+/* v95: full mode, a song with lyrics: two lyric rows (the line being sung, then the next line, a little
+   muted). Same font and colours as the one-line song bar; the rows scroll up one line when the song moves on. */
+#app { --lr-h: 15px; }
+html.lay-phone-land #app { --lr-h: 13px; }
+html.lay-pad-port #app, html.lay-pad-land #app { --lr-h: 18px; }
+html.up-on.up-lyr2:not(.simple) #songBar { height: calc(2 * var(--lr-h) + 2px); }
+html.up-lyr2:not(.simple) #app { --sb-h: calc(2 * var(--lr-h) + 5px); }
+html.up-lyr2.lay-phone-land:not(.simple) #app { --sb-h: calc(2 * var(--lr-h) + 4px); }
+#songBar .sb-lyr { flex: 1 1 auto; min-width: 0; height: calc(2 * var(--lr-h)); overflow: hidden; position: relative; }
+#songBar .sb-roll { display: block; will-change: transform; }
+#songBar .sb-roll.go { transition: transform .28s ease-out; transform: translateY(calc(-1 * var(--lr-h))); }
+#songBar .sb-row { display: block; height: var(--lr-h); line-height: var(--lr-h); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+#songBar .sb-row.r2 { opacity: .62; }
+#songBar .sb-row .sb-ch { padding: 0 4px; line-height: calc(var(--lr-h) - 2px); }
+#songBar .sb-sec2 { margin-right: 4px; color: var(--copper); font-weight: 700; text-transform: capitalize; }
+@media (prefers-reduced-motion: reduce) { #songBar .sb-roll.go { transition: none; } }
 /* iPad / desktop: Next and Upload keep a real tap size beside the Volume slider. */
 html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.simple) .now-col > .prog .pg-btn { flex: 0 0 44px; }
 </style>
@@ -1857,12 +1873,12 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=94" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=95" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=94" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=95" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1871,19 +1887,19 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
       </ol>
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=94" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=95" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=94" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=95" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=94" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=95" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the row of notes <span class="ht-face ht-face-happy" role="img" aria-label="happy face, arrow up"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="8.6" cy="9.6" r="1.2"/><circle class="eye" cx="15.4" cy="9.6" r="1.2"/><path d="M7.6 14.2c1.1 1.9 2.6 2.8 4.4 2.8s3.3-.9 4.4-2.8"/></svg><svg class="ar" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 13V2M2 6l4-4 4 4"/></svg></span>, and sad ones sit below it <span class="ht-face ht-face-sad" role="img" aria-label="sad face, arrow down"><svg class="ar" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 1v11M2 8l4 4 4-4"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="8.6" cy="9.6" r="1.2"/><circle class="eye" cx="15.4" cy="9.6" r="1.2"/><path d="M7.6 17.2c1.1-1.9 2.6-2.8 4.4-2.8s3.3.9 4.4 2.8"/></svg></span>. The faces are only a guide; they are not buttons. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=94" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=95" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=94" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=95" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Full Range enables all keys to be available.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
@@ -2444,7 +2460,7 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 94;
+var APP_VERSION = 95;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -8061,6 +8077,71 @@ function accSym(s) {
     var bar = document.getElementById("songBar");
     if (bar && !bar.hidden && +bar.dataset.si === e.si) Array.prototype.forEach.call(bar.querySelectorAll(".sb-ch[data-c=\"" + e.ci + "\"]"), function (n) { n.classList.add("upnx"); });
   }
+  // v95: full-mode two-row lyrics. Lines in play order from the song's chord / section / lyric-line map (no
+  // word timing): event i is on the line the one-line bar would show for it (first line with a marker on
+  // that chord, else the last line with a marker before it; -1 = the section's chords). A new entry starts
+  // whenever (section, repeat, line) changes, so the bar moves on once playback passes the line's last chord.
+  function upLineOf(sec, ci) {
+    var L = sec.lyrics || [], r = -1, i;
+    for (i = 0; i < L.length; i++) if (L[i].markers.some(function (m) { return m.chordIndex === ci; })) return i;
+    for (i = 0; i < L.length; i++) if (L[i].markers.some(function (m) { return m.chordIndex <= ci; })) r = i;
+    return r;
+  }
+  function upLyrMap() {
+    if (U._lyr && U._lyr.secs === U.secs) return U._lyr;
+    var seq = [], at = [], last = null;
+    var any = U.secs.some(function (sec) { return (sec.lyrics || []).some(function (ln) { return ln.markers && ln.markers.length && ln.text; }); });
+    U.events.forEach(function (e, i) {
+      var li = upLineOf(U.secs[e.si], e.ci), k = e.si + ":" + e.rep + ":" + li;
+      if (!last || last.k !== k) { last = { k: k, si: e.si, li: li, start: i }; seq.push(last); }
+      at.push(seq.length - 1);
+    });
+    U._lyr = { secs: U.secs, seq: seq, at: at, any: any };
+    return U._lyr;
+  }
+  function upLyrRow(ent, curCi, cls, sec2) {
+    if (!ent) return "<span class=\"sb-row " + cls + "\"></span>";
+    var si = ent.si, sec = U.secs[si], html = sec2 ? "<span class=\"sb-sec2\">" + upEsc(upSecName(si)) + "</span>" : "";
+    function tag(ci) {   // row 2: no data-c, so the next-chord outline stays on row 1
+      return "<span" + (cls === "r1" ? " data-c=\"" + ci + "\"" : "") + " class=\"sb-ch" + (ci === curCi ? " on" : "") + (upFlagged(si, ci) ? " flag" : "") + "\">" + upEsc(upA(upSym(si, ci))) + "</span>";
+    }
+    var line = ent.li >= 0 ? sec.lyrics[ent.li] : null;
+    if (line) {
+      var mk = line.markers.slice().sort(function (a, b) { return a.charIndex - b.charIndex; }), q = 0;
+      mk.forEach(function (m) { html += upEsc(line.text.slice(q, m.charIndex)) + tag(m.chordIndex); q = Math.max(q, m.charIndex); });
+      html += upEsc(line.text.slice(q));
+    } else sec.chords.forEach(function (c, ci) { html += tag(ci); });
+    return "<span class=\"sb-row " + cls + "\">" + html + "</span>";
+  }
+  var lyrState = { k: -1, anim: 0, log: [] };
+  function paintLyr2(bar, cur) {
+    var M = upLyrMap(), idx = M.at[cur >= 0 ? cur : 0], ent = M.seq[idx], nxt = M.seq[idx + 1] || null;
+    var e0 = U.events[cur >= 0 ? cur : 0], curCi = cur >= 0 ? e0.ci : -1;
+    var alts = curCi >= 0 && !U.locked && (upEv(e0.si, curCi).alternates || []).length;
+    var r1 = upLyrRow(ent, curCi, "r1", false), r2 = upLyrRow(nxt, -1, "r2", !!nxt && nxt.si !== ent.si);
+    var head = "<span class=\"sb-sec\">" + upEsc(upSecName(ent.si)) + "</span>", tail = alts ? "<span class=\"sb-alt\">alt \u25be</span>" : "";
+    var key = head + "<span class=\"sb-lyr\"><span class=\"sb-roll\">" + r1 + r2 + "</span></span>" + tail;
+    var step = idx === lyrState.k + 1 && lyrState.k >= 0 && bar._html && bar._html.indexOf("sb-lyr") >= 0;
+    var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (lyrState.anim) { lyrState.pend = true; bar.dataset.si = ent.si; return; }   // finish the scroll first
+    if (step && !calm) {
+      // old row 1 on top, then the new rows; scroll up one row, then settle on the plain two rows
+      var old = bar.querySelector(".sb-row.r1"), oldHtml = old ? old.outerHTML.replace(/ data-c="\d+"/g, "").replace(" on\"", "\"") : "";
+      bar.innerHTML = head + "<span class=\"sb-lyr\"><span class=\"sb-roll\">" + oldHtml + r1 + r2 + "</span></span>" + tail;
+      bar._html = null;
+      var roll = bar.querySelector(".sb-roll");
+      void roll.offsetWidth;
+      roll.classList.add("go");
+      lyrState.anim = setTimeout(function () { lyrState.anim = 0; lyrState.pend = false; bar._html = null; paintSongBar(); }, 300);
+      if (PROG_TEST) lyrState.log.push({ idx: idx, anim: true });
+    } else {
+      if (bar._html !== key) { bar.innerHTML = key; bar._html = key; }
+      if (PROG_TEST && idx !== lyrState.k) lyrState.log.push({ idx: idx, anim: false });
+    }
+    lyrState.k = idx;
+    bar.dataset.si = ent.si;
+  }
+  if (PROG_TEST) window.__lyr2 = { state: lyrState, map: function () { if (!U) return null; var M = upLyrMap(); return { any: M.any, seq: M.seq.map(function (x) { return { si: x.si, li: x.li, start: x.start }; }), at: M.at.slice() }; } };
   function paintSongBar() {
     document.documentElement.classList.toggle("up-nonum", upSelected());   // v73: no sequence numbers on an uploaded song's grid
     var bar = document.getElementById("songBar");
@@ -8074,6 +8155,12 @@ function accSym(s) {
       document.documentElement.classList.toggle("up-on", on);   // CSS: the strip rows give the bar its room
       setTimeout(function () { fitStrip(); placeBadges(); }, 0);
     }
+    var two = on && !state.simple && upLyrMap().any;   // v95
+    if (document.documentElement.classList.contains("up-lyr2") !== two) {
+      document.documentElement.classList.toggle("up-lyr2", two);
+      bar._html = null; lyrState.k = -1;
+      setTimeout(function () { fitStrip(); placeBadges(); upPlaceLock(); }, 0);
+    }
     if (!on) { paintUploadActive(-1); upPlaceLock(); paintUpNext(); return; }
     prog.steps.forEach(function (s, i) {
       var e = U.events[i];
@@ -8081,6 +8168,14 @@ function accSym(s) {
     });
     var cur = upCurStep(), e0 = U.events[cur >= 0 ? cur : 0], si = e0.si, sec = U.secs[si];
     var curCi = cur >= 0 ? e0.ci : -1;
+    if (two) {
+      paintLyr2(bar, cur);
+      upPlaceLock();
+      paintUpNext();
+      bar.setAttribute("aria-label", "Song " + upProgObj.name + ", " + upSecName(si) + (curCi >= 0 ? ", now " + upT(upSym(si, curCi)) : "") + ". Open the song");
+      paintUploadActive(cur >= 0 ? cur : -1);
+      return;
+    }
     function chTag(ci) { return "<span data-c=\"" + ci + "\" class=\"sb-ch" + (ci === curCi ? " on" : "") + (upFlagged(si, ci) ? " flag" : "") + "\">" + upEsc(upA(upSym(si, ci))) + "</span>"; }
     var html = "", line = null;
     (sec.lyrics || []).forEach(function (ln) {
