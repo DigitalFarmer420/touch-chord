@@ -1632,6 +1632,13 @@ html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
 @keyframes fxTapR { 0% { filter: brightness(1.4); } 100% { filter: none; } }
 html:not(.simple) #suggest:not(.kids1) .fxtap { animation: fxTap .32s ease-out 1; }
 @media (prefers-reduced-motion: reduce) { html:not(.simple) #suggest:not(.kids1) .fxtap { animation: fxTapR .32s ease-out 1; } }
+/* v99: full mode: the grid cell Play would sound next: thin dashed warm-white outline, a touch brighter, and a
+   gentle grow-and-pulse (the scale property only, so no layout shift). Reduced motion: the outline stays still. */
+@keyframes laPulse { 0%, 100% { scale: 1; filter: brightness(1.08); } 50% { scale: 1.035; filter: brightness(1.16); } }
+html:not(.simple) #suggest:not(.kids1) .la-play { outline: 1.5px dashed rgba(255, 236, 205, .62); outline-offset: 2px; filter: brightness(1.08); animation: laPulse 2.2s ease-in-out infinite; }
+html:not(.simple) #suggest:not(.kids1) .ss-note.la-play { background-color: rgba(255, 244, 222, .14); }
+html:not(.simple) #suggest:not(.kids1) .la-play.fxtap { animation: fxTap .32s ease-out 1; }
+@media (prefers-reduced-motion: reduce) { html:not(.simple) #suggest:not(.kids1) .la-play { animation: none; scale: none; } html:not(.simple) #suggest:not(.kids1) .la-play.fxtap { animation: fxTapR .32s ease-out 1; } }
 .ss .ss-chip.nx, .ss .ss-note.nx { outline: 2px solid #c4853f; outline-offset: 1px; animation: nxPulseO 1.5s ease-in-out infinite; }
 html.simple .nx::after, html.simple .nx::before { display: none; }
 html.simple .ss .nx { outline: none; animation: none; }
@@ -1887,12 +1894,12 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=98" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid (an older picture)" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=99" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid (an older picture)" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=98" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=99" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1900,21 +1907,21 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
         <li><b>Make a <a class="ht-term" href="#gl-chord">chord</a> yourself.</b></li>
       </ol>
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p>
-      <p class="cap">Tap <b>Next</b> to play the <a class="ht-term" href="#gl-chord">chords</a> one at a time, or <b>Play</b> to hear the whole <a class="ht-term" href="#gl-progression">progression</a>. The <a class="ht-term" href="#gl-chord">chord</a> that is playing grows a little, so you can follow along.</p></section></li>
+      <p class="cap">Tap <b>Next</b> to play the <a class="ht-term" href="#gl-chord">chords</a> one at a time, or <b>Play</b> to hear the whole <a class="ht-term" href="#gl-progression">progression</a>. The <a class="ht-term" href="#gl-chord">chord</a> that is playing grows a little, so you can follow along. In Full mode, a dashed outline gently marks the <a class="ht-term" href="#gl-chord">chord</a> that <b>Play</b> will sound next.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=98" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=99" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=98" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=99" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=98" alt="The suggestion grid: happy chords above the row of notes, sad chords below it (an older picture that still shows the faces beside the grid)" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=99" alt="The suggestion grid: happy chords above the row of notes, sad chords below it (an older picture that still shows the faces beside the grid)" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the row of notes <span class="ht-face ht-face-happy" role="img" aria-label="happy face, arrow up"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="8.6" cy="9.6" r="1.2"/><circle class="eye" cx="15.4" cy="9.6" r="1.2"/><path d="M7.6 14.2c1.1 1.9 2.6 2.8 4.4 2.8s3.3-.9 4.4-2.8"/></svg><svg class="ar" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 13V2M2 6l4-4 4 4"/></svg></span>, and sad ones sit below it <span class="ht-face ht-face-sad" role="img" aria-label="sad face, arrow down"><svg class="ar" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 1v11M2 8l4 4 4-4"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="8.6" cy="9.6" r="1.2"/><circle class="eye" cx="15.4" cy="9.6" r="1.2"/><path d="M7.6 17.2c1.1-1.9 2.6-2.8 4.4-2.8s3.3.9 4.4 2.8"/></svg></span>. The faces are only a guide here in How to; they are no longer shown beside the grid, and they are not buttons. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=98" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=99" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=98" alt="Before and after tapping Full Range (an older picture)" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=99" alt="Before and after tapping Full Range (an older picture)" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Tap <b>Full Range</b> to unlock every key and <a class="ht-term" href="#gl-chord">chord</a>, even the ones outside your <a class="ht-term" href="#gl-key">key</a>.</p></section></li>
       <li><section><h3><span class="ht-num">7.</span> Keyboard <span class="ht-pill">Full mode</span></h3>
       <p class="cap">Open <b>Layout</b> to choose your keys. <b>Octave</b> shows one octave that starts on your <a class="ht-term" href="#gl-key">key</a>, low <a class="ht-term" href="#gl-note">notes</a> on the left. <b>Full</b> shows the whole two-octave keyboard. Keys light up exactly as they sound, and the keyboard stays put while you tap. The app remembers your choice.</p></section></li>
@@ -2485,7 +2492,7 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 98;
+var APP_VERSION = 99;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -6739,6 +6746,30 @@ function accSym(s) {
   function progLockKey() {
     if (!activeKey() && stripKey) lockKey = { pc: stripKey.pc, mode: stripKey.mode };
   }
+  // v99: full mode (not Kids, not Simple, not an uploaded song, which has its own next-chord outline):
+  // mark the grid cell of the chord Play would sound right now. Stopped: Play starts at step 1. Playing: the
+  // step after the lit one (none in the random part after one pass). No mark when that step has no grid
+  // cell, or when it is the cell that is playing now.
+  var laEl = null, laT = 0;
+  function laTarget() {
+    var n = prog.steps.length;
+    if (!n || state.style === "kids" || state.simple || upSelected()) return null;
+    if (prog.playing && prog.tail) return null;
+    var start = prog.playing ? (prog.cur >= 0 ? prog.cur + 1 : prog.si) : 0;
+    var t = start < n ? prog.targets[start] : null;
+    if (!t || !t.isConnected || !t.getClientRects().length || getComputedStyle(t).visibility === "hidden") return null;
+    var now = prog.cur >= 0 ? prog.targets[prog.cur] : (magic.lit ? magicTarget(magic.item) : null);
+    if (t === now || t.classList.contains("pg-on")) return null;
+    return t;
+  }
+  function paintLookahead() {
+    var t = laTarget();
+    if (laEl && laEl !== t) laEl.classList.remove("la-play");
+    if (t) t.classList.add("la-play");
+    laEl = t;
+  }
+  if (PROG_TEST) window.__la = function () { var t = laTarget(); paintLookahead(); var all = document.querySelectorAll("#suggest .la-play");
+    return { n: all.length, label: t ? (t.getAttribute("aria-label") || t.textContent) : null, step: t ? prog.targets.indexOf(t) : -1, playing: prog.playing, cur: prog.cur, si: prog.si }; };
   function paintProgActive() {
     Array.prototype.forEach.call(document.querySelectorAll("#suggest .pg-on"), function (n) { n.classList.remove("pg-on"); });
     var t = prog.cur >= 0 ? prog.targets[prog.cur] : (magic.lit ? magicTarget(magic.item) : null);
@@ -6749,6 +6780,7 @@ function accSym(s) {
     paintSongBar();   // Upload: song bar + review flags
     paintKidsLyr();   // v97
     if (state.style === "kids") paintNextHint();   // v71: Kids next-note hint advances with each step
+    paintLookahead(); if (!laT) laT = setTimeout(function () { laT = 0; paintLookahead(); }, 0);   // v99 (again once the strip is laid out)
   }
   // v70: Kids strip = ONE big basic triad chip: the chord now current in the walk / loop
   // (or the home triad before anything plays). The full board is still built underneath
