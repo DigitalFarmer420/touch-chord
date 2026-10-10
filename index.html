@@ -1894,6 +1894,22 @@ html.lay-phone-land:not(.simple) .key-bar button { height: 20px; min-height: 20p
 html.simple.lay-phone-land .prog, html.simple.lay-phone-port .prog { --pg-h: 26px; gap: 3px; }
 html.simple.lay-phone-land .now-col, html.simple.lay-phone-port .now-col { gap: 4px; }
 html.simple.lay-phone-land .kid-key, html.simple.lay-phone-port .kid-key { gap: 3px; }
+/* v103: Next is the same size as Play (the v101 primary size). In the full / Kids phone layouts the two of them
+   fill the transport row, so Upload moves down to the right end of the Full Range row (Full Range gets narrower). */
+.pg-btn.pg-step svg { width: calc(var(--pg-ico, 18px) * 1.5); height: calc(var(--pg-ico, 18px) * 1.5); }
+html.lay-phone-port:not(.simple) .pg-btns, html.lay-phone-land:not(.simple) .pg-btns { position: relative; justify-content: center; }
+html.lay-phone-port:not(.simple) .pg-btns > .pg-btn.pg-step, html.lay-phone-port:not(.simple) .pg-btns > .pg-btn.pg-song { flex: 0 0 45px; width: 45px; height: 40px; border-radius: 11px; }
+html.lay-phone-land:not(.simple) .pg-btns > .pg-btn.pg-step, html.lay-phone-land:not(.simple) .pg-btns > .pg-btn.pg-song { flex: 0 0 48px; width: 48px; height: 30px; border-radius: 10px; }
+html.lay-phone-port:not(.simple) .pg-btn.pg-step::after { inset: -2px 0 -4px; }
+html.lay-phone-land:not(.simple) .pg-btn.pg-step::after { inset: -1px -1px -2px; }
+html.lay-phone-port:not(.simple) .pg-btns > .pg-btn.pg-up { position: absolute; right: 0; top: calc(100% + 4px); width: 26.5px; height: 28px; flex: none; }
+html.lay-phone-land:not(.simple) .pg-btns > .pg-btn.pg-up { position: absolute; right: 0; top: calc(100% + 3px); width: 29px; height: 20px; flex: none; }
+html.lay-phone-port:not(.simple) .pg-btns > .pg-btn.pg-up::after, html.lay-phone-land:not(.simple) .pg-btns > .pg-btn.pg-up::after { inset: -1px; }
+html.lay-phone-port:not(.simple) #allKeys { align-self: flex-start; width: calc(100% - 30px); padding-left: 2px; padding-right: 2px; }
+html.lay-phone-land:not(.simple) #allKeys { align-self: flex-start; width: calc(100% - 32px); padding-left: 2px; padding-right: 2px; }
+html.simple .pg-btn.pg-step { flex-grow: 1; height: calc(var(--pg-nh, 28px) * 1.5 + 2px); }
+html.simple .pg-btn.pg-song { flex-grow: 1; }
+html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn.pg-step, html.lay-pad-port:not(.simple) .now-col > .prog .pg-btn.pg-step { flex: 0 0 66px; height: 44px; }
 </style>
 </head>
 <body>
@@ -1917,12 +1933,12 @@ html.simple.lay-phone-land .kid-key, html.simple.lay-phone-port .kid-key { gap: 
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=102" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid (an older picture)" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=103" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid (an older picture)" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=102" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=103" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1932,29 +1948,29 @@ html.simple.lay-phone-land .kid-key, html.simple.lay-phone-port .kid-key { gap: 
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p>
       <p class="cap">Tap <b>Next</b> to play the <a class="ht-term" href="#gl-chord">chords</a> one at a time, or <b>Play</b> to hear the whole <a class="ht-term" href="#gl-progression">progression</a>. The <a class="ht-term" href="#gl-chord">chord</a> that is playing grows a little, so you can follow along. In Full mode, a dashed outline gently marks the <a class="ht-term" href="#gl-chord">chord</a> that <b>Play</b> will sound next.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=102" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=103" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=102" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=103" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=102" alt="The suggestion grid: happy chords above the row of notes, sad chords below it (an older picture that still shows the faces beside the grid)" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=103" alt="The suggestion grid: happy chords above the row of notes, sad chords below it (an older picture that still shows the faces beside the grid)" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the row of notes <span class="ht-face ht-face-happy" role="img" aria-label="happy face, arrow up"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="8.6" cy="9.6" r="1.2"/><circle class="eye" cx="15.4" cy="9.6" r="1.2"/><path d="M7.6 14.2c1.1 1.9 2.6 2.8 4.4 2.8s3.3-.9 4.4-2.8"/></svg><svg class="ar" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 13V2M2 6l4-4 4 4"/></svg></span>, and sad ones sit below it <span class="ht-face ht-face-sad" role="img" aria-label="sad face, arrow down"><svg class="ar" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 1v11M2 8l4 4 4-4"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="8.6" cy="9.6" r="1.2"/><circle class="eye" cx="15.4" cy="9.6" r="1.2"/><path d="M7.6 17.2c1.1-1.9 2.6-2.8 4.4-2.8s3.3.9 4.4 2.8"/></svg></span>. The faces are only a guide here in How to; they are no longer shown beside the grid, and they are not buttons. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=102" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=103" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=102" alt="Before and after tapping Full Range (an older picture)" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=103" alt="Before and after tapping Full Range (an older picture)" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Tap <b>Full Range</b> to unlock every key and <a class="ht-term" href="#gl-chord">chord</a>, even the ones outside your <a class="ht-term" href="#gl-key">key</a>.</p></section></li>
       <li><section><h3><span class="ht-num">7.</span> Keyboard <span class="ht-pill">Full mode</span></h3>
       <p class="cap">Open <b>Layout</b> to choose your keys. <b>Octave</b> shows one octave that starts on your <a class="ht-term" href="#gl-key">key</a>, low <a class="ht-term" href="#gl-note">notes</a> on the left. <b>Full</b> shows the whole two-octave keyboard. Keys light up exactly as they sound, and the keyboard stays put while you tap. The app remembers your choice.</p></section></li>
       <li><section><h3><span class="ht-num">8.</span> Band <span class="ht-pill">Full mode</span></h3>
       <p class="cap">Open <b>Sound</b>. Under Voicing, turn on <b>Band</b> to add bass and drums, and slide the level from 1 to 100. Band starts off each time you open the app.</p></section></li>
       <li><section><h3><span class="ht-num">9.</span> Upload a song or album <span class="ht-pill">Full mode</span></h3>
-      <p class="cap">Tap the upload button next to <b>Play</b>. Type a <b>Song title or album</b> and the <b>Artist</b>. Leave the title empty to get up to 10 songs by the artist. Tap <b>Copy for AI</b>, paste it into any AI, then paste its answer and tap <b>Load</b>. The buttons are at the top, and your songs are listed under <b>My songs</b> at the bottom. Tap the trash can to remove one.</p>
+      <p class="cap">Tap the upload button (beside <b>Play</b>, or beside <b>Full Range</b> on a phone). Type a <b>Song title or album</b> and the <b>Artist</b>. Leave the title empty to get up to 10 songs by the artist. Tap <b>Copy for AI</b>, paste it into any AI, then paste its answer and tap <b>Load</b>. The buttons are at the top, and your songs are listed under <b>My songs</b> at the bottom. Tap the trash can to remove one.</p>
       <p class="cap">When a song has words, two lines show above the <a class="ht-term" href="#gl-chord">chords</a>: the line you are singing, and the next one. They scroll up as the song moves on.</p></section></li>
       <li><section><h3><span class="ht-num">10.</span> Kids</h3>
-      <p class="cap">Tap <b>Kids</b> for big, friendly <a class="ht-term" href="#gl-chord">chords</a> and sing-along songs: Twinkle, Mary&#8217;s Lamb, Row Your Boat and Old MacDonald. Tap the gold key to play the next <a class="ht-term" href="#gl-note">note</a>, and the words show which one you are singing.</p></section></li>
+      <p class="cap">Tap <b>Kids</b> for big, friendly <a class="ht-term" href="#gl-chord">chords</a> and sing-along songs: Twinkle, Mary&#8217;s Lamb, Row Your Boat and Old MacDonald. Seven big pads play a happy (major) <a class="ht-term" href="#gl-chord">chord</a> on each <a class="ht-term" href="#gl-note">note</a> of the <a class="ht-term" href="#gl-key">key</a>. The gold pad and the gold key follow the tune: tap either one to play the next <a class="ht-term" href="#gl-note">note</a>, and the words show which one you are singing.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
         <h3 id="htWordsH">Little words to know</h3>
@@ -2515,7 +2531,7 @@ html.simple.lay-phone-land .kid-key, html.simple.lay-phone-port .kid-key { gap: 
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 102;
+var APP_VERSION = 103;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -6490,6 +6506,7 @@ function accSym(s) {
   function progStep(key, str) {
     var st = progParse(str);
     var kdegs = keyDegrees(key);
+    if (state.style === "kids") kidsMajorStep(st, kdegs);   // v103
     var rowPcs = kdegs.map(function (d) { return d.pc; }).sort(function (a, b) { return a - b; });
     var dorder = kdegs.slice().sort(function (a, b) { return a.pc - b.pc; }).map(function (d) { return d.degree; });
     var inKey = {};
@@ -6525,6 +6542,14 @@ function accSym(s) {
         degree: (!st.low && diatonic && q.type === d.type && !ext.over) ? d.degree : null,
         type: q.type, extensions: ext, qualityLabel: q.label, chipLabel: lab, keepSpell: ni >= 0, mel: st.mel }
     };
+  }
+  // v103 Kids: the step's chord is the MAJOR triad on its melody note (the @ token, else the chord root),
+  // on that scale degree, so the gold pad, Next / Play, the Now card and the keys all show the melody.
+  function kidsMajorStep(st, kdegs) {
+    var tonic = kdegs[0].pc, d = kdegs[st.deg - 1];
+    var mpc = st.mel != null ? wrap12(tonic + st.mel) : wrap12(d.pc - (st.low ? 1 : 0));
+    for (var i = 0; i < kdegs.length; i++) if (kdegs[i].pc === mpc) { st.deg = i + 1; st.low = false; st.q = "maj"; return; }
+    st.q = "maj";   // (not reached by the Kids songs: every melody note is in the key)
   }
   function progSteps(key, p) { if (p && p.up) return U ? upSteps(key) : []; return p.steps.map(function (s) { return progStep(key, s); }); }
   // Full mode label: the numerals (repeats folded as x2; very long ones list their chords).
@@ -6835,12 +6860,11 @@ function accSym(s) {
   // (hidden) so the progression, badges logic and magic Next pool are exactly as before.
   function kidTriad(item) {
     if (!item) return null;
-    var minor = item.type === "minor", dim = item.type === "dim";
-    var t = {}, k;
+    var t = {}, k;   // v103: every Kids chord is a plain major triad
     for (k in item) t[k] = item[k];
-    t.type = minor ? "minor" : dim ? "dim" : "major";
-    t.qualityLabel = minor ? "m" : dim ? "dim" : "";
-    t.chipLabel = minor ? "m" : dim ? "\u00b0" : "";
+    t.type = "major";
+    t.qualityLabel = "";
+    t.chipLabel = "";
     t.extensions = {};
     return t;
   }
@@ -6849,13 +6873,10 @@ function accSym(s) {
     if (typeof magic !== "undefined" && magic && magic.item) return magic.item;
     return magicHome();
   }
-  function kidName(item) {
-    var t = item.type === "minor" ? "m" : item.type === "dim" ? "dim" : "";
-    return prettyAcc(item.rootName) + t;
-  }
-  function kidCls(item) { return item.type === "minor" ? "minor" : item.type === "dim" ? "tension" : "major"; }
-  // v71: Kids = the big Now chip + the key's seven basic chords (I ii iii IV V vi vii°;
-  // C Dm Em F G Am Bdim in C) as tappable pads. A pad tap plays its full triad (like a chip tap).
+  function kidName(item) { return prettyAcc(item.rootName); }   // v103: the root only
+  function kidCls(item) { return "major"; }   // v103: one pad colour (no minor / dim marking)
+  // v71: Kids = the big Now chip + the key's seven basic chords as tappable pads.
+  // v103: the seven scale-degree roots as plain MAJOR triads (C D E F G A B in C, all major). A pad tap plays its full triad (like a chip tap).
   function paintKidChip() {
     var el = document.getElementById("suggest");
     if (!el) return;
@@ -6876,7 +6897,7 @@ function accSym(s) {
       var row = document.createElement("div");
       row.className = "ss-kidpads";
       row.setAttribute("role", "group");
-      row.setAttribute("aria-label", "Seven basic chords");
+      row.setAttribute("aria-label", "Seven major chords on the notes of the key");
       var notes = m ? m.notes.slice().sort(function (x, y) { return (x.item.degree || 0) - (y.item.degree || 0); }) : [];
       notes.forEach(function (n) {
         var it = kidTriad(n.item);
@@ -7182,6 +7203,7 @@ function accSym(s) {
   if (PROG_TEST) window.__fxTap = fxTapLog;
   var kidsTapLog = { taps: [], pulses: 0 };
   if (PROG_TEST) window.__kidsTap = kidsTapLog;
+  if (PROG_TEST) window.__kidsPads = function () { return Array.prototype.map.call(document.querySelectorAll("#suggest .ss-kidpad"), function (b) { var it = b._tc && b._tc.item; return { label: b.textContent, cls: b.className, rootPc: it && it.rootPc, type: it && it.type, gold: b.classList.contains("nx-root") }; }); };   // v103
   if (PROG_TEST) window.__kbWin = function () { return { lo: kbWinLow, stay: kbKeyStay, chord: kbChord && { rootPc: kbChord.rootPc, root: kbChord.root, type: kbChord.type } }; };   // v102
   function kidsGoldGo(el, kind) {
     var d = kidsGoldStep();
@@ -7439,9 +7461,9 @@ function accSym(s) {
   // versions in one answer (sections + sectionsFull). Neither asks for a key: the AI returns song.key.
   // v89: one prompt template for every mode (contract 1.2 song list): HEAD + RULES(variant) + TAIL + ASK(mode) + SKIP(mode).
   // UP_PASTE_LINE / UP_PASTE_LINE_2 are now the Simple and Simple-and-Full RULES.
-  var UP_HEAD = "Fill in the song form in the JSON contract below once for each song I ask for. Return ONLY valid JSON: one object with \"contractVersion\": \"1.2\" and a \"songs\" list holding one filled-in song form per song (song, timing, sections; leave contractVersion out of each song). Put the album in song.album only if you know it; otherwise leave album out, never an empty string. If the list has more than 3 songs, leave out lyrics to keep the answer short.";
+  var UP_HEAD = "Fill in the song form in the JSON contract below once for each song I ask for. Return ONLY valid JSON: one object with \"contractVersion\": \"1.2\" and a \"songs\" list holding one filled-in song form per song (song, timing, sections; leave contractVersion out of each song). Put the album in song.album only if you know it; otherwise leave album out, never an empty string. For 3 songs or fewer, give every section its lyrics with chord markers; if the list has more than 3 songs, leave out lyrics to keep the answer short.";
   var UP_PASTE_LINE = "Keep it simple, for kids learning chords. List each section in play order, but use repeat for back-to-back repeats instead of writing them out. In each section give only the chord changes, and merge the same chord played twice in a row into one longer chord. Use plain beginner chords: major, minor, 7 or sus. Leave out passing chords, slash chords and extensions unless the song really needs them, and put the fancier version in alternates. Aim for 4 to 8 chords per section.";
-  var UP_PASTE_LINE_2 = "Study each song once and give TWO versions of its chords in its song form. 1) \"sections\" is the Simple version, for kids learning chords: list each section in play order, but use repeat for back-to-back repeats instead of writing them out; give only the chord changes and merge the same chord played twice in a row into one longer chord; use plain beginner chords (major, minor, 7 or sus), leave out passing chords, slash chords and extensions unless the song really needs them, put the fancier version in alternates, and aim for 4 to 8 chords per section. 2) \"sectionsFull\" is the Full version, faithful to the record: keep the passing chords, slash chords and richer voicings as played; list each section once and mark repeats with repeat; about 15 to 25 chord entries across the whole song. Both versions share one song block, one timing block and the same lyric text, but each version's lyric markers point into that version's own chords array.";
+  var UP_PASTE_LINE_2 = "Study each song once and give TWO versions of its chords in its song form. 1) \"sections\" is the Simple version, for kids learning chords: list each section in play order, but use repeat for back-to-back repeats instead of writing them out; give only the chord changes and merge the same chord played twice in a row into one longer chord; use plain beginner chords (major, minor, 7 or sus), leave out passing chords, slash chords and extensions unless the song really needs them, put the fancier version in alternates, and aim for 4 to 8 chords per section. 2) \"sectionsFull\" is the Full version, faithful to the record: keep the passing chords, slash chords and richer voicings as played; list each section once and mark repeats with repeat; about 15 to 25 chord entries across the whole song. Both versions share one song block, one timing block and the same lyric text: write the lyrics out in both, in each section of sections and of sectionsFull, with each version's lyric markers pointing into that version's own chords array.";
   var UP_TAIL = "Use concert pitch, count bars from the start of each song, give each chord an honest 0-1 confidence, and put anything unsure in that song's notes. If you can't find a song's chords, leave that song out rather than guess, and name it in the top-level notes.";
   var UP_ARTIST_MAX = 10, UP_ALBUM_MAX = 25, UP_SKIP_MAX = 40, UP_LIST_MAX = 25;
   var upPromptVer = "simple";
@@ -7727,12 +7749,35 @@ function accSym(s) {
   // U = { raw, title, artist, key, bpm, bpb, ts, events: [{ si, ci, rep, dur }], choice: {"si:ci": sym}, reviewed: {"si:ci": true} }
   // v80: U.secs = the version being played (raw.sections, or raw.sectionsFull when U.ver is "full");
   // U.two = the answer has both. U.choice / U.reviewed are the current version's (U.choiceAll[ver]).
+  // v103 fix: a Full section with no lyrics borrows the Simple section's lyric text (same id, else same
+  // place); each marker moves to the Full chord sounding at that Simple chord's bar / beat. Shallow copies
+  // only (chords shared), so the saved answer is unchanged.
+  function upFullLyrics(full, simple, bpb) {
+    function at(c) { var p = c.position || {}; return ((p.bar || 1) - 1) * (bpb || 4) + ((p.beat || 1) - 1); }
+    return full.map(function (fs, i) {
+      if (fs.lyrics && fs.lyrics.length) return fs;
+      var ss = simple.filter(function (x) { return fs.id && x.id === fs.id; })[0] || simple[i];
+      if (!ss || !ss.lyrics || !ss.lyrics.length) return fs;
+      var lyr = ss.lyrics.map(function (ln) {
+        var seen = {}, mk = [];
+        (ln.markers || []).forEach(function (m) {
+          var sc = ss.chords[m.chordIndex], t = sc ? at(sc) : 0, best = 0;
+          fs.chords.forEach(function (fc, k) { if (at(fc) <= t) best = k; });
+          if (!seen[best]) { seen[best] = true; mk.push({ charIndex: m.charIndex, chordIndex: best }); }
+        });
+        return { text: ln.text, markers: mk };
+      });
+      var o = {}; for (var k in fs) o[k] = fs[k];
+      o.lyrics = lyr;
+      return o;
+    });
+  }
   function upBuild(raw, choice, reviewed, ver) {
     var two = !!(raw.sectionsFull && raw.sectionsFull.length);
     var u = { raw: raw, title: raw.song.title, artist: raw.song.artist, key: raw.song.key,
       bpm: raw.timing.bpm, ts: raw.timing.timeSignature, bpb: parseInt(raw.timing.timeSignature, 10) || 4,
       events: [], choice: choice || {}, reviewed: reviewed || {}, two: two, ver: two && ver === "full" ? "full" : "simple" };
-    u.secs = u.ver === "full" ? raw.sectionsFull : raw.sections;
+    u.secs = u.ver === "full" ? upFullLyrics(raw.sectionsFull, raw.sections, u.bpb) : raw.sections;
     u.choiceAll = { simple: {}, full: {} }; u.reviewedAll = { simple: {}, full: {} };
     u.choiceAll[u.ver] = u.choice; u.reviewedAll[u.ver] = u.reviewed;
     u.secs.forEach(function (sec, si) {
