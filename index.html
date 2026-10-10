@@ -1718,6 +1718,9 @@ html.lay-pad-port #songBar, html.lay-pad-land #songBar { height: 28px; font-size
 .up-key .uk-l { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
 .up-key .uk-k { font-family: Palatino, "Iowan Old Style", Georgia, serif; font-size: 34px; font-weight: 700; line-height: 1.05; color: var(--copper); }
 .up-key .uk-t { font-size: 13px; color: var(--muted); text-align: right; }
+/* v87: no key field or key display on the Upload form (song.key is still read and applied). */
+.up-key .uk-kbox[hidden] { display: none; }
+.up-key .uk-kbox[hidden] + .uk-t { text-align: left; }
 .up-review { border: 1px solid #f08a24; border-radius: 10px; padding: 6px 8px; font-size: 13px; }
 .up-review[hidden] { display: none; }
 .up-review b { color: #f08a24; }
@@ -1815,12 +1818,12 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=86" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=87" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=86" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=87" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1829,19 +1832,19 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
       </ol>
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=86" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=87" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=86" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=87" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=86" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=87" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the smiley face, and sad ones sit below the frown. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=86" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=87" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=86" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=87" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Full Range enables all keys to be available.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
@@ -1910,7 +1913,7 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
         <label>Song title<input id="upTitle" type="text" autocomplete="off" spellcheck="false" placeholder="Hotel California"></label>
         <label>Artist<input id="upArtist" type="text" autocomplete="off" spellcheck="false" placeholder="Eagles"></label>
       </div>
-      <div class="up-key" aria-live="polite"><div><div class="uk-l">Key</div><div class="uk-k" id="upKey">&mdash;</div></div><div class="uk-t" id="upTempo">No song loaded</div></div>
+      <div class="up-key" aria-live="polite"><div class="uk-kbox" hidden><div class="uk-l">Key</div><div class="uk-k" id="upKey">&mdash;</div></div><div class="uk-t" id="upTempo">No song loaded</div></div>
       <div class="up-row up-lockrow" id="upLockRow" hidden><button type="button" id="upLock" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2" fill="currentColor"/><path class="shk" d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.2"/></svg><span>Lock</span></button><span class="up-lockhint" id="upLockHint"></span></div>
       <div class="up-review" id="upReview" hidden></div>
       <div class="up-secs" id="upSecs" aria-label="Song sections in play order"><div class="up-empty">No song yet. Copy the form for an AI below, then paste its answer.</div></div>
@@ -2193,7 +2196,7 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 86;
+var APP_VERSION = 87;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -7787,7 +7790,7 @@ function accSym(s) {
       if (!r.ok) document.getElementById("upNote").hidden = true;
       if (r.ok) {
         var msg = document.getElementById("upMsg"), n = U.events.length, fl = upFlagList().length;
-        msg.textContent = "Loaded " + U.title + ": " + U.secs.length + " sections, " + n + " chords, key " + accSym(r.key ? r.key.name : U.key.tonic) + " " + U.key.mode + ", " + U.bpm + " BPM." +
+        msg.textContent = "Loaded " + U.title + ": " + U.secs.length + " sections, " + n + " chords, " + U.bpm + " BPM." +   // v87: no key on the Upload form
           (fl ? " " + fl + " need review." : "") + (U.two ? " Simple and Full versions: pick one in My songs." : "") + (r.warnings.length ? " Note: " + r.warnings.slice(0, 3).join("; ") + (r.warnings.length > 3 ? "\u2026" : "") : "") + " Close this and tap Next or Play.";
         msg.hidden = false;
         document.getElementById("upTitle").value = U.title;
