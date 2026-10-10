@@ -1125,6 +1125,13 @@ html.lay-phone-land .key-row { display: none; }
 .ht-box ol.ht-sub { list-style: decimal; margin: 4px 0 2px; padding-left: 22px; }
 .ht-box ol.ht-sub > li { margin: 3px 0; padding-left: 2px; }
 .ht-box ol.ht-sub > li::marker { color: #f3c64f; font-weight: 700; }
+/* v94: the strip's happy / sad faces, shown inline in How to step 4 */
+.ht-face { display: inline-flex; align-items: center; gap: 2px; vertical-align: -0.2em; }
+.ht-face svg { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ht-face svg.ar { width: .6em; height: .75em; }
+.ht-face svg .eye { fill: currentColor; stroke: none; }
+.ht-face-happy { color: #e2b15a; }
+.ht-face-sad { color: #8a7bc0; }
 /* v67: every How to number is the vocabulary yellow, but plain text (not a link). */
 .ht-box .ht-num { color: #f3c64f; font-weight: 700; text-decoration: none; cursor: default; pointer-events: none; }
 .ht-box .ht-note { margin: 6px 0 6px; font-size: 13px; color: var(--muted); }
@@ -1407,6 +1414,12 @@ html:not(.simple).lay-phone-port #app { --ss-lbl: 0px; --ss-ico: 16px; --ss-arro
 html:not(.simple).lay-phone-port .ss { padding: 0;
   grid-template-rows: [hi-start] auto [hi-end b-start g-start] minmax(0, 1fr) [b-end h-start] minmax(0, 1fr) [h-end n-start] minmax(0, 1.1fr) [n-end s-start] minmax(0, 1fr) [s-end t-start] minmax(0, 1fr) [t-end g-end si-start] auto [si-end]; }
 html:not(.simple).lay-phone-port .ss .ss-lbl { grid-column: 2 / -1; flex-direction: row; justify-content: center; align-items: center; }
+/* v94: no face labels on the strip: no face column (every layout) and no face rows (phone portrait) */
+#app { --ss-lbl: 0px !important; }
+html:not(.simple).lay-phone-port .ss {
+  grid-template-rows: [b-start g-start] minmax(0, 1fr) [b-end h-start] minmax(0, 1fr) [h-end n-start] minmax(0, 1.1fr) [n-end s-start] minmax(0, 1fr) [s-end t-start] minmax(0, 1fr) [t-end g-end]; }
+html.simple.lay-phone-port .ss {
+  grid-template-rows: [b-start g-start] minmax(44px, 1fr) [b-end h-start] minmax(44px, 1fr) [h-end n-start] minmax(44px, 1.1fr) [n-end s-start] minmax(44px, 1fr) [s-end t-start] minmax(44px, 1fr) [t-end g-end]; }
 html:not(.simple).lay-phone-port .ss .ss-chip { padding: 0; letter-spacing: -0.02em; }
 /* Columns here are ~30 px wide: no room for a numeral beside the chord name, so the chips show
    the name only and the numerals stay under the note names (each chip sits in its note's column). */
@@ -1844,12 +1857,12 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=93" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=94" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=93" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=94" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1858,19 +1871,19 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
       </ol>
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=93" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=94" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=93" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=94" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=93" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
-      <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the smiley face, and sad ones sit below the frown. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
+      <img src="images/howto-simple-6-grid.webp?v=94" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
+      <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the row of notes <span class="ht-face ht-face-happy" role="img" aria-label="happy face, arrow up"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="8.6" cy="9.6" r="1.2"/><circle class="eye" cx="15.4" cy="9.6" r="1.2"/><path d="M7.6 14.2c1.1 1.9 2.6 2.8 4.4 2.8s3.3-.9 4.4-2.8"/></svg><svg class="ar" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 13V2M2 6l4-4 4 4"/></svg></span>, and sad ones sit below it <span class="ht-face ht-face-sad" role="img" aria-label="sad face, arrow down"><svg class="ar" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 1v11M2 8l4 4 4-4"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="8.6" cy="9.6" r="1.2"/><circle class="eye" cx="15.4" cy="9.6" r="1.2"/><path d="M7.6 17.2c1.1-1.9 2.6-2.8 4.4-2.8s3.3.9 4.4 2.8"/></svg></span>. The faces are only a guide; they are not buttons. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=93" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=94" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=93" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=94" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Full Range enables all keys to be available.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
@@ -2431,7 +2444,7 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 93;
+var APP_VERSION = 94;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -5937,6 +5950,7 @@ function accSym(s) {
   function arrowSvg(up) {
     return "<svg class=\"ss-arrow\" viewBox=\"0 0 12 14\" aria-hidden=\"true\">" + (up ? "<path d=\"M6 13V2M2 6l4-4 4 4\"/>" : "<path d=\"M6 1v11M2 8l4 4 4-4\"/>") + "</svg>";
   }
+  var SHOW_STRIP_FACES = false;   // v94: decorative row labels, now only in How to
   var STRIP_ICONS = [
     { id: "happy", rows: "hi", aria: "Happy chords", svg: faceSvg("M7.6 14.2c1.1 1.9 2.6 2.8 4.4 2.8s3.3-.9 4.4-2.8") + arrowSvg(true) },
     { id: "sad", rows: "si", aria: "Sad and tense chords", svg: arrowSvg(false) + faceSvg("M7.6 17.2c1.1-1.9 2.6-2.8 4.4-2.8s3.3.9 4.4 2.8") }
@@ -6207,7 +6221,8 @@ function accSym(s) {
     el.classList.toggle("gutr", model.chips.some(function (c) { return c.hc === 14; }));
     // v52: no text labels (young players): a happy face beside the row above the
     // scale, a sad face beside the Sad + Tension rows, nothing on the scale row.
-    STRIP_ICONS.forEach(function (r) {
+    // v94: the happy / sad face labels are gone from the strip (How to, step 4, shows them)
+    if (SHOW_STRIP_FACES) STRIP_ICONS.forEach(function (r) {
       var l = document.createElement("div");
       l.className = "ss-lbl ss-ico-" + r.id;
       l.style.gridRow = r.rows;
