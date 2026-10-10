@@ -1526,6 +1526,8 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
 /* v61 portrait: the row grows (the keyboard gives up the height) so Now stays at its v59 91 px. */
 html.lay-phone-port:not(.simple) .now-col { gap: 4px; }
 html.lay-phone-port:not(.simple) .now-col > .now-card { flex: 1 0 auto; min-height: 91px; }
+/* v77: Volume + Band rows sit under the Now card: the card gives back their height (keyboard keeps its v76 room). */
+html.lay-phone-port:not(.simple) .now-col > .now-card { min-height: 71px; }
 html.lay-phone-port:not(.simple) .now-col > .prog { flex-direction: column; align-items: center; gap: 4px; flex: 0 0 auto; width: 100%; max-width: none; }
 html.lay-phone-port:not(.simple) .now-col > .prog .pg-sel { width: 100%; flex: 0 0 auto; }
 /* v60: wide cycler (iPad, desktop): name over small numerals. */
@@ -1537,18 +1539,54 @@ html.lay-phone-port:not(.simple) .now-col > .prog .pg-sel { width: 100%; flex: 0
 .config-menu .cfg-vol input { flex: 1 1 auto; min-width: 0; width: 120px; accent-color: var(--copper); }
 .config-menu .cfg-vol b { flex: 0 0 auto; min-width: 2.2em; text-align: right; font-size: 12px; font-weight: 700; color: var(--muted); }
 /* v75: Config Band slider (where Volume used to sit) + "for now" note; dimmed on styles without a band. */
-/* v76: Band lives in the Sound pane, last slider under Voicing. */
-.band-wrap { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-.band-row { display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 20px; height: 20px; font-size: 12px; color: var(--muted); }
-.band-row span { flex: 0 0 auto; }
-.band-row input { flex: 1 1 auto; min-width: 0; width: 100%; accent-color: var(--copper); }
-.band-row b { flex: 0 0 auto; min-width: 2.2em; text-align: right; font-size: 12px; font-weight: 650; color: var(--ink); }
-.band-wrap .cfg-band-note { font-size: 10.5px; color: var(--muted); line-height: 1.2; }
-#paneSound > .band-wrap { margin-top: -3px; }
-/* v76: phone portrait pays for the Band row with slimmer sound tiles (keyboard keeps its room). */
-html.lay-phone-port .sound-tiles button { min-height: 36px; padding: 3px 8px; gap: 1px; }
-html.lay-phone-port #paneSound { gap: 6px; }
-.band-wrap .cfg-band.dim { opacity: .45; }
+/* v77: Band on the main screen, a tight row right under Volume (Simple and Full). The note shows only
+   while the style has no band yet (row dimmed). */
+.now-col > .now-mix { flex: 0 0 auto; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.now-mix > .now-band { flex: 0 0 auto; display: flex; align-items: center; gap: 6px; min-width: 0; height: 20px; padding: 0 6px; }
+.now-band .band-row { flex: 1 1 auto; display: flex; align-items: center; gap: 6px; min-width: 0; height: 100%; font-size: 11.5px; font-weight: 700; color: var(--muted, #b9ad9a); }
+.now-band .band-row span { flex: 0 0 auto; }
+.now-band .band-row input { flex: 1 1 auto; min-width: 0; width: 100%; margin: 0; accent-color: var(--copper); }
+.now-band .band-row b { flex: 0 0 auto; min-width: 2.1em; text-align: right; font-size: 11px; font-weight: 700; color: var(--ink); }
+.now-band .cfg-band-note { display: none; flex: 1 1 auto; min-width: 0; font-size: 9.5px; line-height: 1.1; color: var(--muted); overflow: hidden; display: none; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+/* No band for this style yet: the row shows the note instead of the slider (same height, dimmed). */
+.now-band.dim .band-row { flex: 0 0 auto; opacity: .55; }
+.now-band.dim .band-row input, .now-band.dim .band-row b { display: none; }
+.now-band.dim .cfg-band-note { display: -webkit-box; }
+/* phone Full: tight rows, no value readout (like Volume). */
+html.lay-phone-port:not(.simple) .now-mix > .now-band, html.lay-phone-land:not(.simple) .now-mix > .now-band { height: 16px; padding: 0 4px; gap: 4px; }
+html.lay-phone-port:not(.simple) .now-band .band-row, html.lay-phone-land:not(.simple) .now-band .band-row { font-size: 10px; gap: 4px; }
+html.lay-phone-port:not(.simple) .now-band .band-row b, html.lay-phone-land:not(.simple) .now-band .band-row b { display: none; }
+html.lay-phone-port:not(.simple) .now-band .cfg-band-note, html.lay-phone-land:not(.simple) .now-band .cfg-band-note { font-size: 8.5px; line-height: 1.05; }
+/* phone landscape Full: Volume and Band side by side on one row. */
+html.lay-phone-land:not(.simple) .now-col > .now-mix { flex-direction: row; align-items: center; gap: 4px; }
+html.lay-phone-land:not(.simple) .now-mix > .now-vol { flex: 1 1 0; min-width: 0; }
+html.lay-phone-land:not(.simple) .now-mix > .now-band { flex: 1.15 1 0; min-width: 0; height: 16px; padding: 0 2px; }
+html.lay-phone-land:not(.simple) .now-band .band-row { font-size: 9px; gap: 3px; }
+html.lay-phone-land:not(.simple) .now-mix > .now-vol .pg-vol { gap: 3px; padding: 0 2px; }
+/* dimmed in phone landscape Full: the note takes the Band cell (label hidden, Volume narrower) so it reads in two short lines. */
+html.lay-phone-land:not(.simple) .now-mix > .now-band.dim { flex: 1 1 auto; }
+html.lay-phone-land:not(.simple) .now-mix > .now-vol { min-width: 40px; }
+html.lay-phone-land:not(.simple) .now-mix:has(.now-band.dim) > .now-vol { flex: 0 0 32px; min-width: 32px; }
+html.lay-phone-land:not(.simple) .now-mix:has(.now-band.dim) > .now-vol .pg-vol svg { display: none; }
+html.lay-phone-land:not(.simple) .now-band.dim .band-row { display: none; }
+html.lay-phone-land:not(.simple) .now-band.dim .cfg-band-note { font-size: 8px; line-height: 1; letter-spacing: -0.1px; }
+html.lay-phone-land:not(.simple) .now-mix > .now-band.dim { padding: 0; }
+/* phone portrait Full: the dimmed row may take a third line (keyboard gives 8 px; the Now card is untouched). */
+html.lay-phone-port:not(.simple) .now-mix > .now-band.dim { height: auto; min-height: 16px; }
+html.lay-phone-port:not(.simple) .now-band.dim .cfg-band-note { -webkit-line-clamp: 3; }
+html.lay-phone-land:not(.simple) .now-mix > .now-vol .pg-vol svg { display: block; width: 11px; height: 11px; }
+/* Simple (every size): Volume and Band side by side on one row; no value readout. */
+html.simple .now-col > .now-mix { flex-direction: row; align-items: center; gap: 6px; }
+html.simple .now-mix > .now-vol { flex: 1 1 0; min-width: 44px; }
+html.simple .now-mix > .now-band { flex: 1.25 1 0; min-width: 0; height: 22px; padding: 0 4px 0 2px; }
+html.simple .now-band .band-row b { display: none; }
+html.simple .now-mix:has(.now-band.dim) > .now-vol { flex: 0 0 38px; min-width: 38px; }
+html.simple .now-mix:has(.now-band.dim) > .now-vol .pg-vol svg { display: none; }
+html.simple .now-mix > .now-band.dim { flex: 1 1 auto; padding: 0; gap: 4px; }
+html.simple .now-band.dim .band-row { flex: 0 0 auto; }
+html.simple .now-band.dim .cfg-band-note { font-size: 9px; line-height: 1.05; }
+html.lay-phone-land.simple .now-mix > .now-vol, html.lay-phone-land.simple .now-mix > .now-band { height: 16px; min-height: 16px; }
+html.lay-phone-land.simple .now-band.dim .cfg-band-note { font-size: 8px; line-height: 1; }
 /* v60: Config toggle. */
 .config-menu .cfg-toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; white-space: nowrap; }
 .cfg-toggle .tgl { position: relative; flex: 0 0 auto; width: 34px; height: 20px; border-radius: 10px; background: #3a332b; border: 1px solid var(--line); transition: background .15s; }
@@ -1651,12 +1689,12 @@ html.lay-phone-port:not(.simple) .pg-btns { flex-wrap: wrap; row-gap: 3px; heigh
 html.lay-phone-port:not(.simple) .pg-btns > .pg-btn { flex: 1 1 0; width: auto; height: 27px; }
 html.lay-phone-port:not(.simple) .pg-btns > .pg-vol { flex: 1 0 100%; height: 14px; padding: 0 6px; }
 /* v76: Volume sits between the Now display and the key selector (Simple and Full, every layout). */
-.now-col > .now-vol { flex: 0 0 auto; display: flex; align-items: center; height: 22px; min-height: 22px; }
-html:not(.simple) .now-col > .now-vol { order: 1; }   /* full mode orders the column: Now 1, Volume 1 (after it in the DOM), Key 2 */
-.now-col > .now-vol .pg-vol { flex: 1 1 auto; height: 100%; padding: 0 6px 0 6px; gap: 6px; }
-.now-col > .now-vol .pg-vol svg { display: block; width: 15px; height: 15px; }
-html.lay-phone-land .now-col > .now-vol, html.lay-phone-port:not(.simple) .now-col > .now-vol { height: 16px; min-height: 16px; }
-html.lay-phone-land .now-col > .now-vol .pg-vol svg, html.lay-phone-port:not(.simple) .now-col > .now-vol .pg-vol svg { width: 12px; height: 12px; }
+.now-mix > .now-vol { flex: 0 0 auto; display: flex; align-items: center; height: 22px; min-height: 22px; }
+html:not(.simple) .now-col > .now-mix { order: 1; }   /* full mode orders the column: Now 1, Volume 1 (after it in the DOM), Key 2 */
+.now-mix > .now-vol .pg-vol { flex: 1 1 auto; height: 100%; padding: 0 6px 0 6px; gap: 6px; }
+.now-mix > .now-vol .pg-vol svg { display: block; width: 15px; height: 15px; }
+html.lay-phone-land .now-mix > .now-vol, html.lay-phone-port:not(.simple) .now-mix > .now-vol { height: 16px; min-height: 16px; }
+html.lay-phone-land .now-mix > .now-vol .pg-vol svg, html.lay-phone-port:not(.simple) .now-mix > .now-vol .pg-vol svg { width: 12px; height: 12px; }
 .pg-btn.pg-song.on { background: var(--copper); color: #1a1209; border-color: var(--copper); }
 
 /* v71 Kids next-note hint on the seven pads (both modes) */
@@ -1725,6 +1763,22 @@ html.lay-pad-port #songBar, html.lay-pad-land #songBar { height: 28px; font-size
 .up-ly .ly-c { color: var(--copper); font-weight: 700; }
 .up-ly .ly-t { color: var(--ink); }
 .up-ly .ly-t .mk { text-decoration: underline 2px var(--copper); text-underline-offset: 2px; }
+/* v77: My songs (library). The list scrolls inside the panel. */
+.up-lib[hidden] { display: none; }
+.up-lib { display: flex; flex-direction: column; gap: 4px; }
+.up-lib .ul-h { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.up-lib .ul-h small { font-weight: 600; letter-spacing: 0; text-transform: none; }
+.up-lib .ul-list { list-style: none; margin: 0; padding: 3px; max-height: min(30vh, 210px); overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--line); border-radius: 10px; display: flex; flex-direction: column; gap: 3px; }
+.up-lib .ul-row { display: flex; align-items: stretch; gap: 4px; min-width: 0; flex: 0 0 auto; }
+.up-lib .ul-open { flex: 1 1 auto; min-width: 0; height: auto; min-height: 40px; padding: 4px 10px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; text-align: left; border-radius: 9px; background: rgba(255,255,255,.04); border: 1px solid transparent; color: var(--ink); }
+.up-lib .ul-open b { font-size: 14px; font-weight: 700; line-height: 1.15; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.up-lib .ul-open span { font-size: 11.5px; color: var(--muted); line-height: 1.15; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.up-lib .ul-row.on .ul-open { background: rgba(226,161,90,.16); border-color: var(--copper); }
+.up-lib .ul-row.on .ul-open b { color: var(--copper); }
+.up-lib .ul-del { flex: 0 0 40px; width: 40px; min-height: 40px; height: auto; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 9px; color: var(--muted); background: transparent; border: 1px solid var(--line); }
+.up-lib .ul-del svg { width: 17px; height: 17px; }
+html.lay-phone-land .up-lib .ul-list { max-height: 34vh; }
+html.lay-phone-land .up-lib .ul-open, html.lay-phone-land .up-lib .ul-del { min-height: 34px; }
 .up-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .up-row button { min-height: 36px; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 10px; }
 .up-row .up-ok { font-size: 13px; color: #8fd18f; font-weight: 700; }
@@ -1777,12 +1831,12 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=76" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=77" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=76" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=77" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1791,19 +1845,19 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
       </ol>
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=76" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=77" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=76" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=77" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=76" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=77" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the smiley face, and sad ones sit below the frown. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=76" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=77" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=76" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=77" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Full Range enables all keys to be available.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
@@ -1827,7 +1881,10 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     <div id="tones">C E G</div>
     <div id="keyRow" class="key-row" aria-label="Chords in this key"></div>
   </div>
-  <div class="now-vol" id="nowVol"><label class="pg-vol" title="Volume"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.6 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="volume" type="range" min="0" max="100" step="1" value="100" aria-label="Volume" aria-valuetext="100"><b id="volVal" aria-hidden="true">100</b></label></div>
+  <div class="now-mix" id="nowMix">
+    <div class="now-vol" id="nowVol"><label class="pg-vol" title="Volume"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.6 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="volume" type="range" min="0" max="100" step="1" value="100" aria-label="Volume" aria-valuetext="100"><b id="volVal" aria-hidden="true">100</b></label></div>
+    <div class="now-band cfg-band" id="nowBand"><label class="band-row" title="Band: bass and drums under your chords (0 = off)"><span>Band</span><input id="band" type="range" min="0" max="100" step="1" value="0" aria-label="Band" aria-valuetext="Off"><b id="bandVal">Off</b></label><div class="cfg-band-note" id="bandNote">Pop, Country, Jazz &amp; Kids for now</div></div>
+  </div>
   <div class="key-bar"><button type="button" id="keyChip" class="key-chip" aria-haspopup="dialog" title="Pick the key">Key: play a chord</button><button type="button" id="allKeys" class="allkeys" aria-pressed="false" title="Full Range: unlock off-scale keys and chords so everything plays">Full Range</button></div>
   <div id="kidKey" class="kid-key" aria-label="Key">
     <div class="kk-root" role="slider" tabindex="0" aria-label="Key note, swipe to change" aria-valuemin="0" aria-valuemax="11" aria-valuenow="0" aria-valuetext="C">
@@ -1863,6 +1920,8 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     <div class="kp-box">
       <div class="kp-head"><span id="upTitleH">Upload a song</span><button type="button" class="kp-x up-x" aria-label="Close">&#10005;</button></div>
       <p class="up-intro">Ask any AI to fill in this song form, then paste its answer back here. The app checks it before loading.</p>
+      <div class="up-lib" id="upLib" hidden><div class="ul-h">My songs <small id="upLibN"></small></div><ul class="ul-list" id="upLibList" role="list"></ul></div>
+      <div class="up-err" id="upSaveErr" role="alert" hidden></div>
       <div class="up-note" id="upNote" role="status" hidden><span>Song loaded. Tap New song to start another.</span><button type="button" id="upNew2">New song</button></div>
       <div class="up-fields">
         <label>Song title<input id="upTitle" type="text" autocomplete="off" spellcheck="false" placeholder="Hotel California"></label>
@@ -2086,10 +2145,6 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
           </div>
         </div>
       </div>
-      <div class="band-wrap">
-        <label class="band-row cfg-band" title="Band: bass and drums under your chords (0 = off)"><span>Band</span><input id="band" type="range" min="0" max="100" step="1" value="0" aria-label="Band" aria-valuetext="Off"><b id="bandVal">Off</b></label>
-        <div class="cfg-band-note" id="bandNote">Pop, Country, Jazz &amp; Kids for now</div>
-      </div>
     </div>
 
     <div class="pane" id="paneFx" data-pane="fx" role="tabpanel" aria-label="Effects">
@@ -2144,7 +2199,7 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 76;
+var APP_VERSION = 77;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -6911,22 +6966,84 @@ function accSym(s) {
     var m = /(\d+)$/.exec(sec.id || "");
     return sec.type + (m ? " " + m[1] : "");
   }
-  function upSave() {
+  // v77: My songs. touchChord.library.v1 = { v: 1, active: id|null, sel, songs: [{ id, title, artist, added,
+  // song: <raw JSON>, choice, reviewed, locked, liveKey }] }, max 50. U is the active song (or null).
+  // Saving never fails silently (upSaveErr in the panel); a full library never evicts.
+  var LIB_STORE = "touchChord.library.v1", LIB_MAX = 50;
+  var LIB = { v: 1, active: null, sel: false, songs: [] };
+  var libSaveErr = "";
+  function libKey(t, a) { return String(t || "").trim().toLowerCase() + "\u0000" + String(a || "").trim().toLowerCase(); }
+  function libGet(id) { for (var i = 0; i < LIB.songs.length; i++) if (LIB.songs[i].id === id) return LIB.songs[i]; return null; }
+  function libFind(t, a) { var k = libKey(t, a); for (var i = 0; i < LIB.songs.length; i++) if (libKey(LIB.songs[i].title, LIB.songs[i].artist) === k) return LIB.songs[i]; return null; }
+  function libId() { var id; do { id = "s" + Date.now().toString(36) + Math.floor(Math.random() * 1679616).toString(36); } while (libGet(id)); return id; }
+  function libWrite() {
+    var ok = true;
     try {
-      if (!window.localStorage) return;
-      if (!U) { window.localStorage.removeItem(UP_STORE); return; }
-      window.localStorage.setItem(UP_STORE, JSON.stringify({ v: 1, song: U.raw, choice: U.choice, reviewed: U.reviewed, sel: upSelected(), locked: !!U.locked, liveKey: U.liveKey || null }));
-    } catch (err) {}
+      if (!window.localStorage) throw new Error("no storage");
+      window.localStorage.setItem(LIB_STORE, JSON.stringify(LIB));
+    } catch (err) { ok = false; }
+    libSaveErr = ok ? "" : "Couldn't save, storage is full";
+    paintLibErr();
+    return ok;
+  }
+  function paintLibErr() {
+    var el = document.getElementById("upSaveErr");
+    if (!el) return;
+    el.textContent = libSaveErr;
+    el.hidden = !libSaveErr;
+  }
+  function upSave() {
+    if (!U) { LIB.active = null; LIB.sel = false; }
+    else {
+      var e = libGet(U.id);
+      if (e) { e.choice = U.choice; e.reviewed = U.reviewed; e.locked = !!U.locked; e.liveKey = U.liveKey || null; }
+      LIB.active = e ? e.id : null;
+      LIB.sel = !!e && upSelected();
+    }
+    libWrite();
+    paintLib();
+  }
+  function libEntryToU(e) {
+    var chk = upCheck(JSON.stringify(e.song));
+    if (!chk.ok) return null;
+    var u = upBuild(chk.song, e.choice || {}, e.reviewed || {});
+    u.id = e.id; u.locked = e.locked !== false; u.liveKey = e.liveKey || null;
+    return u;
   }
   var upRestoreSel = false;
   (function () {
-    try {
-      var st = window.localStorage && JSON.parse(window.localStorage.getItem(UP_STORE) || "null");
-      if (st && st.song) {
-        var chk = upCheck(JSON.stringify(st.song));
-        if (chk.ok) { U = upBuild(chk.song, st.choice, st.reviewed); upRestoreSel = !!st.sel; U.locked = st.locked !== false; U.liveKey = st.liveKey || null; U.keep = upRestoreSel; }
-      }
-    } catch (err) { U = null; }
+    var ls = null;
+    try { ls = window.localStorage || null; } catch (err) { ls = null; }
+    if (!ls) return;
+    var raw = null;
+    try { raw = ls.getItem(LIB_STORE); } catch (err) { raw = null; }
+    if (raw != null) {
+      try {
+        var st = JSON.parse(raw);
+        if (st && st.v === 1 && Array.isArray(st.songs)) {
+          LIB = { v: 1, active: st.active || null, sel: !!st.sel, songs: st.songs.filter(function (x) { return x && x.id && x.song; }).slice(0, LIB_MAX) };
+        }
+      } catch (err) {}
+    } else {
+      // v77: one-time migration from the v72-v76 single song (touchChord.settings.v1 is never touched).
+      try {
+        var old = JSON.parse(ls.getItem(UP_STORE) || "null");
+        if (old && old.song && upCheck(JSON.stringify(old.song)).ok) {
+          var id = libId();
+          LIB.songs.push({ id: id, title: old.song.song.title, artist: old.song.song.artist, added: Date.now(), song: old.song,
+            choice: old.choice || {}, reviewed: old.reviewed || {}, locked: old.locked !== false, liveKey: old.liveKey || null });
+          if (old.sel) { LIB.active = id; LIB.sel = true; }
+          if (libWrite()) ls.removeItem(UP_STORE);
+        }
+      } catch (err) {}
+    }
+    var e = LIB.active ? libGet(LIB.active) : null;
+    if (LIB.active && !e) LIB.active = null;
+    if (e) {
+      try { U = libEntryToU(e); } catch (err) { U = null; }
+      if (U) { upRestoreSel = !!LIB.sel; U.keep = upRestoreSel; }
+      else LIB.active = null;
+    }
   })();
   // Shown in full mode only, never for Kids (Kids plays its own songs).
   // v73: a LOCKED song also stays in Simple (Next / Play keep walking it; the song bar / Upload stay hidden there).
@@ -7006,9 +7123,15 @@ function accSym(s) {
   function upLoad(text) {
     var r = upCheck(text);
     if (!r.ok) return r;
+    // v77: same title + artist updates that song (same id); a new one needs room (never evict).
+    var ent = libFind(r.song.song.title, r.song.song.artist);
+    if (!ent && LIB.songs.length >= LIB_MAX) { r.ok = false; r.full = true; r.errors = [{ path: "My songs", msg: "is full" }]; return r; }
     progStop();
     if (state.style === "kids") { var pb = document.querySelector("#styles button[data-style=\"pop\"]"); if (pb) pb.click(); }
+    if (ent) { ent.title = String(r.song.song.title).trim(); ent.artist = String(r.song.song.artist).trim(); ent.song = r.song; ent.choice = {}; ent.reviewed = {}; ent.locked = true; ent.liveKey = null; r.updated = true; }
+    else { ent = { id: libId(), title: String(r.song.song.title).trim(), artist: String(r.song.song.artist).trim(), added: Date.now(), song: r.song, choice: {}, reviewed: {}, locked: true, liveKey: null }; LIB.songs.push(ent); }
     U = upBuild(r.song, {}, {});
+    U.id = ent.id;
     U.locked = true; U.liveKey = null; U.keep = true;   // v73: Lock is ON the moment a song loads
     r.key = upKeyApply(r.song.song.key.tonic, r.song.song.key.mode);
     upSelect();
@@ -7021,6 +7144,45 @@ function accSym(s) {
     suggestSig = "";
     paintSuggestions(computeSpec());
     if (was) progSet(0);
+  }
+  // v77: open a saved song: same path as Load (key + Lock restored, selected in the picker).
+  function libOpen(id) {
+    var e = libGet(id);
+    if (!e) return false;
+    var u = libEntryToU(e);
+    if (!u) return false;
+    progStop();
+    if (state.style === "kids") { var pb = document.querySelector("#styles button[data-style=\"pop\"]"); if (pb) pb.click(); }
+    U = u; U.keep = true;
+    upKeyApply(upKeyNow().tonic, upKeyNow().mode);
+    upSelect();
+    return true;
+  }
+  function libDelete(id) {
+    var i = -1;
+    for (var k = 0; k < LIB.songs.length; k++) if (LIB.songs[k].id === id) i = k;
+    if (i < 0) return false;
+    LIB.songs.splice(i, 1);
+    if (U && U.id === id) upRemove();   // the active song: deselect it in the picker (saves)
+    else upSave();
+    return true;
+  }
+  function libConfirm(e) { return window.confirm("Remove " + (e ? e.title : "this song") + "?"); }
+  var TRASH_SVG = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6\"/></svg>";
+  function paintLib() {
+    var box = document.getElementById("upLib"), list = document.getElementById("upLibList");
+    if (!box || !list) return;
+    paintLibErr();
+    box.hidden = !LIB.songs.length;
+    document.getElementById("upLibN").textContent = LIB.songs.length ? "(" + LIB.songs.length + (LIB.songs.length >= LIB_MAX ? ", full" : "") + ")" : "";
+    var rows = LIB.songs.slice().sort(function (a, b) { return (b.added || 0) - (a.added || 0); });
+    var act = U ? U.id : null, h = "";
+    rows.forEach(function (e) {
+      var on = e.id === act;
+      h += "<li class=\"ul-row" + (on ? " on" : "") + "\" data-id=\"" + upEsc(e.id) + "\"><button type=\"button\" class=\"ul-open\" data-lib=\"open\"" + (on ? " aria-current=\"true\"" : "") + "><b>" + upEsc(e.title) + "</b><span>" + upEsc(e.artist) + "</span></button>" +
+        "<button type=\"button\" class=\"ul-del\" data-lib=\"del\" aria-label=\"Remove " + upEsc(e.title) + "\" title=\"Remove\">" + TRASH_SVG + "</button></li>";
+    });
+    list.innerHTML = h;
   }
   // Step index of the first walk step for chord (si, ci).
   function upStepOf(si, ci) {
@@ -7151,6 +7313,7 @@ function accSym(s) {
     if (!pick) return;
     var keyEl = document.getElementById("upKey"), tEl = document.getElementById("upTempo"), secs = document.getElementById("upSecs");
     var rev = document.getElementById("upReview");
+    paintLib();
     document.getElementById("upRemove").hidden = !U;
     var lrow = document.getElementById("upLockRow");
     lrow.hidden = !U;
@@ -7254,6 +7417,8 @@ function accSym(s) {
     if (U && !ti.value.trim() && !ar.value.trim()) { ti.value = U.title; ar.value = U.artist; }   // v73: never overwrite a new song being typed
     paintUpload();
     pick.hidden = false;
+    var ul = document.getElementById("upLibList"), on = ul && ul.querySelector(".ul-row.on");   // v77: the active song in view
+    if (on) ul.scrollTop = Math.max(0, on.offsetTop - ul.offsetTop - 4);
   }
   function wireUpload() {
     var pick = document.getElementById("uploadPick"), btn = document.getElementById("uploadBtn");
@@ -7269,6 +7434,7 @@ function accSym(s) {
       unlock();
       var r = upLoad(document.getElementById("upPaste").value);
       upShowErrors(r);
+      if (r.full) { var fe = document.getElementById("upErr"); fe.textContent = "My songs is full, remove one first"; fe.hidden = false; }
       if (!r.ok) document.getElementById("upNote").hidden = true;
       if (r.ok) {
         var msg = document.getElementById("upMsg"), n = U.events.length, fl = upFlagList().length;
@@ -7297,8 +7463,11 @@ function accSym(s) {
     document.getElementById("upNew").addEventListener("click", newSong);
     document.getElementById("upNew2").addEventListener("click", newSong);
     document.getElementById("upRemove").addEventListener("click", function () {
-      upRemove();
+      if (!U) return;
+      if (!libConfirm(libGet(U.id) || U)) return;
+      if (!libDelete(U.id)) upRemove();
       upOpenAlt = null;
+      ["upPaste", "upTitle", "upArtist"].forEach(function (id) { document.getElementById(id).value = ""; });
       document.getElementById("upNote").hidden = true;
       document.getElementById("upMsg").textContent = "Song removed.";
       document.getElementById("upMsg").hidden = false;
@@ -7321,6 +7490,32 @@ function accSym(s) {
       if (a === "accept") { U.reviewed[si + ":" + ci] = true; upSave(); if (upSelected()) progRedecorate(); paintUpload(); return; }
       if (a === "alt") { upPickAlt(si, ci, t.dataset.sym); return; }
     }
+    document.getElementById("upLibList").addEventListener("click", function (e) {
+      var b = e.target.closest ? e.target.closest("[data-lib]") : null, row = b && b.closest("[data-id]");
+      if (!b || !row) return;
+      var id = row.dataset.id, ent = libGet(id);
+      if (!ent) return;
+      ["upMsg", "upErr", "upNote", "upFallback", "upCopied"].forEach(function (x) { document.getElementById(x).hidden = true; });
+      upOpenAlt = null;
+      if (b.dataset.lib === "del") {
+        if (!libConfirm(ent)) return;
+        var wasActive = !!(U && U.id === id);
+        libDelete(id);
+        if (wasActive) ["upPaste", "upTitle", "upArtist"].forEach(function (x) { document.getElementById(x).value = ""; });
+        document.getElementById("upMsg").textContent = "Song removed.";
+        document.getElementById("upMsg").hidden = false;
+        paintUpload();
+        return;
+      }
+      unlock();
+      if (!libOpen(id)) { upShowErrors({ ok: false, errors: [{ path: ent.title, msg: "could not be opened" }] }); return; }
+      document.getElementById("upTitle").value = U.title;
+      document.getElementById("upArtist").value = U.artist;
+      document.getElementById("upPaste").value = "";
+      document.getElementById("upMsg").textContent = U.title + " is ready. Close this and tap Next or Play.";
+      document.getElementById("upMsg").hidden = false;
+      paintUpload();
+    });
     document.getElementById("upSecs").addEventListener("click", act);
     document.getElementById("upReview").addEventListener("click", act);
     // Reload: the saved song comes back selected, in its own key (full-mode key locks are not saved).
@@ -7343,7 +7538,12 @@ function accSym(s) {
     applySongKey: function (t, m) { return upKeyApply(t, m); },
     lock: function () { return U ? { locked: !!U.locked, liveKey: U.liveKey, key: U.key } : null; },
     setLock: function (on) { upSetLock(on); },
-    next: function () { return upNextStep(); }
+    next: function () { return upNextStep(); },
+    lib: function () { return JSON.parse(JSON.stringify({ active: LIB.active, sel: LIB.sel, n: LIB.songs.length, songs: LIB.songs.map(function (e) { return { id: e.id, title: e.title, artist: e.artist, added: e.added, locked: e.locked, liveKey: e.liveKey, choice: e.choice, reviewed: e.reviewed }; }), err: libSaveErr, uid: U ? U.id : null })); },
+    libOpen: function (id) { return libOpen(id); },
+    libDelete: function (id) { return libDelete(id); },
+    pickAlt: function (si, ci, sym) { upPickAlt(si, ci, sym); },
+    accept: function (si, ci) { U.reviewed[si + ":" + ci] = true; upSave(); }
   };
 
   // The picker: Simple = friendly name in the left column under Major / Minor; full mode =
@@ -8675,7 +8875,8 @@ function accSym(s) {
     document.getElementById("bandVal").textContent = txt;
     el.closest(".cfg-band").classList.toggle("dim", !on);
     var note = document.getElementById("bandNote");
-    note.textContent = on ? "Pop, Country, Jazz & Kids for now" : "Pop, Country, Jazz & Kids for now (no band on this style yet)";
+    note.textContent = "Pop, Country, Jazz & Kids for now";
+    note.title = on ? "" : "No band on this style yet";
   }
   function paintProgNumsBtn() {
     var b = document.getElementById("progNumsBtn");
