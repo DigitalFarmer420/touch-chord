@@ -1848,6 +1848,20 @@ html.up-lyr2.lay-phone-land:not(.simple) #app { --sb-h: calc(2 * var(--lr-h) + 4
 #songBar .sb-row .sb-ch { padding: 0 4px; line-height: calc(var(--lr-h) - 2px); }
 #songBar .sb-sec2 { margin-right: 4px; color: var(--copper); font-weight: 700; text-transform: capitalize; }
 @media (prefers-reduced-motion: reduce) { #songBar .sb-roll.go { transition: none; } }
+/* v97: Kids lyrics: the same two rows (the line being sung, then the next line), bigger, the sung word lit. */
+#app { --kl-h: 19px; }
+html.lay-phone-land #app { --kl-h: 15px; }
+html.lay-pad-port #app, html.lay-pad-land #app { --kl-h: 24px; }
+#kidsLyr { flex: 0 0 auto; height: calc(2 * var(--kl-h)); margin: 0 0 4px; padding: 0 6px; overflow: hidden; position: relative; font-size: calc(var(--kl-h) * .74); font-weight: 600; color: var(--ink); }
+#kidsLyr[hidden] { display: none !important; }
+#kidsLyr .sb-roll { display: block; will-change: transform; }
+#kidsLyr .sb-roll.go { transition: transform .28s ease-out; transform: translateY(calc(-1 * var(--kl-h))); }
+#kidsLyr .sb-row { display: block; height: var(--kl-h); line-height: var(--kl-h); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#kidsLyr .sb-row.r2 { color: var(--muted); opacity: .62; }
+#kidsLyr .kl-on { color: var(--copper); }
+@media (prefers-reduced-motion: reduce) { #kidsLyr .sb-roll.go { transition: none; } }
+html.kly-on .next-card > .ss { min-height: 0; flex: 1 1 0; height: auto; }
+html.kly-on:not(.simple):not(.lay-phone-port) .next-card > .ss { flex: 0 0 auto; height: calc(3 * var(--ss-row) + var(--ss-strip) + 3 * var(--ss-gap) - 2 * var(--kl-h) - 4px); }
 /* iPad / desktop: Next and Upload keep a real tap size beside the Volume slider. */
 html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.simple) .now-col > .prog .pg-btn { flex: 0 0 44px; }
 </style>
@@ -1873,12 +1887,12 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=96" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=97" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=96" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=97" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1887,19 +1901,19 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
       </ol>
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=96" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=97" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=96" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=97" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=96" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=97" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the row of notes <span class="ht-face ht-face-happy" role="img" aria-label="happy face, arrow up"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="8.6" cy="9.6" r="1.2"/><circle class="eye" cx="15.4" cy="9.6" r="1.2"/><path d="M7.6 14.2c1.1 1.9 2.6 2.8 4.4 2.8s3.3-.9 4.4-2.8"/></svg><svg class="ar" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 13V2M2 6l4-4 4 4"/></svg></span>, and sad ones sit below it <span class="ht-face ht-face-sad" role="img" aria-label="sad face, arrow down"><svg class="ar" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 1v11M2 8l4 4 4-4"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="8.6" cy="9.6" r="1.2"/><circle class="eye" cx="15.4" cy="9.6" r="1.2"/><path d="M7.6 17.2c1.1-1.9 2.6-2.8 4.4-2.8s3.3.9 4.4 2.8"/></svg></span>. The faces are only a guide; they are not buttons. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=96" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=97" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=96" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=97" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Full Range enables all keys to be available.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
@@ -2348,6 +2362,7 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
 
   <div class="next-card">
     <button type="button" id="songBar" hidden></button>
+    <div id="kidsLyr" hidden aria-live="off"></div>
     <button type="button" id="sbLock" aria-pressed="true" title="Lock the song chords" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2" fill="currentColor"/><path class="shk" d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.2"/></svg><span>Lock</span></button>
     <div id="suggest" class="ss" aria-label="Scale strip"></div>
   </div>
@@ -2460,7 +2475,7 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 96;
+var APP_VERSION = 97;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -6336,13 +6351,16 @@ function accSym(s) {
       major: [P("Pop Four-Chord", "1 maj|5 maj|6 min|4 maj"), P("Pop Minor Start", "6 min|4 maj|1 maj|5 maj"), P("Pop Turnaround", "1 maj|6 min|4 maj|5 maj")],
       minor: [P("Pop Four-Chord", "1 min|5 min|6 maj|4 min"), P("Pop Minor Start", "6 maj|4 min|1 min|5 min"), P("Pop Turnaround", "1 min|6 maj|4 min|5 maj")]
     },
-    // v96 Kids. One step = one sung note: "degree quality xBars @melody" (melody = semitones above the
+    // v97 Kids. One step = one sung note: "degree quality xBars @melody" (melody = semitones above the
     // key's tonic; xBars = note length, 0.25 = a quarter note at 4/4). The step's CHORD is the standard
     // harmonization under that note; Kids playback sounds the @melody note (no @ = the chord root, as before).
     // Minor degrees count from the minor home (natural minor), so VI and VII need no flat.
     kids: {
       major: [P("Kids Twinkle", "1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @7|1 maj x0.25 @7|4 maj x0.25 @9|4 maj x0.25 @9|1 maj x0.5 @7|4 maj x0.25 @5|4 maj x0.25 @5|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.25 @2|5 maj x0.25 @2|1 maj x0.5 @0|1 maj x0.25 @7|1 maj x0.25 @7|4 maj x0.25 @5|4 maj x0.25 @5|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.5 @2|1 maj x0.25 @7|1 maj x0.25 @7|4 maj x0.25 @5|4 maj x0.25 @5|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.5 @2|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @7|1 maj x0.25 @7|4 maj x0.25 @9|4 maj x0.25 @9|1 maj x0.5 @7|4 maj x0.25 @5|4 maj x0.25 @5|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.25 @2|5 maj x0.25 @2|1 maj x0.5 @0"),
-              P("Kids Sunny Day", "1 maj|5 maj|6 min|4 maj"), P("Kids Lullaby", "1 maj|6 min|4 maj|5 maj"), P("Kids Silly Walk", "1 maj|5 maj|1 maj|4 maj|1 maj")],
+              P("Kids Sunny Day", "1 maj|5 maj|6 min|4 maj"), P("Kids Lullaby", "1 maj|6 min|4 maj|5 maj"), P("Kids Silly Walk", "1 maj|5 maj|1 maj|4 maj|1 maj"),
+              P("Kids Mary's Lamb", "1 maj x0.25 @4|1 maj x0.25 @2|1 maj x0.25 @0|1 maj x0.25 @2|1 maj x0.25 @4|1 maj x0.25 @4|1 maj x0.5 @4|5 maj x0.25 @2|5 maj x0.25 @2|5 maj x0.5 @2|1 maj x0.25 @4|1 maj x0.25 @7|1 maj x0.5 @7|1 maj x0.25 @4|1 maj x0.25 @2|1 maj x0.25 @0|1 maj x0.25 @2|1 maj x0.25 @4|1 maj x0.25 @4|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.25 @2|5 maj x0.25 @2|5 maj x0.25 @4|5 maj x0.25 @2|1 maj x1 @0"),
+              P("Kids Row Your Boat", "1 maj x0.375 @0|1 maj x0.375 @0|1 maj x0.25 @0|1 maj x0.125 @2|1 maj x0.375 @4|1 maj x0.25 @4|1 maj x0.125 @2|1 maj x0.25 @4|1 maj x0.125 @5|1 maj x0.75 @7|1 maj x0.125 @12|1 maj x0.125 @12|1 maj x0.125 @12|1 maj x0.125 @7|1 maj x0.125 @7|1 maj x0.125 @7|1 maj x0.125 @4|1 maj x0.125 @4|1 maj x0.125 @4|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.125 @0|5 maj x0.25 @7|5 maj x0.125 @5|5 maj x0.25 @4|5 maj x0.125 @2|1 maj x0.75 @0"),
+              P("Kids Old MacDonald", "1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @7|4 maj x0.25 @9|4 maj x0.25 @9|1 maj x0.5 @7|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.25 @2|5 maj x0.25 @2|1 maj x0.75 @0|1 maj x0.25 @7|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @7|4 maj x0.25 @9|4 maj x0.25 @9|1 maj x0.5 @7|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.25 @2|5 maj x0.25 @2|1 maj x0.5 @0|1 maj x0.25 @7|1 maj x0.25 @7|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.125 @7|1 maj x0.125 @7|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.5 @0|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.25 @0|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.25 @0|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @7|4 maj x0.25 @9|4 maj x0.25 @9|1 maj x0.5 @7|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.25 @2|5 maj x0.25 @2|1 maj x1 @0")],
       minor: [P("Kids Spooky", "1 min|4 min|5 maj|1 min"), P("Kids Rainy Day", "1 min|6 maj|7 maj|1 min")]
     },
     jazz: {
@@ -6719,6 +6737,7 @@ function accSym(s) {
     if (prog.badges.some(function (b) { return b.steps.length > 2; })) placeBadges();
     paintKidChip();
     paintSongBar();   // Upload: song bar + review flags
+    paintKidsLyr();   // v97
     if (state.style === "kids") paintNextHint();   // v71: Kids next-note hint advances with each step
   }
   // v70: Kids strip = ONE big basic triad chip: the chord now current in the walk / loop
@@ -7282,8 +7301,16 @@ function accSym(s) {
     scheduleSave();
     return true;
   }
+  // v97: Kids lyrics, one marker per sung note (chordIndex = the song step). Public domain words.
+  var KIDS_LYRICS = {
+    "Kids Twinkle":[{"text":"Twinkle, twinkle, little star,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":4,"chordIndex":1},{"charIndex":9,"chordIndex":2},{"charIndex":13,"chordIndex":3},{"charIndex":18,"chordIndex":4},{"charIndex":21,"chordIndex":5},{"charIndex":25,"chordIndex":6}]},{"text":"How I wonder what you are!","markers":[{"charIndex":0,"chordIndex":7},{"charIndex":4,"chordIndex":8},{"charIndex":6,"chordIndex":9},{"charIndex":9,"chordIndex":10},{"charIndex":13,"chordIndex":11},{"charIndex":18,"chordIndex":12},{"charIndex":22,"chordIndex":13}]},{"text":"Up above the world so high,","markers":[{"charIndex":0,"chordIndex":14},{"charIndex":3,"chordIndex":15},{"charIndex":4,"chordIndex":16},{"charIndex":9,"chordIndex":17},{"charIndex":13,"chordIndex":18},{"charIndex":19,"chordIndex":19},{"charIndex":22,"chordIndex":20}]},{"text":"Like a diamond in the sky.","markers":[{"charIndex":0,"chordIndex":21},{"charIndex":5,"chordIndex":22},{"charIndex":7,"chordIndex":23},{"charIndex":10,"chordIndex":24},{"charIndex":15,"chordIndex":25},{"charIndex":18,"chordIndex":26},{"charIndex":22,"chordIndex":27}]},{"text":"Twinkle, twinkle, little star,","markers":[{"charIndex":0,"chordIndex":28},{"charIndex":4,"chordIndex":29},{"charIndex":9,"chordIndex":30},{"charIndex":13,"chordIndex":31},{"charIndex":18,"chordIndex":32},{"charIndex":21,"chordIndex":33},{"charIndex":25,"chordIndex":34}]},{"text":"How I wonder what you are!","markers":[{"charIndex":0,"chordIndex":35},{"charIndex":4,"chordIndex":36},{"charIndex":6,"chordIndex":37},{"charIndex":9,"chordIndex":38},{"charIndex":13,"chordIndex":39},{"charIndex":18,"chordIndex":40},{"charIndex":22,"chordIndex":41}]}],
+    "Kids Mary's Lamb":[{"text":"Mary had a little lamb, little lamb, little lamb,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":2,"chordIndex":1},{"charIndex":5,"chordIndex":2},{"charIndex":9,"chordIndex":3},{"charIndex":11,"chordIndex":4},{"charIndex":14,"chordIndex":5},{"charIndex":18,"chordIndex":6},{"charIndex":24,"chordIndex":7},{"charIndex":27,"chordIndex":8},{"charIndex":31,"chordIndex":9},{"charIndex":37,"chordIndex":10},{"charIndex":40,"chordIndex":11},{"charIndex":44,"chordIndex":12}]},{"text":"Mary had a little lamb, its fleece was white as snow.","markers":[{"charIndex":0,"chordIndex":13},{"charIndex":2,"chordIndex":14},{"charIndex":5,"chordIndex":15},{"charIndex":9,"chordIndex":16},{"charIndex":11,"chordIndex":17},{"charIndex":14,"chordIndex":18},{"charIndex":18,"chordIndex":19},{"charIndex":24,"chordIndex":20},{"charIndex":28,"chordIndex":21},{"charIndex":35,"chordIndex":22},{"charIndex":39,"chordIndex":23},{"charIndex":45,"chordIndex":24},{"charIndex":48,"chordIndex":25}]}],
+    "Kids Row Your Boat":[{"text":"Row, row, row your boat,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":5,"chordIndex":1},{"charIndex":10,"chordIndex":2},{"charIndex":14,"chordIndex":3},{"charIndex":19,"chordIndex":4}]},{"text":"gently down the stream.","markers":[{"charIndex":0,"chordIndex":5},{"charIndex":4,"chordIndex":6},{"charIndex":7,"chordIndex":7},{"charIndex":12,"chordIndex":8},{"charIndex":16,"chordIndex":9}]},{"text":"Merrily, merrily, merrily, merrily,","markers":[{"charIndex":0,"chordIndex":10},{"charIndex":3,"chordIndex":11},{"charIndex":5,"chordIndex":12},{"charIndex":9,"chordIndex":13},{"charIndex":12,"chordIndex":14},{"charIndex":14,"chordIndex":15},{"charIndex":18,"chordIndex":16},{"charIndex":21,"chordIndex":17},{"charIndex":23,"chordIndex":18},{"charIndex":27,"chordIndex":19},{"charIndex":30,"chordIndex":20},{"charIndex":32,"chordIndex":21}]},{"text":"life is but a dream.","markers":[{"charIndex":0,"chordIndex":22},{"charIndex":5,"chordIndex":23},{"charIndex":8,"chordIndex":24},{"charIndex":12,"chordIndex":25},{"charIndex":14,"chordIndex":26}]}],
+    "Kids Old MacDonald":[{"text":"Old MacDonald had a farm,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":4,"chordIndex":1},{"charIndex":7,"chordIndex":2},{"charIndex":10,"chordIndex":3},{"charIndex":14,"chordIndex":4},{"charIndex":18,"chordIndex":5},{"charIndex":20,"chordIndex":6}]},{"text":"E-I-E-I-O!","markers":[{"charIndex":0,"chordIndex":7},{"charIndex":2,"chordIndex":8},{"charIndex":4,"chordIndex":9},{"charIndex":6,"chordIndex":10},{"charIndex":8,"chordIndex":11}]},{"text":"And on his farm he had a cow,","markers":[{"charIndex":0,"chordIndex":12},{"charIndex":4,"chordIndex":13},{"charIndex":7,"chordIndex":14},{"charIndex":11,"chordIndex":15},{"charIndex":16,"chordIndex":16},{"charIndex":19,"chordIndex":17},{"charIndex":23,"chordIndex":18},{"charIndex":25,"chordIndex":19}]},{"text":"E-I-E-I-O!","markers":[{"charIndex":0,"chordIndex":20},{"charIndex":2,"chordIndex":21},{"charIndex":4,"chordIndex":22},{"charIndex":6,"chordIndex":23},{"charIndex":8,"chordIndex":24}]},{"text":"With a moo moo here and a moo moo there,","markers":[{"charIndex":0,"chordIndex":25},{"charIndex":5,"chordIndex":26},{"charIndex":7,"chordIndex":27},{"charIndex":11,"chordIndex":28},{"charIndex":15,"chordIndex":29},{"charIndex":20,"chordIndex":30},{"charIndex":24,"chordIndex":31},{"charIndex":26,"chordIndex":32},{"charIndex":30,"chordIndex":33},{"charIndex":34,"chordIndex":34}]},{"text":"Here a moo, there a moo, everywhere a moo moo,","markers":[{"charIndex":0,"chordIndex":35},{"charIndex":5,"chordIndex":36},{"charIndex":7,"chordIndex":37},{"charIndex":12,"chordIndex":38},{"charIndex":18,"chordIndex":39},{"charIndex":20,"chordIndex":40},{"charIndex":25,"chordIndex":41},{"charIndex":27,"chordIndex":42},{"charIndex":30,"chordIndex":43},{"charIndex":36,"chordIndex":44},{"charIndex":38,"chordIndex":45},{"charIndex":42,"chordIndex":46}]},{"text":"Old MacDonald had a farm,","markers":[{"charIndex":0,"chordIndex":47},{"charIndex":4,"chordIndex":48},{"charIndex":7,"chordIndex":49},{"charIndex":10,"chordIndex":50},{"charIndex":14,"chordIndex":51},{"charIndex":18,"chordIndex":52},{"charIndex":20,"chordIndex":53}]},{"text":"E-I-E-I-O!","markers":[{"charIndex":0,"chordIndex":54},{"charIndex":2,"chordIndex":55},{"charIndex":4,"chordIndex":56},{"charIndex":6,"chordIndex":57},{"charIndex":8,"chordIndex":58}]}]
+  };
   var KIDS_SONG_KEY = {
     "Kids Twinkle": ["C", "major"], "Kids Sunny Day": ["C", "major"], "Kids Lullaby": ["C", "major"], "Kids Silly Walk": ["C", "major"],
+    "Kids Mary's Lamb": ["C", "major"], "Kids Row Your Boat": ["C", "major"], "Kids Old MacDonald": ["C", "major"],
     "Kids Spooky": ["A", "minor"], "Kids Rainy Day": ["A", "minor"]
   };
   if (PROG_TEST) window.__applySongKey = function (t, m) { return applySongKey(t, m); };
@@ -8146,6 +8173,57 @@ function accSym(s) {
     bar.dataset.si = ent.si;
   }
   if (PROG_TEST) window.__lyr2 = { state: lyrState, map: function () { if (!U) return null; var M = upLyrMap(); return { any: M.any, seq: M.seq.map(function (x) { return { si: x.si, li: x.li, start: x.start }; }), at: M.at.slice() }; } };
+  // v97: Kids lyrics in two rows. Row 1 = the line holding the current step (its sung word lit), row 2 = the
+  // next line (muted, empty after the last). Moving on to the next line scrolls the rows up (as v95).
+  var klState = { name: null, k: -1, anim: 0, log: [] };
+  function kidsLyrLines() {
+    var it = state.style === "kids" && prog.list[prog.idx], L = it && KIDS_LYRICS[it.name];
+    return L && L.length ? L : null;
+  }
+  function kidsLyrRow(ln, step, cls) {
+    if (!ln) return "<span class=\"sb-row " + cls + "\"></span>";
+    var mk = ln.markers, h = upEsc(ln.text.slice(0, mk[0].charIndex));
+    mk.forEach(function (m, j) {
+      var seg = ln.text.slice(m.charIndex, j + 1 < mk.length ? mk[j + 1].charIndex : ln.text.length);
+      if (m.chordIndex === step) { var w = seg.match(/^([^\s,.!?;:]*)([\s\S]*)$/); h += "<span class=\"kl-on\">" + upEsc(w[1]) + "</span>" + upEsc(w[2]); }
+      else h += upEsc(seg);
+    });
+    return "<span class=\"sb-row " + cls + "\">" + h + "</span>";
+  }
+  function paintKidsLyr() {
+    var box = document.getElementById("kidsLyr");
+    if (!box) return;
+    var L = kidsLyrLines(), on = !!L;
+    if (box.hidden === on) {
+      box.hidden = !on;
+      document.documentElement.classList.toggle("kly-on", on);
+      setTimeout(function () { fitStrip(); placeBadges(); }, 0);
+    }
+    if (!on) { klState.name = null; klState.k = -1; box._html = null; return; }
+    var name = prog.list[prog.idx].name, step = prog.cur, li = 0;
+    if (name !== klState.name) { klState.name = name; klState.k = -1; box._html = null; }
+    if (step >= 0) L.forEach(function (ln, i) { if (ln.markers.some(function (m) { return m.chordIndex <= step; })) li = i; });
+    var r1 = kidsLyrRow(L[li], step, "r1"), r2 = kidsLyrRow(L[li + 1] || null, -1, "r2");
+    var key = "<span class=\"sb-roll\">" + r1 + r2 + "</span>";
+    box.setAttribute("aria-label", "Lyrics: " + L[li].text);
+    if (klState.anim) { clearTimeout(klState.anim); klState.anim = 0; box._html = null; }
+    var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (li === klState.k + 1 && klState.k >= 0 && !calm) {
+      var old = box.querySelector(".sb-row.r1"), oldHtml = old ? old.outerHTML.replace(/<span class="kl-on">([^<]*)<\/span>/g, "$1") : "";
+      box.innerHTML = "<span class=\"sb-roll\">" + oldHtml + r1 + r2 + "</span>";
+      box._html = null;
+      var roll = box.firstChild;
+      void roll.offsetWidth;
+      roll.classList.add("go");
+      klState.anim = setTimeout(function () { klState.anim = 0; box.innerHTML = key; box._html = key; }, 300);
+      if (PROG_TEST) klState.log.push({ li: li, anim: true });
+    } else {
+      if (box._html !== key) { box.innerHTML = key; box._html = key; }
+      if (PROG_TEST && li !== klState.k) klState.log.push({ li: li, anim: false });
+    }
+    klState.k = li;
+  }
+  if (PROG_TEST) window.__kidsLyr = { state: klState, data: function () { return KIDS_LYRICS; } };
   function paintSongBar() {
     document.documentElement.classList.toggle("up-nonum", upSelected());   // v73: no sequence numbers on an uploaded song's grid
     var bar = document.getElementById("songBar");
