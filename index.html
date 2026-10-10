@@ -1538,37 +1538,28 @@ html.lay-phone-port:not(.simple) .now-col > .prog .pg-sel { width: 100%; flex: 0
 .config-menu .cfg-vol { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 12px; font-size: 14px; color: var(--ink); }
 .config-menu .cfg-vol input { flex: 1 1 auto; min-width: 0; width: 120px; accent-color: var(--copper); }
 .config-menu .cfg-vol b { flex: 0 0 auto; min-width: 2.2em; text-align: right; font-size: 12px; font-weight: 700; color: var(--muted); }
-/* v75: Config Band slider (where Volume used to sit) + "for now" note; dimmed on styles without a band. */
-/* v77: Band on the main screen, a tight row right under Volume (Simple and Full). The note shows only
-   while the style has no band yet (row dimmed). */
+/* v86: Band in the Sound box, under Voicing: on/off toggle with the level slider beneath it. */
+.band-wrap { display: flex; flex-direction: column; align-items: stretch; gap: 4px; min-width: 0; }
+.band-wrap .band-tgl { align-self: flex-start; min-width: 72px; min-height: 32px; }
+.band-wrap .band-tgl.on { background: var(--sea); color: #10211c; border-color: transparent; }
+.band-row { display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 20px; height: 20px; font-size: 12px; color: var(--muted); }
+.band-row span { flex: 0 0 auto; }
+.band-row input { flex: 1 1 auto; min-width: 0; width: 100%; accent-color: var(--copper); }
+.band-row b { flex: 0 0 auto; min-width: 2.2em; text-align: right; font-size: 12px; font-weight: 650; color: var(--ink); }
+.band-wrap.off .band-row { opacity: .45; }   /* toggle off: the level is kept, dimmed */
+/* no band for this style yet (Funk, Reggae, Yoga): both controls disabled, tooltip on the box. */
+.band-wrap.dim .band-tgl, .band-wrap.dim .band-row { opacity: .45; }
+/* v86: the main-screen mix row holds Volume only (Band moved to the Sound box). */
 .now-col > .now-mix { flex: 0 0 auto; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.now-mix > .now-band { flex: 0 0 auto; display: flex; align-items: center; gap: 6px; min-width: 0; height: 20px; padding: 0 6px; }
-.now-band .band-row { flex: 1 1 auto; display: flex; align-items: center; gap: 6px; min-width: 0; height: 100%; font-size: 11.5px; font-weight: 700; color: var(--muted, #b9ad9a); }
-.now-band .band-row span { flex: 0 0 auto; }
-.now-band .band-row input { flex: 1 1 auto; min-width: 0; width: 100%; margin: 0; accent-color: var(--copper); }
-.now-band .band-row b { flex: 0 0 auto; min-width: 2.1em; text-align: right; font-size: 11px; font-weight: 700; color: var(--ink); }
-/* v78: no band for this style yet (Funk, Reggae, Yoga): the row is dimmed, nothing else changes. */
-.now-band.dim .band-row { opacity: .45; }
-/* phone Full: tight rows, no value readout (like Volume). */
-html.lay-phone-port:not(.simple) .now-mix > .now-band, html.lay-phone-land:not(.simple) .now-mix > .now-band { height: 16px; padding: 0 4px; gap: 4px; }
-html.lay-phone-port:not(.simple) .now-band .band-row, html.lay-phone-land:not(.simple) .now-band .band-row { font-size: 10px; gap: 4px; }
-html.lay-phone-port:not(.simple) .now-band .band-row b, html.lay-phone-land:not(.simple) .now-band .band-row b { display: none; }
-/* phone landscape Full: Volume and Band side by side on one row. */
 html.lay-phone-land:not(.simple) .now-col > .now-mix { flex-direction: row; align-items: center; gap: 4px; }
 html.lay-phone-land:not(.simple) .now-mix > .now-vol { flex: 1 1 0; min-width: 0; }
-html.lay-phone-land:not(.simple) .now-mix > .now-band { flex: 1.15 1 0; min-width: 0; height: 16px; padding: 0 2px; }
-html.lay-phone-land:not(.simple) .now-band .band-row { font-size: 9px; gap: 3px; }
 html.lay-phone-land:not(.simple) .now-mix > .now-vol .pg-vol { gap: 3px; padding: 0 2px; }
-/* dimmed in phone landscape Full: the note takes the Band cell (label hidden, Volume narrower) so it reads in two short lines. */
 html.lay-phone-land:not(.simple) .now-mix > .now-vol { min-width: 40px; }
-/* phone portrait Full: the dimmed row may take a third line (keyboard gives 8 px; the Now card is untouched). */
 html.lay-phone-land:not(.simple) .now-mix > .now-vol .pg-vol svg { display: block; width: 11px; height: 11px; }
-/* Simple (every size): Volume and Band side by side on one row; no value readout. */
+/* Simple (every size): Volume fills the row. */
 html.simple .now-col > .now-mix { flex-direction: row; align-items: center; gap: 6px; }
 html.simple .now-mix > .now-vol { flex: 1 1 0; min-width: 44px; }
-html.simple .now-mix > .now-band { flex: 1.25 1 0; min-width: 0; height: 22px; padding: 0 4px 0 2px; }
-html.simple .now-band .band-row b { display: none; }
-html.lay-phone-land.simple .now-mix > .now-vol, html.lay-phone-land.simple .now-mix > .now-band { height: 16px; min-height: 16px; }
+html.lay-phone-land.simple .now-mix > .now-vol { height: 16px; min-height: 16px; }
 /* v60: Config toggle. */
 .config-menu .cfg-toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; white-space: nowrap; }
 .cfg-toggle .tgl { position: relative; flex: 0 0 auto; width: 34px; height: 20px; border-radius: 10px; background: #3a332b; border: 1px solid var(--line); transition: background .15s; }
@@ -1824,12 +1815,12 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=85" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=86" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=85" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=86" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1838,19 +1829,19 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
       </ol>
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=85" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=86" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=85" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=86" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=85" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=86" alt="The suggestion grid: happy chords above the smiley, sad chords below the frown" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the smiley face, and sad ones sit below the frown. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=85" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=86" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=85" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=86" alt="Before and after tapping Full Range" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Full Range enables all keys to be available.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
@@ -1876,7 +1867,6 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
   </div>
   <div class="now-mix" id="nowMix">
     <div class="now-vol" id="nowVol"><label class="pg-vol" title="Volume"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.6 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="volume" type="range" min="0" max="100" step="1" value="100" aria-label="Volume" aria-valuetext="100"><b id="volVal" aria-hidden="true">100</b></label></div>
-    <div class="now-band cfg-band" id="nowBand"><label class="band-row" title="Band: bass and drums under your chords (0 = off)"><span>Band</span><input id="band" type="range" min="0" max="100" step="1" value="0" aria-label="Band" aria-valuetext="Off"><b id="bandVal">Off</b></label></div>
   </div>
   <div class="key-bar"><button type="button" id="keyChip" class="key-chip" aria-haspopup="dialog" title="Pick the key">Key: play a chord</button><button type="button" id="allKeys" class="allkeys" aria-pressed="false" title="Full Range: unlock off-scale keys and chords so everything plays">Full Range</button></div>
   <div id="kidKey" class="kid-key" aria-label="Key">
@@ -2144,6 +2134,10 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
           </div>
         </div>
       </div>
+      <div class="band-wrap cfg-band" id="bandWrap">
+        <button id="bandOn" type="button" class="toggle band-tgl" aria-pressed="false" title="Band: bass and drums under your chords">Band</button>
+        <label class="band-row" title="Band level"><span>Level</span><input id="band" type="range" min="1" max="100" step="1" value="50" aria-label="Band level" aria-valuetext="50" disabled><b id="bandVal">50</b></label>
+      </div>
     </div>
 
     <div class="pane" id="paneFx" data-pane="fx" role="tabpanel" aria-label="Effects">
@@ -2199,7 +2193,7 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 85;
+var APP_VERSION = 86;
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -8998,7 +8992,7 @@ function accSym(s) {
       // a missing value (new user, or saved before v60) gets on.
       progNums: true,
       volume: 100,
-      band: 0,
+      band: 50,   // v86: the Band LEVEL (1..100); on/off is not saved
       lockKey: null
     };
   }
@@ -9042,7 +9036,7 @@ function accSym(s) {
       allKeys: bool(raw.allKeys, d.allKeys),
       progNums: bool(raw.progNums, d.progNums),
       volume: num(raw.volume, 0, 100, d.volume, true),
-      band: num(raw.band, 0, 100, d.band, true),
+      band: (function () { var b = num(raw.band, 0, 100, d.band, true); return b >= 1 ? b : d.band; })(),
       lockKey: (raw.lockKey && typeof raw.lockKey === "object" && raw.lockKey.pc === (raw.lockKey.pc | 0) && raw.lockKey.pc >= 0 && raw.lockKey.pc < 12 && SCALES.indexOf(raw.lockKey.mode) >= 0)
         ? { pc: raw.lockKey.pc, mode: raw.lockKey.mode } : null
       // Legacy `latch` key (cce4d86) is ignored; Sustain is never persisted.
@@ -9191,6 +9185,8 @@ function accSym(s) {
     applyStylePreset(s.style);
     setVolume(s.volume);
     setBand(s.band);
+    state.bandOn = false;   // v86: Band is off at every load / reset; the level is kept
+    applyBand();
   }
 
   var toastTimer = 0;
@@ -9216,26 +9212,34 @@ function accSym(s) {
     if (out) out.textContent = String(v);
     ChordAudio.setVolume((v / 100) * (v / 100));
   }
-  // v75 Band level 0..100 (0 = off: no scheduler, no nodes). Saved; applies in both modes.
+  // v75 Band level (0 = no scheduler, no nodes). v86: Sound box toggle + level slider. The level
+  // (1..100, default 50) is saved; the toggle is off at every load. Band audio = on ? level : 0.
   function setBand(v) {
     v = Math.round(Number(v));
-    if (!isFinite(v)) v = 0;
-    v = Math.max(0, Math.min(100, v));
-    state.band = v;
-    ChordAudio.band.setLevel(v / 100);
+    if (!isFinite(v) || v < 1) v = 50;
+    state.band = Math.min(100, v);
+    applyBand();
+  }
+  function applyBand() {
+    ChordAudio.band.setLevel(state.bandOn ? (state.band | 0) / 100 : 0);
     paintBand();
   }
   function paintBand() {
-    var el = document.getElementById("band");
-    if (!el) return;
+    var el = document.getElementById("band"), tg = document.getElementById("bandOn");
+    if (!el || !tg) return;
     var v = state.band | 0, on = !!ChordAudio.band && !!{ pop: 1, country: 1, jazz: 1, kids: 1, ballad: 1, rnb: 1 }[state.style];
+    var live = !!state.bandOn;
     if (el.value !== String(v)) el.value = String(v);
-    var txt = v ? String(v) : "Off";
-    el.setAttribute("aria-valuetext", txt + (on ? "" : ", no band for this style yet"));
-    document.getElementById("bandVal").textContent = txt;
-    var row = el.closest(".cfg-band");
-    row.classList.toggle("dim", !on);
-    row.title = on ? "" : "No band on this style yet";
+    el.setAttribute("aria-valuetext", String(v) + (on ? (live ? "" : ", Band off") : ", no band for this style yet"));
+    document.getElementById("bandVal").textContent = String(v);
+    el.disabled = !on || !live;
+    tg.disabled = !on;
+    tg.classList.toggle("on", live);
+    tg.setAttribute("aria-pressed", live ? "true" : "false");
+    var box = document.getElementById("bandWrap");
+    box.classList.toggle("dim", !on);
+    box.classList.toggle("off", !live);
+    box.title = on ? "" : "No band on this style yet";
   }
   function paintProgNumsBtn() {
     var b = document.getElementById("progNumsBtn");
@@ -9285,6 +9289,7 @@ function accSym(s) {
     var bandEl = document.getElementById("band");
     bandEl.addEventListener("input", function () { setBand(bandEl.value); scheduleSave(150); });
     bandEl.addEventListener("change", function () { setBand(bandEl.value); scheduleSave(0); });
+    document.getElementById("bandOn").addEventListener("click", function () { state.bandOn = !state.bandOn; applyBand(); });   // v86
     var volEl = document.getElementById("volume");
     volEl.addEventListener("input", function () { setVolume(volEl.value); scheduleSave(150); });
     volEl.addEventListener("change", function () { setVolume(volEl.value); scheduleSave(0); });
