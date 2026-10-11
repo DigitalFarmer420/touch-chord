@@ -1949,6 +1949,22 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
 @keyframes nxBurst { 0% { filter: brightness(1.75); box-shadow: 0 0 0 0 rgba(236, 178, 92, .95); } 60% { filter: brightness(1.25); } 100% { filter: none; box-shadow: 0 0 0 9px rgba(236, 178, 92, 0); } }
 .nxb, .kb .pad.nxb, #suggest .nxb, #palette button.nxb { animation: nxBurst .5s ease-out 1 !important; }
 @media (prefers-reduced-motion: reduce) { .nxb, .kb .pad.nxb, #suggest .nxb, #palette button.nxb { animation: none !important; } }
+/* v108 (2): the next chord outside Kids gets the Kids gold-pad mark (v71 #suggest.kids1 .ss-kidpad.nx): a 3px solid
+   gold outline 1px out, pulsing with nxPulseO; the v105 dot and burst stay. Outline only: no layout shift. Reduced
+   motion: the outline stays still. A tap flash (fxtap / kgtap) keeps its own animation. */
+#app #suggest .nxdot.nxdot, #app #palette button.nxdot { outline: 3px solid #c4853f; outline-offset: 1px; }
+#app #suggest .nxdot.nxdot:not(.fxtap):not(.kgtap):not(.nxb), #app #palette button.nxdot:not(.kgtap):not(.nxb) { animation: nxPulseO 1.5s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { #app #suggest .nxdot.nxdot:not(.fxtap):not(.kgtap):not(.nxb), #app #palette button.nxdot:not(.kgtap):not(.nxb) { animation: none; } }
+/* v108 (3): Play along: the Kids tap flash (kgTap) on a chip that advanced the song, in both modes */
+#app #suggest .kgtap { animation: kgTap .4s ease-out 1 !important; }
+@media (prefers-reduced-motion: reduce) { #app #suggest .kgtap { animation: kgTapR .4s ease-out 1 !important; } }
+/* v108 (3): Config > Play along enable, with a ? that opens a short explanation */
+.config-menu .cfg-pa { display: flex; align-items: center; gap: 4px; }
+.config-menu .cfg-pa .cfg-toggle { flex: 1 1 auto; width: auto; min-width: 0; }
+.config-menu .cfg-pa .cfg-q { flex: 0 0 30px; width: 30px; height: 30px; min-height: 30px; padding: 0; border-radius: 50%; text-align: center; font-weight: 700; font-size: 14px; }
+.config-menu .cfg-pa .cfg-q[aria-expanded="true"] { background: var(--copper); color: var(--copper-ink); border-color: transparent; }
+.config-menu .cfg-tip { box-sizing: border-box; width: 0; min-width: 100%; margin: 0; padding: 2px 10px 6px; font-size: 12px; line-height: 1.35; color: var(--muted); white-space: normal; }
+.config-menu .cfg-tip[hidden] { display: none; }
 </style>
 </head>
 <body>
@@ -1962,6 +1978,8 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
       <button id="configBtn" type="button" class="top-btn config-btn icon-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="configMenu" aria-label="Config" title="Config"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
       <div id="configMenu" class="config-menu" role="menu" aria-label="Configuration" hidden>
         <button id="progNumsBtn" type="button" role="menuitemcheckbox" aria-checked="true" class="cfg-toggle on"><span>Progression numbers</span><span class="tgl" aria-hidden="true"></span></button>
+        <div class="cfg-pa"><button id="playAlongBtn" type="button" role="menuitemcheckbox" aria-checked="true" class="cfg-toggle on"><span>Play along enable</span><span class="tgl" aria-hidden="true"></span></button><button id="playAlongQ" type="button" class="cfg-q" aria-label="What is Play along?" title="What is Play along?" aria-expanded="false" aria-controls="playAlongTip">?</button></div>
+        <p id="playAlongTip" class="cfg-tip" hidden>When on, tap the marked next chord, or in Full mode any key of it, and the song moves on like Next. In Kids, tap the gold pad or the gold key in any octave. Not during Play. When off, taps only play sound.</p>
         <button id="factoryReset" type="button" role="menuitem" class="danger">Factory reset</button>
         <div id="appVersion" class="app-version" aria-live="off"></div>
       </div>
@@ -1972,12 +1990,12 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=107" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid (an older picture)" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=108" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid (an older picture)" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=107" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=108" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1985,21 +2003,22 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
         <li><b>Make a <a class="ht-term" href="#gl-chord">chord</a> yourself.</b></li>
       </ol>
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p>
-      <p class="cap">Tap <b>Next</b> to play the <a class="ht-term" href="#gl-chord">chords</a> one at a time, or <b>Play</b> to hear the whole <a class="ht-term" href="#gl-progression">progression</a>. The <a class="ht-term" href="#gl-chord">chord</a> that is playing grows a little, so you can follow along. In Full mode, a dashed outline gently marks the <a class="ht-term" href="#gl-chord">chord</a> that <b>Play</b> will sound next.</p></section></li>
+      <p class="cap">Tap <b>Next</b> to play the <a class="ht-term" href="#gl-chord">chords</a> one at a time, or <b>Play</b> to hear the whole <a class="ht-term" href="#gl-progression">progression</a>. The <a class="ht-term" href="#gl-chord">chord</a> that is playing grows a little, so you can follow along. In Full mode, a dashed outline gently marks the <a class="ht-term" href="#gl-chord">chord</a> that <b>Play</b> will sound next.</p>
+      <p class="cap">The next <a class="ht-term" href="#gl-chord">chord</a> has a gold outline. With <b>Play along</b> on in the gear menu, tap that <a class="ht-term" href="#gl-chord">chord</a>, or in Full mode any of its keys, and it moves on just like <b>Next</b>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=107" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=108" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=107" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=108" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=107" alt="The suggestion grid: happy chords above the row of notes, sad chords below it (an older picture that still shows the faces beside the grid)" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=108" alt="The suggestion grid: happy chords above the row of notes, sad chords below it (an older picture that still shows the faces beside the grid)" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the row of notes <span class="ht-face ht-face-happy" role="img" aria-label="happy face, arrow up"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="8.6" cy="9.6" r="1.2"/><circle class="eye" cx="15.4" cy="9.6" r="1.2"/><path d="M7.6 14.2c1.1 1.9 2.6 2.8 4.4 2.8s3.3-.9 4.4-2.8"/></svg><svg class="ar" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 13V2M2 6l4-4 4 4"/></svg></span>, and sad ones sit below it <span class="ht-face ht-face-sad" role="img" aria-label="sad face, arrow down"><svg class="ar" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 1v11M2 8l4 4 4-4"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="8.6" cy="9.6" r="1.2"/><circle class="eye" cx="15.4" cy="9.6" r="1.2"/><path d="M7.6 17.2c1.1-1.9 2.6-2.8 4.4-2.8s3.3.9 4.4 2.8"/></svg></span>. The faces are only a guide here in How to; they are no longer shown beside the grid, and they are not buttons. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=107" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=108" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=107" alt="Before and after tapping Full Range (an older picture)" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=108" alt="Before and after tapping Full Range (an older picture)" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Tap <b>Full Range</b> to unlock every key and <a class="ht-term" href="#gl-chord">chord</a>, even the ones outside your <a class="ht-term" href="#gl-key">key</a>.</p></section></li>
       <li><section><h3><span class="ht-num">7.</span> Keyboard <span class="ht-pill">Full mode</span></h3>
       <p class="cap">Open <b>Layout</b> to choose your keys. <b>Octave</b> shows one octave that starts on your <a class="ht-term" href="#gl-key">key</a>, low <a class="ht-term" href="#gl-note">notes</a> on the left. <b>Full</b> shows the whole two-octave keyboard. Keys light up exactly as they sound, and the keyboard stays put while you tap. The app remembers your choice.</p></section></li>
@@ -2011,7 +2030,7 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
       <p class="cap">Your songs are listed under <b>My songs</b>. Tap a song to play it. Tap the pencil to see its chords and words, or the trash can to remove it.</p>
       <p class="cap">When a song has words, two lines show above the <a class="ht-term" href="#gl-chord">chords</a>: the line you are singing, and the next one. They scroll up as the song moves on.</p></section></li>
       <li><section><h3><span class="ht-num">10.</span> Kids</h3>
-      <p class="cap">Tap <b>Kids</b> for big, friendly <a class="ht-term" href="#gl-chord">chords</a> and sing-along songs: Twinkle, Mary&#8217;s Lamb, Row Your Boat and Old MacDonald. Seven big pads play a happy (major) <a class="ht-term" href="#gl-chord">chord</a> on each <a class="ht-term" href="#gl-note">note</a> of the <a class="ht-term" href="#gl-key">key</a>. The gold pad and the gold key follow the tune: tap either one to play the next <a class="ht-term" href="#gl-note">note</a>, and the words show which one you are singing.</p></section></li>
+      <p class="cap">Tap <b>Kids</b> for big, friendly <a class="ht-term" href="#gl-chord">chords</a> and sing-along songs: Twinkle, Mary&#8217;s Lamb, Row Your Boat and Old MacDonald. Seven big pads play a happy (major) <a class="ht-term" href="#gl-chord">chord</a> on each <a class="ht-term" href="#gl-note">note</a> of the <a class="ht-term" href="#gl-key">key</a>. The gold pad and the gold key follow the tune: tap either one, or that key in any octave, to play the next <a class="ht-term" href="#gl-note">note</a>, and the words show which one you are singing. This needs <b>Play along</b> on in the gear menu.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
         <h3 id="htWordsH">Little words to know</h3>
@@ -2582,7 +2601,7 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 107;   // display only ("Version 107")
+var APP_VERSION = 108;   // display only ("Version 108")
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -4570,6 +4589,7 @@ function accSym(s) {
     simple: false,               // Simple mode (v20): hides sound/FX/key/loop/layout controls
     keyModeBeforeSimple: false,  // Key mode is forced off while Simple is on; restored after
     allKeys: false,
+    playAlong: true,             // v108: Config > Play along enable
     keySpell: {}                 // v50: key root spelling picks, e.g. { "1major": "Db" }
   };
 
@@ -5329,6 +5349,11 @@ function accSym(s) {
     if (kidsGoldKey(e.currentTarget)) {   // v79
       kbKeyGo = true; kbKeyStay = true;   // v102: a gold KEY tap never moves the window
       try { kidsGoldGo(e.currentTarget, "key"); } finally { kbKeyGo = false; }
+      return;
+    }
+    if (playAlongKey(e.currentTarget)) {   // v108 Play along: a tone of the marked next chord = Next
+      kbKeyGo = true; kbKeyStay = true;
+      try { playAlongGo(e.currentTarget, "key"); } finally { kbKeyGo = false; }
       return;
     }
     var needReplay = !(ChordAudio.ctx && ChordAudio.ctx.state === "running");
@@ -6353,6 +6378,7 @@ function accSym(s) {
       b.classList.add("press");
       try { b.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
       if (kidsGoldPad(b)) { kidsGoldGo(b, "pad"); return; }   // v79
+      if (playAlongChip(b, item)) { playAlongGo(b, "chip"); return; }   // v108
       fxTapPulse(b);   // v93
       stripDown(item, e.pointerId);
     });
@@ -6364,6 +6390,7 @@ function accSym(s) {
     b.addEventListener("click", function () {
       if (upAt && Date.now() - upAt < 700) { upAt = 0; return; }
       if (kidsGoldPad(b)) { kidsGoldGo(b, "pad"); return; }   // v79 (Enter / Space)
+      if (playAlongChip(b, item)) { playAlongGo(b, "chip"); return; }   // v108 (Enter / Space)
       fxTapPulse(b);   // v93
       stripTap(item);
     });
@@ -7319,7 +7346,7 @@ function accSym(s) {
   // (magicAdvance). Repeated notes advance too. After the last step the walk goes back to the
   // start. Not during Play song (its timer owns the walk). Any other tap: unchanged (chord).
   function kidsGoldStep() {
-    if (state.style !== "kids" || prog.playing || !prog.steps.length || typeof magic === "undefined" || !magic) return null;
+    if (state.style !== "kids" || state.playAlong === false || prog.playing || !prog.steps.length || typeof magic === "undefined" || !magic) return null;   // v108: off = sound only
     var d = magicQueue();
     return d && d.step >= 0 && d.item ? d : null;
   }
@@ -7328,11 +7355,44 @@ function accSym(s) {
     var d = kidsGoldStep();
     return !!(d && kidsGoldPadEl(d.item) === b);
   }
-  function kidsGoldKey(pad) {   // exact key: the gold key itself, not the same note in another octave
+  function kidsGoldKey(pad) {   // v108: the gold key's note in ANY octave (pitch class), not only the gold key itself
     if (!pad || state.simple || pad.dataset.midi == null || pad.dataset.midi === "") return false;
     var d = kidsGoldStep();
     var gk = d ? kidsGoldKeyEl(d.item) : null;
-    return !!(gk && Number(pad.dataset.midi) === Number(gk.dataset.midi));
+    return !!(gk && wrap12(Number(pad.dataset.midi)) === wrap12(Number(gk.dataset.midi)));
+  }
+  // v108 Play along (outside Kids; Config > Play along enable, on by default): with a next chord marked
+  // (nxNow, the same chord Next plays), tapping one of its tones on the keyboard (pitch class, any octave;
+  // Full mode) or that chord's chip (Full and Simple) advances exactly like Next (magicAdvance). Never
+  // during Play song, never on an uploaded song's random tail (no next chord marked), never in Kids
+  // (Kids keeps its gold pad / key above). Off: taps only play sound.
+  var paLog = { taps: [] };
+  if (PROG_TEST) { window.__playAlong = paLog; paLog.tones = function () { var c = nxNow(); if (!c || !c.item) return null; var sp = nextHintSpec(c.item), o = {}; (sp.midis || []).forEach(function (m) { if (isFinite(m)) o[wrap12(Number(m))] = 1; }); return Object.keys(o).map(Number); }; }
+  function playAlongNow() {
+    if (state.playAlong === false || state.style === "kids" || prog.playing || !prog.steps.length || typeof magic === "undefined" || !magic) return null;
+    if (upSelected() && upNextStep() < 0) return null;
+    var cur = nxNow();
+    return cur && cur.item ? cur : null;
+  }
+  function playAlongKey(pad) {
+    if (!pad || state.simple || pad.dataset.midi == null || pad.dataset.midi === "") return false;
+    var cur = playAlongNow();
+    if (!cur) return false;
+    var spec = nextHintSpec(cur.item), pcs = {};
+    (spec.midis || []).forEach(function (m) { if (isFinite(m)) pcs[wrap12(Number(m))] = true; });
+    return !!pcs[wrap12(Number(pad.dataset.midi))];
+  }
+  function playAlongChip(b, item) {
+    if (!b || !item || b.classList.contains("ss-kidpad")) return false;
+    var cur = playAlongNow();
+    return !!(cur && (b === cur.el || sameChord(item, cur.item)));
+  }
+  function playAlongGo(el, kind) {
+    var cur = playAlongNow();
+    if (!cur) return;
+    magicAdvance();   // = Next: plays the marked chord, queues and marks the one after
+    if (PROG_TEST) paLog.taps.push({ kind: kind, pos: magic.pos, cur: prog.cur, style: state.style, simple: !!state.simple });
+    kidsTapPulse(el);
   }
   function kidsTapPulse(el) {
     if (!el) return;
@@ -10074,6 +10134,7 @@ function accSym(s) {
       // v65: on by default in both modes. A saved false (the switch turned off) is kept;
       // a missing value (new user, or saved before v60) gets on.
       progNums: true,
+      playAlong: true,   // v108: Play along on by default
       volume: 100,
       band: 50,   // v86: the Band LEVEL (1..100); on/off is not saved
       lockKey: null
@@ -10118,6 +10179,7 @@ function accSym(s) {
       simple: bool(raw.simple, d.simple),
       allKeys: bool(raw.allKeys, d.allKeys),
       progNums: bool(raw.progNums, d.progNums),
+      playAlong: bool(raw.playAlong, d.playAlong),   // v108
       volume: num(raw.volume, 0, 100, d.volume, true),
       band: (function () { var b = num(raw.band, 0, 100, d.band, true); return b >= 1 ? b : d.band; })(),
       lockKey: (raw.lockKey && typeof raw.lockKey === "object" && raw.lockKey.pc === (raw.lockKey.pc | 0) && raw.lockKey.pc >= 0 && raw.lockKey.pc < 12 && SCALES.indexOf(raw.lockKey.mode) >= 0)
@@ -10171,6 +10233,7 @@ function accSym(s) {
       simple: !!state.simple,
       allKeys: !!state.allKeys,
       progNums: !!state.progNums,
+      playAlong: state.playAlong !== false,   // v108
       volume: state.volume == null ? 100 : state.volume,
       band: state.band | 0,
       lockKey: lockKey ? { pc: lockKey.pc, mode: lockKey.mode } : null
@@ -10214,6 +10277,8 @@ function accSym(s) {
   function applySettings(s) {
     state.progNums = !!s.progNums;
     paintProgNumsBtn();
+    state.playAlong = s.playAlong !== false;   // v108
+    paintPlayAlongBtn();
     state.layout = s.layout;
     state.sound = s.sound;
     state.bass = s.bass;
@@ -10328,6 +10393,10 @@ function accSym(s) {
     var b = document.getElementById("progNumsBtn");
     if (b) { b.setAttribute("aria-checked", state.progNums ? "true" : "false"); b.classList.toggle("on", !!state.progNums); }
   }
+  function paintPlayAlongBtn() {   // v108
+    var b = document.getElementById("playAlongBtn");
+    if (b) { b.setAttribute("aria-checked", state.playAlong !== false ? "true" : "false"); b.classList.toggle("on", state.playAlong !== false); }
+  }
   function factoryReset() {
     if (saveTimer) {
       clearTimeout(saveTimer);
@@ -10358,6 +10427,7 @@ function accSym(s) {
     var wrap = document.getElementById("configWrap");
     function setOpen(open) {
       menu.hidden = !open;
+      if (!open) { var pt = document.getElementById("playAlongTip"); if (pt) pt.hidden = true; var pq = document.getElementById("playAlongQ"); if (pq) pq.setAttribute("aria-expanded", "false"); }   // v108
       btn.setAttribute("aria-expanded", open ? "true" : "false");
     }
     btn.addEventListener("click", function (e) {
@@ -10382,6 +10452,18 @@ function accSym(s) {
       paintProgNumsBtn();
       progRedecorate();
       scheduleSave();
+    });
+    // v108: Play along enable (saved), and its ? explanation (opens / closes under the switch)
+    document.getElementById("playAlongBtn").addEventListener("click", function () {
+      state.playAlong = state.playAlong === false;
+      paintPlayAlongBtn();
+      scheduleSave();
+    });
+    document.getElementById("playAlongQ").addEventListener("click", function (e) {
+      e.stopPropagation();
+      var tip = document.getElementById("playAlongTip"), q = e.currentTarget;
+      tip.hidden = !tip.hidden;
+      q.setAttribute("aria-expanded", tip.hidden ? "false" : "true");
     });
     document.addEventListener("pointerdown", function (e) {
       if (!menu.hidden && !wrap.contains(e.target)) setOpen(false);
