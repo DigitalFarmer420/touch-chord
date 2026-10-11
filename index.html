@@ -54,7 +54,7 @@ window.tcApplySizeClass();
 try {
   var tcRaw = window.localStorage && window.localStorage.getItem("touchChord.settings.v1");
   var tcEnv = tcRaw ? JSON.parse(tcRaw) : null;
-  if (!(tcEnv && tcEnv.settings && tcEnv.settings.simple === false)) document.documentElement.classList.add("simple");   // v105: Simple unless saved Full
+  if (tcEnv && tcEnv.settings && tcEnv.settings.simple === true) document.documentElement.classList.add("simple");   // v107: Full unless saved Simple
 } catch (err) { /* ignore */ }
 </script>
 <style>
@@ -1922,17 +1922,16 @@ html.lay-phone-land:not(.simple) .pg-btns > .pg-btn.pg-step, html.lay-phone-land
 #upLoad { min-width: 96px; }
 .up-lib .ul-edit { flex: 0 0 40px; width: 40px; min-height: 40px; height: auto; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 9px; color: var(--muted); background: transparent; border: 1px solid var(--line); }
 .up-lib .ul-edit svg { width: 17px; height: 17px; }
-.up-lib .ul-row.edit .ul-edit { background: var(--copper); color: #1a1209; border-color: transparent; }
 html.lay-phone-land .up-lib .ul-edit { min-height: 34px; }
 .up-lib .ul-list.editing { max-height: none; overflow: visible; }
 .up-lib .ul-list[hidden], .up-lib .ul-empty[hidden], .up-detail-home[hidden], .ud-head[hidden] { display: none; }
 .up-lib .ul-empty { font-size: 13px; color: var(--muted); padding: 6px 2px; }
 .up-lib .ul-detrow { display: block; flex: 0 0 auto; }
 .up-detail { margin: 0 0 4px; padding: 8px; border: 1px solid var(--copper); border-radius: 10px; background: rgba(226, 161, 90, .06); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.up-detail .ud-head { display: flex; justify-content: flex-end; }
-.up-detail .ud-actions { gap: 6px; }
-.up-detail .ud-actions button { min-height: 36px; height: 36px; padding: 0 12px; font-size: 13px; border-radius: 9px; }
-.up-detail .ud-play { background: var(--copper); color: #1a1209; border-color: transparent; font-weight: 700; }
+.up-detail .ud-head:not([hidden]) { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.up-detail .ud-note { font-size: 12px; color: var(--muted); text-align: right; }
+.up-detail .ud-note[hidden] { display: none; }
+.up-detail .ul-ver button:disabled { opacity: .4; cursor: default; }
 .up-detail.ro .up-ch, .up-detail.ro .up-ch .alt { pointer-events: none; }
 html.lay-phone-land .up-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; align-items: start; }
 /* v105 (b): the next chord's yellow dot (same colour as the keyboard's next-key dot), top centre inside the
@@ -1973,12 +1972,12 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=106" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid (an older picture)" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=107" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid (an older picture)" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=106" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=107" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1988,27 +1987,27 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p>
       <p class="cap">Tap <b>Next</b> to play the <a class="ht-term" href="#gl-chord">chords</a> one at a time, or <b>Play</b> to hear the whole <a class="ht-term" href="#gl-progression">progression</a>. The <a class="ht-term" href="#gl-chord">chord</a> that is playing grows a little, so you can follow along. In Full mode, a dashed outline gently marks the <a class="ht-term" href="#gl-chord">chord</a> that <b>Play</b> will sound next.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=106" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=107" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=106" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=107" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=106" alt="The suggestion grid: happy chords above the row of notes, sad chords below it (an older picture that still shows the faces beside the grid)" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=107" alt="The suggestion grid: happy chords above the row of notes, sad chords below it (an older picture that still shows the faces beside the grid)" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the row of notes <span class="ht-face ht-face-happy" role="img" aria-label="happy face, arrow up"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="8.6" cy="9.6" r="1.2"/><circle class="eye" cx="15.4" cy="9.6" r="1.2"/><path d="M7.6 14.2c1.1 1.9 2.6 2.8 4.4 2.8s3.3-.9 4.4-2.8"/></svg><svg class="ar" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 13V2M2 6l4-4 4 4"/></svg></span>, and sad ones sit below it <span class="ht-face ht-face-sad" role="img" aria-label="sad face, arrow down"><svg class="ar" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 1v11M2 8l4 4 4-4"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="8.6" cy="9.6" r="1.2"/><circle class="eye" cx="15.4" cy="9.6" r="1.2"/><path d="M7.6 17.2c1.1-1.9 2.6-2.8 4.4-2.8s3.3.9 4.4 2.8"/></svg></span>. The faces are only a guide here in How to; they are no longer shown beside the grid, and they are not buttons. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=106" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=107" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=106" alt="Before and after tapping Full Range (an older picture)" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=107" alt="Before and after tapping Full Range (an older picture)" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Tap <b>Full Range</b> to unlock every key and <a class="ht-term" href="#gl-chord">chord</a>, even the ones outside your <a class="ht-term" href="#gl-key">key</a>.</p></section></li>
       <li><section><h3><span class="ht-num">7.</span> Keyboard <span class="ht-pill">Full mode</span></h3>
       <p class="cap">Open <b>Layout</b> to choose your keys. <b>Octave</b> shows one octave that starts on your <a class="ht-term" href="#gl-key">key</a>, low <a class="ht-term" href="#gl-note">notes</a> on the left. <b>Full</b> shows the whole two-octave keyboard. Keys light up exactly as they sound, and the keyboard stays put while you tap. The app remembers your choice.</p></section></li>
       <li><section><h3><span class="ht-num">8.</span> Band <span class="ht-pill">Full mode</span></h3>
       <p class="cap">Open <b>Sound</b>. Under Voicing, turn on <b>Band</b> to add bass and drums, and slide the level from 1 to 100. Band starts off each time you open the app.</p></section></li>
       <li><section><h3><span class="ht-num">9.</span> Upload a song or album <span class="ht-pill">Full mode</span></h3>
-      <p class="cap">The app opens in Simple. Upload is in Full mode, so tap the <b>Simple</b> switch at the top to turn it off. Then tap the upload button beside <b>Play</b>, or beside <b>Full Range</b> on a phone.</p>
-      <p class="cap">Type a <b>Song title or album</b> and the <b>Artist</b>. Leave the title empty to get up to 20 songs by the artist. An album gives up to 25. Pick <b>Simple</b> or <b>Simple and Full</b>, tap <b>Copy for AI</b> and paste it into any AI. Paste its answer in the box and tap <b>Load</b>. The result shows right under <b>Load</b>.</p>
+      <p class="cap">Upload is in Full mode. If the <b>Simple</b> switch at the top is on, tap it to turn it off. Then tap the upload button beside <b>Play</b>, or beside <b>Full Range</b> on a phone.</p>
+      <p class="cap">Type a <b>Song title or album</b> and the <b>Artist</b>. Leave the title empty to get up to 20 songs by the artist. An album gives up to 25. Tap <b>Copy for AI</b> and paste it into any AI. Paste its answer in the box and tap <b>Load</b>. The result shows right under <b>Load</b>.</p>
       <p class="cap">Your songs are listed under <b>My songs</b>. Tap a song to play it. Tap the pencil to see its chords and words, or the trash can to remove it.</p>
       <p class="cap">When a song has words, two lines show above the <a class="ht-term" href="#gl-chord">chords</a>: the line you are singing, and the next one. They scroll up as the song moves on.</p></section></li>
       <li><section><h3><span class="ht-num">10.</span> Kids</h3>
@@ -2082,7 +2081,6 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
         <label>Artist<input id="upArtist" type="text" autocomplete="off" spellcheck="false" placeholder="Eagles"></label>
       </div>
       <div class="up-ask" id="upAsk" aria-live="polite" hidden></div>
-      <div class="up-row up-pvrow"><span class="up-pv" id="upPv" role="radiogroup" aria-label="Chords to ask for"><button type="button" role="radio" data-pv="simple" aria-checked="true">Simple</button><button type="button" role="radio" data-pv="full" aria-checked="false">Simple and Full</button></span></div>
       <div class="up-row up-copyrow"><button type="button" id="upCopy">Copy for AI</button><span class="up-ok" id="upCopied" hidden>Copied</span></div>
       <div class="up-fallback" id="upFallback" hidden><div class="up-warn">Copy did not work here. Select all of this text and copy it:</div><textarea id="upFallbackTxt" readonly></textarea></div>
       <label class="up-paste"><span class="up-warn">Paste the AI&rsquo;s answer</span><textarea id="upPaste" spellcheck="false" placeholder="{ &quot;contractVersion&quot;: &quot;1.2&quot;, &quot;songs&quot;: [ ... ] }"></textarea></label>
@@ -2096,12 +2094,11 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
       <div class="up-lib" id="upLib"><div class="ul-h">My songs <small id="upLibN"></small></div><ul class="ul-list" id="upLibList" role="list"></ul><div class="ul-empty" id="upLibEmpty">No songs yet. Your songs will appear here.</div></div>
       </div>
       <div class="up-detail-home" hidden><div class="up-detail" id="upDetail">
-      <div class="ud-head" id="upDHead" hidden><span class="ul-ver" id="upDVer" role="radiogroup" aria-label="Chords"><button type="button" role="radio" data-lib="ver" data-ver="simple" aria-checked="true">Simple</button><button type="button" role="radio" data-lib="ver" data-ver="full" aria-checked="false">Full</button></span></div>
+      <div class="ud-head" id="upDHead" hidden><span class="ul-ver" id="upDVer" role="radiogroup" aria-label="Chords"><button type="button" role="radio" data-lib="ver" data-ver="simple" aria-checked="true">Simple</button><button type="button" role="radio" data-lib="ver" data-ver="full" aria-checked="false">Full</button></span><div class="ud-note" id="upDNote" hidden>Only Simple chords. Load this song again to get Full.</div></div>
       <div class="up-key" aria-live="polite"><div class="uk-kbox" hidden><div class="uk-l">Key</div><div class="uk-k" id="upKey">&mdash;</div></div><div class="uk-t" id="upTempo">No song loaded</div></div>
       <div class="up-row up-lockrow" id="upLockRow" hidden><button type="button" id="upLock" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2" fill="currentColor"/><path class="shk" d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.2"/></svg><span>Lock</span></button><span class="up-lockhint" id="upLockHint"></span></div>
       <div class="up-review" id="upReview" hidden></div>
       <div class="up-secs" id="upSecs" aria-label="Song sections in play order"><div class="up-empty">No song yet. Tap Copy for AI, then paste its answer and tap Load.</div></div>
-      <div class="up-row ud-actions"><button type="button" class="ud-play" data-lib="open">Play this song</button><button type="button" class="ud-done" data-lib="done">Done</button></div>
       </div></div>
     </div>
   </div>
@@ -2585,7 +2582,7 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 106;   // display only ("Version 106")
+var APP_VERSION = 107;   // display only ("Version 107")
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -7628,7 +7625,7 @@ function accSym(s) {
   var UP_PASTE_LINE_2 = "Study each song once and give TWO versions of its chords in its song form. 1) \"sections\" is the Simple version, for kids learning chords: list each section in play order, but use repeat for back-to-back repeats instead of writing them out; give only the chord changes and merge the same chord played twice in a row into one longer chord; use plain beginner chords (major, minor, 7 or sus), leave out passing chords, slash chords and extensions unless the song really needs them, put the fancier version in alternates, and aim for 4 to 8 chords per section. 2) \"sectionsFull\" is the Full version, faithful to the record: keep the passing chords, slash chords and richer voicings as played; list each section once and mark repeats with repeat; about 15 to 25 chord entries across the whole song. Both versions share one song block, one timing block and the same lyric text: write the lyrics out in both, in each section of sections and of sectionsFull, with each version's lyric markers pointing into that version's own chords array.";
   var UP_TAIL = "Use concert pitch, count bars from the start of each song, give each chord an honest 0-1 confidence, and put anything unsure in that song's notes. If you can't find a song's chords, leave that song out rather than guess, and name it in the top-level notes.";
   var UP_ARTIST_MAX = 20, UP_ALBUM_MAX = 25, UP_SKIP_MAX = 40, UP_LIST_MAX = 25;
-  var upPromptVer = "simple";
+  var upPromptVer = "full";   // v107: Copy for AI always asks for Simple AND Full (no pick on the form)
   var upSchemaText = "", upSchema = null, upListSchemaText = "";
   (function () {
     var s = document.getElementById("songSchemaJson");
@@ -8340,6 +8337,7 @@ function accSym(s) {
   }
   // v105: the song whose details are open under its row (pencil); independent of the playing song (U).
   var upEdit = null;
+  var CLOSE_SVG = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\"><path d=\"M6 6l12 12M18 6L6 18\"/></svg>";   // v107
   var PENCIL_SVG = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 20h4L18.5 9.5a2.1 2.1 0 0 0-4-4L4 16v4z\"/><path d=\"M13.5 6.5l4 4\"/></svg>";
   function paintLib() {
     var box = document.getElementById("upLib"), list = document.getElementById("upLibList");
@@ -8359,7 +8357,7 @@ function accSym(s) {
       var on = e.id === act;
       var ed = e.id === upEdit;   // v105: the per-song Simple / Full pick moved into the details (pencil)
       h += "<li class=\"ul-row" + (on ? " on" : "") + (ed ? " edit" : "") + "\" data-id=\"" + upEsc(e.id) + "\"><button type=\"button\" class=\"ul-open\" data-lib=\"open\"" + (on ? " aria-current=\"true\"" : "") + "><b>" + upEsc(e.title) + "</b>" + upLibSub(e) + "</button>" +
-        "<button type=\"button\" class=\"ul-edit\" data-lib=\"edit\" aria-label=\"Edit\" title=\"Edit\" aria-expanded=\"" + ed + "\">" + PENCIL_SVG + "</button>" +
+        "<button type=\"button\" class=\"ul-edit\" data-lib=\"edit\" aria-label=\"" + (ed ? "Close" : "Edit") + "\" title=\"" + (ed ? "Close" : "Edit") + "\" aria-expanded=\"" + ed + "\">" + (ed ? CLOSE_SVG : PENCIL_SVG) + "</button>" +
         "<button type=\"button\" class=\"ul-del\" data-lib=\"del\" aria-label=\"Remove " + upEsc(e.title) + "\" title=\"Remove\">" + TRASH_SVG + "</button></li>" +
         (ed ? "<li class=\"ul-detrow\" data-id=\"" + upEsc(e.id) + "\"></li>" : "");
     });
@@ -8680,8 +8678,17 @@ function accSym(s) {
     var V = upViewSong(), ro = !!V && V !== U, U0 = U, det = document.getElementById("upDetail");
     det.classList.toggle("ro", ro);
     var hd = document.getElementById("upDHead");
-    hd.hidden = !(V && V.two);
-    if (V && V.two) Array.prototype.forEach.call(hd.querySelectorAll("[data-ver]"), function (b) { b.setAttribute("aria-checked", b.dataset.ver === V.ver ? "true" : "false"); });
+    hd.hidden = !V;   // v107: any song in the details (was: two-version songs only, and a CSS rule beat [hidden])
+    if (V) {
+      var one = !V.two, cur = one ? "simple" : V.ver;   // v107: always repainted, so no stale pick from another row
+      Array.prototype.forEach.call(hd.querySelectorAll("[data-ver]"), function (b) {
+        var off = one && b.dataset.ver === "full";
+        b.setAttribute("aria-checked", b.dataset.ver === cur ? "true" : "false");
+        b.disabled = off;
+        if (off) { b.setAttribute("aria-disabled", "true"); b.title = "Only Simple chords. Load this song again to get Full."; } else { b.removeAttribute("aria-disabled"); b.removeAttribute("title"); }
+      });
+      document.getElementById("upDNote").hidden = !one;
+    }
     U = V;
     try { upPaintDetail(ro); } finally { U = U0; }
     document.documentElement.classList.toggle("up-locked", !!(U && U.locked));
@@ -8781,11 +8788,10 @@ function accSym(s) {
   function upCopyText() {
     var md = upModeNow(), have = LIB.songs.map(function (e) { return { title: e.title, artist: e.artist, album: upLibAlbum(e) }; });
     if (md.mode === "none") md = { mode: "artist", x: "", artist: "ARTIST" };
-    return upPromptFor(md, upPromptVer, have) + "\n\n" + upListSchemaText;
+    return upPromptFor(md, "full", have) + "\n\n" + upListSchemaText;   // v107: always ask for Simple and Full
   }
   function upSetPrompt(v) {
-    upPromptVer = v === "full" ? "full" : "simple";
-    Array.prototype.forEach.call(document.querySelectorAll("#upPv [data-pv]"), function (b) { b.setAttribute("aria-checked", b.dataset.pv === upPromptVer ? "true" : "false"); });
+    upPromptVer = "full";   // v107: hardcoded, the request is always Simple and Full
   }
   function upCopy() {
     var txt = upCopyText(), ok = document.getElementById("upCopied"), fb = document.getElementById("upFallback"), fbt = document.getElementById("upFallbackTxt");
@@ -8837,7 +8843,6 @@ function accSym(s) {
     pick.addEventListener("click", function (e) { if (e.target === pick) close(); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !pick.hidden) close(); });
     document.getElementById("upCopy").addEventListener("click", upCopy);
-    document.getElementById("upPv").addEventListener("click", function (e) { var b = e.target.closest ? e.target.closest("[data-pv]") : null; if (b) upSetPrompt(b.dataset.pv); });
     var upLoading = false;
     // v105: the summary / errors sit right under Load; bring them into view
     function upStatusIntoView() {
@@ -8916,7 +8921,7 @@ function accSym(s) {
       if (b.dataset.lib === "edit" || b.dataset.lib === "done") {   // v105: details only via the pencil; playback untouched
         upEdit = b.dataset.lib === "edit" && upEdit !== id ? id : null;
         paintUpload();
-        var eb = row.parentNode && row.parentNode.querySelector(".ul-row[data-id=\"" + id + "\"] .ul-edit");
+        var eb = document.querySelector("#upLibList .ul-row[data-id=\"" + id + "\"] .ul-edit");   // v107: the rebuilt row
         if (upEdit) { var dd = document.getElementById("upDetail"); try { (dd.offsetHeight ? dd : eb).scrollIntoView({ block: "nearest" }); } catch (err) {} }
         if (eb) eb.focus();
         return;
@@ -10064,7 +10069,7 @@ function accSym(s) {
       delay: 0.14,
       bpm: 96,
       warmth: WARMTH_DEFAULT,
-      simple: true,   // v105: the app opens in Simple (Full is one tap away on the Simple toggle)
+      simple: false,   // v107: the app opens in Full again (Simple is one tap on the Simple toggle); Reset = Full
       allKeys: false,
       // v65: on by default in both modes. A saved false (the switch turned off) is kept;
       // a missing value (new user, or saved before v60) gets on.
