@@ -54,7 +54,7 @@ window.tcApplySizeClass();
 try {
   var tcRaw = window.localStorage && window.localStorage.getItem("touchChord.settings.v1");
   var tcEnv = tcRaw ? JSON.parse(tcRaw) : null;
-  if (tcEnv && tcEnv.settings && tcEnv.settings.simple === true) document.documentElement.classList.add("simple");
+  if (!(tcEnv && tcEnv.settings && tcEnv.settings.simple === false)) document.documentElement.classList.add("simple");   // v105: Simple unless saved Full
 } catch (err) { /* ignore */ }
 </script>
 <style>
@@ -1913,6 +1913,43 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn.pg-step, html.lay-pad-po
 /* v104.1: Next and Play split the whole transport row (no side gaps), same height as v103 */
 html.lay-phone-port:not(.simple) .pg-btns > .pg-btn.pg-step, html.lay-phone-port:not(.simple) .pg-btns > .pg-btn.pg-song,
 html.lay-phone-land:not(.simple) .pg-btns > .pg-btn.pg-step, html.lay-phone-land:not(.simple) .pg-btns > .pg-btn.pg-song { flex: 1 1 0; width: auto; min-width: 0; }
+/* v105 Upload, list-first: form (title/album, artist, Simple/Full, Copy for AI, paste, Load, results), then My songs.
+   Each row: open (play) | pencil (details) | trash. Details sit under the row in a copper box. */
+.up-cols { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.up-form { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.up-status { display: flex; flex-direction: column; gap: 6px; }
+.up-status:empty { display: none; }
+#upLoad { min-width: 96px; }
+.up-lib .ul-edit { flex: 0 0 40px; width: 40px; min-height: 40px; height: auto; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 9px; color: var(--muted); background: transparent; border: 1px solid var(--line); }
+.up-lib .ul-edit svg { width: 17px; height: 17px; }
+.up-lib .ul-row.edit .ul-edit { background: var(--copper); color: #1a1209; border-color: transparent; }
+html.lay-phone-land .up-lib .ul-edit { min-height: 34px; }
+.up-lib .ul-list.editing { max-height: none; overflow: visible; }
+.up-lib .ul-list[hidden], .up-lib .ul-empty[hidden], .up-detail-home[hidden], .ud-head[hidden] { display: none; }
+.up-lib .ul-empty { font-size: 13px; color: var(--muted); padding: 6px 2px; }
+.up-lib .ul-detrow { display: block; flex: 0 0 auto; }
+.up-detail { margin: 0 0 4px; padding: 8px; border: 1px solid var(--copper); border-radius: 10px; background: rgba(226, 161, 90, .06); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.up-detail .ud-head { display: flex; justify-content: flex-end; }
+.up-detail .ud-actions { gap: 6px; }
+.up-detail .ud-actions button { min-height: 36px; height: 36px; padding: 0 12px; font-size: 13px; border-radius: 9px; }
+.up-detail .ud-play { background: var(--copper); color: #1a1209; border-color: transparent; font-weight: 700; }
+.up-detail.ro .up-ch, .up-detail.ro .up-ch .alt { pointer-events: none; }
+html.lay-phone-land .up-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; align-items: start; }
+/* v105 (b): the next chord's yellow dot (same colour as the keyboard's next-key dot), top centre inside the
+   suggested-chords cell and the matching chord-table button(s); it sits above the label and never moves it. */
+.nxdot { position: relative; }
+.nxd { position: absolute; left: 50%; top: 2px; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: #c4853f;
+  box-shadow: 0 0 0 1.5px rgba(20, 12, 4, .45); pointer-events: none; z-index: 4; }
+#palette .nxd { top: 3px; width: 7px; height: 7px; margin-left: -3.5px; }
+/* landscape phone: the grid chips are ~23px tall, so the dot sits in the top 5px and the labels sit 2px lower
+   (padding only: chip boxes keep their size) so the dot never touches the label. */
+html.lay-phone-land #suggest .nxd { top: 0; width: 4px; height: 4px; margin-left: -2px; box-shadow: 0 0 0 1px rgba(20, 12, 4, .45); }
+html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
+/* v105 (c): a short burst on the whole next key / chord-table button / grid cell when a new next chord is marked:
+   brightness + an expanding warm ring (filter + box-shadow only: no layout shift); none with reduced motion. */
+@keyframes nxBurst { 0% { filter: brightness(1.75); box-shadow: 0 0 0 0 rgba(236, 178, 92, .95); } 60% { filter: brightness(1.25); } 100% { filter: none; box-shadow: 0 0 0 9px rgba(236, 178, 92, 0); } }
+.nxb, .kb .pad.nxb, #suggest .nxb, #palette button.nxb { animation: nxBurst .5s ease-out 1 !important; }
+@media (prefers-reduced-motion: reduce) { .nxb, .kb .pad.nxb, #suggest .nxb, #palette button.nxb { animation: none !important; } }
 </style>
 </head>
 <body>
@@ -1936,12 +1973,12 @@ html.lay-phone-land:not(.simple) .pg-btns > .pg-btn.pg-step, html.lay-phone-land
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img src="images/howto-why.webp?v=104.2" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid (an older picture)" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-why.webp?v=105" alt="Touch Chord in Simple mode: Now, key, Sustain and the chord grid (an older picture)" width="1000" height="462" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img src="images/howto-simple-1-play-progressions.webp?v=104.2" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-1-play-progressions.webp?v=105" alt="Key note (1), Major/Minor (2), the Four-Chord picker (3) and the Dm chord (4); order numbers 1 to 4 on C, G, Am and F" width="1000" height="462" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -1951,26 +1988,26 @@ html.lay-phone-land:not(.simple) .pg-btns > .pg-btn.pg-step, html.lay-phone-land
       <p class="ht-note">* The numbers on the <a class="ht-term" href="#gl-chord">chords</a> show the order to play them in the <a class="ht-term" href="#gl-progression">progression</a>.</p>
       <p class="cap">Tap <b>Next</b> to play the <a class="ht-term" href="#gl-chord">chords</a> one at a time, or <b>Play</b> to hear the whole <a class="ht-term" href="#gl-progression">progression</a>. The <a class="ht-term" href="#gl-chord">chord</a> that is playing grows a little, so you can follow along. In Full mode, a dashed outline gently marks the <a class="ht-term" href="#gl-chord">chord</a> that <b>Play</b> will sound next.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img src="images/howto-simple-4-sustain.webp?v=104.2" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-4-sustain.webp?v=105" alt="Sustain lit while the chord rings" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img src="images/howto-simple-5-style.webp?v=104.2" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-5-style.webp?v=105" alt="Style picker" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img src="images/howto-simple-6-grid.webp?v=104.2" alt="The suggestion grid: happy chords above the row of notes, sad chords below it (an older picture that still shows the faces beside the grid)" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-simple-6-grid.webp?v=105" alt="The suggestion grid: happy chords above the row of notes, sad chords below it (an older picture that still shows the faces beside the grid)" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> on the right are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the row of notes <span class="ht-face ht-face-happy" role="img" aria-label="happy face, arrow up"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="8.6" cy="9.6" r="1.2"/><circle class="eye" cx="15.4" cy="9.6" r="1.2"/><path d="M7.6 14.2c1.1 1.9 2.6 2.8 4.4 2.8s3.3-.9 4.4-2.8"/></svg><svg class="ar" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 13V2M2 6l4-4 4 4"/></svg></span>, and sad ones sit below it <span class="ht-face ht-face-sad" role="img" aria-label="sad face, arrow down"><svg class="ar" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 1v11M2 8l4 4 4-4"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="8.6" cy="9.6" r="1.2"/><circle class="eye" cx="15.4" cy="9.6" r="1.2"/><path d="M7.6 17.2c1.1-1.9 2.6-2.8 4.4-2.8s3.3.9 4.4 2.8"/></svg></span>. The faces are only a guide here in How to; they are no longer shown beside the grid, and they are not buttons. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-2-make-chord.webp?v=104.2" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
+      <img src="images/howto-full-2-make-chord.webp?v=105" alt="Hold maj7, tap A, Now reads Amaj7" width="1000" height="462" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img src="images/howto-full-4-fullrange.webp?v=104.2" alt="Before and after tapping Full Range (an older picture)" width="1200" height="300" loading="lazy" decoding="async">
+      <img src="images/howto-full-4-fullrange.webp?v=105" alt="Before and after tapping Full Range (an older picture)" width="1200" height="300" loading="lazy" decoding="async">
       <p class="cap">Tap <b>Full Range</b> to unlock every key and <a class="ht-term" href="#gl-chord">chord</a>, even the ones outside your <a class="ht-term" href="#gl-key">key</a>.</p></section></li>
       <li><section><h3><span class="ht-num">7.</span> Keyboard <span class="ht-pill">Full mode</span></h3>
       <p class="cap">Open <b>Layout</b> to choose your keys. <b>Octave</b> shows one octave that starts on your <a class="ht-term" href="#gl-key">key</a>, low <a class="ht-term" href="#gl-note">notes</a> on the left. <b>Full</b> shows the whole two-octave keyboard. Keys light up exactly as they sound, and the keyboard stays put while you tap. The app remembers your choice.</p></section></li>
       <li><section><h3><span class="ht-num">8.</span> Band <span class="ht-pill">Full mode</span></h3>
       <p class="cap">Open <b>Sound</b>. Under Voicing, turn on <b>Band</b> to add bass and drums, and slide the level from 1 to 100. Band starts off each time you open the app.</p></section></li>
       <li><section><h3><span class="ht-num">9.</span> Upload a song or album <span class="ht-pill">Full mode</span></h3>
-      <p class="cap">Tap the upload button (beside <b>Play</b>, or beside <b>Full Range</b> on a phone). Type a <b>Song title or album</b> and the <b>Artist</b>. Leave the title empty to get up to 10 songs by the artist. Tap <b>Copy for AI</b>, paste it into any AI, then paste its answer and tap <b>Load</b>. The buttons are at the top, and your songs are listed under <b>My songs</b> at the bottom. Tap the trash can to remove one.</p>
+      <p class="cap">Tap the upload button (beside <b>Play</b>, or beside <b>Full Range</b> on a phone). Type a <b>Song title or album</b> and the <b>Artist</b>. Leave the title empty to get up to 20 songs by the artist. Tap <b>Copy for AI</b>, paste it into any AI, then paste its answer and tap <b>Load</b>. The buttons are at the top, and your songs are listed under <b>My songs</b> at the bottom. Tap the trash can to remove one.</p>
       <p class="cap">When a song has words, two lines show above the <a class="ht-term" href="#gl-chord">chords</a>: the line you are singing, and the next one. They scroll up as the song moves on.</p></section></li>
       <li><section><h3><span class="ht-num">10.</span> Kids</h3>
       <p class="cap">Tap <b>Kids</b> for big, friendly <a class="ht-term" href="#gl-chord">chords</a> and sing-along songs: Twinkle, Mary&#8217;s Lamb, Row Your Boat and Old MacDonald. Seven big pads play a happy (major) <a class="ht-term" href="#gl-chord">chord</a> on each <a class="ht-term" href="#gl-note">note</a> of the <a class="ht-term" href="#gl-key">key</a>. The gold pad and the gold key follow the tune: tap either one to play the next <a class="ht-term" href="#gl-note">note</a>, and the words show which one you are singing.</p></section></li>
@@ -2033,25 +2070,37 @@ html.lay-phone-land:not(.simple) .pg-btns > .pg-btn.pg-step, html.lay-phone-land
   <div id="uploadPick" class="key-pick up-pick" role="dialog" aria-modal="true" aria-labelledby="upTitleH" hidden>
     <div class="kp-box">
       <div class="kp-head"><span id="upTitleH">Upload song or album</span><button type="button" class="kp-x up-x" aria-label="Close">&#10005;</button></div>
-      <!-- v91: actions on top, status right under them, fields / song / answer in the middle, My songs at the bottom -->
-      <div class="up-row up-actions" id="upActions" role="group" aria-label="Song actions"><button type="button" id="upCopy">Copy for AI</button><span class="up-pv" id="upPv" role="radiogroup" aria-label="Chords to ask for"><button type="button" role="radio" data-pv="simple" aria-checked="true">Simple</button><button type="button" role="radio" data-pv="full" aria-checked="false">Simple and Full</button></span><button type="button" id="upLoad">Load</button><button type="button" id="upNew">New song</button><span class="up-ok" id="upCopied" hidden>Copied</span></div>
+      <!-- v105: list-first. The add form (title/album, artist, Simple/Full, Copy for AI, paste, Load, results), then My songs.
+           A song's details (key, Lock, review, chords, lyrics) show only under its row, via the pencil. -->
+      <div class="up-cols">
+      <div class="up-form" id="upForm">
       <p class="up-intro">Ask any AI to fill in this song form, then paste its answer back here. The app checks it before loading.</p>
-      <div class="up-err" id="upErr" role="alert" hidden></div>
-      <div class="up-msg" id="upMsg" role="status" hidden></div>
-      <div class="up-note" id="upNote" role="status" hidden><span>Song loaded. Tap New song to start another.</span><button type="button" id="upNew2">New song</button></div>
-      <div class="up-err" id="upSaveErr" role="alert" hidden></div>
-      <div class="up-fallback" id="upFallback" hidden><div class="up-warn">Copy did not work here. Select all of this text and copy it:</div><textarea id="upFallbackTxt" readonly></textarea></div>
       <div class="up-fields">
         <label>Song title or album<input id="upTitle" type="text" autocomplete="off" spellcheck="false" placeholder="Hotel California"></label>
         <label>Artist<input id="upArtist" type="text" autocomplete="off" spellcheck="false" placeholder="Eagles"></label>
       </div>
       <div class="up-ask" id="upAsk" aria-live="polite" hidden></div>
+      <div class="up-row up-pvrow"><span class="up-pv" id="upPv" role="radiogroup" aria-label="Chords to ask for"><button type="button" role="radio" data-pv="simple" aria-checked="true">Simple</button><button type="button" role="radio" data-pv="full" aria-checked="false">Simple and Full</button></span></div>
+      <div class="up-row up-copyrow"><button type="button" id="upCopy">Copy for AI</button><span class="up-ok" id="upCopied" hidden>Copied</span></div>
+      <div class="up-fallback" id="upFallback" hidden><div class="up-warn">Copy did not work here. Select all of this text and copy it:</div><textarea id="upFallbackTxt" readonly></textarea></div>
+      <label class="up-paste"><span class="up-warn">Paste the AI&rsquo;s answer</span><textarea id="upPaste" spellcheck="false" placeholder="{ &quot;contractVersion&quot;: &quot;1.2&quot;, &quot;songs&quot;: [ ... ] }"></textarea></label>
+      <div class="up-row up-loadrow"><button type="button" id="upLoad">Load</button></div>
+      <div class="up-status" id="upStatus">
+      <div class="up-err" id="upErr" role="alert" hidden></div>
+      <div class="up-msg" id="upMsg" role="status" hidden></div>
+      <div class="up-err" id="upSaveErr" role="alert" hidden></div>
+      </div>
+      </div>
+      <div class="up-lib" id="upLib"><div class="ul-h">My songs <small id="upLibN"></small></div><ul class="ul-list" id="upLibList" role="list"></ul><div class="ul-empty" id="upLibEmpty">No songs yet. Your songs will appear here.</div></div>
+      </div>
+      <div class="up-detail-home" hidden><div class="up-detail" id="upDetail">
+      <div class="ud-head" id="upDHead" hidden><span class="ul-ver" id="upDVer" role="radiogroup" aria-label="Chords"><button type="button" role="radio" data-lib="ver" data-ver="simple" aria-checked="true">Simple</button><button type="button" role="radio" data-lib="ver" data-ver="full" aria-checked="false">Full</button></span></div>
       <div class="up-key" aria-live="polite"><div class="uk-kbox" hidden><div class="uk-l">Key</div><div class="uk-k" id="upKey">&mdash;</div></div><div class="uk-t" id="upTempo">No song loaded</div></div>
       <div class="up-row up-lockrow" id="upLockRow" hidden><button type="button" id="upLock" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2" fill="currentColor"/><path class="shk" d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.2"/></svg><span>Lock</span></button><span class="up-lockhint" id="upLockHint"></span></div>
       <div class="up-review" id="upReview" hidden></div>
       <div class="up-secs" id="upSecs" aria-label="Song sections in play order"><div class="up-empty">No song yet. Copy the form for an AI below, then paste its answer.</div></div>
-      <label class="up-paste"><span class="up-warn">Paste the AI&rsquo;s answer</span><textarea id="upPaste" spellcheck="false" placeholder="{ &quot;contractVersion&quot;: &quot;1.2&quot;, &quot;songs&quot;: [ ... ] }"></textarea></label>
-      <div class="up-lib" id="upLib" hidden><div class="ul-h">My songs <small id="upLibN"></small></div><ul class="ul-list" id="upLibList" role="list"></ul></div>
+      <div class="up-row ud-actions"><button type="button" class="ud-play" data-lib="open">Play this song</button><button type="button" class="ud-done" data-lib="done">Done</button></div>
+      </div></div>
     </div>
   </div>
   <script type="application/json" id="songSchemaJson">
@@ -2534,7 +2583,7 @@ html.lay-phone-land:not(.simple) .pg-btns > .pg-btn.pg-step, html.lay-phone-land
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = "104.2";   // display only ("Version 104.1"); v105 stays the next build
+var APP_VERSION = 105;   // display only ("Version 105")
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -6856,7 +6905,99 @@ function accSym(s) {
     if (laEl && laEl !== t) laEl.classList.remove("la-play");
     if (t) t.classList.add("la-play");
     laEl = t;
+    nxMarkSoon();   // v105
   }
+  // v105: the NEXT chord = what Next / Play sounds next. Kids: the gold step. Uploaded song: its next step.
+  // Presets: playing = the step after the lit one (none in the random part); stopped = the queued Next chord.
+  function nxNow() {
+    if (typeof magic === "undefined" || !magic || !prog.steps.length) return null;
+    var item = null, el = null, sig = "", n = prog.steps.length;
+    if (state.style === "kids") {
+      item = kidsHintItem();
+      if (!item) return null;
+      el = kidsGoldPadEl(item);
+      sig = "k" + (prog.playing ? "p" + prog.cur : "n" + magic.pos);
+    } else if (upSelected()) {
+      var i = upNextStep();
+      if (i < 0) return null;
+      item = prog.steps[i].item; el = prog.targets[i] || magicTarget(item);
+      sig = "u" + i + (prog.playing ? "p" + prog.cur : "n" + magic.pos);
+    } else if (prog.playing) {
+      if (prog.tail) return null;
+      var j = prog.cur >= 0 ? prog.cur + 1 : prog.si;
+      if (j >= n) return null;
+      item = prog.steps[j].item; el = prog.targets[j] || magicTarget(item);
+      sig = "p" + j + "c" + prog.cur;
+    } else {
+      var d = magicQueue();
+      if (!d || !d.item) return null;
+      item = d.item; el = d.step >= 0 && prog.targets[d.step] ? prog.targets[d.step] : magicTarget(item);
+      sig = "q" + d.step + "m" + magic.pos + "c" + (magic.cycle || 0) + ":" + item.rootPc + item.type;
+    }
+    if (el && (!el.isConnected || !el.getClientRects().length)) el = null;
+    return { item: item, el: el, sig: sig + "|" + prog.idx + "|" + state.style + "|" + (state.simple ? 1 : 0) };
+  }
+  function nxTableEls(item) {
+    var out = [];
+    if (!item) return out;
+    var tb = document.querySelector("#palette button[data-type=\"" + item.type + "\"]");
+    if (tb && tb.getClientRects().length) out.push(tb);
+    var ex = item.extensions || {};
+    for (var k in ex) if (ex[k]) { var eb = document.querySelector("#palette button[data-ext=\"" + k + "\"]"); if (eb && eb.getClientRects().length) out.push(eb); }
+    return out;
+  }
+  function nxKeyEl(item) {
+    if (!item || state.simple) return null;
+    var k = padsEl.querySelector(".pad.nx-root");
+    if (k) return k;
+    var pc = wrap12(state.style === "kids" && item.mel != null ? item.rootPc : item.rootPc), best = null;
+    Array.prototype.forEach.call(padsEl.querySelectorAll(".pad"), function (p) {
+      if (wrap12(+p.dataset.pc) !== pc || p.classList.contains("out") || !p.getClientRects().length) return;
+      if (!best || +p.dataset.midi < +best.dataset.midi) best = p;
+    });
+    return best;
+  }
+  var nxSigLast = "", nxT = 0, nxBursts = 0;
+  var nxReduce = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+  function nxBurst(el) {
+    if (!el) return;
+    el.classList.remove("nxb");
+    void el.offsetWidth;
+    el.classList.add("nxb");
+    clearTimeout(el._nxb);
+    el._nxb = setTimeout(function () { el.classList.remove("nxb"); }, 560);
+  }
+  function paintNxMark() {
+    nxT = 0;
+    var cur = nxNow(), dots = [];
+    if (cur) {
+      if (cur.el && !(state.style === "kids" && cur.el.classList.contains("ss-kidpad"))) dots.push(cur.el);   // Kids pads already carry this dot (v71)
+      dots = dots.concat(nxTableEls(cur.item));
+    }
+    Array.prototype.forEach.call(document.querySelectorAll(".nxdot"), function (n) { if (dots.indexOf(n) < 0) { n.classList.remove("nxdot"); var d = n.querySelector(":scope > .nxd"); if (d) d.remove(); } });
+    dots.forEach(function (n) {
+      n.classList.add("nxdot");
+      if (!n.querySelector(":scope > .nxd")) { var d = document.createElement("i"); d.className = "nxd"; d.setAttribute("aria-hidden", "true"); n.appendChild(d); }
+    });
+    var sig = cur ? cur.sig + "|" + (cur.item.rootPc + ":" + cur.item.type) : "";
+    if (sig && sig !== nxSigLast && !(nxReduce && nxReduce.matches)) {
+      nxBursts++;
+      nxBurst(nxKeyEl(cur.item));
+      nxTableEls(cur.item).forEach(nxBurst);
+      nxBurst(cur.el);
+    }
+    nxSigLast = sig;
+  }
+  function nxMarkSoon() { if (!nxT) nxT = setTimeout(paintNxMark, 0); }
+  if (PROG_TEST) window.__nx = function () {
+    paintNxMark();
+    var cur = nxNow(), lab = function (e) { return e ? (e.getAttribute("aria-label") || e.textContent || "").trim() : null; };
+    return { sig: nxSigLast, grid: cur && cur.el ? lab(cur.el) : null, item: cur ? { rootPc: cur.item.rootPc, type: cur.item.type, ext: Object.keys(cur.item.extensions || {}).filter(function (k) { return cur.item.extensions[k]; }) } : null,
+      dots: Array.prototype.map.call(document.querySelectorAll(".nxdot"), function (e) { return (e.closest("#palette") ? "table:" : "grid:") + lab(e); }),
+      key: (function () { var k = cur ? nxKeyEl(cur.item) : null; return k ? +k.dataset.midi : null; })(), bursts: nxBursts,
+      burstEls: Array.prototype.map.call(document.querySelectorAll(".nxb"), function (e) { return (e.closest("#palette") ? "table:" : e.closest("#pads") ? "key:" + e.dataset.midi : "grid:") + lab(e); }) };
+  };
+
   if (PROG_TEST) window.__la = function () { var t = laTarget(); paintLookahead(); var all = document.querySelectorAll("#suggest .la-play");
     return { n: all.length, label: t ? (t.getAttribute("aria-label") || t.textContent) : null, step: t ? prog.targets.indexOf(t) : -1, playing: prog.playing, cur: prog.cur, si: prog.si }; };
   function paintProgActive() {
@@ -7231,6 +7372,7 @@ function accSym(s) {
     Array.prototype.forEach.call(document.querySelectorAll("#suggest .ss-kidpad.nx-root, #pads .pad.nx-root"), function (n) { if (n !== el) kidsTapPulse(n); });
   }
   function paintNextHint() {
+    nxMarkSoon();   // v105
     clearNextHintDom();
     if (typeof magic === "undefined" || !magic) return;
     if (state.style === "kids") { paintKidsHint(); return; }
@@ -7483,7 +7625,7 @@ function accSym(s) {
   var UP_PASTE_LINE = "Keep it simple, for kids learning chords. List each section in play order, but use repeat for back-to-back repeats instead of writing them out. In each section give only the chord changes, and merge the same chord played twice in a row into one longer chord. Use plain beginner chords: major, minor, 7 or sus. Leave out passing chords, slash chords and extensions unless the song really needs them, and put the fancier version in alternates. Aim for 4 to 8 chords per section.";
   var UP_PASTE_LINE_2 = "Study each song once and give TWO versions of its chords in its song form. 1) \"sections\" is the Simple version, for kids learning chords: list each section in play order, but use repeat for back-to-back repeats instead of writing them out; give only the chord changes and merge the same chord played twice in a row into one longer chord; use plain beginner chords (major, minor, 7 or sus), leave out passing chords, slash chords and extensions unless the song really needs them, put the fancier version in alternates, and aim for 4 to 8 chords per section. 2) \"sectionsFull\" is the Full version, faithful to the record: keep the passing chords, slash chords and richer voicings as played; list each section once and mark repeats with repeat; about 15 to 25 chord entries across the whole song. Both versions share one song block, one timing block and the same lyric text: write the lyrics out in both, in each section of sections and of sectionsFull, with each version's lyric markers pointing into that version's own chords array.";
   var UP_TAIL = "Use concert pitch, count bars from the start of each song, give each chord an honest 0-1 confidence, and put anything unsure in that song's notes. If you can't find a song's chords, leave that song out rather than guess, and name it in the top-level notes.";
-  var UP_ARTIST_MAX = 10, UP_ALBUM_MAX = 25, UP_SKIP_MAX = 40, UP_LIST_MAX = 25;
+  var UP_ARTIST_MAX = 20, UP_ALBUM_MAX = 25, UP_SKIP_MAX = 40, UP_LIST_MAX = 25;
   var upPromptVer = "simple";
   var upSchemaText = "", upSchema = null, upListSchemaText = "";
   (function () {
@@ -7507,7 +7649,7 @@ function accSym(s) {
         type: "object", required: ["contractVersion", "songs"], additionalProperties: false,
         properties: {
           contractVersion: { "const": "1.2" },
-          songs: { type: "array", minItems: 1, maxItems: UP_LIST_MAX, description: "One entry per song. Album: every song in track order. Artist: at most 10.", items: { "$ref": "#/$defs/songItem" } },
+          songs: { type: "array", minItems: 1, maxItems: UP_LIST_MAX, description: "One entry per song. Album: every song in track order. Artist: at most " + UP_ARTIST_MAX + ".", items: { "$ref": "#/$defs/songItem" } },
           notes: { type: "string", description: "Anything about the whole list, e.g. songs left out because their chords could not be found." }
         },
         "$defs": defs
@@ -8194,21 +8336,34 @@ function accSym(s) {
     var al = upLibAlbum(e);
     return "<span class=\"ul-sub\"><span class=\"ul-art\">" + upEsc(e.artist) + "</span>" + (al ? "<span class=\"ul-alb\">&nbsp;\u00b7 " + upEsc(al) + "</span>" : "") + "</span>";
   }
+  // v105: the song whose details are open under its row (pencil); independent of the playing song (U).
+  var upEdit = null;
+  var PENCIL_SVG = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 20h4L18.5 9.5a2.1 2.1 0 0 0-4-4L4 16v4z\"/><path d=\"M13.5 6.5l4 4\"/></svg>";
   function paintLib() {
     var box = document.getElementById("upLib"), list = document.getElementById("upLibList");
     if (!box || !list) return;
     paintLibErr();
-    box.hidden = !LIB.songs.length;
+    var det = document.getElementById("upDetail"), home = document.querySelector("#uploadPick .up-detail-home");
+    if (det && home && det.parentNode !== home) home.appendChild(det);   // v105: kept while the list is rebuilt
+    if (upEdit && !libGet(upEdit)) upEdit = null;
+    var emp = document.getElementById("upLibEmpty");
+    if (emp) emp.hidden = !!LIB.songs.length;
+    list.hidden = !LIB.songs.length;
+    list.classList.toggle("editing", !!upEdit);
     document.getElementById("upLibN").textContent = LIB.songs.length ? "(" + LIB.songs.length + (LIB.songs.length >= LIB_MAX ? ", full" : "") + ")" : "";
     var rows = LIB.songs.slice().sort(function (a, b) { return (b.added || 0) - (a.added || 0); });
     var act = U ? U.id : null, h = "";
     rows.forEach(function (e) {
       var on = e.id === act;
-      h += "<li class=\"ul-row" + (on ? " on" : "") + "\" data-id=\"" + upEsc(e.id) + "\"><button type=\"button\" class=\"ul-open\" data-lib=\"open\"" + (on ? " aria-current=\"true\"" : "") + "><b>" + upEsc(e.title) + "</b>" + upLibSub(e) + "</button>" +
-        (e.song && e.song.sectionsFull && e.song.sectionsFull.length ? "<span class=\"ul-ver\" role=\"radiogroup\" aria-label=\"" + upEsc(e.title) + " chords\">" + ["simple", "full"].map(function (v) { var on = (e.ver === "full" ? "full" : "simple") === v; return "<button type=\"button\" role=\"radio\" data-lib=\"ver\" data-ver=\"" + v + "\" aria-checked=\"" + on + "\">" + (v === "full" ? "Full" : "Simple") + "</button>"; }).join("") + "</span>" : "") +
-        "<button type=\"button\" class=\"ul-del\" data-lib=\"del\" aria-label=\"Remove " + upEsc(e.title) + "\" title=\"Remove\">" + TRASH_SVG + "</button></li>";
+      var ed = e.id === upEdit;   // v105: the per-song Simple / Full pick moved into the details (pencil)
+      h += "<li class=\"ul-row" + (on ? " on" : "") + (ed ? " edit" : "") + "\" data-id=\"" + upEsc(e.id) + "\"><button type=\"button\" class=\"ul-open\" data-lib=\"open\"" + (on ? " aria-current=\"true\"" : "") + "><b>" + upEsc(e.title) + "</b>" + upLibSub(e) + "</button>" +
+        "<button type=\"button\" class=\"ul-edit\" data-lib=\"edit\" aria-label=\"Edit\" title=\"Edit\" aria-expanded=\"" + ed + "\">" + PENCIL_SVG + "</button>" +
+        "<button type=\"button\" class=\"ul-del\" data-lib=\"del\" aria-label=\"Remove " + upEsc(e.title) + "\" title=\"Remove\">" + TRASH_SVG + "</button></li>" +
+        (ed ? "<li class=\"ul-detrow\" data-id=\"" + upEsc(e.id) + "\"></li>" : "");
     });
     list.innerHTML = h;
+    var dr = list.querySelector(".ul-detrow");
+    if (dr && det) dr.appendChild(det);
   }
   // Step index of the first walk step for chord (si, ci).
   function upStepOf(si, ci) {
@@ -8252,6 +8407,7 @@ function accSym(s) {
     return magic.pos < n ? magic.pos : -1;
   }
   function paintUpNext() {
+    nxMarkSoon();   // v105
     Array.prototype.forEach.call(document.querySelectorAll(".upnx"), function (n) { n.classList.remove("upnx"); });
     var i = upNextStep();
     if (i < 0) return;
@@ -8508,15 +8664,32 @@ function accSym(s) {
   function upPromptFor(md, ver, have) {
     return UP_HEAD + " " + (ver === "full" ? UP_PASTE_LINE_2 : UP_PASTE_LINE) + " " + UP_TAIL + " " + upAskLine(md) + upSkipLine(md, have || []);
   }
+  function upViewSong() {
+    if (!upEdit) return null;
+    if (U && U.id === upEdit) return U;
+    var e = libGet(upEdit), v = null;
+    if (e) { try { v = libEntryToU(e); } catch (err) { v = null; } }
+    return v;
+  }
   function paintUpload() {
     var pick = document.getElementById("uploadPick");
     if (!pick) return;
+    paintLib();
+    var V = upViewSong(), ro = !!V && V !== U, U0 = U, det = document.getElementById("upDetail");
+    det.classList.toggle("ro", ro);
+    var hd = document.getElementById("upDHead");
+    hd.hidden = !(V && V.two);
+    if (V && V.two) Array.prototype.forEach.call(hd.querySelectorAll("[data-ver]"), function (b) { b.setAttribute("aria-checked", b.dataset.ver === V.ver ? "true" : "false"); });
+    U = V;
+    try { upPaintDetail(ro); } finally { U = U0; }
+    document.documentElement.classList.toggle("up-locked", !!(U && U.locked));
+    if (!ro) { paintUploadActive(upSelected() ? upCurStep() : -1); paintUpNext(); }
+  }
+  function upPaintDetail(ro) {
     var keyEl = document.getElementById("upKey"), tEl = document.getElementById("upTempo"), secs = document.getElementById("upSecs");
     var rev = document.getElementById("upReview");
-    paintLib();
     var lrow = document.getElementById("upLockRow");
-    lrow.hidden = !U;
-    document.documentElement.classList.toggle("up-locked", !!(U && U.locked));
+    lrow.hidden = !U || ro;   // v105: a saved (not playing) song's details are read-only
     if (U) {
       document.getElementById("upLock").setAttribute("aria-pressed", U.locked ? "true" : "false");
       document.getElementById("upLockHint").textContent = U.locked ? "Chords locked: styles change the sound only, a key change moves every chord. Unlock to review or change chords." : "Unlocked: you can review and change chords.";
@@ -8534,7 +8707,7 @@ function accSym(s) {
     if (lko && upTr(lko)) keyEl.innerHTML = upEsc(accSym(keyRootName(lko)) + " " + lko.mode) + " <small style=\"font-size:.4em\">song: " + upEsc(accSym(keyRootName(k)) + " " + k.mode) + "</small>";
     tEl.innerHTML = upEsc(U.title) + " \u2014 " + upEsc(U.artist) + "<br>" + U.bpm + " BPM \u00b7 " + upEsc(U.ts);
     var fl = upFlagList();
-    if (fl.length && !U.locked) {
+    if (fl.length && !U.locked && !ro) {
       var h = "<b>" + fl.length + " chord" + (fl.length > 1 ? "s" : "") + " need" + (fl.length > 1 ? "" : "s") + " review</b> (the AI was not sure). Keep it or pick another:";
       fl.forEach(function (f) {
         var c = upEv(f.si, f.ci);
@@ -8569,8 +8742,6 @@ function accSym(s) {
       html += "</div>";
     });
     secs.innerHTML = html;
-    paintUploadActive(upSelected() ? upCurStep() : -1);
-    paintUpNext();
   }
   // v89: the multi-song summary in #upMsg (no key anywhere, per v87)
   function upSummaryHtml(r) {
@@ -8641,11 +8812,15 @@ function accSym(s) {
   }
   function openUpload() {
     var pick = document.getElementById("uploadPick");
-    var ti = document.getElementById("upTitle"), ar = document.getElementById("upArtist");
-    if (U && !ti.value.trim() && !ar.value.trim()) { ti.value = U.title; ar.value = U.artist; }   // v73: never overwrite a new song being typed
+    // v105: opens as a clean list: the form is cleared, no details open, no status; playback is untouched
+    ["upTitle", "upArtist", "upPaste", "upFallbackTxt"].forEach(function (id) { document.getElementById(id).value = ""; });
+    ["upMsg", "upErr", "upFallback", "upCopied"].forEach(function (id) { document.getElementById(id).hidden = true; });
+    upEdit = null; upOpenAlt = null;
     paintUpload();
     upAskRefresh();
+    upEmptyRefresh();
     pick.hidden = false;
+    pick.querySelector(".kp-box").scrollTop = 0;
     var ul = document.getElementById("upLibList"), on = ul && ul.querySelector(".ul-row.on");   // v77: the active song in view
     if (on) ul.scrollTop = Math.max(0, on.offsetTop - ul.offsetTop - 4);
   }
@@ -8662,37 +8837,34 @@ function accSym(s) {
     document.getElementById("upCopy").addEventListener("click", upCopy);
     document.getElementById("upPv").addEventListener("click", function (e) { var b = e.target.closest ? e.target.closest("[data-pv]") : null; if (b) upSetPrompt(b.dataset.pv); });
     var upLoading = false;
-    // v91: the summary / errors sit right under the action row; bring them into view
+    // v105: the summary / errors sit right under Load; bring them into view
     function upStatusIntoView() {
-      var box = pick.querySelector(".kp-box"), acts = document.getElementById("upActions");
-      box.scrollTop = Math.max(0, acts.offsetTop - box.offsetTop - 8);
+      var st = document.getElementById("upStatus"), lb = document.getElementById("upLoad");
+      try { (st.offsetHeight ? st : lb).scrollIntoView({ block: "nearest" }); } catch (e) {}
     }
     function loadDone(r) {
       upLoading = false;
-      var msg = document.getElementById("upMsg"), note = document.getElementById("upNote");
+      var msg = document.getElementById("upMsg");
       upShowErrors(r);
       if (r.full) { var fe = document.getElementById("upErr"); fe.textContent = "My songs is full, remove one first"; fe.hidden = false; }
       if (r.saveFail) { var se = document.getElementById("upErr"); se.textContent = "Couldn't save, storage is full"; se.hidden = false; }
-      if (!r.ok) { note.hidden = true; upStatusIntoView(); return; }
+      if (!r.ok) { upStatusIntoView(); return; }
       if (!r.list) {
         var n = U.events.length, fl = upFlagList().length;
         msg.textContent = "Loaded " + U.title + ": " + U.secs.length + " sections, " + n + " chords, " + U.bpm + " BPM." +   // v87: no key on the Upload form
           (fl ? " " + fl + " need review." : "") + (U.two ? " Simple and Full versions: pick one in My songs." : "") + (r.warnings.length ? " Note: " + r.warnings.slice(0, 3).join("; ") + (r.warnings.length > 3 ? "\u2026" : "") : "") + " Close this and tap Next or Play.";
         msg.hidden = false;
-        document.getElementById("upTitle").value = U.title;
-        document.getElementById("upArtist").value = U.artist;
         document.getElementById("upPaste").value = "";
-        note.firstElementChild.textContent = "Song loaded. Tap New song to start another.";
       } else {
         msg.innerHTML = upSummaryHtml(r);
         msg.hidden = false;
         if (!r.skipped) document.getElementById("upPaste").value = "";   // kept so Load can run again after making room
-        note.firstElementChild.textContent = "Songs loaded. Tap New song to start another.";
       }
-      upOpenAlt = null;
+      ["upTitle", "upArtist"].forEach(function (id) { document.getElementById(id).value = ""; });   // v105: the form clears after Load
+      upOpenAlt = null; upEdit = null;
       paintUpload();
+      upAskRefresh();
       upEmptyRefresh();
-      note.hidden = false;   // v73: clear path to the next song
       upStatusIntoView();
     }
     document.getElementById("upLoad").addEventListener("click", function () {
@@ -8713,23 +8885,12 @@ function accSym(s) {
         setTimeout(step, 0);
       })();
     });
-    // v73: New song = a fresh form (song removed, fields cleared), panel stays open.
-    function newSong() {
-      upRemove();
-      upOpenAlt = null;
-      ["upPaste", "upTitle", "upArtist", "upFallbackTxt"].forEach(function (id) { document.getElementById(id).value = ""; });
-      ["upMsg", "upErr", "upNote", "upFallback", "upCopied"].forEach(function (id) { document.getElementById(id).hidden = true; });
-      paintUpload();
-      upAskRefresh();
-      pick.querySelector(".kp-box").scrollTop = 0;
-      document.getElementById("upTitle").focus();
-    }
-    document.getElementById("upNew").addEventListener("click", newSong);
-    document.getElementById("upNew2").addEventListener("click", newSong);
+    // v105: no New song button: the form clears when the panel opens and after Load.
     // v92: no Remove song button; the trash icon on each My songs row removes a song (with a confirm)
     function act(e) {
       var t = e.target.closest ? e.target.closest("[data-act]") : null;
       if (!t || !U) return;
+      if (upEdit && U.id !== upEdit) return;   // v105: read-only details of a saved song
       var a = t.dataset.act, b = t.closest("[data-s]"), si = +(t.dataset.s != null ? t.dataset.s : b.dataset.s), ci = +(t.dataset.c != null ? t.dataset.c : (t.closest(".up-ch") || {}).dataset.c);
       if (U.locked && (a === "alts" || a === "alt" || a === "accept")) { e.stopPropagation(); return; }   // v73: Lock = no chord edits
       if (a === "alts") { e.stopPropagation(); upOpenAlt = upOpenAlt === si + ":" + ci ? null : si + ":" + ci; paintUpload(); return; }
@@ -8748,14 +8909,21 @@ function accSym(s) {
       if (!b || !row) return;
       var id = row.dataset.id, ent = libGet(id);
       if (!ent) return;
-      ["upMsg", "upErr", "upNote", "upFallback", "upCopied"].forEach(function (x) { document.getElementById(x).hidden = true; });
+      ["upMsg", "upErr", "upFallback", "upCopied"].forEach(function (x) { document.getElementById(x).hidden = true; });
       upOpenAlt = null;
+      if (b.dataset.lib === "edit" || b.dataset.lib === "done") {   // v105: details only via the pencil; playback untouched
+        upEdit = b.dataset.lib === "edit" && upEdit !== id ? id : null;
+        paintUpload();
+        var eb = row.parentNode && row.parentNode.querySelector(".ul-row[data-id=\"" + id + "\"] .ul-edit");
+        if (upEdit) { var dd = document.getElementById("upDetail"); try { (dd.offsetHeight ? dd : eb).scrollIntoView({ block: "nearest" }); } catch (err) {} }
+        if (eb) eb.focus();
+        return;
+      }
       if (b.dataset.lib === "ver") { unlock(); libSetVer(id, b.dataset.ver); paintUpload(); return; }   // v80
       if (b.dataset.lib === "del") {
         if (!libConfirm(ent)) return;
-        var wasActive = !!(U && U.id === id);
+        if (upEdit === id) upEdit = null;
         libDelete(id);
-        if (wasActive) ["upPaste", "upTitle", "upArtist"].forEach(function (x) { document.getElementById(x).value = ""; });
         document.getElementById("upMsg").textContent = "Song removed.";
         document.getElementById("upMsg").hidden = false;
         paintUpload();
@@ -8763,9 +8931,6 @@ function accSym(s) {
       }
       unlock();
       if (!libOpen(id)) { var ne = document.getElementById("upErr"); ne.textContent = "This song needs a newer app"; ne.hidden = false; return; }   // v89: kept, never erased
-      document.getElementById("upTitle").value = U.title;
-      document.getElementById("upArtist").value = U.artist;
-      document.getElementById("upPaste").value = "";
       document.getElementById("upMsg").textContent = U.title + " is ready. Close this and tap Next or Play.";
       document.getElementById("upMsg").hidden = false;
       paintUpload();
@@ -8786,6 +8951,7 @@ function accSym(s) {
     mode: function (t, a) { return upMode(t, a); },
     promptFor: function (md, ver, have) { return upPromptFor(md, ver, have); },
     listSchema: function () { return upListSchemaText; },
+    caps: function () { return { artist: UP_ARTIST_MAX, album: UP_ALBUM_MAX, skip: UP_SKIP_MAX, list: UP_LIST_MAX }; },   // v105
     remove: function () { upRemove(); paintUpload(); },
     song: function () { return U ? { title: U.title, artist: U.artist, key: U.key, bpm: U.bpm, ts: U.ts, events: U.events.length, sections: U.secs.map(function (s) { return s.id; }), selected: upSelected(), two: !!U.two, ver: U.ver } : null; },
     setVer: function (id, v) { var r = libSetVer(id, v); paintUpload(); return r; },
@@ -9896,7 +10062,7 @@ function accSym(s) {
       delay: 0.14,
       bpm: 96,
       warmth: WARMTH_DEFAULT,
-      simple: false,
+      simple: true,   // v105: the app opens in Simple (Full is one tap away on the Simple toggle)
       allKeys: false,
       // v65: on by default in both modes. A saved false (the switch turned off) is kept;
       // a missing value (new user, or saved before v60) gets on.
