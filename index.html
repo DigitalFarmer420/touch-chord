@@ -1554,16 +1554,19 @@ html.lay-phone-port:not(.simple) .now-col > .prog .pg-sel { width: 100%; flex: 0
 .config-menu .cfg-vol input { flex: 1 1 auto; min-width: 0; width: 120px; accent-color: var(--copper); }
 .config-menu .cfg-vol b { flex: 0 0 auto; min-width: 2.2em; text-align: right; font-size: 12px; font-weight: 700; color: var(--muted); }
 /* v86: Band in the Sound box, under Voicing: on/off toggle with the level slider beneath it. */
-.band-wrap { display: flex; flex-direction: column; align-items: stretch; gap: 4px; min-width: 0; }
-.band-wrap .band-tgl { align-self: flex-start; min-width: 72px; min-height: 32px; }
-.band-wrap .band-tgl.on { background: var(--sea); color: #10211c; border-color: transparent; }
-.band-row { display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 20px; height: 20px; font-size: 12px; color: var(--muted); }
-.band-row span { flex: 0 0 auto; }
+.band-wrap { display: flex; flex-direction: row; align-items: center; min-width: 0; }
+/* Band fix: no Band button. One row under Bass: "Band" label, level slider (0 = off), the level number ("Off" at 0). */
+.band-row { flex: 1 1 auto; display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 32px; height: 32px; font-size: 12px; color: var(--muted); }
+.band-row span { flex: 0 0 72px; font-size: 13px; font-weight: 650; color: var(--ink); }
 .band-row input { flex: 1 1 auto; min-width: 0; width: 100%; accent-color: var(--copper); }
 .band-row b { flex: 0 0 auto; min-width: 2.2em; text-align: right; font-size: 12px; font-weight: 650; color: var(--ink); }
-.band-wrap.off .band-row { opacity: .45; }   /* toggle off: the level is kept, dimmed */
+.band-wrap.on .band-row span { color: var(--sea); }
+.band-wrap.off .band-row b { color: var(--muted); }   /* level 0 = off */
+/* Band fix: phone portrait, the open pane scrolls inside its own box; it never paints over the chord-type row. */
+html.lay-phone-port #ctl { overflow: hidden; }
+html.lay-phone-port #ctl .pane { flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 /* no band for this style yet (Funk, Reggae, Yoga): both controls disabled, tooltip on the box. */
-.band-wrap.dim .band-tgl, .band-wrap.dim .band-row { opacity: .45; }
+.band-wrap.dim .band-row { opacity: .45; }
 /* v86: the main-screen mix row holds Volume only (Band moved to the Sound box). */
 .now-col > .now-mix { flex: 0 0 auto; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 html.lay-phone-land:not(.simple) .now-col > .now-mix { flex-direction: row; align-items: center; gap: 4px; }
@@ -1992,12 +1995,12 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img class="ht-shot" src="images/howto-00-intro.webp?v=110" alt="Touch Chord on a phone in Simple mode: Now, key, Sustain and the chord grid" width="540" height="1170" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-00-intro.webp?v=111" alt="Touch Chord on a phone in Simple mode: Now, key, Sustain and the chord grid" width="540" height="1170" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img class="ht-shot" src="images/howto-01-progressions.webp?v=110" alt="Simple mode: key (1), Major (2), the Four-Chord picker with Next and Play (3), and the Dm chord (4)" width="540" height="1170" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-01-progressions.webp?v=111" alt="Simple mode: key (1), Major (2), the Four-Chord picker with Next and Play (3), and the Dm chord (4)" width="540" height="1170" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -2008,35 +2011,35 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
       <p class="cap">Tap <b>Next</b> to play the <a class="ht-term" href="#gl-chord">chords</a> one at a time, or <b>Play</b> to hear the whole <a class="ht-term" href="#gl-progression">progression</a>. The <a class="ht-term" href="#gl-chord">chord</a> that is playing grows a little, so you can follow along. In Full mode, a dashed outline gently marks the <a class="ht-term" href="#gl-chord">chord</a> that <b>Play</b> will sound next.</p>
       <p class="cap">The next <a class="ht-term" href="#gl-chord">chord</a> has a gold outline. With <b>Play along</b> on in the gear menu, tap that <a class="ht-term" href="#gl-chord">chord</a>, or in Full mode its root key, and it moves on just like <b>Next</b>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img class="ht-shot" src="images/howto-02-sustain.webp?v=110" alt="Play a chord (1), then hold Sustain (2)" width="540" height="1170" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-02-sustain.webp?v=111" alt="Play a chord (1), then hold Sustain (2)" width="540" height="1170" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img class="ht-shot" src="images/howto-03-style.webp?v=110" alt="The style buttons at the top, lit" width="540" height="1170" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-03-style.webp?v=111" alt="The style buttons at the top, lit" width="540" height="1170" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img class="ht-shot" src="images/howto-04-grid.webp?v=110" alt="The suggestion grid, lit" width="540" height="1170" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-04-grid.webp?v=111" alt="The suggestion grid, lit" width="540" height="1170" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> in the grid are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the row of notes <span class="ht-face ht-face-happy" role="img" aria-label="happy face, arrow up"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="8.6" cy="9.6" r="1.2"/><circle class="eye" cx="15.4" cy="9.6" r="1.2"/><path d="M7.6 14.2c1.1 1.9 2.6 2.8 4.4 2.8s3.3-.9 4.4-2.8"/></svg><svg class="ar" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 13V2M2 6l4-4 4 4"/></svg></span>, and sad ones sit below it <span class="ht-face ht-face-sad" role="img" aria-label="sad face, arrow down"><svg class="ar" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 1v11M2 8l4 4 4-4"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="8.6" cy="9.6" r="1.2"/><circle class="eye" cx="15.4" cy="9.6" r="1.2"/><path d="M7.6 17.2c1.1-1.9 2.6-2.8 4.4-2.8s3.3.9 4.4 2.8"/></svg></span>. The faces are only a guide here in How to; they are no longer shown beside the grid, and they are not buttons. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img class="ht-shot" src="images/howto-05-make-chord.webp?v=110" alt="Full mode: hold maj7 (1), press A (2), Now reads Amaj7" width="540" height="1170" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-05-make-chord.webp?v=111" alt="Full mode: hold maj7 (1), press A (2), Now reads Amaj7" width="540" height="1170" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img class="ht-shot" src="images/howto-06-fullrange.webp?v=110" alt="Full mode: the Full Range button (1), left side under the key" width="540" height="1170" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-06-fullrange.webp?v=111" alt="Full mode: the Full Range button (1), left side under the key" width="540" height="1170" loading="lazy" decoding="async">
       <p class="cap">Tap <b>Full Range</b> to unlock every key and <a class="ht-term" href="#gl-chord">chord</a>, even the ones outside your <a class="ht-term" href="#gl-key">key</a>.</p></section></li>
       <li><section><h3><span class="ht-num">7.</span> Keyboard <span class="ht-pill">Full mode</span></h3>
-      <img class="ht-shot" src="images/howto-07-keyboard.webp?v=110" alt="Full mode: Layout (1) opens Octave, Piano, Fourths and Full (2)" width="540" height="1170" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-07-keyboard.webp?v=111" alt="Full mode: Layout (1) opens Octave, Piano, Fourths and Full (2)" width="540" height="1170" loading="lazy" decoding="async">
       <p class="cap">Open <b>Layout</b> to choose your keys. <b>Octave</b> shows one octave that starts on your <a class="ht-term" href="#gl-key">key</a>, low <a class="ht-term" href="#gl-note">notes</a> on the left. <b>Full</b> shows the whole two-octave keyboard. Keys light up exactly as they sound, and the keyboard stays put while you tap. The app remembers your choice.</p></section></li>
       <li><section><h3><span class="ht-num">8.</span> Band <span class="ht-pill">Full mode</span></h3>
-      <img class="ht-shot" src="images/howto-08-band.webp?v=110" alt="Full mode: Sound (1) opens the panel with Band and its level (2)" width="540" height="1170" loading="lazy" decoding="async">
-      <p class="cap">Open <b>Sound</b>. Under Voicing, turn on <b>Band</b> to add bass and drums, and slide the level from 1 to 100. Band starts off each time you open the app.</p></section></li>
+      <img class="ht-shot" src="images/howto-08-band.webp?v=111" alt="Full mode: Sound (1) opens the panel; the Band slider under Voicing (2), Off at 0" width="540" height="1170" loading="lazy" decoding="async">
+      <p class="cap">Open <b>Sound</b>. Under Voicing, slide <b>Band</b> to the right to add bass and drums: 0 is off, 1 to 100 sets how loud. The app remembers your level.</p></section></li>
       <li><section><h3><span class="ht-num">9.</span> Upload a song <span class="ht-pill">Full mode</span></h3>
-      <img class="ht-shot" src="images/howto-09-upload.webp?v=110" alt="Full mode: the Simple switch at the top is off (1); the upload button, a small up-arrow icon right of Full Range (2)" width="540" height="1170" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-09-upload.webp?v=111" alt="Full mode: the Simple switch at the top is off (1); the upload button, a small up-arrow icon right of Full Range (2)" width="540" height="1170" loading="lazy" decoding="async">
       <p class="cap">Upload is in Full mode. If the <b>Simple</b> switch at the top is on, tap it to turn it off <span class="ht-num">1</span>. Then tap the <b>Upload</b> button <span class="ht-num">2</span>: the small square button with an arrow pointing up, on the left side of the screen. On a phone it sits just right of <b>Full Range</b>, under <b>Play</b>. On a tablet or computer it sits just right of <b>Play</b>.</p>
-      <img class="ht-shot" src="images/howto-09b-upload-form.webp?v=110" alt="The Upload song form: Song title and Artist (1), Copy for AI (2), the box for the AI's answer (3), Load (4)" width="540" height="1170" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-09b-upload-form.webp?v=111" alt="The Upload song form: Song title and Artist (1), Copy for AI (2), the box for the AI's answer (3), Load (4)" width="540" height="1170" loading="lazy" decoding="async">
       <p class="cap">Type a <b>Song title</b> and the <b>Artist</b> <span class="ht-num">1</span>. Leave the title empty to get up to 20 songs by the artist. Tap <b>Copy for AI</b> <span class="ht-num">2</span> and paste it into any AI. Paste its answer in the box <span class="ht-num">3</span> and tap <b>Load</b> <span class="ht-num">4</span>. The result shows right under <b>Load</b>.</p>
       <p class="cap">Your songs are listed under <b>My songs</b>. Tap a song to play it. Tap the pencil to see its chords and words, or the trash can to remove it.</p>
       <p class="cap">When a song has words, two lines show above the <a class="ht-term" href="#gl-chord">chords</a>: the line you are singing, and the next one. They scroll up as the song moves on.</p></section></li>
       <li><section><h3><span class="ht-num">10.</span> Kids</h3>
-      <img class="ht-shot" src="images/howto-10-kids.webp?v=110" alt="Kids (1): the gold pad (2) and the gold key (3) show the next note; the words show above the pads" width="540" height="1170" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-10-kids.webp?v=111" alt="Kids (1): the gold pad (2) and the gold key (3) show the next note; the words show above the pads" width="540" height="1170" loading="lazy" decoding="async">
       <p class="cap">Tap <b>Kids</b> for big, friendly <a class="ht-term" href="#gl-chord">chords</a> and sing-along songs: Twinkle, Mary&#8217;s Lamb, Row Your Boat, Old MacDonald, Itsy Bitsy Spider, London Bridge, Hey Diddle Diddle, Head, Shoulders, Knees and Toes, Baa, Baa, Black Sheep and Hickory Dickory Dock. Seven big pads play a happy (major) <a class="ht-term" href="#gl-chord">chord</a> on each <a class="ht-term" href="#gl-note">note</a> of the <a class="ht-term" href="#gl-key">key</a>. The gold pad and the gold key follow the tune: tap either one, or that key in any octave, to play the next <a class="ht-term" href="#gl-note">note</a>, and the words show which one you are singing. This needs <b>Play along</b> on in the gear menu.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
@@ -2080,7 +2083,7 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
     </div>
     <div class="pg-btns">
       <button type="button" class="pg-btn pg-step" aria-label="Next chord" title="Next chord"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5v14l10-7z" fill="currentColor"/><rect x="16.5" y="5" width="2.6" height="14" rx="1" fill="currentColor"/></svg></button>
-      <button type="button" class="pg-btn pg-song" aria-label="Play song" aria-pressed="false" title="Play song: the whole song / progression once, then random chords"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z" fill="currentColor"/></svg></button>
+      <button type="button" class="pg-btn pg-song" aria-label="Play song" aria-pressed="false" title="Play song: the whole song / progression, over and over"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z" fill="currentColor"/></svg></button>
       <button type="button" id="uploadBtn" class="pg-btn pg-up" aria-label="Upload song" title="Upload song: paste chords from any AI" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 14v4.5a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
     </div>
   </div>
@@ -2550,8 +2553,7 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
         </div>
       </div>
       <div class="band-wrap cfg-band" id="bandWrap">
-        <button id="bandOn" type="button" class="toggle band-tgl" aria-pressed="false" title="Band: bass and drums under your chords">Band</button>
-        <label class="band-row" title="Band level"><span>Level</span><input id="band" type="range" min="1" max="100" step="1" value="50" aria-label="Band level" aria-valuetext="50" disabled><b id="bandVal">50</b></label>
+        <label class="band-row" title="Band: bass and drums under your chords. 0 = off"><span>Band</span><input id="band" type="range" min="0" max="100" step="1" value="0" aria-label="Band level, 0 is off" aria-valuetext="Off"><b id="bandVal">Off</b></label>
       </div>
     </div>
 
@@ -2608,7 +2610,7 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = 110;   // display only ("Version 110")
+var APP_VERSION = 111;   // display only ("Version 111")
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -4700,6 +4702,7 @@ function accSym(s) {
   // bright +12; drop and bright fold to close); a keyboard key is the root itself.
   function kbPlace(chord, rootMidi) {
     var fromKey = typeof fingers !== "undefined" && Object.keys(fingers).length > 0;
+    if (typeof paKeyMidi !== "undefined" && paKeyMidi != null && rootMidi === paKeyMidi) fromKey = true;   // v111 (E): a Play along key advance = a key tap on that key
     // v84: a keyboard key never moves the window. The touched key sounds at its own pitch (the
     // top key too); the other tones go above it when they fit in the window, else an octave down.
     var full = kbFullMode() ? kbFullRange() : null;   // v85
@@ -4721,6 +4724,21 @@ function accSym(s) {
     while (R > hi) R -= 12;
     while (R < lo) R += 12;
     var ov = chord.extensions && chord.extensions.over ? wrap12(chord.extensions.over) : 0;
+    if (!fromKey && state.style === "kids" && kbKeyLayout()) {   // v111 (I): Kids pad chord inside the tonic-anchored keys
+      var kT = full ? kbFullRange().lo : kbWinLow == null ? kidsTonic() : kbWinLow, kH = kT + (full ? 24 : 12), kR = kT + wrap12(chord.rootPc - kT), kSeen = {}, kOut = [];   // inside the keys as drawn
+      (chord.midis || []).forEach(function (m) { var x = kR + wrap12(m - kR); if (x > kH) x -= 12; if (!kSeen[x]) { kSeen[x] = 1; kOut.push(x); } });
+      kOut.sort(function (a, b) { return a - b; });
+      return kOut;
+    }
+    if (!fromKey && !full && kbWindowMode() && kbWinLow != null && !kbKeyStay) {   // v111 (D3): move the window as little as possible
+      var vOff = ({ low: -12, high: 12, bright: 12 })[chord.voicing] || 0;
+      var best = null;   // the root's octave inside G3..E5 (55..76, + the Voicing octave) whose lowest key (root; slash: bass) is nearest the current left key
+      for (var R2 = 55 + vOff + wrap12(chord.rootPc - 55 - vOff); R2 <= 76 + vOff; R2 += 12) {
+        var d2 = Math.abs((ov ? R2 + ov - 12 : R2) - kbWinLow);
+        if (best == null || d2 < best.d || (d2 === best.d && R2 < best.r)) best = { r: R2, d: d2 };   // a tie (tritone) goes down
+      }
+      if (best) R = best.r;
+    }
     var L = ov ? R + ov - 12 : R, seen = {}, out = [];
     (chord.midis || []).forEach(function (m) { var x = L + wrap12(m - L); if (!seen[x]) { seen[x] = 1; out.push(x); } });
     out.sort(function (a, b) { return a - b; });
@@ -4985,7 +5003,7 @@ function accSym(s) {
     var layout = effectiveLayout();
     padSpan = layout === "octave" ? octaveSpan() : 0;
     if (layout === "fourths") addFourths();
-    else if (layout === "full") { var fr = kbFullRange(); addPiano(2, fr.lo, fr.hi - fr.lo + 1); }   // v85
+    else if (layout === "full") { var fr = kbFullRange(); kbFullLo = fr.lo; addPiano(2, fr.lo, fr.hi - fr.lo + 1); }   // v85; v111 Kids from the tonic
     else addPiano(1, kbWinLow, 13);   // v83: Octave and Piano = one 13-key window, root on the left
   }
 
@@ -5017,7 +5035,7 @@ function accSym(s) {
   function padPlayable(pad) {
     if (pad && pad.dataset.borrow) return true;   // v84: the window's out-of-key chord root    if (!pad || pad.classList.contains("out")) return false;
     if (state.keyMode && !pad.dataset.degree) return false;
-    if (!state.allKeys && state.style !== "kids" && pad.classList.contains("nokey")) return false;   // v104.2 K1: every Kids key is live
+    if (!state.allKeys && pad.classList.contains("nokey")) return false;   // v111 (K): Kids with Full Range off: out-of-key keys do not play (v104.2 K1 kept for Full Range on)
     return true;
   }
 
@@ -5233,7 +5251,7 @@ function accSym(s) {
         b.classList.add(state.type);
       }
     }
-    if (typeof magic !== "undefined" && magic && (magic.hint || state.style === "kids")) paintNextHint();   // v68/v71: re-apply after a rebuild
+    if (typeof magic !== "undefined" && magic) paintNextHint();   // v68/v71: re-apply after a rebuild (first-load fix: always, not only after a Next tap)
   }
 
   function specFromFinger(finger) {
@@ -5300,6 +5318,14 @@ function accSym(s) {
     updateSymbol();
   }
 
+  var kbKidsPtr = {};   // v111 (I): pointers down on the keys (a gold-key tap advances before its finger is stored)
+  function kbKidsLift() {   // v111 (I): the last Kids finger up: the window may now move to show the gold (minimal move)
+    if (state.style === "kids" && !Object.keys(fingers).length && !Object.keys(kbKidsPtr).length) setTimeout(function () { if (!Object.keys(fingers).length && !Object.keys(kbKidsPtr).length) kbUpdate(); }, 0);
+  }
+  document.addEventListener("pointerdown", function (e) { if (e.target && e.target.closest && e.target.closest("#pads")) kbKidsPtr[e.pointerId] = 1; }, true);
+  function kbKidsUp(e) { if (kbKidsPtr[e.pointerId]) { delete kbKidsPtr[e.pointerId]; kbKidsLift(); } }
+  document.addEventListener("pointerup", kbKidsUp, true);
+  document.addEventListener("pointercancel", kbKidsUp, true);
   function releaseFinger(pointerId) {
     var finger = fingers[pointerId];
     if (!finger) return;
@@ -5307,6 +5333,7 @@ function accSym(s) {
     if (loop.recording && ChordAudio.ctx) finalizeOne(finger, ChordAudio.currentTime());
     else finger.pending = null;
     delete fingers[pointerId];
+    kbKidsLift();
     state.holding = Object.keys(fingers).length > 0;
     var ids = Object.keys(fingers);
     if (ids.length) rememberFinger(fingers[ids[ids.length - 1]]);
@@ -5324,6 +5351,7 @@ function accSym(s) {
     }
     poolFingerGroup(finger);
     delete fingers[pointerId];
+    kbKidsLift();
     var ids = Object.keys(fingers);
     state.holding = ids.length > 0;
     if (ids.length) rememberFinger(fingers[ids[ids.length - 1]]);
@@ -5358,6 +5386,8 @@ function accSym(s) {
       try { kidsGoldGo(e.currentTarget, "key"); } finally { kbKeyGo = false; }
       return;
     }
+    paEvT = e.timeStamp || performance.now();
+    if (!state.simple && e.currentTarget.dataset.midi != null && e.currentTarget.dataset.midi !== "" && paTwin("key", Number(e.currentTarget.dataset.midi))) return;   // v111 (D6): the same press as a chip just now
     if (playAlongKey(e.currentTarget)) {   // v108 Play along: the marked next chord's root key = Next (v109: root only)
       kbKeyGo = true; kbKeyStay = true; paKeyMidi = Number(e.currentTarget.dataset.midi);   // v109: voiced from the tapped key
       try { playAlongGo(e.currentTarget, "key"); } finally { kbKeyGo = false; paKeyMidi = null; }
@@ -5659,7 +5689,7 @@ function accSym(s) {
       return;
     }
     if (!loop.events.length) {
-      // v70: no phrase loop recorded: Play = play the progression once, then random chords.
+      // v70: no phrase loop recorded: Play = play the progression (v111: looping, from the Next walk position).
       progPlay();   // toggles: a second tap stops it
       paintLoop();
       return;
@@ -5904,12 +5934,26 @@ function accSym(s) {
   function kbWindowMode() { var l = effectiveLayout(); return l === "octave" || l === "piano"; }
   // v85 Full: fixed keys, never re-anchored. Kids G3..F5 (55..77, as v81), other styles C4..C6 (60..84, v81 Piano).
   function kbFullMode() { return effectiveLayout() === "full"; }
-  function kbFullRange() { return state.style === "kids" ? { lo: 55, hi: 78 } : { lo: 60, hi: 84 }; }
+  function kidsKeyNow() { return kidKey(); }   // v111 (I/K): the Kids key (kidKey: the picked key, else C major, as the Kids key picker shows)
+  function kidsTonic() { var ak = kidsKeyNow(); return 55 + wrap12((ak ? ak.pc : 0) - 7); }   // v111 (I): the Kids tonic, G3..F#4
+  function kidsFullLo() {   // v111 (I/J): the Full Kids keys = tonic to tonic, 2 octaves; a song that dips below its tonic (and fits) starts an octave lower, so no melody note is moved
+    var t = kidsTonic(), st = typeof prog !== "undefined" && prog && prog.style === "kids" && prog.steps ? prog.steps : [], mn = 0, mx = 0;
+    st.forEach(function (x) { var m = x && x.item ? x.item.mel : null; if (m != null) { if (m < mn) mn = m; if (m > mx) mx = m; } });
+    return mn < 0 && mx <= 12 ? t - 12 : t;
+  }
+  function kbFullRange() { if (state.style === "kids") { var t = kidsFullLo(); return { lo: t, hi: t + 24 }; } return { lo: 60, hi: 84 }; }   // v111 (I/J): Kids = tonic to tonic, 2 octaves
   function kbKeyLayout() { return kbWindowMode() || kbFullMode(); }   // piano keys that light what sounds
   function kidsNatural(pc, mel) { var ak = activeKey(), k = ak ? ak.pc : 0; return 55 + wrap12(k - 7) + (mel != null ? mel : wrap12(pc - k)); }   // v96: @melody
   // The Kids note at its song pitch, moved by octaves (nearest first) so it shares one window with
   // what is sounding now: the gold key is exactly the key that will sound.
   function kidsPlace(n) {
+    if (state.style === "kids" && kbKeyLayout()) {   // v111 (I): Octave = the song pitch (the window comes to it, kbWantLow); Full = into the tonic-to-tonic keys by octaves (as the v109 clamp)
+      if (!kbFullMode()) return n;
+      var lo = kbFullRange().lo, hi = lo + 24;
+      while (n < lo) n += 12;
+      while (n > hi) n -= 12;
+      return n;
+    }
     var g = kidsPlace0(n);
     if (kbKeyStay && kbWindowMode() && kbWinLow != null && (g < kbWinLow || g > kbWinLow + 12)) g = kbWinLow + wrap12(g - kbWinLow);   // v102
     return g;
@@ -5932,6 +5976,19 @@ function accSym(s) {
     return it ? kidsPlace(kidsNatural(it.rootPc, it.mel)) : null;
   }
   function kbWantLow(force) {
+    if (state.style === "kids") {   // v111 (I): the Kids window sits on the key's tonic; it moves only as far as needed to show a gold / sounding note outside it, and goes back when they fit
+      var kT = kidsTonic();
+      if (kbFullMode()) return kbFullRange().lo;
+      if (kbWinLow != null && (Object.keys(fingers).length || Object.keys(kbKidsPtr).length)) return kbWinLow;   // never slide the keys under a held finger (v84); kbKidsLift moves them on release
+      var kS = kbLast && kbLast.length ? kbLast.slice() : [], kG = kidsGoldNow();
+      if (kG != null) kS.push(kG);
+      if (kS.length && Math.max.apply(null, kS) - Math.min.apply(null, kS) > 12) kS = kG != null ? [kG] : kS.slice(-1);   // the gold first
+      var kFit = function (lo) { return kS.every(function (m) { return m >= lo && m <= lo + 12; }); };
+      if (kFit(kT)) return kT;
+      if (!force && kbWinLow != null && kFit(kbWinLow)) return kbWinLow;
+      var kMn = Math.min.apply(null, kS), kMx = Math.max.apply(null, kS);
+      return kMn < kT ? kMn : kMx - 12;
+    }
     if (!force && kbKeyStay && kbWinLow != null) return kbWinLow;   // v102
     var S = kbLast && kbLast.length ? kbLast.slice() : [];
     var g = kidsGoldNow();
@@ -5958,7 +6015,12 @@ function accSym(s) {
     if ((cur && (cur !== tgt || cur.dataset.btype !== (kbChord && kbChord.type))) || need) { kbRebuild(); return true; }
     return false;
   }
+  var kbFullLo = null;   // v111 (I): the Full layout's first key as drawn
   function kbUpdate() {
+    if (padsEl && kbFullMode() && !Object.keys(fingers).length) {   // v111 (I): Kids Full keys move to a new key's tonic
+      var fr0 = kbFullRange();
+      if (kbFullLo !== null && kbFullLo !== fr0.lo) { kbChord = null; kbLast = null; kbRebuild(); return true; }   // new key / song: no stale borrowed key
+    }
     if (!padsEl || !kbWindowMode()) return false;
     // v84: an explicit key change (key to key) moves the window to the new tonic; the first key
     // (locked from the first chord) does not. Never under a held finger.
@@ -6390,6 +6452,8 @@ function accSym(s) {
       b.classList.add("press");
       try { b.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
       if (kidsGoldPad(b)) { kidsGoldGo(b, "pad"); return; }   // v79
+      paEvT = e.timeStamp || performance.now();
+      if (paTwin("chip", null, item, b)) return;   // v111 (D6): the same press as a root key just now
       if (playAlongChip(b, item)) { playAlongGo(b, "chip"); return; }   // v108
       fxTapPulse(b);   // v93
       stripDown(item, e.pointerId);
@@ -6708,12 +6772,35 @@ function accSym(s) {
   };
   ChordAudio.band.keepAlive = function () { return !!(prog.playing || (typeof loop !== "undefined" && loop.playing)); };
   ChordAudio.band.peek = function () {   // next chord root, for the Jazz walking-bass approach note
-    if (prog.playing) return !prog.tail && prog.si < prog.steps.length ? prog.steps[prog.si].item.rootPc : null;
+    if (prog.playing) return prog.steps.length ? prog.steps[prog.si % prog.steps.length].item.rootPc : null;   // v111: Play loops
     return magic && magic.next && magic.next.step >= 0 && magic.next.item ? magic.next.item.rootPc : null;
   };
   if (PROG_TEST) window.__band = ChordAudio.band;
   if (PROG_TEST) window.__progApi = { data: PROGRESSIONS, steps: function (k, p) { return progSteps(k, p); }, numerals: function (st) { return progNumerals(st); }, set: function (i) { progSet(i); }, play: function () { progPlay(); }, stop: function () { progStop(); }, next: function () { progNext(); }, bar: PROG_BAR };
 
+  // v111 (D5): the walk position as a time in the song (bars from the start), and back to a step.
+  function progWalkAt() {
+    var p = prog.list[prog.idx], n = prog.steps.length;
+    if (!p || !n || typeof magic === "undefined" || !magic) return null;
+    var i = prog.playing ? (prog.cur >= 0 ? prog.cur : prog.si % n) : magic.pos;
+    if (i >= n) return { name: p.name, end: true };
+    var t = 0;
+    for (var k = 0; k < i; k++) t += prog.steps[k].bars || 1;
+    return { name: p.name, t: t };
+  }
+  function progWalkTo(w) {
+    var p = prog.list[prog.idx], n = prog.steps.length;
+    if (!w || !p || p.name !== w.name || !n) return;
+    var pos = n, t = 0;
+    if (!w.end) for (var k = 0; k < n; k++) { var b = prog.steps[k].bars || 1; if (w.t < t + b - 1e-6) { pos = k; break; } t += b; }
+    magic.pos = pos;
+    magic.last = pos > 0 ? prog.steps[pos - 1].item : null;
+    magic.next = null;
+    if (PROG_TEST) magic.log.push({ walkTo: pos, t: w.t, end: !!w.end });
+    paintNextHint();
+    if (typeof paintUpNext === "function") paintUpNext();
+    paintProg();
+  }
   // Called when the strip is rebuilt: a style change goes back to the style's first
   // progression; a key or style change stops the progression loop.
   function progSync(key) {
@@ -6778,16 +6865,23 @@ function accSym(s) {
       for (var n = 0; n < noteEls.length && !tgt; n++) if (sameChord(noteEls[n]._tc && noteEls[n]._tc.item, s.item)) tgt = noteEls[n];
       if (!tgt) {
         var order = [s.row, PARTNER[s.row]].concat(["happy", "bright", "sad", "tension"].filter(function (r) { return r !== s.row && r !== PARTNER[s.row]; }));
-        var row = null;
+        var row = null, hc = s.hc;
         for (var o = 0; o < order.length; o++) if (free(order[o], s.hc)) { row = order[o]; break; }
+        for (var dh = 1; !row && dh <= 14; dh++) {   // v111 (D1): never on top of another chip; the nearest free column
+          for (var sg = -1; sg <= 1 && !row; sg += 2) {
+            var h2 = s.hc + sg * dh;
+            if (h2 < 0 || h2 > 14) continue;
+            for (var o2 = 0; o2 < order.length; o2++) if (free(order[o2], h2)) { row = order[o2]; hc = h2; break; }
+          }
+        }
         if (!row) { row = s.row; prog.unplaced++; }
-        occ.push({ row: row, hc: s.hc });
+        occ.push({ row: row, hc: hc });
         var cls = s.row === "bright" ? "color" : s.row === "happy" ? "major" : s.row === "sad" ? "minor" : "tension";
         var b = document.createElement("button");
         b.type = "button";
-        b.className = "ss-chip tmp borrowed " + cls + " r-" + ROWN[row] + (s.hc % 2 === 0 ? " half" : "");
+        b.className = "ss-chip tmp borrowed " + cls + " r-" + ROWN[row] + (hc % 2 === 0 ? " half" : "");
         b.style.gridRow = ROWN[row];
-        b.style.gridColumn = (2 + s.hc) + " / span 2";
+        b.style.gridColumn = (2 + hc) + " / span 2";
         var lab = stripLabel(s.item), rn = prettyAcc(s.item.rootName);
         b.innerHTML = "<span class=\"nm\"><span class=\"r\"></span><span class=\"q\"></span></span><span class=\"rn\"></span>";
         b.querySelector(".r").textContent = rn;
@@ -6795,7 +6889,7 @@ function accSym(s) {
         b.querySelector(".rn").textContent = s.rn;
         if (lab.length - rn.length >= 5) b.classList.add("long");
         b.setAttribute("aria-label", lab + (state.simple ? "" : ", " + s.roman) + " (progression chord, not on the strip)");
-        b._tc = { item: s.item, hc: s.hc, row: row };
+        b._tc = { item: s.item, hc: hc, row: row };
         wireStripTap(b, s.item);
         el.appendChild(b);
         prog.tmp++;
@@ -6949,9 +7043,9 @@ function accSym(s) {
   function laTarget() {
     var n = prog.steps.length;
     if (!n || state.style === "kids" || state.simple || upSelected()) return null;
-    if (prog.playing && prog.tail) return null;
-    var start = prog.playing ? (prog.cur >= 0 ? prog.cur + 1 : prog.si) : 0;
-    var t = start < n ? prog.targets[start] : null;
+    var start = prog.playing ? (prog.cur >= 0 ? prog.cur + 1 : prog.si) : progPlayStart();   // v111: Play starts at the Next walk position
+    if (start >= n) start = 0;   // v111: loops
+    var t = prog.targets[start] || null;
     if (!t || !t.isConnected || !t.getClientRects().length || getComputedStyle(t).visibility === "hidden") return null;
     var now = prog.cur >= 0 ? prog.targets[prog.cur] : (magic.lit ? magicTarget(magic.item) : null);
     if (t === now || t.classList.contains("pg-on")) return null;
@@ -6980,9 +7074,8 @@ function accSym(s) {
       item = prog.steps[i].item; el = prog.targets[i] || magicTarget(item);
       sig = "u" + i + (prog.playing ? "p" + prog.cur : "n" + magic.pos);
     } else if (prog.playing) {
-      if (prog.tail) return null;
       var j = prog.cur >= 0 ? prog.cur + 1 : prog.si;
-      if (j >= n) return null;
+      if (j >= n) j = 0;   // v111: Play song loops (no random tail)
       item = prog.steps[j].item; el = prog.targets[j] || magicTarget(item);
       sig = "p" + j + "c" + prog.cur;
     } else {
@@ -7066,7 +7159,7 @@ function accSym(s) {
     paintKidChip();
     paintSongBar();   // Upload: song bar + review flags
     paintKidsLyr();   // v97
-    if (state.style === "kids") paintNextHint();   // v71: Kids next-note hint advances with each step
+    paintNextHint();   // v71: Kids next-note hint advances with each step; first-load fix: every style (Stop / song pick / ring end repaint the keys)
     paintLookahead(); if (!laT) laT = setTimeout(function () { laT = 0; paintLookahead(); }, 0);   // v99 (again once the strip is laid out)
   }
   // v70: Kids strip = ONE big basic triad chip: the chord now current in the walk / loop
@@ -7171,34 +7264,6 @@ function accSym(s) {
     if (!home) m.notes.forEach(function (n) { if (!home && n.home) home = n.item; });
     return home;
   }
-  function magicDeg(item) {
-    var kd = keyDegrees(prog.model.key);
-    for (var i = 0; i < kd.length; i++) if (wrap12(kd[i].pc) === wrap12(item.rootPc)) return kd[i].degree;
-    return 0;
-  }
-  function magicWeight(from, to) {
-    var w = 1;
-    if (!from) return w;
-    var a = magicDeg(from), b = magicDeg(to);
-    if (wrap12(to.rootPc - from.rootPc) === 5) w += 3;   // down a fifth
-    if ((a === 5 && b === 1) || (a === 4 && b === 1) || (a === 6 && b === 4)) w += 3;   // V-I, IV-I, vi-IV
-    if (a === 2 && b === 5) w += 2;   // ii-V (also down a fifth)
-    if (to.type === "dim") w *= 0.5;
-    return w;
-  }
-  function magicPick(home, S) {
-    S = S || magic;
-    var pool = magicPool(), last = S.last;
-    var homeNext = S.since + 2 >= S.cycle;   // the tap after this one is the home chord
-    var c = pool.filter(function (it) { return !sameChord(it, last) && !(homeNext && home && sameChord(it, home)); });
-    if (!c.length) c = pool.filter(function (it) { return !sameChord(it, last); });
-    if (!c.length) return null;
-    var ws = c.map(function (it) { return magicWeight(last, it); }), sum = 0;
-    ws.forEach(function (x) { sum += x; });
-    var r = magic.rng() * sum;
-    for (var i = 0; i < c.length; i++) { r -= ws[i]; if (r < 0) return c[i]; }
-    return c[c.length - 1];
-  }
   function magicTarget(item) {
     var el = document.getElementById("suggest");
     if (!el || !item) return null;
@@ -7241,23 +7306,10 @@ function accSym(s) {
     var n = prog.steps.length;
     var d = { item: null, bars: 1, step: -1, home: false, pos: magic.pos + 1, since: magic.since, cycle: magic.cycle };
     var at = magic.pos;
-    if (state.style === "kids" && at >= n) at = 0;   // v81: Kids Next loops the song (no random part)
-    if (at < n) {
-      d.step = at;
-      d.pos = at + 1;
-      d.item = prog.steps[d.step].item;
-    } else {
-      var home = magicHome();
-      if (magic.since + 1 >= magic.cycle && home && !sameChord(home, magic.last)) {
-        d.item = home; d.bars = 2; d.since = 0; d.cycle = magicCycle(); d.home = true;
-      } else {
-        d.item = magicPick(home);
-        if (!d.item) return null;
-        var r = magic.rng();
-        d.bars = r < 0.15 ? 0.5 : r < 0.35 ? 2 : 1;
-        d.since = magic.since + 1;
-      }
-    }
+    if (at >= n) at = 0;   // v81 Kids; v111 every style and uploaded songs: Next loops back to the first chord (no random part)
+    d.step = at;
+    d.pos = at + 1;
+    d.item = prog.steps[d.step].item;
     return d;
   }
   function magicQueue() {
@@ -7318,7 +7370,7 @@ function accSym(s) {
   function magicHintClear() {
     if (magic) magic.hint = false;
     clearNextHintDom();
-    if (state.style === "kids") paintNextHint();   // v71: the Kids song hint stays until the pass ends
+    paintNextHint();   // v71: the Kids song hint stays until the pass ends; first-load fix: the next chord stays marked in every style
   }
   // v71 Kids: the UPCOMING song step (Next walk or Play's one pass) is outlined on BOTH the
   // keyboard (its single root key, full mode; Simple has no keyboard) and the matching one of
@@ -7327,8 +7379,7 @@ function accSym(s) {
   function kidsHintItem() {
     if (!prog.steps.length) return null;
     if (prog.playing) {
-      if (prog.tail) return null;
-      var nx = (prog.cur + 1) % prog.steps.length;   // v82: Kids Play loops, the gold goes back to step 1
+      var nx = prog.cur >= 0 ? (prog.cur + 1) % prog.steps.length : prog.si % prog.steps.length;   // v82: Kids Play loops; v111: before the first step, Play's start step
       return prog.steps[nx].item;
     }
     var d = magicQueue();
@@ -7419,9 +7470,21 @@ function accSym(s) {
     var cur = playAlongNow();
     return !!(cur && (b === cur.el || sameChord(item, cur.item)));
   }
+  // v111 (D6): key + chip within PA_TWIN_MS = one advance
+  var PA_TWIN_MS = 150, paLast = null, paEvT = 0;   // paEvT: the input event's own time (not when it was handled)
+  function paEvNow() { return paEvT || performance.now(); }
+  function paTwin(kind, pc, item, b) {
+    if (!paLast || paLast.kind === kind || Math.abs(paEvNow() - paLast.at) > PA_TWIN_MS) return false;
+    if (state.playAlong === false || state.style === "kids" || prog.playing) return false;
+    var cur = playAlongNow(), its = [paLast.item, cur && cur.item];
+    var hit = its.some(function (it) { return it && (item ? sameChord(item, it) : wrap12(pc) === wrap12(it.rootPc)); }) || !!(b && cur && b === cur.el);
+    if (hit && PROG_TEST) paLog.twins = (paLog.twins || 0) + 1;
+    return hit;
+  }
   function playAlongGo(el, kind) {
     var cur = playAlongNow();
     if (!cur) return;
+    paLast = { kind: kind, at: paEvNow(), item: cur.item };   // v111 (D6)
     magicAdvance();   // = Next: plays the marked chord, queues and marks the one after
     if (PROG_TEST) paLog.taps.push({ kind: kind, pos: magic.pos, cur: prog.cur, style: state.style, simple: !!state.simple });
     kidsTapPulse(el);
@@ -7467,10 +7530,10 @@ function accSym(s) {
     clearNextHintDom();
     if (typeof magic === "undefined" || !magic) return;
     if (state.style === "kids") { paintKidsHint(); return; }
-    if (!magic || !magic.hint || state.simple || prog.playing) return;
+    if (!magic || state.simple || prog.playing) return;   // first-load fix: no magic.hint gate (it was only set by a Next / badge tap)
     var d = magicQueue();
     if (!d) return;
-    if (upSelected() && d.step < 0) return;   // v73: the song is over: no hint on the random tail
+    if (upSelected() && upNextStep() < 0) return;   // v73 (v111: never true now, the song loops)
     var spec = nextHintSpec(d.item);
     if (state.style === "kids") spec = kidsSoloSpec(spec, d.item.rootPc, d.item.mel);   // v70: Kids plays the root only
     var mids = highlightMidisFromSpec(spec.midis);
@@ -7522,6 +7585,8 @@ function accSym(s) {
     timer: function () { return suggestTimer; }
   };
 
+  // v111: where Play starts: the Next walk position, or step 0 when the walk is at / after the end
+  function progPlayStart() { var n = prog.steps.length, p = magic ? magic.pos | 0 : 0; return p > 0 && p < n ? p : 0; }
   // Loop: its own lookahead scheduler on the Web Audio clock (like the phrase loop's).
   function progPlay() {
     if (prog.playing) { progStop(); return; }
@@ -7536,9 +7601,8 @@ function accSym(s) {
     upNxOff = false;
     kbKeyStay = false;   // v102
     prog.playing = true;
-    prog.si = 0;
+    prog.si = progPlayStart();   // v111: resume from the Next walk position (magic.pos); 0 at / after the end. magic.pos is not changed by Play.
     prog.log = [];
-    prog.tail = null;   // v70: set after one pass through the progression -> random chords
     prog.nextT = ChordAudio.currentTime() + 0.06;
     prog.bandSync = true;   // v75/v76: band beat 1 = the first scheduled step (set once the context runs)
     prog.timer = setInterval(progTick, 25);
@@ -7554,31 +7618,11 @@ function accSym(s) {
     if (prog.nextT < now - 0.3) prog.nextT = now + 0.05;   // fell behind (tab asleep): carry on from now
     var guard = 0;
     while (prog.nextT < now + 0.12 && guard++ < 4) {
-      if (prog.tail) {
-        // v70: after the one pass: random board chords, same rules as magic Next's random part
-        // (weighted strong moves, never the same twice, every 4th/8th the home chord for 2 bars).
-        var S = prog.tail, home = magicHome(), d;
-        if (S.since + 1 >= S.cycle && home && !sameChord(home, S.last)) {
-          d = { item: home, bars: 2, home: true }; S.since = 0; S.cycle = magicCycle();
-        } else {
-          var it = magicPick(home, S);
-          if (!it) { progStop(); return; }
-          var r = magic.rng();
-          d = { item: it, bars: r < 0.15 ? 0.5 : r < 0.35 ? 2 : 1 }; S.since++;
-        }
-        S.last = d.item;
-        progSchedule(-1, prog.nextT, d);
-        prog.nextT += d.bars * progLoopBar();
-        continue;
-      }
       var i = prog.si, st = prog.steps[i];
       progSchedule(i, prog.nextT);
       prog.nextT += st.bars * progLoopBar();   // Upload: song BPM when a song is selected
       prog.si = i + 1;
-      if (prog.si >= prog.steps.length) {
-        if (state.style === "kids") prog.si = 0;   // v82: Kids Play song loops the song (like Next), no random part
-        else prog.tail = { last: st.item, since: 0, cycle: magicCycle() };
-      }
+      if (prog.si >= prog.steps.length) prog.si = 0;   // v82 Kids; v111 every style: Play song loops (no random tail)
     }
   }
   function setItemState(item) {
@@ -7597,8 +7641,8 @@ function accSym(s) {
       state.forceChord = { rootPc: item.rootPc, type: item.type };
     }
   }
-  function progSchedule(i, t, tail) {
-    var st = tail ? { item: tail.item, bars: tail.bars } : prog.steps[i];
+  function progSchedule(i, t) {
+    var st = prog.steps[i];
     setItemState(st.item);
     var spec = computeSpec();
     if (state.style === "kids") spec = kidsSoloSpec(spec, st.item.rootPc, st.item.mel);   // v70: Kids loop = root only
@@ -7609,16 +7653,17 @@ function accSym(s) {
       var g = "P" + (++prog.gid);
       ChordAudio.playChord(g, spec.midis, { bass: spec.bassOut, sound: state.sound, time: t });
       prog.groups.forEach(function (o) { ChordAudio.stopChord(o.g, Math.max(t, o.t)); });
+      prog.prevG = prog.groups;   // v111 (D4): the chord sounding until t; Stop cuts it now, not at t
       prog.groups = [{ g: g, t: t }];
     }
     prog.lastItem = st.item;
-    prog.log.push({ i: tail ? -1 : i, t: t, sym: spec.symbol, tied: tied, bars: st.bars, home: !!(tail && tail.home), n: spec.midis.length, bass: spec.bassOut });
+    prog.log.push({ i: i, t: t, sym: spec.symbol, tied: tied, bars: st.bars, n: spec.midis.length, bass: spec.bassOut });
     if (prog.log.length > 64) prog.log.shift();
     var tid = setTimeout(function () {
       prog.uiT = prog.uiT.filter(function (x) { return x !== tid; });
       if (!prog.playing) return;
-      prog.cur = tail ? -1 : i;
-      if (tail) { magic.item = st.item; magic.lit = true; } else magic.lit = false;
+      prog.cur = i;
+      magic.lit = false;
       setItemState(st.item);
       kbSound(spec.midis, spec, st.item);   // v83
       suggestPreview = { type: spec.type, extensions: { six: !!state.extensions.six, min7: !!state.extensions.min7, maj7: !!state.extensions.maj7, nine: !!state.extensions.nine }, midis: highlightMidisFromSpec(spec.midis) };
@@ -7630,17 +7675,21 @@ function accSym(s) {
   }
   function progStop() {
     if (!prog.playing) return;
-    if (upSelected()) upNxOff = true;   // v73: Stop clears the song's next-chord outline
+    // v111 (D2): Stop keeps an uploaded song's next-chord marks (no upNxOff here any more)
     prog.playing = false;
     clearInterval(prog.timer); prog.timer = 0;
     ChordAudio.band.hush();   // v104 (M4)
     prog.uiT.forEach(clearTimeout); prog.uiT = [];
     var now = ChordAudio.ctx ? ChordAudio.currentTime() : 0;
-    prog.groups.forEach(function (o) { ChordAudio.stopChord(o.g, Math.max(now, o.t + 0.01)); });
+    prog.groups.forEach(function (o) {   // v111 (D4): nothing sounds after Stop
+      if (o.t > now - 0.05) ChordAudio.stopChord(o.g, now, o.t > now ? 0.002 : 0.006, true);   // scheduled by the lookahead (or started under 50 ms ago): silenced at once
+      else ChordAudio.stopChord(o.g, now, null, true);
+    });
+    (prog.prevG || []).forEach(function (o) { if (o.t <= now) ChordAudio.stopChord(o.g, now, null, true); });
+    prog.prevG = [];
     prog.groups = [];
     prog.lastItem = null;
     prog.cur = -1;
-    prog.tail = null;
     magic.lit = false;
     paintProgActive();
     if (suggestPreview) clearSuggestPreview();
@@ -7668,12 +7717,12 @@ function accSym(s) {
   // v97: Kids lyrics, one marker per sung note (chordIndex = the song step). Public domain words.
   var KIDS_LYRICS = {
     "Kids Twinkle":[{"text":"Twinkle, twinkle, little star,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":4,"chordIndex":1},{"charIndex":9,"chordIndex":2},{"charIndex":13,"chordIndex":3},{"charIndex":18,"chordIndex":4},{"charIndex":21,"chordIndex":5},{"charIndex":25,"chordIndex":6}]},{"text":"How I wonder what you are!","markers":[{"charIndex":0,"chordIndex":7},{"charIndex":4,"chordIndex":8},{"charIndex":6,"chordIndex":9},{"charIndex":9,"chordIndex":10},{"charIndex":13,"chordIndex":11},{"charIndex":18,"chordIndex":12},{"charIndex":22,"chordIndex":13}]},{"text":"Up above the world so high,","markers":[{"charIndex":0,"chordIndex":14},{"charIndex":3,"chordIndex":15},{"charIndex":4,"chordIndex":16},{"charIndex":9,"chordIndex":17},{"charIndex":13,"chordIndex":18},{"charIndex":19,"chordIndex":19},{"charIndex":22,"chordIndex":20}]},{"text":"Like a diamond in the sky.","markers":[{"charIndex":0,"chordIndex":21},{"charIndex":5,"chordIndex":22},{"charIndex":7,"chordIndex":23},{"charIndex":10,"chordIndex":24},{"charIndex":15,"chordIndex":25},{"charIndex":18,"chordIndex":26},{"charIndex":22,"chordIndex":27}]},{"text":"Twinkle, twinkle, little star,","markers":[{"charIndex":0,"chordIndex":28},{"charIndex":4,"chordIndex":29},{"charIndex":9,"chordIndex":30},{"charIndex":13,"chordIndex":31},{"charIndex":18,"chordIndex":32},{"charIndex":21,"chordIndex":33},{"charIndex":25,"chordIndex":34}]},{"text":"How I wonder what you are!","markers":[{"charIndex":0,"chordIndex":35},{"charIndex":4,"chordIndex":36},{"charIndex":6,"chordIndex":37},{"charIndex":9,"chordIndex":38},{"charIndex":13,"chordIndex":39},{"charIndex":18,"chordIndex":40},{"charIndex":22,"chordIndex":41}]}],
-    "Kids Mary's Lamb":[{"text":"Mary had a little lamb, little lamb, little lamb,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":2,"chordIndex":1},{"charIndex":5,"chordIndex":2},{"charIndex":9,"chordIndex":3},{"charIndex":11,"chordIndex":4},{"charIndex":14,"chordIndex":5},{"charIndex":18,"chordIndex":6},{"charIndex":24,"chordIndex":7},{"charIndex":27,"chordIndex":8},{"charIndex":31,"chordIndex":9},{"charIndex":37,"chordIndex":10},{"charIndex":40,"chordIndex":11},{"charIndex":44,"chordIndex":12}]},{"text":"Mary had a little lamb, its fleece was white as snow.","markers":[{"charIndex":0,"chordIndex":13},{"charIndex":2,"chordIndex":14},{"charIndex":5,"chordIndex":15},{"charIndex":9,"chordIndex":16},{"charIndex":11,"chordIndex":17},{"charIndex":14,"chordIndex":18},{"charIndex":18,"chordIndex":19},{"charIndex":24,"chordIndex":20},{"charIndex":28,"chordIndex":21},{"charIndex":35,"chordIndex":22},{"charIndex":39,"chordIndex":23},{"charIndex":45,"chordIndex":24},{"charIndex":48,"chordIndex":25}]}],
+    "Kids Mary's Lamb":[{"text":"Mary had a little lamb,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":2,"chordIndex":1},{"charIndex":5,"chordIndex":2},{"charIndex":9,"chordIndex":3},{"charIndex":11,"chordIndex":4},{"charIndex":14,"chordIndex":5},{"charIndex":18,"chordIndex":6}]},{"text":"little lamb, little lamb,","markers":[{"charIndex":0,"chordIndex":7},{"charIndex":3,"chordIndex":8},{"charIndex":7,"chordIndex":9},{"charIndex":13,"chordIndex":10},{"charIndex":16,"chordIndex":11},{"charIndex":20,"chordIndex":12}]},{"text":"Mary had a little lamb,","markers":[{"charIndex":0,"chordIndex":13},{"charIndex":2,"chordIndex":14},{"charIndex":5,"chordIndex":15},{"charIndex":9,"chordIndex":16},{"charIndex":11,"chordIndex":17},{"charIndex":14,"chordIndex":18},{"charIndex":18,"chordIndex":19}]},{"text":"its fleece was white as snow.","markers":[{"charIndex":0,"chordIndex":20},{"charIndex":4,"chordIndex":21},{"charIndex":11,"chordIndex":22},{"charIndex":15,"chordIndex":23},{"charIndex":21,"chordIndex":24},{"charIndex":24,"chordIndex":25}]}],
     "Kids Row Your Boat":[{"text":"Row, row, row your boat,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":5,"chordIndex":1},{"charIndex":10,"chordIndex":2},{"charIndex":14,"chordIndex":3},{"charIndex":19,"chordIndex":4}]},{"text":"gently down the stream.","markers":[{"charIndex":0,"chordIndex":5},{"charIndex":4,"chordIndex":6},{"charIndex":7,"chordIndex":7},{"charIndex":12,"chordIndex":8},{"charIndex":16,"chordIndex":9}]},{"text":"Merrily, merrily, merrily, merrily,","markers":[{"charIndex":0,"chordIndex":10},{"charIndex":3,"chordIndex":11},{"charIndex":5,"chordIndex":12},{"charIndex":9,"chordIndex":13},{"charIndex":12,"chordIndex":14},{"charIndex":14,"chordIndex":15},{"charIndex":18,"chordIndex":16},{"charIndex":21,"chordIndex":17},{"charIndex":23,"chordIndex":18},{"charIndex":27,"chordIndex":19},{"charIndex":30,"chordIndex":20},{"charIndex":32,"chordIndex":21}]},{"text":"life is but a dream.","markers":[{"charIndex":0,"chordIndex":22},{"charIndex":5,"chordIndex":23},{"charIndex":8,"chordIndex":24},{"charIndex":12,"chordIndex":25},{"charIndex":14,"chordIndex":26}]}],
-    "Kids Old MacDonald":[{"text":"Old MacDonald had a farm,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":4,"chordIndex":1},{"charIndex":7,"chordIndex":2},{"charIndex":10,"chordIndex":3},{"charIndex":14,"chordIndex":4},{"charIndex":18,"chordIndex":5},{"charIndex":20,"chordIndex":6}]},{"text":"E-I-E-I-O!","markers":[{"charIndex":0,"chordIndex":7},{"charIndex":2,"chordIndex":8},{"charIndex":4,"chordIndex":9},{"charIndex":6,"chordIndex":10},{"charIndex":8,"chordIndex":11}]},{"text":"And on his farm he had a cow,","markers":[{"charIndex":0,"chordIndex":12},{"charIndex":4,"chordIndex":13},{"charIndex":7,"chordIndex":14},{"charIndex":11,"chordIndex":15},{"charIndex":16,"chordIndex":16},{"charIndex":19,"chordIndex":17},{"charIndex":23,"chordIndex":18},{"charIndex":25,"chordIndex":19}]},{"text":"E-I-E-I-O!","markers":[{"charIndex":0,"chordIndex":20},{"charIndex":2,"chordIndex":21},{"charIndex":4,"chordIndex":22},{"charIndex":6,"chordIndex":23},{"charIndex":8,"chordIndex":24}]},{"text":"With a moo moo here and a moo moo there,","markers":[{"charIndex":0,"chordIndex":25},{"charIndex":5,"chordIndex":26},{"charIndex":7,"chordIndex":27},{"charIndex":11,"chordIndex":28},{"charIndex":15,"chordIndex":29},{"charIndex":20,"chordIndex":30},{"charIndex":24,"chordIndex":31},{"charIndex":26,"chordIndex":32},{"charIndex":30,"chordIndex":33},{"charIndex":34,"chordIndex":34}]},{"text":"Here a moo, there a moo, everywhere a moo moo,","markers":[{"charIndex":0,"chordIndex":35},{"charIndex":5,"chordIndex":36},{"charIndex":7,"chordIndex":37},{"charIndex":12,"chordIndex":38},{"charIndex":18,"chordIndex":39},{"charIndex":20,"chordIndex":40},{"charIndex":25,"chordIndex":41},{"charIndex":27,"chordIndex":42},{"charIndex":30,"chordIndex":43},{"charIndex":36,"chordIndex":44},{"charIndex":38,"chordIndex":45},{"charIndex":42,"chordIndex":46}]},{"text":"Old MacDonald had a farm,","markers":[{"charIndex":0,"chordIndex":47},{"charIndex":4,"chordIndex":48},{"charIndex":7,"chordIndex":49},{"charIndex":10,"chordIndex":50},{"charIndex":14,"chordIndex":51},{"charIndex":18,"chordIndex":52},{"charIndex":20,"chordIndex":53}]},{"text":"E-I-E-I-O!","markers":[{"charIndex":0,"chordIndex":54},{"charIndex":2,"chordIndex":55},{"charIndex":4,"chordIndex":56},{"charIndex":6,"chordIndex":57},{"charIndex":8,"chordIndex":58}]}],
+    "Kids Old MacDonald":[{"text":"Old MacDonald had a farm,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":4,"chordIndex":1},{"charIndex":7,"chordIndex":2},{"charIndex":10,"chordIndex":3},{"charIndex":14,"chordIndex":4},{"charIndex":18,"chordIndex":5},{"charIndex":20,"chordIndex":6}]},{"text":"E-I-E-I-O!","markers":[{"charIndex":0,"chordIndex":7},{"charIndex":2,"chordIndex":8},{"charIndex":4,"chordIndex":9},{"charIndex":6,"chordIndex":10},{"charIndex":8,"chordIndex":11}]},{"text":"And on his farm he had a cow,","markers":[{"charIndex":0,"chordIndex":12},{"charIndex":4,"chordIndex":13},{"charIndex":7,"chordIndex":14},{"charIndex":11,"chordIndex":15},{"charIndex":16,"chordIndex":16},{"charIndex":19,"chordIndex":17},{"charIndex":23,"chordIndex":18},{"charIndex":25,"chordIndex":19}]},{"text":"E-I-E-I-O!","markers":[{"charIndex":0,"chordIndex":20},{"charIndex":2,"chordIndex":21},{"charIndex":4,"chordIndex":22},{"charIndex":6,"chordIndex":23},{"charIndex":8,"chordIndex":24}]},{"text":"With a moo moo here","markers":[{"charIndex":0,"chordIndex":25},{"charIndex":5,"chordIndex":26},{"charIndex":7,"chordIndex":27},{"charIndex":11,"chordIndex":28},{"charIndex":15,"chordIndex":29}]},{"text":"and a moo moo there,","markers":[{"charIndex":0,"chordIndex":30},{"charIndex":4,"chordIndex":31},{"charIndex":6,"chordIndex":32},{"charIndex":10,"chordIndex":33},{"charIndex":14,"chordIndex":34}]},{"text":"Here a moo, there a moo,","markers":[{"charIndex":0,"chordIndex":35},{"charIndex":5,"chordIndex":36},{"charIndex":7,"chordIndex":37},{"charIndex":12,"chordIndex":38},{"charIndex":18,"chordIndex":39},{"charIndex":20,"chordIndex":40}]},{"text":"everywhere a moo moo,","markers":[{"charIndex":0,"chordIndex":41},{"charIndex":2,"chordIndex":42},{"charIndex":5,"chordIndex":43},{"charIndex":11,"chordIndex":44},{"charIndex":13,"chordIndex":45},{"charIndex":17,"chordIndex":46}]},{"text":"Old MacDonald had a farm,","markers":[{"charIndex":0,"chordIndex":47},{"charIndex":4,"chordIndex":48},{"charIndex":7,"chordIndex":49},{"charIndex":10,"chordIndex":50},{"charIndex":14,"chordIndex":51},{"charIndex":18,"chordIndex":52},{"charIndex":20,"chordIndex":53}]},{"text":"E-I-E-I-O!","markers":[{"charIndex":0,"chordIndex":54},{"charIndex":2,"chordIndex":55},{"charIndex":4,"chordIndex":56},{"charIndex":6,"chordIndex":57},{"charIndex":8,"chordIndex":58}]}],
     "Kids Itsy Bitsy Spider":[{"text":"The itsy bitsy spider","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":4,"chordIndex":1},{"charIndex":6,"chordIndex":2},{"charIndex":9,"chordIndex":3},{"charIndex":12,"chordIndex":4},{"charIndex":15,"chordIndex":5},{"charIndex":18,"chordIndex":6}]},{"text":"climbed up the water spout.","markers":[{"charIndex":0,"chordIndex":7},{"charIndex":8,"chordIndex":8},{"charIndex":11,"chordIndex":9},{"charIndex":15,"chordIndex":10},{"charIndex":17,"chordIndex":11},{"charIndex":21,"chordIndex":12}]},{"text":"Down came the rain","markers":[{"charIndex":0,"chordIndex":13},{"charIndex":5,"chordIndex":14},{"charIndex":10,"chordIndex":15},{"charIndex":14,"chordIndex":16}]},{"text":"and washed the spider out.","markers":[{"charIndex":0,"chordIndex":17},{"charIndex":4,"chordIndex":18},{"charIndex":11,"chordIndex":19},{"charIndex":15,"chordIndex":20},{"charIndex":18,"chordIndex":21},{"charIndex":22,"chordIndex":22}]},{"text":"Out came the sun","markers":[{"charIndex":0,"chordIndex":23},{"charIndex":4,"chordIndex":24},{"charIndex":9,"chordIndex":25},{"charIndex":13,"chordIndex":26}]},{"text":"and dried up all the rain,","markers":[{"charIndex":0,"chordIndex":27},{"charIndex":4,"chordIndex":28},{"charIndex":10,"chordIndex":29},{"charIndex":13,"chordIndex":30},{"charIndex":17,"chordIndex":31},{"charIndex":21,"chordIndex":32}]},{"text":"And the itsy bitsy spider","markers":[{"charIndex":0,"chordIndex":33},{"charIndex":4,"chordIndex":34},{"charIndex":8,"chordIndex":35},{"charIndex":10,"chordIndex":36},{"charIndex":13,"chordIndex":37},{"charIndex":16,"chordIndex":38},{"charIndex":19,"chordIndex":39},{"charIndex":22,"chordIndex":40}]},{"text":"climbed up the spout again.","markers":[{"charIndex":0,"chordIndex":41},{"charIndex":8,"chordIndex":42},{"charIndex":11,"chordIndex":43},{"charIndex":15,"chordIndex":44},{"charIndex":21,"chordIndex":45},{"charIndex":22,"chordIndex":46}]}],
     "Kids London Bridge":[{"text":"London Bridge is falling down,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":3,"chordIndex":1},{"charIndex":7,"chordIndex":2},{"charIndex":14,"chordIndex":3},{"charIndex":17,"chordIndex":4},{"charIndex":21,"chordIndex":5},{"charIndex":25,"chordIndex":6}]},{"text":"falling down,","markers":[{"charIndex":0,"chordIndex":7},{"charIndex":4,"chordIndex":8},{"charIndex":8,"chordIndex":9}]},{"text":"falling down.","markers":[{"charIndex":0,"chordIndex":10},{"charIndex":4,"chordIndex":11},{"charIndex":8,"chordIndex":12}]},{"text":"London Bridge is falling down,","markers":[{"charIndex":0,"chordIndex":13},{"charIndex":3,"chordIndex":14},{"charIndex":7,"chordIndex":15},{"charIndex":14,"chordIndex":16},{"charIndex":17,"chordIndex":17},{"charIndex":21,"chordIndex":18},{"charIndex":25,"chordIndex":19}]},{"text":"my fair lady.","markers":[{"charIndex":0,"chordIndex":20},{"charIndex":3,"chordIndex":21},{"charIndex":8,"chordIndex":22},{"charIndex":10,"chordIndex":23}]}],
-    "Kids Hey Diddle Diddle":[{"text":"Hey, diddle, diddle,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":5,"chordIndex":1},{"charIndex":8,"chordIndex":2},{"charIndex":13,"chordIndex":3},{"charIndex":16,"chordIndex":4}]},{"text":"the cat and the fiddle,","markers":[{"charIndex":0,"chordIndex":5},{"charIndex":4,"chordIndex":6},{"charIndex":8,"chordIndex":7},{"charIndex":12,"chordIndex":8},{"charIndex":16,"chordIndex":9},{"charIndex":19,"chordIndex":10}]},{"text":"the cow jumped over the moon;","markers":[{"charIndex":0,"chordIndex":11},{"charIndex":4,"chordIndex":12},{"charIndex":8,"chordIndex":13},{"charIndex":15,"chordIndex":14},{"charIndex":16,"chordIndex":15},{"charIndex":20,"chordIndex":16},{"charIndex":24,"chordIndex":17}]},{"text":"the little dog laughed","markers":[{"charIndex":0,"chordIndex":18},{"charIndex":4,"chordIndex":19},{"charIndex":7,"chordIndex":20},{"charIndex":11,"chordIndex":21},{"charIndex":15,"chordIndex":22}]},{"text":"to see such sport,","markers":[{"charIndex":0,"chordIndex":23},{"charIndex":3,"chordIndex":24},{"charIndex":7,"chordIndex":25},{"charIndex":12,"chordIndex":26}]},{"text":"and the dish ran","markers":[{"charIndex":0,"chordIndex":27},{"charIndex":4,"chordIndex":28},{"charIndex":8,"chordIndex":29},{"charIndex":13,"chordIndex":30}]},{"text":"after the spoon.","markers":[{"charIndex":0,"chordIndex":31},{"charIndex":2,"chordIndex":32},{"charIndex":6,"chordIndex":33},{"charIndex":10,"chordIndex":34}]}],
+    "Kids Hey Diddle Diddle":[{"text":"Hey, diddle, diddle,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":5,"chordIndex":1},{"charIndex":8,"chordIndex":2},{"charIndex":13,"chordIndex":3},{"charIndex":16,"chordIndex":4}]},{"text":"the cat and the fiddle,","markers":[{"charIndex":0,"chordIndex":5},{"charIndex":4,"chordIndex":6},{"charIndex":8,"chordIndex":7},{"charIndex":12,"chordIndex":8},{"charIndex":16,"chordIndex":9},{"charIndex":19,"chordIndex":10}]},{"text":"the cow jumped over the moon;","markers":[{"charIndex":0,"chordIndex":11},{"charIndex":4,"chordIndex":12},{"charIndex":8,"chordIndex":13},{"charIndex":15,"chordIndex":14},{"charIndex":16,"chordIndex":15},{"charIndex":20,"chordIndex":16},{"charIndex":24,"chordIndex":17}]},{"text":"the little dog laughed","markers":[{"charIndex":0,"chordIndex":18},{"charIndex":4,"chordIndex":19},{"charIndex":7,"chordIndex":20},{"charIndex":11,"chordIndex":21},{"charIndex":15,"chordIndex":22}]},{"text":"to see such sport,","markers":[{"charIndex":0,"chordIndex":23},{"charIndex":3,"chordIndex":24},{"charIndex":7,"chordIndex":25},{"charIndex":12,"chordIndex":26}]},{"text":"and the dish ran","markers":[{"charIndex":0,"chordIndex":27},{"charIndex":4,"chordIndex":28},{"charIndex":8,"chordIndex":29},{"charIndex":13,"chordIndex":30}]},{"text":"away with the spoon.","markers":[{"charIndex":0,"chordIndex":31},{"charIndex":1,"chordIndex":32},{"charIndex":5,"chordIndex":33},{"charIndex":14,"chordIndex":34}]}],
     "Kids Head Shoulders Knees and Toes":[{"text":"Head, shoulders,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":6,"chordIndex":1},{"charIndex":11,"chordIndex":2}]},{"text":"knees and toes,","markers":[{"charIndex":0,"chordIndex":3},{"charIndex":6,"chordIndex":4},{"charIndex":10,"chordIndex":5}]},{"text":"knees and toes,","markers":[{"charIndex":0,"chordIndex":6},{"charIndex":6,"chordIndex":7},{"charIndex":10,"chordIndex":8}]},{"text":"Head, shoulders,","markers":[{"charIndex":0,"chordIndex":9},{"charIndex":6,"chordIndex":10},{"charIndex":11,"chordIndex":11}]},{"text":"knees and toes,","markers":[{"charIndex":0,"chordIndex":12},{"charIndex":6,"chordIndex":13},{"charIndex":10,"chordIndex":14}]},{"text":"knees and toes,","markers":[{"charIndex":0,"chordIndex":15},{"charIndex":6,"chordIndex":16},{"charIndex":10,"chordIndex":17}]},{"text":"And eyes and ears","markers":[{"charIndex":0,"chordIndex":18},{"charIndex":4,"chordIndex":19},{"charIndex":9,"chordIndex":20},{"charIndex":13,"chordIndex":21}]},{"text":"and mouth and nose,","markers":[{"charIndex":0,"chordIndex":22},{"charIndex":4,"chordIndex":23},{"charIndex":10,"chordIndex":24},{"charIndex":14,"chordIndex":25}]},{"text":"Head, shoulders,","markers":[{"charIndex":0,"chordIndex":26},{"charIndex":6,"chordIndex":27},{"charIndex":11,"chordIndex":28}]},{"text":"knees and toes,","markers":[{"charIndex":0,"chordIndex":29},{"charIndex":6,"chordIndex":30},{"charIndex":10,"chordIndex":31}]},{"text":"knees and toes.","markers":[{"charIndex":0,"chordIndex":32},{"charIndex":6,"chordIndex":33},{"charIndex":10,"chordIndex":34}]}],
     "Kids Baa Baa Black Sheep":[{"text":"Baa, baa, black sheep,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":5,"chordIndex":1},{"charIndex":10,"chordIndex":2},{"charIndex":16,"chordIndex":3}]},{"text":"have you any wool?","markers":[{"charIndex":0,"chordIndex":4},{"charIndex":5,"chordIndex":5},{"charIndex":9,"chordIndex":6},{"charIndex":11,"chordIndex":7},{"charIndex":13,"chordIndex":8}]},{"text":"Yes, sir, yes, sir,","markers":[{"charIndex":0,"chordIndex":9},{"charIndex":5,"chordIndex":10},{"charIndex":10,"chordIndex":11},{"charIndex":15,"chordIndex":12}]},{"text":"three bags full;","markers":[{"charIndex":0,"chordIndex":13},{"charIndex":6,"chordIndex":14},{"charIndex":11,"chordIndex":15}]},{"text":"One for the master,","markers":[{"charIndex":0,"chordIndex":16},{"charIndex":4,"chordIndex":17},{"charIndex":8,"chordIndex":18},{"charIndex":12,"chordIndex":19},{"charIndex":15,"chordIndex":20}]},{"text":"and one for the dame,","markers":[{"charIndex":0,"chordIndex":21},{"charIndex":4,"chordIndex":22},{"charIndex":8,"chordIndex":23},{"charIndex":12,"chordIndex":24},{"charIndex":16,"chordIndex":25}]},{"text":"And one for the little boy","markers":[{"charIndex":0,"chordIndex":26},{"charIndex":4,"chordIndex":27},{"charIndex":8,"chordIndex":28},{"charIndex":12,"chordIndex":29},{"charIndex":16,"chordIndex":30},{"charIndex":19,"chordIndex":31},{"charIndex":23,"chordIndex":32}]},{"text":"who lives down the lane.","markers":[{"charIndex":0,"chordIndex":33},{"charIndex":4,"chordIndex":34},{"charIndex":10,"chordIndex":35},{"charIndex":15,"chordIndex":36},{"charIndex":19,"chordIndex":37}]}],
     "Kids Hickory Dickory Dock":[{"text":"Hickory, dickory, dock,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":4,"chordIndex":1},{"charIndex":5,"chordIndex":2},{"charIndex":9,"chordIndex":3},{"charIndex":13,"chordIndex":4},{"charIndex":14,"chordIndex":5},{"charIndex":18,"chordIndex":6}]},{"text":"The mouse ran up the clock.","markers":[{"charIndex":0,"chordIndex":7},{"charIndex":4,"chordIndex":8},{"charIndex":10,"chordIndex":9},{"charIndex":14,"chordIndex":10},{"charIndex":17,"chordIndex":11},{"charIndex":21,"chordIndex":12}]},{"text":"The clock struck one,","markers":[{"charIndex":0,"chordIndex":13},{"charIndex":4,"chordIndex":14},{"charIndex":10,"chordIndex":15},{"charIndex":17,"chordIndex":16}]},{"text":"the mouse ran down,","markers":[{"charIndex":0,"chordIndex":17},{"charIndex":4,"chordIndex":18},{"charIndex":10,"chordIndex":19},{"charIndex":14,"chordIndex":20}]},{"text":"Hickory, dickory, dock.","markers":[{"charIndex":0,"chordIndex":21},{"charIndex":4,"chordIndex":22},{"charIndex":5,"chordIndex":23},{"charIndex":9,"chordIndex":24},{"charIndex":13,"chordIndex":25},{"charIndex":14,"chordIndex":26},{"charIndex":18,"chordIndex":27}]}]
@@ -8506,11 +8555,8 @@ function accSym(s) {
   function upNextStep() {
     if (!upSelected() || upNxOff || !prog.steps.length) return -1;
     var n = prog.steps.length;
-    if (prog.playing) {
-      if (prog.cur >= 0) return prog.cur + 1 < n ? prog.cur + 1 : -1;
-      return magic.lit ? -1 : 0;
-    }
-    return magic.pos < n ? magic.pos : -1;
+    if (prog.playing) return prog.cur >= 0 ? (prog.cur + 1) % n : prog.si % n;   // v111: Play loops
+    return magic.pos < n ? magic.pos : 0;   // v111: Next loops back to the first chord
   }
   function paintUpNext() {
     nxMarkSoon();   // v105
@@ -9130,7 +9176,7 @@ function accSym(s) {
       ps.classList.toggle("on", pon);
       ps.setAttribute("aria-pressed", pon ? "true" : "false");
       ps.setAttribute("aria-label", pon ? "Stop song" : "Play song");
-      ps.title = pon ? "Stop" : "Play song: the whole song / progression once, then random chords";
+      ps.title = pon ? "Stop" : "Play song: the whole song / progression, over and over";
     }
     fitProgName();
   }
@@ -9384,7 +9430,7 @@ function accSym(s) {
     el.style.removeProperty("--tx");
     placeBadges();
   }
-  window.addEventListener("resize", function () { fitStrip(); if (magic.hint) setTimeout(paintNextHint, 120); });
+  window.addEventListener("resize", function () { fitStrip(); setTimeout(paintNextHint, 120); });   // v111: the next chord is always marked (no magic.hint gate)
   // v54: the panel can change height without a resize (Now column grows when a key is set).
   if (typeof ResizeObserver === "function") {
     var ssH = 0;
@@ -9460,9 +9506,10 @@ function accSym(s) {
     paintKidKey();
     var inKey = {};
     var spellPc = {};
+    if (!k && state.style === "kids") k = kidsKeyNow();   // v111 (K): Kids dims against the song key even before a key is picked
     if (k) keyDegrees(k).forEach(function (d) { inKey[d.pc] = true; spellPc[d.pc] = d.name; });
     Array.prototype.forEach.call(document.querySelectorAll("#pads .pad, .kb .pad"), function (pd) {
-      pd.classList.toggle("nokey", !pd.dataset.borrow && !state.allKeys && state.style !== "kids" && !!k && !inKey[Number(pd.dataset.pc)]);   // v104.2 K1: Kids never dims a key
+      pd.classList.toggle("nokey", !pd.dataset.borrow && !state.allKeys && !!k && !inKey[Number(pd.dataset.pc)]);   // v111 (K): Kids dims out-of-key keys again with Full Range off
       var nmEl = pd.querySelector(".nm");
       if (nmEl) {
         var nmT = accSym(spellPc[Number(pd.dataset.pc)] || Theory.NOTE_NAMES[Number(pd.dataset.pc)]);
@@ -9983,6 +10030,7 @@ function accSym(s) {
       setSustain(false);
       paintSustainBtn();
       renderPads();
+      paintKeyChip(computeSpec());   // v111 (K): the new keys get the in-key dimming at once (a layout switch left them undimmed)
     });
 
     wireSustain();
@@ -10181,7 +10229,7 @@ function accSym(s) {
       progNums: true,
       playAlong: true,   // v108: Play along on by default
       volume: 100,
-      band: 50,   // v86: the Band LEVEL (1..100); on/off is not saved
+      band: 0,   // Band fix: one slider, 0 = off, 1..100 = on at that level (saved as bandLvl)
       lockKey: null
     };
   }
@@ -10226,7 +10274,7 @@ function accSym(s) {
       progNums: bool(raw.progNums, d.progNums),
       playAlong: bool(raw.playAlong, d.playAlong),   // v108
       volume: num(raw.volume, 0, 100, d.volume, true),
-      band: (function () { var b = num(raw.band, 0, 100, d.band, true); return b >= 1 ? b : d.band; })(),
+      band: num(raw.bandLvl, 0, 100, d.band, true),   // Band fix: saves from before it (raw.band, toggle always off at load) migrate to 0 = off
       lockKey: (raw.lockKey && typeof raw.lockKey === "object" && raw.lockKey.pc === (raw.lockKey.pc | 0) && raw.lockKey.pc >= 0 && raw.lockKey.pc < 12 && SCALES.indexOf(raw.lockKey.mode) >= 0)
         ? { pc: raw.lockKey.pc, mode: raw.lockKey.mode } : null
       // Legacy `latch` key (cce4d86) is ignored; Sustain is never persisted.
@@ -10246,7 +10294,7 @@ function accSym(s) {
   // Future builds: read older keys/versions here and migrate into v1+ shape.
   function loadSettings() {
     var str = storageGet();
-    if (!str) return factoryDefaults();
+    if (!str) { var first = factoryDefaults(); first.style = "kids"; return first; }   // v111 (G): first visit opens in Kids (Twinkle, C)
     try {
       var env = JSON.parse(str);
       if (!env || typeof env !== "object" || env.v !== STORE_VERSION) return factoryDefaults();
@@ -10280,7 +10328,8 @@ function accSym(s) {
       progNums: !!state.progNums,
       playAlong: state.playAlong !== false,   // v108
       volume: state.volume == null ? 100 : state.volume,
-      band: state.band | 0,
+      bandLvl: state.band | 0,
+      band: (state.band | 0) >= 1 ? state.band | 0 : 50,   // older builds read this (1..100) and start Band off anyway
       lockKey: lockKey ? { pc: lockKey.pc, mode: lockKey.mode } : null
     };
   }
@@ -10377,9 +10426,7 @@ function accSym(s) {
     // v68: the active style's sound preset always applies at load (cold Pop has its bass).
     applyStylePreset(s.style);
     setVolume(s.volume);
-    setBand(s.band);
-    state.bandOn = false;   // v86: Band is off at every load / reset; the level is kept
-    applyBand();
+    setBand(s.band);   // Band fix: the saved slider level; 0 = off
   }
 
   var toastTimer = 0;
@@ -10406,11 +10453,12 @@ function accSym(s) {
     ChordAudio.setVolume((v / 100) * (v / 100));
   }
   // v75 Band level (0 = no scheduler, no nodes). v86: Sound box toggle + level slider. The level
-  // (1..100, default 50) is saved; the toggle is off at every load. Band audio = on ? level : 0.
+  // Band fix: no toggle any more. One slider 0..100 (0 = off), saved as bandLvl. Band audio = level / 100.
   function setBand(v) {
     v = Math.round(Number(v));
-    if (!isFinite(v) || v < 1) v = 50;
+    if (!isFinite(v) || v < 0) v = 0;
     state.band = Math.min(100, v);
+    state.bandOn = state.band > 0;   // Band fix: no toggle; the slider above 0 is on
     applyBand();
   }
   function applyBand() {
@@ -10418,19 +10466,17 @@ function accSym(s) {
     paintBand();
   }
   function paintBand() {
-    var el = document.getElementById("band"), tg = document.getElementById("bandOn");
-    if (!el || !tg) return;
+    var el = document.getElementById("band");
+    if (!el) return;
     var v = state.band | 0, on = !!ChordAudio.band && !!{ pop: 1, country: 1, jazz: 1, kids: 1, ballad: 1, rnb: 1 }[state.style];
     var live = !!state.bandOn;
     if (el.value !== String(v)) el.value = String(v);
-    el.setAttribute("aria-valuetext", String(v) + (on ? (live ? "" : ", Band off") : ", no band for this style yet"));
-    document.getElementById("bandVal").textContent = String(v);
-    el.disabled = !on || !live;
-    tg.disabled = !on;
-    tg.classList.toggle("on", live);
-    tg.setAttribute("aria-pressed", live ? "true" : "false");
+    el.setAttribute("aria-valuetext", (live ? String(v) : "Off") + (on ? "" : ", no band for this style yet"));
+    document.getElementById("bandVal").textContent = live ? String(v) : "Off";
+    el.disabled = !on;
     var box = document.getElementById("bandWrap");
     box.classList.toggle("dim", !on);
+    box.classList.toggle("on", live);
     box.classList.toggle("off", !live);
     box.title = on ? "" : "No band on this style yet";
   }
@@ -10487,7 +10533,6 @@ function accSym(s) {
     var bandEl = document.getElementById("band");
     bandEl.addEventListener("input", function () { setBand(bandEl.value); scheduleSave(150); });
     bandEl.addEventListener("change", function () { setBand(bandEl.value); scheduleSave(0); });
-    document.getElementById("bandOn").addEventListener("click", function () { state.bandOn = !state.bandOn; applyBand(); });   // v86
     var volEl = document.getElementById("volume");
     volEl.addEventListener("input", function () { setVolume(volEl.value); scheduleSave(150); });
     volEl.addEventListener("change", function () { setVolume(volEl.value); scheduleSave(0); });
@@ -10551,6 +10596,7 @@ function accSym(s) {
   function setSimple(on) {
     on = !!on;
     if (on === state.simple) return;
+    var keep = progWalkAt();   // v111 (D5): the matching step after the switch
     progStop(); ChordAudio.band.hush();   // v104: a mode switch stops Play song and silences the Band
     if (on) {
       if (loop.recording || loop.playing || loop.transport) stopPlayback();
@@ -10571,6 +10617,7 @@ function accSym(s) {
     paintSimple();
     suggestSig = "";
     paintSuggestions(computeSpec());
+    progWalkTo(keep);   // v111 (D5)
     // Pads DOM is rebuilt; dump pooled rings like a layout change does.
     setSustain(false);
     paintSustainBtn();
