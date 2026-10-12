@@ -1212,7 +1212,7 @@ html.simple.lay-pad-land .kk-face svg, html.simple.lay-pad-port .kk-face svg { w
 .app-version { padding: 8px 12px 4px; font-size: 11px; color: var(--muted); opacity: .8; text-align: center; }
 /* ===== v52 Simple (simple-v2 mockup): Now, Key, Sustain on the left; the scale strip fills
    the right. No keyboard, chord buttons, Full Range, Controls button or Roman numerals. ===== */
-html.simple #chords, html.simple .kb-wrap, html.simple #allKeys, html.simple #ctlToggle,
+html.simple #chords, html.simple #allKeys, html.simple #ctlToggle,
 html.simple #keyRow, html.simple .ss .ss-note small, html.simple .pad .roman,
 html.simple #keyPick .kp-alts, html.simple #keyPick .kp-auto { display: none !important; }
 html.simple #app { --ss-lbl: 44px; --ss-ico: 24px; --ss-arrow: 14px; --ss-rg: 7px; --ss-cgap: 7px; --ss-mid: 1.3fr; --ss-pad: 7px; --ss-fs: 17px; --ss-note: 26px; --ss-strip: 48px; }
@@ -1246,29 +1246,29 @@ html.simple .ss .ss-note.pulse { animation: ss-pulse .55s ease-in-out both; }
 /* Phone landscape: the mockup (844 x 390). */
 html.simple.lay-phone-land #app {
   --sym: 60px;
-  grid-template-columns: 196px minmax(0, 1fr) auto;
+  grid-template-columns: 196px minmax(0, 1.15fr) minmax(0, 1fr);
   grid-template-rows: 44px minmax(0, 1fr) 76px;
-  grid-template-areas: "sty sty top" "now nxt nxt" "sus nxt nxt";
+  grid-template-areas: "sty sty top" "now nxt kb" "sus nxt kb";   /* v113: the piano on the right */
 }
 html.simple.lay-phone-land .now-card .card-label { display: none; }
-@media (max-width: 700px) { html.simple.lay-phone-land #app { --sym: 48px; grid-template-columns: 160px minmax(0, 1fr) auto; grid-template-rows: 40px minmax(0, 1fr) 64px; --ss-lbl: 36px; --ss-rg: 5px; --ss-cgap: 5px; --ss-fs: 15px; --ss-note: 22px; } }
+@media (max-width: 700px) { html.simple.lay-phone-land #app { --sym: 48px; grid-template-columns: 160px minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: 40px minmax(0, 1fr) 64px; --ss-lbl: 36px; --ss-rg: 5px; --ss-cgap: 5px; --ss-fs: 15px; --ss-note: 22px; } }
 /* Phone portrait: Now + Key on the left, Sustain on the right, strip fills the rest. */
 html.simple.lay-phone-port #app {
   --sym: 46px; --ss-lbl: 30px; --ss-ico: 24px; --ss-rg: 8px; --ss-cgap: 4px; --ss-fs: 16px; --ss-note: 24px;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  grid-template-rows: auto auto 236px minmax(0, 1fr);
-  grid-template-areas: "top top" "sty sty" "now sus" "nxt nxt";
+  grid-template-rows: auto auto 236px minmax(0, 1fr) 112px;
+  grid-template-areas: "top top" "sty sty" "now sus" "nxt nxt" "kb kb";   /* v113: the piano under the strip */
 }
 html.simple.lay-phone-port #sustainBtn { font-size: 17px; }
-@media (max-height: 700px) { html.simple.lay-phone-port #app { --sym: 38px; grid-template-rows: auto auto 196px minmax(0, 1fr); --ss-rg: 5px; --ss-fs: 15px; --ss-note: 22px; }
+@media (max-height: 700px) { html.simple.lay-phone-port #app { --sym: 38px; grid-template-rows: auto auto 196px minmax(0, 1fr) 92px; --ss-rg: 5px; --ss-fs: 15px; --ss-note: 22px; }
   html.simple.lay-phone-port .kid-key { --kk-h: 50px; --kk-fs: 30px; --kk-mh: 38px; --kk-mfs: 15px; gap: 5px; }
   html.simple.lay-phone-port #tones { margin-top: 4px; } }
 /* iPad landscape: the phone-landscape mockup, scaled. */
 html.simple.lay-pad-land #app {
   --sym: 110px; --ss-lbl: 56px; --ss-rg: 12px; --ss-cgap: 12px; --ss-pad: 12px; --ss-fs: 26px; --ss-note: 38px; --ss-strip: 72px;
-  grid-template-columns: 300px minmax(0, 1fr) auto;
+  grid-template-columns: 300px minmax(0, 1.2fr) minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr) 140px;
-  grid-template-areas: "sty sty top" "now nxt nxt" "sus nxt nxt";
+  grid-template-areas: "sty sty top" "now nxt kb" "sus nxt kb";   /* v113 */
 }
 html.simple.lay-pad-land .brand { display: none; }
 html.simple.lay-pad-land .key-bar .key-chip, html.simple.lay-pad-port .key-bar .key-chip { height: 64px; min-height: 64px; font-size: 22px; }
@@ -1278,8 +1278,8 @@ html.simple.lay-pad-land #sustainBtn, html.simple.lay-pad-port #sustainBtn { fon
 html.simple.lay-pad-port #app {
   --sym: 96px; --ss-lbl: 56px; --ss-rg: 14px; --ss-cgap: 10px; --ss-pad: 12px; --ss-fs: 26px; --ss-note: 38px; --ss-strip: 72px;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  grid-template-rows: auto auto 380px minmax(0, 1fr);
-  grid-template-areas: "top top" "sty sty" "now sus" "nxt nxt";
+  grid-template-rows: auto auto 340px minmax(0, 1fr) 220px;
+  grid-template-areas: "top top" "sty sty" "now sus" "nxt nxt" "kb kb";   /* v113 */
 }
 
 /* ===== v53: strip rows by named lines (b = green bright-borrowed, h = happy, n = notes,
@@ -1306,7 +1306,7 @@ html.simple.lay-pad-land .ss .ss-chip, html.simple.lay-pad-port .ss .ss-chip { a
    notes and chips about one column wide (44 px+), chips 44-48 px tall, one-line names. */
 html.simple.lay-phone-port #app { --ss-lbl: 0px; --ss-cgap: 3px; --ss-rg: 8px; --ss-pad: 7px; --ss-fs: 16px; --ss-ch: minmax(44px, 48px); --ss-ico: 28px; --ss-arrow: 14px; --ss-fgap: 7px; }
 @media (max-width: 370px) { html.simple.lay-phone-port #app { --ss-cgap: 2px; --ss-pad: 6px; } }
-@media (max-height: 700px) { html.simple.lay-phone-port #app { --ss-rg: 6px; --sym: 34px; grid-template-rows: auto auto 176px minmax(0, 1fr); }
+@media (max-height: 700px) { html.simple.lay-phone-port #app { --ss-rg: 6px; --sym: 34px; grid-template-rows: auto auto 176px minmax(0, 1fr) 92px; }
   html.simple.lay-phone-port .now-card .card-label { display: none; }
   html.simple.lay-phone-port #tones { margin-top: 2px; font-size: calc(15px * var(--tx, 1)); } }
 html.simple.lay-phone-port .ss { padding: 5px 0; align-content: safe center;
@@ -1460,7 +1460,7 @@ html.simple.lay-phone-land .now-col, html.simple.lay-phone-port .now-col { gap: 
 html.simple.lay-phone-land .kid-key, html.simple.lay-phone-port .kid-key { --kk-h: 42px; --kk-fs: 28px; --kk-mh: 30px; --kk-mfs: 15px; gap: 4px; }
 html.simple.lay-phone-land .prog, html.simple.lay-phone-port .prog { --pg-h: 30px; --pg-arrow: 24px; --pg-afs: 24px; --pg-fs: 15px; --pg-nh: 26px; gap: 4px; }
 @media (max-width: 700px) { html.simple.lay-phone-land .prog { --pg-nh: 22px; } html.simple.lay-phone-land .kid-key { --kk-h: 40px; --kk-mh: 28px; } }
-@media (max-height: 700px) { html.simple.lay-phone-port #app { grid-template-rows: auto auto 194px minmax(0, 1fr); } }
+@media (max-height: 700px) { html.simple.lay-phone-port #app { grid-template-rows: auto auto 194px minmax(0, 1fr) 92px; } }
 @media (max-height: 700px) { html.simple.lay-phone-port .kid-key { --kk-h: 40px; --kk-mh: 28px; } html.simple.lay-phone-port .prog { --pg-nh: 24px; } }
 html.simple.lay-pad-land .prog, html.simple.lay-pad-port .prog { --pg-h: 48px; --pg-arrow: 40px; --pg-afs: 32px; --pg-fs: 22px; --pg-ico: 22px; --pg-nh: 40px; gap: 6px; }
 /* v60 iPad: room for the picker with Now at or above v58: slimmer key control, Sustain 124 (land),
@@ -1744,6 +1744,17 @@ html.lay-phone-land .now-mix > .now-vol .pg-vol svg, html.lay-phone-port:not(.si
 .config-menu .cfg-help .cfg-lbl { flex: 0 0 auto; font-size: 13px; opacity: .75; padding-left: 4px; }
 .config-menu .cfg-help #tourBtn { flex: 1 1 auto; width: auto; }
 
+/* v113 (5): Full uses Simple's key control too: root (swipe / arrows) + Major/Minor, one compact row */
+html:not(.simple) #keyChip { display: none !important; }
+html:not(.simple) .kid-key { display: flex; flex-direction: row; gap: 4px; order: 2; flex: 0 0 auto; --kk-h: 28px; --kk-fs: 17px; --kk-arrow: 16px; --kk-mh: 28px; --kk-mfs: 12px; }
+html:not(.simple) .kid-key .kk-root { flex: 1 1 0; min-width: 0; border-radius: 10px; border-width: 1.5px; }
+html:not(.simple) .kid-key .kk-mode { flex: 1 1 0; min-width: 0; height: var(--kk-mh); border-radius: 10px; gap: 3px; padding: 0 2px; letter-spacing: 0; }
+html:not(.simple) .kid-key .kk-face svg { width: 14px; height: 14px; }
+html.lay-phone-land:not(.simple) .kid-key { --kk-h: 22px; --kk-mh: 22px; --kk-fs: 15px; --kk-mfs: 11px; }
+html.lay-pad-land:not(.simple) .kid-key, html.lay-pad-port:not(.simple) .kid-key { --kk-h: 40px; --kk-mh: 40px; --kk-fs: 24px; --kk-arrow: 26px; --kk-mfs: 15px; gap: 6px; }
+html.lay-pad-land:not(.simple) .kid-key .kk-face svg, html.lay-pad-port:not(.simple) .kid-key .kk-face svg { width: 20px; height: 20px; }
+.config-menu .cfg-kbo b { font-weight: 700; color: var(--copper); }
+
 /* ===== Song Upload (full mode only; Simple never shows any of it) ===== */
 .pg-btn.pg-up svg { width: var(--pg-ico, 18px); height: var(--pg-ico, 18px); }
 html.simple .pg-up { display: none !important; }   /* v73: Simple shows the song bar (lyrics + chords), not the Upload button */
@@ -2001,6 +2012,35 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
 .config-menu .cfg-pa .cfg-q[aria-expanded="true"] { background: var(--copper); color: var(--copper-ink); border-color: transparent; }
 .config-menu .cfg-tip { box-sizing: border-box; width: 0; min-width: 100%; margin: 0; padding: 2px 10px 6px; font-size: 12px; line-height: 1.35; color: var(--muted); white-space: normal; }
 .config-menu .cfg-tip[hidden] { display: none; }
+/* Bug report (gear menu > Report a bug) */
+.config-menu .bug-item { display: flex; align-items: center; gap: 8px; }
+.bugrep { position: fixed; inset: 0; z-index: 100000; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.6); padding: 8px; box-sizing: border-box; }
+.bugrep[hidden] { display: none; }
+.br-box { background: #1c1a17; color: #f3eee6; border: 1px solid #4a4238; border-radius: 14px; width: min(100%, 560px); max-height: 100%; overflow-y: auto; padding: 12px 14px; box-sizing: border-box; font: 14px/1.35 system-ui, -apple-system, sans-serif; }
+.br-head { display: flex; align-items: center; justify-content: space-between; margin: 0 0 8px; }
+.br-head h2 { font-size: 17px; margin: 0; }
+.br-x { background: none; border: 0; color: inherit; font-size: 20px; min-width: 40px; min-height: 40px; cursor: pointer; }
+.br-lbl { display: block; font-weight: 600; margin: 8px 0 4px; }
+.br-sev { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.br-sev button { min-height: 48px; border-radius: 10px; border: 2px solid #5a5045; background: #2a2622; color: inherit; font: 600 14px/1.2 system-ui, sans-serif; padding: 6px; cursor: pointer; }
+.br-sev button[aria-checked="true"] { border-color: var(--copper, #e0a050); background: #4a3a26; }
+.br-prompt { color: #f0b860; font-size: 13px; margin: 4px 0 0; }
+.br-prompt[hidden] { display: none; }
+.br-desc { width: 100%; box-sizing: border-box; min-height: 64px; border-radius: 8px; border: 1px solid #5a5045; background: #12110f; color: inherit; font: 14px/1.35 system-ui, sans-serif; padding: 6px 8px; resize: vertical; }
+.br-shot { display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap; }
+.br-thumb { max-width: 160px; max-height: 110px; border: 1px solid #5a5045; border-radius: 6px; background: #000; }
+.br-thumb[hidden] { display: none; }
+.br-shot-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.br-btn { min-height: 40px; border-radius: 8px; border: 1px solid #5a5045; background: #2a2622; color: inherit; font: 600 13px/1.2 system-ui, sans-serif; padding: 6px 10px; cursor: pointer; }
+.br-btn[hidden] { display: none; }
+.br-btn:disabled { opacity: .45; cursor: not-allowed; }
+.br-submit { background: var(--copper, #e0a050); color: var(--copper-ink, #1a1206); border-color: transparent; font-size: 15px; min-height: 46px; }
+.br-ctx { margin: 0; padding: 6px 8px; max-height: 120px; overflow: auto; background: #12110f; border: 1px solid #3a342d; border-radius: 8px; font: 11px/1.35 ui-monospace, monospace; white-space: pre-wrap; color: #c9c0b3; user-select: text; }
+.br-acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; align-items: center; }
+.br-status { font-size: 13px; color: #9fd98f; min-height: 1em; margin: 6px 0 0; }
+.br-fallback { width: 100%; box-sizing: border-box; min-height: 90px; font: 11px/1.3 ui-monospace, monospace; background: #12110f; color: inherit; margin-top: 6px; }
+.br-fallback[hidden] { display: none; }
+.br-file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -2017,7 +2057,8 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
         <div class="cfg-pa"><button id="playAlongBtn" type="button" role="menuitemcheckbox" aria-checked="true" class="cfg-toggle on"><span>Play along enable</span><span class="tgl" aria-hidden="true"></span></button><button id="playAlongQ" type="button" class="cfg-q" aria-label="What is Play along?" title="What is Play along?" aria-expanded="false" aria-controls="playAlongTip">?</button></div>
         <p id="playAlongTip" class="cfg-tip" hidden>When on, tap the marked next chord, or in Full mode its root key in any octave, and the song moves on like Next. In Kids, tap the gold pad or the gold key in any octave. Not during Play. When off, taps only play sound.</p>
         <button id="paHintsBtn" type="button" role="menuitemcheckbox" aria-checked="true" class="cfg-toggle cfg-sub on"><span>Show hints</span><span class="tgl" aria-hidden="true"></span></button>
-        <div class="cfg-help"><span class="cfg-lbl">Help</span><button id="tourBtn" type="button" role="menuitem">Tour</button></div>
+        <button id="kbOctBtn" type="button" role="menuitem" class="cfg-toggle cfg-kbo"><span>Keyboard</span><b id="kbOctVal">1 octave</b></button><div class="cfg-help"><span class="cfg-lbl">Help</span><button id="tourBtn" type="button" role="menuitem">Tour</button></div>
+        <button id="bugBtn" type="button" role="menuitem" class="bug-item"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="8" height="14" rx="4"/><path d="M12 20v-9M9 7l-2-3M15 7l2-3M8 12H4M20 12h-4M8 17l-3 2M16 17l3 2M8 9l-3-1M16 9l3-1"/></svg><span>Report a bug</span></button>
         <button id="factoryReset" type="button" role="menuitem" class="danger">Factory reset</button>
         <div id="appVersion" class="app-version" aria-live="off"></div>
       </div>
@@ -2028,12 +2069,12 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
     <div class="ht-box">
       <div class="ht-bar"><button type="button" class="ht-x" aria-label="Close">&#10005;</button></div>
       <section class="ht-intro">
-      <img class="ht-shot" src="images/howto-00-intro.webp?v=112.3" alt="Touch Chord on a phone in Simple mode: Now, key, Sustain and the chord grid" width="1170" height="540" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-00-intro.webp?v=113" alt="Touch Chord on a phone in Simple mode: Now, key, Sustain and the chord grid" width="1170" height="540" loading="lazy" decoding="async">
       <p class="ht-why">Welcome to Touch Chord. Every song that ever stayed with you, the one from a summer night or a long drive home, began with a few chords that belonged together. Touch Chord is your chord progression generator. You have a family of chords at your fingertips, ones that have always known how to harmonize with each other.</p>
       <p class="ht-why ht-thanks">Thank you for being here. May you find your expression in music, and create something amazing.</p></section>
       <ol class="ht-steps">
       <li><section><h3><span class="ht-num">1.</span> Play chord progressions</h3>
-      <img class="ht-shot" src="images/howto-01-progressions.webp?v=112.3" alt="Simple mode: key (1), Major (2), the Four-Chord picker with Next and Play (3), and the Dm chord (4)" width="1170" height="540" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-01-progressions.webp?v=113" alt="Simple mode: key (1), Major (2), the Four-Chord picker with Next and Play (3), and the Dm chord (4)" width="1170" height="540" loading="lazy" decoding="async">
       <ol class="ht-sub">
         <li><b>Select <a class="ht-term" href="#gl-key">key</a>.</b> Swipe the <a class="ht-term" href="#gl-note">note</a> to choose your song&#8217;s home.</li>
         <li><b>Choose <a class="ht-term" href="#gl-key">Major</a> or <a class="ht-term" href="#gl-key">Minor</a>.</b> <a class="ht-term" href="#gl-key">Major</a> sounds happy, and <a class="ht-term" href="#gl-key">Minor</a> sounds sad.</li>
@@ -2044,35 +2085,35 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
       <p class="cap">Tap <b>Next</b> to play the <a class="ht-term" href="#gl-chord">chords</a> one at a time, or <b>Play</b> to hear the whole <a class="ht-term" href="#gl-progression">progression</a>. The <a class="ht-term" href="#gl-chord">chord</a> that is playing grows a little, so you can follow along. In Full mode, a dashed outline gently marks the <a class="ht-term" href="#gl-chord">chord</a> that <b>Play</b> will sound next.</p>
       <p class="cap">The next <a class="ht-term" href="#gl-chord">chord</a> has a gold outline. With <b>Play along</b> on in the gear menu, tap that <a class="ht-term" href="#gl-chord">chord</a>, or in Full mode its root key, and it moves on just like <b>Next</b>.</p></section></li>
       <li><section><h3><span class="ht-num">2.</span> Sustain</h3>
-      <img class="ht-shot" src="images/howto-02-sustain.webp?v=112.3" alt="Play a chord (1), then hold Sustain (2)" width="1170" height="540" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-02-sustain.webp?v=113" alt="Play a chord (1), then hold Sustain (2)" width="1170" height="540" loading="lazy" decoding="async">
       <p class="cap">Play a <a class="ht-term" href="#gl-chord">chord</a> <span class="ht-num">1</span>, then hold <b>Sustain</b> <span class="ht-num">2</span>, and the <a class="ht-term" href="#gl-note">notes</a> keep ringing. Let go, and they gently fade away.</p></section></li>
       <li><section><h3><span class="ht-num">3.</span> Style</h3>
-      <img class="ht-shot" src="images/howto-03-style.webp?v=112.3" alt="The style buttons at the top, lit" width="1170" height="540" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-03-style.webp?v=113" alt="The style buttons at the top, lit" width="1170" height="540" loading="lazy" decoding="async">
       <p class="cap">Tap a style. It changes the sound and the <a class="ht-term" href="#gl-chord">chords</a>.</p></section></li>
       <li><section><h3><span class="ht-num">4.</span> Understand the suggestion grid</h3>
-      <img class="ht-shot" src="images/howto-04-grid.webp?v=112.3" alt="The suggestion grid, lit" width="1170" height="540" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-04-grid.webp?v=113" alt="The suggestion grid, lit" width="1170" height="540" loading="lazy" decoding="async">
       <p class="cap">The <a class="ht-term" href="#gl-chord">chords</a> in the grid are picked just for you, and every one sounds good in your <a class="ht-term" href="#gl-key">key</a> and <a class="ht-term" href="#gl-style">style</a>. Happy <a class="ht-term" href="#gl-chord">chords</a> sit above the row of notes <span class="ht-face ht-face-happy" role="img" aria-label="happy face, arrow up"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="8.6" cy="9.6" r="1.2"/><circle class="eye" cx="15.4" cy="9.6" r="1.2"/><path d="M7.6 14.2c1.1 1.9 2.6 2.8 4.4 2.8s3.3-.9 4.4-2.8"/></svg><svg class="ar" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 13V2M2 6l4-4 4 4"/></svg></span>, and sad ones sit below it <span class="ht-face ht-face-sad" role="img" aria-label="sad face, arrow down"><svg class="ar" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 1v11M2 8l4 4 4-4"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="8.6" cy="9.6" r="1.2"/><circle class="eye" cx="15.4" cy="9.6" r="1.2"/><path d="M7.6 17.2c1.1-1.9 2.6-2.8 4.4-2.8s3.3.9 4.4 2.8"/></svg></span>. The faces are only a guide here in How to; they are no longer shown beside the grid, and they are not buttons. Tap any <a class="ht-term" href="#gl-chord">chord</a> to play it, and the grid shows you what could come next. Swipe the <a class="ht-term" href="#gl-key">key</a> left to go lower, or right to go higher.</p></section></li>
       <li><section><h3><span class="ht-num">5.</span> Make a chord <span class="ht-pill">Full mode</span></h3>
-      <img class="ht-shot" src="images/howto-05-make-chord.webp?v=112.3" alt="Full mode: hold maj7 (1), press A (2), Now reads Amaj7" width="1170" height="540" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-05-make-chord.webp?v=113" alt="Full mode: hold maj7 (1), press A (2), Now reads Amaj7" width="1170" height="540" loading="lazy" decoding="async">
       <p class="cap">Want to make your own <a class="ht-term" href="#gl-chord">chord</a>? For A major <span class="ht-num">7</span>, hold <b>Major <span class="ht-num">7</span></b> in the chord table. Then press <b>A</b> and hear it come alive. Try any shape on any <a class="ht-term" href="#gl-note">note</a>, and explore.</p></section></li>
       <li><section><h3><span class="ht-num">6.</span> Full Range <span class="ht-pill">Full mode</span></h3>
-      <img class="ht-shot" src="images/howto-06-fullrange.webp?v=112.3" alt="Full mode: the Full Range button (1), left side under the key" width="1170" height="540" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-06-fullrange.webp?v=113" alt="Full mode: the Full Range button (1), left side under the key" width="1170" height="540" loading="lazy" decoding="async">
       <p class="cap">Tap <b>Full Range</b> to unlock every key and <a class="ht-term" href="#gl-chord">chord</a>, even the ones outside your <a class="ht-term" href="#gl-key">key</a>.</p></section></li>
       <li><section><h3><span class="ht-num">7.</span> Keyboard <span class="ht-pill">Full mode</span></h3>
-      <img class="ht-shot" src="images/howto-07-keyboard.webp?v=112.3" alt="Full mode: Layout (1) opens Octave, Piano, Fourths and Full (2)" width="1170" height="540" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-07-keyboard.webp?v=113" alt="Full mode: Layout (1) opens Octave, Piano, Fourths and Full (2)" width="1170" height="540" loading="lazy" decoding="async">
       <p class="cap">Open <b>Layout</b> to choose your keys. <b>Octave</b> shows one octave that starts on your <a class="ht-term" href="#gl-key">key</a>, low <a class="ht-term" href="#gl-note">notes</a> on the left. <b>Full</b> shows the whole two-octave keyboard. Keys light up exactly as they sound, and the keyboard stays put while you tap. The app remembers your choice.</p></section></li>
       <li><section><h3><span class="ht-num">8.</span> Band <span class="ht-pill">Full mode</span></h3>
-      <img class="ht-shot" src="images/howto-08-band.webp?v=112.3" alt="Full mode: Sound (1) opens the panel; the Band slider under Voicing (2), Off at 0" width="1170" height="540" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-08-band.webp?v=113" alt="Full mode: Sound (1) opens the panel; the Band slider under Voicing (2), Off at 0" width="1170" height="540" loading="lazy" decoding="async">
       <p class="cap">Open <b>Sound</b>. Under Voicing, slide <b>Band</b> to the right to add bass and drums: 0 is off, 1 to 100 sets how loud. The app remembers your level.</p></section></li>
       <li><section><h3><span class="ht-num">9.</span> Upload a song <span class="ht-pill">Full mode</span></h3>
-      <img class="ht-shot" src="images/howto-09-upload.webp?v=112.3" alt="Full mode: the Simple switch at the top is off (1); the upload button, a small up-arrow icon right of Full Range (2)" width="1170" height="540" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-09-upload.webp?v=113" alt="Full mode: the Simple switch at the top is off (1); the upload button, a small up-arrow icon right of Full Range (2)" width="1170" height="540" loading="lazy" decoding="async">
       <p class="cap">Upload is in Full mode. If the <b>Simple</b> switch at the top is on, tap it to turn it off <span class="ht-num">1</span>. Then tap the <b>Upload</b> button <span class="ht-num">2</span>: the small square button with an arrow pointing up, on the left side of the screen. On a phone it sits just right of <b>Full Range</b>, under <b>Play</b>. On a tablet or computer it sits just right of <b>Play</b>.</p>
-      <img class="ht-shot" src="images/howto-09b-upload-form.webp?v=112.3" alt="The Upload song form: Song title and Artist (1), Copy for AI (2), the box for the AI's answer (3), Load (4)" width="1170" height="540" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-09b-upload-form.webp?v=113" alt="The Upload song form: Song title and Artist (1), Copy for AI (2), the box for the AI's answer (3), Load (4)" width="1170" height="540" loading="lazy" decoding="async">
       <p class="cap">Type a <b>Song title</b> and the <b>Artist</b> <span class="ht-num">1</span>. Leave the title empty to get up to 20 songs by the artist. Tap <b>Copy for AI</b> <span class="ht-num">2</span> and paste it into any AI. Paste its answer in the box <span class="ht-num">3</span> and tap <b>Load</b> <span class="ht-num">4</span>. The result shows right under <b>Load</b>.</p>
       <p class="cap">Your songs are listed under <b>My songs</b>. Tap a song to play it. Tap the pencil to see its chords and words, or the trash can to remove it.</p>
       <p class="cap">When a song has words, two lines show above the <a class="ht-term" href="#gl-chord">chords</a>: the line you are singing, and the next one. They scroll up as the song moves on.</p></section></li>
       <li><section><h3><span class="ht-num">10.</span> Kids</h3>
-      <img class="ht-shot" src="images/howto-10-kids.webp?v=112.3" alt="Kids (1): the gold pad (2) and the gold key (3) show the next note; the words show above the pads" width="1170" height="540" loading="lazy" decoding="async">
+      <img class="ht-shot" src="images/howto-10-kids.webp?v=113" alt="Kids (1): the gold pad (2) and the gold key (3) show the next note; the words show above the pads" width="1170" height="540" loading="lazy" decoding="async">
       <p class="cap">Tap <b>Kids</b> for big, friendly <a class="ht-term" href="#gl-chord">chords</a> and sing-along songs: Twinkle, Mary&#8217;s Lamb, Row Your Boat, Old MacDonald, Itsy Bitsy Spider, London Bridge, Hey Diddle Diddle, Head, Shoulders, Knees and Toes, Baa, Baa, Black Sheep and Hickory Dickory Dock. Seven big pads play a happy (major) <a class="ht-term" href="#gl-chord">chord</a> on each <a class="ht-term" href="#gl-note">note</a> of the <a class="ht-term" href="#gl-key">key</a>. The gold pad and the gold key follow the tune: tap either one, or that key in any octave, to play the next <a class="ht-term" href="#gl-note">note</a>, and the words show which one you are singing. This needs <b>Play along</b> on in the gear menu.</p></section></li>
       </ol>
       <section class="ht-words" aria-labelledby="htWordsH">
@@ -2643,7 +2684,7 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
 <script>
 "use strict";
 // Bump every build. Shown in Config so a cached copy reports its real version.
-var APP_VERSION = "112.3";   // display only ("Version 112.3")
+var APP_VERSION = 113;   // display only ("Version 113")
 document.addEventListener("DOMContentLoaded", function () {
   var v = document.getElementById("appVersion");
   if (v) v.textContent = "Version " + APP_VERSION;
@@ -6864,7 +6905,7 @@ function accSym(s) {
     magicReset();   // v68: key / mode / style change: the walk starts again
     // v109: Kids has no minor songs: a minor key (Minor tap, an old saved minor Kids song) goes back to the
     // picked song's own key, or Twinkle's (C major) when the name is unknown.
-    if (state.style === "kids" && key.mode === "minor" && !PROGRESSIONS.kids.minor.length && !kidsKeyFixT) {
+    if (state.style === "kids" && key.mode === "minor" && !PROGRESSIONS.kids.minor.length && !kidsKeyFixT && !kidsMinorPicked) {
       kidsKeyFixT = setTimeout(function () {
         kidsKeyFixT = 0;
         if (state.style !== "kids" || !prog.key || prog.key.mode !== "minor") return;
@@ -6875,6 +6916,9 @@ function accSym(s) {
     }
   }
   var kidsKeyFixT = 0;
+  // v112.2: a Major/Minor tap keeps its root and quality in Kids too (the snap-back above is only for
+  // an old saved minor Kids song); cleared on a style change or a song pick.
+  var kidsMinorPicked = false;
 
   // Badges (1, 2, 3...) on the chips / notes that play each step; a step chord that is not on
   // the strip gets a temporary dashed chip in its root's column (or half column).
@@ -7098,6 +7142,7 @@ function accSym(s) {
   // Presets: playing = the step after the lit one (none in the random part); stopped = the queued Next chord.
   function nxNow() {
     if (typeof magic === "undefined" || !magic || !prog.steps.length) return null;
+    if (fullKeyFresh && !state.simple && state.style !== "kids") return null;   // v113 (5)
     var item = null, el = null, sig = "", n = prog.steps.length;
     if (state.style === "kids") {
       item = kidsHintItem();
@@ -7358,6 +7403,7 @@ function accSym(s) {
   function magicAdvance() {
     if (!prog.steps.length) return;
     paHintAdvanced();   // v112: an advance resets the miss run and lets every hint show again
+    fullKeyFresh = false;   // v113 (5)
     progStop();
     upNxOff = false;
     progLockKey();
@@ -7379,6 +7425,7 @@ function accSym(s) {
     progLockKey();
     magic.pos = s + 1;
     magic.next = null;
+    fullKeyFresh = false;   // v113 (5)
     upNxOff = false;
     magicPlay(prog.steps[s].item, 1, s);
     magic.hint = true;
@@ -7763,6 +7810,7 @@ function accSym(s) {
     clearNextHintDom();
     if (typeof magic === "undefined" || !magic) return;
     if (state.style === "kids") { paintKidsHint(); return; }
+    if (fullKeyFresh) return;   // v113 (5): no auto next chord at the key after a key pick in Full
     if (!magic || state.simple || prog.playing) return;   // first-load fix: no magic.hint gate (it was only set by a Next / badge tap)
     var d = magicQueue();
     if (!d) return;
@@ -7976,6 +8024,8 @@ function accSym(s) {
     var n = prog.list.length;
     if (!n) return;
     paMiss = 0;   // v112: a new song starts a new miss run
+    fullKeyFresh = false;   // v113 (5)
+    kidsMinorPicked = false;
     progStop();
     ChordAudio.band.hush();   // v104: a new song starts without the old Band tail
     prog.idx = ((i % n) + n) % n;
@@ -8456,6 +8506,16 @@ function accSym(s) {
   // v73: a LOCKED song also stays in Simple (Next / Play keep walking it; the song bar / Upload stay hidden there).
   function upInList() { return !!U && state.style !== "kids" && (!state.simple || !!U.locked); }
   function upSelected() { var p = prog.list[prog.idx]; return !!(p && p.up && U); }
+  // Bug report: read-only app context (no secrets, nothing sent anywhere by itself).
+  window.TCBugCtx = function () {
+    var k = activeKey() || prog.key || null, p = prog.list[prog.idx], bandEl = document.getElementById("band");
+    return {
+      style: state.style, mode: state.simple ? "Simple" : "Full",
+      key: k ? keyLabel(k) : "(none yet)", keyPc: k ? k.pc : null, keyQuality: k ? k.mode : null,
+      song: p ? p.name : "", songUpload: !!upSelected(),
+      band: bandEl ? +bandEl.value : null, fullRange: !!state.allKeys
+    };
+  };
   function songTempo() { return upSelected() ? { bpm: U.bpm, bpb: U.bpb, ts: U.ts } : null; }
   // Bar length for the Play autoplay (factory progressions: PROG_BAR, 80 BPM 4/4).
   function progLoopBar() { var t = songTempo(); return t ? t.bpb * 60 / t.bpm : PROG_BAR; }
@@ -9858,7 +9918,9 @@ function accSym(s) {
   // v52: Simple key control. Drag/swipe right = up a semitone, left = down (wraps);
   // the arrows do the same; the mode button flips Major/Minor. Sets the key lock.
   function kidKey() { return activeKey() || { pc: 0, mode: "major" }; }
+  var fullKeyFresh = false;   // v113 (5): Full, key just picked: no next-chord mark until Next / Play / a song pick
   function setKidKey(pc, mode) {
+    fullKeyFresh = !state.simple && state.style !== "kids";
     setLockKey({ pc: wrap12(pc), mode: mode });
     scheduleSave(0);
   }
@@ -9874,8 +9936,10 @@ function accSym(s) {
     var mb = box.querySelector(".kk-mode");
     var minor = k.mode === "minor";
     mb.classList.toggle("major", !minor); mb.classList.toggle("minor", minor);
-    mb.setAttribute("aria-label", (minor ? "Minor" : "Major") + " key, tap for " + (minor ? "major" : "minor"));
-    mb.querySelector(".kk-mtxt").textContent = minor ? "Minor" : "Major";
+    var kidsLbl = state.style === "kids";   // v113 (3): Kids reads Happy (major) / Sad (minor)
+    var lMaj = kidsLbl ? "Happy" : "Major", lMin = kidsLbl ? "Sad" : "Minor";
+    mb.setAttribute("aria-label", (minor ? lMin : lMaj) + " key, tap for " + (minor ? lMaj : lMin).toLowerCase());
+    mb.querySelector(".kk-mtxt").textContent = minor ? lMin : lMaj;
     var face = minor ? STRIP_ICONS[1] : STRIP_ICONS[0];
     var fs = face.svg.replace(/<svg class="ss-arrow"[\s\S]*?<\/svg>/, "");
     if (mb.dataset.face !== k.mode) { mb.querySelector(".kk-face").innerHTML = fs; mb.dataset.face = k.mode; }
@@ -9925,6 +9989,7 @@ function accSym(s) {
     box.querySelector(".kk-mode").addEventListener("click", function () {
       unlock();
       var k = kidKey();
+      kidsMinorPicked = k.mode !== "minor";
       setKidKey(k.pc, k.mode === "minor" ? "major" : "minor");
     });
     paintKidKey();
@@ -9971,6 +10036,7 @@ function accSym(s) {
     Array.prototype.forEach.call(pick.querySelectorAll(".kp-modes button"), function (b) {
       b.addEventListener("click", function () {
         var k = sel || activeKey() || { pc: 0, mode: "major" };
+        kidsMinorPicked = b.dataset.mode === "minor";
         sel = { pc: k.pc, mode: b.dataset.mode }; setLockKey(sel); paint();
       });
     });
@@ -9983,7 +10049,7 @@ function accSym(s) {
       updateSymbol();
       scheduleSave(0);
     });
-    document.getElementById("keyChip").addEventListener("click", function () { sel = null; paint(); pick.hidden = false; });
+    // v113 (5): the Key chip picker flow is retired (the chip is hidden); every mode uses the root + Major/Minor control.
     var ht = document.getElementById("howto");
     function closeHt() { ht.hidden = true; }
     document.getElementById("howtoBtn").addEventListener("click", function () { ht.hidden = false; ht.querySelector(".ht-x").focus(); });
@@ -10230,6 +10296,7 @@ function accSym(s) {
       if (!b || !b.dataset.style) return;
       var changed = b.dataset.style !== state.style;
       var leftKids = state.style === "kids" && b.dataset.style !== "kids";
+      kidsMinorPicked = false;
       state.style = b.dataset.style;
       if (leftKids && magic) magic.hint = false;   // v71: leaving Kids clears its next-note hint
       if (state.style === "kids") {
@@ -10252,13 +10319,27 @@ function accSym(s) {
         paintSuggestions(computeSpec());
       }
       if (state.style === "kids" && prog.idx !== 0) progSet(0);   // v71: picking Kids starts on Twinkle
+      if (changed && state.style === "kids") {   // v113 (2): every switch into Kids = the song's key (Twinkle C major)
+        var sk2 = KIDS_SONG_KEY[(prog.list[prog.idx] || {}).name] || KIDS_SONG_KEY["Kids Twinkle"];
+        applySongKey(sk2[0], sk2[1]);
+      }
+      fullKeyFresh = false;
+      paintKidKey();   // v113 (3): Happy / Sad only in Kids
       if (leftKids && U && U.locked && U.keep && upInList()) { for (var ui = 0; ui < prog.list.length; ui++) if (prog.list[ui].up) { progSet(ui); break; } }   // v73 Lock
     });
 
+    document.getElementById("kbOctBtn").addEventListener("click", function (e) {   // v113 (4): same as Layout Octave / Full
+      e.stopPropagation();
+      var want = state.layout === "full" ? "octave" : "full";
+      var lb = document.querySelector('#layouts button[data-layout="' + want + '"]');
+      if (lb) lb.click();
+      paintKbOct();
+    });
     document.getElementById("layouts").addEventListener("click", function (e) {
       var b = e.target.closest("button");
       if (!b || !b.dataset.layout) return;
       state.layout = b.dataset.layout;
+      setTimeout(paintKbOct, 0);
       var all = document.querySelectorAll("#layouts button[data-layout]");
       for (var i = 0; i < all.length; i++) all[i].classList.toggle("on", all[i] === b);
       // Pads DOM is rebuilt below; dump any pooled rings so stale groups die.
@@ -10606,6 +10687,15 @@ function accSym(s) {
   }
 
   // Push a settings object into state, controls and audio. Caller re-renders.
+  function paintKbOct() {   // v113 (4)
+    var v = document.getElementById("kbOctVal"), b = document.getElementById("kbOctBtn");
+    if (!v) return;
+    var two = state.layout === "full";
+    v.textContent = two ? "2 octaves" : "1 octave";
+    b.setAttribute("aria-label", "Keyboard: " + (two ? "2 octaves" : "1 octave") + (state.simple ? " in Full mode (Simple is always 1 octave)" : "") + ", tap to change");
+    b.title = state.simple ? "Simple always shows 1 octave; this sets Full mode" : "Full mode keyboard size";
+  }
+  if (PROG_TEST) window.__kbOct = function () { return { layout: state.layout, eff: effectiveLayout(), keys: document.querySelectorAll("#pads .pad").length }; };
   function applySettings(s) {
     state.progNums = !!s.progNums;
     paintProgNumsBtn();
@@ -10621,7 +10711,10 @@ function accSym(s) {
     if (s.keyMode) lockKey = { pc: s.keyRoot, mode: s.keyScale === "minor" ? "minor" : "major" };
     // v52: Simple picks up where it left off (its key control has no Auto); full mode
     // keeps its old behaviour (the first chord sets the key).
-    else if (s.simple) lockKey = s.lockKey || { pc: 0, mode: "major" };
+    else lockKey = s.lockKey || { pc: 0, mode: "major" };   // v113 (5): one key control in every mode, no Auto
+    if (s.style === "kids") {   // v113 (2): opening the app in Kids starts in the song's key (Twinkle = C major)
+      var tk = KIDS_SONG_KEY["Kids Twinkle"]; lockKey = { pc: namePc(tk[0]), mode: tk[1] }; s.keyRoot = lockKey.pc; s.keyScale = tk[1];
+    }
     state.keyMode = false;
     state.keyRoot = s.keyRoot;
     state.keyScale = s.keyScale;
@@ -10636,6 +10729,7 @@ function accSym(s) {
     dumpSustain();
 
     markOn("#layouts", "layout", s.layout);
+    paintKbOct();
     paintSustainBtn();
     markOn("#styles", "style", s.style);
     state.keySpell = s.keySpell || {};
@@ -10764,6 +10858,7 @@ function accSym(s) {
     }
     btn.addEventListener("click", function (e) {
       e.stopPropagation();
+      paintKbOct();
       setOpen(menu.hidden);
       if (!menu.hidden) document.getElementById("factoryReset").focus({ preventScroll: true });
     });
@@ -11029,5 +11124,229 @@ function accSym(s) {
   <div class="tour-dim"></div><div class="tour-hole"></div><div class="tour-num"></div>
   <div class="tour-card"><p class="tour-text" id="tourText"></p><div class="tour-foot"><span class="tour-step"></span><button type="button" class="tour-btn tour-skip">Skip</button><button type="button" class="tour-btn pri tour-next">Next</button></div></div>
 </div>
+<div id="bugrep" class="bugrep" role="dialog" aria-modal="true" aria-labelledby="brTitle" hidden>
+  <div class="br-box">
+    <div class="br-head"><h2 id="brTitle">Report a bug</h2><button type="button" class="br-x" id="brClose" aria-label="Close">&#10005;</button></div>
+    <span class="br-lbl" id="brSevLbl">What went wrong? <span aria-hidden="true">*</span></span>
+    <div class="br-sev" id="brSev" role="radiogroup" aria-labelledby="brSevLbl" aria-required="true">
+      <button type="button" role="radio" aria-checked="false" data-sev="crash">App crashed or froze</button>
+      <button type="button" role="radio" aria-checked="false" data-sev="broken">Something doesn&#8217;t work</button>
+      <button type="button" role="radio" aria-checked="false" data-sev="sound">Sound is wrong</button>
+      <button type="button" role="radio" aria-checked="false" data-sev="looks">Looks wrong</button>
+    </div>
+    <p class="br-prompt" id="brPrompt">Pick one above to send.</p>
+    <label class="br-lbl" for="brDesc">What happened?</label>
+    <textarea id="brDesc" class="br-desc" maxlength="3000" placeholder="What did you do, what did you expect, and what happened?"></textarea>
+    <span class="br-lbl">Screenshot <span style="font-weight:400">(optional)</span></span>
+    <div class="br-shot">
+      <img id="brThumb" class="br-thumb" alt="Screenshot of the app before this form opened" hidden>
+      <div class="br-shot-btns">
+        <button type="button" class="br-btn" id="brRetake">Retake</button>
+        <button type="button" class="br-btn" id="brRemove">Remove</button>
+        <button type="button" class="br-btn" id="brAttach">Attach image</button>
+        <input type="file" id="brFile" class="br-file" accept="image/*" tabindex="-1" aria-hidden="true">
+      </div>
+    </div>
+    <span class="br-lbl">Sent with the report</span>
+    <pre id="brCtx" class="br-ctx" aria-readonly="true"></pre>
+    <div class="br-acts">
+      <button type="button" class="br-btn br-submit" id="brSubmit" disabled>Submit (GitHub)</button>
+      <button type="button" class="br-btn" id="brCopy">Copy report</button>
+      <button type="button" class="br-btn" id="brCopyShot">Copy screenshot</button>
+      <button type="button" class="br-btn" id="brEmail">Email</button>
+    </div>
+    <p class="br-status" id="brStatus" role="status" aria-live="polite"></p>
+    <textarea id="brFallback" class="br-fallback" readonly hidden aria-label="Report text, select all and copy"></textarea>
+  </div>
+</div>
+<script>
+"use strict";
+(function () {
+  var REPO_NEW = "https://github.com/DigitalFarmer420/touch-chord-dev/issues/new";
+  var MAIL = "vinteedle@gmail.com", MAX_URL = 7000;
+  var SEV = { crash: "App crashed or froze", broken: "Something doesn\u2019t work", sound: "Sound is wrong", looks: "Looks wrong" };
+  var TEST = /[?&]test=1(&|$)/.test(location.search);
+  var dlg = document.getElementById("bugrep"), $ = function (id) { return document.getElementById(id); };
+  var desc = $("brDesc"), thumb = $("brThumb"), ctxEl = $("brCtx"), status = $("brStatus"), fb = $("brFallback");
+  var sev = null, shot = null, shotURL = "", ctx = null, lastFocus = null, libP = null, capN = 0;
+  var T = { downloads: [], clip: [], opened: [], capErr: null };
+
+  function buildCommit() { var m = document.querySelector('meta[name="tc-build"]'); return m ? m.content : ""; }
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function stamp(d) { return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + "-" + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds()); }
+  function gather() {
+    var a = (window.TCBugCtx ? window.TCBugCtx() : {}) || {}, now = new Date(), ua = navigator.userAgent || "";
+    var plat = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || "";
+    var c = buildCommit();
+    return {
+      version: (typeof APP_VERSION !== "undefined" ? APP_VERSION : "?") + (c ? " (" + c + ")" : ""),
+      style: a.style || "?", mode: a.mode || "?", key: a.key || "?", keyQuality: a.keyQuality || "",
+      song: a.song || "(none)", band: a.band == null ? "?" : (a.band ? String(a.band) : "Off"),
+      fullRange: a.fullRange ? "on" : "off",
+      screen: innerWidth + "x" + innerHeight + " @" + (window.devicePixelRatio || 1) + "x, " + (innerWidth >= innerHeight ? "landscape" : "portrait"),
+      ua: ua, platform: plat, time: now.toISOString(), stamp: stamp(now)
+    };
+  }
+  function ctxText(c) {
+    return ["Version: " + c.version, "Style: " + c.style + " | Mode: " + c.mode, "Key: " + c.key, "Song: " + c.song,
+      "Band: " + c.band + " | Full Range: " + c.fullRange, "Screen: " + c.screen, "Platform: " + c.platform,
+      "User agent: " + c.ua, "Time: " + c.time].join("\n");
+  }
+  function title() {
+    var d = desc.value.trim().replace(/\s+/g, " ");
+    return "[" + (sev || "bug") + "] " + (d ? (d.length > 70 ? d.slice(0, 67) + "..." : d) : SEV[sev] || "Bug report") + " (v" + (typeof APP_VERSION !== "undefined" ? APP_VERSION : "?") + ")";
+  }
+  function report(forIssue, d) {
+    d = d == null ? desc.value.trim() : d;
+    var s = ["**Severity: [" + (sev || "none") + "] " + (SEV[sev] || "not picked") + "**", "", "### What happened", d || "_(no description)_", "",
+      "### Context", "```", ctxText(ctx), "```"];
+    if (shot) s.push("", forIssue ? "Screenshot: paste with Ctrl/Cmd+V or drag the downloaded file touchchord-bug-" + ctx.stamp + ".png here." : "Screenshot: attached separately (use Copy screenshot).");
+    return s.join("\n");
+  }
+  function issueURL() {
+    var d = desc.value.trim(), u;
+    for (var tries = 0; tries < 40; tries++) {
+      u = REPO_NEW + "?title=" + encodeURIComponent(title()) + "&labels=" + encodeURIComponent(sev || "") + "&body=" + encodeURIComponent(report(true, d));
+      if (u.length <= MAX_URL) return u;
+      d = d.slice(0, Math.max(0, Math.floor(d.length * 0.8) - 20)) + " [cut, see copied report]";
+    }
+    return u;
+  }
+  function say(t) { status.textContent = t; }
+  function paintSev() {
+    [].forEach.call($("brSev").children, function (b) { b.setAttribute("aria-checked", b.dataset.sev === sev ? "true" : "false"); });
+    $("brSubmit").disabled = !sev; $("brPrompt").hidden = !!sev;
+  }
+  function paintShot() {
+    thumb.hidden = !shot; if (shot) thumb.src = shotURL;
+    $("brRemove").hidden = !shot; $("brCopyShot").disabled = !shot;
+  }
+  function setShot(blob) {
+    if (shotURL) URL.revokeObjectURL(shotURL);
+    shot = blob || null; shotURL = shot ? URL.createObjectURL(shot) : ""; paintShot();
+  }
+  function lib() {
+    if (window.htmlToImage) return Promise.resolve(window.htmlToImage);
+    if (!libP) libP = new Promise(function (res, rej) {
+      var s = document.createElement("script"); s.src = "vendor/html-to-image.min.js?v=" + (typeof APP_VERSION !== "undefined" ? APP_VERSION : "");
+      s.onload = function () { window.htmlToImage ? res(window.htmlToImage) : rej(new Error("no lib")); };
+      s.onerror = function () { libP = null; rej(new Error("lib load failed")); };
+      document.head.appendChild(s);
+    });
+    return libP;
+  }
+  // Snap the app as it is (the form is hidden while snapping). PNG at the screen size.
+  function capture() {
+    var n = ++capN, w = innerWidth, h = innerHeight, pr = Math.min(window.devicePixelRatio || 1, 2);
+    return lib().then(function (L) {
+      var bg = getComputedStyle(document.body).backgroundColor;
+      return L.toBlob(document.body, { width: w, height: h, canvasWidth: w, canvasHeight: h, pixelRatio: pr, skipFonts: true, cacheBust: false,
+        backgroundColor: bg && bg !== "rgba(0, 0, 0, 0)" ? bg : "#151310",
+        style: { margin: "0", transform: "translate(" + (-scrollX) + "px," + (-scrollY) + "px)" },
+        filter: function (el) { return !(el && (el.id === "bugrep" || el.id === "dev-badge-x")); } });
+    }).then(function (b) {
+      if (n !== capN) return; if (!b) throw new Error("empty"); setShot(b); T.capErr = null; say("");
+    }).catch(function (e) {
+      if (n !== capN) return; T.capErr = String(e && e.message || e); setShot(null); say("Couldn\u2019t take a screenshot. You can attach an image instead.");
+    });
+  }
+  function download(blob, name) {
+    var a = document.createElement("a"), u = URL.createObjectURL(blob);
+    a.href = u; a.download = name; a.rel = "noopener"; a.style.display = "none";
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 30000);
+    T.downloads.push(name);
+  }
+  function copyImage(blob) {
+    try {
+      if (!window.ClipboardItem || !navigator.clipboard || !navigator.clipboard.write) return Promise.resolve(false);
+      return navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]).then(function () { T.clip.push("image"); return true; }, function () { return false; });
+    } catch (e) { return Promise.resolve(false); }
+  }
+  function showFallback(text) { fb.hidden = false; fb.value = text; fb.focus(); fb.select(); }
+  function copyText(text) {
+    function legacy() {
+      showFallback(text);
+      var ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+      if (ok) T.clip.push("text-legacy");
+      say("Select and copy the text below");   // v113: the fallback box is showing, so never "Copied"
+      return ok;
+    }
+    if (!navigator.clipboard || !navigator.clipboard.writeText) return Promise.resolve(legacy());
+    return navigator.clipboard.writeText(text).then(function () { fb.hidden = true; T.clip.push("text"); say("Copied"); return true; }, legacy);
+  }
+  function openURL(u) { T.opened.push(u); var w = window.open(u, "_blank", "noopener"); return w; }
+
+  function submit() {
+    if (!sev) { $("brPrompt").hidden = false; return; }
+    var u = issueURL(), name = "touchchord-bug-" + ctx.stamp + ".png";
+    var win = null;
+    if (!shot) { openURL(u); say("Opened the GitHub issue form."); return; }
+    // Open first (keeps the tap gesture so popups are not blocked), then copy + download.
+    win = openURL(u);
+    download(shot, name);
+    copyImage(shot).then(function (ok) {
+      say(ok ? "Screenshot copied and downloaded. Paste it (Ctrl/Cmd+V) into the issue." : "Screenshot downloaded as " + name + ". Drag it into the issue.");
+    });
+  }
+  function open() {
+    if (!dlg.hidden) return;
+    lastFocus = document.activeElement;
+    var menu = document.getElementById("configMenu"), cb = document.getElementById("configBtn");
+    if (menu && !menu.hidden && cb) cb.click();   // close the gear menu first so it is not in the picture
+    ctx = gather(); ctxEl.textContent = ctxText(ctx);
+    sev = null; desc.value = ""; fb.hidden = true; say(""); paintSev(); setShot(null);
+    // Snap the app as it looked right before the form (form not shown yet), then show the form.
+    requestAnimationFrame(function () {
+      var p = capture();
+      dlg.hidden = false; document.documentElement.classList.add("bugrep-open");
+      desc.focus({ preventScroll: true });
+      T.capP = p;
+    });
+  }
+  function close() {
+    if (dlg.hidden) return;
+    capN++; dlg.hidden = true; document.documentElement.classList.remove("bugrep-open");
+    var cb = document.getElementById("configBtn");
+    try { (cb || lastFocus || document.body).focus({ preventScroll: true }); } catch (e) {}
+  }
+  $("bugBtn").addEventListener("click", function (e) { e.stopPropagation(); open(); });
+  $("brClose").addEventListener("click", close);
+  dlg.addEventListener("pointerdown", function (e) { e.stopPropagation(); if (e.target === dlg) close(); });
+  ["pointerup", "pointermove", "touchstart", "touchend", "mousedown", "click"].forEach(function (t) { dlg.addEventListener(t, function (e) { e.stopPropagation(); }); });
+  // While open: no app keys (no sound, no shortcuts). Escape closes. Tab stays inside.
+  ["keydown", "keyup", "keypress"].forEach(function (t) {
+    window.addEventListener(t, function (e) {
+      if (dlg.hidden) return;
+      if (t === "keydown" && e.key === "Escape") { e.preventDefault(); close(); }
+      else if (t === "keydown" && e.key === "Tab") {
+        var f = [].filter.call(dlg.querySelectorAll("button,textarea,[tabindex]:not([tabindex='-1'])"), function (x) { return !x.disabled && !x.hidden && x.offsetParent; });
+        if (f.length && e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+        else if (f.length && !e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+      }
+      e.stopImmediatePropagation();
+    }, true);
+  });
+  $("brSev").addEventListener("click", function (e) { var b = e.target.closest("[data-sev]"); if (b) { sev = b.dataset.sev; paintSev(); } });
+  $("brRetake").addEventListener("click", function () { capture(); });
+  $("brRemove").addEventListener("click", function () { capN++; setShot(null); say("Screenshot removed."); });
+  $("brAttach").addEventListener("click", function () { $("brFile").click(); });
+  $("brFile").addEventListener("change", function () { var f = this.files && this.files[0]; if (f) { capN++; setShot(f); say("Image attached."); } this.value = ""; });
+  $("brSubmit").addEventListener("click", submit);
+  $("brCopy").addEventListener("click", function () { copyText("## " + title() + "\n\n" + report(false)); });
+  $("brCopyShot").addEventListener("click", function () {
+    if (!shot) return;
+    copyImage(shot).then(function (ok) {
+      if (ok) say("Screenshot copied");
+      else { download(shot, "touchchord-bug-" + ctx.stamp + ".png"); say("This browser can\u2019t copy images, so it was downloaded instead."); }
+    });
+  });
+  $("brEmail").addEventListener("click", function () {
+    var b = report(false); if (b.length > 1800) b = b.slice(0, 1800) + "\n[cut]";
+    location.href = "mailto:" + MAIL + "?subject=" + encodeURIComponent(title()) + "&body=" + encodeURIComponent(b);
+  });
+  if (TEST) window.__bugrep = { open: open, close: close, T: T, ctx: function () { return ctx; }, gather: gather, url: issueURL, title: title,
+    report: report, sev: function () { return sev; }, shot: function () { return shot; }, capture: capture };
+})();
+</script>
 </body>
 </html>
