@@ -4,7 +4,7 @@ const APPV=require('fs').readFileSync(require('path').resolve(__dirname,'../../j
 // Escape = Skip, saved settings = no tour, both sizes. Screenshots of every step.
 const { chromium } = require('playwright-core');const fs=require('fs');
 const U=(process.env.BASE||'http://localhost:8080/index.html');const J=JSON.stringify;
-const TXT=["Hi! Let's play Twinkle Twinkle Little Star.","Tap the gold pad to play the next chord.","Or tap the gold key on the piano. This works too.","The words light up as you go.","Tap Play to hear the whole song.","Pick another song here. There are 10!"];
+const TXT=["Hi! Let's play Twinkle Twinkle Little Star.","Tap the gold pad to play the next chord.","Or tap the gold key on the piano. This works too.","The words light up as you go.","Tap Play to hear the whole song.","Pick another song here. There are 11!"];
 const SEL=[null,'#suggest .ss-kidpad.nx-root','#pads .pad.nx-root','#kidsLyr','#prog .pg-song','#prog .pg-sel'];
 const R={fails:[],count:{}};const F=(c,m)=>{R.count[c?'ok':'FAIL']=(R.count[c?'ok':'FAIL']||0)+1;if(!c)R.fails.push(m)};
 (async()=>{const b=await chromium.launch({executablePath:process.env.CHROME||undefined,});
