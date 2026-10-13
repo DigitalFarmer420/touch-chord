@@ -1,0 +1,15 @@
+{
+  "name": "touch-chord",
+  "private": true,
+  "type": "module",
+  "description": "Touch Chord: static site (no build). package.json only for the tests.",
+  "scripts": {
+    "check-version": "python3 tools/check-version.py",
+    "test:unit": "node --test tests/unit/",
+    "test:smoke": "node tests/e2e/run.cjs",
+    "test": "npm run check-version && npm run test:unit && npm run test:smoke"
+  },
+  "devDependencies": {
+    "playwright-core": "1.64.0"
+  }
+}
