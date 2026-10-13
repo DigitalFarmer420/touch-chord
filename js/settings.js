@@ -35,9 +35,9 @@ export function applySettings(s) {
   ChordAudio.setTrim(styleTrim(s.style));
   // v27: Key mode retired; the key picker is the only key control.
   if (s.keyMode) shared.lockKey = { pc: s.keyRoot, mode: s.keyScale === "minor" ? "minor" : "major" };
-  // v52: Simple picks up where it left off (its key control has no Auto); full mode
-  // keeps its old behaviour (the first chord sets the key).
-  else if (s.simple) shared.lockKey = s.lockKey || { pc: 0, mode: "major" };
+  // v52: Simple picks up where it left off (its key control has no Auto).
+  // v113 (5) port: Full uses the same root + Major/Minor control (no Auto), so it does too.
+  else shared.lockKey = s.lockKey || { pc: 0, mode: "major" };
   state.keyMode = false;
   state.keyRoot = s.keyRoot;
   state.keyScale = s.keyScale;

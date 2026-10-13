@@ -9,7 +9,7 @@ const SUITE = [   // [name, file, args]  (both phone sizes each: the tests loop 
   ['howto112', 'howto112.cjs', []], ['tour112', 'tour112.cjs', []], ['lyrfit111', 'lyrfit111.cjs', []],
   ['hints112-360', 'hints112.cjs', ['360x780']], ['hints112-780', 'hints112.cjs', ['780x360']],
   ['hints1121-360', 'hints1121.cjs', ['360x780']], ['hints1121-780', 'hints1121.cjs', ['780x360']],
-  ['test111', 'test111.cjs', []],
+  ['test111', 'test111.cjs', []], ['keysplit', 'keysplit.cjs', []],
   ['validate', 'validate.cjs', []],
 ];
 const only = process.env.ONLY ? process.env.ONLY.split(',') : null;
