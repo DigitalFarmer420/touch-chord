@@ -61,7 +61,7 @@ lines  file
    164  js/ui/gear.js              Gear (Config) menu: volume, band, toggles, factory reset.
    122  js/ui/hints.js             Play along hint pill (placement, misses, timers).
    158  js/ui/keyboard.js          Keyboard window (which octave shows), Kids key placement and the Kids solo note.
-   221  js/ui/keychip.js           Key chip / key row (Full mode key picker).
+   221  js/ui/keychip.js           Key chip / key row (Key chip hidden in every mode since the v113 (5) port; Full uses #kidKey).
    157  js/ui/layout.js            Simple mode, controls drawer / tabs, size-class changes.
    122  js/ui/lyrics.js            Two-row lyrics (uploaded songs) and Kids lyrics.
    295  js/ui/next.js              Next-chord marks: lookahead, next hint arrow, Kids gold pad / key.

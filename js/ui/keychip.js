@@ -187,7 +187,7 @@ export function wireKeyPick() {
     updateSymbol();
     scheduleSave(0);
   });
-  document.getElementById("keyChip").addEventListener("click", function () { sel = null; paint(); pick.hidden = false; });
+  // v113 (5) port: the Key chip picker flow is retired (the chip is hidden); every mode uses the root + Major/Minor control.
   var ht = document.getElementById("howto");
   function closeHt() { ht.hidden = true; }
   document.getElementById("howtoBtn").addEventListener("click", function () { ht.hidden = false; ht.querySelector(".ht-x").focus(); });

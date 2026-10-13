@@ -667,3 +667,13 @@ html.lay-phone-land .now-mix > .now-vol .pg-vol svg, html.lay-phone-port:not(.si
 .config-menu .cfg-help { display: flex; align-items: center; gap: 8px; }
 .config-menu .cfg-help .cfg-lbl { flex: 0 0 auto; font-size: 13px; opacity: .75; padding-left: 4px; }
 .config-menu .cfg-help #tourBtn { flex: 1 1 auto; width: auto; }
+
+/* v113 (5) port: Full uses Simple's key control too: root (swipe / arrows) + Major/Minor, one compact row */
+html:not(.simple) #keyChip { display: none !important; }
+html:not(.simple) .kid-key { display: flex; flex-direction: row; gap: 4px; order: 2; flex: 0 0 auto; --kk-h: 28px; --kk-fs: 17px; --kk-arrow: 16px; --kk-mh: 28px; --kk-mfs: 12px; }
+html:not(.simple) .kid-key .kk-root { flex: 1 1 0; min-width: 0; border-radius: 10px; border-width: 1.5px; }
+html:not(.simple) .kid-key .kk-mode { flex: 1 1 0; min-width: 0; height: var(--kk-mh); border-radius: 10px; gap: 3px; padding: 0 2px; letter-spacing: 0; }
+html:not(.simple) .kid-key .kk-face svg { width: 14px; height: 14px; }
+html.lay-phone-land:not(.simple) .kid-key { --kk-h: 22px; --kk-mh: 22px; --kk-fs: 15px; --kk-mfs: 11px; }
+html.lay-pad-land:not(.simple) .kid-key, html.lay-pad-port:not(.simple) .kid-key { --kk-h: 40px; --kk-mh: 40px; --kk-fs: 24px; --kk-arrow: 26px; --kk-mfs: 15px; gap: 6px; }
+html.lay-pad-land:not(.simple) .kid-key .kk-face svg, html.lay-pad-port:not(.simple) .kid-key .kk-face svg { width: 20px; height: 20px; }
