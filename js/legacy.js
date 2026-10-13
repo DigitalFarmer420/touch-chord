@@ -1,54 +1,10 @@
 import { api as ChordAudio } from "./audio/index.js?v=112.3";
+import { keyRootSpell, modeKey, activeKey, keyDegrees, maybeLockKey, SPELL_LI, keyMainNames, keyAltNames, namePc, defaultKeyName, keyRootName, buildKeySel, syncKeySel, setKeySpell, suggestionKey } from "./keys.js?v=112.3";
+import { applySettings, showToast } from "./settings.js?v=112.3";
+import { VOICINGS, state, loop, fingers, padsEl, phaseEl, scheduleSave, factoryDefaults, storageClear, loadSettings, collectSettings, saveNow, shared } from "./state.js?v=112.3";
+import { applyStylePreset, enforceYogaDeepPaletteGate, setWarmth } from "./styles.js?v=112.3";
 import { Theory } from "./theory/index.js?v=112.3";
 import { accSym } from "./theory/spelling.js?v=112.3";
-var VOICINGS;
-
-const state = {
-  type: "major",
-  extensions: { six: false, min7: false, maj7: false, nine: false },
-  voicing: "close",
-  keyMode: false,
-  keyRoot: 0,
-  keyScale: "major",
-  rootPc: 0,
-  degree: 1,
-  rootMidi: null,
-  layout: "octave",
-  style: "pop",
-  sound: "piano",
-  bass: false,
-  warmth: 25,
-  holding: false,
-  holdPointer: null,
-  forceChord: null,
-  simple: false,               // Simple mode (v20): hides sound/FX/key/loop/layout controls
-  keyModeBeforeSimple: false,  // Key mode is forced off while Simple is on; restored after
-  allKeys: false,
-  playAlong: true,             // v108: Config > Play along enable
-  paHints: true,               // v112: Config > Show hints (Play along hints)
-  keySpell: {}                 // v50: key root spelling picks, e.g. { "1major": "Db" }
-};
-
-const loop = {
-  events: [],
-  recording: false,
-  overdub: false,
-  playing: false,
-  transport: false,
-  bpm: 96,
-  startTime: 0,
-  nextIndex: 0,
-  seq: 0,
-  gid: 0,
-  timer: null,
-  active: []
-};
-
-const fingers = {};
-var unlocked;
-
-var padsEl;
-var phaseEl;
 
 function computeSpec() {
   var rootPc = state.rootPc;
@@ -275,8 +231,8 @@ function unlock() {
   var pendingResume = ChordAudio.resume();
   var banner = document.getElementById("unlock");
   function hideBanner() {
-    if (unlocked) return;
-    unlocked = true;
+    if (shared.unlocked) return;
+    shared.unlocked = true;
     if (banner) banner.hidden = true;
   }
   if (ChordAudio.ctx && ChordAudio.ctx.state === "running") {
@@ -422,18 +378,7 @@ function renderKeys() {
   else if (layout === "full") { var fr = kbFullRange(); kbFullLo = fr.lo; addPiano(2, fr.lo, fr.hi - fr.lo + 1); }   // v85; v111 Kids from the tonic
   else addPiano(1, kbWinLow, 13);   // v83: Octave and Piano = one 13-key window, root on the left
 }
-
-// ---- Sustain pedal (damper-style, hold-to-sustain; all layouts) ----
-// While the pedal is down, a finger that lifts (or slides off a key) hands
-// its sounding group to sustainPool instead of stopping it. Releasing the
-// pedal stops every pooled group. Pool groups keep the chord they had when
-// the finger left: refreshHeld only morphs live fingers. state.holding
-// still means "a finger is down", so Next audition is unaffected.
-// Enabled on Octave / Piano / Fourths — same pad finger + group audio path.
-var sustainDown;
 var sustainPool;
-var sustainPointers;
-var sustainTouches;
 var groupSerial;
 
 function sustainEnabled() {
@@ -441,7 +386,7 @@ function sustainEnabled() {
 }
 
 function sustainActive() {
-  return sustainDown && sustainEnabled();
+  return shared.sustainDown && sustainEnabled();
 }
 
 function poolCount() {
@@ -465,7 +410,7 @@ function poolFingerGroup(finger) {
 }
 
 const DAMPER_TAU = 0.2;   // v68: pedal up = smooth exponential fade, -40 dB at ~0.9 s, -60 dB at ~1.4 s (was 0.045)
-function dumpSustain() {
+export function dumpSustain() {
   var groups = Object.keys(sustainPool);
   if (!groups.length) return;
   var now = ChordAudio.ctx ? ChordAudio.currentTime() : 0;
@@ -480,7 +425,7 @@ function dumpSustain() {
   ChordAudio.clearProtected();
 }
 
-function paintSustainBtn() {
+export function paintSustainBtn() {
   var btn = document.getElementById("sustainBtn");
   if (!btn) return;
   var enabled = sustainEnabled();
@@ -493,11 +438,11 @@ function paintSustainBtn() {
 function setSustain(on) {
   on = !!on && sustainEnabled();
   if (!on) {
-    sustainPointers = {};
-    sustainTouches = {};
+    shared.sustainPointers = {};
+    shared.sustainTouches = {};
   }
-  if (on !== sustainDown) {
-    sustainDown = on;
+  if (on !== shared.sustainDown) {
+    shared.sustainDown = on;
     if (!on) dumpSustain();
     // v47: pedal pressed while a suggestion preview still rings: hand it to
     // the pool (like a held key) so the 1.6 s preview timeout can't cut it.
@@ -529,7 +474,7 @@ function setSustain(on) {
 // pointer while the thumb is still down — if we dumped then, pad-up would
 // releaseFinger instead of poolFingerGroup. Touches are the ground truth.
 function sustainHeldByInput() {
-  return Object.keys(sustainPointers).length > 0 || Object.keys(sustainTouches).length > 0;
+  return Object.keys(shared.sustainPointers).length > 0 || Object.keys(shared.sustainTouches).length > 0;
 }
 
 function onSustainDown(e) {
@@ -537,14 +482,14 @@ function onSustainDown(e) {
   e.preventDefault();
   if (!sustainEnabled()) return;
   unlock();
-  sustainPointers[e.pointerId] = true;
+  shared.sustainPointers[e.pointerId] = true;
   try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
-  if (!sustainDown) setSustain(true);
+  if (!shared.sustainDown) setSustain(true);
 }
 
 function onSustainUp(e) {
-  if (!sustainPointers[e.pointerId]) return;
-  delete sustainPointers[e.pointerId];
+  if (!shared.sustainPointers[e.pointerId]) return;
+  delete shared.sustainPointers[e.pointerId];
   // Keep pedal down if a touch is still on the button (spurious pointer loss).
   if (!sustainHeldByInput()) setSustain(false);
 }
@@ -567,17 +512,17 @@ function wireSustain() {
     if (!sustainEnabled()) return;
     unlock();
     for (var i = 0; i < e.changedTouches.length; i++) {
-      sustainTouches[e.changedTouches[i].identifier] = true;
+      shared.sustainTouches[e.changedTouches[i].identifier] = true;
     }
-    if (!sustainDown) setSustain(true);
+    if (!shared.sustainDown) setSustain(true);
   }, { passive: false });
   function touchReleasePedal(e) {
     for (var i = 0; i < e.changedTouches.length; i++) {
-      delete sustainTouches[e.changedTouches[i].identifier];
+      delete shared.sustainTouches[e.changedTouches[i].identifier];
     }
     if (e.targetTouches && e.targetTouches.length > 0) return;
     if (sustainHeldByInput()) return;
-    if (sustainDown) setSustain(false);
+    if (shared.sustainDown) setSustain(false);
   }
   btn.addEventListener("touchend", touchReleasePedal);
   btn.addEventListener("touchcancel", touchReleasePedal);
@@ -589,8 +534,8 @@ function wireSustain() {
     e.preventDefault();
     if (e.repeat || !sustainEnabled()) return;
     unlock();
-    sustainPointers.key = true;
-    if (!sustainDown) setSustain(true);
+    shared.sustainPointers.key = true;
+    if (!shared.sustainDown) setSustain(true);
   });
   btn.addEventListener("keyup", function (e) {
     if (e.key !== " " && e.key !== "Enter") return;
@@ -598,7 +543,7 @@ function wireSustain() {
     onSustainUp({ pointerId: "key" });
   });
   btn.addEventListener("blur", function () {
-    if (sustainPointers.key) onSustainUp({ pointerId: "key" });
+    if (shared.sustainPointers.key) onSustainUp({ pointerId: "key" });
   });
   paintSustainBtn();
 }
@@ -1128,7 +1073,7 @@ function onClear() {
   updateSymbol();
 }
 
-function setBpm(bpm) {
+export function setBpm(bpm) {
   bpm = Math.round(Number(bpm));
   if (isNaN(bpm)) bpm = 96;
   if (bpm < 50) bpm = 50;
@@ -1225,100 +1170,7 @@ function mapQuality(q) {
   return { type: "major", extensions: ext, label: "" };
 }
 
-var suggestSig;
-
-function wrap12(n) { return ((n % 12) + 12) % 12; }
-
-// v24 key lock: the first chord played sets the key (major-family -> major,
-// minor/dim -> minor, rooted on the chord). Key mode (pad layout) still wins.
-var lockKey;
-function keyFromChord(spec) {
-  return { pc: spec.rootPc, mode: (spec.type === "minor" || spec.type === "dim") ? "minor" : "major" };
-}
-function maybeLockKey(spec) {
-  if (lockKey || state.keyMode || !spec) return;
-  lockKey = keyFromChord(spec);
-  suggestSig = "";
-}
-function activeKey() {
-  if (state.keyMode) return { pc: state.keyRoot, mode: state.keyScale === "minor" ? "minor" : "major" };
-  return lockKey;
-}
-// v50: key root spelling (display). A key is still {pc, mode}; its spelling is
-// the user's pick per pc+mode (popover / Layout dropdown, saved in settings),
-// else a sensible default (D\u266d major, C\u266f minor, G\u266f minor; others as before).
-const SPELL_LI = "CDEFGAB";
-// v52: only spellings that are real keys. First entry = default.
-const KEY_SPELLINGS = {
-  major: [["C"], ["Db", "C#"], ["D"], ["Eb"], ["E"], ["F"], ["F#", "Gb"], ["G"], ["Ab"], ["A"], ["Bb"], ["B"]],
-  minor: [["C"], ["C#"], ["D"], ["Eb", "D#"], ["E"], ["F"], ["F#"], ["G"], ["G#", "Ab"], ["A"], ["Bb", "A#"], ["B"]]
-};
-function keyMainNames(mode) { return KEY_SPELLINGS[mode === "minor" ? "minor" : "major"].map(function (a) { return a[0]; }); }
-function keyAltNames(mode) {
-  var out = [];
-  KEY_SPELLINGS[mode === "minor" ? "minor" : "major"].forEach(function (a) { for (var i = 1; i < a.length; i++) out.push(a[i]); });
-  return out;
-}
-function validKeyName(pc, mode, n) {
-  var a = KEY_SPELLINGS[mode === "minor" ? "minor" : "major"][pc];
-  return !!a && a.indexOf(n) >= 0;
-}
-function spellFromName(n) {
-  var li = SPELL_LI.indexOf(String(n).charAt(0));
-  if (li < 0) return null;
-  var acc = 0;
-  for (var i = 1; i < n.length; i++) { if (n.charAt(i) === "#") acc++; else if (n.charAt(i) === "b") acc--; }
-  return { li: li, acc: acc };
-}
-function namePc(n) {
-  var sp = spellFromName(n);
-  return sp ? wrap12([0, 2, 4, 5, 7, 9, 11][sp.li] + sp.acc) : -1;
-}
-function defaultKeyName(pc, mode) {
-  return KEY_SPELLINGS[mode === "minor" ? "minor" : "major"][pc][0];
-}
-function keyRootName(k) {
-  // v52: Simple always uses the plain spellings (major C D\u266d ... B\u266d B; minor C C\u266f ... G\u266f ...).
-  if (state.simple) return defaultKeyName(k.pc, k.mode);
-  var n = state.keySpell && state.keySpell[k.pc + k.mode];
-  return (n && validKeyName(k.pc, k.mode, n)) ? n : defaultKeyName(k.pc, k.mode);
-}
-function keyRootSpell(k) { return spellFromName(keyRootName(k)); }
-function keyDegrees(k) { return Theory.scaleDegrees(k.pc, k.mode, keyRootSpell(k)); }
-function buildKeySel() {
-  var sel = document.getElementById("keyRoot");
-  if (!sel) return;
-  var mode = modeKey().mode;
-  sel.innerHTML = "";
-  keyMainNames(mode).concat(keyAltNames(mode)).forEach(function (name) {
-    var opt = document.createElement("option");
-    opt.value = name;
-    opt.textContent = accSym(name);
-    sel.appendChild(opt);
-  });
-  sel.dataset.mode = mode;
-}
-function syncKeySel() {
-  var sel = document.getElementById("keyRoot");
-  if (!sel) return;
-  if (sel.dataset.mode !== modeKey().mode) buildKeySel();
-  sel.value = keyRootName(modeKey());
-}
-function modeKey() { return { pc: state.keyRoot, mode: state.keyScale === "minor" ? "minor" : "major" }; }
-function setKeySpell(pc, mode, name) {
-  if (!state.keySpell) state.keySpell = {};
-  if (!validKeyName(pc, mode, name) || name === defaultKeyName(pc, mode)) delete state.keySpell[pc + mode];
-  else state.keySpell[pc + mode] = name;
-  suggestSig = "";
-  scheduleSave(0);
-}
-function suggestionKey(spec) {
-  var ak = activeKey();
-  if (ak) return ak;
-  if (spec.type === "minor") return { pc: spec.rootPc, mode: "minor" };
-  if (spec.type === "dim") return { pc: wrap12(spec.rootPc + 1), mode: "major" };
-  return { pc: spec.rootPc, mode: "major" };
-}
+export function wrap12(n) { return ((n % 12) + 12) % 12; }
 
 var suggestPreview;
 // ---- v83 one-octave window ----
@@ -1515,7 +1367,7 @@ function stopStripTails() {
 }
 function stripDown(item, pid) {
   if (stripHolds[pid]) stripUp(pid);
-  if (!activeKey() && stripKey) { lockKey = { pc: stripKey.pc, mode: stripKey.mode }; }
+  if (!activeKey() && stripKey) { shared.lockKey = { pc: stripKey.pc, mode: stripKey.mode }; }
   var h = { group: null, t0: Date.now(), silent: false };
   stripHolds[pid] = h;
   applySuggestion(item, h);
@@ -1882,15 +1734,15 @@ function wireStripTap(b, item) {
 // locking it), so tapping a note doesn't re-key the strip under the finger.
 var stripKey;
 function stripTap(item) {
-  if (!activeKey() && stripKey) { lockKey = { pc: stripKey.pc, mode: stripKey.mode }; }
+  if (!activeKey() && stripKey) { shared.lockKey = { pc: stripKey.pc, mode: stripKey.mode }; }
   applySuggestion(item);
 }
 
 function paintSuggestions(spec) {
   var key = suggestionKey(spec || computeSpec());
   var sig = key.pc + key.mode + keyRootName(key) + state.style;
-  if (sig === suggestSig) return;
-  suggestSig = sig;
+  if (sig === shared.suggestSig) return;
+  shared.suggestSig = sig;
   stripKey = key;
   progSync(key);   // v55: style change -> first progression; key / style change stops its loop
   var model = stripModel(key);
@@ -2352,7 +2204,7 @@ function progRedecorate() {
 }
 
 function progLockKey() {
-  if (!activeKey() && stripKey) lockKey = { pc: stripKey.pc, mode: stripKey.mode };
+  if (!activeKey() && stripKey) shared.lockKey = { pc: stripKey.pc, mode: stripKey.mode };
 }
 // v99: full mode (not Kids, not Simple, not an uploaded song, which has its own next-chord outline):
 // mark the grid cell of the chord Play would sound right now. Stopped: Play starts at step 1. Playing: the
@@ -2816,7 +2668,6 @@ var paHintSeen;
 var paHintTimer;
 var paMiss;
 var paLostSong;
-var firstFresh;
 const paHintLog = { shown: [], skipped: [], misses: 0 };
 const PA_HINT_TXT = { a: "Try the marked key next", b: "Tap the dot chord next", c: "Let go of the chord button to follow the song",
   d: "Tap the dot chord next", e: "Lost? Tap Next to hear the next chord", ek: "Tap the dot chord next",
@@ -3208,10 +3059,10 @@ function applySongKey(tonic, mode) {
   if (ak && ak.pc === pc && ak.mode === mode && state.keyRoot === pc && state.keyScale === mode) return true;
   state.keyRoot = pc;
   state.keyScale = mode;
-  lockKey = { pc: pc, mode: mode };
+  shared.lockKey = { pc: pc, mode: mode };
   if (typeof tonic === "string") setKeySpell(pc, mode, tonic);
   if (state.keyMode) renderPads();
-  suggestSig = "";
+  shared.suggestSig = "";
   refreshHeld();
   paintSuggestions(computeSpec());
   scheduleSave();
@@ -3701,7 +3552,7 @@ function upSetLock(on) {
   if (!U) return;
   U.locked = !!on;
   U.liveKey = null;   // locking / unlocking starts from the song's own key
-  if (upSelected()) { progStop(); upKeyApply(U.key.tonic, U.key.mode); suggestSig = ""; paintSuggestions(computeSpec()); }
+  if (upSelected()) { progStop(); upKeyApply(U.key.tonic, U.key.mode); shared.suggestSig = ""; paintSuggestions(computeSpec()); }
   upSave();
   paintUpload();
   paintSongBar();
@@ -3729,7 +3580,7 @@ function upKeyApply(tonic, mode) {
   return { pc: k.pc, mode: k.mode, name: keyRootName(k) };
 }
 function upSelect() {
-  suggestSig = "";
+  shared.suggestSig = "";
   paintSuggestions(computeSpec());
   for (var i = 0; i < prog.list.length; i++) if (prog.list[i].up) { progSet(i); break; }
   upSave();
@@ -3872,7 +3723,7 @@ function upRemove() {
   var was = upSelected();
   U = null; upProgObj = null;
   upSave();
-  suggestSig = "";
+  shared.suggestSig = "";
   paintSuggestions(computeSpec());
   if (was) progSet(0);
 }
@@ -3906,7 +3757,7 @@ function libSetVer(id, ver) {
     u.locked = locked; u.liveKey = live; u.keep = keep;
     U = u;
     if (was) { upKeyApply(upKeyNow().tonic, upKeyNow().mode); upSelect(); }
-    else { suggestSig = ""; paintSuggestions(computeSpec()); upSave(); }
+    else { shared.suggestSig = ""; paintSuggestions(computeSpec()); upSave(); }
     paintSongBar();
   } else {
     if ((e.ver || "simple") === ver) return true;
@@ -5014,8 +4865,8 @@ function fitKeyRow() {
   }
 }
 function setLockKey(k) {
-  lockKey = k;
-  suggestSig = "";
+  shared.lockKey = k;
+  shared.suggestSig = "";
   refreshHeld();
 }
 // v52: Simple key control. Drag/swipe right = up a semitone, left = down (wraps);
@@ -5234,7 +5085,7 @@ function updateSymbol() {
   scheduleSave(200);
 }
 
-var paletteHolds;
+export var paletteHolds;
 
 function typeHeld(name) {
   for (var id in paletteHolds) {
@@ -5323,7 +5174,7 @@ function onTouchGone(e) {
 }
 
 // Key mode on/off bookkeeping (shared by the Key button and Simple mode).
-function setKeyModeState(on) {
+export function setKeyModeState(on) {
   state.keyMode = !!on;
   if (state.keyMode) {
     var degs = keyDegrees(modeKey());
@@ -5399,13 +5250,13 @@ function wire() {
       // v70: picking Kids always starts in C major (other styles keep the current key).
       state.keyRoot = 0;
       state.keyScale = "major";
-      lockKey = { pc: 0, mode: "major" };
+      shared.lockKey = { pc: 0, mode: "major" };
       if (state.keyMode) renderPads();
     }
     if (changed && (leftKids || state.style === "kids")) renderPads();   // v83: same one-octave window in every style
     var all = document.querySelectorAll("#styles button");
     for (var i = 0; i < all.length; i++) all[i].classList.toggle("on", all[i] === b);
-    suggestSig = "";
+    shared.suggestSig = "";
     // A new Style pick loads that style's factory sound row; tweaks made
     // afterwards stick until the next Style pick or Factory reset.
     if (changed && applyStylePreset(state.style)) {
@@ -5484,365 +5335,8 @@ function wire() {
   });
 }
 
-// ---- Warmth + factory style presets ----
-const WARMTH_DEFAULT = 25;
-
-function clampWarmth(v) {
-  v = Math.round(Number(v));
-  if (!isFinite(v)) v = WARMTH_DEFAULT;
-  return Math.min(100, Math.max(0, v));
-}
-
-// 0..100 on the UI; audio takes 0..1.
-function setWarmth(v) {
-  v = clampWarmth(v);
-  state.warmth = v;
-  var el = document.getElementById("warmth");
-  if (el.value !== String(v)) el.value = String(v);
-  el.setAttribute("aria-valuetext", String(v));
-  ChordAudio.setWarmth(v / 100);
-}
-
-// Applied on Style change. Never touches Key, layout or the Next grid.
-const STYLE_PRESETS = {
-  pop:       { sound: "piano",   bass: true,  voicing: "close", cutoff: 0.75, reverb: 0.12, delay: 0.08, bpm: 112, warmth: 15 },
-  // v68 Kids: "Bright and bouncy, like a music box." Bell top + soft pluck, short happy notes (art "box").
-  kids:      { sound: "bell",    bass: true,  voicing: "close", cutoff: 0.78, reverb: 0.12, delay: 0.05, bpm: 100, warmth: 10, art: "box" },
-  jazz:      { sound: "epiano",  bass: true,  voicing: "drop",  cutoff: 0.42, reverb: 0.32, delay: 0.22, bpm: 120, warmth: 55 },
-  rnb:       { sound: "epiano",  bass: true,  voicing: "close", cutoff: 0.50, reverb: 0.36, delay: 0.24, bpm: 78,  warmth: 50 },
-  ballad:    { sound: "strings", bass: true,  voicing: "close", cutoff: 0.40, reverb: 0.48, delay: 0.14, bpm: 68,  warmth: 35 },
-  // v73: Reggae = muted offbeat skank + one-drop bass (style voice, warm engine); Funk = clav stabs + slap bass.
-  // Jazz = Rhodes + rootless + walking upright; R&B = round chorused Rhodes + sub; Ballad = string pad + cello;
-  // Country = honky-tonk boom-chick; Pop = bright piano + light round bass. Kids / Yoga unchanged.
-  reggae:    { sound: "warm",    bass: true,  voicing: "close", cutoff: 0.55, reverb: 0.22, delay: 0.18, bpm: 76,  warmth: 40 },
-  funk:      { sound: "reed",    bass: true,  voicing: "close", cutoff: 0.80, reverb: 0.08, delay: 0.06, bpm: 108, warmth: 20 },
-  yogaDeep:  { sound: "warm",    bass: false, voicing: "low",   cutoff: 0.32, reverb: 0.58, delay: 0.02, bpm: 52,  warmth: 30, trim: 5.5 },
-  // v60 Country: bright piano (the closest existing voice to a picked guitar), bass on, 100 BPM.
-  // v68: close voicing (was bright: plain C reached G6, A7 in A).
-  country:   { sound: "piano",   bass: true,  voicing: "close", cutoff: 0.82, reverb: 0.10, delay: 0.05, bpm: 100, warmth: 12 }
-};
-
-// v68: per-style loudness trims (bus gain), measured so every style plays within ~2 dB.
-// v73: re-measured for the style voices (A-weighted 400 ms loudness, 90th percentile, -32 dBA target; v73-sound/TABLE.md).
-const STYLE_TRIM = { pop: 1.41, kids: 2.07, jazz: 0.86, rnb: 0.90, ballad: 2.91, reggae: 4.07, funk: 4.60, yogaDeep: 3.94, country: 1.24 };
-function styleTrim(style) { return STYLE_TRIM[style] || 1; }
-
-// Yoga (id yogaDeep): Dim/Sus4 type pads are unavailable (stillness palette).
-function enforceYogaDeepPaletteGate() {
-  var gated = false; // v35: no style gates chord types
-  var types = document.querySelectorAll("#types button[data-type]");
-  for (var i = 0; i < types.length; i++) {
-    var t = types[i].dataset.type;
-    if (t === "dim" || t === "sus4") {
-      types[i].disabled = gated;
-      types[i].classList.toggle("gated", gated);
-      if (gated) {
-        types[i].classList.remove("on");
-        types[i].setAttribute("aria-pressed", "false");
-      }
-    } else {
-      types[i].disabled = false;
-      types[i].classList.remove("gated");
-    }
-  }
-  if (!gated) return;
-  var dirty = false;
-  for (var id in paletteHolds) {
-    if (paletteHolds[id].kind === "type" && (paletteHolds[id].value === "dim" || paletteHolds[id].value === "sus4")) {
-      delete paletteHolds[id];
-      dirty = true;
-    }
-  }
-  if (state.type === "dim" || state.type === "sus4") {
-    state.type = "major";
-    dirty = true;
-  }
-  if (dirty) {
-    var nextType = "major";
-    for (var id2 in paletteHolds) {
-      if (paletteHolds[id2].kind === "type") nextType = paletteHolds[id2].value;
-    }
-    state.type = nextType;
-  }
-}
-
-// Push one preset row into state, controls and audio together.
-function applyStylePreset(style) {
-  if (ChordAudio.wake) ChordAudio.wake();
-  var p = STYLE_PRESETS[style];
-  if (!p) return false;
-  state.sound = p.sound;
-  state.bass = p.bass;
-  state.voicing = p.voicing;
-  document.getElementById("voicing").value = String(Math.max(0, VOICINGS.indexOf(p.voicing)));
-  document.getElementById("cutoff").value = String(p.cutoff);
-  document.getElementById("reverb").value = String(p.reverb);
-  document.getElementById("delay").value = String(p.delay);
-  ChordAudio.setSound(p.sound);
-  ChordAudio.setTrim(styleTrim(style));
-  ChordAudio.setArt(p.art);
-  ChordAudio.setFlavor(style);   // v73: style voice (Kids / Yoga keep their engines)
-  ChordAudio.band.setStyle(style); paintBand();   // v75 Band: Pop / Country / Jazz / Kids only
-  ChordAudio.setCutoff(p.cutoff);
-  ChordAudio.setReverb(p.reverb);
-  ChordAudio.setDelay(p.delay);
-  setBpm(p.bpm);
-  setWarmth(p.warmth);
-  enforceYogaDeepPaletteGate();
-  return true;
-}
-
-// ---- Settings persistence (localStorage, versioned) ----
-// Only sticky settings are stored. Chord type / extension buttons are
-// momentary (held), so they are intentionally not persisted.
-const STORE_KEY = "touchChord.settings.v1";
-const STORE_VERSION = 1;
-const LAYOUTS = ["octave", "piano", "fourths", "full"];   // v85: + Full (the pre-v83 multi-octave keyboard)
-const SOUNDS = ["piano", "epiano", "strings", "warm", "bell", "reed"];
-const STYLES = ["pop", "kids", "jazz", "rnb", "ballad", "reggae", "funk", "yogaDeep", "country"];   // v60: Romantic and the old "yoga" removed (saved ones fall back to Pop). v68: "yogaDeep" is shown as "Yoga"; its id is unchanged, so a saved "yogaDeep" restores to it and an old saved "yoga" still falls back to Pop.
-const SCALES = ["major", "minor"];
-
-function factoryDefaults() {
-  return {
-    layout: "octave",
-    sound: "piano",
-    bass: false,
-    style: "pop",
-    keyMode: false,
-    keyRoot: 0,
-    keyScale: "major",
-    keySpell: {},
-    rootPc: 0,
-    degree: 1,
-    voicing: "close",
-    cutoff: 0.62,
-    reverb: 0.22,
-    delay: 0.14,
-    bpm: 96,
-    warmth: WARMTH_DEFAULT,
-    simple: false,   // v107: the app opens in Full again (Simple is one tap on the Simple toggle); Reset = Full
-    allKeys: false,
-    // v65: on by default in both modes. A saved false (the switch turned off) is kept;
-    // a missing value (new user, or saved before v60) gets on.
-    progNums: true,
-    playAlong: true,   // v108: Play along on by default
-    paHints: true,   // v112: Show hints on by default
-    volume: 100,
-    band: 0,   // Band fix: one slider, 0 = off, 1..100 = on at that level (saved as bandLvl)
-    lockKey: null
-  };
-}
-
-function sanitizeSettings(raw) {
-  var d = factoryDefaults();
-  if (!raw || typeof raw !== "object") return d;
-  function pick(v, list, def) { return list.indexOf(v) >= 0 ? v : def; }
-  function bool(v, def) { return typeof v === "boolean" ? v : def; }
-  function num(v, lo, hi, def, int) {
-    if (typeof v !== "number" || !isFinite(v)) return def;
-    if (int) v = Math.round(v);
-    return Math.min(hi, Math.max(lo, v));
-  }
-  return {
-    layout: pick(raw.layout, LAYOUTS, d.layout),
-    sound: pick(raw.sound, SOUNDS, d.sound),
-    bass: bool(raw.bass, d.bass),
-    style: pick(raw.style, STYLES, d.style),
-    keyMode: bool(raw.keyMode, d.keyMode),
-    keyRoot: num(raw.keyRoot, 0, 11, d.keyRoot, true),
-    keyScale: pick(raw.keyScale, SCALES, d.keyScale),
-    keySpell: (function (o) {
-      var out = {};
-      if (o && typeof o === "object") Object.keys(o).forEach(function (k) {
-        var m = /^(\d{1,2})(major|minor)$/.exec(k);
-        // v52: invalid saved spellings (D\u266f major, G\u266d minor, ...) migrate to the default.
-        if (m && typeof o[k] === "string" && validKeyName(Number(m[1]), m[2], o[k]) && o[k] !== defaultKeyName(Number(m[1]), m[2])) out[k] = o[k];
-      });
-      return out;
-    })(raw.keySpell),
-    rootPc: num(raw.rootPc, 0, 11, d.rootPc, true),
-    degree: num(raw.degree, 1, 7, d.degree, true),
-    voicing: pick(raw.voicing, VOICINGS, d.voicing),
-    cutoff: num(raw.cutoff, 0, 1, d.cutoff),
-    reverb: num(raw.reverb, 0, 1, d.reverb),
-    delay: num(raw.delay, 0, 1, d.delay),
-    bpm: num(raw.bpm, 50, 180, d.bpm, true),
-    warmth: num(raw.warmth, 0, 100, d.warmth, true),
-    simple: bool(raw.simple, d.simple),
-    allKeys: bool(raw.allKeys, d.allKeys),
-    progNums: bool(raw.progNums, d.progNums),
-    playAlong: bool(raw.playAlong, d.playAlong),   // v108
-    paHints: bool(raw.paHints, d.paHints),   // v112
-    volume: num(raw.volume, 0, 100, d.volume, true),
-    band: num(raw.bandLvl, 0, 100, d.band, true),   // Band fix: saves from before it (raw.band, toggle always off at load) migrate to 0 = off
-    lockKey: (raw.lockKey && typeof raw.lockKey === "object" && raw.lockKey.pc === (raw.lockKey.pc | 0) && raw.lockKey.pc >= 0 && raw.lockKey.pc < 12 && SCALES.indexOf(raw.lockKey.mode) >= 0)
-      ? { pc: raw.lockKey.pc, mode: raw.lockKey.mode } : null
-    // Legacy `latch` key (cce4d86) is ignored; Sustain is never persisted.
-  };
-}
-
-function storageGet() {
-  try { return window.localStorage ? window.localStorage.getItem(STORE_KEY) : null; } catch (err) { return null; }
-}
-function storageSet(str) {
-  try { if (window.localStorage) window.localStorage.setItem(STORE_KEY, str); return true; } catch (err) { return false; }
-}
-function storageClear() {
-  try { if (window.localStorage) window.localStorage.removeItem(STORE_KEY); } catch (err) {}
-}
-
-// Future builds: read older keys/versions here and migrate into v1+ shape.
-function loadSettings() {
-  var str = storageGet();
-  if (!str) { var first = factoryDefaults(); first.style = "kids"; firstFresh = true; return first; }   // v111 (G): first visit opens in Kids (Twinkle, C); v112: then the tour
-  try {
-    var env = JSON.parse(str);
-    if (!env || typeof env !== "object" || env.v !== STORE_VERSION) return factoryDefaults();
-    return sanitizeSettings(env.settings);
-  } catch (err) {
-    return factoryDefaults();
-  }
-}
-
-function collectSettings() {
-  return {
-    layout: state.layout,
-    sound: state.sound,
-    bass: !!state.bass,
-    style: state.style,
-    // While Simple forces Key mode off, persist the user's real choice.
-    keyMode: !!(state.simple ? state.keyModeBeforeSimple : state.keyMode),
-    keyRoot: state.keyRoot,
-    keyScale: state.keyScale,
-    keySpell: state.keySpell || {},
-    rootPc: state.rootPc,
-    degree: state.degree,
-    voicing: state.voicing,
-    cutoff: Number(document.getElementById("cutoff").value),
-    reverb: Number(document.getElementById("reverb").value),
-    delay: Number(document.getElementById("delay").value),
-    bpm: state.bpm,
-    warmth: clampWarmth(document.getElementById("warmth").value),
-    simple: !!state.simple,
-    allKeys: !!state.allKeys,
-    progNums: !!state.progNums,
-    playAlong: state.playAlong !== false,   // v108
-    paHints: state.paHints !== false,   // v112
-    volume: state.volume == null ? 100 : state.volume,
-    bandLvl: state.band | 0,
-    band: (state.band | 0) >= 1 ? state.band | 0 : 50,   // older builds read this (1..100) and start Band off anyway
-    lockKey: lockKey ? { pc: lockKey.pc, mode: lockKey.mode } : null
-  };
-}
-
-var saveTimer;
-var lastSaved;
-var persistReady;
-
-function saveNow() {
-  if (saveTimer) {
-    clearTimeout(saveTimer);
-    saveTimer = 0;
-  }
-  if (!persistReady) return;
-  var str = JSON.stringify(collectSettings());
-  if (str === lastSaved) return;
-  if (storageSet("{\"v\":" + STORE_VERSION + ",\"settings\":" + str + "}")) lastSaved = str;
-}
-
-function scheduleSave(ms) {
-  if (!persistReady) return;
-  if (saveTimer) clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveNow, ms == null ? 150 : ms);
-}
-
-function markOn(groupSel, attr, value) {
-  var all = document.querySelectorAll(groupSel + " button");
-  for (var i = 0; i < all.length; i++) {
-    if (all[i].dataset[attr] == null) continue;
-    var on = all[i].dataset[attr] === value;
-    all[i].classList.toggle("on", on);
-    if (all[i].hasAttribute("aria-pressed") || all[i].getAttribute("role") === "radio") {
-      all[i].setAttribute("aria-pressed", on ? "true" : "false");
-    }
-  }
-}
-
-// Push a settings object into state, controls and audio. Caller re-renders.
-function applySettings(s) {
-  state.progNums = !!s.progNums;
-  paintProgNumsBtn();
-  state.playAlong = s.playAlong !== false;   // v108
-  state.paHints = s.paHints !== false;   // v112
-  paintPlayAlongBtn();
-  state.layout = s.layout;
-  state.sound = s.sound;
-  state.bass = s.bass;
-  state.style = s.style;
-  ChordAudio.setTrim(styleTrim(s.style));
-  // v27: Key mode retired; the key picker is the only key control.
-  if (s.keyMode) lockKey = { pc: s.keyRoot, mode: s.keyScale === "minor" ? "minor" : "major" };
-  // v52: Simple picks up where it left off (its key control has no Auto); full mode
-  // keeps its old behaviour (the first chord sets the key).
-  else if (s.simple) lockKey = s.lockKey || { pc: 0, mode: "major" };
-  state.keyMode = false;
-  state.keyRoot = s.keyRoot;
-  state.keyScale = s.keyScale;
-  state.rootPc = s.rootPc;
-  state.degree = s.degree;
-  state.voicing = s.voicing;
-  state.forceChord = null;
-  state.rootMidi = null;
-  sustainDown = false;
-  sustainPointers = {};
-  sustainTouches = {};
-  dumpSustain();
-
-  markOn("#layouts", "layout", s.layout);
-  paintSustainBtn();
-  markOn("#styles", "style", s.style);
-  state.keySpell = s.keySpell || {};
-  syncKeySel();
-  document.getElementById("voicing").value = String(Math.max(0, VOICINGS.indexOf(s.voicing)));
-  document.getElementById("cutoff").value = String(s.cutoff);
-  document.getElementById("reverb").value = String(s.reverb);
-  document.getElementById("delay").value = String(s.delay);
-
-  ChordAudio.setSound(s.sound);
-  ChordAudio.setCutoff(s.cutoff);
-  ChordAudio.setReverb(s.reverb);
-  ChordAudio.setDelay(s.delay);
-  setBpm(s.bpm);
-  setWarmth(s.warmth);
-  // Simple mode: Key mode is forced off while on (real value kept for later).
-  state.simple = !!s.simple;
-  state.allKeys = !!s.allKeys;
-  state.keyModeBeforeSimple = false;
-  if (state.simple && state.keyMode) {
-    state.keyModeBeforeSimple = true;
-    setKeyModeState(false);
-  }
-  paintSimple();
-  suggestSig = "";
-  enforceYogaDeepPaletteGate();
-  // v68: the active style's sound preset always applies at load (cold Pop has its bass).
-  applyStylePreset(s.style);
-  setVolume(s.volume);
-  setBand(s.band);   // Band fix: the saved slider level; 0 = off
-}
-
-var toastTimer;
-function showToast(msg) {
-  var el = document.getElementById("toast");
-  if (!el) return;
-  el.textContent = msg;
-  el.classList.add("show");
-  if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(function () { el.classList.remove("show"); }, 1600);
-}
-
 // v68: master Volume (Config). 0..100, gain = (v/100)^2 (perceptual), 100 = the old level.
-function setVolume(v) {
+export function setVolume(v) {
   v = Math.round(Number(v));
   if (!isFinite(v)) v = 100;
   v = Math.max(0, Math.min(100, v));
@@ -5856,7 +5350,7 @@ function setVolume(v) {
 }
 // v75 Band level (0 = no scheduler, no nodes). v86: Sound box toggle + level slider. The level
 // Band fix: no toggle any more. One slider 0..100 (0 = off), saved as bandLvl. Band audio = level / 100.
-function setBand(v) {
+export function setBand(v) {
   v = Math.round(Number(v));
   if (!isFinite(v) || v < 0) v = 0;
   state.band = Math.min(100, v);
@@ -5867,7 +5361,7 @@ function applyBand() {
   ChordAudio.band.setLevel(state.bandOn ? (state.band | 0) / 100 : 0);
   paintBand();
 }
-function paintBand() {
+export function paintBand() {
   var el = document.getElementById("band");
   if (!el) return;
   var v = state.band | 0, on = !!ChordAudio.band && !!{ pop: 1, country: 1, jazz: 1, kids: 1, ballad: 1, rnb: 1 }[state.style];
@@ -5882,20 +5376,20 @@ function paintBand() {
   box.classList.toggle("off", !live);
   box.title = on ? "" : "No band on this style yet";
 }
-function paintProgNumsBtn() {
+export function paintProgNumsBtn() {
   var b = document.getElementById("progNumsBtn");
   if (b) { b.setAttribute("aria-checked", state.progNums ? "true" : "false"); b.classList.toggle("on", !!state.progNums); }
 }
-function paintPlayAlongBtn() {   // v108
+export function paintPlayAlongBtn() {   // v108
   var b = document.getElementById("playAlongBtn");
   if (b) { b.setAttribute("aria-checked", state.playAlong !== false ? "true" : "false"); b.classList.toggle("on", state.playAlong !== false); }
   var h = document.getElementById("paHintsBtn");   // v112: Show hints
   if (h) { h.setAttribute("aria-checked", state.paHints !== false ? "true" : "false"); h.classList.toggle("on", state.paHints !== false); }
 }
 function factoryReset() {
-  if (saveTimer) {
-    clearTimeout(saveTimer);
-    saveTimer = 0;
+  if (shared.saveTimer) {
+    clearTimeout(shared.saveTimer);
+    shared.saveTimer = 0;
   }
   storageClear();
   clearSuggestPreview();
@@ -5904,12 +5398,12 @@ function factoryReset() {
   renderPads();
   refreshHeld();
   updateSymbol();
-  if (saveTimer) {
-    clearTimeout(saveTimer);
-    saveTimer = 0;
+  if (shared.saveTimer) {
+    clearTimeout(shared.saveTimer);
+    shared.saveTimer = 0;
   }
   // Storage stays empty until the user changes something again.
-  lastSaved = JSON.stringify(collectSettings());
+  shared.lastSaved = JSON.stringify(collectSettings());
   showToast("Settings reset to factory defaults");
   var btn = document.getElementById("configBtn");
   btn.classList.add("flash");
@@ -5996,7 +5490,7 @@ function wireConfig() {
 }
 
 // ---- Simple mode + responsive controls (v20) ----
-function paintSimple() {
+export function paintSimple() {
   var de = document.documentElement;
   de.classList.toggle("simple", !!state.simple);
   var btn = document.getElementById("simpleBtn");
@@ -6020,7 +5514,7 @@ function setSimple(on) {
     // Simple has no keyboard or chord buttons; let go of anything held there.
     Object.keys(fingers).forEach(function (id) { liftFinger(id); });
     if (Object.keys(paletteHolds).length) { paletteHolds = {}; syncPalette(); }
-    if (!activeKey()) lockKey = { pc: 0, mode: "major" };
+    if (!activeKey()) shared.lockKey = { pc: 0, mode: "major" };
     state.simple = true;
     magicHintClear();   // v68: the next-chord hint is full mode only
   } else {
@@ -6030,7 +5524,7 @@ function setSimple(on) {
     if (restoreKey) setKeyModeState(true);
   }
   paintSimple();
-  suggestSig = "";
+  shared.suggestSig = "";
   paintSuggestions(computeSpec());
   progWalkTo(keep);   // v111 (D5)
   // Pads DOM is rebuilt; dump pooled rings like a layout change does.
@@ -6137,11 +5631,7 @@ function wireLayoutUi() {
 var startBanner;
 
 // Boot step (runs once, in the original v112.3 order, from main.js)
-export function boot() {
-VOICINGS = Theory.VOICINGS;
-unlocked = false;
-padsEl = document.getElementById("pads");
-phaseEl = document.getElementById("phase");
+export function boot1() {
 IS_IOS = /iP(hone|ad|od)/.test(navigator.userAgent || "") ||
     (/Mac/.test(navigator.platform || "") && (navigator.maxTouchPoints || 0) > 1);
 silentAudio = null;
@@ -6158,10 +5648,7 @@ silentAudioHidden = false;
   });
 keySerial = 0;
 padSpan = 1;
-sustainDown = false;
 sustainPool = {};       // group id -> { pending } (loop-recording take)
-sustainPointers = {};   // pointer ids currently holding the pedal
-sustainTouches = {};    // touch identifiers currently on the pedal
 groupSerial = 0;
   document.addEventListener("pointerdown", function (e) { if (e.target && e.target.closest && e.target.closest("#pads")) kbKidsPtr[e.pointerId] = 1; }, true);
   document.addEventListener("pointerup", kbKidsUp, true);
@@ -6173,8 +5660,6 @@ hapLast = -1e9;
   window.addEventListener("pointerup", onPadUp);
   window.addEventListener("pointercancel", onPadUp);
 paletteStrike = false;
-suggestSig = "";
-lockKey = null;
 suggestPreview = null;
 kbLast = null;     // midis of the chord layer last sounded (the window anchor)
 kbWinLow = null;   // MIDI of the window's left key
@@ -6315,7 +5800,6 @@ paHintAt = -1e9;
   paHintTimer = 0;
   paMiss = 0;
   paLostSong = null;
-  firstFresh = false;
   if (PROG_TEST) window.__paHint = paHintLog;
 paMissSong = null;   // v112.1 (L2)
 tourI = -1;
@@ -6460,10 +5944,10 @@ upOpenAlt = null;   // "si:ci" whose alternates row is open
   window.addEventListener("resize", function () { fitKeyRow(); });
 paletteHolds = {};
 paletteTimer = 0;
-saveTimer = 0;
-lastSaved = "";
-persistReady = false;
-toastTimer = 0;
+}
+
+// Boot step (runs once, in the original v112.3 order, from main.js)
+export function boot2() {
 lastTab = "sound";
 startBanner = document.getElementById("unlock");
   if (startBanner) startBanner.textContent = "Tap anywhere to enable sound";
@@ -6506,9 +5990,9 @@ startBanner = document.getElementById("unlock");
     try { applySettings(initial); } catch (err2) { applySettings(factoryDefaults()); }
     renderPads();
     updateSymbol();
-    lastSaved = JSON.stringify(collectSettings());
-    persistReady = true;
-    if (firstFresh && !tourDone() && (!PROG_TEST || /[?&]tour=1(&|$)/.test(location.search))) setTimeout(function () { tourStart(false); }, 700);   // v112: once, after the fresh Kids + Twinkle load (tests: only with tour=1)
+    shared.lastSaved = JSON.stringify(collectSettings());
+    shared.persistReady = true;
+    if (shared.firstFresh && !tourDone() && (!PROG_TEST || /[?&]tour=1(&|$)/.test(location.search))) setTimeout(function () { tourStart(false); }, 700);   // v112: once, after the fresh Kids + Twinkle load (tests: only with tour=1)
   } finally {
     document.documentElement.classList.remove("tc-boot");
   }

@@ -13,10 +13,17 @@ import "./audio/effects.js?v=112.3";
 import "./audio/engine.js?v=112.3";
 import "./audio/index.js?v=112.3";
 import "./audio/synths.js?v=112.3";
+import "./keys.js?v=112.3";
+import "./styles.js?v=112.3";
+import * as state from "./state.js?v=112.3";
 import * as legacy from "./legacy.js?v=112.3";
+import * as settings from "./settings.js?v=112.3";
 
 // Deliberate globals kept from v112.3 (console and tests). Theory, ChordAudio and __tcAudioWake are set in theory/index.js and audio/index.js.
 window.APP_VERSION = APP_VERSION;
 window.accSym = accSym;
 
-legacy.boot();
+state.boot();
+legacy.boot1();
+settings.boot();
+legacy.boot2();
