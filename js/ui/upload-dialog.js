@@ -4,7 +4,8 @@ import { namePc, keyRootName } from "../keys.js?v=112.4";
 import { upSave, libGet, paintLib, libEntryToU, upRestoreSel, libOpen, libSetVer, libDelete, libConfirm } from "../songs/library.js?v=112.4";
 import { progBadge } from "../songs/magic.js?v=112.4";
 import { progRedecorate } from "../songs/playback.js?v=112.4";
-import { upInList, paintUpNext, upSelected, upKeyApply, upKeyNow, upTr, upLiveKeyObj, upT, upA, upSetLock, upPlaceLock, upSelect, upEsc, upStepOf, upCurStep, upPickAlt } from "../songs/song.js?v=112.4";
+import { upInList, paintUpNext, upSelected, upKeyApply, upKeyNow, upTr, upLiveKeyObj, upT, upA, upSetLock, upPlaceLock, upSelect, upEsc, upStepOf, upCurStep, upPickAlt, upLoadOne } from "../songs/song.js?v=112.4";
+import { validateSong, LAYER_NAMES } from "../songs/validate.js?v=112.4";
 import { UP_HEAD, UP_PASTE_LINE, UP_PASTE_LINE_2, UP_TAIL, UP_ARTIST_MAX, UP_SKIP_MAX, upListSchemaText, upEv, upSym, upFlagged, upFlagList, upSecName, upLoadBegin, upLoadCheck, upLoadCommit } from "../songs/upload.js?v=112.4";
 import { state, shared } from "../state.js?v=112.4";
 import { accSym } from "../theory/spelling.js?v=112.4";
@@ -210,7 +211,7 @@ function openUpload() {
   var pick = document.getElementById("uploadPick");
   // v105: opens as a clean list: the form is cleared, no details open, no status; playback is untouched
   ["upTitle", "upArtist", "upPaste", "upFallbackTxt"].forEach(function (id) { document.getElementById(id).value = ""; });
-  ["upMsg", "upErr", "upFallback", "upCopied"].forEach(function (id) { document.getElementById(id).hidden = true; });
+  ["upMsg", "upErr", "upFallback", "upCopied", "upVal"].forEach(function (id) { document.getElementById(id).hidden = true; });
   shared.upEdit = null; shared.upOpenAlt = null;
   paintUpload();
   upAskRefresh();
@@ -262,18 +263,55 @@ export function wireUpload() {
     upEmptyRefresh();
     upStatusIntoView();
   }
+  // Pre-save validation (validate.js): flags -> the #upVal panel; nothing is saved until Save anyway.
+  var upValPending = null;
+  function upValHide() { var v = document.getElementById("upVal"); v.hidden = true; v.innerHTML = ""; upValPending = null; }
+  function upValGate(items, commit) {   // items: [{ title, song }]
+    var groups = { key: [], timing: [], bpm: [] }, n = 0;
+    items.forEach(function (it) {
+      validateSong(it.song).flags.forEach(function (f) { groups[f.layer].push({ f: f, title: items.length > 1 ? it.title : "" }); n++; });
+    });
+    if (!n) { commit(); return; }
+    var v = document.getElementById("upVal"), h = "<b>Check before saving: " + n + " thing" + (n > 1 ? "s look" : " looks") + " off</b>";
+    ["key", "timing", "bpm"].forEach(function (L) {
+      var g = groups[L];
+      if (!g.length) return;
+      h += "<div class=\"uv-g\" data-layer=\"" + L + "\"><div class=\"uv-h\">" + upEsc(LAYER_NAMES[L]) + " <small>" + g.length + "</small></div><ul>";
+      g.slice(0, 6).forEach(function (x) { h += "<li class=\"uv-" + x.f.severity + "\">" + (x.title ? "<i>" + upEsc(x.title) + ":</i> " : "") + upEsc(x.f.message) + "</li>"; });
+      if (g.length > 6) h += "<li>and " + (g.length - 6) + " more</li>";
+      h += "</ul></div>";
+    });
+    h += "<div class=\"uv-btns\"><button type=\"button\" id=\"upValBack\">Go back and fix</button><button type=\"button\" id=\"upValSave\">Save anyway</button></div>";
+    v.innerHTML = h; v.hidden = false;
+    document.getElementById("upErr").hidden = true; document.getElementById("upMsg").hidden = true;
+    upValPending = commit;
+    upStatusIntoView();
+    var bk = document.getElementById("upValBack"); if (bk) bk.focus();
+  }
+  document.getElementById("upVal").addEventListener("click", function (e) {
+    var t = e.target.closest ? e.target.closest("button") : null;
+    if (!t) return;
+    if (t.id === "upValSave") { var c = upValPending; upValHide(); if (c) c(); }
+    else if (t.id === "upValBack") { upValHide(); var pa = document.getElementById("upPaste"); pa.focus(); try { pa.scrollIntoView({ block: "nearest" }); } catch (err) {} }
+  });
   document.getElementById("upLoad").addEventListener("click", function () {
     if (upLoading) return;   // v89: a Load tap during a run is ignored (Load itself stays tappable)
     unlock();
-    var b = upLoadBegin(document.getElementById("upPaste").value);
+    upValHide();
+    var b = upLoadBegin(document.getElementById("upPaste").value, { defer: true });
     if (b.done) { loadDone(b.done); return; }
+    if (b.pending) { var r = b.pending; upValGate([{ title: r.song.song.title, song: r.song }], function () { loadDone(upLoadOne(r)); }); return; }
     var L = b.list, N = L.items.length, msg = document.getElementById("upMsg");
-    if (N <= 3) { for (var i = 0; i < N; i++) upLoadCheck(L, i); loadDone(upLoadCommit(L)); return; }
+    function gate() {
+      var ok = L.rows.filter(function (row) { return row.song; }).map(function (row) { return { title: row.title || row.song.song.title, song: row.song }; });
+      upValGate(ok, function () { loadDone(upLoadCommit(L)); });
+    }
+    if (N <= 3) { for (var i = 0; i < N; i++) upLoadCheck(L, i); gate(); return; }
     upLoading = true;
     document.getElementById("upErr").hidden = true;
     var k = 0;
     (function step() {
-      if (k >= N) { loadDone(upLoadCommit(L)); return; }
+      if (k >= N) { upLoading = false; msg.hidden = true; gate(); return; }
       msg.textContent = "Checking song " + (k + 1) + " of " + N + "\u2026"; msg.hidden = false;
       if (k === 0) upStatusIntoView();
       upLoadCheck(L, k++);
