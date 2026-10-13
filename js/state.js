@@ -7,23 +7,31 @@ import { Theory } from "./theory/index.js?v=112.3";
 export const shared = {
   unlocked: false,   // owner: state.js
   paKeyMidi: null,   // owner: songs/playalong.js
-  kbKeyStay: false,   // owner: legacy.js
-  sustainDown: false,   // owner: legacy.js
-  sustainPointers: {},   // owner: legacy.js
-  sustainTouches: {},   // owner: legacy.js
-  suggestPreview: null,   // owner: legacy.js
+  kbWinLow: null,   // owner: ui/keyboard.js
+  kbKeyStay: false,   // owner: ui/keyboard.js
+  kbFullLo: null,   // owner: ui/keyboard.js
+  sustainDown: false,   // owner: ui/sustain.js
+  sustainPointers: {},   // owner: ui/sustain.js
+  sustainTouches: {},   // owner: ui/sustain.js
+  groupSerial: 0,   // owner: ui/sustain.js
+  suggestPreview: null,   // owner: ui/keyboard.js
+  kbKeyGo: false,   // owner: ui/keyboard.js
   paEvT: 0,   // owner: songs/playalong.js
-  suggestSig: "",   // owner: legacy.js
+  paletteStrike: false,   // owner: ui/pads.js
+  suggestSig: "",   // owner: theory/quality.js
   lockKey: null,   // owner: keys.js
-  kidsSolo: false,   // owner: legacy.js
-  suggestTimer: 0,   // owner: legacy.js
+  kidsSolo: false,   // owner: ui/keyboard.js
+  suggestTimer: 0,   // owner: ui/strip.js
+  paletteTimer: 0,   // owner: ui/palette.js
+  paletteHolds: {},   // owner: ui/palette.js
   U: null,   // owner: songs/upload.js
   upNxOff: false,   // owner: songs/song.js
-  paMiss: 0,   // owner: legacy.js
-  firstFresh: false,   // owner: legacy.js
+  paMiss: 0,   // owner: ui/hints.js
+  firstFresh: false,   // owner: ui/hints.js
   upPromptVer: "full",   // owner: songs/upload.js
   LIB: { v: 1, active: null, sel: false, songs: [] },   // owner: songs/library.js
   upEdit: null,   // owner: songs/library.js
+  upOpenAlt: null,   // owner: ui/songbar.js
   saveTimer: 0,   // owner: state.js
   lastSaved: "",   // owner: state.js
   persistReady: false,   // owner: state.js

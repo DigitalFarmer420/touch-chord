@@ -1,10 +1,13 @@
 // Applies loaded settings to the UI (applySettings, markOn) and the toast.
 import { api as ChordAudio } from "./audio/index.js?v=112.3";
 import { syncKeySel } from "./keys.js?v=112.3";
-import { dumpSustain, paintSustainBtn, setKeyModeState, paintProgNumsBtn, paintPlayAlongBtn, paintSimple, setVolume, setBand } from "./legacy.js?v=112.3";
 import { setBpm } from "./loop.js?v=112.3";
 import { VOICINGS, state, shared } from "./state.js?v=112.3";
 import { applyStylePreset, enforceYogaDeepPaletteGate, setWarmth, styleTrim } from "./styles.js?v=112.3";
+import { paintProgNumsBtn, paintPlayAlongBtn, setVolume, setBand } from "./ui/gear.js?v=112.3";
+import { paintSimple } from "./ui/layout.js?v=112.3";
+import { setKeyModeState } from "./ui/palette.js?v=112.3";
+import { dumpSustain, paintSustainBtn } from "./ui/sustain.js?v=112.3";
 
 function markOn(groupSel, attr, value) {
   var all = document.querySelectorAll(groupSel + " button");

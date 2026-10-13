@@ -1,11 +1,13 @@
 // Upload: AI prompt text, schema, answer parsing and validation, load flow.
 import { keyDegrees, SPELL_LI } from "../keys.js?v=112.3";
-import { computeSpec, wrap12, paintSuggestions } from "../legacy.js?v=112.3";
 import { upSave, LIB_MAX, libKey, libFind, libId, libWrite, paintLib } from "./library.js?v=112.3";
 import { progStop, progSet } from "./playback.js?v=112.3";
 import { upSelected, upKeyApply, upSelect, upStoreCopy, upLoadOne } from "./song.js?v=112.3";
 import { state, shared } from "../state.js?v=112.3";
 import { Theory } from "../theory/index.js?v=112.3";
+import { wrap12 } from "../theory/quality.js?v=112.3";
+import { computeSpec } from "../ui/pads.js?v=112.3";
+import { paintSuggestions } from "../ui/strip.js?v=112.3";
 
 // ===== Song Upload (full mode only) =====
 // Contract: contract/song-contract.schema.json (embedded below as #songSchemaJson, copied to the

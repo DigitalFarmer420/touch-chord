@@ -1,10 +1,12 @@
 // Play along: advance on the marked key / chip.
-import { wrap12, paletteHolds, nxNow, kidsTapPulse } from "../legacy.js?v=112.3";
 import { magicAdvance } from "./magic.js?v=112.3";
 import { magic, prog, PROG_TEST } from "./playback.js?v=112.3";
 import { sameChord } from "./presets.js?v=112.3";
 import { upSelected, upNextStep } from "./song.js?v=112.3";
 import { state, shared } from "../state.js?v=112.3";
+import { wrap12 } from "../theory/quality.js?v=112.3";
+import { nxNow } from "../ui/next.js?v=112.3";
+import { kidsTapPulse } from "../ui/pulse.js?v=112.3";
 // v108 Play along (outside Kids; Config > Play along enable, on by default): with a next chord marked
 // (nxNow, the same chord Next plays), tapping one of its tones on the keyboard (pitch class, any octave;
 // Full mode) or that chord's chip (Full and Simple) advances exactly like Next (magicAdvance). Never
@@ -21,7 +23,7 @@ export function playAlongNow() {
 // and never while a chord-table button is held (then the tap builds the held chord). Other keys: plain taps.
 export function playAlongKey(pad) {
   if (!pad || state.simple || pad.dataset.midi == null || pad.dataset.midi === "") return false;
-  for (var h in paletteHolds) if (paletteHolds[h]) return false;
+  for (var h in shared.paletteHolds) if (shared.paletteHolds[h]) return false;
   var cur = playAlongNow();
   if (!cur) return false;
   return wrap12(Number(pad.dataset.midi)) === wrap12(cur.item.rootPc);

@@ -1,8 +1,8 @@
 // Style presets (sound, FX, warmth per style) and the Yoga palette gate.
 import { api as ChordAudio } from "./audio/index.js?v=112.3";
-import { paletteHolds, paintBand } from "./legacy.js?v=112.3";
 import { setBpm } from "./loop.js?v=112.3";
-import { VOICINGS, state } from "./state.js?v=112.3";
+import { VOICINGS, state, shared } from "./state.js?v=112.3";
+import { paintBand } from "./ui/gear.js?v=112.3";
 
 // ---- Warmth + factory style presets ----
 export const WARMTH_DEFAULT = 25;
@@ -67,9 +67,9 @@ export function enforceYogaDeepPaletteGate() {
   }
   if (!gated) return;
   var dirty = false;
-  for (var id in paletteHolds) {
-    if (paletteHolds[id].kind === "type" && (paletteHolds[id].value === "dim" || paletteHolds[id].value === "sus4")) {
-      delete paletteHolds[id];
+  for (var id in shared.paletteHolds) {
+    if (shared.paletteHolds[id].kind === "type" && (shared.paletteHolds[id].value === "dim" || shared.paletteHolds[id].value === "sus4")) {
+      delete shared.paletteHolds[id];
       dirty = true;
     }
   }
@@ -79,8 +79,8 @@ export function enforceYogaDeepPaletteGate() {
   }
   if (dirty) {
     var nextType = "major";
-    for (var id2 in paletteHolds) {
-      if (paletteHolds[id2].kind === "type") nextType = paletteHolds[id2].value;
+    for (var id2 in shared.paletteHolds) {
+      if (shared.paletteHolds[id2].kind === "type") nextType = shared.paletteHolds[id2].value;
     }
     state.type = nextType;
   }

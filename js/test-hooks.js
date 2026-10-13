@@ -1,6 +1,5 @@
 // window.__* helpers for the Playwright suites. Loaded only with ?test=1 (dynamic import from main.js).
 import { api as ChordAudio } from "./audio/index.js?v=112.3";
-import { wrap12, kbWinLow, kbChord, hapLog, hapTest, stripLabel, laTarget, paintLookahead, nxNow, nxKeyEl, nxSigLast, nxBursts, paintNxMark, nextHintSpec, paHintLog, tourI, tourLog, tourDone, tourStart, kidsTapLog, fxTapLog, paintUpload, upLyrMap, lyrState, klState, upMode, upPromptFor, upShowErrors, upCopyText, upSetPrompt } from "./legacy.js?v=112.3";
 import { KIDS_LYRICS } from "./songs/kids-songs.js?v=112.3";
 import { upSave, libSaveErr, libOpen, libSetVer, libDelete } from "./songs/library.js?v=112.3";
 import { progNext, magicReset, magicHome, magicPool } from "./songs/magic.js?v=112.3";
@@ -10,6 +9,16 @@ import { PROG_BAR, PROGRESSIONS, progSteps, progNumerals } from "./songs/presets
 import { songTempo, upSelected, upNextStep, progRingSec, progLoopBar, upKeyApply, upSetLock, upPickAlt } from "./songs/song.js?v=112.3";
 import { UP_ARTIST_MAX, UP_SKIP_MAX, UP_LIST_MAX, upListSchemaText, upParseChord, upParseAnswer, upCheck, upSym, upFlagList, upLoadAll, upRemove } from "./songs/upload.js?v=112.3";
 import { state, shared } from "./state.js?v=112.3";
+import { wrap12 } from "./theory/quality.js?v=112.3";
+import { paHintLog } from "./ui/hints.js?v=112.3";
+import { kbChord } from "./ui/keyboard.js?v=112.3";
+import { upLyrMap, lyrState, klState } from "./ui/lyrics.js?v=112.3";
+import { laTarget, paintLookahead, nxNow, nxKeyEl, nxSigLast, nxBursts, paintNxMark, nextHintSpec } from "./ui/next.js?v=112.3";
+import { hapLog, hapTest } from "./ui/pads.js?v=112.3";
+import { kidsTapLog, fxTapLog } from "./ui/pulse.js?v=112.3";
+import { stripLabel } from "./ui/strip.js?v=112.3";
+import { tourI, tourLog, tourDone, tourStart } from "./ui/tour.js?v=112.3";
+import { paintUpload, upMode, upPromptFor, upShowErrors, upCopyText, upSetPrompt } from "./ui/upload-dialog.js?v=112.3";
 
 
 // Test hooks (loaded only with ?test=1)
@@ -35,7 +44,7 @@ export function install() {
   if (PROG_TEST) window.__fxTap = fxTapLog;
   if (PROG_TEST) window.__kidsTap = kidsTapLog;
   if (PROG_TEST) window.__kidsPads = function () { return Array.prototype.map.call(document.querySelectorAll("#suggest .ss-kidpad"), function (b) { var it = b._tc && b._tc.item; return { label: b.textContent, cls: b.className, rootPc: it && it.rootPc, type: it && it.type, gold: b.classList.contains("nx-root") }; }); };   // v103
-  if (PROG_TEST) window.__kbWin = function () { return { lo: kbWinLow, stay: shared.kbKeyStay, chord: kbChord && { rootPc: kbChord.rootPc, root: kbChord.root, type: kbChord.type } }; };   // v102
+  if (PROG_TEST) window.__kbWin = function () { return { lo: shared.kbWinLow, stay: shared.kbKeyStay, chord: kbChord && { rootPc: kbChord.rootPc, root: kbChord.root, type: kbChord.type } }; };   // v102
 
   if (PROG_TEST) window.__magic = {
     state: magic,
