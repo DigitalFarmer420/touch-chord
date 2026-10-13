@@ -6,12 +6,24 @@ import { Theory } from "./theory/index.js?v=112.3";
 // Shared mutable app state: the variables that more than one module writes. Read/write them as shared.<name>.
 export const shared = {
   unlocked: false,   // owner: state.js
+  paKeyMidi: null,   // owner: songs/playalong.js
+  kbKeyStay: false,   // owner: legacy.js
   sustainDown: false,   // owner: legacy.js
   sustainPointers: {},   // owner: legacy.js
   sustainTouches: {},   // owner: legacy.js
+  suggestPreview: null,   // owner: legacy.js
+  paEvT: 0,   // owner: songs/playalong.js
   suggestSig: "",   // owner: legacy.js
   lockKey: null,   // owner: keys.js
+  kidsSolo: false,   // owner: legacy.js
+  suggestTimer: 0,   // owner: legacy.js
+  U: null,   // owner: songs/upload.js
+  upNxOff: false,   // owner: songs/song.js
+  paMiss: 0,   // owner: legacy.js
   firstFresh: false,   // owner: legacy.js
+  upPromptVer: "full",   // owner: songs/upload.js
+  LIB: { v: 1, active: null, sel: false, songs: [] },   // owner: songs/library.js
+  upEdit: null,   // owner: songs/library.js
   saveTimer: 0,   // owner: state.js
   lastSaved: "",   // owner: state.js
   persistReady: false,   // owner: state.js

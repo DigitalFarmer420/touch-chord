@@ -1,12 +1,22 @@
 import { api as ChordAudio } from "./audio/index.js?v=112.3";
-import { keyRootSpell, modeKey, activeKey, keyDegrees, maybeLockKey, SPELL_LI, keyMainNames, keyAltNames, namePc, defaultKeyName, keyRootName, buildKeySel, syncKeySel, setKeySpell, suggestionKey } from "./keys.js?v=112.3";
+import { keyRootSpell, modeKey, activeKey, keyDegrees, maybeLockKey, keyMainNames, keyAltNames, namePc, keyRootName, buildKeySel, syncKeySel, setKeySpell, suggestionKey } from "./keys.js?v=112.3";
+import { kidKey, paintKidChip, paintKidKey, wireKidKey } from "./kids.js?v=112.3";
+import { finalizeOne, armPending, killLoopVoices, paintLoop, stopPlayback, onRecord, onPlay, onClear, setBpm } from "./loop.js?v=112.3";
 import { applySettings, showToast } from "./settings.js?v=112.3";
-import { VOICINGS, state, loop, fingers, padsEl, phaseEl, scheduleSave, factoryDefaults, storageClear, loadSettings, collectSettings, saveNow, shared } from "./state.js?v=112.3";
+import { KIDS_LYRICS } from "./songs/kids-songs.js?v=112.3";
+import { upSave, libGet, paintLib, libEntryToU, upRestoreSel, libOpen, libSetVer, libDelete, libConfirm } from "./songs/library.js?v=112.3";
+import { progNext, progBadge, magicTarget, magicQueue, magicAdvance } from "./songs/magic.js?v=112.3";
+import { paTwin, playAlongKey, playAlongGo, playAlongChip, playAlongNow } from "./songs/playalong.js?v=112.3";
+import { magic, setItemState, progStop, progPlay, prog, progSync, progDecorate, PROG_TEST, progSet, progWalkAt, progWalkTo, placeBadges, progRedecorate, progPlayStart } from "./songs/playback.js?v=112.3";
+import { progFeel, progSteps, progNumerals } from "./songs/presets.js?v=112.3";
+import { upInList, paintUpNext, upSelected, upNextStep, upKeyApply, upKeyNow, upTr, upLiveKeyObj, upT, upA, upSetLock, upPlaceLock, upSelect, upEsc, upStepOf, upCurStep, upPickAlt } from "./songs/song.js?v=112.3";
+import { upProgObj, UP_HEAD, UP_PASTE_LINE, UP_PASTE_LINE_2, UP_TAIL, UP_ARTIST_MAX, UP_SKIP_MAX, upListSchemaText, upEv, upSym, upFlagged, upFlagList, upSecName, upLoadBegin, upLoadCheck, upLoadCommit } from "./songs/upload.js?v=112.3";
+import { VOICINGS, state, loop, fingers, padsEl, scheduleSave, factoryDefaults, storageClear, loadSettings, collectSettings, saveNow, shared } from "./state.js?v=112.3";
 import { applyStylePreset, enforceYogaDeepPaletteGate, setWarmth } from "./styles.js?v=112.3";
 import { Theory } from "./theory/index.js?v=112.3";
 import { accSym } from "./theory/spelling.js?v=112.3";
 
-function computeSpec() {
+export function computeSpec() {
   var rootPc = state.rootPc;
   var type = state.type;
   var extra = {};
@@ -85,7 +95,7 @@ function computeSpec() {
 // bright +12; drop and bright fold to close); a keyboard key is the root itself.
 function kbPlace(chord, rootMidi) {
   var fromKey = typeof fingers !== "undefined" && Object.keys(fingers).length > 0;
-  if (typeof paKeyMidi !== "undefined" && paKeyMidi != null && rootMidi === paKeyMidi) fromKey = true;   // v111 (E): a Play along key advance = a key tap on that key
+  if (typeof shared.paKeyMidi !== "undefined" && shared.paKeyMidi != null && rootMidi === shared.paKeyMidi) fromKey = true;   // v111 (E): a Play along key advance = a key tap on that key
   // v84: a keyboard key never moves the window. The touched key sounds at its own pitch (the
   // top key too); the other tones go above it when they fit in the window, else an octave down.
   var full = kbFullMode() ? kbFullRange() : null;   // v85
@@ -113,7 +123,7 @@ function kbPlace(chord, rootMidi) {
     kOut.sort(function (a, b) { return a - b; });
     return kOut;
   }
-  if (!fromKey && !full && kbWindowMode() && kbWinLow != null && !kbKeyStay) {   // v111 (D3): move the window as little as possible
+  if (!fromKey && !full && kbWindowMode() && kbWinLow != null && !shared.kbKeyStay) {   // v111 (D3): move the window as little as possible
     var vOff = ({ low: -12, high: 12, bright: 12 })[chord.voicing] || 0;
     var best = null;   // the root's octave inside G3..E5 (55..76, + the Voicing octave) whose lowest key (root; slash: bass) is nearest the current left key
     for (var R2 = 55 + vOff + wrap12(chord.rootPc - 55 - vOff); R2 <= 76 + vOff; R2 += 12) {
@@ -225,7 +235,7 @@ function startSilentAudio() {
   } catch (err2) { /* ignore */ }
 }
 
-function unlock() {
+export function unlock() {
   setPlaybackSession();
   startSilentAudio();
   var pendingResume = ChordAudio.resume();
@@ -361,7 +371,7 @@ function effectiveLayout() {
   return state.simple ? "octave" : state.layout;
 }
 
-function renderPads() {
+export function renderPads() {
   // With Sustain down, held fingers hand their chords to the pedal pool.
   releaseFingers();
   state.rootMidi = null;
@@ -378,7 +388,7 @@ function renderKeys() {
   else if (layout === "full") { var fr = kbFullRange(); kbFullLo = fr.lo; addPiano(2, fr.lo, fr.hi - fr.lo + 1); }   // v85; v111 Kids from the tonic
   else addPiano(1, kbWinLow, 13);   // v83: Octave and Piano = one 13-key window, root on the left
 }
-var sustainPool;
+export var sustainPool;
 var groupSerial;
 
 function sustainEnabled() {
@@ -389,7 +399,7 @@ function sustainActive() {
   return shared.sustainDown && sustainEnabled();
 }
 
-function poolCount() {
+export function poolCount() {
   return Object.keys(sustainPool).length;
 }
 
@@ -447,7 +457,7 @@ function setSustain(on) {
     // v47: pedal pressed while a suggestion preview still rings: hand it to
     // the pool (like a held key) so the 1.6 s preview timeout can't cut it.
     else {
-      if (suggestPreview && !sustainPool["suggest"]) {
+      if (shared.suggestPreview && !sustainPool["suggest"]) {
         sustainPool["suggest"] = { pending: null };
         ChordAudio.protectGroup("suggest");
         ChordAudio.fadeGroup("suggest");
@@ -559,7 +569,7 @@ function bindPad(b) {
 // exists, otherwise the nearest same pitch-class pad. Style voicings
 // (drop/low/bright) and stale rootMidi often place tones outside the
 // on-screen keyboard; without this fold, Next highlight misses notes.
-function highlightMidisFromSpec(specMidis) {
+export function highlightMidisFromSpec(specMidis) {
   var buttons = padsEl.querySelectorAll(".pad");
   var padMidis = [];
   for (var i = 0; i < buttons.length; i++) {
@@ -601,7 +611,7 @@ function paintPads() {
     var b = buttons[i];
     var down = win ? !!heldM[b.dataset.midi] : !!held[b.dataset.id];
     var preview = false;
-    if (!down && suggestPreview && suggestPreview.midis && suggestPreview.midis[b.dataset.midi] && !seenMidi[b.dataset.midi]) {
+    if (!down && shared.suggestPreview && shared.suggestPreview.midis && shared.suggestPreview.midis[b.dataset.midi] && !seenMidi[b.dataset.midi]) {
       preview = true;
       seenMidi[b.dataset.midi] = true;
     }
@@ -615,7 +625,7 @@ function paintPads() {
   if (typeof magic !== "undefined" && magic) paintNextHint();   // v68/v71: re-apply after a rebuild (first-load fix: always, not only after a Next tap)
 }
 
-function specFromFinger(finger) {
+export function specFromFinger(finger) {
   var root = state.rootPc;
   var degree = state.degree;
   var rootMidi = state.rootMidi, force = state.forceChord;
@@ -728,8 +738,8 @@ function releaseFingers(hard) {
 // v100: a tiny buzz when a finger presses a key (only here, so playback, Band, Play and Next never buzz).
 // Phones without vibrate (iOS) skip it quietly. Taps closer than 30 ms (a hand of keys) buzz once.
 var hapLast;
-const hapLog = { calls: 0, skipped: 0, ms: [] };
-var hapTest;
+export const hapLog = { calls: 0, skipped: 0, ms: [] };
+export var hapTest;
 function keyHaptic() {
   var t = (window.performance && performance.now) ? performance.now() : Date.now();
   if (t - hapLast < 30) { hapLog.skipped++; return; }
@@ -741,16 +751,16 @@ function onPadDown(e) {
   e.preventDefault();
   keyHaptic();   // v100
   if (kidsGoldKey(e.currentTarget)) {   // v79
-    kbKeyGo = true; kbKeyStay = true;   // v102: a gold KEY tap never moves the window
+    kbKeyGo = true; shared.kbKeyStay = true;   // v102: a gold KEY tap never moves the window
     try { kidsGoldGo(e.currentTarget, "key"); } finally { kbKeyGo = false; }
     return;
   }
-  paEvT = e.timeStamp || performance.now();
+  shared.paEvT = e.timeStamp || performance.now();
   if (!state.simple && e.currentTarget.dataset.midi != null && e.currentTarget.dataset.midi !== "" && paTwin("key", Number(e.currentTarget.dataset.midi))) return;   // v111 (D6): the same press as a chip just now
   if (!playAlongKeyOk(e.currentTarget)) paHintMiss("key", e.currentTarget);   // v112: a hint (the tap still sounds)
   if (playAlongKey(e.currentTarget)) {   // v108 Play along: the marked next chord's root key = Next (v109: root only)
-    kbKeyGo = true; kbKeyStay = true; paKeyMidi = Number(e.currentTarget.dataset.midi);   // v109: voiced from the tapped key
-    try { playAlongGo(e.currentTarget, "key"); } finally { kbKeyGo = false; paKeyMidi = null; }
+    kbKeyGo = true; shared.kbKeyStay = true; shared.paKeyMidi = Number(e.currentTarget.dataset.midi);   // v109: voiced from the tapped key
+    try { playAlongGo(e.currentTarget, "key"); } finally { kbKeyGo = false; shared.paKeyMidi = null; }
     return;
   }
   var needReplay = !(ChordAudio.ctx && ChordAudio.ctx.state === "running");
@@ -795,8 +805,8 @@ function chordSig(spec) {
 // skip if nothing audible changed, otherwise morph (common tones sustain,
 // changed tones crossfade) instead of cutting and retriggering every voice.
 var paletteStrike;
-const PERCUSSIVE_SOUNDS = { piano: true, epiano: true, bell: true };
-function refreshHeld() {
+export const PERCUSSIVE_SOUNDS = { piano: true, epiano: true, bell: true };
+export function refreshHeld() {
   Object.keys(fingers).forEach(function (id) {
     var finger = fingers[id];
     var spec = specFromFinger(finger);
@@ -819,318 +829,9 @@ function refreshHeld() {
   updateSymbol();
 }
 
-function stepAt(time) {
-  var s = 60 / loop.bpm / 4;
-  var idx = Math.round((time - loop.startTime) / s);
-  idx = ((idx % 64) + 64) % 64;
-  return idx;
-}
-
-function minCycleFor() {
-  if (!loop.overdub) return 0;
-  return Math.floor(loop.nextIndex / 64) + 1;
-}
-
-function armPending(finger, spec) {
-  if (!loop.recording || !ChordAudio.ctx || !finger) return;
-  var now = ChordAudio.currentTime();
-  if (finger.pending) finalizeOne(finger, now);
-  finger.pending = {
-    t0: now,
-    step: stepAt(now),
-    midis: spec.midis.slice(),
-    bass: spec.bassOut,
-    sound: state.sound,
-    minCycle: minCycleFor(),
-    seq: ++loop.seq
-  };
-}
-
-function finalizeOne(finger, atTime) {
-  if (!finger || !finger.pending) return;
-  var s = 60 / loop.bpm / 4;
-  var dur = Math.round((atTime - finger.pending.t0) / s);
-  if (dur < 1) dur = 1;
-  if (dur > 64) dur = 64;
-  loop.events.push({
-    kind: "chord",
-    step: finger.pending.step,
-    dur: dur,
-    midis: finger.pending.midis,
-    bass: finger.pending.bass,
-    sound: finger.pending.sound,
-    minCycle: finger.pending.minCycle,
-    seq: finger.pending.seq
-  });
-  finger.pending = null;
-}
-
-function finalizePending(atTime) {
-  Object.keys(fingers).forEach(function (id) { finalizeOne(fingers[id], atTime); });
-  Object.keys(sustainPool).forEach(function (g) { finalizeOne(sustainPool[g], atTime); });
-}
-
-function clearPending() {
-  Object.keys(fingers).forEach(function (id) { fingers[id].pending = null; });
-  Object.keys(sustainPool).forEach(function (g) { sustainPool[g].pending = null; });
-}
-
-function armHeld() {
-  Object.keys(fingers).forEach(function (id) {
-    armPending(fingers[id], specFromFinger(fingers[id]));
-  });
-}
-
-function killLoopVoices() {
-  for (var i = 0; i < loop.active.length; i++) ChordAudio.stopChord(loop.active[i].group);
-  loop.active = [];
-}
-
-function ensureScheduler() {
-  if (loop.timer) return;
-  loop.timer = setInterval(tick, 25);
-}
-
-function stopScheduler() {
-  if (loop.timer) {
-    clearInterval(loop.timer);
-    loop.timer = null;
-  }
-}
-
-function tick() {
-  if (!loop.transport || !ChordAudio.ctx) return;
-  var now = ChordAudio.currentTime();
-  var s = 60 / loop.bpm / 4;
-  var due = loop.startTime + loop.nextIndex * s;
-  if (loop.nextIndex > 0 && due < now - 0.3) {
-    loop.nextIndex = Math.ceil((now - loop.startTime) / s);
-    killLoopVoices();
-  }
-  var guard = 0;
-  while (guard++ < 8) {
-    var time = loop.startTime + loop.nextIndex * s;
-    if (time >= now + 0.12) break;
-    if (loop.recording && !loop.overdub && loop.nextIndex >= 64) commitInitial(false);
-    if (loop.playing && time >= now - 0.08) trigger(loop.nextIndex, time);
-    loop.nextIndex++;
-  }
-  paintLoop();
-}
-
-function trigger(N, time) {
-  var step = ((N % 64) + 64) % 64;
-  var cycle = Math.floor(N / 64);
-  for (var i = loop.active.length - 1; i >= 0; i--) {
-    if (loop.active[i].offIndex <= N) {
-      ChordAudio.stopChord(loop.active[i].group, time);
-      loop.active.splice(i, 1);
-    }
-  }
-  var evs = loop.events.filter(function (e) {
-    return e.step === step && cycle >= e.minCycle;
-  });
-  evs.sort(function (a, b) { return a.seq - b.seq; });
-  for (var k = 0; k < evs.length; k++) {
-    var e = evs[k];
-    if (e.kind === "chord") {
-      var g = "L" + (++loop.gid);
-      ChordAudio.playChord(g, e.midis, { bass: e.bass, sound: state.sound, time: time });   // v73: replay in the active style sound
-      loop.active.push({ group: g, offIndex: N + e.dur });
-    } else if (e.kind === "strum") {
-      ChordAudio.pluck(e.midi, { sound: state.sound, time: time, group: "loop-strum" });
-    } else if (e.kind === "bass") {
-      ChordAudio.pluck(e.midi, { sound: state.sound, time: time, bass: true, group: "loop-strum" });
-    }
-  }
-  while (loop.active.length > 6) {
-    var old = loop.active.shift();
-    ChordAudio.stopChord(old.group, time);
-  }
-}
-
-function commitInitial(restartNow) {
-  if (ChordAudio.ctx) finalizePending(ChordAudio.currentTime());
-  else clearPending();
-  loop.recording = false;
-  loop.overdub = false;
-  loop.playing = true;
-  if (restartNow) {
-    killLoopVoices();
-    loop.events.forEach(function (e) { e.minCycle = 0; });
-    loop.startTime = ChordAudio.currentTime() + 0.03;
-    loop.nextIndex = 0;
-    loop.bpm = state.bpm;
-  }
-  paintLoop();
-}
-
-function startFresh() {
-  killLoopVoices();
-  loop.events = [];
-  clearPending();
-  loop.recording = true;
-  loop.overdub = false;
-  loop.playing = false;
-  loop.transport = true;
-  loop.bpm = state.bpm;
-  loop.startTime = ChordAudio.currentTime() + 0.02;
-  loop.nextIndex = 0;
-  ensureScheduler();
-  if (state.holding) armHeld();
-  paintLoop();
-}
-
-function beginTransport() {
-  loop.events.forEach(function (e) { e.minCycle = 0; });
-  loop.transport = true;
-  loop.bpm = state.bpm;
-  loop.startTime = ChordAudio.currentTime() + 0.02;
-  loop.nextIndex = 0;
-  ensureScheduler();
-}
-
-function stopPlayback() {
-  if (loop.recording && ChordAudio.ctx) finalizePending(ChordAudio.currentTime());
-  else clearPending();
-  loop.recording = false;
-  loop.overdub = false;
-  loop.playing = false;
-  loop.transport = false;
-  killLoopVoices();
-  stopScheduler();
-  ChordAudio.band.hush();   // v104
-  phaseEl.style.width = "0%";
-  paintLoop();
-}
-
-function onRecord() {
-  unlock();
-  progStop();   // v55: one loop at a time
-  if (loop.recording && !loop.overdub) {
-    commitInitial(true);
-    ensureScheduler();
-    return;
-  }
-  if (loop.recording && loop.overdub) {
-    if (ChordAudio.ctx) finalizePending(ChordAudio.currentTime());
-    loop.recording = false;
-    loop.overdub = false;
-    paintLoop();
-    return;
-  }
-  if (loop.events.length) {
-    if (!loop.transport) {
-      beginTransport();
-      loop.playing = true;
-    }
-    loop.recording = true;
-    loop.overdub = true;
-    ensureScheduler();
-    if (state.holding) armHeld();
-    paintLoop();
-    return;
-  }
-  startFresh();
-}
-
-function onPlay() {
-  unlock();
-  if (loop.recording && !loop.overdub) {
-    commitInitial(true);
-    ensureScheduler();
-    return;
-  }
-  if (loop.playing) {
-    stopPlayback();
-    return;
-  }
-  if (!loop.events.length) {
-    // v70: no phrase loop recorded: Play = play the progression (v111: looping, from the Next walk position).
-    progPlay();   // toggles: a second tap stops it
-    paintLoop();
-    return;
-  }
-  progStop();   // v55: one loop at a time
-  killLoopVoices();
-  beginTransport();
-  loop.playing = true;
-  paintLoop();
-}
-
-function onClear() {
-  clearPending();
-  loop.events = [];
-  loop.recording = false;
-  loop.overdub = false;
-  loop.playing = false;
-  loop.transport = false;
-  killLoopVoices();
-  stopScheduler();
-  ChordAudio.band.hush();   // v104
-  phaseEl.style.width = "0%";
-  paintLoop();
-  updateSymbol();
-}
-
-export function setBpm(bpm) {
-  bpm = Math.round(Number(bpm));
-  if (isNaN(bpm)) bpm = 96;
-  if (bpm < 50) bpm = 50;
-  if (bpm > 180) bpm = 180;
-  if (loop.transport && ChordAudio.ctx) {
-    var now = ChordAudio.currentTime();
-    var oldS = 60 / loop.bpm / 4;
-    var elapsed = (now - loop.startTime) / oldS;
-    loop.bpm = bpm;
-    loop.startTime = now - elapsed * (60 / bpm / 4);
-  } else {
-    loop.bpm = bpm;
-  }
-  state.bpm = bpm;
-  ChordAudio.setBpm(bpm);
-  document.getElementById("bpmVal").textContent = String(bpm);
-  var slider = document.getElementById("bpm");
-  if (slider.value !== String(bpm)) slider.value = String(bpm);
-}
-
-function loopLabel() {
-  var base = "Empty";
-  if (loop.recording && loop.overdub) base = "Overdub";
-  else if (loop.recording) base = "Recording";
-  else if (loop.playing) base = "Playing";
-  else if (loop.events.length) base = "Loop " + loop.events.length;
-  if (loop.transport && ChordAudio.ctx) {
-    var s = 60 / loop.bpm / 4;
-    var pos = (ChordAudio.currentTime() - loop.startTime) / s;
-    var step = Math.floor(((pos % 64) + 64) % 64);
-    var bar = Math.floor(step / 16) + 1;
-    var beat = Math.floor((step % 16) / 4) + 1;
-    base += " · " + bar + "." + beat;
-    phaseEl.style.width = ((((pos % 64) + 64) % 64) / 64 * 100) + "%";
-  } else if (!loop.transport) {
-    phaseEl.style.width = "0%";
-  }
-  return base;
-}
-
-function paintLoop() {
-  var rec = document.getElementById("rec");
-  var play = document.getElementById("play");
-  rec.classList.toggle("on", loop.recording);
-  rec.setAttribute("aria-pressed", loop.recording ? "true" : "false");
-  rec.textContent = loop.recording ? "Stop rec" : "Record";
-  var seq = !loop.events.length && typeof prog !== "undefined" && prog && prog.playing;   // v70 sequence autoplay
-  play.classList.toggle("on", loop.playing || !!seq);
-  play.textContent = loop.playing || seq ? "Stop" : "Play";
-  document.getElementById("loopStatus").textContent = loopLabel();
-  var sym = document.getElementById("symbol");
-  sym.classList.toggle("sounding", state.holding || poolCount() > 0 || loop.active.length > 0 || loop.playing);
-}
 
 
-
-function blankExt() {
+export function blankExt() {
   return { six: false, min7: false, maj7: false, nine: false };
 }
 
@@ -1171,16 +872,13 @@ function mapQuality(q) {
 }
 
 export function wrap12(n) { return ((n % 12) + 12) % 12; }
-
-var suggestPreview;
 // ---- v83 one-octave window ----
 var kbLast;
-var kbWinLow;
+export var kbWinLow;
 // v102 Kids: after a gold-key tap the window stays where it is (the keys never slide under the finger),
 // and the next gold note is placed inside it. Any chip / pad / Next / Play / key change ends this.
-var kbKeyStay;
 var kbKeyGo;
-var kbChord;
+export var kbChord;
 var kbKeySig;
 function kbChordOf(spec) {
   if (!spec || !spec.midis || !spec.midis.length) return null;
@@ -1220,7 +918,7 @@ function kidsPlace(n) {
     return n;
   }
   var g = kidsPlace0(n);
-  if (kbKeyStay && kbWindowMode() && kbWinLow != null && (g < kbWinLow || g > kbWinLow + 12)) g = kbWinLow + wrap12(g - kbWinLow);   // v102
+  if (shared.kbKeyStay && kbWindowMode() && kbWinLow != null && (g < kbWinLow || g > kbWinLow + 12)) g = kbWinLow + wrap12(g - kbWinLow);   // v102
   return g;
 }
 function kidsPlace0(n) {
@@ -1254,7 +952,7 @@ function kbWantLow(force) {
     var kMn = Math.min.apply(null, kS), kMx = Math.max.apply(null, kS);
     return kMn < kT ? kMn : kMx - 12;
   }
-  if (!force && kbKeyStay && kbWinLow != null) return kbWinLow;   // v102
+  if (!force && shared.kbKeyStay && kbWinLow != null) return kbWinLow;   // v102
   var S = kbLast && kbLast.length ? kbLast.slice() : [];
   var g = kidsGoldNow();
   if (g != null) S.push(g);
@@ -1268,7 +966,7 @@ function kbWantLow(force) {
   }
   return Math.min.apply(null, S);
 }
-function kbSound(midis, spec, item) {
+export function kbSound(midis, spec, item) {
   if (midis && midis.length) kbLast = midis.slice();
   if (spec) { kbChord = kbChordOf(spec); if (kbChord) kbChord.item = item || null; }
   if (kbUpdate()) return true;
@@ -1291,7 +989,7 @@ function kbUpdate() {
   // (locked from the first chord) does not. Never under a held finger.
   var ak = activeKey(), sig = ak ? ak.pc + ak.mode : "", force = false;
   if (sig !== kbKeySig && !Object.keys(fingers).length) {
-    if (kbKeySig) { kbLast = null; kbChord = null; force = true; kbKeyStay = false; }
+    if (kbKeySig) { kbLast = null; kbChord = null; force = true; shared.kbKeyStay = false; }
     kbKeySig = sig;
   }
   var L = kbWantLow(force);
@@ -1310,10 +1008,7 @@ function kbRebuild() {
   paintKeyChip(computeSpec());   // in-key dimming and key spellings on the new keys
   paintPads();
 }
-// v70: Kids progression playback (Next / badge / loop Play) sounds ONLY the step's root:
-// one MIDI note, no triad, no bass. Pad and chip taps are not affected.
-var kidsSolo;
-function kidsSoloSpec(spec, rootPc, mel) {   // v96: mel = the step melody (else the root)
+export function kidsSoloSpec(spec, rootPc, mel) {   // v96: mel = the step melody (else the root)
   // v76: melody relative to the tonic (G3..F#4), so the contour is the same in every key.
   var ak = activeKey(), keyPc = ak ? ak.pc : 0;
   var tonicMidi = 55 + wrap12(keyPc - 7);
@@ -1325,17 +1020,16 @@ function kidsSoloSpec(spec, rootPc, mel) {   // v96: mel = the step melody (else
   return o;
 }
 const suggestTapAt = 0;   // last touch/pen tap on a Next chip (click de-dupe)
-var suggestTimer;
 var suggestSeq;
 
-function clearSuggestPreview() {
-  if (suggestTimer) {
-    clearTimeout(suggestTimer);
-    suggestTimer = 0;
+export function clearSuggestPreview() {
+  if (shared.suggestTimer) {
+    clearTimeout(shared.suggestTimer);
+    shared.suggestTimer = 0;
   }
   stopStripTails();
-  if (!suggestPreview) return;
-  suggestPreview = null;
+  if (!shared.suggestPreview) return;
+  shared.suggestPreview = null;
   state.forceChord = null;
   // v47: a preview the pedal has adopted keeps ringing until pedal-up.
   if (!sustainPool["suggest"]) ChordAudio.stopChord("suggest");
@@ -1343,7 +1037,7 @@ function clearSuggestPreview() {
 }
 
 // v52: chip-only chord colours; a pad press or palette touch drops them.
-const STRIP_EXT = ["sus2", "flat9", "sharp9", "thirteen", "over"];
+export const STRIP_EXT = ["sus2", "flat9", "sharp9", "thirteen", "over"];
 function clearStripExt() {
   STRIP_EXT.forEach(function (k) { state.extensions[k] = k === "over" ? 0 : false; });
   state.stripSpell = null;
@@ -1353,7 +1047,7 @@ function clearStripExt() {
 // group and it sounds at full level until the finger lifts. Let go before the preview
 // length (1.6 s) and it rings on to the end of the preview (a quick tap sounds as before);
 // let go later and it releases now. With Sustain down, a lifted chip joins the pedal pool.
-const PREVIEW_MS = 1600;
+export const PREVIEW_MS = 1600;
 const stripHolds = {};   // pointerId -> { group, t0, silent }
 const stripTails = {};   // group -> timer (let go, still ringing out its preview)
 function stripHoldCount() { return Object.keys(stripHolds).length; }
@@ -1393,35 +1087,35 @@ function stripUp(pid) {
     }
   }
   if (!stripHoldCount()) {
-    if (suggestTimer) clearTimeout(suggestTimer);
-    suggestTimer = setTimeout(clearSuggestPreview, Math.max(0, left));
+    if (shared.suggestTimer) clearTimeout(shared.suggestTimer);
+    shared.suggestTimer = setTimeout(clearSuggestPreview, Math.max(0, left));
   }
 }
 function releaseStripHolds() { Object.keys(stripHolds).forEach(stripUp); }
 
-function applySuggestion(item, hold) {
+export function applySuggestion(item, hold) {
   if (paletteTimer) {
     clearTimeout(paletteTimer);
     paletteTimer = 0;
   }
   paletteHolds = {};
-  if (!kbKeyGo) kbKeyStay = false;   // v102: a chip / pad / Next chord may move the window again
+  if (!kbKeyGo) shared.kbKeyStay = false;   // v102: a chip / pad / Next chord may move the window again
   setItemState(item);   // v55: shared with the progression player
   var needReplay = !(ChordAudio.ctx && ChordAudio.ctx.state === "running");
   var pending = unlock();
   refreshHeld();
   var spec;
-  if (paKeyMidi != null) {   // v109 Play along key: the chord's root on the tapped key, so the tapped key sounds and lights
-    var rm0 = state.rootMidi; state.rootMidi = paKeyMidi;
+  if (shared.paKeyMidi != null) {   // v109 Play along key: the chord's root on the tapped key, so the tapped key sounds and lights
+    var rm0 = state.rootMidi; state.rootMidi = shared.paKeyMidi;
     try { spec = computeSpec(); } finally { state.rootMidi = rm0; }
-    if (spec.midis.indexOf(paKeyMidi) < 0) spec.midis = spec.midis.concat([paKeyMidi]).sort(function (a, b) { return a - b; });
+    if (spec.midis.indexOf(shared.paKeyMidi) < 0) spec.midis = spec.midis.concat([shared.paKeyMidi]).sort(function (a, b) { return a - b; });
   } else spec = computeSpec();
-  if (kidsSolo) spec = kidsSoloSpec(spec, item.rootPc, item.mel);
+  if (shared.kidsSolo) spec = kidsSoloSpec(spec, item.rootPc, item.mel);
   if (!Object.keys(fingers).length) kbSound(spec.midis, spec, item);   // v83: move the window before mapping the lit keys (v84: not under a held key)
   // Highlight uses exact pad midis when present; otherwise nearest same-pc
   // pad so drop/low/bright (and off-keyboard registers) still light the
   // notes the suggestion is sounding. Audio keeps the true voiced midis.
-  suggestPreview = {
+  shared.suggestPreview = {
     type: spec.type,
     extensions: {
       six: !!state.extensions.six,
@@ -1452,7 +1146,7 @@ function applySuggestion(item, hold) {
     ChordAudio.stopChord("suggest");
   }
   if (!state.holding) {
-    ChordAudio.playChord(sg, spec.midis, { bass: spec.bassOut, sound: state.sound, key: paKeyMidi != null });   // v109: a Play along key sounds its pitch (as a key tap)
+    ChordAudio.playChord(sg, spec.midis, { bass: spec.bassOut, sound: state.sound, key: shared.paKeyMidi != null });   // v109: a Play along key sounds its pitch (as a key tap)
     if (pool) { ChordAudio.protectGroup(sg); ChordAudio.fadeGroup(sg); }
     if (needReplay && pending && typeof pending.then === "function") {
       pending.then(function () {
@@ -1468,9 +1162,9 @@ function applySuggestion(item, hold) {
     hold.silent = true;   // pads held: the chip re-voices them instead (as before)
   }
   updateSymbol();
-  if (suggestTimer) clearTimeout(suggestTimer);
-  if (!hold) suggestTimer = setTimeout(clearSuggestPreview, PREVIEW_MS);
-  else suggestTimer = 0;
+  if (shared.suggestTimer) clearTimeout(shared.suggestTimer);
+  if (!hold) shared.suggestTimer = setTimeout(clearSuggestPreview, PREVIEW_MS);
+  else shared.suggestTimer = 0;
 }
 
 // v48: scale strip. Middle row = the key's 7 notes in scale order with home
@@ -1487,7 +1181,7 @@ function arrowSvg(up) {
   return "<svg class=\"ss-arrow\" viewBox=\"0 0 12 14\" aria-hidden=\"true\">" + (up ? "<path d=\"M6 13V2M2 6l4-4 4 4\"/>" : "<path d=\"M6 1v11M2 8l4 4 4-4\"/>") + "</svg>";
 }
 const SHOW_STRIP_FACES = false;   // v94: decorative row labels, now only in How to
-var STRIP_ICONS;
+export var STRIP_ICONS;
 const STRIP_ROWS = [
   { id: "happy", glyph: "\u2191", label: "Happy /<br>Color", aria: "Happy / Color" },
   { id: "scale", glyph: "\u266a", label: "Scale", aria: "Scale" },
@@ -1497,7 +1191,7 @@ const STRIP_ROWS = [
 // v52: each style has its own chip set (same rows and columns; strip notes still
 // play triads). Entry: [relative-major degree, quality, row, lowered root, borrowed].
 // A lowered root (\u266dVII, \u266dVI) sits in the column of the scale note with the same letter.
-const STRIP_QUAL = {
+export const STRIP_QUAL = {
   maj:    { type: "major", ext: {}, label: "" },
   min:    { type: "minor", ext: {}, label: "m" },
   "7":    { type: "major", ext: { min7: true }, label: "7" },
@@ -1589,8 +1283,8 @@ const STRIP_SETS_MINOR = {
             [1, "min", "sad"], [4, "min", "sad"], [5, "min", "sad"],
             [5, "7", "tension"], [4, "maj", "bright", false, true]]
 };
-function prettyAcc(name) { return accSym(name); }
-function stripLabel(item) {
+export function prettyAcc(name) { return accSym(name); }
+export function stripLabel(item) {
   var q = item.qualityLabel || "";
   if (item.chipLabel != null) return prettyAcc(item.rootName) + item.chipLabel;
   if (q === "m7b5") q = "m7\u266d5";
@@ -1613,7 +1307,7 @@ function chipRoman(d, q, ext, low) {
 }
 // v54: lowered-letter spelling for an out-of-row chip root, written as the plain letter when
 // it would read Cb, Fb, E#, B# or need a double accidental (those are all white keys).
-function plainRootSpell(pc, rs) {
+export function plainRootSpell(pc, rs) {
   var odd = Math.abs(rs.acc) >= 2 || (rs.acc === -1 && (rs.li === 0 || rs.li === 3)) || (rs.acc === 1 && (rs.li === 2 || rs.li === 6));
   if (!odd) return rs;
   var nat = [0, -1, 1, -1, 2, 3, -1, 4, -1, 5, -1, 6][wrap12(pc)];
@@ -1700,7 +1394,7 @@ function stripModel(key) {
 // Touch/pen fire on pointerup: browsers drop the synthetic click when
 // another finger is down (e.g. holding Sustain). Click stays for
 // mouse / keyboard, de-duplicated against the pointer tap.
-function wireStripTap(b, item) {
+export function wireStripTap(b, item) {
   // v53: hold like a key (see stripDown / stripUp). Pressed look lasts the whole hold.
   var pressT = 0, upAt = 0;
   function unpress() { clearTimeout(pressT); pressT = setTimeout(function () { b.classList.remove("press"); }, 120); }
@@ -1710,7 +1404,7 @@ function wireStripTap(b, item) {
     b.classList.add("press");
     try { b.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
     if (kidsGoldPad(b)) { kidsGoldGo(b, "pad"); return; }   // v79
-    paEvT = e.timeStamp || performance.now();
+    shared.paEvT = e.timeStamp || performance.now();
     if (paTwin("chip", null, item, b)) return;   // v111 (D6): the same press as a root key just now
     if (playAlongChip(b, item)) { playAlongGo(b, "chip"); return; }   // v108
     paHintMiss("chip", b);   // v112: a hint (the chip still sounds)
@@ -1732,13 +1426,13 @@ function wireStripTap(b, item) {
 }
 // No key yet: the strip on screen becomes the key (same as the first chord
 // locking it), so tapping a note doesn't re-key the strip under the finger.
-var stripKey;
+export var stripKey;
 function stripTap(item) {
   if (!activeKey() && stripKey) { shared.lockKey = { pc: stripKey.pc, mode: stripKey.mode }; }
   applySuggestion(item);
 }
 
-function paintSuggestions(spec) {
+export function paintSuggestions(spec) {
   var key = suggestionKey(spec || computeSpec());
   var sig = key.pc + key.mode + keyRootName(key) + state.style;
   if (sig === shared.suggestSig) return;
@@ -1840,379 +1534,13 @@ function paintSuggestions(spec) {
   }
 }
 var notesPulsed;
-const PROG_BPM = 80;
-var PROG_BAR;
-function P(name, s) { return { name: name, steps: s.split("|") }; }
-// v60: labels are Style + feel (phones show the feel only). Steps: "degree quality [xBars]".
-var PROGRESSIONS;
-// Phones: the feel only ("Jazz Turnaround" -> "Turnaround", "Yoga Drone" -> "Drone").
-function progFeel(name) { if (upProgObj && U && name === upProgObj.name) return U.title; return String(name || "").replace(/^(Pop|Kids|Jazz|R&B|Ballad|Reggae|Funk|Yoga|Country)\s+/, ""); }
-const PROG_SUFFIX = { maj: "", min: "", "7": "7", maj7: "maj7", m7: "7", m7b5: "\u00f87", sus4: "sus4", sus2: "sus2",
-  add9: "add9", madd9: "add9", "9": "9", maj9: "maj9", m9: "9", "9sus": "9sus", "13": "13", "7b9": "7\u266d9",
-  "7#9": "7\u266f9", "7sus4": "7sus4", "6": "6", dim: "\u00b0", overV: "/V", moverV: "/V", over3: "/3", mover3: "/3" };
-function progList(style, mode) {
-  var s = PROGRESSIONS[style] || PROGRESSIONS.pop;
-  var l = s[mode === "minor" ? "minor" : "major"];
-  if (!l || !l.length) l = s.major;   // v109: Kids has no minor songs any more
-  return upInList() ? l.concat([upProgObj]) : l;   // Upload: the song goes last (full mode, not Kids)
-}
-function progParse(str) {
-  var t = str.trim().split(/\s+/);
-  var low = t[0].charAt(0) === "b";
-  var bars = 1, mel = null;   // v96: tokens after the quality by prefix: x = bars, @ = melody (semitones above the tonic)
-  t.slice(2).forEach(function (x) { if (x.charAt(0) === "x") bars = parseFloat(x.slice(1)); else if (x.charAt(0) === "@") mel = parseInt(x.slice(1), 10); });
-  return { deg: parseInt(low ? t[0].slice(1) : t[0], 10), q: t[1], low: low, bars: bars, mel: mel };
-}
-// One step -> a strip item, its numeral and its strip place (same rules as stripModel chips).
-function progStep(key, str) {
-  var st = progParse(str);
-  var kdegs = keyDegrees(key);
-  if (state.style === "kids") kidsMajorStep(st, kdegs);   // v103
-  var rowPcs = kdegs.map(function (d) { return d.pc; }).sort(function (a, b) { return a - b; });
-  var dorder = kdegs.slice().sort(function (a, b) { return a.pc - b.pc; }).map(function (d) { return d.degree; });
-  var inKey = {};
-  kdegs.forEach(function (d) { inKey[d.pc] = true; });
-  var d = kdegs[st.deg - 1];
-  var q = STRIP_QUAL[st.q];
-  var pc = wrap12(d.pc - (st.low ? 1 : 0));
-  var ext = blankExt();
-  for (var ek in q.ext) ext[ek] = q.ext[ek];
-  var tonePcs = Theory.chordIntervals(q.type, ext).map(function (iv) { return wrap12(pc + iv); });
-  if (ext.over) tonePcs.push(wrap12(pc + ext.over));
-  var diatonic = tonePcs.every(function (x) { return inKey[x]; });
-  var ni = rowPcs.indexOf(pc), hc, rs;
-  if (ni >= 0) { rs = kdegs[dorder[ni] - 1].rootSpell; hc = 1 + 2 * ni; }
-  else {
-    rs = plainRootSpell(pc, st.low ? { li: d.rootSpell.li, acc: d.rootSpell.acc - 1 } : d.rootSpell);
-    hc = 2 * rowPcs.filter(function (x) { return x < pc; }).length;
-  }
-  var lab = q.label;
-  if (ext.over) lab = (q.type === "minor" ? "m" : "") + "/" + accSym(Theory.spellInterval(rs, ext.over).name);
-  var base = String(d.roman).replace(/[^ivIV]/g, "").toUpperCase();
-  var lower = q.type === "minor" || q.type === "dim";
-  var roman = (st.low ? "\u266d" : "") + (lower ? base.toLowerCase() : base) + (PROG_SUFFIX[st.q] || "");
-  var row = (q.type === "minor" && !ext.over) ? "sad"
-    : (q.type === "dim" || q.type === "sus4" || ext.flat9 || ext.sharp9 || ext.over) ? "tension"
-    : (diatonic && ni >= 0) ? "happy" : "bright";
-  // Chip numeral (as on strip chips): degree, case, \u00b0 / \u00f8, /V or /3.
-  var rn = (st.low ? "\u266d" : "") + (lower ? base.toLowerCase() : base) + (q.type === "dim" ? (ext.min7 ? "\u00f8" : "\u00b0") : "") +
-    (ext.over ? (ext.over === 2 ? "/V" : "/3") : "");
-  return {
-    bars: st.bars, roman: roman, rn: rn, hc: hc, row: row,
-    item: { rootPc: pc, rootName: Theory.noteName(rs), rootSpell: rs,
-      degree: (!st.low && diatonic && q.type === d.type && !ext.over) ? d.degree : null,
-      type: q.type, extensions: ext, qualityLabel: q.label, chipLabel: lab, keepSpell: ni >= 0, mel: st.mel }
-  };
-}
-// v103 Kids: the step's chord is the MAJOR triad on its melody note (the @ token, else the chord root),
-// on that scale degree, so the gold pad, Next / Play, the Now card and the keys all show the melody.
-function kidsMajorStep(st, kdegs) {
-  var tonic = kdegs[0].pc, d = kdegs[st.deg - 1];
-  var mpc = st.mel != null ? wrap12(tonic + st.mel) : wrap12(d.pc - (st.low ? 1 : 0));
-  for (var i = 0; i < kdegs.length; i++) if (kdegs[i].pc === mpc) { st.deg = i + 1; st.low = false; st.q = "maj"; return; }
-  st.q = "maj";   // (not reached by the Kids songs: every melody note is in the key)
-}
-function progSteps(key, p) { if (p && p.up) return U ? upSteps(key) : []; return p.steps.map(function (s) { return progStep(key, s); }); }
-// Full mode label: the numerals (repeats folded as x2; very long ones list their chords).
-function progNumerals(steps) {
-  var out = [];
-  steps.forEach(function (s) {
-    var last = out[out.length - 1];
-    if (last && last.r === s.roman && s.bars === 1 && last.single) { last.n++; return; }
-    out.push({ r: s.roman, n: s.bars, single: s.bars === 1 });
-  });
-  var txt = out.map(function (o) { return o.r + (o.n > 1 ? "\u00d7" + o.n : ""); }).join("\u2013");
-  if (txt.length > 30) {
-    var uniq = [];
-    steps.forEach(function (s) { if (uniq.indexOf(s.roman) < 0) uniq.push(s.roman); });
-    var nb = 0;
-    steps.forEach(function (s) { nb += s.bars; });
-    txt = Math.round(nb) + " bars: " + uniq.join("\u2013");
-  }
-  return txt;
-}
-const PROG_EXT_KEYS = ["six", "min7", "maj7", "nine", "sus2", "flat9", "sharp9", "thirteen", "over"];
-function sameChord(a, b) {
-  if (!a || !b || wrap12(a.rootPc) !== wrap12(b.rootPc) || a.type !== b.type) return false;
-  var ea = a.extensions || {}, eb = b.extensions || {};
-  for (var i = 0; i < PROG_EXT_KEYS.length; i++) {
-    var k = PROG_EXT_KEYS[i];
-    if ((ea[k] || 0) !== (eb[k] || 0)) return false;
-  }
-  return true;
-}
-
-const prog = { style: null, mode: null, keySig: null, key: null, idx: 0, list: [], steps: [], targets: [], badges: [],
-  cur: -1, playing: false, timer: 0, si: 0, nextT: 0, groups: [], gid: 0, uiT: [], flashT: 0, log: [], tmp: 0, unplaced: 0, model: null };
-// Test hooks only with ?test=1 (not in normal use).
-var PROG_TEST;
-// v68: magic Next (state; logic after progNext).
-var magic;
-
-// v111 (D5): the walk position as a time in the song (bars from the start), and back to a step.
-function progWalkAt() {
-  var p = prog.list[prog.idx], n = prog.steps.length;
-  if (!p || !n || typeof magic === "undefined" || !magic) return null;
-  var i = prog.playing ? (prog.cur >= 0 ? prog.cur : prog.si % n) : magic.pos;
-  if (i >= n) return { name: p.name, end: true };
-  var t = 0;
-  for (var k = 0; k < i; k++) t += prog.steps[k].bars || 1;
-  return { name: p.name, t: t };
-}
-function progWalkTo(w) {
-  var p = prog.list[prog.idx], n = prog.steps.length;
-  if (!w || !p || p.name !== w.name || !n) return;
-  var pos = n, t = 0;
-  if (!w.end) for (var k = 0; k < n; k++) { var b = prog.steps[k].bars || 1; if (w.t < t + b - 1e-6) { pos = k; break; } t += b; }
-  magic.pos = pos;
-  magic.last = pos > 0 ? prog.steps[pos - 1].item : null;
-  magic.next = null;
-  if (PROG_TEST) magic.log.push({ walkTo: pos, t: w.t, end: !!w.end });
-  paintNextHint();
-  if (typeof paintUpNext === "function") paintUpNext();
-  paintProg();
-}
-// Called when the strip is rebuilt: a style change goes back to the style's first
-// progression; a key or style change stops the progression loop.
-function progSync(key) {
-  var sig = key.pc + key.mode + keyRootName(key);
-  var styleChanged = prog.style !== null && prog.style !== state.style;
-  var keyChanged = prog.keySig !== null && prog.keySig !== sig;
-  if (styleChanged || keyChanged) progStop();
-  var oldName = prog.list[prog.idx] ? prog.list[prog.idx].name : null;
-  var wasUp = !!(prog.list[prog.idx] && prog.list[prog.idx].up);   // Upload: a style change keeps the song
-  prog.list = progList(state.style, key.mode);
-  if (styleChanged) prog.idx = 0;
-  else if (prog.mode !== null && prog.mode !== key.mode) {
-    var ix = -1;
-    prog.list.forEach(function (p, i) { if (p.name === oldName) ix = i; });
-    prog.idx = Math.max(0, ix);
-  }
-  if (wasUp) for (var uj = 0; uj < prog.list.length; uj++) if (prog.list[uj].up) prog.idx = uj;
-  if (prog.idx >= prog.list.length) prog.idx = 0;
-  if (U && U.locked && prog.list[prog.idx] && prog.list[prog.idx].up) {   // v73 Lock: the key change is the transpose target
-    var lk0 = U.liveKey, nk = { tonic: keyRootName(key), mode: key.mode };
-    if (!lk0 || lk0.tonic !== nk.tonic || lk0.mode !== nk.mode) { U.liveKey = nk; upSave(); }
-  }
-  prog.style = state.style; prog.mode = key.mode; prog.keySig = sig; prog.key = key;
-  prog.cur = -1;
-  magicReset();   // v68: key / mode / style change: the walk starts again
-  // v109: Kids has no minor songs: a minor key (Minor tap, an old saved minor Kids song) goes back to the
-  // picked song's own key, or Twinkle's (C major) when the name is unknown.
-  if (state.style === "kids" && key.mode === "minor" && !PROGRESSIONS.kids.minor.length && !kidsKeyFixT) {
-    kidsKeyFixT = setTimeout(function () {
-      kidsKeyFixT = 0;
-      if (state.style !== "kids" || !prog.key || prog.key.mode !== "minor") return;
-      var cur = prog.list[prog.idx], sk = (cur && KIDS_SONG_KEY[cur.name]) || KIDS_SONG_KEY["Kids Twinkle"];
-      if (!cur || !KIDS_SONG_KEY[cur.name]) { prog.idx = 0; }
-      applySongKey(sk[0], sk[1]);
-    }, 0);
-  }
-}
-var kidsKeyFixT;
-
-// Badges (1, 2, 3...) on the chips / notes that play each step; a step chord that is not on
-// the strip gets a temporary dashed chip in its root's column (or half column).
-function progDecorate(el, model) {
-  prog.model = model;
-  Array.prototype.forEach.call(el.querySelectorAll(".pg-badge, .ss-chip.tmp"), function (n) { n.parentNode.removeChild(n); });
-  prog.targets = []; prog.badges = []; prog.tmp = 0; prog.unplaced = 0;
-  var p = prog.list[prog.idx];
-  prog.steps = p ? progSteps(model.key, p) : [];
-  magic.next = null;   // v68: the queued chord is recomputed against the new strip
-  var ROWN = { bright: "b", happy: "h", scale: "n", sad: "s", tension: "t" };
-  var PARTNER = { bright: "happy", happy: "bright", sad: "tension", tension: "sad" };
-  var chipEls = Array.prototype.slice.call(el.querySelectorAll(".ss-chip"));
-  var noteEls = Array.prototype.slice.call(el.querySelectorAll(".ss-note"));
-  var occ = model.chips.map(function (c) { return { row: c.row, hc: c.hc }; });
-  function free(row, hc) { return !occ.some(function (o) { return o.row === row && Math.abs(o.hc - hc) < 2; }); }
-  var groups = [];   // { el, steps: [i...] }
-  prog.steps.forEach(function (s, i) {
-    for (var g = 0; g < groups.length; g++) {
-      if (sameChord(groups[g].item, s.item)) { groups[g].steps.push(i); prog.targets[i] = groups[g].el; return; }
-    }
-    var tgt = null;
-    for (var c = 0; c < chipEls.length && !tgt; c++) if (sameChord(chipEls[c]._tc && chipEls[c]._tc.item, s.item)) tgt = chipEls[c];
-    for (var n = 0; n < noteEls.length && !tgt; n++) if (sameChord(noteEls[n]._tc && noteEls[n]._tc.item, s.item)) tgt = noteEls[n];
-    if (!tgt) {
-      var order = [s.row, PARTNER[s.row]].concat(["happy", "bright", "sad", "tension"].filter(function (r) { return r !== s.row && r !== PARTNER[s.row]; }));
-      var row = null, hc = s.hc;
-      for (var o = 0; o < order.length; o++) if (free(order[o], s.hc)) { row = order[o]; break; }
-      for (var dh = 1; !row && dh <= 14; dh++) {   // v111 (D1): never on top of another chip; the nearest free column
-        for (var sg = -1; sg <= 1 && !row; sg += 2) {
-          var h2 = s.hc + sg * dh;
-          if (h2 < 0 || h2 > 14) continue;
-          for (var o2 = 0; o2 < order.length; o2++) if (free(order[o2], h2)) { row = order[o2]; hc = h2; break; }
-        }
-      }
-      if (!row) { row = s.row; prog.unplaced++; }
-      occ.push({ row: row, hc: hc });
-      var cls = s.row === "bright" ? "color" : s.row === "happy" ? "major" : s.row === "sad" ? "minor" : "tension";
-      var b = document.createElement("button");
-      b.type = "button";
-      b.className = "ss-chip tmp borrowed " + cls + " r-" + ROWN[row] + (hc % 2 === 0 ? " half" : "");
-      b.style.gridRow = ROWN[row];
-      b.style.gridColumn = (2 + hc) + " / span 2";
-      var lab = stripLabel(s.item), rn = prettyAcc(s.item.rootName);
-      b.innerHTML = "<span class=\"nm\"><span class=\"r\"></span><span class=\"q\"></span></span><span class=\"rn\"></span>";
-      b.querySelector(".r").textContent = rn;
-      b.querySelector(".q").textContent = lab.slice(rn.length);
-      b.querySelector(".rn").textContent = s.rn;
-      if (lab.length - rn.length >= 5) b.classList.add("long");
-      b.setAttribute("aria-label", lab + (state.simple ? "" : ", " + s.roman) + " (progression chord, not on the strip)");
-      b._tc = { item: s.item, hc: hc, row: row };
-      wireStripTap(b, s.item);
-      el.appendChild(b);
-      prog.tmp++;
-      tgt = b;
-    }
-    groups.push({ el: tgt, item: s.item, steps: [i] });
-    prog.targets[i] = tgt;
-  });
-  el.classList.toggle("gutl", occ.some(function (o) { return o.hc === 0; }));
-  el.classList.toggle("gutr", occ.some(function (o) { return o.hc === 14; }));
-  // v60: order badges only with Config > Progression numbers on (both modes; off by default).
-  if (state.progNums) {
-    groups.forEach(function (g) {
-      var t = g.el, bd = document.createElement("span");
-      var nums = g.steps.map(function (i) { return i + 1; });
-      bd.className = "pg-badge" + (t.classList.contains("ss-note") ? " on-note" : "") + (nums.length > 1 ? " multi" : "");
-      bd.setAttribute("role", "button");
-      bd.setAttribute("aria-label", "Progression step " + nums.join(", "));
-      bd.title = "Step " + nums.join(", ");
-      bd.addEventListener("pointerdown", function (e) { e.preventDefault(); e.stopPropagation(); progBadge(g.steps); });
-      bd.addEventListener("click", function (e) { e.stopPropagation(); });
-      el.appendChild(bd);
-      prog.badges.push({ el: bd, target: t, steps: g.steps });
-    });
-  }
-  paintProgActive();
-}
-// v56: badge text. Up to 2 steps: all of them ("1\u00b76"). More (Blues C7 = 1, 3, 4, 7, 11): the
-// current or next step for that chip and how many more ("3 +4"); the full list is in the label.
-function badgeText(b) {
-  var nums = b.steps.map(function (i) { return i + 1; });
-  if (nums.length <= 2) return nums.join("\u00b7");
-  var at = b.steps.indexOf(prog.cur) >= 0 ? prog.cur : null;
-  if (at === null) {
-    for (var i = 0; i < b.steps.length; i++) if (b.steps[i] > prog.cur) { at = b.steps[i]; break; }
-    if (at === null) at = b.steps[0];
-  }
-  return (at + 1) + "<small>+" + (nums.length - 1) + "</small>";
-}
-// v56: badges sit just OUTSIDE their chip, on a corner or edge, never on any chord name,
-// numeral or note name: each badge takes the first spot (corners, then along the edges) that
-// covers no text, stays inside the panel and misses the other badges.
-function placeBadges() {
-  var el = document.getElementById("suggest");
-  if (!el || !prog.badges.length) return;
-  var sr = el.getBoundingClientRect();
-  var pc = el.parentNode.getBoundingClientRect();
-  // v62: inside the strip on every side, and at least 2px clear of the card's border.
-  var pr = { left: Math.max(pc.left + 2, sr.left), right: Math.min(pc.right - 2, sr.right), top: Math.max(pc.top + 2, sr.top), bottom: Math.min(pc.bottom - 2, sr.bottom) };
-  var texts = [];
-  Array.prototype.forEach.call(el.querySelectorAll(".ss-chip .r, .ss-chip .q, .ss-chip .rn, .ss-note .nn, .ss-note small"), function (n) {
-    if (!n.textContent || getComputedStyle(n).display === "none") return;
-    var q = n.getBoundingClientRect();
-    // v58: keep at least 1.5px clear of any text.
-    if (q.width > 0 && q.height > 0) texts.push({ left: q.left - 1.5, top: q.top - 1.5, right: q.right + 1.5, bottom: q.bottom + 1.5 });
-  });
-  // v64: also the chip name as one block (root over quality, glyph boxes), so a badge corner
-  // never sits in the empty corner of that block next to a narrow root letter.
-  Array.prototype.forEach.call(el.querySelectorAll(".ss-chip .nm"), function (n) {
-    var rg = document.createRange(); rg.selectNodeContents(n); var q = rg.getBoundingClientRect();
-    if (q.width > 0 && q.height > 0) texts.push({ left: q.left - 0.5, top: q.top - 0.5, right: q.right + 0.5, bottom: q.bottom + 0.5 });
-  });
-  // Never over the buttons above the panel either (a badge may poke a little above it).
-  Array.prototype.forEach.call(document.querySelectorAll("button, .prog"), function (n) {
-    if (el.contains(n)) return;
-    var q = n.getBoundingClientRect();
-    if (q.width > 0 && q.bottom > pr.top - 12 && q.top < pr.top) texts.push(q);
-  });
-  var placed = [];
-  function ov(a, b) {
-    var w = Math.min(a.right, b.right) - Math.max(a.left, b.left), h = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
-    return w > 0 && h > 0 ? w * h : 0;
-  }
-  function place(b) {
-    var t = b.target.getBoundingClientRect();
-    var bq = b.el.getBoundingClientRect();
-    var bw = bq.width, bh = bq.height, k = 3;
-    var L = t.left - bw + k, R = t.right - k, T = t.top - bh + k, B = t.bottom - k, ym = t.top + (t.height - bh) / 2, f;
-    // Corners on top, then the sides, then along the top edge, then the bottom (reads as the
-    // chip below, so last), then just inside a corner as a fallback.
-    var cands = [[L, T], [R, T], [t.left - bw + 1, ym], [t.right - 1, ym]];
-    for (f = 0.25; f < 1; f += 0.25) cands.push([t.left + (t.width - bw) * f, t.top - bh + 2]);
-    cands.push([t.left - bw + 1, t.top - bh / 2], [t.right - 1, t.top - bh / 2], [t.left - bw + 1, t.bottom - bh / 2], [t.right - 1, t.bottom - bh / 2]);
-    cands.push([L, B], [R, B]);
-    for (f = 0.25; f < 1; f += 0.25) cands.push([t.left + (t.width - bw) * f, t.bottom - 2]);
-    cands.push([L, t.top + 1], [R, t.top + 1], [t.left - bw * 0.3, t.top - bh * 0.38], [t.right - bw * 0.7, t.top - bh * 0.38]);
-    // v58: corners just touching, when tight (portrait phones).
-    cands.push([t.left - bw, t.top - bh + 1], [t.right, t.top - bh + 1], [t.left - bw, t.bottom - 1], [t.right, t.bottom - 1], [t.left - bw, ym], [t.right, ym]);
-    // v62: each spot also clamped inside the strip, so a spot that would stick out flips inward.
-    var nc = cands.length;
-    for (var ci0 = 0; ci0 < nc; ci0++) {
-      var cx = Math.min(Math.max(cands[ci0][0], pr.left), pr.right - bw), cy = Math.min(Math.max(cands[ci0][1], pr.top), pr.bottom - bh);
-      if (cx !== cands[ci0][0] || cy !== cands[ci0][1]) cands.push([cx, cy]);
-    }
-    var best = null;
-    cands.forEach(function (c, ci) {
-      var r = { left: c[0], top: c[1], right: c[0] + bw, bottom: c[1] + bh };
-      var sc = 0;
-      texts.forEach(function (q) { sc += ov(r, q) * 100; });
-      placed.forEach(function (q) { sc += ov(r, q) * 50; });
-      // v62: never outside the strip (no poking over the top edge any more).
-      var out = Math.max(0, pr.left - r.left) + Math.max(0, r.right - pr.right) + Math.max(0, pr.top - r.top) + Math.max(0, r.bottom - pr.bottom);
-      sc += out * 1e6 + ci * 0.01;
-      if (!best || sc < best.sc) best = { sc: sc, r: r };
-    });
-    // Last resort: clamp (only if every spot was outside, e.g. a strip smaller than the badge).
-    var cl = Math.min(Math.max(best.r.left, pr.left), pr.right - bw), ct = Math.min(Math.max(best.r.top, pr.top), pr.bottom - bh);
-    best.r = { left: cl, top: ct, right: cl + bw, bottom: ct + bh };
-    best.sc = 0;
-    texts.forEach(function (q) { best.sc += ov(best.r, q) * 100; });
-    placed.forEach(function (q) { best.sc += ov(best.r, q) * 50; });
-    best.bw = bw; best.bh = bh;
-    return best;
-  }
-  prog.badges.forEach(function (b) {
-    b.el.innerHTML = badgeText(b);
-    b.el.classList.remove("cmp");
-    var best = place(b);
-    // v63: crowded (a 10+ step progression on a tablet): when every spot still touches text or
-    // another badge, try a compact badge (still >= 11 px text) and keep it if it fits better.
-    if (best.sc > 0.5) {
-      b.el.classList.add("cmp");
-      var b2 = place(b);
-      if (b2.sc < best.sc) best = b2; else b.el.classList.remove("cmp");
-    }
-    var bw = best.bw, bh = best.bh;
-    placed.push(best.r);
-    var px = Math.round(best.r.left - sr.left), py = Math.round(best.r.top - sr.top);
-    px = Math.max(Math.ceil(pr.left - sr.left), Math.min(px, Math.floor(pr.right - bw - sr.left)));
-    py = Math.max(Math.ceil(pr.top - sr.top), Math.min(py, Math.floor(pr.bottom - bh - sr.top)));
-    b.el.style.left = px + "px";
-    b.el.style.top = py + "px";
-  });
-}
-function progRedecorate() {
-  var el = document.getElementById("suggest");
-  if (!el || !prog.model) return;
-  progDecorate(el, prog.model);
-  fitStrip();
-  paintNextHint();
-}
-
-function progLockKey() {
-  if (!activeKey() && stripKey) shared.lockKey = { pc: stripKey.pc, mode: stripKey.mode };
-}
 // v99: full mode (not Kids, not Simple, not an uploaded song, which has its own next-chord outline):
 // mark the grid cell of the chord Play would sound right now. Stopped: Play starts at step 1. Playing: the
 // step after the lit one (none in the random part after one pass). No mark when that step has no grid
 // cell, or when it is the cell that is playing now.
 var laEl;
 var laT;
-function laTarget() {
+export function laTarget() {
   var n = prog.steps.length;
   if (!n || state.style === "kids" || state.simple || upSelected()) return null;
   var start = prog.playing ? (prog.cur >= 0 ? prog.cur + 1 : prog.si) : progPlayStart();   // v111: Play starts at the Next walk position
@@ -2223,7 +1551,7 @@ function laTarget() {
   if (t === now || t.classList.contains("pg-on")) return null;
   return t;
 }
-function paintLookahead() {
+export function paintLookahead() {
   var t = laTarget();
   if (laEl && laEl !== t) laEl.classList.remove("la-play");
   if (t) t.classList.add("la-play");
@@ -2232,7 +1560,7 @@ function paintLookahead() {
 }
 // v105: the NEXT chord = what Next / Play sounds next. Kids: the gold step. Uploaded song: its next step.
 // Presets: playing = the step after the lit one (none in the random part); stopped = the queued Next chord.
-function nxNow() {
+export function nxNow() {
   if (typeof magic === "undefined" || !magic || !prog.steps.length) return null;
   var item = null, el = null, sig = "", n = prog.steps.length;
   if (state.style === "kids") {
@@ -2268,7 +1596,7 @@ function nxTableEls(item) {
   for (var k in ex) if (ex[k]) { var eb = document.querySelector("#palette button[data-ext=\"" + k + "\"]"); if (eb && eb.getClientRects().length) out.push(eb); }
   return out;
 }
-function nxKeyEl(item) {
+export function nxKeyEl(item) {
   if (!item || state.simple) return null;
   var k = padsEl.querySelector(".pad.nx-root");
   if (k) return k;
@@ -2279,9 +1607,9 @@ function nxKeyEl(item) {
   });
   return best;
 }
-var nxSigLast;
+export var nxSigLast;
 var nxT;
-var nxBursts;
+export var nxBursts;
 var nxReduce;
 function nxBurst(el) {
   if (!el) return;
@@ -2291,7 +1619,7 @@ function nxBurst(el) {
   clearTimeout(el._nxb);
   el._nxb = setTimeout(function () { el.classList.remove("nxb"); }, 560);
 }
-function paintNxMark() {
+export function paintNxMark() {
   nxT = 0;
   var cur = nxNow(), dots = [];
   if (cur) {
@@ -2312,8 +1640,8 @@ function paintNxMark() {
   }
   nxSigLast = sig;
 }
-function nxMarkSoon() { if (!nxT) nxT = setTimeout(paintNxMark, 0); }
-function paintProgActive() {
+export function nxMarkSoon() { if (!nxT) nxT = setTimeout(paintNxMark, 0); }
+export function paintProgActive() {
   Array.prototype.forEach.call(document.querySelectorAll("#suggest .pg-on"), function (n) { n.classList.remove("pg-on"); });
   var t = prog.cur >= 0 ? prog.targets[prog.cur] : (magic.lit ? magicTarget(magic.item) : null);
   if (t) t.classList.add("pg-on");
@@ -2325,198 +1653,11 @@ function paintProgActive() {
   paintNextHint();   // v71: Kids next-note hint advances with each step; first-load fix: every style (Stop / song pick / ring end repaint the keys)
   paintLookahead(); if (!laT) laT = setTimeout(function () { laT = 0; paintLookahead(); }, 0);   // v99 (again once the strip is laid out)
 }
-// v70: Kids strip = ONE big basic triad chip: the chord now current in the walk / loop
-// (or the home triad before anything plays). The full board is still built underneath
-// (hidden) so the progression, badges logic and magic Next pool are exactly as before.
-function kidTriad(item) {
-  if (!item) return null;
-  var t = {}, k;   // v103: every Kids chord is a plain major triad
-  for (k in item) t[k] = item[k];
-  t.type = "major";
-  t.qualityLabel = "";
-  t.chipLabel = "";
-  t.extensions = {};
-  return t;
-}
-function kidCurrent() {
-  if (prog.playing && prog.cur >= 0 && prog.steps[prog.cur]) return prog.steps[prog.cur].item;
-  if (typeof magic !== "undefined" && magic && magic.item) return magic.item;
-  return magicHome();
-}
-function kidName(item) { return prettyAcc(item.rootName); }   // v103: the root only
-function kidCls(item) { return "major"; }   // v103: one pad colour (no minor / dim marking)
-// v71: Kids = the big Now chip + the key's seven basic chords as tappable pads.
-// v103: the seven scale-degree roots as plain MAJOR triads (C D E F G A B in C, all major). A pad tap plays its full triad (like a chip tap).
-function paintKidChip() {
-  var el = document.getElementById("suggest");
-  if (!el) return;
-  var kids = state.style === "kids";
-  el.classList.toggle("kids1", kids);
-  var wrap = el.querySelector(".ss-kidwrap");
-  if (!kids) { if (wrap) wrap.parentNode.removeChild(wrap); return; }
-  var m = prog.model;
-  var ksig = m ? m.key.pc + m.key.mode + keyRootName(m.key) : "";
-  if (wrap && wrap._ksig !== ksig) { wrap.parentNode.removeChild(wrap); wrap = null; }
-  if (!wrap) {
-    wrap = document.createElement("div");
-    wrap.className = "ss-kidwrap";
-    wrap._ksig = ksig;
-    var now = document.createElement("div");
-    now.className = "ss-kidnow";
-    wrap.appendChild(now);
-    var row = document.createElement("div");
-    row.className = "ss-kidpads";
-    row.setAttribute("role", "group");
-    row.setAttribute("aria-label", "Seven major chords on the notes of the key");
-    var notes = m ? m.notes.slice().sort(function (x, y) { return (x.item.degree || 0) - (y.item.degree || 0); }) : [];
-    notes.forEach(function (n) {
-      var it = kidTriad(n.item);
-      var pb = document.createElement("button");
-      pb.type = "button";
-      pb.className = "ss-chip ss-kidpad " + kidCls(it);
-      pb.textContent = kidName(it);
-      pb.setAttribute("aria-label", kidName(it) + ", play");
-      pb._tc = { item: it, hc: 1, row: "scale" };
-      wireStripTap(pb, it);
-      row.appendChild(pb);
-    });
-    wrap.appendChild(row);
-    el.appendChild(wrap);
-  }
-  // v73: no big Now chip any more: Kids shows only the seven pads. Next / Play still walk
-  // prog.steps (kidCurrent() feeds the walk), the gold next-note outline stays on the pads.
-}
-// Manual step (Next button / badge): play one step like a chip tap, lit while it rings.
-function progJump(i) {
-  if (!prog.steps.length) return;
-  progStop();
-  progLockKey();
-  prog.cur = ((i % prog.steps.length) + prog.steps.length) % prog.steps.length;
-  applySuggestion(prog.steps[prog.cur].item);
-  paintProgActive();
-  fxStepPulse();   // v93
-  if (prog.flashT) clearTimeout(prog.flashT);
-  prog.flashT = setTimeout(function () {
-    prog.flashT = 0;
-    if (!prog.playing) Array.prototype.forEach.call(document.querySelectorAll("#suggest .pg-on"), function (n) { n.classList.remove("pg-on"); });
-  }, PREVIEW_MS);
-  paintProg();
-}
-// v68: magic Next. Each tap plays ONE chord: the first N taps walk the progression in order
-// (1 bar each at the style's BPM), then each tap is a random chord from the board (never the
-// same twice in a row, weighted toward strong moves), every 4th or 8th one the home chord for
-// 2 bars. A tap cuts the ringing chord (gate ramp, no click); otherwise it ends after its bars.
-// One timer owner (suggestTimer), cleared before each new one; the release is set on the
-// AudioContext clock. With Sustain down the chord joins the pedal pool exactly like a chip tap.
-const MAGIC_LOOK = 0.04;   // s: the ring-end release is scheduled this far ahead on the audio clock
-function magicCycle() { return magic.rng() < 0.5 ? 4 : 8; }
-function magicReset() { if (!magic) return; magic.pos = 0; magic.last = null; magic.since = 0; magic.cycle = magicCycle(); magic.next = null; magic.item = null; }
-function magicPool() {
-  var m = prog.model, out = [];
-  if (!m) return out;
-  function add(it) { if (!it) return; for (var i = 0; i < out.length; i++) if (sameChord(out[i], it)) return; out.push(it); }
-  m.chips.forEach(function (c) { add(c.item); });   // chord chips (incl. dashed borrowed ones)
-  m.notes.forEach(function (n) { add(n.item); });   // scale-row notes (their triads)
-  return out;
-}
-function magicHome() {
-  var m = prog.model;
-  if (!m) return null;
-  var k = m.key, home = null;
-  m.chips.forEach(function (c) { if (!home && wrap12(c.item.rootPc) === wrap12(k.pc) && (c.row === "happy" || c.row === "sad")) home = c.item; });
-  if (!home) m.notes.forEach(function (n) { if (!home && n.home) home = n.item; });
-  return home;
-}
-function magicTarget(item) {
-  var el = document.getElementById("suggest");
-  if (!el || !item) return null;
-  var groups = [el.querySelectorAll(".ss-chip:not(.tmp)"), el.querySelectorAll(".ss-note"), el.querySelectorAll(".ss-chip.tmp")];
-  for (var g = 0; g < groups.length; g++)
-    for (var i = 0; i < groups[g].length; i++) if (groups[g][i]._tc && sameChord(groups[g][i]._tc.item, item)) return groups[g][i];
-  return null;
-}
-function magicEnd() {
-  suggestTimer = 0;
-  // Ring end: release on the audio clock (a chord the Sustain pedal adopted keeps ringing, as before).
-  if (ChordAudio.ctx && !sustainPool["suggest"]) ChordAudio.stopChord("suggest", Math.max(ChordAudio.currentTime(), magic.endAt));
-  magic.lit = false;
-  magicHintClear();
-  if (!prog.playing) Array.prototype.forEach.call(document.querySelectorAll("#suggest .pg-on"), function (n) { n.classList.remove("pg-on"); });
-  clearSuggestPreview();
-}
-function magicPlay(item, bars, step) {
-  // Cut the chord still ringing, even when its release is already scheduled (gate ramp, no click).
-  if (ChordAudio.ctx && !sustainPool["suggest"]) ChordAudio.stopChord("suggest", null, null, true);
-  if (prog.flashT) { clearTimeout(prog.flashT); prog.flashT = 0; }
-  prog.cur = step;   // -1 in the random part: no progression badge lit
-  magic.item = item; magic.lit = true; magic.last = item;
-  kidsSolo = state.style === "kids";
-  try { applySuggestion(item); } finally { kidsSolo = false; }
-  var ring = bars * progRingSec();   // Upload: the song BPM when a song is selected
-  magic.endAt = (ChordAudio.ctx ? ChordAudio.currentTime() : 0) + ring;
-  if (suggestTimer) clearTimeout(suggestTimer);
-  suggestTimer = setTimeout(magicEnd, Math.max(0, (ring - MAGIC_LOOK) * 1000));
-  paintProgActive();
-  fxStepPulse();   // v93
-  paintProg();
-  if (PROG_TEST) { magic.log.push({ step: step, sym: stripLabel(item), bars: bars, home: !!magic.wasHome, at: magic.endAt - ring }); if (magic.log.length > 5000) magic.log.shift(); }
-}
-// v68: what the next Next tap will play, decided ONE TAP AHEAD (a one-item queue) so the
-// "next chord" hint is always the chord the tap really plays. Same RNG order as deciding at
-// tap time: the decision for tap k+1 is made right after tap k, from the same committed state.
-function magicDecide() {
-  if (!prog.steps.length) return null;
-  var n = prog.steps.length;
-  var d = { item: null, bars: 1, step: -1, home: false, pos: magic.pos + 1, since: magic.since, cycle: magic.cycle };
-  var at = magic.pos;
-  if (at >= n) at = 0;   // v81 Kids; v111 every style and uploaded songs: Next loops back to the first chord (no random part)
-  d.step = at;
-  d.pos = at + 1;
-  d.item = prog.steps[d.step].item;
-  return d;
-}
-function magicQueue() {
-  if (!magic.next && prog.steps.length) magic.next = magicDecide();
-  return magic.next;
-}
-// The ONE advance entry point (Next button in both modes, test hook). A future auto-advance
-// should call this too. It commits the queued chord, plays it, queues the one after and
-// repaints the next-chord hint.
-function magicAdvance() {
-  if (!prog.steps.length) return;
-  paHintAdvanced();   // v112: an advance resets the miss run and lets every hint show again
-  progStop();
-  upNxOff = false;
-  progLockKey();
-  var d = magicQueue();
-  magic.next = null;
-  if (!d) return;
-  magic.pos = d.pos; magic.since = d.since; magic.cycle = d.cycle; magic.wasHome = d.home;
-  magicPlay(d.item, d.bars, d.step);
-  magic.hint = true;
-  magicQueue();
-  paintNextHint();
-}
-function progNext() { magicAdvance(); }
-// Badge: plays that step (1 bar) and the walk carries on from it.
-function progBadge(steps) {
-  var s = steps[0];
-  for (var i = 0; i < steps.length; i++) if (steps[i] > prog.cur) { s = steps[i]; break; }
-  progStop();
-  progLockKey();
-  magic.pos = s + 1;
-  magic.next = null;
-  upNxOff = false;
-  magicPlay(prog.steps[s].item, 1, s);
-  magic.hint = true;
-  magicQueue();
-  paintNextHint();
-}
 // v68 "next chord" hint (full mode only): a soft pulsing gold outline on the exact keys the
 // next Next tap will play, a gold dot on its root key, the same outline on its strip chip,
 // and a small gold edge arrow if an outlined key is off-screen. Shown from a Next / badge tap
 // until that chord's ring ends (or Simple / the loop player takes over).
-function nextHintSpec(item) {
+export function nextHintSpec(item) {
   var ext = {}, k;
   for (k in state.extensions) ext[k] = state.extensions[k];
   var keep = { rootPc: state.rootPc, type: state.type, stripSpell: state.stripSpell, forceChord: state.forceChord, degree: state.degree };
@@ -2531,7 +1672,7 @@ function clearNextHintDom() {
   var a = document.getElementById("nxArrow");
   if (a) a.hidden = true;
 }
-function magicHintClear() {
+export function magicHintClear() {
   if (magic) magic.hint = false;
   clearNextHintDom();
   paintNextHint();   // v71: the Kids song hint stays until the pass ends; first-load fix: the next chord stays marked in every style
@@ -2607,54 +1748,6 @@ function kidsGoldKey(pad) {   // v108: the gold key's note in ANY octave (pitch 
   var gk = d ? kidsGoldKeyEl(d.item) : null;
   return !!(gk && wrap12(Number(pad.dataset.midi)) === wrap12(Number(gk.dataset.midi)));
 }
-// v108 Play along (outside Kids; Config > Play along enable, on by default): with a next chord marked
-// (nxNow, the same chord Next plays), tapping one of its tones on the keyboard (pitch class, any octave;
-// Full mode) or that chord's chip (Full and Simple) advances exactly like Next (magicAdvance). Never
-// during Play song, never on an uploaded song's random tail (no next chord marked), never in Kids
-// (Kids keeps its gold pad / key above). Off: taps only play sound.
-const paLog = { taps: [] };
-var paKeyMidi;
-function playAlongNow() {
-  if (state.playAlong === false || state.style === "kids" || prog.playing || !prog.steps.length || typeof magic === "undefined" || !magic) return null;
-  if (upSelected() && upNextStep() < 0) return null;
-  var cur = nxNow();
-  return cur && cur.item ? cur : null;
-}
-// v109 (H1): only the next chord's ROOT key (its chord root, the key with the gold dot; any octave) advances,
-// and never while a chord-table button is held (then the tap builds the held chord). Other keys: plain taps.
-function playAlongKey(pad) {
-  if (!pad || state.simple || pad.dataset.midi == null || pad.dataset.midi === "") return false;
-  for (var h in paletteHolds) if (paletteHolds[h]) return false;
-  var cur = playAlongNow();
-  if (!cur) return false;
-  return wrap12(Number(pad.dataset.midi)) === wrap12(cur.item.rootPc);
-}
-function playAlongChip(b, item) {
-  if (!b || !item || b.classList.contains("ss-kidpad")) return false;
-  var cur = playAlongNow();
-  return !!(cur && (b === cur.el || sameChord(item, cur.item)));
-}
-// v111 (D6): key + chip within PA_TWIN_MS = one advance
-const PA_TWIN_MS = 150;
-var paLast;
-var paEvT;
-function paEvNow() { return paEvT || performance.now(); }
-function paTwin(kind, pc, item, b) {
-  if (!paLast || paLast.kind === kind || Math.abs(paEvNow() - paLast.at) > PA_TWIN_MS) return false;
-  if (state.playAlong === false || state.style === "kids" || prog.playing) return false;
-  var cur = playAlongNow(), its = [paLast.item, cur && cur.item];
-  var hit = its.some(function (it) { return it && (item ? sameChord(item, it) : wrap12(pc) === wrap12(it.rootPc)); }) || !!(b && cur && b === cur.el);
-  if (hit && PROG_TEST) paLog.twins = (paLog.twins || 0) + 1;
-  return hit;
-}
-function playAlongGo(el, kind) {
-  var cur = playAlongNow();
-  if (!cur) return;
-  paLast = { kind: kind, at: paEvNow(), item: cur.item };   // v111 (D6)
-  magicAdvance();   // = Next: plays the marked chord, queues and marks the one after
-  if (PROG_TEST) paLog.taps.push({ kind: kind, pos: magic.pos, cur: prog.cur, style: state.style, simple: !!state.simple });
-  kidsTapPulse(el);
-}
 // v112 Play along hints (Config > Show hints, on by default). A tap that does not advance while a next chord is
 // marked gets one small pill above the keyboard for 2 s: at most one every 4 s, the same hint not again until an
 // advance, never during Play (song or loop) or with Play along off. The tap itself still sounds as before.
@@ -2666,9 +1759,8 @@ const PA_HINT_GAP = 4000;
 var paHintAt;
 var paHintSeen;
 var paHintTimer;
-var paMiss;
 var paLostSong;
-const paHintLog = { shown: [], skipped: [], misses: 0 };
+export const paHintLog = { shown: [], skipped: [], misses: 0 };
 const PA_HINT_TXT = { a: "Try the marked key next", b: "Tap the dot chord next", c: "Let go of the chord button to follow the song",
   d: "Tap the dot chord next", e: "Lost? Tap Next to hear the next chord", ek: "Tap the dot chord next",
   k: "That note isn't in this song's key", kc: "That chord isn't in this song's key" };   // v112.1 (M1)
@@ -2698,10 +1790,10 @@ function paHintMiss(kind, el) {
     else id = "b";
   }
   var song = state.style + "|" + ((prog.list[prog.idx] || {}).name || "");
-  if (song !== paMissSong) { paMissSong = song; paMiss = 0; paHintSeen = {}; }   // v112.1 (L2)
-  paMiss++;
+  if (song !== paMissSong) { paMissSong = song; shared.paMiss = 0; paHintSeen = {}; }   // v112.1 (L2)
+  shared.paMiss++;
   paHintLog.misses++;
-  if (paMiss >= 3 && paLostSong !== song && paHintShow(state.style === "kids" ? "ek" : "e", kind)) { paLostSong = song; return; }
+  if (shared.paMiss >= 3 && paLostSong !== song && paHintShow(state.style === "kids" ? "ek" : "e", kind)) { paLostSong = song; return; }
   if (paHintShow(id, kind) && pulse) nxBurst(pulse);   // a: the marked key pulses once (v105 burst)
 }
 function paHintShow(id, kind) {
@@ -2756,14 +1848,14 @@ function paHintPlace(el) {   // v112.3: as high as possible (top area or empty s
   el.style.left = best.x + "px"; el.style.transform = "none";
   el.style.top = Math.round(best.y) + "px";
 }
-function paHintHide() {
+export function paHintHide() {
   clearTimeout(paHintTimer); paHintTimer = 0;
   var el = document.getElementById("paHint");
   if (!el) return;
   el.classList.remove("on");
   el.hidden = true;
 }
-function paHintAdvanced() { paMiss = 0; paHintSeen = {}; }
+export function paHintAdvanced() { shared.paMiss = 0; paHintSeen = {}; }
 
 // v112 first-launch Kids tour: 6 steps in the v110 spotlight look. Runs once after the fresh Kids + Twinkle load,
 // saved as done on Skip / Done (its own storage key: Factory reset keeps it); Help > Tour (gear menu) replays it.
@@ -2776,11 +1868,11 @@ const TOUR = [
   { sel: "#prog .pg-song", text: "Tap Play to hear the whole song." },
   { sel: "#prog .pg-sel", text: "Pick another song here. There are 10!" }
 ];
-var tourI;
-const tourLog = { runs: 0, done: 0, skipped: 0, steps: [] };
-function tourDone() { try { return window.localStorage && window.localStorage.getItem(TOUR_KEY) === "done"; } catch (err) { return false; } }
+export var tourI;
+export const tourLog = { runs: 0, done: 0, skipped: 0, steps: [] };
+export function tourDone() { try { return window.localStorage && window.localStorage.getItem(TOUR_KEY) === "done"; } catch (err) { return false; } }
 function tourSave() { try { if (window.localStorage) window.localStorage.setItem(TOUR_KEY, "done"); } catch (err) { /* quiet */ } }
-function tourStart(replay) {
+export function tourStart(replay) {
   var box = document.getElementById("tour");
   if (!box) return;
   tourWire();
@@ -2855,7 +1947,7 @@ function tourWire() {   // the tour box comes after this script in the page: wir
   box.addEventListener("keydown", function (e) { if (e.key === "Escape" && tourI >= 0) { e.preventDefault(); tourEnd("skipped"); } });
   window.addEventListener("resize", function () { setTimeout(tourPlace, 60); });
 }
-function kidsTapPulse(el) {
+export function kidsTapPulse(el) {
   if (!el) return;
   el.classList.remove("kgtap");
   void el.offsetWidth;   // restart the flash on a repeated tap
@@ -2865,7 +1957,7 @@ function kidsTapPulse(el) {
   if (PROG_TEST) kidsTapLog.pulses++;
 }
 // v93: the same flash for full mode (not Simple, not Kids): a tapped chip, and the chip Next / Play song lights
-const fxTapLog = { n: 0, last: "" };
+export const fxTapLog = { n: 0, last: "" };
 function fxOn() { return !state.simple && state.style !== "kids"; }
 function fxTapPulse(el) {
   if (!el || !fxOn()) return;
@@ -2876,8 +1968,8 @@ function fxTapPulse(el) {
   el._fxT = setTimeout(function () { el.classList.remove("fxtap"); }, 380);
   if (PROG_TEST) { fxTapLog.n++; fxTapLog.last = el.textContent; }
 }
-function fxStepPulse() { if (fxOn()) fxTapPulse(document.querySelector("#suggest .pg-on")); }
-const kidsTapLog = { taps: [], pulses: 0 };
+export function fxStepPulse() { if (fxOn()) fxTapPulse(document.querySelector("#suggest .pg-on")); }
+export const kidsTapLog = { taps: [], pulses: 0 };
 function kidsGoldGo(el, kind) {
   var d = kidsGoldStep();
   if (!d) return;
@@ -2887,7 +1979,7 @@ function kidsGoldGo(el, kind) {
   kidsTapPulse(el);
   Array.prototype.forEach.call(document.querySelectorAll("#suggest .ss-kidpad.nx-root, #pads .pad.nx-root"), function (n) { if (n !== el) kidsTapPulse(n); });
 }
-function paintNextHint() {
+export function paintNextHint() {
   nxMarkSoon();   // v105
   clearNextHintDom();
   if (typeof magic === "undefined" || !magic) return;
@@ -2937,933 +2029,6 @@ function nextHintArrow(els) {
   else { a.style.top = (B - 24) + "px"; a.style.left = (at - 11) + "px"; }
   a.hidden = false;
 }
-
-// v111: where Play starts: the Next walk position, or step 0 when the walk is at / after the end
-function progPlayStart() { var n = prog.steps.length, p = magic ? magic.pos | 0 : 0; return p > 0 && p < n ? p : 0; }
-// Loop: its own lookahead scheduler on the Web Audio clock (like the phrase loop's).
-function progPlay() {
-  if (prog.playing) { progStop(); return; }
-  paHintHide();   // v112: never during Play
-  magicHintClear();   // v68: the loop player takes over from the Next walk
-  if (!prog.steps.length) return;
-  if (suggestPreview) clearSuggestPreview();   // v84: a chip preview's timer must not clear Play's lit keys
-  else if (suggestTimer) { clearTimeout(suggestTimer); suggestTimer = 0; }
-  unlock();
-  if (loop.transport || loop.recording || loop.playing) stopPlayback();   // one loop at a time
-  progLockKey();
-  if (prog.flashT) { clearTimeout(prog.flashT); prog.flashT = 0; }
-  upNxOff = false;
-  kbKeyStay = false;   // v102
-  prog.playing = true;
-  prog.si = progPlayStart();   // v111: resume from the Next walk position (magic.pos); 0 at / after the end. magic.pos is not changed by Play.
-  prog.log = [];
-  prog.nextT = ChordAudio.currentTime() + 0.06;
-  prog.bandSync = true;   // v75/v76: band beat 1 = the first scheduled step (set once the context runs)
-  prog.timer = setInterval(progTick, 25);
-  progTick();
-  paintProg();
-}
-function progTick() {
-  if (!prog.playing || !ChordAudio.ctx) return;
-  // v76: iOS first tap: wait until the context is running before the first note.
-  if (ChordAudio.ctx.state !== "running") { prog.nextT = ChordAudio.currentTime() + 0.06; return; }
-  if (prog.bandSync) { prog.bandSync = false; ChordAudio.band.resync(prog.nextT); }   // Play song starts on the band's beat 1
-  var now = ChordAudio.currentTime();
-  if (prog.nextT < now - 0.3) prog.nextT = now + 0.05;   // fell behind (tab asleep): carry on from now
-  var guard = 0;
-  while (prog.nextT < now + 0.12 && guard++ < 4) {
-    var i = prog.si, st = prog.steps[i];
-    progSchedule(i, prog.nextT);
-    prog.nextT += st.bars * progLoopBar();   // Upload: song BPM when a song is selected
-    prog.si = i + 1;
-    if (prog.si >= prog.steps.length) prog.si = 0;   // v82 Kids; v111 every style: Play song loops (no random tail)
-  }
-}
-function setItemState(item) {
-  state.extensions.six = !!(item.extensions && item.extensions.six);
-  state.extensions.min7 = !!(item.extensions && item.extensions.min7);
-  state.extensions.maj7 = !!(item.extensions && item.extensions.maj7);
-  state.extensions.nine = !!(item.extensions && item.extensions.nine);
-  STRIP_EXT.forEach(function (k) { state.extensions[k] = (item.extensions && item.extensions[k]) || (k === "over" ? 0 : false); });
-  state.rootPc = item.rootPc;
-  state.type = item.type;
-  state.stripSpell = item.rootSpell ? { pc: item.rootPc, type: item.type, rs: item.rootSpell, keep: !!item.keepSpell } : null;
-  if (item.degree) {
-    state.forceChord = null;
-    if (state.keyMode) state.degree = item.degree;
-  } else {
-    state.forceChord = { rootPc: item.rootPc, type: item.type };
-  }
-}
-function progSchedule(i, t) {
-  var st = prog.steps[i];
-  setItemState(st.item);
-  var spec = computeSpec();
-  if (state.style === "kids") spec = kidsSoloSpec(spec, st.item.rootPc, st.item.mel);   // v70: Kids loop = root only
-  // v56: the same chord again (Yoga Drone, Blues C7 C7) is held through, not struck again.
-  // v76: Kids and short percussive sounds strike a repeated note again (Twinkle C C).
-  var tied = !!(prog.lastItem && prog.groups.length && sameChord(prog.lastItem, st.item)) && state.style !== "kids" && !PERCUSSIVE_SOUNDS[state.sound];
-  if (!tied) {
-    var g = "P" + (++prog.gid);
-    ChordAudio.playChord(g, spec.midis, { bass: spec.bassOut, sound: state.sound, time: t });
-    prog.groups.forEach(function (o) { ChordAudio.stopChord(o.g, Math.max(t, o.t)); });
-    prog.prevG = prog.groups;   // v111 (D4): the chord sounding until t; Stop cuts it now, not at t
-    prog.groups = [{ g: g, t: t }];
-  }
-  prog.lastItem = st.item;
-  prog.log.push({ i: i, t: t, sym: spec.symbol, tied: tied, bars: st.bars, n: spec.midis.length, bass: spec.bassOut });
-  if (prog.log.length > 64) prog.log.shift();
-  var tid = setTimeout(function () {
-    prog.uiT = prog.uiT.filter(function (x) { return x !== tid; });
-    if (!prog.playing) return;
-    prog.cur = i;
-    magic.lit = false;
-    setItemState(st.item);
-    kbSound(spec.midis, spec, st.item);   // v83
-    suggestPreview = { type: spec.type, extensions: { six: !!state.extensions.six, min7: !!state.extensions.min7, maj7: !!state.extensions.maj7, nine: !!state.extensions.nine }, midis: highlightMidisFromSpec(spec.midis) };
-    updateSymbol();
-    paintProgActive();
-    fxStepPulse();   // v93: Play song
-  }, Math.max(0, (t - ChordAudio.currentTime()) * 1000));
-  prog.uiT.push(tid);
-}
-function progStop() {
-  if (!prog.playing) return;
-  // v111 (D2): Stop keeps an uploaded song's next-chord marks (no upNxOff here any more)
-  prog.playing = false;
-  clearInterval(prog.timer); prog.timer = 0;
-  ChordAudio.band.hush();   // v104 (M4)
-  prog.uiT.forEach(clearTimeout); prog.uiT = [];
-  var now = ChordAudio.ctx ? ChordAudio.currentTime() : 0;
-  prog.groups.forEach(function (o) {   // v111 (D4): nothing sounds after Stop
-    if (o.t > now - 0.05) ChordAudio.stopChord(o.g, now, o.t > now ? 0.002 : 0.006, true);   // scheduled by the lookahead (or started under 50 ms ago): silenced at once
-    else ChordAudio.stopChord(o.g, now, null, true);
-  });
-  (prog.prevG || []).forEach(function (o) { if (o.t <= now) ChordAudio.stopChord(o.g, now, null, true); });
-  prog.prevG = [];
-  prog.groups = [];
-  prog.lastItem = null;
-  prog.cur = -1;
-  magic.lit = false;
-  paintProgActive();
-  if (suggestPreview) clearSuggestPreview();
-  paintProg();
-}
-// v71: song.key -> app key. Same shape as the song contract's key {tonic, mode}; a future
-// song Upload should call applySongKey(song.key.tonic, song.key.mode) too (not built yet).
-function applySongKey(tonic, mode) {
-  var pc = typeof tonic === "number" ? wrap12(tonic) : namePc(String(tonic || ""));
-  if (!(pc >= 0)) return false;
-  mode = mode === "minor" ? "minor" : "major";
-  var ak = activeKey();
-  if (ak && ak.pc === pc && ak.mode === mode && state.keyRoot === pc && state.keyScale === mode) return true;
-  state.keyRoot = pc;
-  state.keyScale = mode;
-  shared.lockKey = { pc: pc, mode: mode };
-  if (typeof tonic === "string") setKeySpell(pc, mode, tonic);
-  if (state.keyMode) renderPads();
-  shared.suggestSig = "";
-  refreshHeld();
-  paintSuggestions(computeSpec());
-  scheduleSave();
-  return true;
-}
-// v97: Kids lyrics, one marker per sung note (chordIndex = the song step). Public domain words.
-const KIDS_LYRICS = {
-  "Kids Twinkle":[{"text":"Twinkle, twinkle, little star,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":4,"chordIndex":1},{"charIndex":9,"chordIndex":2},{"charIndex":13,"chordIndex":3},{"charIndex":18,"chordIndex":4},{"charIndex":21,"chordIndex":5},{"charIndex":25,"chordIndex":6}]},{"text":"How I wonder what you are!","markers":[{"charIndex":0,"chordIndex":7},{"charIndex":4,"chordIndex":8},{"charIndex":6,"chordIndex":9},{"charIndex":9,"chordIndex":10},{"charIndex":13,"chordIndex":11},{"charIndex":18,"chordIndex":12},{"charIndex":22,"chordIndex":13}]},{"text":"Up above the world so high,","markers":[{"charIndex":0,"chordIndex":14},{"charIndex":3,"chordIndex":15},{"charIndex":4,"chordIndex":16},{"charIndex":9,"chordIndex":17},{"charIndex":13,"chordIndex":18},{"charIndex":19,"chordIndex":19},{"charIndex":22,"chordIndex":20}]},{"text":"Like a diamond in the sky.","markers":[{"charIndex":0,"chordIndex":21},{"charIndex":5,"chordIndex":22},{"charIndex":7,"chordIndex":23},{"charIndex":10,"chordIndex":24},{"charIndex":15,"chordIndex":25},{"charIndex":18,"chordIndex":26},{"charIndex":22,"chordIndex":27}]},{"text":"Twinkle, twinkle, little star,","markers":[{"charIndex":0,"chordIndex":28},{"charIndex":4,"chordIndex":29},{"charIndex":9,"chordIndex":30},{"charIndex":13,"chordIndex":31},{"charIndex":18,"chordIndex":32},{"charIndex":21,"chordIndex":33},{"charIndex":25,"chordIndex":34}]},{"text":"How I wonder what you are!","markers":[{"charIndex":0,"chordIndex":35},{"charIndex":4,"chordIndex":36},{"charIndex":6,"chordIndex":37},{"charIndex":9,"chordIndex":38},{"charIndex":13,"chordIndex":39},{"charIndex":18,"chordIndex":40},{"charIndex":22,"chordIndex":41}]}],
-  "Kids Mary's Lamb":[{"text":"Mary had a little lamb,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":2,"chordIndex":1},{"charIndex":5,"chordIndex":2},{"charIndex":9,"chordIndex":3},{"charIndex":11,"chordIndex":4},{"charIndex":14,"chordIndex":5},{"charIndex":18,"chordIndex":6}]},{"text":"little lamb, little lamb,","markers":[{"charIndex":0,"chordIndex":7},{"charIndex":3,"chordIndex":8},{"charIndex":7,"chordIndex":9},{"charIndex":13,"chordIndex":10},{"charIndex":16,"chordIndex":11},{"charIndex":20,"chordIndex":12}]},{"text":"Mary had a little lamb,","markers":[{"charIndex":0,"chordIndex":13},{"charIndex":2,"chordIndex":14},{"charIndex":5,"chordIndex":15},{"charIndex":9,"chordIndex":16},{"charIndex":11,"chordIndex":17},{"charIndex":14,"chordIndex":18},{"charIndex":18,"chordIndex":19}]},{"text":"its fleece was white as snow.","markers":[{"charIndex":0,"chordIndex":20},{"charIndex":4,"chordIndex":21},{"charIndex":11,"chordIndex":22},{"charIndex":15,"chordIndex":23},{"charIndex":21,"chordIndex":24},{"charIndex":24,"chordIndex":25}]}],
-  "Kids Row Your Boat":[{"text":"Row, row, row your boat,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":5,"chordIndex":1},{"charIndex":10,"chordIndex":2},{"charIndex":14,"chordIndex":3},{"charIndex":19,"chordIndex":4}]},{"text":"gently down the stream.","markers":[{"charIndex":0,"chordIndex":5},{"charIndex":4,"chordIndex":6},{"charIndex":7,"chordIndex":7},{"charIndex":12,"chordIndex":8},{"charIndex":16,"chordIndex":9}]},{"text":"Merrily, merrily, merrily, merrily,","markers":[{"charIndex":0,"chordIndex":10},{"charIndex":3,"chordIndex":11},{"charIndex":5,"chordIndex":12},{"charIndex":9,"chordIndex":13},{"charIndex":12,"chordIndex":14},{"charIndex":14,"chordIndex":15},{"charIndex":18,"chordIndex":16},{"charIndex":21,"chordIndex":17},{"charIndex":23,"chordIndex":18},{"charIndex":27,"chordIndex":19},{"charIndex":30,"chordIndex":20},{"charIndex":32,"chordIndex":21}]},{"text":"life is but a dream.","markers":[{"charIndex":0,"chordIndex":22},{"charIndex":5,"chordIndex":23},{"charIndex":8,"chordIndex":24},{"charIndex":12,"chordIndex":25},{"charIndex":14,"chordIndex":26}]}],
-  "Kids Old MacDonald":[{"text":"Old MacDonald had a farm,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":4,"chordIndex":1},{"charIndex":7,"chordIndex":2},{"charIndex":10,"chordIndex":3},{"charIndex":14,"chordIndex":4},{"charIndex":18,"chordIndex":5},{"charIndex":20,"chordIndex":6}]},{"text":"E-I-E-I-O!","markers":[{"charIndex":0,"chordIndex":7},{"charIndex":2,"chordIndex":8},{"charIndex":4,"chordIndex":9},{"charIndex":6,"chordIndex":10},{"charIndex":8,"chordIndex":11}]},{"text":"And on his farm he had a cow,","markers":[{"charIndex":0,"chordIndex":12},{"charIndex":4,"chordIndex":13},{"charIndex":7,"chordIndex":14},{"charIndex":11,"chordIndex":15},{"charIndex":16,"chordIndex":16},{"charIndex":19,"chordIndex":17},{"charIndex":23,"chordIndex":18},{"charIndex":25,"chordIndex":19}]},{"text":"E-I-E-I-O!","markers":[{"charIndex":0,"chordIndex":20},{"charIndex":2,"chordIndex":21},{"charIndex":4,"chordIndex":22},{"charIndex":6,"chordIndex":23},{"charIndex":8,"chordIndex":24}]},{"text":"With a moo moo here","markers":[{"charIndex":0,"chordIndex":25},{"charIndex":5,"chordIndex":26},{"charIndex":7,"chordIndex":27},{"charIndex":11,"chordIndex":28},{"charIndex":15,"chordIndex":29}]},{"text":"and a moo moo there,","markers":[{"charIndex":0,"chordIndex":30},{"charIndex":4,"chordIndex":31},{"charIndex":6,"chordIndex":32},{"charIndex":10,"chordIndex":33},{"charIndex":14,"chordIndex":34}]},{"text":"Here a moo, there a moo,","markers":[{"charIndex":0,"chordIndex":35},{"charIndex":5,"chordIndex":36},{"charIndex":7,"chordIndex":37},{"charIndex":12,"chordIndex":38},{"charIndex":18,"chordIndex":39},{"charIndex":20,"chordIndex":40}]},{"text":"everywhere a moo moo,","markers":[{"charIndex":0,"chordIndex":41},{"charIndex":2,"chordIndex":42},{"charIndex":5,"chordIndex":43},{"charIndex":11,"chordIndex":44},{"charIndex":13,"chordIndex":45},{"charIndex":17,"chordIndex":46}]},{"text":"Old MacDonald had a farm,","markers":[{"charIndex":0,"chordIndex":47},{"charIndex":4,"chordIndex":48},{"charIndex":7,"chordIndex":49},{"charIndex":10,"chordIndex":50},{"charIndex":14,"chordIndex":51},{"charIndex":18,"chordIndex":52},{"charIndex":20,"chordIndex":53}]},{"text":"E-I-E-I-O!","markers":[{"charIndex":0,"chordIndex":54},{"charIndex":2,"chordIndex":55},{"charIndex":4,"chordIndex":56},{"charIndex":6,"chordIndex":57},{"charIndex":8,"chordIndex":58}]}],
-  "Kids Itsy Bitsy Spider":[{"text":"The itsy bitsy spider","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":4,"chordIndex":1},{"charIndex":6,"chordIndex":2},{"charIndex":9,"chordIndex":3},{"charIndex":12,"chordIndex":4},{"charIndex":15,"chordIndex":5},{"charIndex":18,"chordIndex":6}]},{"text":"climbed up the water spout.","markers":[{"charIndex":0,"chordIndex":7},{"charIndex":8,"chordIndex":8},{"charIndex":11,"chordIndex":9},{"charIndex":15,"chordIndex":10},{"charIndex":17,"chordIndex":11},{"charIndex":21,"chordIndex":12}]},{"text":"Down came the rain","markers":[{"charIndex":0,"chordIndex":13},{"charIndex":5,"chordIndex":14},{"charIndex":10,"chordIndex":15},{"charIndex":14,"chordIndex":16}]},{"text":"and washed the spider out.","markers":[{"charIndex":0,"chordIndex":17},{"charIndex":4,"chordIndex":18},{"charIndex":11,"chordIndex":19},{"charIndex":15,"chordIndex":20},{"charIndex":18,"chordIndex":21},{"charIndex":22,"chordIndex":22}]},{"text":"Out came the sun","markers":[{"charIndex":0,"chordIndex":23},{"charIndex":4,"chordIndex":24},{"charIndex":9,"chordIndex":25},{"charIndex":13,"chordIndex":26}]},{"text":"and dried up all the rain,","markers":[{"charIndex":0,"chordIndex":27},{"charIndex":4,"chordIndex":28},{"charIndex":10,"chordIndex":29},{"charIndex":13,"chordIndex":30},{"charIndex":17,"chordIndex":31},{"charIndex":21,"chordIndex":32}]},{"text":"And the itsy bitsy spider","markers":[{"charIndex":0,"chordIndex":33},{"charIndex":4,"chordIndex":34},{"charIndex":8,"chordIndex":35},{"charIndex":10,"chordIndex":36},{"charIndex":13,"chordIndex":37},{"charIndex":16,"chordIndex":38},{"charIndex":19,"chordIndex":39},{"charIndex":22,"chordIndex":40}]},{"text":"climbed up the spout again.","markers":[{"charIndex":0,"chordIndex":41},{"charIndex":8,"chordIndex":42},{"charIndex":11,"chordIndex":43},{"charIndex":15,"chordIndex":44},{"charIndex":21,"chordIndex":45},{"charIndex":22,"chordIndex":46}]}],
-  "Kids London Bridge":[{"text":"London Bridge is falling down,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":3,"chordIndex":1},{"charIndex":7,"chordIndex":2},{"charIndex":14,"chordIndex":3},{"charIndex":17,"chordIndex":4},{"charIndex":21,"chordIndex":5},{"charIndex":25,"chordIndex":6}]},{"text":"falling down,","markers":[{"charIndex":0,"chordIndex":7},{"charIndex":4,"chordIndex":8},{"charIndex":8,"chordIndex":9}]},{"text":"falling down.","markers":[{"charIndex":0,"chordIndex":10},{"charIndex":4,"chordIndex":11},{"charIndex":8,"chordIndex":12}]},{"text":"London Bridge is falling down,","markers":[{"charIndex":0,"chordIndex":13},{"charIndex":3,"chordIndex":14},{"charIndex":7,"chordIndex":15},{"charIndex":14,"chordIndex":16},{"charIndex":17,"chordIndex":17},{"charIndex":21,"chordIndex":18},{"charIndex":25,"chordIndex":19}]},{"text":"my fair lady.","markers":[{"charIndex":0,"chordIndex":20},{"charIndex":3,"chordIndex":21},{"charIndex":8,"chordIndex":22},{"charIndex":10,"chordIndex":23}]}],
-  "Kids Hey Diddle Diddle":[{"text":"Hey, diddle, diddle,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":5,"chordIndex":1},{"charIndex":8,"chordIndex":2},{"charIndex":13,"chordIndex":3},{"charIndex":16,"chordIndex":4}]},{"text":"the cat and the fiddle,","markers":[{"charIndex":0,"chordIndex":5},{"charIndex":4,"chordIndex":6},{"charIndex":8,"chordIndex":7},{"charIndex":12,"chordIndex":8},{"charIndex":16,"chordIndex":9},{"charIndex":19,"chordIndex":10}]},{"text":"the cow jumped over the moon;","markers":[{"charIndex":0,"chordIndex":11},{"charIndex":4,"chordIndex":12},{"charIndex":8,"chordIndex":13},{"charIndex":15,"chordIndex":14},{"charIndex":16,"chordIndex":15},{"charIndex":20,"chordIndex":16},{"charIndex":24,"chordIndex":17}]},{"text":"the little dog laughed","markers":[{"charIndex":0,"chordIndex":18},{"charIndex":4,"chordIndex":19},{"charIndex":7,"chordIndex":20},{"charIndex":11,"chordIndex":21},{"charIndex":15,"chordIndex":22}]},{"text":"to see such sport,","markers":[{"charIndex":0,"chordIndex":23},{"charIndex":3,"chordIndex":24},{"charIndex":7,"chordIndex":25},{"charIndex":12,"chordIndex":26}]},{"text":"and the dish ran","markers":[{"charIndex":0,"chordIndex":27},{"charIndex":4,"chordIndex":28},{"charIndex":8,"chordIndex":29},{"charIndex":13,"chordIndex":30}]},{"text":"away with the spoon.","markers":[{"charIndex":0,"chordIndex":31},{"charIndex":1,"chordIndex":32},{"charIndex":5,"chordIndex":33},{"charIndex":14,"chordIndex":34}]}],
-  "Kids Head Shoulders Knees and Toes":[{"text":"Head, shoulders,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":6,"chordIndex":1},{"charIndex":11,"chordIndex":2}]},{"text":"knees and toes,","markers":[{"charIndex":0,"chordIndex":3},{"charIndex":6,"chordIndex":4},{"charIndex":10,"chordIndex":5}]},{"text":"knees and toes,","markers":[{"charIndex":0,"chordIndex":6},{"charIndex":6,"chordIndex":7},{"charIndex":10,"chordIndex":8}]},{"text":"Head, shoulders,","markers":[{"charIndex":0,"chordIndex":9},{"charIndex":6,"chordIndex":10},{"charIndex":11,"chordIndex":11}]},{"text":"knees and toes,","markers":[{"charIndex":0,"chordIndex":12},{"charIndex":6,"chordIndex":13},{"charIndex":10,"chordIndex":14}]},{"text":"knees and toes,","markers":[{"charIndex":0,"chordIndex":15},{"charIndex":6,"chordIndex":16},{"charIndex":10,"chordIndex":17}]},{"text":"And eyes and ears","markers":[{"charIndex":0,"chordIndex":18},{"charIndex":4,"chordIndex":19},{"charIndex":9,"chordIndex":20},{"charIndex":13,"chordIndex":21}]},{"text":"and mouth and nose,","markers":[{"charIndex":0,"chordIndex":22},{"charIndex":4,"chordIndex":23},{"charIndex":10,"chordIndex":24},{"charIndex":14,"chordIndex":25}]},{"text":"Head, shoulders,","markers":[{"charIndex":0,"chordIndex":26},{"charIndex":6,"chordIndex":27},{"charIndex":11,"chordIndex":28}]},{"text":"knees and toes,","markers":[{"charIndex":0,"chordIndex":29},{"charIndex":6,"chordIndex":30},{"charIndex":10,"chordIndex":31}]},{"text":"knees and toes.","markers":[{"charIndex":0,"chordIndex":32},{"charIndex":6,"chordIndex":33},{"charIndex":10,"chordIndex":34}]}],
-  "Kids Baa Baa Black Sheep":[{"text":"Baa, baa, black sheep,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":5,"chordIndex":1},{"charIndex":10,"chordIndex":2},{"charIndex":16,"chordIndex":3}]},{"text":"have you any wool?","markers":[{"charIndex":0,"chordIndex":4},{"charIndex":5,"chordIndex":5},{"charIndex":9,"chordIndex":6},{"charIndex":11,"chordIndex":7},{"charIndex":13,"chordIndex":8}]},{"text":"Yes, sir, yes, sir,","markers":[{"charIndex":0,"chordIndex":9},{"charIndex":5,"chordIndex":10},{"charIndex":10,"chordIndex":11},{"charIndex":15,"chordIndex":12}]},{"text":"three bags full;","markers":[{"charIndex":0,"chordIndex":13},{"charIndex":6,"chordIndex":14},{"charIndex":11,"chordIndex":15}]},{"text":"One for the master,","markers":[{"charIndex":0,"chordIndex":16},{"charIndex":4,"chordIndex":17},{"charIndex":8,"chordIndex":18},{"charIndex":12,"chordIndex":19},{"charIndex":15,"chordIndex":20}]},{"text":"and one for the dame,","markers":[{"charIndex":0,"chordIndex":21},{"charIndex":4,"chordIndex":22},{"charIndex":8,"chordIndex":23},{"charIndex":12,"chordIndex":24},{"charIndex":16,"chordIndex":25}]},{"text":"And one for the little boy","markers":[{"charIndex":0,"chordIndex":26},{"charIndex":4,"chordIndex":27},{"charIndex":8,"chordIndex":28},{"charIndex":12,"chordIndex":29},{"charIndex":16,"chordIndex":30},{"charIndex":19,"chordIndex":31},{"charIndex":23,"chordIndex":32}]},{"text":"who lives down the lane.","markers":[{"charIndex":0,"chordIndex":33},{"charIndex":4,"chordIndex":34},{"charIndex":10,"chordIndex":35},{"charIndex":15,"chordIndex":36},{"charIndex":19,"chordIndex":37}]}],
-  "Kids Hickory Dickory Dock":[{"text":"Hickory, dickory, dock,","markers":[{"charIndex":0,"chordIndex":0},{"charIndex":4,"chordIndex":1},{"charIndex":5,"chordIndex":2},{"charIndex":9,"chordIndex":3},{"charIndex":13,"chordIndex":4},{"charIndex":14,"chordIndex":5},{"charIndex":18,"chordIndex":6}]},{"text":"The mouse ran up the clock.","markers":[{"charIndex":0,"chordIndex":7},{"charIndex":4,"chordIndex":8},{"charIndex":10,"chordIndex":9},{"charIndex":14,"chordIndex":10},{"charIndex":17,"chordIndex":11},{"charIndex":21,"chordIndex":12}]},{"text":"The clock struck one,","markers":[{"charIndex":0,"chordIndex":13},{"charIndex":4,"chordIndex":14},{"charIndex":10,"chordIndex":15},{"charIndex":17,"chordIndex":16}]},{"text":"the mouse ran down,","markers":[{"charIndex":0,"chordIndex":17},{"charIndex":4,"chordIndex":18},{"charIndex":10,"chordIndex":19},{"charIndex":14,"chordIndex":20}]},{"text":"Hickory, dickory, dock.","markers":[{"charIndex":0,"chordIndex":21},{"charIndex":4,"chordIndex":22},{"charIndex":5,"chordIndex":23},{"charIndex":9,"chordIndex":24},{"charIndex":13,"chordIndex":25},{"charIndex":14,"chordIndex":26},{"charIndex":18,"chordIndex":27}]}]
-};
-const KIDS_SONG_KEY = {
-  "Kids Twinkle": ["C", "major"],
-  "Kids Mary's Lamb": ["C", "major"], "Kids Row Your Boat": ["C", "major"], "Kids Old MacDonald": ["C", "major"],
-  "Kids Itsy Bitsy Spider": ["C", "major"],
-  "Kids London Bridge": ["C", "major"],   // v110
-  "Kids Hey Diddle Diddle": ["C", "major"],   // v110
-  "Kids Head Shoulders Knees and Toes": ["C", "major"],
-  "Kids Baa Baa Black Sheep": ["C", "major"],
-  "Kids Hickory Dickory Dock": ["C", "major"]   // v109
-};
-function progSet(i) {
-  var n = prog.list.length;
-  if (!n) return;
-  paMiss = 0;   // v112: a new song starts a new miss run
-  progStop();
-  ChordAudio.band.hush();   // v104: a new song starts without the old Band tail
-  prog.idx = ((i % n) + n) % n;
-  prog.cur = -1;
-  upNxOff = false;   // v73: a (re)selected song points at its first chord
-  magicReset();   // v68
-  if (state.style === "kids") {
-    var sk = KIDS_SONG_KEY[prog.list[prog.idx].name];
-    if (sk) applySongKey(sk[0], sk[1]);   // v71: a Kids song picks its own key
-  }
-  if (U && upInList()) U.keep = !!(prog.list[prog.idx] && prog.list[prog.idx].up);   // v73: the song stays picked across Kids
-  if (prog.list[prog.idx] && prog.list[prog.idx].up && U) upKeyApply(upKeyNow().tonic, upKeyNow().mode);   // Upload: the song picks its key (Lock: the live key)
-  progRedecorate();
-  paintProg();
-}
-
-// ===== Song Upload (full mode only) =====
-// Contract: contract/song-contract.schema.json (embedded below as #songSchemaJson, copied to the
-// clipboard verbatim). A validated song becomes the "Uploaded" progression at the END of the
-// picker list (never in Simple or Kids), so the factory progressions keep their indexes.
-// TEMPO: while the uploaded song is the selected progression, its timing.bpm drives Next (ring
-// length) and the Play autoplay (bar length); a style change swaps the sound (and the style's
-// phrase-loop BPM) but never this song tempo. songTempo() is the single source.
-// BAND HOOK: when Band (bass + drums) is built it must take its tempo from songTempo() when it
-// returns a song (else the style / loop BPM), exactly like progLoopBar() / progRingSec() below.
-const UP_STORE = "touchChord.upload.v1";
-const UP_FLAG = 0.6;   // confidence below this is flagged for review
-// v80: two prompts. "Simple" (default) asks for sections only; "Simple and Full" asks for both
-// versions in one answer (sections + sectionsFull). Neither asks for a key: the AI returns song.key.
-// v89: one prompt template for every mode (contract 1.2 song list): HEAD + RULES(variant) + TAIL + ASK(mode) + SKIP(mode).
-// UP_PASTE_LINE / UP_PASTE_LINE_2 are now the Simple and Simple-and-Full RULES.
-const UP_HEAD = "Fill in the song form in the JSON contract below once for each song I ask for. Return ONLY valid JSON: one object with \"contractVersion\": \"1.2\" and a \"songs\" list holding one filled-in song form per song (song, timing, sections; leave contractVersion out of each song). For 3 songs or fewer, give every section its lyrics with chord markers; if the list has more than 3 songs, leave out lyrics to keep the answer short.";
-const UP_PASTE_LINE = "Keep it simple, for kids learning chords. List each section in play order, but use repeat for back-to-back repeats instead of writing them out. In each section give only the chord changes, and merge the same chord played twice in a row into one longer chord. Use plain beginner chords: major, minor, 7 or sus. Leave out passing chords, slash chords and extensions unless the song really needs them, and put the fancier version in alternates. Aim for 4 to 8 chords per section.";
-const UP_PASTE_LINE_2 = "Study each song once and give TWO versions of its chords in its song form. 1) \"sections\" is the Simple version, for kids learning chords: list each section in play order, but use repeat for back-to-back repeats instead of writing them out; give only the chord changes and merge the same chord played twice in a row into one longer chord; use plain beginner chords (major, minor, 7 or sus), leave out passing chords, slash chords and extensions unless the song really needs them, put the fancier version in alternates, and aim for 4 to 8 chords per section. 2) \"sectionsFull\" is the Full version, faithful to the record: keep the passing chords, slash chords and richer voicings as played; list each section once and mark repeats with repeat; about 15 to 25 chord entries across the whole song. Both versions share one song block, one timing block and the same lyric text: write the lyrics out in both, in each section of sections and of sectionsFull, with each version's lyric markers pointing into that version's own chords array.";
-const UP_TAIL = "Use concert pitch, count bars from the start of each song, give each chord an honest 0-1 confidence, and put anything unsure in that song's notes. If you can't find a song's chords, leave that song out rather than guess, and name it in the top-level notes.";
-const UP_ARTIST_MAX = 20;
-const UP_SKIP_MAX = 40;
-const UP_LIST_MAX = 25;   // v110: no album mode (the album cap is gone)
-var upPromptVer;
-var upSchemaText;
-var upSchema;
-var upListSchemaText;
-var U;
-var upProgObj;
-
-// --- chord symbols (the contract's chordSymbol pattern) -> app chord items ---
-const UP_CHORD_RE = /^([A-G])(#|b)?(maj|min|dim|aug|sus2|sus4|add|m|M)?([0-9]*)((?:b5|#5|b9|#9|#11|b13|add9|sus4)*)(?:\/([A-G])(#|b)?)?$/;
-function upParseChord(sym) {
-  var m = UP_CHORD_RE.exec(String(sym));
-  if (!m) return { error: "is not a chord symbol the app can read (e.g. Bm, F#7, G/B)" };
-  var rs = { li: SPELL_LI.indexOf(m[1]), acc: m[2] === "#" ? 1 : m[2] === "b" ? -1 : 0 };
-  var pc = wrap12([0, 2, 4, 5, 7, 9, 11][rs.li] + rs.acc);
-  var q = m[3] || "", n = m[4] || "", alts = m[5] ? m[5].match(/b5|#5|b9|#9|#11|b13|add9|sus4/g) : [];
-  var type = "major", ext = { six: false, min7: false, maj7: false, nine: false, sus2: false, flat9: false, sharp9: false, thirteen: false, over: 0 };
-  var warn = [], maj = q === "maj" || q === "M", add = q === "add";
-  if (q === "m" || q === "min") type = "minor";
-  else if (q === "dim") type = "dim";
-  else if (q === "aug") warn.push("augmented is played as a major chord");
-  else if (q === "sus2") ext.sus2 = true;
-  else if (q === "sus4") type = "sus4";
-  function seven() { if (maj) ext.maj7 = true; else if (type === "dim" && q === "dim") ext.six = true; else ext.min7 = true; }
-  if (n === "") { if (add) return { error: "\"add\" needs a number (e.g. Cadd9)" }; }
-  else if (n === "2") { if (add) ext.nine = true; else ext.sus2 = true; }
-  else if (n === "4") { if (add) warn.push("add4 is played without the 4th"); else type = "sus4"; }
-  else if (n === "5") { warn.push("a power chord (5) is played as a full major chord"); }
-  else if (n === "6") { ext.six = true; }
-  else if (n === "7") { seven(); }
-  else if (n === "9") { if (add) ext.nine = true; else { seven(); ext.nine = true; } }
-  else if (n === "11") { seven(); ext.nine = true; if (type === "major") type = "sus4"; else warn.push("the 11th is left out"); }
-  else if (n === "13") { seven(); ext.thirteen = true; }
-  else return { error: "has a chord number (" + n + ") the app does not play" };
-  for (var i = 0; i < alts.length; i++) {
-    var a = alts[i];
-    if (a === "b5") { if (type === "minor") type = "dim"; else if (type !== "dim") warn.push("\u266d5 is left out"); }
-    else if (a === "#5") warn.push("\u266f5 is left out");
-    else if (a === "b9") { if (!ext.min7 && !ext.maj7) ext.min7 = true; ext.flat9 = true; ext.nine = false; }
-    else if (a === "#9") { if (!ext.min7 && !ext.maj7) ext.min7 = true; ext.sharp9 = true; }
-    else if (a === "#11" || a === "b13") warn.push(a.replace("b", "\u266d").replace("#", "\u266f") + " is left out");
-    else if (a === "add9") ext.nine = true;
-    else if (a === "sus4") { if (type === "minor") warn.push("minor sus4 is played as sus4"); type = "sus4"; }
-  }
-  if (m[6]) {
-    var bs = { li: SPELL_LI.indexOf(m[6]), acc: m[7] === "#" ? 1 : m[7] === "b" ? -1 : 0 };
-    ext.over = wrap12([0, 2, 4, 5, 7, 9, 11][bs.li] + bs.acc - pc);
-  }
-  var label = String(sym).slice(m[1].length + (m[2] ? 1 : 0)).replace(/b/g, "\u266d").replace(/#/g, "\u266f");
-  return { pc: pc, rs: rs, type: type, ext: ext, label: label, warn: warn };
-}
-// One uploaded chord as a progression step (same shape as progStep's, so badges, the strip's
-// dashed chips, magic Next and the next-chord hint work unchanged).
-function upStep(key, sym, bars, ei) {
-  var c = upParseChord(sym);
-  if (c.error) c = upParseChord("C");
-  var kdegs = keyDegrees(key);
-  var rowPcs = kdegs.map(function (d) { return d.pc; }).sort(function (a, b) { return a - b; });
-  var inKey = {};
-  kdegs.forEach(function (d) { inKey[d.pc] = true; });
-  var tonePcs = Theory.chordIntervals(c.type, c.ext).map(function (iv) { return wrap12(c.pc + iv); });
-  if (c.ext.over) tonePcs.push(wrap12(c.pc + c.ext.over));
-  var diatonic = tonePcs.every(function (x) { return inKey[x]; });
-  var ni = rowPcs.indexOf(c.pc);
-  var hc = ni >= 0 ? 1 + 2 * ni : 2 * rowPcs.filter(function (x) { return x < c.pc; }).length;
-  var d = null, acc = "";
-  kdegs.forEach(function (k) { if (!d && k.pc === c.pc) d = k; });
-  if (!d) kdegs.forEach(function (k) { if (!d && k.pc === wrap12(c.pc + 1)) { d = k; acc = "\u266d"; } });
-  if (!d) kdegs.forEach(function (k) { if (!d && k.pc === wrap12(c.pc - 1)) { d = k; acc = "\u266f"; } });
-  var base = String(d.roman).replace(/[^ivIV]/g, "").toUpperCase();
-  var lower = c.type === "minor" || c.type === "dim";
-  var num = lower ? base.toLowerCase() : base;
-  var suffix = c.label.replace(/^(m(?!aj)|min)/, "");
-  var roman = acc + num + suffix;
-  var rn = acc + num + (c.type === "dim" ? (c.ext.min7 ? "\u00f8" : "\u00b0") : "");
-  var row = (c.type === "minor" && !c.ext.over) ? "sad"
-    : (c.type === "dim" || c.type === "sus4" || c.ext.flat9 || c.ext.sharp9 || c.ext.over) ? "tension"
-    : (diatonic && ni >= 0) ? "happy" : "bright";
-  return {
-    bars: bars, roman: roman, rn: rn, hc: hc, row: row, ei: ei,
-    item: { rootPc: c.pc, rootName: Theory.noteName(c.rs), rootSpell: c.rs,
-      degree: (!acc && diatonic && c.type === d.type && !c.ext.over) ? d.degree : null,
-      type: c.type, extensions: c.ext, qualityLabel: c.label, chipLabel: c.label, keepSpell: true }
-  };
-}
-
-// --- validator: the subset of JSON Schema the contract uses (types, required, enum, const,
-// min/max, exclusiveMinimum, minLength, minItems, pattern, items, additionalProperties, $ref) ---
-function upType(v) {
-  if (v === null) return "null";
-  if (Array.isArray(v)) return "array";
-  if (typeof v === "number") return isFinite(v) ? (Math.floor(v) === v ? "integer" : "number") : "nan";
-  return typeof v;
-}
-function upValidate(node, sch, path, errs, refName) {
-  if (!sch) return;
-  if (sch.$ref) {
-    var nm = sch.$ref.split("/").pop();
-    return upValidate(node, upSchema.$defs[nm], path, errs, nm);
-  }
-  var at = path || "(top level)";
-  if (Object.prototype.hasOwnProperty.call(sch, "const") && node !== sch["const"]) { errs.push({ path: at, msg: "must be " + JSON.stringify(sch["const"]) }); return; }
-  if (sch["enum"] && sch["enum"].indexOf(node) < 0) {
-    errs.push({ path: at, msg: (node === undefined ? "is missing" : JSON.stringify(node) + " is not allowed") + "; use one of " + sch["enum"].join(", ") });
-    return;
-  }
-  var t = upType(node), want = sch.type;
-  if (want) {
-    var ok = want === t || (want === "number" && t === "integer");
-    if (!ok) { errs.push({ path: at, msg: "must be " + (want === "integer" ? "a whole number" : want === "object" ? "an object { }" : want === "array" ? "a list [ ]" : "a " + want) + " (got " + (t === "nan" ? "an invalid number" : t) + ")" }); return; }
-  }
-  if (t === "string") {
-    if (sch.minLength && node.length < sch.minLength) errs.push({ path: at, msg: "must not be empty" });
-    if (sch.pattern && !(new RegExp(sch.pattern)).test(node)) {
-      errs.push({ path: at, msg: refName === "chordSymbol" ? JSON.stringify(node) + " is not a chord symbol the app can read (e.g. Bm, F#7, G/B)"
-        : /timeSignature$/.test(at) ? JSON.stringify(node) + " must look like \"4/4\", \"3/4\" or \"6/8\"" : JSON.stringify(node) + " does not match " + sch.pattern });
-    }
-  }
-  if (t === "number" || t === "integer") {
-    var lo = sch.minimum, hi = sch.maximum;
-    if (lo != null && hi != null && (node < lo || node > hi)) errs.push({ path: at, msg: "must be between " + lo + " and " + hi + " (got " + node + ")" });
-    else if (lo != null && node < lo) errs.push({ path: at, msg: "must be at least " + lo + " (got " + node + ")" });
-    else if (hi != null && node > hi) errs.push({ path: at, msg: "must be at most " + hi + " (got " + node + ")" });
-    if (sch.exclusiveMinimum != null && !(node > sch.exclusiveMinimum)) errs.push({ path: at, msg: "must be more than " + sch.exclusiveMinimum + " (got " + node + ")" });
-  }
-  if (t === "array") {
-    if (sch.minItems && node.length < sch.minItems) errs.push({ path: at, msg: "must have at least " + sch.minItems + " item" + (sch.minItems > 1 ? "s" : "") });
-    if (sch.items) for (var i = 0; i < node.length; i++) upValidate(node[i], sch.items, path + "[" + i + "]", errs);
-  }
-  if (t === "object") {
-    var props = sch.properties || {};
-    (sch.required || []).forEach(function (k) {
-      if (!Object.prototype.hasOwnProperty.call(node, k)) errs.push({ path: path ? path + "." + k : k, msg: "is required" });
-    });
-    Object.keys(node).forEach(function (k) {
-      var p = path ? path + "." + k : k;
-      if (props[k]) upValidate(node[k], props[k], p, errs);
-      else if (sch.additionalProperties === false) errs.push({ path: p, msg: "is not a field of the song form" });
-    });
-  }
-}
-// v89: answer parsing (port of v89-multi-song/ref.js): fences, string-aware brace matching,
-// single / envelope / bare list, and salvage of the complete songs from a cut-off list.
-function upStripFences(s) { var m = /```[a-zA-Z]*\s*\n?([\s\S]*?)(```|$)/.exec(s); return m ? m[1] : s; }
-function upMatchEnd(s, i) {
-  var depth = 0, str = false, esc = false;
-  for (var j = i; j < s.length; j++) {
-    var c = s[j];
-    if (str) { if (esc) esc = false; else if (c === "\\") esc = true; else if (c === "\"") str = false; continue; }
-    if (c === "\"") str = true; else if (c === "{" || c === "[") depth++;
-    else if (c === "}" || c === "]") { depth--; if (depth === 0) return j + 1; }
-  }
-  return -1;
-}
-function upSalvageList(s, i) {
-  var out = [], j = i + 1;
-  for (;;) {
-    while (j < s.length && /[\s,]/.test(s[j])) j++;
-    if (j >= s.length || s[j] !== "{") break;
-    var e = upMatchEnd(s, j);
-    if (e < 0) break;
-    try { out.push(JSON.parse(s.slice(j, e))); } catch (err) { break; }
-    j = e;
-  }
-  return out;
-}
-// -> { kind: "single"|"list", items, envelope, truncated } or { error: "empty"|"nojson"|"badjson", listy }
-function upParseAnswer(text) {
-  var s = upStripFences(String(text || "")), a = s.indexOf("{"), b = s.indexOf("[");
-  if (!s.trim()) return { error: "empty" };
-  var starts = [a, b].filter(function (n) { return n >= 0; }).sort(function (x, y) { return x - y; });
-  if (!starts.length) return { error: "nojson" };
-  for (var k = 0; k < starts.length; k++) {
-    var st = starts[k], end = upMatchEnd(s, st);
-    if (end < 0) continue;
-    var v; try { v = JSON.parse(s.slice(st, end)); } catch (err) { continue; }
-    if (Array.isArray(v) && !(v.length && v.every(function (x) { return x && typeof x === "object" && !Array.isArray(x); }))) continue;
-    if (Array.isArray(v)) return { kind: "list", items: v, envelope: null, truncated: false };
-    if (v && Array.isArray(v.songs)) return { kind: "list", items: v.songs, envelope: v, truncated: false };
-    if (v && typeof v === "object") return { kind: "single", items: [v], envelope: null, truncated: false };
-  }
-  var m = /"songs"\s*:\s*\[/.exec(s), li = m ? m.index + m[0].length - 1 : (b >= 0 && (a < 0 || b < a) ? b : -1);
-  if (li >= 0) {
-    var items = upSalvageList(s, li);
-    if (items.length) return { kind: "list", items: items, envelope: null, truncated: true };
-  }
-  return { error: "badjson", listy: li >= 0 };
-}
-// Text -> { ok, song, errors: [{path, msg}], warnings: [] }. Strips ``` fences and any prose
-// around the JSON (first "{" to last "}").
-function upCheck(text) {
-  var out = { ok: false, song: null, errors: [], warnings: [] };
-  var s = String(text || "");
-  var a = s.indexOf("{"), b = s.lastIndexOf("}");
-  if (!s.replace(/\s+/g, "")) { out.errors.push({ path: "(paste)", msg: "is empty: paste the AI's answer first" }); return out; }
-  if (a < 0 || b <= a) { out.errors.push({ path: "(paste)", msg: "has no JSON object in it (nothing between { and })" }); return out; }
-  var body = s.slice(a, b + 1), obj;
-  try { obj = JSON.parse(body); }
-  catch (err) {
-    var msg = String(err && err.message || err), pos = /position (\d+)/.exec(msg), where = "";
-    var lc = /line (\d+) column (\d+)/.exec(msg);
-    if (lc) where = " (line " + lc[1] + ", column " + lc[2] + ")";
-    else if (pos) { var pre = body.slice(0, +pos[1]).split("\n"); where = " (line " + pre.length + ", column " + (pre[pre.length - 1].length + 1) + ")"; }
-    out.errors.push({ path: "(JSON)", msg: "is not valid JSON" + where + ": " + msg.replace(/^JSON\.parse: /, "") });
-    return out;
-  }
-  return upCheckObj(obj);
-}
-// v89: check one parsed song form. Empty song.album is dropped (with a warning) so 1.0 / 1.1 answers
-// with "album": "" still load; album is trimmed.
-function upCheckObj(obj) {
-  var out = { ok: false, song: null, errors: [], warnings: [] };
-  if (!upSchema) { out.errors.push({ path: "(app)", msg: "song schema missing from this build" }); return out; }
-  if (obj && typeof obj === "object" && obj.song && typeof obj.song === "object" && typeof obj.song.album === "string") {
-    var al = obj.song.album.trim();
-    if (!al) delete obj.song.album;   // v110: silently (no album wording on screen)
-    else obj.song.album = al;
-  }
-  upValidate(obj, upSchema, "", out.errors);
-  if (!out.errors.length) {
-    var lists = [["sections", obj.sections]];
-    if (obj.sectionsFull) lists.push(["sectionsFull", obj.sectionsFull]);   // v80: the Full version, same checks
-    lists.forEach(function (L) {
-    var ids = {};
-    L[1].forEach(function (sec, si) {
-      var P = L[0] + "[" + si + "]";
-      if (ids[sec.id]) out.errors.push({ path: P + ".id", msg: "\"" + sec.id + "\" is used twice; each section id must be unique" });
-      ids[sec.id] = true;
-      sec.chords.forEach(function (c, ci) {
-        var pc = upParseChord(c.chord);
-        if (pc.error) out.errors.push({ path: P + ".chords[" + ci + "].chord", msg: JSON.stringify(c.chord) + " " + pc.error });
-        else pc.warn.forEach(function (w) { out.warnings.push(P + ".chords[" + ci + "].chord " + c.chord + ": " + w); });
-        if (c.index !== ci) out.warnings.push(P + ".chords[" + ci + "].index is " + c.index + "; played in list order");
-        (c.alternates || []).forEach(function (al, ai) {
-          var pa = upParseChord(al.chord);
-          if (pa.error) out.errors.push({ path: P + ".chords[" + ci + "].alternates[" + ai + "].chord", msg: JSON.stringify(al.chord) + " " + pa.error });
-        });
-      });
-      (sec.lyrics || []).forEach(function (ln, li) {
-        ln.markers.forEach(function (mk, mi) {
-          var MP = P + ".lyrics[" + li + "].markers[" + mi + "]";
-          if (mk.chordIndex >= sec.chords.length) out.errors.push({ path: MP + ".chordIndex", msg: "points to chord " + mk.chordIndex + " but this section has " + sec.chords.length + " chords (0-" + (sec.chords.length - 1) + ")" });
-          if (mk.charIndex > ln.text.length) out.errors.push({ path: MP + ".charIndex", msg: "is " + mk.charIndex + " but the line has only " + ln.text.length + " characters" });
-        });
-      });
-    });
-    });
-    var tsn = parseInt(obj.timing.timeSignature, 10);
-    if (!(tsn > 0)) out.errors.push({ path: "timing.timeSignature", msg: "needs at least 1 beat per bar" });
-  }
-  if (!out.errors.length) { out.ok = true; out.song = obj; }
-  return out;
-}
-
-// --- the loaded song ---
-// U = { raw, title, artist, key, bpm, bpb, ts, events: [{ si, ci, rep, dur }], choice: {"si:ci": sym}, reviewed: {"si:ci": true} }
-// v80: U.secs = the version being played (raw.sections, or raw.sectionsFull when U.ver is "full");
-// U.two = the answer has both. U.choice / U.reviewed are the current version's (U.choiceAll[ver]).
-// v103 fix: a Full section with no lyrics borrows the Simple section's lyric text (same id, else same
-// place); each marker moves to the Full chord sounding at that Simple chord's bar / beat. Shallow copies
-// only (chords shared), so the saved answer is unchanged.
-function upFullLyrics(full, simple, bpb) {
-  function at(c) { var p = c.position || {}; return ((p.bar || 1) - 1) * (bpb || 4) + ((p.beat || 1) - 1); }
-  return full.map(function (fs, i) {
-    if (fs.lyrics && fs.lyrics.length) return fs;
-    var ss = simple.filter(function (x) { return fs.id && x.id === fs.id; })[0] || simple[i];
-    if (!ss || !ss.lyrics || !ss.lyrics.length) return fs;
-    var lyr = ss.lyrics.map(function (ln) {
-      var seen = {}, mk = [];
-      (ln.markers || []).forEach(function (m) {
-        var sc = ss.chords[m.chordIndex], t = sc ? at(sc) : 0, best = 0;
-        fs.chords.forEach(function (fc, k) { if (at(fc) <= t) best = k; });
-        if (!seen[best]) { seen[best] = true; mk.push({ charIndex: m.charIndex, chordIndex: best }); }
-      });
-      return { text: ln.text, markers: mk };
-    });
-    var o = {}; for (var k in fs) o[k] = fs[k];
-    o.lyrics = lyr;
-    return o;
-  });
-}
-function upBuild(raw, choice, reviewed, ver) {
-  var two = !!(raw.sectionsFull && raw.sectionsFull.length);
-  var u = { raw: raw, title: raw.song.title, artist: raw.song.artist, key: raw.song.key,
-    bpm: raw.timing.bpm, ts: raw.timing.timeSignature, bpb: parseInt(raw.timing.timeSignature, 10) || 4,
-    events: [], choice: choice || {}, reviewed: reviewed || {}, two: two, ver: two && ver === "full" ? "full" : "simple" };
-  u.secs = u.ver === "full" ? upFullLyrics(raw.sectionsFull, raw.sections, u.bpb) : raw.sections;
-  u.choiceAll = { simple: {}, full: {} }; u.reviewedAll = { simple: {}, full: {} };
-  u.choiceAll[u.ver] = u.choice; u.reviewedAll[u.ver] = u.reviewed;
-  u.secs.forEach(function (sec, si) {
-    var reps = sec.repeat || 1;
-    for (var r = 0; r < reps; r++) sec.chords.forEach(function (c, ci) { u.events.push({ si: si, ci: ci, rep: r, dur: c.durationBeats }); });
-  });
-  upProgObj = { name: u.title + " \u2014 " + u.artist, steps: u.events.map(function () { return "up"; }), up: true };
-  return u;
-}
-function upEv(si, ci) { return U.secs[si].chords[ci]; }
-function upSym(si, ci) { return U.choice[si + ":" + ci] || upEv(si, ci).chord; }
-function upConf(si, ci) {
-  var c = upEv(si, ci), s = U.choice[si + ":" + ci];
-  if (!s || s === c.chord) return c.confidence;
-  var al = (c.alternates || []).filter(function (a) { return a.chord === s; })[0];
-  return al && al.confidence != null ? al.confidence : 1;
-}
-function upFlagged(si, ci) {
-  if (U.reviewed[si + ":" + ci]) return false;
-  if (U.choice[si + ":" + ci] && U.choice[si + ":" + ci] !== upEv(si, ci).chord) return false;   // the player picked it
-  return upConf(si, ci) < UP_FLAG;
-}
-function upFlagList() {
-  var out = [];
-  if (!U) return out;
-  U.secs.forEach(function (sec, si) { sec.chords.forEach(function (c, ci) { if (upFlagged(si, ci)) out.push({ si: si, ci: ci }); }); });
-  return out;
-}
-function upSecName(si) {
-  var sec = U.secs[si];
-  if (sec.label) return sec.label;
-  var m = /(\d+)$/.exec(sec.id || "");
-  return sec.type + (m ? " " + m[1] : "");
-}
-// v77: My songs. touchChord.library.v1 = { v: 1, active: id|null, sel, songs: [{ id, title, artist, added,
-// song: <raw JSON>, choice, reviewed, locked, liveKey }] }, max 50. U is the active song (or null).
-// Saving never fails silently (upSaveErr in the panel); a full library never evicts.
-const LIB_STORE = "touchChord.library.v1";
-const LIB_MAX = 50;
-var LIB;
-var libSaveErr;
-function libKey(t, a) { return String(t || "").trim().toLowerCase() + "\u0000" + String(a || "").trim().toLowerCase(); }
-function libGet(id) { for (var i = 0; i < LIB.songs.length; i++) if (LIB.songs[i].id === id) return LIB.songs[i]; return null; }
-function libFind(t, a) { var k = libKey(t, a); for (var i = 0; i < LIB.songs.length; i++) if (libKey(LIB.songs[i].title, LIB.songs[i].artist) === k) return LIB.songs[i]; return null; }
-function libId() { var id; do { id = "s" + Date.now().toString(36) + Math.floor(Math.random() * 1679616).toString(36); } while (libGet(id)); return id; }
-function libWrite() {
-  var ok = true;
-  try {
-    if (!window.localStorage) throw new Error("no storage");
-    window.localStorage.setItem(LIB_STORE, JSON.stringify(LIB));
-  } catch (err) { ok = false; }
-  libSaveErr = ok ? "" : "Couldn't save, storage is full";
-  paintLibErr();
-  return ok;
-}
-function paintLibErr() {
-  var el = document.getElementById("upSaveErr");
-  if (!el) return;
-  el.textContent = libSaveErr;
-  el.hidden = !libSaveErr;
-}
-function upSave() {
-  if (!U) { LIB.active = null; LIB.sel = false; }
-  else {
-    var e = libGet(U.id);
-    if (e && U.two) { e.choice = { simple: U.choiceAll.simple, full: U.choiceAll.full }; e.reviewed = { simple: U.reviewedAll.simple, full: U.reviewedAll.full }; e.ver = U.ver; e.locked = !!U.locked; e.liveKey = U.liveKey || null; }
-    else if (e) { e.choice = U.choice; e.reviewed = U.reviewed; e.locked = !!U.locked; e.liveKey = U.liveKey || null; }   // sections only: stored as in v77
-    LIB.active = e ? e.id : null;
-    LIB.sel = !!e && upSelected();
-  }
-  libWrite();
-  paintLib();
-}
-// v80: choice / reviewed of a two-version entry are { simple: {...}, full: {...} }; a v77 entry (or a
-// sections-only song) keeps the flat {"si:ci": ...} map, which is the simple version.
-function libVerMaps(o, two) {
-  o = o && typeof o === "object" ? o : {};
-  var split = two && (Object.prototype.hasOwnProperty.call(o, "simple") || Object.prototype.hasOwnProperty.call(o, "full")) && !Object.keys(o).some(function (k) { return k.indexOf(":") >= 0; });
-  return split ? { simple: o.simple || {}, full: o.full || {} } : { simple: o, full: {} };
-}
-function libEntryToU(e) {
-  var chk = upCheck(JSON.stringify(e.song));
-  if (!chk.ok) return null;
-  var two = !!(chk.song.sectionsFull && chk.song.sectionsFull.length), ver = two && e.ver === "full" ? "full" : "simple";
-  var cm = libVerMaps(e.choice, two), rm = libVerMaps(e.reviewed, two);
-  var u = upBuild(chk.song, cm[ver], rm[ver], ver);
-  u.choiceAll = cm; u.reviewedAll = rm;
-  u.id = e.id; u.locked = e.locked !== false; u.liveKey = e.liveKey || null;
-  return u;
-}
-var upRestoreSel;
-// Shown in full mode only, never for Kids (Kids plays its own songs).
-// v73: a LOCKED song also stays in Simple (Next / Play keep walking it; the song bar / Upload stay hidden there).
-function upInList() { return !!U && state.style !== "kids" && (!state.simple || !!U.locked); }
-function upSelected() { var p = prog.list[prog.idx]; return !!(p && p.up && U); }
-function songTempo() { return upSelected() ? { bpm: U.bpm, bpb: U.bpb, ts: U.ts } : null; }
-// Bar length for the Play autoplay (factory progressions: PROG_BAR, 80 BPM 4/4).
-function progLoopBar() { var t = songTempo(); return t ? t.bpb * 60 / t.bpm : PROG_BAR; }
-// Ring length per bar for Next (factory progressions: the style / loop BPM, 4 beats).
-function progRingSec() { var t = songTempo(); return t ? t.bpb * 60 / t.bpm : 240 / (state.bpm || 96); }
-// v73 Lock: while locked, the song's chords follow the key: every chord moves by (live key tonic -
-// song key tonic), keeping quality and slash bass; U.key stays the reference, U.liveKey the target.
-function upTr(key) { return U && U.locked && key ? wrap12(key.pc - namePc(U.key.tonic)) : 0; }
-function upLiveKeyObj() { return U && U.locked && U.liveKey ? { pc: namePc(U.liveKey.tonic), mode: U.liveKey.mode === "minor" ? "minor" : "major" } : null; }
-function upSpellPc(pc, key) {
-  var kd = key ? keyDegrees(key) : [], flat = false, nat = [0, 2, 4, 5, 7, 9, 11];
-  for (var i = 0; i < kd.length; i++) {
-    var rs = kd[i].rootSpell;
-    if (rs && rs.acc < 0) flat = true;
-    if (kd[i].pc === pc && rs && Math.abs(rs.acc) <= 1) return SPELL_LI.charAt(rs.li) + (rs.acc > 0 ? "#" : rs.acc < 0 ? "b" : "");
-  }
-  var j = nat.indexOf(pc);
-  if (j >= 0) return SPELL_LI.charAt(j);
-  return flat ? SPELL_LI.charAt(nat.indexOf(wrap12(pc + 1))) + "b" : SPELL_LI.charAt(nat.indexOf(wrap12(pc - 1))) + "#";
-}
-function upTransSym(sym, tr, key) {
-  if (!tr) return sym;
-  var m = /^([A-G])(#|b)?(.*)$/.exec(String(sym));
-  if (!m) return sym;
-  var rest = m[3], bass = "", sl = rest.lastIndexOf("/");
-  if (sl >= 0 && /^[A-G](#|b)?$/.test(rest.slice(sl + 1))) { bass = rest.slice(sl + 1); rest = rest.slice(0, sl); }
-  var out = upSpellPc(wrap12(namePc(m[1] + (m[2] || "")) + tr), key) + rest;
-  if (bass) out += "/" + upSpellPc(wrap12(namePc(bass) + tr), key);
-  return out;
-}
-function upT(sym) { var k = upLiveKeyObj(); return upTransSym(sym, upTr(k), k); }   // display (transposed when locked)
-function upA(sym) { return accSym(upT(sym)); }
-function upSteps(key) { var tr = upTr(key); return U.events.map(function (e, i) { return upStep(key, upTransSym(upSym(e.si, e.ci), tr, key), e.dur / U.bpb, i); }); }
-function upKeyNow() { return U.locked && U.liveKey ? U.liveKey : U.key; }   // the key the song plays in
-function upSetLock(on) {
-  if (!U) return;
-  U.locked = !!on;
-  U.liveKey = null;   // locking / unlocking starts from the song's own key
-  if (upSelected()) { progStop(); upKeyApply(U.key.tonic, U.key.mode); shared.suggestSig = ""; paintSuggestions(computeSpec()); }
-  upSave();
-  paintUpload();
-  paintSongBar();
-}
-function upPlaceLock() {
-  var bar = document.getElementById("songBar"), lk = document.getElementById("sbLock");
-  if (!bar || !lk) return;
-  var on = !bar.hidden && !!U;
-  lk.hidden = !on;
-  if (!on) { bar.style.paddingRight = ""; return; }
-  var lock = !!U.locked;
-  lk.setAttribute("aria-pressed", lock ? "true" : "false");
-  lk.title = lock ? "Song chords locked: tap to unlock" : "Lock the song chords";
-  lk.style.top = bar.offsetTop + "px";
-  lk.style.height = bar.offsetHeight + "px";
-  lk.style.right = Math.max(0, bar.offsetParent ? bar.offsetParent.clientWidth - bar.offsetLeft - bar.offsetWidth : 0) + "px";
-  bar.style.paddingRight = (lk.offsetWidth + 6) + "px";
-}
-
-// Key from song.key: applySongKey(tonic, mode) (added with Kids v71; reused here). Tonic spellings
-// that are not keys in the app (A# major, Gb minor) fall back to its default spelling (Bb, F#).
-function upKeyApply(tonic, mode) {
-  applySongKey(tonic, mode);
-  var k = { pc: namePc(tonic), mode: mode === "minor" ? "minor" : "major" };
-  return { pc: k.pc, mode: k.mode, name: keyRootName(k) };
-}
-function upSelect() {
-  shared.suggestSig = "";
-  paintSuggestions(computeSpec());
-  for (var i = 0; i < prog.list.length; i++) if (prog.list[i].up) { progSet(i); break; }
-  upSave();
-}
-// v89: stored song = a copy stamped 1.1 (so v77-v88 builds read it); entry.album from song.album
-function upStoreCopy(song) { var c = JSON.parse(JSON.stringify(song)); c.contractVersion = "1.1"; return c; }
-function upLoad(text) {
-  var r = upCheck(text);
-  if (!r.ok) return r;
-  return upLoadOne(r);
-}
-function upLoadOne(r) {
-  // v77: same title + artist updates that song (same id); a new one needs room (never evict).
-  var ent = libFind(r.song.song.title, r.song.song.artist);
-  if (!ent && LIB.songs.length >= LIB_MAX) { r.ok = false; r.full = true; r.errors = [{ path: "My songs", msg: "is full" }]; return r; }
-  progStop();
-  if (state.style === "kids") { var pb = document.querySelector("#styles button[data-style=\"pop\"]"); if (pb) pb.click(); }
-  if (ent) { ent.title = String(r.song.song.title).trim(); ent.artist = String(r.song.song.artist).trim(); ent.song = upStoreCopy(r.song); ent.choice = {}; ent.reviewed = {}; ent.locked = true; ent.liveKey = null; delete ent.ver; r.updated = true; }
-  else { ent = { id: libId(), title: String(r.song.song.title).trim(), artist: String(r.song.song.artist).trim(), added: Date.now(), song: upStoreCopy(r.song), choice: {}, reviewed: {}, locked: true, liveKey: null }; LIB.songs.push(ent); }
-  if (r.song.song.album) ent.album = r.song.song.album;
-  U = upBuild(r.song, {}, {});
-  U.id = ent.id;
-  U.locked = true; U.liveKey = null; U.keep = true;   // v73: Lock is ON the moment a song loads
-  r.key = upKeyApply(r.song.song.key.tonic, r.song.song.key.mode);
-  upSelect();
-  return r;
-}
-// v89: Load for every answer shape. Single objects (and a list giving exactly one song with no skips)
-// keep the old path and message. Lists: each song is checked on its own, then committed in one write.
-function upFlagCount(song) {
-  var n = 0, L = [song.sections].concat(song.sectionsFull && song.sectionsFull.length ? [song.sectionsFull] : []);
-  L.forEach(function (secs) { secs.forEach(function (sec) { sec.chords.forEach(function (c) { if (c.confidence < UP_FLAG) n++; }); }); });
-  return n;
-}
-function upEmptyErr(pa) {
-  return pa.error === "empty" ? { path: "(paste)", msg: "is empty: paste the AI's answer first" } : { path: "(paste)", msg: "has no JSON object in it (nothing between { and })" };
-}
-// Phase 1: parse. -> { done: result } (an error or the single path) or { list: {...} } to check song by song.
-function upLoadBegin(text) {
-  var pa = upParseAnswer(text);
-  if (pa.error === "empty" || pa.error === "nojson") return { done: { ok: false, single: true, errors: [upEmptyErr(pa)], warnings: [] } };
-  if (pa.error) {
-    var r0 = upCheck(text);   // the old JSON error text (line, column)
-    if (r0.ok) return { done: upLoadOne(r0) };
-    if (pa.listy) {   // a cut-off song list with no complete song in it
-      var je = r0.errors.filter(function (e) { return e.path === "(JSON)"; })[0], lc = je && /\(line \d+, column \d+\)/.exec(je.msg);
-      if (!lc) { var ls = String(text).replace(/\s+$/, "").split("\n"); lc = ["(line " + ls.length + ", column " + (ls[ls.length - 1].length + 1) + ")"]; }
-      r0.errors = [{ path: "(JSON)", msg: "is not valid JSON " + lc[0] + ": the answer was cut off. Ask the AI for fewer songs, or ask it to continue." }];
-    }
-    r0.single = !pa.listy;
-    return { done: r0 };
-  }
-  if (pa.kind === "single") {
-    var r1 = upCheckObj(pa.items[0]); r1.single = true;
-    return { done: r1.ok ? upLoadOne(r1) : r1 };
-  }
-  var L = { items: pa.items, envelope: pa.envelope, truncated: pa.truncated, warnings: [], errors: [], rows: [] };
-  if (pa.envelope) {
-    upValidate(pa.envelope.contractVersion, { "enum": ["1.2"] }, "contractVersion", L.errors);
-    Object.keys(pa.envelope).forEach(function (k) { if (k !== "contractVersion" && k !== "songs" && k !== "notes") L.warnings.push(k + " is not a field of the song list"); });
-  }
-  if (!pa.items.length) L.errors.push({ path: "songs", msg: "has no songs in it" });
-  if (L.errors.length) return { done: { ok: false, list: true, errors: L.errors, warnings: L.warnings, rows: [] } };
-  return { list: L };
-}
-// Phase 2: check song i (answer order).
-function upLoadCheck(L, i) {
-  var it = L.items[i], row = { i: i, title: it && it.song && typeof it.song.title === "string" && it.song.title.trim() ? it.song.title.trim() : "" };
-  L.rows.push(row);
-  if (i >= UP_LIST_MAX) { row.status = "skipped"; row.reason = "more than " + UP_LIST_MAX + " in one answer"; return; }
-  if (!it || typeof it !== "object" || Array.isArray(it)) { row.status = "skipped"; row.reason = "is not a song form"; row.errors = [{ path: "songs[" + i + "]", msg: "must be an object { }" }]; return; }
-  var o = JSON.parse(JSON.stringify(it));
-  if (!Object.prototype.hasOwnProperty.call(o, "contractVersion")) o.contractVersion = "1.2";
-  var r = upCheckObj(o);
-  if (!r.ok) { row.status = "skipped"; row.reason = "has problems"; row.errors = r.errors; return; }
-  var k = libKey(r.song.song.title, r.song.song.artist);
-  for (var j = 0; j < L.rows.length - 1; j++) if (L.rows[j].key === k && L.rows[j].song) { row.status = "skipped"; row.reason = "listed twice in this answer"; return; }
-  row.key = k; row.song = r.song; row.warnings = r.warnings; row.flags = upFlagCount(r.song);
-}
-// Phase 3: commit in answer order on the library (one write; rolled back if storage is full).
-function upLoadCommit(L) {
-  var R = { ok: false, list: true, rows: L.rows, loaded: 0, updated: 0, skipped: 0, capSkipped: 0, truncated: L.truncated, warnings: L.warnings, errors: [],
-    notes: L.envelope && typeof L.envelope.notes === "string" ? L.envelope.notes : "" };
-  var snap = JSON.stringify(LIB), room = LIB_MAX - LIB.songs.length, now = Date.now(), first = null, firstUp = null;
-  L.rows.forEach(function (row) {
-    if (!row.song) return;
-    var song = row.song, ent = libFind(song.song.title, song.song.artist);
-    if (ent) {
-      var oldAl = ent.album || (ent.song && ent.song.song && ent.song.song.album) || "";
-      ent.title = String(song.song.title).trim(); ent.artist = String(song.song.artist).trim(); ent.song = upStoreCopy(song);
-      ent.choice = {}; ent.reviewed = {}; ent.locked = true; ent.liveKey = null; delete ent.ver;
-      if (song.song.album) { ent.album = song.song.album; if (song.song.album !== oldAl) row.albumNow = song.song.album; }
-      else if (oldAl) ent.album = oldAl;
-      row.status = "updated"; row.ent = ent; if (!firstUp) firstUp = row;
-    } else if (room > 0) {
-      ent = { id: libId(), title: String(song.song.title).trim(), artist: String(song.song.artist).trim(), added: now - row.i, song: upStoreCopy(song), choice: {}, reviewed: {}, locked: true, liveKey: null };
-      if (song.song.album) ent.album = song.song.album;
-      LIB.songs.push(ent); room--;
-      row.status = "new"; row.ent = ent; if (!first) first = row;
-    } else { row.status = "skipped"; row.reason = "My songs is full"; R.capSkipped++; }
-  });
-  L.rows.forEach(function (row) { if (row.status === "new") R.loaded++; else if (row.status === "updated") R.updated++; else R.skipped++; });
-  var act = first || firstUp;
-  if (!act) {
-    R.errors = upListErrors(L.rows);
-    return R;
-  }
-  if (!libWrite()) { LIB = JSON.parse(snap); R.loaded = R.updated = 0; R.saveFail = true; R.errors = [{ path: "My songs", msg: "Couldn't save, storage is full" }]; paintLib(); return R; }
-  progStop();
-  if (state.style === "kids") { var pb = document.querySelector("#styles button[data-style=\"pop\"]"); if (pb) pb.click(); }
-  U = upBuild(act.song, {}, {});
-  U.id = act.ent.id;
-  U.locked = true; U.liveKey = null; U.keep = true;
-  R.key = upKeyApply(act.song.song.key.tonic, act.song.song.key.mode);
-  R.active = act.ent.title;
-  upSelect();
-  R.ok = true;
-  // exactly one song and nothing skipped: the old single-song result
-  if (L.rows.length === 1 && !R.skipped) { R.list = false; R.single = true; R.warnings = R.warnings.concat(act.warnings || []); R.updated1 = act.status === "updated"; }
-  return R;
-}
-function upListErrors(rows) {
-  var out = [];
-  rows.forEach(function (row) {
-    if (row.status !== "skipped") return;
-    var who = "Song " + (row.i + 1) + (row.title ? " (" + row.title + ")" : "");
-    if (row.errors && row.errors.length) row.errors.forEach(function (e) { out.push({ path: who + ": " + e.path, msg: e.msg }); });
-    else out.push({ path: who, msg: row.reason === "My songs is full" ? "My songs: is full" : row.reason });
-  });
-  return out;
-}
-// Synchronous Load (the test hook; the button runs the same phases with a progress line).
-function upLoadAll(text) {
-  var b = upLoadBegin(text);
-  if (b.done) return b.done;
-  for (var i = 0; i < b.list.items.length; i++) upLoadCheck(b.list, i);
-  return upLoadCommit(b.list);
-}
-function upRemove() {
-  var was = upSelected();
-  U = null; upProgObj = null;
-  upSave();
-  shared.suggestSig = "";
-  paintSuggestions(computeSpec());
-  if (was) progSet(0);
-}
-// v77: open a saved song: same path as Load (key + Lock restored, selected in the picker).
-function libOpen(id) {
-  var e = libGet(id);
-  if (!e) return false;
-  var u = libEntryToU(e);
-  if (!u) return false;
-  progStop();
-  if (state.style === "kids") { var pb = document.querySelector("#styles button[data-style=\"pop\"]"); if (pb) pb.click(); }
-  U = u; U.keep = true;
-  upKeyApply(upKeyNow().tonic, upKeyNow().mode);
-  upSelect();
-  return true;
-}
-// v80: the per-song Simple / Full pick (two-version songs). The active song is rebuilt in its saved
-// key and Lock (liveKey) and stays selected if it was; another row just saves the pick.
-function libSetVer(id, ver) {
-  var e = libGet(id);
-  if (!e || !(e.song && e.song.sectionsFull && e.song.sectionsFull.length)) return false;
-  ver = ver === "full" ? "full" : "simple";
-  if (U && U.id === id) {
-    if (U.ver === ver) return true;
-    upSave();   // the entry has this version's picks
-    var was = upSelected(), keep = U.keep, locked = U.locked, live = U.liveKey;
-    e.ver = ver;
-    var u = libEntryToU(e);
-    if (!u) return false;
-    progStop();
-    u.locked = locked; u.liveKey = live; u.keep = keep;
-    U = u;
-    if (was) { upKeyApply(upKeyNow().tonic, upKeyNow().mode); upSelect(); }
-    else { shared.suggestSig = ""; paintSuggestions(computeSpec()); upSave(); }
-    paintSongBar();
-  } else {
-    if ((e.ver || "simple") === ver) return true;
-    e.choice = libVerMaps(e.choice, true); e.reviewed = libVerMaps(e.reviewed, true);   // a v77 flat map = the simple picks
-    e.ver = ver;
-    libWrite();
-    paintLib();
-  }
-  return true;
-}
-function libDelete(id) {
-  var i = -1;
-  for (var k = 0; k < LIB.songs.length; k++) if (LIB.songs[k].id === id) i = k;
-  if (i < 0) return false;
-  LIB.songs.splice(i, 1);
-  if (U && U.id === id) upRemove();   // the active song: deselect it in the picker (saves)
-  else upSave();
-  return true;
-}
-function libConfirm(e) { return window.confirm("Remove " + (e ? e.title : "this song") + "?"); }
-const TRASH_SVG = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6\"/></svg>";
-function upLibAlbum(e) { var a = e.album || (e.song && e.song.song && typeof e.song.song.album === "string" ? e.song.song.album : ""); return String(a || "").trim(); }
-function upLibSub(e) {
-  return "<span class=\"ul-sub\"><span class=\"ul-art\">" + upEsc(e.artist) + "</span></span>";   // v110: no album line
-}
-// v105: the song whose details are open under its row (pencil); independent of the playing song (U).
-var upEdit;
-const CLOSE_SVG = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\"><path d=\"M6 6l12 12M18 6L6 18\"/></svg>";   // v107
-const PENCIL_SVG = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 20h4L18.5 9.5a2.1 2.1 0 0 0-4-4L4 16v4z\"/><path d=\"M13.5 6.5l4 4\"/></svg>";
-function paintLib() {
-  var box = document.getElementById("upLib"), list = document.getElementById("upLibList");
-  if (!box || !list) return;
-  paintLibErr();
-  var det = document.getElementById("upDetail"), home = document.querySelector("#uploadPick .up-detail-home");
-  if (det && home && det.parentNode !== home) home.appendChild(det);   // v105: kept while the list is rebuilt
-  if (upEdit && !libGet(upEdit)) upEdit = null;
-  var emp = document.getElementById("upLibEmpty");
-  if (emp) emp.hidden = !!LIB.songs.length;
-  list.hidden = !LIB.songs.length;
-  list.classList.toggle("editing", !!upEdit);
-  document.getElementById("upLibN").textContent = LIB.songs.length ? "(" + LIB.songs.length + (LIB.songs.length >= LIB_MAX ? ", full" : "") + ")" : "";
-  var rows = LIB.songs.slice().sort(function (a, b) { return (b.added || 0) - (a.added || 0); });
-  var act = U ? U.id : null, h = "";
-  rows.forEach(function (e) {
-    var on = e.id === act;
-    var ed = e.id === upEdit;   // v105: the per-song Simple / Full pick moved into the details (pencil)
-    h += "<li class=\"ul-row" + (on ? " on" : "") + (ed ? " edit" : "") + "\" data-id=\"" + upEsc(e.id) + "\"><button type=\"button\" class=\"ul-open\" data-lib=\"open\"" + (on ? " aria-current=\"true\"" : "") + "><b>" + upEsc(e.title) + "</b>" + upLibSub(e) + "</button>" +
-      "<button type=\"button\" class=\"ul-edit\" data-lib=\"edit\" aria-label=\"" + (ed ? "Close" : "Edit") + "\" title=\"" + (ed ? "Close" : "Edit") + "\" aria-expanded=\"" + ed + "\">" + (ed ? CLOSE_SVG : PENCIL_SVG) + "</button>" +
-      "<button type=\"button\" class=\"ul-del\" data-lib=\"del\" aria-label=\"Remove " + upEsc(e.title) + "\" title=\"Remove\">" + TRASH_SVG + "</button></li>" +
-      (ed ? "<li class=\"ul-detrow\" data-id=\"" + upEsc(e.id) + "\"></li>" : "");
-  });
-  list.innerHTML = h;
-  var dr = list.querySelector(".ul-detrow");
-  if (dr && det) dr.appendChild(det);
-}
-// Step index of the first walk step for chord (si, ci).
-function upStepOf(si, ci) {
-  for (var i = 0; i < U.events.length; i++) if (U.events[i].si === si && U.events[i].ci === ci) return i;
-  return -1;
-}
-var upLastStep;
-function upCurStep() {
-  if (!upSelected()) return -1;
-  if (prog.cur >= 0) upLastStep = prog.cur;
-  return upLastStep;
-}
-function upPickAlt(si, ci, sym) {
-  if (U.locked) return;
-  if (sym === upEv(si, ci).chord) delete U.choice[si + ":" + ci]; else U.choice[si + ":" + ci] = sym;
-  U.reviewed[si + ":" + ci] = true;
-  upSave();
-  if (upSelected()) {
-    magic.next = null;
-    progRedecorate();
-    paintProg();
-    var i = upStepOf(si, ci);
-    if (i >= 0) { unlock(); progBadge([i]); }
-  }
-  paintUpload();
-}
-
-// --- main screen: song bar over the strip (section, current lyric line / chords, flags) ---
-function upEsc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]; }); }
-// v73: the uploaded song's NEXT chord (gold outline; the grid has no sequence numbers).
-// Next walk: magic.pos while it is inside the song; Play: the chord after the one sounding
-// (0 before the first); the random tail after the song, Stop, another progression: none.
-var upNxOff;
-function upNextStep() {
-  if (!upSelected() || upNxOff || !prog.steps.length) return -1;
-  var n = prog.steps.length;
-  if (prog.playing) return prog.cur >= 0 ? (prog.cur + 1) % n : prog.si % n;   // v111: Play loops
-  return magic.pos < n ? magic.pos : 0;   // v111: Next loops back to the first chord
-}
-function paintUpNext() {
-  nxMarkSoon();   // v105
-  Array.prototype.forEach.call(document.querySelectorAll(".upnx"), function (n) { n.classList.remove("upnx"); });
-  var i = upNextStep();
-  if (i < 0) return;
-  var t = prog.targets[i];
-  if (t) t.classList.add("upnx");
-  var e = U.events[i];
-  if (!e) return;
-  Array.prototype.forEach.call(document.querySelectorAll("#upSecs .up-ch[data-s=\"" + e.si + "\"][data-c=\"" + e.ci + "\"]"), function (n) { n.classList.add("upnx"); });
-  var bar = document.getElementById("songBar");
-  if (bar && !bar.hidden && +bar.dataset.si === e.si) Array.prototype.forEach.call(bar.querySelectorAll(".sb-ch[data-c=\"" + e.ci + "\"]"), function (n) { n.classList.add("upnx"); });
-}
 // v95: full-mode two-row lyrics. Lines in play order from the song's chord / section / lyric-line map (no
 // word timing): event i is on the line the one-line bar would show for it (first line with a marker on
 // that chord, else the last line with a marker before it; -1 = the section's chords). A new entry starts
@@ -3874,21 +2039,21 @@ function upLineOf(sec, ci) {
   for (i = 0; i < L.length; i++) if (L[i].markers.some(function (m) { return m.chordIndex <= ci; })) r = i;
   return r;
 }
-function upLyrMap() {
-  if (U._lyr && U._lyr.secs === U.secs) return U._lyr;
+export function upLyrMap() {
+  if (shared.U._lyr && shared.U._lyr.secs === shared.U.secs) return shared.U._lyr;
   var seq = [], at = [], last = null;
-  var any = U.secs.some(function (sec) { return (sec.lyrics || []).some(function (ln) { return ln.markers && ln.markers.length && ln.text; }); });
-  U.events.forEach(function (e, i) {
-    var li = upLineOf(U.secs[e.si], e.ci), k = e.si + ":" + e.rep + ":" + li;
+  var any = shared.U.secs.some(function (sec) { return (sec.lyrics || []).some(function (ln) { return ln.markers && ln.markers.length && ln.text; }); });
+  shared.U.events.forEach(function (e, i) {
+    var li = upLineOf(shared.U.secs[e.si], e.ci), k = e.si + ":" + e.rep + ":" + li;
     if (!last || last.k !== k) { last = { k: k, si: e.si, li: li, start: i }; seq.push(last); }
     at.push(seq.length - 1);
   });
-  U._lyr = { secs: U.secs, seq: seq, at: at, any: any };
-  return U._lyr;
+  shared.U._lyr = { secs: shared.U.secs, seq: seq, at: at, any: any };
+  return shared.U._lyr;
 }
 function upLyrRow(ent, curCi, cls, sec2) {
   if (!ent) return "<span class=\"sb-row " + cls + "\"></span>";
-  var si = ent.si, sec = U.secs[si], html = sec2 ? "<span class=\"sb-sec2\">" + upEsc(upSecName(si)) + "</span>" : "";
+  var si = ent.si, sec = shared.U.secs[si], html = sec2 ? "<span class=\"sb-sec2\">" + upEsc(upSecName(si)) + "</span>" : "";
   function tag(ci) {   // row 2: no data-c, so the next-chord outline stays on row 1
     return "<span" + (cls === "r1" ? " data-c=\"" + ci + "\"" : "") + " class=\"sb-ch" + (ci === curCi ? " on" : "") + (upFlagged(si, ci) ? " flag" : "") + "\">" + upEsc(upA(upSym(si, ci))) + "</span>";
   }
@@ -3900,11 +2065,11 @@ function upLyrRow(ent, curCi, cls, sec2) {
   } else sec.chords.forEach(function (c, ci) { html += tag(ci); });
   return "<span class=\"sb-row " + cls + "\">" + html + "</span>";
 }
-const lyrState = { k: -1, anim: 0, log: [] };
+export const lyrState = { k: -1, anim: 0, log: [] };
 function paintLyr2(bar, cur) {
   var M = upLyrMap(), idx = M.at[cur >= 0 ? cur : 0], ent = M.seq[idx], nxt = M.seq[idx + 1] || null;
-  var e0 = U.events[cur >= 0 ? cur : 0], curCi = cur >= 0 ? e0.ci : -1;
-  var alts = curCi >= 0 && !U.locked && (upEv(e0.si, curCi).alternates || []).length;
+  var e0 = shared.U.events[cur >= 0 ? cur : 0], curCi = cur >= 0 ? e0.ci : -1;
+  var alts = curCi >= 0 && !shared.U.locked && (upEv(e0.si, curCi).alternates || []).length;
   var r1 = upLyrRow(ent, curCi, "r1", false), r2 = upLyrRow(nxt, -1, "r2", !!nxt && nxt.si !== ent.si);
   var head = "<span class=\"sb-sec\">" + upEsc(upSecName(ent.si)) + "</span>", tail = alts ? "<span class=\"sb-alt\">alt \u25be</span>" : "";
   var key = head + "<span class=\"sb-lyr\"><span class=\"sb-roll\">" + r1 + r2 + "</span></span>" + tail;
@@ -3930,7 +2095,7 @@ function paintLyr2(bar, cur) {
 }
 // v97: Kids lyrics in two rows. Row 1 = the line holding the current step (its sung word lit), row 2 = the
 // next line (muted, empty after the last). Moving on to the next line scrolls the rows up (as v95).
-const klState = { name: null, k: -1, anim: 0, log: [] };
+export const klState = { name: null, k: -1, anim: 0, log: [] };
 function kidsLyrLines() {
   var it = state.style === "kids" && prog.list[prog.idx], L = it && KIDS_LYRICS[it.name];
   return L && L.length ? L : null;
@@ -3978,14 +2143,14 @@ function paintKidsLyr() {
   }
   klState.k = li;
 }
-function paintSongBar() {
+export function paintSongBar() {
   document.documentElement.classList.toggle("up-nonum", upSelected());   // v73: no sequence numbers on an uploaded song's grid
   var bar = document.getElementById("songBar");
   if (!bar) return;
   var el = document.getElementById("suggest");
   if (el) Array.prototype.forEach.call(el.querySelectorAll(".up-flag"), function (n) { n.classList.remove("up-flag"); });
   var on = upSelected();   // v73: Simple shows the song bar too (lyrics + chords); the Upload panel stays full-mode only
-  ChordAudio.grooveBpm = upSelected() ? U.bpm : null;   // v73: style grooves follow the song tempo
+  ChordAudio.grooveBpm = upSelected() ? shared.U.bpm : null;   // v73: style grooves follow the song tempo
   if (bar.hidden === on) {
     bar.hidden = !on;
     document.documentElement.classList.toggle("up-on", on);   // CSS: the strip rows give the bar its room
@@ -3999,10 +2164,10 @@ function paintSongBar() {
   }
   if (!on) { paintUploadActive(-1); upPlaceLock(); paintUpNext(); return; }
   prog.steps.forEach(function (s, i) {
-    var e = U.events[i];
+    var e = shared.U.events[i];
     if (e && upFlagged(e.si, e.ci) && prog.targets[i]) prog.targets[i].classList.add("up-flag");
   });
-  var cur = upCurStep(), e0 = U.events[cur >= 0 ? cur : 0], si = e0.si, sec = U.secs[si];
+  var cur = upCurStep(), e0 = shared.U.events[cur >= 0 ? cur : 0], si = e0.si, sec = shared.U.secs[si];
   var curCi = cur >= 0 ? e0.ci : -1;
   if (two) {
     paintLyr2(bar, cur);
@@ -4028,7 +2193,7 @@ function paintSongBar() {
   } else {
     sec.chords.forEach(function (c, ci) { html += chTag(ci); });
   }
-  var alts = curCi >= 0 && !U.locked && (upEv(si, curCi).alternates || []).length;
+  var alts = curCi >= 0 && !shared.U.locked && (upEv(si, curCi).alternates || []).length;
   var key = "<span class=\"sb-sec\">" + upEsc(upSecName(si)) + "</span><span class=\"sb-line\">" + html + "</span>" + (alts ? "<span class=\"sb-alt\">alt \u25be</span>" : "");
   if (bar._html !== key) { bar.innerHTML = key; bar._html = key; }
   bar.dataset.si = si;
@@ -4043,7 +2208,7 @@ var upOpenAlt;
 function paintUploadActive(step) {
   var box = document.getElementById("upSecs");
   if (!box) return;
-  var e = step >= 0 && U ? U.events[step] : null;
+  var e = step >= 0 && shared.U ? shared.U.events[step] : null;
   Array.prototype.forEach.call(box.querySelectorAll(".up-ch"), function (b) {
     b.classList.toggle("on", !!e && +b.dataset.s === e.si && +b.dataset.c === e.ci);
   });
@@ -4052,7 +2217,7 @@ function upLyricHtml(sec, ln) {
   var mk = ln.markers.slice().sort(function (a, b) { return a.charIndex - b.charIndex; });
   var top = "", col = 0, marks = {};
   mk.forEach(function (m, k) {
-    var nm = upA(upSym(U.secs.indexOf(sec), m.chordIndex));
+    var nm = upA(upSym(shared.U.secs.indexOf(sec), m.chordIndex));
     var at = Math.max(m.charIndex, col);
     while (top.length < at) top += " ";
     top += nm + " ";
@@ -4073,12 +2238,12 @@ function upEmptyText() {
 }
 function upEmptyRefresh() {
   var e = document.querySelector("#upSecs .up-empty");
-  if (!U && e) { var t = upEmptyText(); if (e.textContent !== t) e.textContent = t; }
+  if (!shared.U && e) { var t = upEmptyText(); if (e.textContent !== t) e.textContent = t; }
   upAskRefresh();
 }
 // v89: the mode comes from the two fields (artist required; empty title = artist mode)
 // v110: song or artist only (no album mode)
-function upMode(text, artist) {
+export function upMode(text, artist) {
   var a = String(artist || "").trim(), x = String(text || "").trim();
   if (!a) return { mode: "none", x: x, artist: "" };
   return x ? { mode: "song", x: x, artist: a } : { mode: "artist", x: "", artist: a };
@@ -4103,21 +2268,21 @@ function upSkipLine(md, have) {
   var t = have.filter(function (e) { return k(e.artist) === k(md.artist); }).map(function (e) { return e.title; }).slice(0, UP_SKIP_MAX);
   return t.length ? " Leave out these songs, I already have them: " + t.join("; ") + "." : "";
 }
-function upPromptFor(md, ver, have) {
+export function upPromptFor(md, ver, have) {
   return UP_HEAD + " " + (ver === "full" ? UP_PASTE_LINE_2 : UP_PASTE_LINE) + " " + UP_TAIL + " " + upAskLine(md) + upSkipLine(md, have || []);
 }
 function upViewSong() {
-  if (!upEdit) return null;
-  if (U && U.id === upEdit) return U;
-  var e = libGet(upEdit), v = null;
+  if (!shared.upEdit) return null;
+  if (shared.U && shared.U.id === shared.upEdit) return shared.U;
+  var e = libGet(shared.upEdit), v = null;
   if (e) { try { v = libEntryToU(e); } catch (err) { v = null; } }
   return v;
 }
-function paintUpload() {
+export function paintUpload() {
   var pick = document.getElementById("uploadPick");
   if (!pick) return;
   paintLib();
-  var V = upViewSong(), ro = !!V && V !== U, U0 = U, det = document.getElementById("upDetail");
+  var V = upViewSong(), ro = !!V && V !== shared.U, U0 = shared.U, det = document.getElementById("upDetail");
   det.classList.toggle("ro", ro);
   var hd = document.getElementById("upDHead");
   hd.hidden = !V;   // v107: any song in the details (was: two-version songs only, and a CSS rule beat [hidden])
@@ -4131,34 +2296,34 @@ function paintUpload() {
     });
     document.getElementById("upDNote").hidden = !one;
   }
-  U = V;
-  try { upPaintDetail(ro); } finally { U = U0; }
-  document.documentElement.classList.toggle("up-locked", !!(U && U.locked));
+  shared.U = V;
+  try { upPaintDetail(ro); } finally { shared.U = U0; }
+  document.documentElement.classList.toggle("up-locked", !!(shared.U && shared.U.locked));
   if (!ro) { paintUploadActive(upSelected() ? upCurStep() : -1); paintUpNext(); }
 }
 function upPaintDetail(ro) {
   var keyEl = document.getElementById("upKey"), tEl = document.getElementById("upTempo"), secs = document.getElementById("upSecs");
   var rev = document.getElementById("upReview");
   var lrow = document.getElementById("upLockRow");
-  lrow.hidden = !U || ro;   // v105: a saved (not playing) song's details are read-only
-  if (U) {
-    document.getElementById("upLock").setAttribute("aria-pressed", U.locked ? "true" : "false");
-    document.getElementById("upLockHint").textContent = U.locked ? "Chords locked: styles change the sound only, a key change moves every chord. Unlock to review or change chords." : "Unlocked: you can review and change chords.";
+  lrow.hidden = !shared.U || ro;   // v105: a saved (not playing) song's details are read-only
+  if (shared.U) {
+    document.getElementById("upLock").setAttribute("aria-pressed", shared.U.locked ? "true" : "false");
+    document.getElementById("upLockHint").textContent = shared.U.locked ? "Chords locked: styles change the sound only, a key change moves every chord. Unlock to review or change chords." : "Unlocked: you can review and change chords.";
   }
-  if (!U) {
+  if (!shared.U) {
     keyEl.textContent = "\u2014";
     tEl.textContent = "No song loaded";
     secs.innerHTML = "<div class=\"up-empty\">" + upEmptyText() + "</div>";
     rev.hidden = true;
     return;
   }
-  var k = { pc: namePc(U.key.tonic), mode: U.key.mode === "minor" ? "minor" : "major" };
+  var k = { pc: namePc(shared.U.key.tonic), mode: shared.U.key.mode === "minor" ? "minor" : "major" };
   keyEl.textContent = accSym(keyRootName(k)) + " " + k.mode;
   var lko = upLiveKeyObj();
   if (lko && upTr(lko)) keyEl.innerHTML = upEsc(accSym(keyRootName(lko)) + " " + lko.mode) + " <small style=\"font-size:.4em\">song: " + upEsc(accSym(keyRootName(k)) + " " + k.mode) + "</small>";
-  tEl.innerHTML = upEsc(U.title) + " \u2014 " + upEsc(U.artist) + "<br>" + U.bpm + " BPM \u00b7 " + upEsc(U.ts);
+  tEl.innerHTML = upEsc(shared.U.title) + " \u2014 " + upEsc(shared.U.artist) + "<br>" + shared.U.bpm + " BPM \u00b7 " + upEsc(shared.U.ts);
   var fl = upFlagList();
-  if (fl.length && !U.locked && !ro) {
+  if (fl.length && !shared.U.locked && !ro) {
     var h = "<b>" + fl.length + " chord" + (fl.length > 1 ? "s" : "") + " need" + (fl.length > 1 ? "" : "s") + " review</b> (the AI was not sure). Keep it or pick another:";
     fl.forEach(function (f) {
       var c = upEv(f.si, f.ci);
@@ -4171,7 +2336,7 @@ function upPaintDetail(ro) {
     rev.hidden = false;
   } else { rev.hidden = true; rev.innerHTML = ""; }
   var html = "";
-  U.secs.forEach(function (sec, si) {
+  shared.U.secs.forEach(function (sec, si) {
     html += "<div class=\"up-sec\" data-s=\"" + si + "\"><div class=\"us-h\"><span>" + upEsc(upSecName(si)) + "</span>" + (sec.repeat > 1 ? "<small>\u00d7" + sec.repeat + "</small>" : "") +
       "<small>" + sec.chords.length + " chord" + (sec.chords.length > 1 ? "s" : "") + "</small></div><div class=\"up-chs\">";
     sec.chords.forEach(function (c, ci) {
@@ -4217,7 +2382,7 @@ function upSummaryHtml(r) {
   });
   return h + "</ul></details>";
 }
-function upShowErrors(r) {
+export function upShowErrors(r) {
   var box = document.getElementById("upErr"), msg = document.getElementById("upMsg");
   msg.hidden = true;
   if (r.ok) { box.hidden = true; box.innerHTML = ""; return; }
@@ -4227,13 +2392,13 @@ function upShowErrors(r) {
   box.innerHTML = h + "</ul>Ask the AI to fix these and paste its new answer.";
   box.hidden = false;
 }
-function upCopyText() {
-  var md = upModeNow(), have = LIB.songs.map(function (e) { return { title: e.title, artist: e.artist }; });
+export function upCopyText() {
+  var md = upModeNow(), have = shared.LIB.songs.map(function (e) { return { title: e.title, artist: e.artist }; });
   if (md.mode === "none") md = { mode: "artist", x: "", artist: "ARTIST" };
   return upPromptFor(md, "full", have) + "\n\n" + upListSchemaText;   // v107: always ask for Simple and Full
 }
-function upSetPrompt(v) {
-  upPromptVer = "full";   // v107: hardcoded, the request is always Simple and Full
+export function upSetPrompt(v) {
+  shared.upPromptVer = "full";   // v107: hardcoded, the request is always Simple and Full
 }
 function upCopy() {
   var txt = upCopyText(), ok = document.getElementById("upCopied"), fb = document.getElementById("upFallback"), fbt = document.getElementById("upFallbackTxt");
@@ -4265,7 +2430,7 @@ function openUpload() {
   // v105: opens as a clean list: the form is cleared, no details open, no status; playback is untouched
   ["upTitle", "upArtist", "upPaste", "upFallbackTxt"].forEach(function (id) { document.getElementById(id).value = ""; });
   ["upMsg", "upErr", "upFallback", "upCopied"].forEach(function (id) { document.getElementById(id).hidden = true; });
-  upEdit = null; upOpenAlt = null;
+  shared.upEdit = null; upOpenAlt = null;
   paintUpload();
   upAskRefresh();
   upEmptyRefresh();
@@ -4299,9 +2464,9 @@ function wireUpload() {
     if (r.saveFail) { var se = document.getElementById("upErr"); se.textContent = "Couldn't save, storage is full"; se.hidden = false; }
     if (!r.ok) { upStatusIntoView(); return; }
     if (!r.list) {
-      var n = U.events.length, fl = upFlagList().length;
-      msg.textContent = "Loaded " + U.title + ": " + U.secs.length + " sections, " + n + " chords, " + U.bpm + " BPM." +   // v87: no key on the Upload form
-        (fl ? " " + fl + " need review: tap the pencil on its row." : "") + (U.two ? " Simple and Full versions: switch with the pencil on the song in My songs." : "") + (r.warnings.length ? " Note: " + r.warnings.slice(0, 3).join("; ") + (r.warnings.length > 3 ? "\u2026" : "") : "") + " Close this and tap Next or Play.";
+      var n = shared.U.events.length, fl = upFlagList().length;
+      msg.textContent = "Loaded " + shared.U.title + ": " + shared.U.secs.length + " sections, " + n + " chords, " + shared.U.bpm + " BPM." +   // v87: no key on the Upload form
+        (fl ? " " + fl + " need review: tap the pencil on its row." : "") + (shared.U.two ? " Simple and Full versions: switch with the pencil on the song in My songs." : "") + (r.warnings.length ? " Note: " + r.warnings.slice(0, 3).join("; ") + (r.warnings.length > 3 ? "\u2026" : "") : "") + " Close this and tap Next or Play.";
       msg.hidden = false;
       document.getElementById("upPaste").value = "";
     } else {
@@ -4310,7 +2475,7 @@ function wireUpload() {
       if (!r.skipped) document.getElementById("upPaste").value = "";   // kept so Load can run again after making room
     }
     ["upTitle", "upArtist"].forEach(function (id) { document.getElementById(id).value = ""; });   // v105: the form clears after Load
-    upOpenAlt = null; upEdit = null;
+    upOpenAlt = null; shared.upEdit = null;
     paintUpload();
     upAskRefresh();
     upEmptyRefresh();
@@ -4338,19 +2503,19 @@ function wireUpload() {
   // v92: no Remove song button; the trash icon on each My songs row removes a song (with a confirm)
   function act(e) {
     var t = e.target.closest ? e.target.closest("[data-act]") : null;
-    if (!t || !U) return;
-    if (upEdit && U.id !== upEdit) return;   // v105: read-only details of a saved song
+    if (!t || !shared.U) return;
+    if (shared.upEdit && shared.U.id !== shared.upEdit) return;   // v105: read-only details of a saved song
     var a = t.dataset.act, b = t.closest("[data-s]"), si = +(t.dataset.s != null ? t.dataset.s : b.dataset.s), ci = +(t.dataset.c != null ? t.dataset.c : (t.closest(".up-ch") || {}).dataset.c);
-    if (U.locked && (a === "alts" || a === "alt" || a === "accept")) { e.stopPropagation(); return; }   // v73: Lock = no chord edits
+    if (shared.U.locked && (a === "alts" || a === "alt" || a === "accept")) { e.stopPropagation(); return; }   // v73: Lock = no chord edits
     if (a === "alts") { e.stopPropagation(); upOpenAlt = upOpenAlt === si + ":" + ci ? null : si + ":" + ci; paintUpload(); return; }
     if (a === "play") {
       if (!upSelected()) upSelect();
       var i = upStepOf(si, ci);
       if (i >= 0) { unlock(); progBadge([i]); }
-      if (!U.locked && (upEv(si, ci).alternates || []).length) { upOpenAlt = si + ":" + ci; paintUpload(); }
+      if (!shared.U.locked && (upEv(si, ci).alternates || []).length) { upOpenAlt = si + ":" + ci; paintUpload(); }
       return;
     }
-    if (a === "accept") { U.reviewed[si + ":" + ci] = true; upSave(); if (upSelected()) progRedecorate(); paintUpload(); return; }
+    if (a === "accept") { shared.U.reviewed[si + ":" + ci] = true; upSave(); if (upSelected()) progRedecorate(); paintUpload(); return; }
     if (a === "alt") { upPickAlt(si, ci, t.dataset.sym); return; }
   }
   document.getElementById("upLibList").addEventListener("click", function (e) {
@@ -4361,17 +2526,17 @@ function wireUpload() {
     ["upMsg", "upErr", "upFallback", "upCopied"].forEach(function (x) { document.getElementById(x).hidden = true; });
     upOpenAlt = null;
     if (b.dataset.lib === "edit" || b.dataset.lib === "done") {   // v105: details only via the pencil; playback untouched
-      upEdit = b.dataset.lib === "edit" && upEdit !== id ? id : null;
+      shared.upEdit = b.dataset.lib === "edit" && shared.upEdit !== id ? id : null;
       paintUpload();
       var eb = document.querySelector("#upLibList .ul-row[data-id=\"" + id + "\"] .ul-edit");   // v107: the rebuilt row
-      if (upEdit) { var dd = document.getElementById("upDetail"); try { (dd.offsetHeight ? dd : eb).scrollIntoView({ block: "nearest" }); } catch (err) {} }
+      if (shared.upEdit) { var dd = document.getElementById("upDetail"); try { (dd.offsetHeight ? dd : eb).scrollIntoView({ block: "nearest" }); } catch (err) {} }
       if (eb) eb.focus();
       return;
     }
     if (b.dataset.lib === "ver") { unlock(); libSetVer(id, b.dataset.ver); paintUpload(); return; }   // v80
     if (b.dataset.lib === "del") {
       if (!libConfirm(ent)) return;
-      if (upEdit === id) upEdit = null;
+      if (shared.upEdit === id) shared.upEdit = null;
       libDelete(id);
       document.getElementById("upMsg").textContent = "Song removed.";
       document.getElementById("upMsg").hidden = false;
@@ -4380,16 +2545,16 @@ function wireUpload() {
     }
     unlock();
     if (!libOpen(id)) { var ne = document.getElementById("upErr"); ne.textContent = "This song needs a newer app"; ne.hidden = false; return; }   // v89: kept, never erased
-    document.getElementById("upMsg").textContent = U.title + " is ready. Close this and tap Next or Play.";
+    document.getElementById("upMsg").textContent = shared.U.title + " is ready. Close this and tap Next or Play.";
     document.getElementById("upMsg").hidden = false;
     paintUpload();
   });
   document.getElementById("upSecs").addEventListener("click", act);
   document.getElementById("upReview").addEventListener("click", act);
   // Reload: the saved song comes back selected, in its own key (full-mode key locks are not saved).
-  if (upRestoreSel) setTimeout(function () { if (U && upInList()) { upKeyApply(upKeyNow().tonic, upKeyNow().mode); upSelect(); } }, 0);
-  document.getElementById("upLock").addEventListener("click", function () { upSetLock(!U || !U.locked); });
-  document.getElementById("sbLock").addEventListener("click", function (e) { e.stopPropagation(); upSetLock(!U || !U.locked); });
+  if (upRestoreSel) setTimeout(function () { if (shared.U && upInList()) { upKeyApply(upKeyNow().tonic, upKeyNow().mode); upSelect(); } }, 0);
+  document.getElementById("upLock").addEventListener("click", function () { upSetLock(!shared.U || !shared.U.locked); });
+  document.getElementById("sbLock").addEventListener("click", function (e) { e.stopPropagation(); upSetLock(!shared.U || !shared.U.locked); });
   window.addEventListener("resize", function () { setTimeout(upPlaceLock, 0); });
 }
 
@@ -4416,7 +2581,7 @@ function placeProg() {
   de.classList.toggle("prog-top", where === "top");
   fitProgName();
 }
-function paintProg() {
+export function paintProg() {
   paintLoop();   // v70: the Loop Play button shows Stop while the sequence autoplay runs
   var el = document.getElementById("prog");
   if (!el) return;
@@ -4608,7 +2773,7 @@ function wireProg() {
 
 // Fit chip names to their column: shrink a little first; if a name still
 // overflows (narrow phones / portrait), stack root over quality, then shrink.
-function fitStrip() {
+export function fitStrip() {
   var el = document.getElementById("suggest");
   if (!el || !el.firstChild) return;
   var chips = el.querySelectorAll(".ss-chip");
@@ -4864,84 +3029,10 @@ function fitKeyRow() {
     for (i = 0; i < spans.length; i++) spans[i].style.fontSize = fs + "px";
   }
 }
-function setLockKey(k) {
+export function setLockKey(k) {
   shared.lockKey = k;
   shared.suggestSig = "";
   refreshHeld();
-}
-// v52: Simple key control. Drag/swipe right = up a semitone, left = down (wraps);
-// the arrows do the same; the mode button flips Major/Minor. Sets the key lock.
-function kidKey() { return activeKey() || { pc: 0, mode: "major" }; }
-function setKidKey(pc, mode) {
-  setLockKey({ pc: wrap12(pc), mode: mode });
-  scheduleSave(0);
-}
-function paintKidKey() {
-  var box = document.getElementById("kidKey");
-  if (!box) return;
-  var k = kidKey();
-  var nm = accSym(defaultKeyName(k.pc, k.mode));
-  var root = box.querySelector(".kk-root");
-  box.querySelector(".kk-name").textContent = nm;
-  root.setAttribute("aria-valuenow", String(k.pc));
-  root.setAttribute("aria-valuetext", nm + (k.mode === "minor" ? " minor" : " major"));
-  var mb = box.querySelector(".kk-mode");
-  var minor = k.mode === "minor";
-  mb.classList.toggle("major", !minor); mb.classList.toggle("minor", minor);
-  mb.setAttribute("aria-label", (minor ? "Minor" : "Major") + " key, tap for " + (minor ? "major" : "minor"));
-  mb.querySelector(".kk-mtxt").textContent = minor ? "Minor" : "Major";
-  var face = minor ? STRIP_ICONS[1] : STRIP_ICONS[0];
-  var fs = face.svg.replace(/<svg class="ss-arrow"[\s\S]*?<\/svg>/, "");
-  if (mb.dataset.face !== k.mode) { mb.querySelector(".kk-face").innerHTML = fs; mb.dataset.face = k.mode; }
-}
-function wireKidKey() {
-  var box = document.getElementById("kidKey");
-  if (!box) return;
-  var root = box.querySelector(".kk-root"), name = box.querySelector(".kk-name");
-  function step(d) {
-    var k = kidKey();
-    setKidKey(k.pc + d, k.mode);
-    name.classList.remove("nudge-l", "nudge-r");
-    void name.offsetWidth;
-    name.classList.add(d > 0 ? "nudge-r" : "nudge-l");
-    setTimeout(function () { name.classList.remove("nudge-l", "nudge-r"); }, 140);
-  }
-  box.querySelector(".kk-prev").addEventListener("click", function (e) { e.stopPropagation(); unlock(); step(-1); });
-  box.querySelector(".kk-next").addEventListener("click", function (e) { e.stopPropagation(); unlock(); step(1); });
-  var drag = null;
-  root.addEventListener("pointerdown", function (e) {
-    if (e.target.closest(".kk-arrow")) return;
-    e.preventDefault();
-    unlock();
-    // One step per ~quarter of the box (at least 36 px) so a small wobble does nothing.
-    drag = { id: e.pointerId, x: e.clientX, unit: Math.max(36, root.clientWidth / 4) };
-    try { root.setPointerCapture(e.pointerId); } catch (err) {}
-  });
-  root.addEventListener("pointermove", function (e) {
-    if (!drag || e.pointerId !== drag.id) return;
-    e.preventDefault();
-    var dx = e.clientX - drag.x;
-    while (Math.abs(dx) >= drag.unit) {
-      var d = dx > 0 ? 1 : -1;
-      step(d);
-      drag.x += d * drag.unit;
-      dx = e.clientX - drag.x;
-    }
-  });
-  function end(e) { if (drag && e.pointerId === drag.id) drag = null; }
-  root.addEventListener("pointerup", end);
-  root.addEventListener("pointercancel", end);
-  root.addEventListener("touchmove", function (e) { e.preventDefault(); }, { passive: false });
-  root.addEventListener("keydown", function (e) {
-    if (e.key === "ArrowRight" || e.key === "ArrowUp") { e.preventDefault(); step(1); }
-    else if (e.key === "ArrowLeft" || e.key === "ArrowDown") { e.preventDefault(); step(-1); }
-  });
-  box.querySelector(".kk-mode").addEventListener("click", function () {
-    unlock();
-    var k = kidKey();
-    setKidKey(k.pc, k.mode === "minor" ? "major" : "minor");
-  });
-  paintKidKey();
 }
 function wireKeyPick() {
   var pick = document.getElementById("keyPick");
@@ -5025,7 +3116,7 @@ function wireKeyPick() {
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") { closeHt(); close(); } });
 }
 
-function updateSymbol() {
+export function updateSymbol() {
   kbUpdate();   // v83: key change / walk: keep the window on the root (or the tonic before any chord)
   var spec = computeSpec();
   document.getElementById("symbol").textContent = accSym(spec.symbol);
@@ -5043,12 +3134,12 @@ function updateSymbol() {
   var types = document.querySelectorAll("#types button");
   for (var t = 0; t < types.length; t++) {
     var typeBtn = types[t];
-    var onType = typeHeld(typeBtn.dataset.type) || (suggestPreview && suggestPreview.type === typeBtn.dataset.type);
+    var onType = typeHeld(typeBtn.dataset.type) || (shared.suggestPreview && shared.suggestPreview.type === typeBtn.dataset.type);
     typeBtn.classList.toggle("on", onType);
     typeBtn.setAttribute("aria-pressed", onType ? "true" : "false");
   }
   var exts = document.querySelectorAll("#exts button");
-  var previewExt = suggestPreview && suggestPreview.extensions;
+  var previewExt = shared.suggestPreview && shared.suggestPreview.extensions;
   // Momentary like type pads: light only while finger-held or during Next preview.
   // (applySuggestion writes state.extensions for sounding/quality, but must not
   // leave min7/maj7/etc. lit after the preview ends.)
@@ -5266,7 +3357,7 @@ function wire() {
       paintSuggestions(computeSpec());
     }
     if (state.style === "kids" && prog.idx !== 0) progSet(0);   // v71: picking Kids starts on Twinkle
-    if (leftKids && U && U.locked && U.keep && upInList()) { for (var ui = 0; ui < prog.list.length; ui++) if (prog.list[ui].up) { progSet(ui); break; } }   // v73 Lock
+    if (leftKids && shared.U && shared.U.locked && shared.U.keep && upInList()) { for (var ui = 0; ui < prog.list.length; ui++) if (prog.list[ui].up) { progSet(ui); break; } }   // v73 Lock
   });
 
   document.getElementById("layouts").addEventListener("click", function (e) {
@@ -5655,21 +3746,16 @@ groupSerial = 0;
   document.addEventListener("pointercancel", kbKidsUp, true);
 hapLast = -1e9;
   hapTest = /[?&]test=1(&|$)/.test(location.search);
-  if (hapTest) window.__haptic = hapLog;
   // v83: a rebuilt window drops the pressed key element (and its capture); lift from anywhere.
   window.addEventListener("pointerup", onPadUp);
   window.addEventListener("pointercancel", onPadUp);
 paletteStrike = false;
-suggestPreview = null;
 kbLast = null;     // midis of the chord layer last sounded (the window anchor)
 kbWinLow = null;   // MIDI of the window's left key
-kbKeyStay = false;
-  kbKeyGo = false;
+kbKeyGo = false;
 kbChord = null;    // v84: {rootPc, type, root} of the chip / Next / Play chord that set the window
 kbKeySig = null;   // v84: the key the window last saw (a key change moves it to the tonic)
 kbFullLo = null;   // v111 (I): the Full layout's first key as drawn
-kidsSolo = false;
-suggestTimer = 0;
 suggestSeq = 0;
   window.addEventListener("pointerup", function (e) { if (stripHolds[e.pointerId]) stripUp(e.pointerId); }, true);
   window.addEventListener("pointercancel", function (e) { if (stripHolds[e.pointerId]) stripUp(e.pointerId); }, true);
@@ -5690,246 +3776,32 @@ notesPulsed = false;
   STRIP_QUAL.dim = { type: "dim", ext: {}, label: "\u00b0" };
   STRIP_QUAL.over3 = { type: "major", ext: { over: 4 }, label: "/" };    // I/3 (C/E)
   STRIP_QUAL.mover3 = { type: "minor", ext: { over: 3 }, label: "m/" };  // i/3 (Cm/Eb)
-PROG_BAR = 60 / PROG_BPM * 4;   // 3 s
-PROGRESSIONS = {
-    pop: {
-      major: [P("Pop Four-Chord", "1 maj|5 maj|6 min|4 maj"), P("Pop Minor Start", "6 min|4 maj|1 maj|5 maj"), P("Pop Turnaround", "1 maj|6 min|4 maj|5 maj")],
-      minor: [P("Pop Four-Chord", "1 min|5 min|6 maj|4 min"), P("Pop Minor Start", "6 maj|4 min|1 min|5 min"), P("Pop Turnaround", "1 min|6 maj|4 min|5 maj")]
-    },
-    // v97 Kids. One step = one sung note: "degree quality xBars @melody" (melody = semitones above the
-    // key's tonic; xBars = note length, 0.25 = a quarter note at 4/4). The step's CHORD is the standard
-    // harmonization under that note; Kids playback sounds the @melody note (no @ = the chord root, as before).
-    // Minor degrees count from the minor home (natural minor), so VI and VII need no flat.
-    kids: {
-      major: [P("Kids Twinkle", "1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @7|1 maj x0.25 @7|4 maj x0.25 @9|4 maj x0.25 @9|1 maj x0.5 @7|4 maj x0.25 @5|4 maj x0.25 @5|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.25 @2|5 maj x0.25 @2|1 maj x0.5 @0|1 maj x0.25 @7|1 maj x0.25 @7|4 maj x0.25 @5|4 maj x0.25 @5|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.5 @2|1 maj x0.25 @7|1 maj x0.25 @7|4 maj x0.25 @5|4 maj x0.25 @5|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.5 @2|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @7|1 maj x0.25 @7|4 maj x0.25 @9|4 maj x0.25 @9|1 maj x0.5 @7|4 maj x0.25 @5|4 maj x0.25 @5|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.25 @2|5 maj x0.25 @2|1 maj x0.5 @0"),
-              P("Kids Mary's Lamb", "1 maj x0.25 @4|1 maj x0.25 @2|1 maj x0.25 @0|1 maj x0.25 @2|1 maj x0.25 @4|1 maj x0.25 @4|1 maj x0.5 @4|5 maj x0.25 @2|5 maj x0.25 @2|5 maj x0.5 @2|1 maj x0.25 @4|1 maj x0.25 @7|1 maj x0.5 @7|1 maj x0.25 @4|1 maj x0.25 @2|1 maj x0.25 @0|1 maj x0.25 @2|1 maj x0.25 @4|1 maj x0.25 @4|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.25 @2|5 maj x0.25 @2|5 maj x0.25 @4|5 maj x0.25 @2|1 maj x1 @0"),
-              P("Kids Row Your Boat", "1 maj x0.375 @0|1 maj x0.375 @0|1 maj x0.25 @0|1 maj x0.125 @2|1 maj x0.375 @4|1 maj x0.25 @4|1 maj x0.125 @2|1 maj x0.25 @4|1 maj x0.125 @5|1 maj x0.75 @7|1 maj x0.125 @12|1 maj x0.125 @12|1 maj x0.125 @12|1 maj x0.125 @7|1 maj x0.125 @7|1 maj x0.125 @7|1 maj x0.125 @4|1 maj x0.125 @4|1 maj x0.125 @4|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.125 @0|5 maj x0.25 @7|5 maj x0.125 @5|5 maj x0.25 @4|5 maj x0.125 @2|1 maj x0.75 @0"),
-              P("Kids Old MacDonald", "1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @7|4 maj x0.25 @9|4 maj x0.25 @9|1 maj x0.5 @7|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.25 @2|5 maj x0.25 @2|1 maj x0.75 @0|1 maj x0.25 @7|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @7|4 maj x0.25 @9|4 maj x0.25 @9|1 maj x0.5 @7|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.25 @2|5 maj x0.25 @2|1 maj x0.5 @0|1 maj x0.25 @7|1 maj x0.25 @7|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.125 @7|1 maj x0.125 @7|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.5 @0|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.25 @0|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.25 @0|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @7|4 maj x0.25 @9|4 maj x0.25 @9|1 maj x0.5 @7|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.25 @2|5 maj x0.25 @2|1 maj x1 @0"),
-              // v109: six more sing-alongs (traditional / public-domain words), same format as Twinkle
-              P("Kids Itsy Bitsy Spider", "1 maj x0.125 @-5|1 maj x0.25 @0|1 maj x0.125 @0|1 maj x0.25 @0|1 maj x0.125 @2|1 maj x0.375 @4|1 maj x0.25 @4|1 maj x0.125 @4|5 maj x0.25 @2|5 maj x0.125 @0|5 maj x0.25 @2|5 maj x0.125 @4|1 maj x0.75 @0|1 maj x0.375 @4|1 maj x0.25 @4|1 maj x0.125 @5|5 maj x0.375 @7|5 maj x0.375 @7|7 dim x0.25 @5|7 dim x0.125 @4|7 dim x0.25 @5|7 dim x0.125 @7|1 maj x0.75 @4|1 maj x0.375 @0|1 maj x0.25 @0|1 maj x0.125 @2|1 maj x0.375 @4|1 maj x0.375 @4|5 maj x0.25 @2|5 maj x0.125 @0|5 maj x0.25 @2|5 maj x0.125 @4|1 maj x0.375 @0|1 maj x0.25 @-5|1 maj x0.125 @-5|1 maj x0.25 @0|1 maj x0.125 @0|1 maj x0.25 @0|1 maj x0.125 @2|1 maj x0.375 @4|1 maj x0.25 @4|1 maj x0.125 @4|5 maj x0.25 @2|5 maj x0.125 @0|5 maj x0.25 @2|5 maj x0.125 @4|1 maj x0.625 @0"),
-              P("Kids London Bridge", "1 maj x0.1875 @7|1 maj x0.0625 @9|1 maj x0.125 @7|1 maj x0.125 @5|1 maj x0.125 @4|1 maj x0.125 @5|1 maj x0.25 @7|5 maj x0.125 @2|5 maj x0.125 @4|5 maj x0.25 @5|1 maj x0.125 @4|1 maj x0.125 @5|1 maj x0.25 @7|1 maj x0.1875 @7|1 maj x0.0625 @9|1 maj x0.125 @7|1 maj x0.125 @5|1 maj x0.125 @4|1 maj x0.125 @5|1 maj x0.25 @7|5 maj x0.25 @2|5 maj x0.25 @7|1 maj x0.125 @4|1 maj x0.375 @0"),
-              P("Kids Hey Diddle Diddle", "1 maj x0.125 @4|1 maj x0.125 @4|1 maj x0.125 @4|1 maj x0.125 @4|1 maj x0.125 @5|1 maj x0.125 @7|5 maj x0.125 @2|5 maj x0.125 @2|5 maj x0.125 @2|5 maj x0.125 @2|5 maj x0.125 @0|5 maj x0.125 @2|1 maj x0.25 @4|1 maj x0.125 @4|1 maj x0.125 @4|1 maj x0.125 @5|1 maj x0.125 @7|5 maj x0.625 @2|5 maj x0.125 @4|4 maj x0.125 @5|4 maj x0.125 @5|4 maj x0.125 @5|4 maj x0.25 @5|4 maj x0.125 @9|1 maj x0.25 @7|1 maj x0.125 @4|6 min x0.125 @0|6 min x0.125 @2|6 min x0.125 @4|1 maj x0.25 @-5|1 maj x0.125 @-5|5 maj x0.125 @-5|5 maj x0.125 @-3|5 maj x0.125 @-1|1 maj x0.75 @0"), // v110: public-domain swap
-              P("Kids Head Shoulders Knees and Toes", "1 maj x0.5 @7|6 min x0.125 @9|1 maj x0.125 @7|5 maj x0.125 @5|1 maj x0.125 @7|1 maj x0.25 @4|1 maj x0.125 @7|1 maj x0.125 @7|1 maj x0.5 @7|1 maj x0.5 @7|6 min x0.125 @9|1 maj x0.125 @7|5 maj x0.125 @5|1 maj x0.125 @7|5 maj x0.25 @2|5 maj x0.125 @7|5 maj x0.125 @7|5 maj x0.25 @7|1 maj x0.25 @4|1 maj x0.25 @0|1 maj x0.25 @4|1 maj x0.25 @7|1 maj x0.25 @12|2 min x0.25 @14|5 maj x0.25 @11|4 maj x0.5 @9|5 maj x0.5 @11|5 maj x0.125 @11|5 maj x0.125 @7|5 maj x0.125 @9|5 maj x0.125 @11|1 maj x0.25 @12|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.5 @0"),
-              P("Kids Baa Baa Black Sheep", "1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @7|1 maj x0.25 @7|4 maj x0.125 @9|5 maj x0.125 @11|4 maj x0.125 @12|4 maj x0.125 @9|1 maj x0.5 @7|4 maj x0.25 @5|4 maj x0.25 @5|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.25 @2|5 maj x0.25 @2|1 maj x0.5 @0|1 maj x0.25 @7|1 maj x0.125 @7|1 maj x0.125 @7|4 maj x0.25 @5|4 maj x0.125 @5|4 maj x0.125 @5|1 maj x0.25 @4|1 maj x0.125 @4|1 maj x0.125 @4|5 maj x0.375 @2|5 maj x0.125 @2|1 maj x0.25 @7|1 maj x0.125 @7|1 maj x0.125 @7|4 maj x0.125 @5|4 maj x0.125 @7|4 maj x0.125 @9|4 maj x0.125 @5|1 maj x0.25 @4|5 maj x0.125 @2|5 maj x0.125 @2|1 maj x0.5 @0"),
-              P("Kids Hickory Dickory Dock", "1 maj x0.125 @4|4 maj x0.125 @5|1 maj x0.125 @7|1 maj x0.125 @7|4 maj x0.125 @9|5 maj x0.125 @11|1 maj x0.625 @12|1 maj x0.125 @4|1 maj x0.25 @4|1 maj x0.125 @7|1 maj x0.25 @7|5 maj x0.125 @11|1 maj x0.625 @12|1 maj x0.125 @7|1 maj x0.25 @12|1 maj x0.125 @12|5 maj x0.25 @11|5 maj x0.125 @11|4 maj x0.25 @9|4 maj x0.125 @9|1 maj x0.375 @7|5 maj x0.125 @7|4 maj x0.125 @9|5 maj x0.125 @7|7 dim x0.125 @5|1 maj x0.125 @4|5 maj x0.125 @2|1 maj x0.75 @0")],
-      minor: []   // v109: Sunny Day, Lullaby, Silly Walk, Spooky and Rainy Day removed; a minor key in Kids uses the major songs (progList) and goes back to the song's own key (progSync)
-    },
-    jazz: {
-      major: [P("Jazz ii\u2013V\u2013I", "2 m7|5 7|1 maj7"), P("Jazz Turnaround", "1 maj7|6 m7|2 m7|5 7"),
-              P("Jazz Blues", "1 7|4 7|1 7|1 7|4 7|4 7|1 7|6 7|2 m7|5 7|1 7|5 7"),
-              P("Jazz Minor Blues", "1 m7|1 m7|1 m7|1 m7|4 m7|4 m7|1 m7|1 m7|b6 7|5 7|1 m7|5 7"),
-              // 8-bar A section, two chords in a bar where shown: I vi | ii V | iii VI7 | ii V | I I7 | IV iv | I V | I
-              P("Jazz Rhythm Changes", "1 maj7 x0.5|6 m7 x0.5|2 m7 x0.5|5 7 x0.5|3 m7 x0.5|6 7 x0.5|2 m7 x0.5|5 7 x0.5|1 maj7 x0.5|1 7 x0.5|4 maj7 x0.5|4 m7 x0.5|1 maj7 x0.5|5 7 x0.5|1 maj7"),
-              P("Jazz Minor ii\u2013V\u2013i", "2 m7b5|5 7b9|1 m7"), P("Jazz Backdoor", "4 m7|b7 7|1 maj7"), P("Jazz Modal Vamp", "1 m9 x8|b2 m9 x8")],
-      // Minor home: the major ii-V-I, the major 12-bar Blues and Rhythm Changes are skipped
-      // (the minor ii-V-i, Minor Blues and the rest cover them).
-      minor: [P("Jazz Turnaround", "1 m7|6 maj7|2 m7b5|5 7b9"),
-              P("Jazz Minor Blues", "1 m7|1 m7|1 m7|1 m7|4 m7|4 m7|1 m7|1 m7|6 7|5 7|1 m7|5 7"),
-              P("Jazz Minor ii\u2013V\u2013i", "2 m7b5|5 7b9|1 m7"), P("Jazz Backdoor", "4 m7|7 7|1 m7"), P("Jazz Modal Vamp", "1 m9 x8|b2 m9 x8")]
-    },
-    rnb: {
-      major: [P("R&B Classic", "1 maj7|6 m7|4 maj7|5 7"), P("R&B ii\u2013V\u2013I", "2 m9|5 13|1 maj9|6 m9"), P("R&B Smooth", "1 maj9|3 m7|6 m9|2 m9|5 13"), P("R&B Slow Jam", "4 maj7|3 m7|2 m7|1 maj7")],
-      minor: [P("R&B Classic", "1 m7|6 maj7|4 m7|5 7"), P("R&B ii\u2013V\u2013I", "2 m7b5|5 7#9|1 m9|6 maj9"), P("R&B Smooth", "1 m9|3 maj9|6 maj9|2 m7b5|5 7#9"), P("R&B Slow Jam", "4 m9|3 maj9|2 m7b5|1 m9")]
-    },
-    ballad: {
-      major: [P("Ballad Classic", "1 maj|6 min|4 maj|5 maj"), P("Ballad Hymn", "1 maj|4 maj|1 over3|5 maj"), P("Ballad Big Finish", "4 maj|4 overV|3 min|6 min|2 min|5 maj|1 maj")],   // v109: "Ballad All I Ask" removed (the list is not saved; an old in-session index past the end falls back to 0 = Ballad Classic in progSync)
-      minor: [P("Ballad Classic", "1 min|6 maj|4 min|5 maj"), P("Ballad Hymn", "1 min|4 min|1 mover3|5 maj"), P("Ballad Big Finish", "4 min|4 moverV|3 maj|6 maj|2 dim|5 maj|1 min")]
-    },
-    reggae: {
-      major: [P("Reggae Island Skank", "1 maj|4 maj|5 maj|4 maj"), P("Reggae One Drop", "1 maj|b7 maj|4 maj|1 maj"), P("Reggae Minor Riddim", "1 min|4 min|5 min|4 min")],
-      // Minor home: Island Skank becomes i-iv-v-iv, so Minor Riddim takes its minor-key form i-bVII.
-      minor: [P("Reggae Island Skank", "1 min|4 min|5 min|4 min"), P("Reggae One Drop", "1 min|7 maj|4 min|1 min"), P("Reggae Minor Riddim", "1 min|7 maj")]
-    },
-    funk: {
-      major: [P("Funk Vamp", "1 7|4 7"), P("Funk Minor Vamp", "1 m7|4 7"), P("Funk Breakdown", "1 9|b7 9|4 9|1 9")],
-      minor: [P("Funk Vamp", "1 m7|4 m7"), P("Funk Minor Vamp", "1 m7|4 7"), P("Funk Breakdown", "1 m9|7 9|4 9|1 m9")]
-    },
-    yogaDeep: {
-      major: [P("Yoga Drone", "1 sus2"), P("Yoga Open", "1 sus2|b7 sus2|4 sus2"), P("Yoga Still", "1 m9|b6 maj7|b7 6|1 m9")],
-      minor: [P("Yoga Drone", "1 sus2"), P("Yoga Open", "1 sus2|7 sus2|4 sus2"), P("Yoga Still", "1 m9|6 maj7|7 6|1 m9")]
-    },
-    // v60 Country. The strip's V chip is V7, so V steps use it (one G7 chip, no extra dashed G).
-    country: {
-      major: [P("Country Three-Chord", "1 maj|1 maj|4 maj|1 maj|5 7|5 7|1 maj|1 maj"), P("Country Two-Step", "1 maj|4 maj|1 maj|5 7"),
-              P("Country Swing", "1 maj|1 maj|2 7|2 7|5 7|5 7|1 maj|1 maj"), P("Country Modern", "1 maj|5 7|6 min|4 maj")],
-      minor: [P("Country Outlaw", "1 min|7 maj|6 maj|7 maj"), P("Country Minor Three-Chord", "1 min|4 min|1 min|5 min"), P("Country Holler", "1 min|3 maj|7 maj|4 min")]
-    }
-  };
-PROG_TEST = /[?&]test=1(&|$)/.test(location.search);
-  if (PROG_TEST) window.__prog = prog;
-magic = { pos: 0, last: null, since: 0, cycle: 4, item: null, lit: false, endAt: 0, rng: Math.random, log: [], next: null, hint: false };
-  // v75 Band clock = the app's clock: the selected song (BPM, beats per bar), else the Play song
-  // bar while it runs, else the Config (style / loop) BPM. keepAlive: Play song / the phrase loop.
-  ChordAudio.band.clock = function () {
-    var t = songTempo();
-    if (t) return { bpm: t.bpm, bpb: t.bpb };
-    if (prog.playing) return { bpm: 240 / PROG_BAR, bpb: 4 };
-    return { bpm: state.bpm || 96, bpb: 4 };
-  };
-  ChordAudio.band.keepAlive = function () { return !!(prog.playing || (typeof loop !== "undefined" && loop.playing)); };
-  ChordAudio.band.peek = function () {   // next chord root, for the Jazz walking-bass approach note
-    if (prog.playing) return prog.steps.length ? prog.steps[prog.si % prog.steps.length].item.rootPc : null;   // v111: Play loops
-    return magic && magic.next && magic.next.step >= 0 && magic.next.item ? magic.next.item.rootPc : null;
-  };
-  if (PROG_TEST) window.__band = ChordAudio.band;
-  if (PROG_TEST) window.__progApi = { data: PROGRESSIONS, steps: function (k, p) { return progSteps(k, p); }, numerals: function (st) { return progNumerals(st); }, set: function (i) { progSet(i); }, play: function () { progPlay(); }, stop: function () { progStop(); }, next: function () { progNext(); }, bar: PROG_BAR };
-kidsKeyFixT = 0;
+}
+
+// Boot step (runs once, in the original v112.3 order, from main.js)
+export function boot2() {
 laEl = null;
   laT = 0;
 nxSigLast = "";
   nxT = 0;
   nxBursts = 0;
 nxReduce = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
-  if (PROG_TEST) window.__nx = function () {
-    paintNxMark();
-    var cur = nxNow(), lab = function (e) { return e ? (e.getAttribute("aria-label") || e.textContent || "").trim() : null; };
-    return { sig: nxSigLast, grid: cur && cur.el ? lab(cur.el) : null, item: cur ? { rootPc: cur.item.rootPc, type: cur.item.type, ext: Object.keys(cur.item.extensions || {}).filter(function (k) { return cur.item.extensions[k]; }) } : null,
-      dots: Array.prototype.map.call(document.querySelectorAll(".nxdot"), function (e) { return (e.closest("#palette") ? "table:" : "grid:") + lab(e); }),
-      key: (function () { var k = cur ? nxKeyEl(cur.item) : null; return k ? +k.dataset.midi : null; })(), bursts: nxBursts,
-      burstEls: Array.prototype.map.call(document.querySelectorAll(".nxb"), function (e) { return (e.closest("#palette") ? "table:" : e.closest("#pads") ? "key:" + e.dataset.midi : "grid:") + lab(e); }) };
-  };
+}
 
-  if (PROG_TEST) window.__la = function () { var t = laTarget(); paintLookahead(); var all = document.querySelectorAll("#suggest .la-play");
-    return { n: all.length, label: t ? (t.getAttribute("aria-label") || t.textContent) : null, step: t ? prog.targets.indexOf(t) : -1, playing: prog.playing, cur: prog.cur, si: prog.si }; };
-paKeyMidi = null;
-  if (PROG_TEST) { window.__playAlong = paLog; paLog.tones = function () { var c = nxNow(); if (!c || !c.item) return null; var sp = nextHintSpec(c.item), o = {}; (sp.midis || []).forEach(function (m) { if (isFinite(m)) o[wrap12(Number(m))] = 1; }); return Object.keys(o).map(Number); }; }
-paLast = null;
-  paEvT = 0;   // paEvT: the input event's own time (not when it was handled)
+// Boot step (runs once, in the original v112.3 order, from main.js)
+export function boot3() {
 paHintAt = -1e9;
   paHintSeen = {};
   paHintTimer = 0;
-  paMiss = 0;
   paLostSong = null;
-  if (PROG_TEST) window.__paHint = paHintLog;
 paMissSong = null;   // v112.1 (L2)
 tourI = -1;
 tourWired = false;
-  if (PROG_TEST) window.__tour = { start: function (r) { tourStart(r !== false); }, log: tourLog, step: function () { return tourI; }, done: tourDone };
-  if (PROG_TEST) window.__fxTap = fxTapLog;
-  if (PROG_TEST) window.__kidsTap = kidsTapLog;
-  if (PROG_TEST) window.__kidsPads = function () { return Array.prototype.map.call(document.querySelectorAll("#suggest .ss-kidpad"), function (b) { var it = b._tc && b._tc.item; return { label: b.textContent, cls: b.className, rootPc: it && it.rootPc, type: it && it.type, gold: b.classList.contains("nx-root") }; }); };   // v103
-  if (PROG_TEST) window.__kbWin = function () { return { lo: kbWinLow, stay: kbKeyStay, chord: kbChord && { rootPc: kbChord.rootPc, root: kbChord.root, type: kbChord.type } }; };   // v102
+}
 
-  if (PROG_TEST) window.__magic = {
-    state: magic,
-    seed: function (n) { var a = n >>> 0; magic.rng = function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; magicReset(); magic.log = []; },
-    pool: function () { return magicPool().map(stripLabel); },
-    home: function () { var h = magicHome(); return h ? stripLabel(h) : null; },
-    tap: function () { progNext(); },
-    timer: function () { return suggestTimer; }
-  };
-  if (PROG_TEST) window.__applySongKey = function (t, m) { return applySongKey(t, m); };
-upPromptVer = "full";   // v107: Copy for AI always asks for Simple AND Full (no pick on the form)
-upSchemaText = "";
-  upSchema = null;
-  upListSchemaText = "";
-  (function () {
-    var s = document.getElementById("songSchemaJson");
-    upSchemaText = s ? s.textContent.replace(/^\s+|\s+$/g, "") : "";
-    try { upSchema = JSON.parse(upSchemaText); } catch (err) { upSchema = null; }
-    // v89: the song-list schema (song-list-contract.schema.json) is built from the one-song schema
-    if (upSchema) {
-      var item = { description: "One song: the same form as song-contract.schema.json v1.2, without contractVersion (the list carries it).",
-        type: "object", required: ["song", "timing", "sections"], additionalProperties: false, properties: {} };
-      Object.keys(upSchema.properties).forEach(function (k) {
-        item.properties[k] = k === "contractVersion" ? { "enum": upSchema.properties.contractVersion["enum"], description: "Optional here; leave it out." } : upSchema.properties[k];
-      });
-      // v110: the prompt copy never mentions album: song.album is left out of the shown song form (the
-      // checking schema upSchema still accepts it, so old answers / saved songs with an album still load).
-      item = JSON.parse(JSON.stringify(item));
-      if (item.properties.song && item.properties.song.properties) delete item.properties.song.properties.album;
-      var defs = { songItem: item };
-      Object.keys(upSchema.$defs || {}).forEach(function (k) { defs[k] = upSchema.$defs[k]; });
-      upListSchemaText = JSON.stringify({
-        "$schema": upSchema.$schema,
-        "$id": "https://digitalfarmer420.github.io/touch-chord/schema/song-list-contract-v1.json",
-        title: "Touch Chord Song List Contract v1.2",
-        description: "Several songs in one answer (several songs by one artist). Each item in songs is one song form. A bare JSON list of song forms also loads.",
-        type: "object", required: ["contractVersion", "songs"], additionalProperties: false,
-        properties: {
-          contractVersion: { "const": "1.2" },
-          songs: { type: "array", minItems: 1, maxItems: UP_LIST_MAX, description: "One entry per song. Artist: at most " + UP_ARTIST_MAX + ".", items: { "$ref": "#/$defs/songItem" } },
-          notes: { type: "string", description: "Anything about the whole list, e.g. songs left out because their chords could not be found." }
-        },
-        "$defs": defs
-      }, null, 2);
-    }
-  })();
-U = null;   // the loaded song (see upBuild)
-upProgObj = null;
-LIB = { v: 1, active: null, sel: false, songs: [] };
-libSaveErr = "";
-upRestoreSel = false;
-  (function () {
-    var ls = null;
-    try { ls = window.localStorage || null; } catch (err) { ls = null; }
-    if (!ls) return;
-    var raw = null;
-    try { raw = ls.getItem(LIB_STORE); } catch (err) { raw = null; }
-    if (raw != null) {
-      try {
-        var st = JSON.parse(raw);
-        if (st && st.v === 1 && Array.isArray(st.songs)) {
-          LIB = { v: 1, active: st.active || null, sel: !!st.sel, songs: st.songs.filter(function (x) { return x && x.id && x.song; }).slice(0, LIB_MAX) };
-        }
-      } catch (err) {}
-    } else {
-      // v77: one-time migration from the v72-v76 single song (touchChord.settings.v1 is never touched).
-      try {
-        var old = JSON.parse(ls.getItem(UP_STORE) || "null");
-        if (old && old.song && upCheck(JSON.stringify(old.song)).ok) {
-          var id = libId();
-          LIB.songs.push({ id: id, title: old.song.song.title, artist: old.song.song.artist, added: Date.now(), song: old.song,
-            choice: old.choice || {}, reviewed: old.reviewed || {}, locked: old.locked !== false, liveKey: old.liveKey || null });
-          if (old.sel) { LIB.active = id; LIB.sel = true; }
-          if (libWrite()) ls.removeItem(UP_STORE);
-        }
-      } catch (err) {}
-    }
-    var e = LIB.active ? libGet(LIB.active) : null;
-    if (LIB.active && !e) LIB.active = null;
-    if (e) {
-      try { U = libEntryToU(e); } catch (err) { U = null; }
-      if (U) { upRestoreSel = !!LIB.sel; U.keep = upRestoreSel; }
-      else LIB.active = null;
-    }
-  })();
-upEdit = null;
-upLastStep = -1;
-upNxOff = false;
-  if (PROG_TEST) window.__lyr2 = { state: lyrState, map: function () { if (!U) return null; var M = upLyrMap(); return { any: M.any, seq: M.seq.map(function (x) { return { si: x.si, li: x.li, start: x.start }; }), at: M.at.slice() }; } };
-  if (PROG_TEST) window.__kidsLyr = { state: klState, data: function () { return KIDS_LYRICS; } };
+// Boot step (runs once, in the original v112.3 order, from main.js)
+export function boot4() {
 upOpenAlt = null;   // "si:ci" whose alternates row is open
-  if (PROG_TEST) window.__upload = {
-    check: function (t) { return upCheck(t); },
-    load: function (t) { var r = upLoadAll(t); upShowErrors(r); paintUpload(); return { ok: r.ok, errors: r.errors, warnings: r.warnings, list: !!r.list, loaded: r.loaded, updated: r.updated, skipped: r.skipped, truncated: !!r.truncated,
-      rows: (r.rows || []).map(function (x) { return { i: x.i, title: x.title, status: x.status, reason: x.reason, albumNow: x.albumNow, flags: x.flags, errors: x.errors }; }) }; },
-    parseAnswer: function (t) { var p = upParseAnswer(t); return { kind: p.kind, n: p.items ? p.items.length : 0, truncated: !!p.truncated, error: p.error || null }; },
-    mode: function (t, a) { return upMode(t, a); },
-    promptFor: function (md, ver, have) { return upPromptFor(md, ver, have); },
-    listSchema: function () { return upListSchemaText; },
-    caps: function () { return { artist: UP_ARTIST_MAX, skip: UP_SKIP_MAX, list: UP_LIST_MAX }; },   // v105; v110 no album
-    remove: function () { upRemove(); paintUpload(); },
-    song: function () { return U ? { title: U.title, artist: U.artist, key: U.key, bpm: U.bpm, ts: U.ts, events: U.events.length, sections: U.secs.map(function (s) { return s.id; }), selected: upSelected(), two: !!U.two, ver: U.ver } : null; },
-    setVer: function (id, v) { var r = libSetVer(id, v); paintUpload(); return r; },
-    setPrompt: function (v) { upSetPrompt(v); return upPromptVer; },
-    prompt: function () { return upPromptVer; },
-    steps: function () { return prog.steps.map(function (s) { return { sym: stripLabel(s.item), roman: s.roman, bars: s.bars }; }); },
-    tempo: function () { return { song: songTempo(), loopBar: progLoopBar(), ringSec: progRingSec(), stateBpm: state.bpm }; },
-    flagged: function () { return upFlagList().map(function (f) { return U.secs[f.si].id + "#" + f.ci + ":" + upSym(f.si, f.ci); }); },
-    alternates: function () { var o = []; if (U) U.secs.forEach(function (s) { s.chords.forEach(function (c, ci) { (c.alternates || []).forEach(function (a) { o.push(s.id + "#" + ci + ":" + c.chord + "->" + a.chord); }); }); }); return o; },
-    copyText: function () { return upCopyText(); },
-    parse: function (s) { return upParseChord(s); },
-    applySongKey: function (t, m) { return upKeyApply(t, m); },
-    lock: function () { return U ? { locked: !!U.locked, liveKey: U.liveKey, key: U.key } : null; },
-    setLock: function (on) { upSetLock(on); },
-    next: function () { return upNextStep(); },
-    lib: function () { return JSON.parse(JSON.stringify({ active: LIB.active, sel: LIB.sel, n: LIB.songs.length, songs: LIB.songs.map(function (e) { return { id: e.id, title: e.title, artist: e.artist, album: e.album, cv: e.song && e.song.contractVersion, added: e.added, locked: e.locked, liveKey: e.liveKey, choice: e.choice, reviewed: e.reviewed, ver: e.ver }; }), err: libSaveErr, uid: U ? U.id : null })); },
-    libOpen: function (id) { return libOpen(id); },
-    libDelete: function (id) { return libDelete(id); },
-    pickAlt: function (si, ci, sym) { upPickAlt(si, ci, sym); },
-    accept: function (si, ci) { U.reviewed[si + ":" + ci] = true; upSave(); }
-  };
   window.addEventListener("resize", function () { fitStrip(); setTimeout(paintNextHint, 120); });   // v111: the next chord is always marked (no magic.hint gate)
   // v54: the panel can change height without a resize (Now column grows when a key is set).
   if (typeof ResizeObserver === "function") {
@@ -5947,7 +3819,7 @@ paletteTimer = 0;
 }
 
 // Boot step (runs once, in the original v112.3 order, from main.js)
-export function boot2() {
+export function boot5() {
 lastTab = "sound";
 startBanner = document.getElementById("unlock");
   if (startBanner) startBanner.textContent = "Tap anywhere to enable sound";
