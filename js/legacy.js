@@ -1,4 +1,4 @@
-import { api as ChordAudio } from "./legacy-audio.js?v=112.3";
+import { api as ChordAudio } from "./audio/index.js?v=112.3";
 import { Theory } from "./theory/index.js?v=112.3";
 import { accSym } from "./theory/spelling.js?v=112.3";
 var VOICINGS;

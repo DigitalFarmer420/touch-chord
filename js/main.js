@@ -7,7 +7,12 @@ import "./theory/index.js?v=112.3";
 import "./theory/keys.js?v=112.3";
 import "./theory/spelling.js?v=112.3";
 import "./theory/voicing.js?v=112.3";
-import "./legacy-audio.js?v=112.3";
+import "./audio/band.js?v=112.3";
+import "./audio/bass.js?v=112.3";
+import "./audio/effects.js?v=112.3";
+import "./audio/engine.js?v=112.3";
+import "./audio/index.js?v=112.3";
+import "./audio/synths.js?v=112.3";
 import * as legacy from "./legacy.js?v=112.3";
 
 // Deliberate globals kept from v112.3 (console and tests). Theory, ChordAudio and __tcAudioWake are set in theory/index.js and audio/index.js.
