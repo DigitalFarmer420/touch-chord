@@ -1,7 +1,7 @@
 name: tests
 on:
   pull_request:
-    branches: [main]
+    branches: [main, dev]
   push:
     branches: [modular, dev]
 concurrency:
@@ -12,6 +12,8 @@ jobs:
     name: tests
     runs-on: ubuntu-latest
     timeout-minutes: 75
+    env:
+      RUN_SMOKE: ${{ github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref == 'dev' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,25 +24,27 @@ jobs:
           python-version: '3.x'
       - run: npm install --no-audit --no-fund
       - name: Cache Playwright browsers
+        if: env.RUN_SMOKE == 'true'
         id: pwcache
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
           key: pw-${{ runner.os }}-${{ hashFiles('package.json') }}
       - name: Install Chromium
-        if: steps.pwcache.outputs.cache-hit != 'true'
+        if: env.RUN_SMOKE == 'true' && steps.pwcache.outputs.cache-hit != 'true'
         run: npx playwright-core install --with-deps chromium
       - name: Install Chromium system deps (cache hit)
-        if: steps.pwcache.outputs.cache-hit == 'true'
+        if: env.RUN_SMOKE == 'true' && steps.pwcache.outputs.cache-hit == 'true'
         run: npx playwright-core install-deps chromium
       - name: Version check
         run: python3 tools/check-version.py
       - name: Unit tests
         run: npm run test:unit
       - name: Smoke tests (Playwright, DPR3 phone emulation, 360x780 + 780x360)
+        if: env.RUN_SMOKE == 'true'
         run: npm run test:smoke
       - name: Upload smoke results
-        if: always()
+        if: always() && env.RUN_SMOKE == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: smoke-results
