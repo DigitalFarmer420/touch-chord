@@ -1,13 +1,13 @@
 // Applies loaded settings to the UI (applySettings, markOn) and the toast.
-import { api as ChordAudio } from "./audio/index.js?v=112.4";
-import { syncKeySel } from "./keys.js?v=112.4";
-import { setBpm } from "./loop.js?v=112.4";
-import { VOICINGS, state, shared } from "./state.js?v=112.4";
-import { applyStylePreset, enforceYogaDeepPaletteGate, setWarmth, styleTrim } from "./styles.js?v=112.4";
-import { paintProgNumsBtn, paintPlayAlongBtn, setVolume, setBand } from "./ui/gear.js?v=112.4";
-import { paintSimple } from "./ui/layout.js?v=112.4";
-import { setKeyModeState } from "./ui/palette.js?v=112.4";
-import { dumpSustain, paintSustainBtn } from "./ui/sustain.js?v=112.4";
+import { api as ChordAudio } from "./audio/index.js?v=112.5";
+import { syncKeySel } from "./keys.js?v=112.5";
+import { setBpm } from "./loop.js?v=112.5";
+import { VOICINGS, state, shared } from "./state.js?v=112.5";
+import { applyStylePreset, enforceYogaDeepPaletteGate, setWarmth, styleTrim } from "./styles.js?v=112.5";
+import { paintProgNumsBtn, paintPlayAlongBtn, setVolume, setBand } from "./ui/gear.js?v=112.5";
+import { paintSimple } from "./ui/layout.js?v=112.5";
+import { setKeyModeState } from "./ui/palette.js?v=112.5";
+import { dumpSustain, paintSustainBtn } from "./ui/sustain.js?v=112.5";
 
 function markOn(groupSel, attr, value) {
   var all = document.querySelectorAll(groupSel + " button");

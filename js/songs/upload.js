@@ -1,13 +1,13 @@
 // Upload: AI prompt text, schema, answer parsing and validation, load flow.
-import { keyDegrees, SPELL_LI } from "../keys.js?v=112.4";
-import { upSave, LIB_MAX, libKey, libFind, libId, libWrite, paintLib } from "./library.js?v=112.4";
-import { progStop, progSet } from "./playback.js?v=112.4";
-import { upSelected, upKeyApply, upSelect, upStoreCopy, upLoadOne } from "./song.js?v=112.4";
-import { state, shared } from "../state.js?v=112.4";
-import { Theory } from "../theory/index.js?v=112.4";
-import { wrap12 } from "../theory/quality.js?v=112.4";
-import { computeSpec } from "../ui/pads.js?v=112.4";
-import { paintSuggestions } from "../ui/strip.js?v=112.4";
+import { keyDegrees, SPELL_LI } from "../keys.js?v=112.5";
+import { upSave, LIB_MAX, libKey, libFind, libId, libWrite, paintLib } from "./library.js?v=112.5";
+import { progStop, progSet } from "./playback.js?v=112.5";
+import { upSelected, upKeyApply, upSelect, upStoreCopy, upLoadOne } from "./song.js?v=112.5";
+import { state, shared } from "../state.js?v=112.5";
+import { Theory } from "../theory/index.js?v=112.5";
+import { wrap12 } from "../theory/quality.js?v=112.5";
+import { computeSpec } from "../ui/pads.js?v=112.5";
+import { paintSuggestions } from "../ui/strip.js?v=112.5";
 
 // ===== Song Upload (full mode only) =====
 // Contract: contract/song-contract.schema.json (embedded below as #songSchemaJson, copied to the

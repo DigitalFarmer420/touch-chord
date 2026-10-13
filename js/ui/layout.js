@@ -1,16 +1,16 @@
 // Simple mode, controls drawer / tabs, size-class changes.
-import { api as ChordAudio } from "../audio/index.js?v=112.4";
-import { activeKey } from "../keys.js?v=112.4";
-import { stopPlayback } from "../loop.js?v=112.4";
-import { progStop, progWalkAt, progWalkTo } from "../songs/playback.js?v=112.4";
-import { state, loop, fingers, scheduleSave, shared } from "../state.js?v=112.4";
-import { magicHintClear } from "./next.js?v=112.4";
-import { fitNowSymbol } from "./nowbox.js?v=112.4";
-import { computeSpec, padSpan, octaveSpan, effectiveLayout, renderPads, liftFinger, refreshHeld } from "./pads.js?v=112.4";
-import { syncPalette, setKeyModeState } from "./palette.js?v=112.4";
-import { placeProg } from "./progbar.js?v=112.4";
-import { paintSuggestions } from "./strip.js?v=112.4";
-import { paintSustainBtn, setSustain } from "./sustain.js?v=112.4";
+import { api as ChordAudio } from "../audio/index.js?v=112.5";
+import { activeKey } from "../keys.js?v=112.5";
+import { stopPlayback } from "../loop.js?v=112.5";
+import { progStop, progWalkAt, progWalkTo } from "../songs/playback.js?v=112.5";
+import { state, loop, fingers, scheduleSave, shared } from "../state.js?v=112.5";
+import { magicHintClear } from "./next.js?v=112.5";
+import { fitNowSymbol } from "./nowbox.js?v=112.5";
+import { computeSpec, padSpan, octaveSpan, effectiveLayout, renderPads, liftFinger, refreshHeld } from "./pads.js?v=112.5";
+import { syncPalette, setKeyModeState } from "./palette.js?v=112.5";
+import { placeProg } from "./progbar.js?v=112.5";
+import { paintSuggestions } from "./strip.js?v=112.5";
+import { paintSustainBtn, setSustain } from "./sustain.js?v=112.5";
 
 // ---- Simple mode + responsive controls (v20) ----
 export function paintSimple() {
