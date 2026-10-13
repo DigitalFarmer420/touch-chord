@@ -1,0 +1,84 @@
+/* Touch Chord: strip. Files load in this order: base, layout, topbar, strip, panels, keyboard, modes, dialogs (the cascade order of v112.3). */
+/* ===== v48: scale strip (Happy / Scale / Sad / Tension) ===== */
+.next-card {
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 14px;
+  padding: 5px 6px 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+html.lay-pad-port .next-card, html.lay-pad-land .next-card { padding: 8px 12px 10px; }
+#app { --ss-lbl: 30px; --ss-ico: 22px; --ss-arrow: 14px; --ss-happy: #e2b15a; --ss-sad: #8a7bc0; --ss-ico-stroke: 2; --ss-rg: 3px; --ss-mid: 1.4fr; --ss-pad: 4px; --ss-row: 26px; --ss-strip: 38px; --ss-gap: 5px; --ss-cgap: 4px; --ss-fs: 14px; --ss-note: 16px; --ss-small: 9px; --ss-lfs: 9px; }
+html.lay-phone-port #app { --ss-row: 30px; --ss-strip: 42px; --ss-cgap: 2px; --ss-fs: 13px; --ss-note: 15px; }
+html.lay-pad-port #app, html.lay-pad-land #app { --ss-lbl: 34px; --ss-rg: 5px; --ss-pad: 8px; --ss-row: 42px; --ss-strip: 58px; --ss-gap: 8px; --ss-cgap: 8px; --ss-fs: 19px; --ss-note: 22px; --ss-small: 12px; --ss-lfs: 11px; }
+.ss {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--ss-lbl) repeat(7, minmax(0, 1fr));
+  /* v52: borrowed | happy | scale | sad | tension. Two rows above and two below put the
+     scale row at the box's vertical middle; right padding = face column centres it sideways.
+     Box height stays what the v51 four-row strip used. */
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) minmax(0, var(--ss-mid)) minmax(0, 1fr) minmax(0, 1fr);
+  height: calc(3 * var(--ss-row) + var(--ss-strip) + 3 * var(--ss-gap));
+  gap: var(--ss-rg) var(--ss-cgap);
+  padding-right: calc(var(--ss-lbl) + var(--ss-cgap));
+  box-sizing: border-box;
+  align-content: stretch;
+  min-width: 0;
+  --ss-k: 1;
+}
+.ss .ss-lbl { grid-column: 1; color: var(--muted); font-size: var(--ss-lfs); letter-spacing: .04em; text-transform: uppercase; display: flex; align-items: center; white-space: nowrap; line-height: 1.15; min-width: 0; overflow: hidden; }
+.ss .ss-lbl b { color: var(--copper); font-weight: 700; font-size: calc(var(--ss-lfs) + 2px); margin-right: 3px; }
+/* v52: row labels are two line-icon faces with arrows toward the scale row (no text).
+   Happy (gold) + up arrow beside the top row; down arrow + sad (purple) beside sad/tension. */
+.ss .ss-lbl { flex-direction: column; justify-content: center; align-items: center; gap: 2px; overflow: visible; }
+.ss .ss-lbl.ss-ico-happy { color: var(--ss-happy); }
+.ss .ss-lbl.ss-ico-sad { color: var(--ss-sad); }
+.ss .ss-lbl svg { display: block; flex: none; fill: none; stroke: currentColor; stroke-width: var(--ss-ico-stroke); stroke-linecap: round; stroke-linejoin: round; }
+.ss .ss-lbl svg.ss-face { width: var(--ss-ico); height: var(--ss-ico); }
+.ss .ss-lbl svg.ss-face .eye { fill: currentColor; stroke: none; }
+.ss .ss-lbl svg.ss-arrow { width: calc(var(--ss-arrow) * 12 / 14); height: var(--ss-arrow); }
+.next-card { padding: var(--ss-pad) !important; }
+.ss .ss-chip {
+  grid-row: 1;
+  display: flex; align-items: center; justify-content: center;
+  min-width: 0; min-height: 0; height: auto; margin: 0; padding: 0 2px;
+  border-radius: 10px; border: 1px solid;
+  font-weight: 700; font-size: calc(var(--ss-fs) * var(--ss-k) * var(--tx, 1)); line-height: 1;
+  white-space: nowrap; overflow: hidden;
+  touch-action: manipulation;
+}
+.ss .ss-chip.major { background: #e2b15a; border-color: #c4923e; color: #2a1c0c; }
+.ss .ss-chip.minor { background: #7d6ea8; border-color: #6a5c96; color: #f7f3ff; }
+.ss .ss-chip.tension { background: #2a1f45; border-color: #4a3a72; color: #e8dff8; }
+.ss .ss-chip.color { background: #6a8f7e; color: #0f1f18; }
+.ss .ss-chip.borrowed { border: 2px dashed rgba(255,255,255,.75); }
+html.lay-phone-port .ss .ss-chip { border-radius: 7px; padding: 0 1px; }
+.ss.stack .ss-chip { flex-direction: column; gap: 1px; line-height: 1; font-size: calc((var(--ss-fs) - 2px) * var(--ss-k) * var(--tx, 1)); }
+.ss.stack .ss-chip .q { font-size: .85em; }
+/* v52: chip text never drops below 11 px on phones. */
+html.lay-phone-port .ss .ss-chip, html.lay-phone-land .ss .ss-chip { font-size: max(10px, calc(var(--ss-fs) * var(--ss-k) * var(--tx, 1))); }
+html.lay-phone-port .ss.stack .ss-chip, html.lay-phone-land .ss.stack .ss-chip { font-size: max(10px, calc((var(--ss-fs) - 2px) * var(--ss-k) * var(--tx, 1))); }
+html.lay-phone-port .ss.stack .ss-chip .q, html.lay-phone-land .ss.stack .ss-chip .q { font-size: max(11px, .85em); }
+html.lay-phone-port #app { --ss-lbl: 18px; --ss-ico: 18px; --ss-arrow: 12px; --ss-cgap: 1px; }
+html.lay-phone-port .ss .ss-chip { padding: 0; letter-spacing: -0.04em; }
+html.lay-phone-port .ss .ss-chip.borrowed { border-width: 1.5px; }
+html.lay-phone-port .ss.stack .ss-chip.long .q { letter-spacing: -0.09em; }
+html.lay-phone-land:not(.simple) .ss .ss-chip { padding: 0 1px; letter-spacing: -0.03em; }
+html.lay-phone-land:not(.simple) #app { --ss-row: 28px; --ss-rg: 2px; --ss-mid: 1fr; }
+.ss .ss-track { grid-row: 3; grid-column: 2 / 9; margin: 0 -2px; background: #1c1914; border: 1px solid var(--line); border-radius: 999px; box-shadow: inset 0 1px 3px rgba(0,0,0,.6); }
+.ss .ss-note {
+  grid-row: 3; position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-width: 0; min-height: 0; height: auto; margin: 0; padding: 0;
+  background: transparent; border: 0; border-radius: 999px;
+  color: var(--ink); font-weight: 700; font-size: calc(var(--ss-note) * var(--tx, 1)); line-height: 1;
+  touch-action: manipulation;
+}
+.ss .ss-note small { font-size: max(9px, calc(var(--ss-small) * var(--tx, 1))); font-weight: 600; color: var(--muted); margin-top: 2px; letter-spacing: .02em; }
+.ss .ss-note.home { color: var(--copper); }
+.ss .ss-note.home::before { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); aspect-ratio: 1; height: auto; width: min(calc(100% + 4px), calc(var(--ss-strip) + 6px)); border: 2.5px solid var(--copper); border-radius: 50%; background: rgba(226,161,90,.14); z-index: -1; box-sizing: border-box; }
+.ss .ss-note.home small { color: var(--copper); opacity: .85; }
+.ss .ss-note:focus-visible, .ss .ss-chip:focus-visible { outline: 2px solid var(--copper); outline-offset: 1px; }

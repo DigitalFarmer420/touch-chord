@@ -1,0 +1,124 @@
+/* Touch Chord: keyboard. Files load in this order: base, layout, topbar, strip, panels, keyboard, modes, dialogs (the cascade order of v112.3). */
+/* ===== Keyboard ===== */
+.kb-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 0;
+}
+
+/* Thin loop-position indicator above the keys. */
+.phase-track {
+  position: relative;
+  flex: 0 0 auto;
+  height: 3px;
+  width: 100%;
+  background: rgba(58, 51, 43, 0.55);
+  border-radius: 999px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.phase {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  background: var(--sea);
+  pointer-events: none;
+}
+
+#unlock {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  background: var(--copper);
+  color: var(--copper-ink);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 650;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+#unlock[hidden] { display: none; }
+
+.pad {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 14px;
+  background: var(--pad);
+  border: 1px solid #423a30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 10px 4px 12px;
+  line-height: 1;
+}
+.pad .roman { font-size: 11px; letter-spacing: 0.08em; color: var(--muted); }
+.pad.major { box-shadow: inset 0 -4px 0 var(--copper); }
+.pad.minor { box-shadow: inset 0 -4px 0 var(--sea); }
+.pad.dim { box-shadow: inset 0 -4px 0 var(--lilac); }
+.pad.sus4 { box-shadow: inset 0 -4px 0 var(--moss); }
+.pad.selected { outline: 2px solid var(--copper); outline-offset: -2px; }
+.pad.held { background: var(--copper); color: var(--copper-ink); border-color: transparent; box-shadow: none; }
+.pad.held .roman { color: rgba(42, 28, 12, 0.7); }
+
+.kb { touch-action: none; flex: 1 1 auto; min-height: 0; }
+
+.kb.piano {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  --black-w: calc(100% / var(--whites) * 0.58);
+}
+.kb.piano .whites { display: flex; flex: 1 1 auto; min-height: 0; gap: 3px; }
+.kb.piano .blacks { position: absolute; inset: 0; pointer-events: none; }
+
+.kb .pad {
+  height: auto;
+  min-height: 0;
+  border-radius: 0 0 8px 8px;
+  padding: 4px 2px 8px;
+  font-size: 12px;
+}
+html.lay-pad-port .kb .pad, html.lay-pad-land .kb .pad { font-size: 14px; padding-bottom: 12px; }
+
+.kb.piano .white {
+  flex: 1 1 0;
+  height: 100%;
+  background: #f4efe4;
+  color: #2a1c0c;
+  border: 1px solid #c9bfb0;
+}
+.kb.piano .black {
+  pointer-events: auto;
+  position: absolute;
+  top: 0;
+  height: 62%;
+  width: var(--black-w, 18px);
+  background: #1b1714;
+  color: #f4efe4;
+  border: 1px solid #000;
+  z-index: 2;
+  font-size: 10px;
+  padding-bottom: 4px;
+}
+.kb .pad.out { opacity: 0.32; }
+.kb.piano .white.held,
+.kb.piano .black.held,
+.kb.fourths .pad.held { background: var(--copper); color: var(--copper-ink); }
+
+.kb.fourths {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.kb.fourths .pad { min-height: 0; height: auto; border-radius: 10px; font-size: 15px; }

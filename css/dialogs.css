@@ -1,0 +1,258 @@
+/* Touch Chord: dialogs. Files load in this order: base, layout, topbar, strip, panels, keyboard, modes, dialogs (the cascade order of v112.3). */
+/* ===== Song Upload (full mode only; Simple never shows any of it) ===== */
+.pg-btn.pg-up svg { width: var(--pg-ico, 18px); height: var(--pg-ico, 18px); }
+html.simple .pg-up { display: none !important; }   /* v73: Simple shows the song bar (lyrics + chords), not the Upload button */
+html.simple #songBar { cursor: default; }
+html.lay-phone-port:not(.simple) .pg-btn.pg-up { width: 32px; }
+#songBar { display: flex; align-items: center; gap: 5px; min-width: 0; min-height: 0; width: 100%; box-shadow: none; flex: 0 0 auto; height: 22px; margin: 0 0 3px; padding: 0 4px 0 2px; font-size: 11.5px; line-height: 1; color: var(--ink); background: none; border: 0; border-radius: 8px; text-align: left; cursor: pointer; overflow: hidden; }
+#songBar[hidden] { display: none !important; }
+/* v73 song chord Lock (song bar + Upload panel) */
+.next-card { position: relative; }
+#sbLock { position: absolute; z-index: 6; top: 0; right: 0; display: flex; align-items: center; gap: 3px; min-width: 0; min-height: 0; height: 22px; padding: 0 7px; font-size: 11px; font-weight: 700; line-height: 1; border-radius: 8px; box-shadow: none; color: var(--muted); background: rgba(255,255,255,.06); border: 1px solid var(--line); }
+#sbLock[hidden], html.simple #sbLock { display: none !important; }
+#sbLock svg, #upLock svg { width: 12px; height: 12px; flex: 0 0 auto; }
+#sbLock[aria-pressed="true"], #upLock[aria-pressed="true"] { color: #1a1209; background: var(--copper); border-color: var(--copper); }
+#sbLock[aria-pressed="false"] .shk, #upLock[aria-pressed="false"] .shk { transform: translate(5px, -1.5px); }
+#upLock { display: inline-flex; align-items: center; gap: 5px; }
+.up-lockrow[hidden] { display: none; }
+.up-lockrow .up-lockhint { font-size: 12px; color: var(--muted); flex: 1 1 160px; }
+html.up-locked .up-ch .alt { display: none; }
+#songBar .sb-sec { flex: 0 0 auto; padding: 3px 6px; border-radius: 7px; background: rgba(226, 161, 90, .18); color: var(--copper); font-weight: 700; text-transform: capitalize; }
+#songBar .sb-line { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+#songBar .sb-ch { display: inline-block; margin: 0 2px; padding: 1px 4px; border-radius: 5px; background: rgba(255,255,255,.07); color: var(--ink); font-weight: 700; }
+#songBar .sb-ch.on { background: var(--copper); color: #1a1209; }
+#songBar .sb-ch.flag::after, .up-ch.flag::after { content: "?"; display: inline-block; margin-left: 2px; padding: 0 3px; border-radius: 6px; background: #f08a24; color: #1a1209; font-size: .85em; font-weight: 800; }
+#songBar .sb-alt { flex: 0 0 auto; color: var(--copper); font-weight: 700; }
+.ss .ss-chip.up-flag { box-shadow: 0 0 0 2px #f08a24; }
+html.lay-pad-port #songBar, html.lay-pad-land #songBar { height: 28px; font-size: 14px; }
+.up-pick .kp-box { max-width: 640px; display: flex; flex-direction: column; gap: 8px; }
+.up-pick .kp-box > * { flex: 0 0 auto; }
+.up-intro { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.35; }
+.up-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.up-fields label { display: flex; flex-direction: column; gap: 3px; font-size: 11px; color: var(--muted); font-weight: 700; min-width: 0; }
+.up-fields input, .up-paste textarea, .up-fallback textarea { width: 100%; box-sizing: border-box; min-width: 0; font: inherit; font-size: 15px; color: var(--ink); background: rgba(255,255,255,.06); border: 1px solid var(--line); border-radius: 9px; padding: 7px 8px; }
+.up-key { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 8px 12px; border: 2px solid var(--copper); border-radius: 12px; background: rgba(226,161,90,.10); }
+.up-key .uk-l { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.up-key .uk-k { font-family: Palatino, "Iowan Old Style", Georgia, serif; font-size: 34px; font-weight: 700; line-height: 1.05; color: var(--copper); }
+.up-key .uk-t { font-size: 13px; color: var(--muted); text-align: right; }
+/* v87: no key field or key display on the Upload form (song.key is still read and applied). */
+.up-key .uk-kbox[hidden] { display: none; }
+.up-key .uk-kbox[hidden] + .uk-t { text-align: left; }
+.up-review { border: 1px solid #f08a24; border-radius: 10px; padding: 6px 8px; font-size: 13px; }
+.up-review[hidden] { display: none; }
+.up-review b { color: #f08a24; }
+.up-review .ur-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 4px; }
+.up-review button, .up-alts button { min-height: 30px; height: 30px; padding: 0 8px; font-size: 13px; border-radius: 8px; }
+.up-secs { max-height: 44vh; overflow: auto; border: 1px solid var(--line); border-radius: 10px; padding: 4px 6px; overscroll-behavior: contain; }
+.up-secs .up-empty { padding: 10px 4px; font-size: 13px; color: var(--muted); }
+.up-sec { padding: 6px 0; border-bottom: 1px solid var(--line); }
+.up-sec:last-child { border-bottom: 0; }
+.up-sec .us-h { font-size: 12px; font-weight: 800; color: var(--copper); margin-bottom: 4px; }
+.up-sec .us-h span, .up-review .ur-row span { text-transform: capitalize; }
+.up-sec .us-h small { color: var(--muted); font-weight: 700; margin-left: 4px; }
+.up-chs { display: flex; flex-wrap: wrap; gap: 4px; }
+.up-ch { min-height: 30px; height: 30px; padding: 0 8px; font-size: 14px; font-weight: 700; border-radius: 8px; }
+.up-ch.on { background: var(--copper); color: #1a1209; border-color: transparent; }
+.up-ch .alt { font-size: 10px; margin-left: 3px; color: var(--copper); }
+.up-ch.on .alt { color: #1a1209; }
+.up-alts { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; padding: 4px; border-radius: 8px; background: rgba(255,255,255,.05); font-size: 12px; align-items: center; }
+.up-alts button.on { background: var(--copper); color: #1a1209; }
+.up-ly { margin-top: 5px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.25; white-space: pre; overflow-x: auto; }
+.up-ly .ly-c { color: var(--copper); font-weight: 700; }
+.up-ly .ly-t { color: var(--ink); }
+.up-ly .ly-t .mk { text-decoration: underline 2px var(--copper); text-underline-offset: 2px; }
+/* v77: My songs (library). The list scrolls inside the panel. */
+.up-lib[hidden] { display: none; }
+.up-lib { display: flex; flex-direction: column; gap: 4px; }
+.up-lib .ul-h { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.up-lib .ul-h small { font-weight: 600; letter-spacing: 0; text-transform: none; }
+.up-lib .ul-list { list-style: none; margin: 0; padding: 3px; max-height: min(30vh, 210px); overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--line); border-radius: 10px; display: flex; flex-direction: column; gap: 3px; }
+.up-lib .ul-row { display: flex; align-items: stretch; gap: 4px; min-width: 0; flex: 0 0 auto; }
+.up-lib .ul-open { flex: 1 1 auto; min-width: 0; height: auto; min-height: 40px; padding: 4px 10px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; text-align: left; border-radius: 9px; background: rgba(255,255,255,.04); border: 1px solid transparent; color: var(--ink); }
+.up-lib .ul-open b { font-size: 14px; font-weight: 700; line-height: 1.15; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.up-lib .ul-open span { font-size: 11.5px; color: var(--muted); line-height: 1.15; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.up-lib .ul-row.on .ul-open { background: rgba(226,161,90,.16); border-color: var(--copper); }
+.up-lib .ul-row.on .ul-open b { color: var(--copper); }
+.up-lib .ul-del { flex: 0 0 40px; width: 40px; min-height: 40px; height: auto; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 9px; color: var(--muted); background: transparent; border: 1px solid var(--line); }
+.up-lib .ul-del svg { width: 17px; height: 17px; }
+html.lay-phone-land .up-lib .ul-list { max-height: 34vh; }
+html.lay-phone-land .up-lib .ul-open, html.lay-phone-land .up-lib .ul-del { min-height: 34px; }
+.up-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.up-row button { min-height: 36px; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 10px; }
+/* v80: prompt switch (Simple / Simple and Full) next to Copy for AI, and the per-song version switch in My songs */
+.up-pv, .up-lib .ul-ver { display: inline-flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; flex: 0 0 auto; }
+.up-row .up-pv button, .up-lib .ul-ver button { min-height: 30px; height: 30px; padding: 0 8px; font-size: 12.5px; font-weight: 700; border: 0; border-radius: 0; background: transparent; color: var(--muted); }
+.up-row .up-pv button[aria-checked="true"], .up-lib .ul-ver button[aria-checked="true"] { background: var(--copper); color: #1a1209; }
+.up-lib .ul-ver { align-self: center; }
+.up-lib .ul-ver button { height: 28px; min-height: 28px; padding: 0 6px; font-size: 11.5px; }
+.up-row .up-ok { font-size: 13px; color: #8fd18f; font-weight: 700; }
+/* v91: the action row on top of the Upload screen wraps cleanly */
+.up-actions { row-gap: 6px; }
+.up-actions > * { flex: 0 0 auto; }
+.up-paste textarea { min-height: 70px; resize: vertical; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; }
+.up-fallback[hidden], .up-err[hidden], .up-msg[hidden] { display: none; }
+.up-fallback textarea { min-height: 70px; font-size: 11px; }
+.up-err { border: 1px solid #e0605a; background: rgba(224,96,90,.12); border-radius: 10px; padding: 6px 8px; font-size: 13px; color: #ffd0cc; }
+.up-err ul { margin: 4px 0 0; padding-left: 18px; }
+.up-err code { font-size: 12px; color: #fff; }
+.up-msg { font-size: 13px; color: #8fd18f; font-weight: 700; }
+/* v73: "Song loaded" line at the top of the panel, with its own New song button */
+.up-note { font-size: 13px; color: #8fd18f; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.up-note[hidden] { display: none; }
+/* v89: mode hint, multi-song summary, album line in My songs */
+.up-ask { font-size: 12px; color: var(--muted); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: -2px; }
+.up-ask[hidden] { display: none; }
+.up-msg .us-l { display: block; }
+.up-msg .us-l + .us-l { font-weight: 600; color: #b9dcb9; }
+.up-msg details { margin-top: 4px; font-weight: 600; color: var(--ink); }
+.up-msg summary { cursor: pointer; color: #8fd18f; font-weight: 700; }
+.up-msg .us-list { list-style: none; margin: 4px 0 0; padding: 0 2px 0 0; max-height: 168px; overflow-y: auto; overscroll-behavior: contain; font-size: 12.5px; }
+html.lay-phone-land .up-msg .us-list { max-height: 120px; }
+.up-msg .us-list li { padding: 3px 0; border-top: 1px solid rgba(255,255,255,.06); overflow-wrap: anywhere; }
+.up-msg .us-list li.sk { color: #ffd0cc; }
+.up-msg .us-list li.fl { color: #f0c987; }
+.up-msg .us-list code { font-size: 11.5px; }
+.up-lib .ul-open .ul-sub { display: flex; min-width: 0; max-width: 100%; }
+.up-lib .ul-open .ul-sub span { max-width: none; }
+.up-lib .ul-open .ul-art { flex: 0 1 auto; min-width: 0; }
+.up-lib .ul-open .ul-alb { flex: 0 1000 auto; min-width: 0; }
+.up-note button { min-height: 30px; height: 30px; padding: 0 10px; font-size: 13px; border-radius: 9px; }
+/* v73: an uploaded song on the grid shows no sequence numbers (badges, Roman numerals) */
+html.up-nonum .ss .pg-badge, html.up-nonum .prog .pg-num { display: none !important; }
+html.up-nonum .ss .ss-chip .rn, html.up-nonum .ss .ss-note small { visibility: hidden; }
+.up-warn { font-size: 12px; color: var(--muted); }
+html.lay-phone-land .up-pick .kp-box { max-height: 96vh; padding: 10px; }
+html.lay-phone-land .up-key .uk-k { font-size: 26px; }
+/* The song bar sits above the strip inside the same card: the strip gives it the room
+   (it fills what is left instead of the whole card). */
+html.up-on:not(.simple) .next-card > .ss { min-height: 0; flex: 1 1 0; height: auto; }
+html.up-on:not(.simple):not(.lay-phone-port) .next-card > .ss { flex: 0 0 auto; height: calc(3 * var(--ss-row) + var(--ss-strip) + 3 * var(--ss-gap) - var(--sb-h, 25px)); }
+html.lay-phone-land #app { --sb-h: 20px; }
+html.lay-pad-port #app, html.lay-pad-land #app { --sb-h: 31px; }
+html.up-on.lay-phone-land:not(.simple) #songBar { height: 18px; margin-bottom: 2px; font-size: 11px; }
+/* v95: full mode, a song with lyrics: two lyric rows (the line being sung, then the next line, a little
+   muted). Same font and colours as the one-line song bar; the rows scroll up one line when the song moves on. */
+#app { --lr-h: 15px; }
+html.lay-phone-land #app { --lr-h: 13px; }
+html.lay-pad-port #app, html.lay-pad-land #app { --lr-h: 18px; }
+html.up-on.up-lyr2:not(.simple) #songBar { height: calc(2 * var(--lr-h) + 2px); }
+html.up-lyr2:not(.simple) #app { --sb-h: calc(2 * var(--lr-h) + 5px); }
+html.up-lyr2.lay-phone-land:not(.simple) #app { --sb-h: calc(2 * var(--lr-h) + 4px); }
+#songBar .sb-lyr { flex: 1 1 auto; min-width: 0; height: calc(2 * var(--lr-h)); overflow: hidden; position: relative; }
+#songBar .sb-roll { display: block; will-change: transform; }
+#songBar .sb-roll.go { transition: transform .28s ease-out; transform: translateY(calc(-1 * var(--lr-h))); }
+#songBar .sb-row { display: block; height: var(--lr-h); line-height: var(--lr-h); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+#songBar .sb-row.r2 { opacity: .62; }
+#songBar .sb-row .sb-ch { padding: 0 4px; line-height: calc(var(--lr-h) - 2px); }
+#songBar .sb-sec2 { margin-right: 4px; color: var(--copper); font-weight: 700; text-transform: capitalize; }
+@media (prefers-reduced-motion: reduce) { #songBar .sb-roll.go { transition: none; } }
+/* v97: Kids lyrics: the same two rows (the line being sung, then the next line), bigger, the sung word lit. */
+#app { --kl-h: 19px; }
+html.lay-phone-land #app { --kl-h: 15px; }
+html.lay-pad-port #app, html.lay-pad-land #app { --kl-h: 24px; }
+#kidsLyr { flex: 0 0 auto; height: calc(2 * var(--kl-h)); margin: 0 0 4px; padding: 0 6px; overflow: hidden; position: relative; font-size: calc(var(--kl-h) * .74); font-weight: 600; color: var(--ink); }
+#kidsLyr[hidden] { display: none !important; }
+#kidsLyr .sb-roll { display: block; will-change: transform; }
+#kidsLyr .sb-roll.go { transition: transform .28s ease-out; transform: translateY(calc(-1 * var(--kl-h))); }
+#kidsLyr .sb-row { display: block; height: var(--kl-h); line-height: var(--kl-h); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#kidsLyr .sb-row.r2 { color: var(--muted); opacity: .62; }
+#kidsLyr .kl-on { color: var(--copper); }
+@media (prefers-reduced-motion: reduce) { #kidsLyr .sb-roll.go { transition: none; } }
+html.kly-on .next-card > .ss { min-height: 0; flex: 1 1 0; height: auto; }
+html.kly-on:not(.simple):not(.lay-phone-port) .next-card > .ss { flex: 0 0 auto; height: calc(3 * var(--ss-row) + var(--ss-strip) + 3 * var(--ss-gap) - 2 * var(--kl-h) - 4px); }
+/* iPad / desktop: Next and Upload keep a real tap size beside the Volume slider. */
+html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.simple) .now-col > .prog .pg-btn { flex: 0 0 44px; }
+/* v101: Play song is the primary action: about 1.5x the other transport buttons (taller, wider, bigger icon).
+   Next and Upload keep their height; the row centres them beside Play. The Now card gives up the extra height. */
+.pg-btns { align-items: center; }
+.pg-btn.pg-song svg { width: calc(var(--pg-ico, 18px) * 1.5); height: calc(var(--pg-ico, 18px) * 1.5); }
+.pg-btn.pg-song { z-index: 3; }   /* its tap edge wins over the neighbours' */
+.pg-btn.pg-song::after { inset: -3px; }
+html.lay-phone-port:not(.simple) .pg-btns { column-gap: 3px; }
+html.lay-phone-port:not(.simple) .pg-btns > .pg-btn { flex: 0 0 26.5px; }
+html.lay-phone-port:not(.simple) .pg-btns > .pg-btn.pg-song { flex: 1 1 auto; height: 40px; border-radius: 11px; }
+html.lay-phone-port:not(.simple) .pg-btn.pg-song::after { inset: -2px 0 -4px; }
+html.lay-phone-land:not(.simple) .pg-btns { gap: 3px; }
+html.lay-phone-land:not(.simple) .pg-btn { flex: 0 0 29px; }
+html.lay-phone-land:not(.simple) .pg-btn.pg-song { flex: 1 1 auto; height: 30px; border-radius: 10px; }
+html.lay-phone-land:not(.simple) .pg-btn.pg-song::after { inset: -1px -1px -2px; }
+html.simple .pg-btn.pg-song { flex-grow: 2.3; height: calc(var(--pg-nh, 28px) * 1.5 + 2px); }
+html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn.pg-song, html.lay-pad-port:not(.simple) .now-col > .prog .pg-btn.pg-song { flex: 0 0 66px; height: 44px; }
+/* v101 room for the taller Play: the picker above it and a few gaps get a little tighter, so the column keeps its height */
+html.lay-phone-port:not(.simple) .now-col > .prog { gap: 2px; --pg-h: 29px; }
+html.lay-phone-land:not(.simple) .prog { --pg-h: 22px; gap: 1px; }
+html.lay-phone-land:not(.simple) .key-bar button { height: 20px; min-height: 20px; }
+html.simple.lay-phone-land .prog, html.simple.lay-phone-port .prog { --pg-h: 26px; gap: 3px; }
+html.simple.lay-phone-land .now-col, html.simple.lay-phone-port .now-col { gap: 4px; }
+html.simple.lay-phone-land .kid-key, html.simple.lay-phone-port .kid-key { gap: 3px; }
+/* v103: Next is the same size as Play (the v101 primary size). In the full / Kids phone layouts the two of them
+   fill the transport row, so Upload moves down to the right end of the Full Range row (Full Range gets narrower). */
+.pg-btn.pg-step svg { width: calc(var(--pg-ico, 18px) * 1.5); height: calc(var(--pg-ico, 18px) * 1.5); }
+html.lay-phone-port:not(.simple) .pg-btns, html.lay-phone-land:not(.simple) .pg-btns { position: relative; justify-content: center; }
+html.lay-phone-port:not(.simple) .pg-btns > .pg-btn.pg-step, html.lay-phone-port:not(.simple) .pg-btns > .pg-btn.pg-song { flex: 0 0 45px; width: 45px; height: 40px; border-radius: 11px; }
+html.lay-phone-land:not(.simple) .pg-btns > .pg-btn.pg-step, html.lay-phone-land:not(.simple) .pg-btns > .pg-btn.pg-song { flex: 0 0 48px; width: 48px; height: 30px; border-radius: 10px; }
+html.lay-phone-port:not(.simple) .pg-btn.pg-step::after { inset: -2px 0 -4px; }
+html.lay-phone-land:not(.simple) .pg-btn.pg-step::after { inset: -1px -1px -2px; }
+html.lay-phone-port:not(.simple) .pg-btns > .pg-btn.pg-up { position: absolute; right: 0; top: calc(100% + 4px); width: 26.5px; height: 28px; flex: none; }
+html.lay-phone-land:not(.simple) .pg-btns > .pg-btn.pg-up { position: absolute; right: 0; top: calc(100% + 3px); width: 29px; height: 20px; flex: none; }
+html.lay-phone-port:not(.simple) .pg-btns > .pg-btn.pg-up::after, html.lay-phone-land:not(.simple) .pg-btns > .pg-btn.pg-up::after { inset: -1px; }
+html.lay-phone-port:not(.simple) #allKeys { align-self: flex-start; width: calc(100% - 30px); padding-left: 2px; padding-right: 2px; }
+html.lay-phone-land:not(.simple) #allKeys { align-self: flex-start; width: calc(100% - 32px); padding-left: 2px; padding-right: 2px; }
+html.simple .pg-btn.pg-step { flex-grow: 1; height: calc(var(--pg-nh, 28px) * 1.5 + 2px); }
+html.simple .pg-btn.pg-song { flex-grow: 1; }
+html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn.pg-step, html.lay-pad-port:not(.simple) .now-col > .prog .pg-btn.pg-step { flex: 0 0 66px; height: 44px; }
+/* v104.1: Next and Play split the whole transport row (no side gaps), same height as v103 */
+html.lay-phone-port:not(.simple) .pg-btns > .pg-btn.pg-step, html.lay-phone-port:not(.simple) .pg-btns > .pg-btn.pg-song,
+html.lay-phone-land:not(.simple) .pg-btns > .pg-btn.pg-step, html.lay-phone-land:not(.simple) .pg-btns > .pg-btn.pg-song { flex: 1 1 0; width: auto; min-width: 0; }
+/* v105 Upload, list-first: form (title/album, artist, Simple/Full, Copy for AI, paste, Load, results), then My songs.
+   Each row: open (play) | pencil (details) | trash. Details sit under the row in a copper box. */
+.up-cols { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.up-form { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.up-status { display: flex; flex-direction: column; gap: 6px; }
+.up-status:empty { display: none; }
+#upLoad { min-width: 96px; }
+.up-lib .ul-edit { flex: 0 0 40px; width: 40px; min-height: 40px; height: auto; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 9px; color: var(--muted); background: transparent; border: 1px solid var(--line); }
+.up-lib .ul-edit svg { width: 17px; height: 17px; }
+html.lay-phone-land .up-lib .ul-edit { min-height: 34px; }
+.up-lib .ul-list.editing { max-height: none; overflow: visible; }
+.up-lib .ul-list[hidden], .up-lib .ul-empty[hidden], .up-detail-home[hidden], .ud-head[hidden] { display: none; }
+.up-lib .ul-empty { font-size: 13px; color: var(--muted); padding: 6px 2px; }
+.up-lib .ul-detrow { display: block; flex: 0 0 auto; }
+.up-detail { margin: 0 0 4px; padding: 8px; border: 1px solid var(--copper); border-radius: 10px; background: rgba(226, 161, 90, .06); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.up-detail .ud-head:not([hidden]) { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.up-detail .ud-note { font-size: 12px; color: var(--muted); text-align: right; }
+.up-detail .ud-note[hidden] { display: none; }
+.up-detail .ul-ver button:disabled { opacity: .4; cursor: default; }
+.up-detail.ro .up-ch, .up-detail.ro .up-ch .alt { pointer-events: none; }
+html.lay-phone-land .up-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; align-items: start; }
+/* v105 (b): the next chord's yellow dot (same colour as the keyboard's next-key dot), top centre inside the
+   suggested-chords cell and the matching chord-table button(s); it sits above the label and never moves it. */
+.nxdot { position: relative; }
+.nxd { position: absolute; left: 50%; top: 2px; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: #c4853f;
+  box-shadow: 0 0 0 1.5px rgba(20, 12, 4, .45); pointer-events: none; z-index: 4; }
+#palette .nxd { top: 3px; width: 7px; height: 7px; margin-left: -3.5px; }
+/* landscape phone: the grid chips are ~23px tall, so the dot sits in the top 5px and the labels sit 2px lower
+   (padding only: chip boxes keep their size) so the dot never touches the label. */
+html.lay-phone-land #suggest .nxd { top: 0; width: 4px; height: 4px; margin-left: -2px; box-shadow: 0 0 0 1px rgba(20, 12, 4, .45); }
+html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
+/* v105 (c): a short burst on the whole next key / chord-table button / grid cell when a new next chord is marked:
+   brightness + an expanding warm ring (filter + box-shadow only: no layout shift); none with reduced motion. */
+@keyframes nxBurst { 0% { filter: brightness(1.75); box-shadow: 0 0 0 0 rgba(236, 178, 92, .95); } 60% { filter: brightness(1.25); } 100% { filter: none; box-shadow: 0 0 0 9px rgba(236, 178, 92, 0); } }
+.nxb, .kb .pad.nxb, #suggest .nxb, #palette button.nxb { animation: nxBurst .5s ease-out 1 !important; }
+@media (prefers-reduced-motion: reduce) { .nxb, .kb .pad.nxb, #suggest .nxb, #palette button.nxb { animation: none !important; } }
+/* v108 (2): the next chord outside Kids gets the Kids gold-pad mark (v71 #suggest.kids1 .ss-kidpad.nx): a 3px solid
+   gold outline 1px out, pulsing with nxPulseO; the v105 dot and burst stay. Outline only: no layout shift. Reduced
+   motion: the outline stays still. A tap flash (fxtap / kgtap) keeps its own animation. */
+#app #suggest .nxdot.nxdot, #app #palette button.nxdot { outline: 3px solid #c4853f; outline-offset: 1px; }
+#app #suggest .nxdot.nxdot:not(.fxtap):not(.kgtap):not(.nxb), #app #palette button.nxdot:not(.kgtap):not(.nxb) { animation: nxPulseO 1.5s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { #app #suggest .nxdot.nxdot:not(.fxtap):not(.kgtap):not(.nxb), #app #palette button.nxdot:not(.kgtap):not(.nxb) { animation: none; } }
+/* v108 (3): Play along: the Kids tap flash (kgTap) on a chip that advanced the song, in both modes */
+#app #suggest .kgtap { animation: kgTap .4s ease-out 1 !important; }
+@media (prefers-reduced-motion: reduce) { #app #suggest .kgtap { animation: kgTapR .4s ease-out 1 !important; } }
+/* v108 (3): Config > Play along enable, with a ? that opens a short explanation */
+.config-menu .cfg-pa { display: flex; align-items: center; gap: 4px; }
+.config-menu .cfg-pa .cfg-toggle { flex: 1 1 auto; width: auto; min-width: 0; }
+.config-menu .cfg-pa .cfg-q { flex: 0 0 30px; width: 30px; height: 30px; min-height: 30px; padding: 0; border-radius: 50%; text-align: center; font-weight: 700; font-size: 14px; }
+.config-menu .cfg-pa .cfg-q[aria-expanded="true"] { background: var(--copper); color: var(--copper-ink); border-color: transparent; }
+.config-menu .cfg-tip { box-sizing: border-box; width: 0; min-width: 100%; margin: 0; padding: 2px 10px 6px; font-size: 12px; line-height: 1.35; color: var(--muted); white-space: normal; }
+.config-menu .cfg-tip[hidden] { display: none; }

@@ -1,0 +1,168 @@
+/* Touch Chord: layout. Files load in this order: base, layout, topbar, strip, panels, keyboard, modes, dialogs (the cascade order of v112.3). */
+/* ===== App grid (v20) =====================================================
+   One DOM, four arrangements chosen by size class (set on <html> by the
+   head script and on resize):
+     lay-phone-port  compact/medium portrait   keyboard-first, tabbed controls strip
+     lay-phone-land  compact/medium landscape  chord types left, controls drawer
+     lay-pad-port    regular portrait          persistent controls panel, 1x8 types
+     lay-pad-land    regular landscape         two-hand: left rail + right stage
+   compact = width < 600 or (landscape and height < 500)
+   regular = width >= 768 and height >= 600; anything else = medium. */
+#app {
+  --gap: 8px;
+  --chip: 34px;
+  --next-vgap: 4px;
+  --sym: 34px;
+  --now-w: 104px;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
+  display: grid;
+  gap: var(--gap);
+  grid-template-columns: minmax(0, 1fr);
+  padding: calc(8px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(10px + env(safe-area-inset-left));
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+#app > * { min-width: 0; min-height: 0; }
+
+.topbar { grid-area: top; }
+.now-col { grid-area: now; display: flex; flex-direction: column; gap: 6px; min-height: 0; min-width: 0; }
+.now-col .now-card { flex: 1 1 auto; min-height: 0; }
+#styles { grid-area: sty; }
+.next-card { grid-area: nxt; }
+#sustainBtn { grid-area: sus; }
+#chords { grid-area: pal; }
+#ctl { grid-area: ctl; }
+.kb-wrap { grid-area: kb; }
+
+/* --- Phone portrait (keyboard-first) --- */
+html.lay-phone-port #app {
+  --sus-w: 84px;
+  --pal-h: 92px;
+  grid-template-columns: var(--now-w) minmax(0, 1fr) var(--sus-w);
+  grid-template-rows: auto auto auto auto var(--pal-h) minmax(0, 1fr);
+  grid-template-areas:
+    "top top top"
+    "sty sty sty"
+    "now nxt nxt"
+    "ctl ctl ctl"
+    "pal pal sus"
+    "kb  kb  kb";
+}
+html.lay-phone-port.simple #app {
+  --chip: 42px;
+  --sym: 44px;
+  --now-w: 118px;
+  --pal-h: 112px;
+  --sus-w: 92px;
+  grid-template-rows: auto auto auto var(--pal-h) minmax(0, 1fr);
+  grid-template-areas:
+    "top top top"
+    "sty sty sty"
+    "now nxt nxt"
+    "pal pal sus"
+    "kb  kb  kb";
+}
+html.lay-phone-port.sz-medium #app { --now-w: 150px; --chip: 42px; --sym: 48px; --pal-h: 108px; --sus-w: 110px; --gap: 10px; }
+@media (max-height: 700px) {
+  html.lay-phone-port #app { --gap: 6px; --chip: 30px; --pal-h: 84px; }
+  html.lay-phone-port.simple #app { --chip: 38px; --pal-h: 100px; }
+}
+
+/* --- Phone landscape (chord types left, controls in a drawer) --- */
+html.lay-phone-land #app {
+  --gap: 6px;
+  --chip: 30px;
+  --next-vgap: 3px;
+  --sym: 30px;
+  --now-w: 112px;
+  --pal-w: 150px;
+  --sus-h: 62px;
+  --ctrl: 32px;
+  padding: calc(6px + env(safe-area-inset-top)) calc(8px + env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left));
+  grid-template-columns: var(--pal-w) var(--now-w) minmax(0, 1fr) auto;
+  grid-template-rows: auto auto minmax(0, 1fr) var(--sus-h);
+  grid-template-areas:
+    "pal sty sty top"
+    "pal now nxt nxt"
+    "pal kb  kb  kb"
+    "sus kb  kb  kb";
+}
+html.lay-phone-land.simple #app { --chip: 36px; --sym: 36px; --now-w: 128px; --sus-h: 72px; }
+html.lay-phone-land.sz-medium #app { --chip: 38px; --sym: 40px; --now-w: 150px; --pal-w: 190px; --sus-h: 80px; --ctrl: 36px; --gap: 8px; }
+html.lay-phone-land .brand { display: none; }
+
+/* --- iPad portrait --- */
+html.lay-pad-port #app {
+  --gap: 12px;
+  --chip: 50px;
+  --next-vgap: 6px;
+  --sym: 84px;
+  --now-w: 240px;
+  --sus-w: 132px;
+  --pal-h: 72px;
+  --ctrl: 42px;
+  padding: calc(14px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
+  grid-template-columns: var(--now-w) minmax(0, 1fr) var(--sus-w);
+  grid-template-rows: auto auto auto auto var(--pal-h) minmax(0, 1fr);
+  grid-template-areas:
+    "top top top"
+    "now sty sty"
+    "now nxt nxt"
+    "ctl ctl ctl"
+    "pal pal sus"
+    "kb  kb  kb";
+}
+html.lay-pad-port.simple #app {
+  --chip: 60px;
+  --sym: 100px;
+  --pal-h: 88px;
+  grid-template-rows: auto auto auto var(--pal-h) minmax(0, 1fr);
+  grid-template-areas:
+    "top top top"
+    "now sty sty"
+    "now nxt nxt"
+    "pal pal sus"
+    "kb  kb  kb";
+}
+
+/* --- iPad landscape (two-hand) --- */
+html.lay-pad-land #app {
+  --gap: 12px;
+  --chip: 48px;
+  --next-vgap: 6px;
+  --sym: 76px;
+  --now-w: auto;
+  --rail-w: clamp(220px, 23vw, 290px);
+  --sus-h: 132px;
+  --ctrl: 40px;
+  padding: calc(14px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
+  grid-template-columns: var(--rail-w) minmax(0, 1fr);
+  grid-template-rows: auto auto auto auto minmax(0, 1fr) var(--sus-h);
+  grid-template-areas:
+    "top top"
+    "now sty"
+    "now nxt"
+    "pal ctl"
+    "pal kb"
+    "sus kb";
+}
+html.lay-pad-land.simple #app {
+  --chip: 58px;
+  --sym: 96px;
+  --sus-h: 150px;
+  grid-template-rows: auto auto auto minmax(0, 1fr) var(--sus-h);
+  grid-template-areas:
+    "top top"
+    "now sty"
+    "now nxt"
+    "pal kb"
+    "sus kb";
+}
+@media (max-height: 720px) {
+  html.lay-pad-land #app { --chip: 42px; --gap: 10px; --sus-h: 110px; --sym: 64px; }
+  html.lay-pad-land.simple #app { --chip: 50px; --sus-h: 130px; }
+}

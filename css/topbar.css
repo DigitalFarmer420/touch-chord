@@ -1,0 +1,214 @@
+/* Touch Chord: topbar. Files load in this order: base, layout, topbar, strip, panels, keyboard, modes, dialogs (the cascade order of v112.3). */
+/* ===== Top bar ===== */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  position: relative;
+}
+.topbar .spacer { flex: 1 1 auto; }
+html.lay-phone-land .topbar .spacer { display: none; }
+
+.brand {
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: var(--sea);
+  white-space: nowrap;
+}
+
+.top-btn {
+  height: 28px;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  position: relative;
+}
+.top-btn::after { content: ""; position: absolute; inset: -8px -4px; }
+
+#ctlToggle { display: none; }
+html.lay-phone-land #ctlToggle { display: inline-flex; align-items: center; gap: 6px; }
+html.drawer-open #ctlToggle { border-color: var(--copper); color: var(--copper); }
+
+/* Simple mode switch (pill + knob). */
+.simple-sw {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 4px 0 11px;
+  color: var(--muted);
+}
+.simple-sw .knob {
+  position: relative;
+  width: 32px;
+  height: 18px;
+  border-radius: 9px;
+  background: #3a332b;
+  flex: 0 0 auto;
+  transition: background 120ms linear;
+}
+.simple-sw .knob::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #cfc4b3;
+  transition: left 120ms linear;
+}
+.simple-sw[aria-checked="true"] { color: var(--copper); border-color: var(--copper); }
+.simple-sw[aria-checked="true"] .knob { background: var(--copper); }
+.simple-sw[aria-checked="true"] .knob::after { left: 16px; background: #fff6e8; }
+
+/* Configuration menu. */
+.config { position: relative; flex: 0 0 auto; }
+.config-btn {
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--muted);
+  background: transparent;
+}
+.config-btn[aria-expanded="true"] { color: var(--ink); border-color: var(--copper); }
+.config-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 90;
+  min-width: 170px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.config-menu[hidden] { display: none; }
+.config-menu button {
+  width: 100%;
+  height: 40px;
+  min-height: 40px;
+  text-align: left;
+  font-size: 14px;
+  padding: 0 12px;
+}
+.config-menu .danger { color: var(--danger); }
+.config-menu .danger:active { background: var(--danger); color: var(--copper-ink); }
+.config-btn.flash { background: var(--copper); color: var(--copper-ink); border-color: transparent; }
+.toast {
+  position: fixed;
+  left: 50%;
+  top: calc(12px + env(safe-area-inset-top));
+  transform: translate(-50%, -8px);
+  z-index: 95;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: var(--copper);
+  color: var(--copper-ink);
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ===== Now card ===== */
+.now-card {
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 14px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3px;
+  overflow: hidden;
+}
+.now-card .card-label {
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+html.lay-pad-port .now-card, html.lay-pad-land .now-card { padding: 12px 18px; gap: 6px; }
+html.lay-pad-port .now-card .card-label, html.lay-pad-land .now-card .card-label { font-size: 11px; }
+html.lay-phone-land .now-card .card-label { display: none; }
+
+#symbol {
+  display: inline-block;
+  max-width: none;
+  font-family: Palatino, "Iowan Old Style", Georgia, serif;
+  font-size: calc(var(--sym) * var(--tx, 1));
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+#symbol.sounding { color: var(--copper); }
+
+#tones {
+  max-width: 100%;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+html.lay-pad-port #tones, html.lay-pad-land #tones { font-size: calc(16px * var(--tx, 1)); letter-spacing: 0.12em; }
+
+/* ===== Style row ===== */
+.style-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
+}
+.style-row::-webkit-scrollbar { display: none; }
+.style-row .lbl {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  flex: 0 0 auto;
+  margin-right: 2px;
+}
+.style-row button {
+  flex: 0 0 auto;
+  height: 30px;
+  min-height: 30px;
+  padding: 0 11px;
+  border-radius: 999px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+html.lay-phone-port .style-row .lbl, html.lay-phone-land .style-row .lbl { display: none; }
+html.lay-phone-land .style-row { align-self: center; }
+html.lay-phone-land .style-row button { height: 26px; min-height: 26px; padding: 0 9px; font-size: 12px; }
+/* v52: phone landscape (full): Controls shrinks to its icon and the style chips tighten so
+   Funk and the rest are no longer cut off behind Controls; any leftover scrolls with a fade. */
+html.lay-phone-land:not(.simple) #ctlToggle .ctl-word { display: none; }
+html.lay-phone-land:not(.simple) #ctlToggle { min-width: 40px; padding: 0 10px; font-size: 18px; }
+html.lay-phone-land:not(.simple) .style-row { gap: 3px; }
+html.lay-phone-land:not(.simple) .style-row button { padding: 0 7px; font-size: 11.5px; }
+html.lay-phone-port:not(.simple) .style-row.more, html.lay-phone-land .style-row.more { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent); }
+html.lay-phone-port.simple .style-row button { height: 34px; min-height: 34px; padding: 0 13px; font-size: 14px; }
+html.lay-pad-port .style-row { flex-wrap: wrap; overflow: visible; touch-action: manipulation; }
+html.lay-pad-port .style-row button, html.lay-pad-land .style-row button { height: 36px; min-height: 36px; padding: 0 14px; font-size: 14px; }
+html.lay-pad-land .style-row button { flex: 1 0 auto; }
