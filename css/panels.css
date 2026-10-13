@@ -1,0 +1,364 @@
+/* Touch Chord: panels. Files load in this order: base, layout, topbar, strip, panels, keyboard, modes, dialogs (the cascade order of v112.3). */
+/* ===== Sustain ===== */
+#sustainBtn {
+  width: auto;
+  height: auto;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  border-radius: 14px;
+  border: 2px solid var(--line);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 60ms linear, transform 60ms linear;
+}
+html.lay-pad-port #sustainBtn, html.lay-pad-land #sustainBtn { font-size: 19px; }
+html.simple #sustainBtn { font-size: 17px; }
+html.simple.lay-pad-port #sustainBtn, html.simple.lay-pad-land #sustainBtn { font-size: 22px; }
+#sustainBtn.on {
+  background: var(--sea);
+  color: #10211c;
+  border-color: #10211c;
+  box-shadow: inset 0 0 0 3px var(--sea), inset 0 0 0 5px #10211c;
+  transform: translateY(1px);
+}
+#sustainBtn[aria-disabled="true"] { opacity: 0.35; cursor: default; }
+
+/* ===== Chord types / extensions palette ===== */
+#bass.on { background: var(--sea); color: #10211c; border-color: transparent; }
+
+#chords {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  touch-action: none;
+}
+#chords button { touch-action: none; }
+#chords .dock-label {
+  display: none;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+html.lay-pad-land #chords .dock-label { display: block; }
+
+#palette {
+  display: grid;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-height: 0;
+  /* Default (side column): 2 cols x 4 rows, types left, extensions right. */
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  grid-auto-flow: column;
+}
+/* Phone portrait: 4x2 above the keys (types on top, extensions below). */
+html.lay-phone-port #palette {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: row;
+}
+/* iPad portrait: one row of eight. */
+html.lay-pad-port #palette {
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+  grid-auto-flow: row;
+  gap: 8px;
+}
+html.lay-pad-land #palette { gap: 8px; }
+html.lay-phone-land #palette { gap: 4px; }
+
+#types, #exts { display: contents; }
+
+#types button, #exts button {
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  text-align: center;
+  padding: 0 4px;
+  font-size: 13px;
+  border-radius: 12px;
+}
+html.simple.lay-phone-port #types button, html.simple.lay-phone-port #exts button { font-size: 15px; }
+html.lay-pad-port #types button, html.lay-pad-port #exts button,
+html.lay-pad-land #types button, html.lay-pad-land #exts button { font-size: 16px; }
+html.simple.lay-pad-land #types button, html.simple.lay-pad-land #exts button { font-size: 18px; }
+
+body.is-key #types button { opacity: 0.4; pointer-events: none; }
+#types button:disabled, #types button.gated { opacity: 0.35; pointer-events: none; cursor: default; }
+#exts button.dormant { opacity: 0.45; }
+
+/* ===== Controls (Sound / FX / Key / Loop) =====
+   Phone portrait: tab strip; one pane open at a time, collapsed by default.
+   Phone landscape: same tabs inside a slide-over drawer.
+   iPad: all panes visible as one persistent panel (no tabs). */
+#ctl {
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 14px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ctl-tabs { display: flex; gap: 3px; align-items: center; }
+.ctl-tabs button {
+  flex: 1 1 0;
+  height: 30px;
+  min-height: 30px;
+  padding: 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  background: transparent;
+  border-color: transparent;
+  border-radius: 9px;
+}
+.ctl-tabs button[aria-selected="true"] { background: #2c271f; color: var(--ink); border-color: var(--line); }
+.ctl-tabs #ctlFold { flex: 0 0 36px; font-size: 14px; }
+.pane {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  padding: 2px 6px 6px;
+  min-width: 0;
+}
+#ctl[data-open="sound"] .pane[data-pane="sound"],
+#ctl[data-open="fx"] .pane[data-pane="fx"],
+#ctl[data-open="key"] .pane[data-pane="key"],
+#ctl[data-open="loop"] .pane[data-pane="loop"] { display: flex; }
+.pane-h {
+  display: none;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Drawer (phone landscape). */
+html.lay-phone-land #ctl {
+  position: fixed;
+  top: var(--topbar-h, 0px);
+  right: 0;
+  bottom: 0;
+  width: min(360px, 72vw);
+  z-index: 80;
+  border-radius: 14px 0 0 14px;
+  background: #1c1915;
+  padding: calc(8px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) 10px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  box-shadow: -12px 0 30px rgba(0, 0, 0, 0.55);
+  transform: translateX(105%);
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform 180ms ease, visibility 0s linear 180ms;
+}
+/* v42: closed drawer and its tabs never take taps (Simple switch fix). */
+html.lay-phone-land:not(.drawer-open) #ctl, html.lay-phone-land:not(.drawer-open) #ctl * { pointer-events: none !important; }
+html.lay-phone-land header .simple-sw { z-index: 2; }
+html.lay-phone-land #ctlToggle::after { right: 0; }
+html.lay-phone-land.drawer-open #ctl {
+  transform: none;
+  visibility: visible;
+  pointer-events: auto;
+  transition: transform 180ms ease;
+}
+
+/* iPad: persistent panel, every pane visible, no tabs. */
+html.lay-pad-port #ctl, html.lay-pad-land #ctl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 22px;
+  padding: 10px 14px 12px;
+}
+html.lay-pad-port .ctl-tabs, html.lay-pad-land .ctl-tabs { display: none; }
+html.lay-pad-port #ctl .pane, html.lay-pad-land #ctl .pane { display: flex; padding: 0; gap: 7px; }
+html.lay-pad-port .pane-h, html.lay-pad-land .pane-h { display: block; }
+html.lay-pad-port .layouts .lbl, html.lay-pad-land .layouts .lbl { display: none; }
+@media (max-width: 1099px) {
+  html.lay-pad-land #app { --rail-w: clamp(200px, 21vw, 290px); }
+  html.lay-pad-land #ctl button, html.lay-pad-land #ctl select { font-size: 13px; }
+}
+html.lay-pad-port .layouts button, html.lay-pad-land .layouts button { flex: 1 1 auto; }
+@media (min-width: 960px) {
+  html.lay-pad-land #ctl, html.lay-pad-port #ctl { grid-template-columns: 1.35fr 1fr 1.25fr 1fr; gap: 10px 16px; }
+  html.lay-pad-land .sound-tiles button { min-height: 48px; padding: 7px 8px; }
+  html.lay-pad-land .sound-tiles button b { font-size: 14px; }
+  html.lay-pad-land .sound-layer #bass,
+  html.lay-pad-land .layouts button, html.lay-pad-land .keybox .seg button { min-width: 0; padding: 0 5px; }
+}
+
+/* Sound picker: 2×3 engine tiles (Option B). Bass is a layer, not an engine. */
+.sound-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  min-width: 0;
+}
+.sound-tiles button {
+  height: auto;
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 12px;
+  line-height: 1.1;
+  min-width: 0;
+}
+.sound-tiles button b {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.sound-tiles button span {
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.sound-tiles button.on span { color: var(--copper-ink); opacity: 0.75; }
+.sound-layer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.sound-layer #bass {
+  flex: 0 0 72px;
+  border-style: dashed;
+}
+.sound-layer .voicing { flex: 1 1 0; min-width: 0; }
+.seg { display: flex; flex-wrap: nowrap; gap: 4px; min-width: 0; }
+.keybox .seg button, .layouts button { min-width: 44px; padding: 0 8px; }
+
+.keybox { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.keybox select { width: 58px; }
+#keyReadout { color: var(--muted); font-size: 12px; }
+
+select {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  height: var(--ctrl);
+  min-height: var(--ctrl);
+  padding: 0 8px;
+  touch-action: manipulation;
+  line-height: 1;
+}
+
+.layouts { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.layouts .lbl {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+
+.voicing { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.vhead { font-size: 12px; color: var(--muted); }
+.vhead b { color: var(--ink); font-weight: 650; }
+.vticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.vticks span.on { color: var(--copper); }
+
+.fx { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 14px; }
+html.lay-pad-port .fx, html.lay-pad-land .fx { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.fx label, .bpm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  min-width: 0;
+}
+.fx label span { flex: 0 0 52px; }
+.fx label input[type="range"], .bpm input[type="range"] { flex: 1 1 auto; width: auto; min-width: 0; }
+.bpm b { color: var(--ink); min-width: 2.2ch; display: inline-block; }
+
+.transport { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+#rec.on { background: var(--danger); color: #2a100c; border-color: transparent; }
+#play.on { background: var(--sea); color: #10211c; border-color: transparent; }
+#loopStatus { font-size: 12px; color: var(--muted); min-width: 4.5em; }
+
+/* Copper sliders: forced track + thumb on every range input (all engines). */
+html body input[type="range"] {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  height: 28px;
+  background: transparent !important;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  touch-action: manipulation;
+  accent-color: #e2a15a !important;
+  accent-color: var(--copper, #e2a15a) !important;
+  color: var(--copper, #e2a15a);
+  outline: none;
+}
+html body .voicing input[type="range"] { width: 100%; }
+html body input[type="range"]::-webkit-slider-runnable-track {
+  -webkit-appearance: none !important;
+  height: 6px;
+  background: linear-gradient(90deg, var(--copper, #e2a15a), #c47a3a) !important;
+  background-color: var(--copper, #e2a15a) !important;
+  border: 0 !important;
+  border-radius: 999px;
+}
+html body input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 18px;
+  height: 18px;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: var(--copper, #e2a15a) !important;
+  background-color: var(--copper, #e2a15a) !important;
+  border: 2px solid var(--copper-ink, #2a1c0c) !important;
+  box-shadow: 0 0 0 1px rgba(226, 161, 90, 0.35) !important;
+}
+html body input[type="range"]::-moz-range-track {
+  height: 6px;
+  background: linear-gradient(90deg, var(--copper, #e2a15a), #c47a3a) !important;
+  background-color: var(--copper, #e2a15a) !important;
+  border-radius: 999px;
+  border: 0 !important;
+}
+html body input[type="range"]::-moz-range-progress {
+  height: 6px;
+  background: var(--copper, #e2a15a) !important;
+  border-radius: 999px;
+}
+html body input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--copper, #e2a15a) !important;
+  border: 2px solid var(--copper-ink, #2a1c0c) !important;
+  box-shadow: 0 0 0 1px rgba(226, 161, 90, 0.35) !important;
+}
+html body input[type="range"]:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(226, 161, 90, 0.45) !important;
+}

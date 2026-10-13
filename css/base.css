@@ -1,0 +1,63 @@
+/* Touch Chord: base. Files load in this order: base, layout, topbar, strip, panels, keyboard, modes, dialogs (the cascade order of v112.3). */
+:root {
+  color-scheme: dark;
+  --bg: #14120f;
+  --bg-2: #1c1914;
+  --ink: #f4efe6;
+  --muted: #b7ab9a;
+  --line: #3a332b;
+  --pad: #262219;
+  --copper: #e2a15a;
+  --copper-ink: #2a1c0c;
+  --sea: #8fcbb8;
+  --lilac: #d2a9cc;
+  --moss: #b7c98a;
+  --danger: #e07a62;
+  --ctrl: 38px;
+  --card: rgba(28, 25, 20, 0.55);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  min-height: 100%;
+  min-height: -webkit-fill-available;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  background:
+    radial-gradient(900px 380px at 8% -10%, rgba(143, 203, 184, 0.16), transparent 55%),
+    radial-gradient(700px 420px at 110% 110%, rgba(226, 161, 90, 0.12), transparent 50%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.015) 0 1px, transparent 1px 14px),
+    var(--bg);
+}
+
+button, input, select { font: inherit; color: inherit; }
+
+button {
+  height: var(--ctrl);
+  min-height: var(--ctrl);
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 0 12px;
+  cursor: pointer;
+  touch-action: manipulation;
+  line-height: 1;
+}
+
+button.on, button[aria-pressed="true"].toggle.on {
+  background: var(--copper);
+  color: var(--copper-ink);
+  border-color: transparent;
+}
+
+html.tc-boot #app { visibility: hidden; }

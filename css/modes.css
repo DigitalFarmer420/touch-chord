@@ -1,0 +1,669 @@
+/* Touch Chord: modes. Files load in this order: base, layout, topbar, strip, panels, keyboard, modes, dialogs (the cascade order of v112.3). */
+/* ===== Simple mode: one switch hides every sound/effect/key/loop/layout control. ===== */
+html.simple #ctl,
+html.simple #ctlToggle,
+html.simple .phase-track { display: none !important; }
+
+/* ===== v24: key chip, key row, why labels, how-to ===== */
+.key-chip { margin-top: 2px; font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--copper); background: transparent; color: var(--ink); min-height: 0; height: auto; line-height: 1.4; white-space: nowrap; }
+.key-row { display: flex; gap: 3px; flex-wrap: wrap; max-width: 100%; }
+.key-row span { font-size: 10px; padding: 1px 4px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted); line-height: 1.3; }
+.key-row span b { font-weight: 700; margin-right: 2px; opacity: .7; }
+.key-row span.on { background: var(--copper); color: var(--copper-ink); border-color: transparent; }
+html.lay-pad-port .key-chip, html.lay-pad-land .key-chip { font-size: 14px; padding: 3px 12px; }
+html.lay-pad-port .key-row span, html.lay-pad-land .key-row span { font-size: 13px; padding: 2px 6px; }
+html.lay-phone-land .key-row { display: none; }
+.key-pick, .howto { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.82); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.key-pick[hidden], .howto[hidden] { display: none; }
+.kp-box, .ht-box { background: #1a1612; box-shadow: 0 10px 40px rgba(0,0,0,.6); border: 1px solid var(--line); border-radius: 14px; padding: 14px; color: var(--ink); max-width: 560px; width: 100%; max-height: 90vh; overflow: auto; position: relative; }
+.kp-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 700; }
+.kp-roots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 8px; }
+.kp-alts { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin: -2px 0 8px; }
+.kp-alts button { font-size: 13px; opacity: .9; }
+.kp-modes { display: flex; gap: 6px; margin-bottom: 8px; }
+.kp-modes button { flex: 1; }
+.kp-box button.on { background: var(--copper); color: var(--copper-ink); border-color: transparent; }
+.kp-auto { width: 100%; font-size: 12px; }
+.ht-bar { position: sticky; top: 0; height: 0; z-index: 3; display: flex; justify-content: flex-end; }
+.ht-x { background: #1a1612; }
+.kp-x, .ht-x { min-width: 36px; }
+.ht-box h2 { margin: 0 0 6px; font-size: 20px; }
+.ht-box h3 { margin: 14px 0 4px; color: var(--copper); font-size: 15px; }
+/* v42: picture-first How to, full width, scrollable */
+.howto { align-items: flex-start; padding: 8px; overflow: hidden; }
+.ht-box { max-width: 1000px; max-height: calc(100vh - 16px); max-height: calc(100dvh - 16px); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+.ht-box img { display: block; max-width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--line); margin: 6px 0; background: #0f0d0b; }
+.ht-box .cap { margin: 2px 0 6px; color: var(--ink); }
+/* v110: one phone screenshot per section (360x780, spotlight style), centred, about half the screen tall at most */
+.ht-box img.ht-shot { width: min(100%, 560px, 140vh); width: min(100%, 560px, 140dvh); aspect-ratio: 1170 / 540; height: auto; margin: 8px auto; border-radius: 14px; }
+/* v58: one list. Intro (picture, two short lines), then steps 1-6; full-mode steps carry a pill. */
+.ht-box .ht-why { margin: 4px 0 0; }
+.ht-box ol.ht-steps { list-style: none; margin: 0; padding: 0; }
+.ht-box ol.ht-steps > li { margin: 0; padding: 0; }
+.ht-pill { display: inline-block; vertical-align: 2px; margin-left: 6px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--copper);
+  color: var(--ink); background: rgba(200, 140, 70, .14); font-size: 11px; font-weight: 700; line-height: 1.4; letter-spacing: .02em; white-space: nowrap; }
+.ht-box p, .ht-box li { font-size: 14px; line-height: 1.45; }
+.ht-box ol, .ht-box ul { margin: 4px 0; padding-left: 20px; }
+/* v65: Welcome intro, sub-steps, yellow word links and the "Little words to know" box. */
+.ht-box .ht-thanks { margin-top: 8px; color: var(--muted); font-style: italic; }
+.ht-box a.ht-term { color: #f3c64f; font-weight: 700; text-decoration: underline dotted rgba(243,198,79,.7); text-underline-offset: 3px; -webkit-tap-highlight-color: transparent; }
+.ht-box a.ht-term:active { color: #ffe08a; }
+.ht-box ol.ht-sub { list-style: decimal; margin: 4px 0 2px; padding-left: 22px; }
+.ht-box ol.ht-sub > li { margin: 3px 0; padding-left: 2px; }
+.ht-box ol.ht-sub > li::marker { color: #f3c64f; font-weight: 700; }
+/* v94: the strip's happy / sad faces, shown inline in How to step 4 */
+.ht-face { display: inline-flex; align-items: center; gap: 2px; vertical-align: -0.2em; }
+.ht-face svg { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ht-face svg.ar { width: .6em; height: .75em; }
+.ht-face svg .eye { fill: currentColor; stroke: none; }
+.ht-face-happy { color: #e2b15a; }
+.ht-face-sad { color: #8a7bc0; }
+/* v67: every How to number is the vocabulary yellow, but plain text (not a link). */
+.ht-box .ht-num { color: #f3c64f; font-weight: 700; text-decoration: none; cursor: default; pointer-events: none; }
+.ht-box .ht-note { margin: 6px 0 6px; font-size: 13px; color: var(--muted); }
+.ht-words { margin-top: 18px; padding: 10px 12px 8px; border: 1px solid var(--line); border-top: 2px solid var(--copper); border-radius: 12px; background: rgba(226,161,90,.06); }
+.ht-box .ht-words h3 { margin: 0 0 6px; }
+.ht-words dl { margin: 0; display: grid; gap: 6px; }
+.ht-words dl > div { display: grid; grid-template-columns: 92px 1fr; gap: 8px; align-items: baseline; padding: 4px 6px; border-radius: 8px; transition: background .6s; outline: none; }
+.ht-words dt { font-weight: 700; color: #f3c64f; font-size: 14px; }
+.ht-words dd { margin: 0; font-size: 14px; line-height: 1.4; }
+.ht-words dl > div.ht-hit { background: rgba(243,198,79,.18); transition: background .15s; }
+
+/* v31: chord-type gating */
+.kb .pad.nochord { opacity: 0.32; }
+#palette button.nofit { opacity: 0.32; }
+/* v30: key bar under Now (real buttons) */
+.key-bar { display: flex; gap: 6px; flex: 0 0 auto; }
+.key-bar button { flex: 1 1 0; min-width: 0; height: 34px; min-height: 34px; margin: 0; border-radius: 10px; font-size: 13px; font-weight: 700; padding: 0 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.key-bar .key-chip { flex: 1.6 1 0; background: var(--copper); color: var(--copper-ink); border: 1px solid transparent; }
+.key-bar .allkeys { background: var(--bg-2); color: var(--ink); border: 1px solid var(--line); }
+.key-bar .allkeys.on { background: var(--copper); color: var(--copper-ink); border-color: transparent; }
+html.lay-pad-port .key-bar button, html.lay-pad-land .key-bar button { height: 44px; min-height: 44px; font-size: 16px; padding: 0 10px; }
+/* v49: narrow iPad-portrait Now column: keep "Full Range" and long key names unclipped. */
+html.lay-pad-port .key-bar button { font-size: 14px; padding: 0 6px; }
+html.lay-pad-port .key-bar .allkeys { flex: 0 0 auto; }
+html.lay-phone-port .key-bar { flex-direction: column; gap: 4px; }
+html.lay-phone-port .key-bar button { height: 28px; min-height: 28px; font-size: 12px; }
+html.lay-phone-land .key-bar button { height: 26px; min-height: 26px; font-size: 11px; }
+.key-row { flex-wrap: nowrap !important; overflow: hidden; width: 100%; }
+.key-row span { flex: 1 1 0; min-width: 0; text-align: center; overflow: hidden; text-overflow: clip; white-space: nowrap; }
+html.lay-phone-port .key-row span, html.lay-phone-land .key-row span { font-size: 9px; padding: 1px 1px; }
+.key-row span b { display: none; }
+.key-row > span i { font-style: normal; }
+/* Stacked (narrow Now card): root over quality, border drawn inside so it takes no width. */
+#keyRow.stack { gap: 1px; }
+#keyRow.stack > span { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.05; padding: 2px 0; border-color: transparent; box-shadow: inset 0 0 0 1px var(--line); }
+#keyRow.stack > span.on { box-shadow: none; }
+#keyRow.stack > span .q { min-height: 1em; }
+/* v51: phone portrait: 7-chord row wraps 4 + 3 at 11px (never smaller); borders drawn inside. */
+html.lay-phone-port #keyRow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; width: calc(100% + 12px); margin-left: -6px; margin-right: -6px; }
+html.lay-phone-port #keyRow > span { font-size: 11px; padding: 2px 0; border-color: transparent; box-shadow: inset 0 0 0 1px var(--line); }
+html.lay-phone-port #keyRow > span.on { box-shadow: none; }
+/* v52: portrait always stacks root over quality so the row is the same height in every key. */
+html.lay-phone-port #keyRow > span { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.05; }
+html.lay-phone-port #keyRow > span .q { min-height: 1.05em; }
+html.lay-phone-land .key-bar { flex-direction: column; gap: 3px; }
+html.lay-phone-land .key-bar button { height: 22px; min-height: 22px; }
+/* v28: Full Range toggle (was All keys) */
+.key-line { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+.allkeys { margin-top: 2px; font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted); min-height: 0; height: auto; line-height: 1.4; white-space: nowrap; }
+.allkeys.on { background: var(--copper); color: var(--copper-ink); border-color: transparent; }
+html.lay-pad-port .allkeys, html.lay-pad-land .allkeys { font-size: 14px; padding: 3px 12px; }
+/* v27: graying of out-of-key pads (visual only) */
+.kb .pad.nokey { opacity: 0.32; }
+/* v26: no focus ring on Sound picker / Style buttons (user request) */
+#engines button, #engines button:focus, #engines button:focus-visible, #styles button, #styles button:focus, #styles button:focus-visible { outline: none !important; box-shadow: none; -webkit-tap-highlight-color: transparent; }
+.topbar { flex-wrap: nowrap; }
+.top-btn.icon-btn { min-width: 44px; min-height: 44px; width: 44px; height: 44px; padding: 0; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+.top-btn.icon-btn svg { display: block; }
+/* v52: Simple key control (ages 5-9): swipe the note, tap Major/Minor. Full mode keeps the picker. */
+.kid-key { display: none; }
+html.simple .key-bar { display: none !important; }
+html.simple .kid-key { display: flex; flex-direction: column; gap: 6px; flex: 0 0 auto; }
+.kk-root { position: relative; display: flex; align-items: center; justify-content: space-between; height: var(--kk-h, 58px); border-radius: 14px; background: var(--bg-2, #221d17); border: 2px solid var(--copper); touch-action: none; cursor: grab; outline: none; overflow: hidden; }
+.kk-root:focus-visible { box-shadow: 0 0 0 2px var(--copper); }
+.kk-name { flex: 1 1 auto; text-align: center; font-family: Palatino, "Iowan Old Style", Georgia, serif; font-weight: 700; font-size: calc(var(--kk-fs, 34px) * var(--tx, 1)); line-height: 1; color: var(--ink); pointer-events: none; transition: transform .12s ease-out; }
+.kk-name.nudge-l { transform: translateX(-10px); } .kk-name.nudge-r { transform: translateX(10px); }
+.kk-arrow { flex: 0 0 auto; width: var(--kk-arrow, 36px); height: 100%; min-height: 0; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--copper); font-size: calc(var(--kk-fs, 34px) * .8); line-height: 1; touch-action: manipulation; }
+.kk-mode { display: flex; align-items: center; justify-content: center; gap: 8px; height: var(--kk-mh, 44px); min-height: 0; margin: 0; border-radius: 14px; border: 2px solid transparent; font-size: calc(var(--kk-mfs, 17px) * var(--tx, 1)); font-weight: 800; letter-spacing: .02em; touch-action: manipulation; }
+.kk-mode.major { background: #e2b15a; color: #2a1c0c; }
+.kk-mode.minor { background: #8a7bc0; color: #f7f3ff; }
+.kk-face svg { display: block; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.kk-face svg .eye { fill: currentColor; stroke: none; }
+html.simple.lay-pad-land .kid-key, html.simple.lay-pad-port .kid-key { --kk-h: 96px; --kk-fs: 56px; --kk-arrow: 56px; --kk-mh: 64px; --kk-mfs: 24px; gap: 10px; }
+html.simple.lay-pad-land .kk-face svg, html.simple.lay-pad-port .kk-face svg { width: 32px; height: 32px; }
+@media (max-height: 400px) { html.simple.lay-phone-land .kid-key { --kk-h: 50px; --kk-fs: 30px; --kk-mh: 36px; --kk-mfs: 15px; gap: 5px; } }
+.app-version { padding: 8px 12px 4px; font-size: 11px; color: var(--muted); opacity: .8; text-align: center; }
+/* ===== v52 Simple (simple-v2 mockup): Now, Key, Sustain on the left; the scale strip fills
+   the right. No keyboard, chord buttons, Full Range, Controls button or Roman numerals. ===== */
+html.simple #chords, html.simple .kb-wrap, html.simple #allKeys, html.simple #ctlToggle,
+html.simple #keyRow, html.simple .ss .ss-note small, html.simple .pad .roman,
+html.simple #keyPick .kp-alts, html.simple #keyPick .kp-auto { display: none !important; }
+html.simple #app { --ss-lbl: 44px; --ss-ico: 24px; --ss-arrow: 14px; --ss-rg: 7px; --ss-cgap: 7px; --ss-mid: 1.3fr; --ss-pad: 7px; --ss-fs: 17px; --ss-note: 26px; --ss-strip: 48px; }
+html.simple #styles { overflow-x: auto; }
+html.simple .now-col { gap: 8px; }
+html.simple .now-col .now-card { flex: 1 1 auto; justify-content: center; align-items: center; text-align: center; }
+html.simple #symbol { font-size: calc(var(--sym) * var(--tx, 1)); line-height: 1; }
+html.simple #tones { font-size: calc(16px * var(--tx, 1)); letter-spacing: .18em; margin-top: 8px; }
+html.simple .key-bar { flex: 0 0 auto; display: block; }
+html.simple .key-bar .key-chip { display: block; width: 100%; height: 46px; min-height: 46px; font-size: 15px; border-radius: 12px; }
+html.simple #sustainBtn { width: auto; height: auto; align-self: stretch; }
+html.simple .next-card { min-height: 0; justify-content: stretch; align-items: stretch; }
+html.simple .ss { height: 100%; }
+html.simple .ss .ss-chip { font-size: max(10px, calc(var(--ss-fs) * var(--ss-k) * var(--tx, 1))); border-radius: 14px; padding: 0 2px; letter-spacing: normal; }
+html.simple .ss.stack .ss-chip { font-size: max(10px, calc((var(--ss-fs) - 2px) * var(--ss-k) * var(--tx, 1))); }
+html.simple .ss .ss-note .nn { font-size: calc(var(--ss-note) * var(--tx, 1)); }
+/* v52: Simple note buttons: raised round buttons instead of labels on a capsule. */
+html.simple .ss .ss-track { display: none; }
+html.simple .ss .ss-note { align-self: center; justify-self: center; width: var(--ss-nb, 54px); height: var(--ss-nb, 54px); border-radius: 50%;
+  background: rgba(245, 233, 210, .17); border: 1.5px solid rgba(245, 233, 210, .42); box-shadow: 0 3px 0 rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .14);
+  transition: transform .08s ease-out, background-color .08s ease-out, box-shadow .08s ease-out; }
+html.simple .ss .ss-note.home { background: rgba(226, 177, 90, .30); border: 2.5px solid var(--copper); }
+html.simple .ss .ss-note.home::before { display: none; }
+html.simple .ss .ss-note.press { transform: scale(.92); background: rgba(255, 244, 222, .42); box-shadow: 0 1px 0 rgba(0, 0, 0, .45); }
+html.simple .ss .ss-note.home.press { background: rgba(240, 196, 120, .55); }
+html.simple .ss .ss-chip { transition: transform .08s ease-out, filter .08s ease-out; }
+html.simple .ss .ss-chip.press { transform: scale(.92); filter: brightness(1.25); }
+html.simple .ss .ss-note.pulse { animation: ss-pulse .55s ease-in-out both; }
+@keyframes ss-pulse { 0%, 100% { transform: scale(1); } 45% { transform: scale(1.1); background-color: rgba(255, 244, 222, .40); } }
+@media (prefers-reduced-motion: reduce) { html.simple .ss .ss-note, html.simple .ss .ss-chip { transition: none; } html.simple .ss .ss-note.pulse { animation: none; } }
+/* Phone landscape: the mockup (844 x 390). */
+html.simple.lay-phone-land #app {
+  --sym: 60px;
+  grid-template-columns: 196px minmax(0, 1fr) auto;
+  grid-template-rows: 44px minmax(0, 1fr) 76px;
+  grid-template-areas: "sty sty top" "now nxt nxt" "sus nxt nxt";
+}
+html.simple.lay-phone-land .now-card .card-label { display: none; }
+@media (max-width: 700px) { html.simple.lay-phone-land #app { --sym: 48px; grid-template-columns: 160px minmax(0, 1fr) auto; grid-template-rows: 40px minmax(0, 1fr) 64px; --ss-lbl: 36px; --ss-rg: 5px; --ss-cgap: 5px; --ss-fs: 15px; --ss-note: 22px; } }
+/* Phone portrait: Now + Key on the left, Sustain on the right, strip fills the rest. */
+html.simple.lay-phone-port #app {
+  --sym: 46px; --ss-lbl: 30px; --ss-ico: 24px; --ss-rg: 8px; --ss-cgap: 4px; --ss-fs: 16px; --ss-note: 24px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto auto 236px minmax(0, 1fr);
+  grid-template-areas: "top top" "sty sty" "now sus" "nxt nxt";
+}
+html.simple.lay-phone-port #sustainBtn { font-size: 17px; }
+@media (max-height: 700px) { html.simple.lay-phone-port #app { --sym: 38px; grid-template-rows: auto auto 196px minmax(0, 1fr); --ss-rg: 5px; --ss-fs: 15px; --ss-note: 22px; }
+  html.simple.lay-phone-port .kid-key { --kk-h: 50px; --kk-fs: 30px; --kk-mh: 38px; --kk-mfs: 15px; gap: 5px; }
+  html.simple.lay-phone-port #tones { margin-top: 4px; } }
+/* iPad landscape: the phone-landscape mockup, scaled. */
+html.simple.lay-pad-land #app {
+  --sym: 110px; --ss-lbl: 56px; --ss-rg: 12px; --ss-cgap: 12px; --ss-pad: 12px; --ss-fs: 26px; --ss-note: 38px; --ss-strip: 72px;
+  grid-template-columns: 300px minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr) 140px;
+  grid-template-areas: "sty sty top" "now nxt nxt" "sus nxt nxt";
+}
+html.simple.lay-pad-land .brand { display: none; }
+html.simple.lay-pad-land .key-bar .key-chip, html.simple.lay-pad-port .key-bar .key-chip { height: 64px; min-height: 64px; font-size: 22px; }
+html.simple.lay-pad-land #tones, html.simple.lay-pad-port #tones { font-size: calc(22px * var(--tx, 1)); }
+html.simple.lay-pad-land #sustainBtn, html.simple.lay-pad-port #sustainBtn { font-size: 24px; }
+/* iPad portrait: like phone portrait. */
+html.simple.lay-pad-port #app {
+  --sym: 96px; --ss-lbl: 56px; --ss-rg: 14px; --ss-cgap: 10px; --ss-pad: 12px; --ss-fs: 26px; --ss-note: 38px; --ss-strip: 72px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto auto 380px minmax(0, 1fr);
+  grid-template-areas: "top top" "sty sty" "now sus" "nxt nxt";
+}
+
+/* ===== v53: strip rows by named lines (b = green bright-borrowed, h = happy, n = notes,
+   s = sad, t = tension; hi / si = the face groups). v54: always 5 rows (no collapse). ===== */
+#app { --ss-ico: 22px; --ss-arrow: 11px; --ss-fgap: 6px; }
+.ss { grid-template-rows: [hi-start b-start g-start] minmax(0, 1fr) [b-end h-start] minmax(0, 1fr) [h-end hi-end n-start] minmax(0, var(--ss-mid)) [n-end si-start s-start] minmax(0, 1fr) [s-end t-start] minmax(0, 1fr) [t-end si-end g-end]; }
+.ss .ss-track { grid-row: n; }
+.ss .ss-lbl { gap: var(--ss-fgap); }
+.ss .ss-lbl svg.ss-arrow { width: calc(var(--ss-arrow) * 12 / 14); height: var(--ss-arrow); }
+/* Dark text on gold / green reads lighter than white on purple at the same size: same
+   font size everywhere, one weight step heavier on the light chips. */
+.ss .ss-chip.major, .ss .ss-chip.color { font-weight: 800; }
+.ss .ss-chip.color { border-color: rgba(255,255,255,.75); }
+html.lay-phone-port #app { --ss-lbl: 18px; --ss-ico: 18px; --ss-arrow: 10px; --ss-fgap: 6px; }
+html.lay-pad-port #app, html.lay-pad-land #app { --ss-lbl: 38px; --ss-ico: 28px; --ss-arrow: 14px; --ss-fgap: 7px; }
+html.simple #app { --ss-ico: 30px; --ss-arrow: 14px; --ss-fgap: 7px; }
+@media (max-width: 700px) { html.simple.lay-phone-land #app { --ss-ico: 28px; --ss-arrow: 13px; --ss-fgap: 6px; } }
+html.simple.lay-pad-land #app, html.simple.lay-pad-port #app { --ss-ico: 36px; --ss-arrow: 18px; --ss-fgap: 8px; }
+html.simple.lay-pad-land .ss .ss-chip, html.simple.lay-pad-port .ss .ss-chip { align-self: center; height: min(100%, 92px); }
+/* Phone portrait (Simple): no face column. With the green row collapsed the rows close up and
+   the whole group is centred (no empty band at the top; notes sit half a row above centre). */
+/* Phone portrait (Simple): no face column. The happy face sits above the green/gold rows,
+   the sad face below the sad/tension rows (mirrored), so the 7 columns use the full width:
+   notes and chips about one column wide (44 px+), chips 44-48 px tall, one-line names. */
+html.simple.lay-phone-port #app { --ss-lbl: 0px; --ss-cgap: 3px; --ss-rg: 8px; --ss-pad: 7px; --ss-fs: 16px; --ss-ch: minmax(44px, 48px); --ss-ico: 28px; --ss-arrow: 14px; --ss-fgap: 7px; }
+@media (max-width: 370px) { html.simple.lay-phone-port #app { --ss-cgap: 2px; --ss-pad: 6px; } }
+@media (max-height: 700px) { html.simple.lay-phone-port #app { --ss-rg: 6px; --sym: 34px; grid-template-rows: auto auto 176px minmax(0, 1fr); }
+  html.simple.lay-phone-port .now-card .card-label { display: none; }
+  html.simple.lay-phone-port #tones { margin-top: 2px; font-size: calc(15px * var(--tx, 1)); } }
+html.simple.lay-phone-port .ss { padding: 5px 0; align-content: safe center;
+  grid-template-rows: [hi-start] auto [hi-end b-start g-start] var(--ss-ch) [b-end h-start] var(--ss-ch) [h-end n-start] minmax(44px, 52px) [n-end s-start] var(--ss-ch) [s-end t-start] var(--ss-ch) [t-end g-end si-start] auto [si-end]; }
+html.simple.lay-phone-port .ss .ss-lbl { grid-column: 2 / -1; flex-direction: row; justify-content: center; align-items: center; }
+html.simple.lay-phone-port .ss .ss-chip { padding: 0 1px; border-radius: 10px; letter-spacing: -0.02em; }
+.ss.tight .ss-chip.sq, .ss.tight .ss-chip.sq .q { letter-spacing: -0.07em; }
+/* v53: faint grid: 7 note columns x the row bands (green, gold, notes, purple, tension; 7x4 when
+   the green row is collapsed). Inner dividers only, drawn in the gaps, behind chips and notes. */
+.ss .ss-gl { position: relative; z-index: 0; pointer-events: none; min-width: 0; min-height: 0; }
+.ss .ss-gl::after { content: ""; position: absolute; background: rgba(255, 255, 255, .05); }
+.ss .ss-gc { grid-row: n; }
+.ss .ss-gc::after { top: 0; bottom: 0; width: 1px; right: calc(-0.5 * var(--ss-cgap) - 0.5px); }
+.ss .ss-gl.last::after { display: none; }
+.ss .ss-chip { position: relative; z-index: 1; }
+/* v53: chips and notes are held like keys: no panning, callouts or text selection mid-hold. */
+.ss .ss-chip, .ss .ss-note { touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+/* v53: Simple note buttons are rounded rectangles the size of a chip (one column wide, chip
+   height, chip corner radius); same fill, border, raised shadow, press look and gold home ring. */
+html.simple .ss .ss-note { justify-self: stretch; width: auto; height: var(--ss-nh, 54px); border-radius: 14px; }
+html.simple.lay-phone-port .ss .ss-note { border-radius: 10px; }
+/* Style row: Simple portrait wraps onto two rows (nothing off screen). v54: full portrait too. */
+html.simple.lay-phone-port .style-row, html.lay-phone-port .style-row { flex-wrap: wrap; overflow: visible; row-gap: 6px; }
+html.simple.lay-phone-port .style-row button { height: 32px; min-height: 32px; padding: 0 12px; font-size: 14px; }
+html.lay-phone-port:not(.simple) .style-row { row-gap: 4px; gap: 4px; -webkit-mask-image: none; mask-image: none; }
+html.lay-phone-port:not(.simple) .style-row button { height: 28px; min-height: 28px; padding: 0 10px; font-size: 13px; }
+@media (max-height: 700px) { html.simple.lay-phone-port .style-row { row-gap: 5px; } html.simple.lay-phone-port .style-row button { height: 30px; min-height: 30px; padding: 0 11px; font-size: 13.5px; } }
+/* Full mode, phone landscape: the style row is fitted by fitStyles() (tighter steps until every
+   button shows); .fit-N picks the step. */
+html.lay-phone-land .style-row.fit-1 { gap: 2px; }
+html.lay-phone-land .style-row.fit-1 button { padding: 0 5px; font-size: 11.5px; }
+html.lay-phone-land .style-row.fit-2 { gap: 2px; }
+html.lay-phone-land .style-row.fit-2 button { padding: 0 4px; font-size: 11px; letter-spacing: -0.01em; }
+html.lay-phone-land .style-row.fit-3 { gap: 2px; }
+html.lay-phone-land .style-row.fit-3 button { padding: 0 3px; font-size: 11px; letter-spacing: -0.03em; }
+/* Narrower phones (under ~790 px): two rows of smaller buttons instead of scrolling. */
+html.lay-phone-land .style-row.fit-4 { flex-wrap: wrap; overflow: visible; gap: 3px; row-gap: 3px; align-self: center; }
+html.lay-phone-land .style-row.fit-4 button { height: 21px; min-height: 21px; padding: 0 6px; font-size: 11px; }
+
+/* ===== v54: one strip in both modes. Full mode (Simple off) gets the Simple look: no capsule,
+   gray rounded-rect note buttons with the gold home outline, the same chips, faces, press look
+   and hold. Sizes are scaled to the full-mode panel (same panel box as v53). Full mode adds a
+   small Roman numeral after each chip name (.rn); Simple never shows it. ===== */
+/* Faint lines frame only the note row (above, below, and between its 7 cells). */
+/* v54: 16 half columns after the face column: a half-column gutter, the 7 notes (2 halves
+   each), a half-column gutter. Notes and in-key chips span their note's 2 halves; chips on a
+   root outside the row span the halves either side of a note boundary (.half). Column gaps
+   are margins on the buttons, so the half columns stay equal. */
+.ss { grid-template-columns: var(--ss-lbl) var(--ss-gutl, minmax(0, 1fr)) repeat(14, minmax(0, 1fr)) var(--ss-gutr, minmax(0, 1fr)); column-gap: 0; padding-right: var(--ss-lbl); }
+/* Phone portrait (and the narrowest landscape phones): an end gutter only opens when a chip
+   needs it (.gutl / .gutr), so the 7 notes keep their full width in most keys. */
+html.lay-phone-port .ss:not(.gutl), html.lay-pad-port:not(.simple) .ss:not(.gutl) { --ss-gutl: 0px; }
+html.lay-phone-port .ss:not(.gutr), html.lay-pad-port:not(.simple) .ss:not(.gutr) { --ss-gutr: 0px; }
+@media (max-width: 700px) { html.lay-phone-land .ss:not(.gutl) { --ss-gutl: 0px; } html.lay-phone-land .ss:not(.gutr) { --ss-gutr: 0px; } }
+.ss .ss-chip, .ss .ss-note { margin-left: calc(var(--ss-cgap) / 2); margin-right: calc(var(--ss-cgap) / 2); }
+.ss .ss-gc::after { right: -0.5px; }
+.ss .ss-gn { grid-row: n; grid-column: 3 / 17; }
+.ss .ss-gn::before, .ss .ss-gn::after { content: ""; position: absolute; left: 0; right: 0; height: 1px; background: rgba(255, 255, 255, .05); }
+.ss .ss-gn::before { top: calc(-0.5 * var(--ss-rg) - 0.5px); }
+.ss .ss-gn::after { bottom: calc(-0.5 * var(--ss-rg) - 0.5px); }
+.ss .ss-chip .rn { display: none; }
+html:not(.simple) .ss .ss-chip .rn { display: inline; font-size: var(--ss-rnfs, 10px); font-weight: 700; letter-spacing: 0; margin-left: .28em; opacity: .78; line-height: 1; }
+.ss .ss-chip .nm { display: contents; }
+html:not(.simple) .ss.rn2 .ss-chip { flex-direction: column; gap: 1px; }
+html:not(.simple) .ss.rn2 .ss-chip .nm { display: block; white-space: nowrap; }
+html:not(.simple) .ss.rn2 .ss-chip .rn { margin-left: 0; }
+html:not(.simple) .ss.nonum .ss-chip .rn, html:not(.simple) .ss .ss-chip.norn .rn { display: none; }
+/* Last-resort single chip: root over quality (stack fallback for one long name). */
+.ss .ss-chip.st1 { flex-direction: column; gap: 1px; }
+.ss .ss-chip.st1 .rn { display: none; }
+html:not(.simple) .ss .ss-chip.c2 { flex-direction: column; gap: 0; }
+html:not(.simple) .ss .ss-chip.c2 .nm { display: block; white-space: nowrap; }
+html:not(.simple) .ss .ss-chip.c2 .rn { margin-left: 0; font-size: 9px; }
+html.lay-phone-port .ss.stack.tight .ss-chip.sq .q { letter-spacing: -0.12em; }
+html:not(.simple) .ss .ss-track { display: none; }
+/* The strip keeps v53's height as its share of the row, then fills whatever the row gives the
+   panel (phone portrait: the Now column is taller once a key is set). Panel size is unchanged. */
+html:not(.simple) .ss { min-height: 100%; }
+html:not(.simple) .ss .ss-chip { border-radius: var(--ss-cr, 10px); padding: 0 2px; letter-spacing: normal; font-size: max(10px, calc(var(--ss-fs) * var(--ss-k) * var(--tx, 1)));
+  transition: transform .08s ease-out, filter .08s ease-out; }
+html:not(.simple) .ss.stack .ss-chip { font-size: max(10px, calc((var(--ss-fs) - 2px) * var(--ss-k) * var(--tx, 1))); }
+html:not(.simple) .ss .ss-chip.press { transform: scale(.92); filter: brightness(1.25); }
+html:not(.simple) .ss .ss-note { align-self: stretch; justify-self: stretch; width: auto; height: auto; border-radius: var(--ss-cr, 10px);
+  background: rgba(245, 233, 210, .17); border: 1.5px solid rgba(245, 233, 210, .42); box-shadow: 0 3px 0 rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .14);
+  color: var(--ink); transition: transform .08s ease-out, background-color .08s ease-out, box-shadow .08s ease-out; }
+html:not(.simple) .ss .ss-note .nn { font-size: calc(var(--ss-note) * var(--tx, 1)); }
+html:not(.simple) .ss .ss-note small { margin-top: 1px; }
+html:not(.simple) .ss .ss-note.home { background: rgba(226, 177, 90, .30); border: 2.5px solid var(--copper); color: var(--copper); }
+html:not(.simple) .ss .ss-note.home::before { display: none; }
+html:not(.simple) .ss .ss-note.press { transform: scale(.92); background: rgba(255, 244, 222, .42); box-shadow: 0 1px 0 rgba(0, 0, 0, .45); }
+html:not(.simple) .ss .ss-note.home.press { background: rgba(240, 196, 120, .55); }
+@media (prefers-reduced-motion: reduce) { html:not(.simple) .ss .ss-note, html:not(.simple) .ss .ss-chip { transition: none; } }
+/* Phone landscape (panel 137 px tall as in v53): faces left, notes one and a half rows tall. */
+html:not(.simple).lay-phone-land #app { --ss-lbl: 28px; --ss-ico: 22px; --ss-arrow: 11px; --ss-fgap: 5px; --ss-rg: 3px; --ss-cgap: 4px; --ss-mid: 1.4fr; --ss-fs: 17px; --ss-note: 20px; --ss-small: 9px; --ss-rnfs: 10px; --ss-cr: 8px; }
+html:not(.simple).lay-phone-land .ss .ss-chip { padding: 0 1px; letter-spacing: normal; }
+html:not(.simple).lay-phone-land .ss .ss-chip.borrowed { border-width: 1.5px; }
+html:not(.simple).lay-phone-land .ss.rn2 .ss-chip { gap: 0; --ss-rnfs: 9px; }
+/* Full mode keeps the face column on the left only (no mirrored right margin): more room per column. */
+html:not(.simple).lay-phone-land .ss, html:not(.simple).lay-pad-land .ss, html:not(.simple).lay-pad-port .ss { padding-right: 0; }
+@media (max-width: 700px) { html:not(.simple).lay-phone-land #app { --ss-lbl: 24px; --ss-ico: 20px; --ss-cgap: 4px; --ss-fs: 15px; --ss-note: 19px; } }
+/* iPad: faces left, Simple's font sizes. */
+html:not(.simple).lay-pad-land #app, html:not(.simple).lay-pad-port #app { --ss-lbl: 38px; --ss-ico: 28px; --ss-arrow: 14px; --ss-fgap: 7px; --ss-rg: 5px; --ss-cgap: 8px; --ss-mid: 1.5fr; --ss-fs: 26px; --ss-note: 30px; --ss-small: 12px; --ss-rnfs: 13px; --ss-cr: 12px; }
+html:not(.simple).lay-pad-port #app { --ss-fs: 22px; --ss-note: 26px; --ss-cgap: 6px; }
+/* Phone portrait: the faces sit above and below their rows (as in Simple), so the 7 columns use
+   the panel's full width. */
+html:not(.simple).lay-phone-port #app { --ss-lbl: 0px; --ss-ico: 16px; --ss-arrow: 10px; --ss-fgap: 4px; --ss-rg: 2px; --ss-cgap: 2px; --ss-fs: 13px; --ss-note: 15px; --ss-small: 9px; --ss-rnfs: 9px; --ss-cr: 7px; }
+html:not(.simple).lay-phone-port .ss { padding: 0;
+  grid-template-rows: [hi-start] auto [hi-end b-start g-start] minmax(0, 1fr) [b-end h-start] minmax(0, 1fr) [h-end n-start] minmax(0, 1.1fr) [n-end s-start] minmax(0, 1fr) [s-end t-start] minmax(0, 1fr) [t-end g-end si-start] auto [si-end]; }
+html:not(.simple).lay-phone-port .ss .ss-lbl { grid-column: 2 / -1; flex-direction: row; justify-content: center; align-items: center; }
+/* v94: no face labels on the strip: no face column (every layout) and no face rows (phone portrait) */
+#app { --ss-lbl: 0px !important; }
+html:not(.simple).lay-phone-port .ss {
+  grid-template-rows: [b-start g-start] minmax(0, 1fr) [b-end h-start] minmax(0, 1fr) [h-end n-start] minmax(0, 1.1fr) [n-end s-start] minmax(0, 1fr) [s-end t-start] minmax(0, 1fr) [t-end g-end]; }
+html.simple.lay-phone-port .ss {
+  grid-template-rows: [b-start g-start] minmax(44px, 1fr) [b-end h-start] minmax(44px, 1fr) [h-end n-start] minmax(44px, 1.1fr) [n-end s-start] minmax(44px, 1fr) [s-end t-start] minmax(44px, 1fr) [t-end g-end]; }
+html:not(.simple).lay-phone-port .ss .ss-chip { padding: 0; letter-spacing: -0.02em; }
+/* Columns here are ~30 px wide: no room for a numeral beside the chord name, so the chips show
+   the name only and the numerals stay under the note names (each chip sits in its note's column). */
+html:not(.simple).lay-phone-port .ss .ss-chip .rn { display: none; }
+
+/* ===== v55: chord progression picker. One element (#prog), placed by placeProg():
+   Simple = left column under Major / Minor (friendly name, styled like the key slider, small
+   Play / Stop beside it); full mode = numerals in a cycler by the style row (phone landscape:
+   top of the Now column; elsewhere the top bar), Play / Stop and Next inside it. ===== */
+.prog { display: flex; align-items: stretch; gap: 6px; flex: 0 0 auto; min-width: 0; }
+.pg-sel { position: relative; display: flex; align-items: stretch; flex: 1 1 auto; min-width: 0; height: var(--pg-h, 40px); border-radius: 12px;
+  background: var(--bg-2, #221d17); border: 2px solid var(--copper); touch-action: none; cursor: grab; outline: none; overflow: hidden; box-sizing: border-box; }
+.pg-sel:focus-visible { box-shadow: 0 0 0 2px var(--copper); }
+.pg-arrow { flex: 0 0 auto; width: var(--pg-arrow, 26px); height: auto; min-height: 0; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent;
+  color: var(--copper); font-size: var(--pg-afs, 24px); line-height: 1; touch-action: manipulation; }
+.pg-txt { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; pointer-events: none; }
+.pg-t { display: block; max-width: 100%; text-align: center; font-weight: 800; font-size: max(9px, calc(var(--pg-fs, 14px) * var(--tx, 1))); line-height: 1.12; color: var(--ink);
+  overflow-wrap: break-word; transition: transform .12s ease-out; }
+.pg-t.nudge-l { transform: translateX(-8px); } .pg-t.nudge-r { transform: translateX(8px); }
+.pg-btns { display: flex; gap: 4px; flex: 0 0 auto; }
+.pg-btn { flex: 0 0 auto; width: var(--pg-bw, 40px); height: var(--pg-h, 40px); min-height: 0; margin: 0; padding: 0; border-radius: 12px;
+  display: inline-flex; align-items: center; justify-content: center; color: var(--copper); touch-action: manipulation; }
+.pg-btn svg { width: var(--pg-ico, 18px); height: var(--pg-ico, 18px); display: block; }
+/* v60: Simple has the picker again (same component as full mode): ‹ name › with Next under it,
+   below Major / Minor. Kid look: serif name, rounded like the key slider. No numerals. */
+html.simple .prog { flex-direction: column; gap: 4px; --pg-h: 36px; --pg-arrow: 26px; --pg-afs: 26px; --pg-fs: 16px; --pg-ico: 16px; }
+html.simple .pg-sel { border-radius: 14px; }
+html.simple .pg-t { font-family: Palatino, "Iowan Old Style", Georgia, serif; font-weight: 700; }
+html.simple .pg-btns { width: 100%; }
+html.simple .pg-btn { flex: 1 1 0; width: auto; height: var(--pg-nh, 28px); border-radius: 12px; }
+/* v60 phones: room for ‹ name › + Next: Sustain at its 56 px floor (landscape), a slimmer key
+   control and tighter gaps, so Now stays at or above its v58 size. */
+html.simple.lay-phone-land #app { grid-template-rows: 44px minmax(0, 1fr) 56px; }
+@media (max-width: 700px) { html.simple.lay-phone-land #app { grid-template-rows: 40px minmax(0, 1fr) 56px; } }
+html.simple.lay-phone-land .now-col, html.simple.lay-phone-port .now-col { gap: 5px; }
+html.simple.lay-phone-land .kid-key, html.simple.lay-phone-port .kid-key { --kk-h: 42px; --kk-fs: 28px; --kk-mh: 30px; --kk-mfs: 15px; gap: 4px; }
+html.simple.lay-phone-land .prog, html.simple.lay-phone-port .prog { --pg-h: 30px; --pg-arrow: 24px; --pg-afs: 24px; --pg-fs: 15px; --pg-nh: 26px; gap: 4px; }
+@media (max-width: 700px) { html.simple.lay-phone-land .prog { --pg-nh: 22px; } html.simple.lay-phone-land .kid-key { --kk-h: 40px; --kk-mh: 28px; } }
+@media (max-height: 700px) { html.simple.lay-phone-port #app { grid-template-rows: auto auto 194px minmax(0, 1fr); } }
+@media (max-height: 700px) { html.simple.lay-phone-port .kid-key { --kk-h: 40px; --kk-mh: 28px; } html.simple.lay-phone-port .prog { --pg-nh: 24px; } }
+html.simple.lay-pad-land .prog, html.simple.lay-pad-port .prog { --pg-h: 48px; --pg-arrow: 40px; --pg-afs: 32px; --pg-fs: 22px; --pg-ico: 22px; --pg-nh: 40px; gap: 6px; }
+/* v60 iPad: room for the picker with Now at or above v58: slimmer key control, Sustain 124 (land),
+   the Now/Sustain row 8 px taller (port). */
+html.simple.lay-pad-land .kid-key, html.simple.lay-pad-port .kid-key { --kk-h: 84px; --kk-fs: 50px; --kk-mh: 56px; gap: 8px; }
+html.simple.lay-pad-land #app { grid-template-rows: auto minmax(0, 1fr) 124px; }
+html.simple.lay-pad-port #app { grid-template-rows: auto auto 388px minmax(0, 1fr); }
+/* Full mode, phone landscape: cycler on top of the Now column (two lines: name, then Play + Next).
+   The column never makes its row taller than the strip (keyboard unchanged); the Now card gives. */
+html.lay-phone-land:not(.simple) .now-col { gap: 4px; }
+html.lay-phone-land:not(.simple) .now-col .now-card { flex: 1 1 0; contain: size; }
+html.lay-phone-land:not(.simple) .prog { flex-direction: column; gap: 3px; --pg-h: 26px; --pg-arrow: 18px; --pg-afs: 19px; --pg-fs: 10px; --pg-ico: 13px; }
+html.lay-phone-land:not(.simple) .pg-sel { border-width: 1.5px; border-radius: 8px; }
+html.lay-phone-land:not(.simple) .pg-btns { gap: 4px; }
+html.lay-phone-land:not(.simple) .pg-btn { flex: 1 1 0; width: auto; height: 20px; border-radius: 8px; }
+html.lay-phone-land:not(.simple) #app { --sym: 26px; }
+html.lay-phone-land:not(.simple) .now-card { padding: 3px 8px; gap: 2px; }
+html.lay-phone-land:not(.simple) #tones { font-size: 10px; line-height: 1.15; }
+/* Full mode in the top bar (phone portrait: replaces the brand; iPad: after the brand). */
+html.prog-top:not(.simple) .prog { flex: 1 1 auto; max-width: 250px; }
+html.lay-phone-port.prog-top:not(.simple) .brand { display: none; }
+html.lay-phone-port:not(.simple) .prog { flex-direction: row; gap: 4px; --pg-h: 40px; --pg-arrow: 18px; --pg-afs: 19px; --pg-fs: 10.5px; --pg-ico: 14px; }
+html.lay-phone-port:not(.simple) .pg-sel { border-width: 1.5px; border-radius: 9px; }
+html.lay-phone-port:not(.simple) .pg-btns { flex-direction: column; gap: 2px; }
+html.lay-phone-port:not(.simple) .pg-btn { width: 30px; height: 19px; border-radius: 7px; }
+html.lay-pad-land:not(.simple) .prog, html.lay-pad-port:not(.simple) .prog { max-width: 420px; --pg-h: 40px; --pg-arrow: 30px; --pg-afs: 26px; --pg-fs: 15px; --pg-bw: 46px; --pg-ico: 18px; }
+html.lay-pad-land:not(.simple) .prog { margin-left: calc(var(--rail-w) + var(--gap) - 132px); }
+/* Step badges on the strip (1, 2, 3...); the playing step's chip lights like a press. */
+.ss .pg-badge { position: absolute; z-index: 3; left: 0; top: 0; box-sizing: border-box; min-width: 15px; height: 15px; padding: 0 3px;
+  border-radius: 8px; background: #f6ead0; color: #2a1c0c; border: 1px solid rgba(42, 28, 12, .55);
+  font-size: 10px; font-weight: 800; line-height: 13px; text-align: center; white-space: nowrap; letter-spacing: -0.02em;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .55); touch-action: none; cursor: pointer; }
+.ss .pg-badge.on { background: var(--copper); }
+html.simple .ss .pg-badge { min-width: 19px; height: 19px; line-height: 17px; font-size: 12.5px; border-radius: 10px; padding: 0 4px; }
+html.lay-phone-port:not(.simple) .ss .pg-badge { min-width: 14px; height: 14px; line-height: 12px; font-size: 10px; padding: 0 2px; border-radius: 7px; }
+html.lay-pad-land .ss .pg-badge, html.lay-pad-port .ss .pg-badge { min-width: 22px; height: 22px; line-height: 20px; font-size: 14px; border-radius: 11px; padding: 0 5px; }
+html.lay-pad-land .ss .pg-badge.cmp, html.lay-pad-port .ss .pg-badge.cmp { min-width: 17px; height: 17px; line-height: 15px; font-size: 12px; border-radius: 9px; padding: 0 3px; }
+html.lay-phone-land .ss .pg-badge.cmp, html.simple .ss .pg-badge.cmp { min-width: 15px; height: 15px; line-height: 13px; font-size: 11px; border-radius: 8px; padding: 0 2px; }
+.ss .ss-chip.tmp { opacity: .9; }
+/* v60/v61: full mode on phones: Now, Key, ‹ name ›, Next, Full Range. */
+html.lay-phone-land:not(.simple) .key-bar, html.lay-phone-port:not(.simple) .key-bar { display: contents; }
+html.lay-phone-land:not(.simple) .now-col > .now-card, html.lay-phone-port:not(.simple) .now-col > .now-card { order: 1; }
+html.lay-phone-land:not(.simple) #keyChip, html.lay-phone-port:not(.simple) #keyChip { order: 2; }
+html.lay-phone-land:not(.simple) .now-col > #prog, html.lay-phone-port:not(.simple) .now-col > #prog { order: 3; }
+html.lay-phone-land:not(.simple) #allKeys, html.lay-phone-port:not(.simple) #allKeys { order: 4; }
+html.lay-phone-land:not(.simple) .key-bar button, html.lay-phone-port:not(.simple) .key-bar button { flex: 0 0 auto; }
+html.lay-phone-land:not(.simple) .now-col { gap: 3px; }
+/* v63: the Now card's 'Chords in this key' row never shifts the layout. Phones hide it (portrait too
+   now, like landscape); iPad / desktop keep it on ONE line at a fixed 20 px height, reserved from first
+   load (before any chord). Small trims pay for it so the keyboard keeps its v62 first-load height. */
+html.lay-phone-port #keyRow { display: none !important; }
+/* v63: Simple on tablet portrait has a fixed 130 px Now card: tighter padding and gaps so the name can
+   stay as large as possible (the height fit guard sizes it). */
+html.simple.lay-pad-port .now-card { padding: 7px 18px; gap: 2px; }
+html.simple.lay-pad-port #tones { margin-top: 2px; }
+/* v64: Simple on short phone portrait (375x667): the 52 px Now card gives its gaps to the name. */
+@media (max-height: 700px) { html.simple.lay-phone-port .now-card { gap: 0; padding-top: 5px; padding-bottom: 5px; } html.simple.lay-phone-port #tones { margin-top: 0; } }
+html.simple.lay-phone-land #tones { margin-top: 5px; }
+/* v63: tablets (full): the name keeps its line height when the fit guard shrinks a long name, so the
+   Now card (which sizes the column) never changes height from chord to chord. */
+html.lay-pad-land:not(.simple) #symbol, html.lay-pad-port:not(.simple) #symbol { display: inline-flex; align-items: center; height: calc(var(--sym) * var(--tx, 1) * 0.95); }
+html.lay-pad-land:not(.simple) #keyRow, html.lay-pad-port:not(.simple) #keyRow { display: flex; flex: 0 0 auto; height: 20px; min-height: 20px; gap: 2px; align-items: stretch; }
+html.lay-pad-land:not(.simple) #keyRow > span, html.lay-pad-port:not(.simple) #keyRow > span { display: flex; align-items: center; justify-content: center; padding: 0 1px; line-height: 1; font-size: 13px; }
+html.lay-pad-land:not(.simple) .now-card, html.lay-pad-port:not(.simple) .now-card { padding: 8px 14px; gap: 4px; }
+html.lay-pad-land:not(.simple) .now-col, html.lay-pad-port:not(.simple) .now-col { gap: 4px; }
+/* v62: iPad / desktop full mode: the same column. Key and Full Range stack full width; the name
+   (with numerals under it) and a full-width Next sit between them. */
+html.lay-pad-land:not(.simple) .key-bar, html.lay-pad-port:not(.simple) .key-bar { display: contents; }
+html.lay-pad-land:not(.simple) .now-col > .now-card, html.lay-pad-port:not(.simple) .now-col > .now-card { order: 1; }
+html.lay-pad-land:not(.simple) #keyChip, html.lay-pad-port:not(.simple) #keyChip { order: 2; }
+html.lay-pad-land:not(.simple) .now-col > #prog, html.lay-pad-port:not(.simple) .now-col > #prog { order: 3; }
+html.lay-pad-land:not(.simple) #allKeys, html.lay-pad-port:not(.simple) #allKeys { order: 4; }
+html.lay-pad-land:not(.simple) .key-bar button, html.lay-pad-port:not(.simple) .key-bar button { flex: 0 0 auto; height: 40px; min-height: 40px; }
+html.lay-pad-land:not(.simple) .now-col > .prog, html.lay-pad-port:not(.simple) .now-col > .prog { flex-direction: column; gap: 4px; flex: 0 0 auto; width: 100%; max-width: none; margin: 0; --pg-h: 42px; }
+html.lay-pad-land:not(.simple) .now-col > .prog .pg-sel, html.lay-pad-port:not(.simple) .now-col > .prog .pg-sel { width: 100%; flex: 0 0 auto; }
+html.lay-pad-land:not(.simple) .now-col > .prog .pg-btns, html.lay-pad-port:not(.simple) .now-col > .prog .pg-btns { width: 100%; }
+html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn, html.lay-pad-port:not(.simple) .now-col > .prog .pg-btn { flex: 1 1 0; width: auto; height: 30px; }
+/* v61 portrait: the row grows (the keyboard gives up the height) so Now stays at its v59 91 px. */
+html.lay-phone-port:not(.simple) .now-col { gap: 4px; }
+html.lay-phone-port:not(.simple) .now-col > .now-card { flex: 1 0 auto; min-height: 91px; }
+/* v77: Volume + Band rows sit under the Now card: the card gives back their height (keyboard keeps its v76 room). */
+html.lay-phone-port:not(.simple) .now-col > .now-card { min-height: 71px; }
+html.lay-phone-port:not(.simple) .now-col > .prog { flex-direction: column; align-items: center; gap: 4px; flex: 0 0 auto; width: 100%; max-width: none; }
+html.lay-phone-port:not(.simple) .now-col > .prog .pg-sel { width: 100%; flex: 0 0 auto; }
+/* v60: wide cycler (iPad, desktop): name over small numerals. */
+.prog.pg-wide .pg-t { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.prog.pg-wide .pg-nm { display: block; white-space: nowrap; }
+.prog.pg-wide .pg-num { display: block; max-width: 100%; font-size: .68em; font-weight: 700; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: .01em; }
+/* v68: Config Volume slider (top of the menu). */
+.config-menu .cfg-vol { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 12px; font-size: 14px; color: var(--ink); }
+.config-menu .cfg-vol input { flex: 1 1 auto; min-width: 0; width: 120px; accent-color: var(--copper); }
+.config-menu .cfg-vol b { flex: 0 0 auto; min-width: 2.2em; text-align: right; font-size: 12px; font-weight: 700; color: var(--muted); }
+/* v86: Band in the Sound box, under Voicing: on/off toggle with the level slider beneath it. */
+.band-wrap { display: flex; flex-direction: row; align-items: center; min-width: 0; }
+/* Band fix: no Band button. One row under Bass: "Band" label, level slider (0 = off), the level number ("Off" at 0). */
+.band-row { flex: 1 1 auto; display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 32px; height: 32px; font-size: 12px; color: var(--muted); }
+.band-row span { flex: 0 0 72px; font-size: 13px; font-weight: 650; color: var(--ink); }
+.band-row input { flex: 1 1 auto; min-width: 0; width: 100%; accent-color: var(--copper); }
+.band-row b { flex: 0 0 auto; min-width: 2.2em; text-align: right; font-size: 12px; font-weight: 650; color: var(--ink); }
+.band-wrap.on .band-row span { color: var(--sea); }
+.band-wrap.off .band-row b { color: var(--muted); }   /* level 0 = off */
+/* Band fix: phone portrait, the open pane scrolls inside its own box; it never paints over the chord-type row. */
+html.lay-phone-port #ctl { overflow: hidden; }
+html.lay-phone-port #ctl .pane { flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+/* no band for this style yet (Funk, Reggae, Yoga): both controls disabled, tooltip on the box. */
+.band-wrap.dim .band-row { opacity: .45; }
+/* v86: the main-screen mix row holds Volume only (Band moved to the Sound box). */
+.now-col > .now-mix { flex: 0 0 auto; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+html.lay-phone-land:not(.simple) .now-col > .now-mix { flex-direction: row; align-items: center; gap: 4px; }
+html.lay-phone-land:not(.simple) .now-mix > .now-vol { flex: 1 1 0; min-width: 0; }
+html.lay-phone-land:not(.simple) .now-mix > .now-vol .pg-vol { gap: 3px; padding: 0 2px; }
+html.lay-phone-land:not(.simple) .now-mix > .now-vol { min-width: 40px; }
+html.lay-phone-land:not(.simple) .now-mix > .now-vol .pg-vol svg { display: block; width: 11px; height: 11px; }
+/* Simple (every size): Volume fills the row. */
+html.simple .now-col > .now-mix { flex-direction: row; align-items: center; gap: 6px; }
+html.simple .now-mix > .now-vol { flex: 1 1 0; min-width: 44px; }
+html.lay-phone-land.simple .now-mix > .now-vol { height: 16px; min-height: 16px; }
+/* v60: Config toggle. */
+.config-menu .cfg-toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; white-space: nowrap; }
+.cfg-toggle .tgl { position: relative; flex: 0 0 auto; width: 34px; height: 20px; border-radius: 10px; background: #3a332b; border: 1px solid var(--line); transition: background .15s; }
+.cfg-toggle .tgl::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #cfc4b2; transition: transform .15s; }
+.cfg-toggle.on .tgl { background: var(--copper); border-color: transparent; }
+.cfg-toggle.on .tgl::after { transform: translateX(14px); background: #2a1c0c; }
+/* v60: Simple Sustain in portrait gets a bigger label and a pedal icon (box unchanged). */
+html.simple.lay-phone-port #sustainBtn, html.simple.lay-pad-port #sustainBtn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+html.simple.lay-phone-port #sustainBtn { font-size: calc(24px * var(--tx, 1)); }
+html.simple.lay-pad-port #sustainBtn { font-size: calc(34px * var(--tx, 1)); }
+html.simple.lay-phone-port #sustainBtn::before, html.simple.lay-pad-port #sustainBtn::before { content: ""; width: 1.9em; height: 1.9em; background: currentColor; opacity: .85;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 18V6l10-2v12'/%3E%3Ccircle cx='6.5' cy='18' r='2.5'/%3E%3Ccircle cx='16.5' cy='16' r='2.5'/%3E%3Cpath d='M3 21.5h18'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 18V6l10-2v12'/%3E%3Ccircle cx='6.5' cy='18' r='2.5'/%3E%3Ccircle cx='16.5' cy='16' r='2.5'/%3E%3Cpath d='M3 21.5h18'/%3E%3C/svg%3E") center / contain no-repeat; }
+/* v60: Simple Now on iPad / desktop: bigger chord name and notes (the fit guard still shrinks long names). */
+html.simple.lay-pad-land #app { --sym: 150px; }
+html.simple.lay-pad-land #tones { font-size: calc(30px * var(--tx, 1)); }
+/* v57: no Roman numerals on strip chips in full mode either (the note row keeps its degrees). */
+html:not(.simple) .ss .ss-chip .rn { display: none; }
+/* v57: the phone-landscape cycler name is already at its 9-10px floor: not scaled. */
+html.lay-phone-land:not(.simple) .pg-t { font-size: var(--pg-fs, 10px); }
+/* v57: full-mode badges at 11px. */
+.ss .pg-badge { min-width: 16px; height: 16px; line-height: 14px; font-size: 11px; }
+html.lay-phone-port:not(.simple) .ss .pg-badge { min-width: 15px; height: 15px; line-height: 13px; font-size: 11px; }
+/* v56: "3+4" = step 3 (current or next) and 4 more steps on this chord. */
+.ss .pg-badge small { font-size: 1em; font-weight: 600; opacity: .72; margin-left: 1px; }
+/* v56: bigger hit areas for Play / Next (drawn size and layout unchanged). */
+.pg-btn { position: relative; }
+.pg-btn::after { content: ""; position: absolute; inset: -3px; }
+html.lay-phone-land:not(.simple) .pg-btn { z-index: 2; }
+html.lay-phone-land:not(.simple) .pg-btn::after { inset: -2px -3px -3px; }  /* v58: never over the Now card below */
+html.lay-phone-port:not(.simple) .pg-btn::after { inset: -1px -4px; }
+/* v56: phone portrait full mode: the cycler width comes from the bar, not from its text. */
+html.lay-phone-port.prog-top:not(.simple) .prog { flex: 1 1 0; width: 0; min-width: 0; max-width: none; }
+html.lay-phone-port.prog-top:not(.simple) .topbar .spacer { flex: 0 0 0; }
+html.lay-phone-port:not(.simple) .pg-btn { width: 38px; height: 40px; }  /* v59: Next alone, full bar height */
+/* Last-resort squeeze (one long name in a narrow column, e.g. B\266d7sus4 at 667 px): no side padding. */
+html:not(.simple) .ss.tight .ss-chip.sq { padding-left: 0; padding-right: 0; }
+.ss .ss-chip.pg-on { transform: scale(.92); filter: brightness(1.25); }
+.ss .ss-note.pg-on { transform: scale(.92); background: rgba(255, 244, 222, .42); box-shadow: 0 1px 0 rgba(0, 0, 0, .45); }
+.ss .ss-note.home.pg-on { background: rgba(240, 196, 120, .55); }
+
+
+/* v68 "next chord" hint (full mode): pulsing gold outline + root dot, distinct from the lit fill */
+.kb .pad.nx:not(.black) { position: relative; }
+.kb .pad.nx::after { content: ""; position: absolute; inset: 1px; border-radius: inherit; pointer-events: none; z-index: 3;
+  box-shadow: inset 0 0 0 3px #c4853f, inset 0 0 0 5px rgba(20, 12, 4, .35); animation: nxPulse 1.5s ease-in-out infinite; }
+.kb .pad.nx-root::before { content: ""; position: absolute; left: 50%; top: 9px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%;
+  background: #c4853f; box-shadow: 0 0 0 1.5px rgba(20, 12, 4, .45); pointer-events: none; z-index: 4; }
+/* v79 Kids tap-to-advance: a quick gold flash on the tapped gold pad / key and on the new gold */
+@keyframes kgTap { 0% { filter: brightness(1.8); box-shadow: 0 0 0 0 rgba(236, 178, 92, .95); } 100% { filter: none; box-shadow: 0 0 0 10px rgba(236, 178, 92, 0); } }
+@keyframes kgTapR { 0% { filter: brightness(1.8); } 100% { filter: none; } }
+#suggest.kids1 .ss-kidpad.kgtap, html.simple #suggest.kids1 .ss-kidpad.kgtap, .kb .pad.kgtap { animation: kgTap .4s ease-out 1 !important; }
+@media (prefers-reduced-motion: reduce) { #suggest.kids1 .ss-kidpad.kgtap, html.simple #suggest.kids1 .ss-kidpad.kgtap, .kb .pad.kgtap { animation: kgTapR .4s ease-out 1 !important; } }
+/* v93: the Kids tap flash in full mode (chip tap, Next, Play song): same flash + expanding ring, a little
+   smaller and shorter; paint-only (filter + box-shadow), so nothing moves; reduced motion = the flash only */
+@keyframes fxTap { 0% { filter: brightness(1.55); box-shadow: 0 0 0 0 rgba(236, 178, 92, .8); } 100% { filter: none; box-shadow: 0 0 0 7px rgba(236, 178, 92, 0); } }
+@keyframes fxTapR { 0% { filter: brightness(1.4); } 100% { filter: none; } }
+html:not(.simple) #suggest:not(.kids1) .fxtap { animation: fxTap .32s ease-out 1; }
+@media (prefers-reduced-motion: reduce) { html:not(.simple) #suggest:not(.kids1) .fxtap { animation: fxTapR .32s ease-out 1; } }
+/* v99: full mode: the grid cell Play would sound next: thin dashed warm-white outline, a touch brighter, and a
+   gentle grow-and-pulse (the scale property only, so no layout shift). Reduced motion: the outline stays still. */
+@keyframes laPulse { 0%, 100% { scale: 1; filter: brightness(1.08); } 50% { scale: 1.035; filter: brightness(1.16); } }
+html:not(.simple) #suggest:not(.kids1) .la-play { outline: 1.5px dashed rgba(255, 236, 205, .62); outline-offset: 2px; filter: brightness(1.08); animation: laPulse 2.2s ease-in-out infinite; }
+html:not(.simple) #suggest:not(.kids1) .ss-note.la-play { background-color: rgba(255, 244, 222, .14); }
+html:not(.simple) #suggest:not(.kids1) .la-play.fxtap { animation: fxTap .32s ease-out 1; }
+@media (prefers-reduced-motion: reduce) { html:not(.simple) #suggest:not(.kids1) .la-play { animation: none; scale: none; } html:not(.simple) #suggest:not(.kids1) .la-play.fxtap { animation: fxTapR .32s ease-out 1; } }
+.ss .ss-chip.nx, .ss .ss-note.nx { outline: 2px solid #c4853f; outline-offset: 1px; animation: nxPulseO 1.5s ease-in-out infinite; }
+html.simple .nx::after, html.simple .nx::before { display: none; }
+html.simple .ss .nx { outline: none; animation: none; }
+.nx-arrow { position: fixed; z-index: 50; width: 22px; height: 22px; border-radius: 50%; background: rgba(20, 14, 8, .82); color: #c4853f;
+  border: 1.5px solid #c4853f; font-size: 11px; line-height: 19px; text-align: center; pointer-events: none; animation: nxPulse 1.5s ease-in-out infinite; }
+.nx-arrow[hidden] { display: none; }
+@keyframes nxPulse { 0%, 100% { opacity: .6; } 50% { opacity: 1; } }
+/* v73: uploaded song NEXT chord (replaces the sequence numbers): thin, softly pulsing gold outline */
+@keyframes upNxSoft { 0%, 100% { outline-color: rgba(196, 133, 63, .5); } 50% { outline-color: rgba(196, 133, 63, .95); } }
+#suggest .upnx, #songBar .sb-ch.upnx, #upSecs .up-ch.upnx, html.simple #suggest .upnx { outline: 1.5px solid rgba(196, 133, 63, .8); outline-offset: 1px; animation: upNxSoft 1.8s ease-in-out infinite; }
+#suggest.kids1 .ss-kidpad.nx.nx, html.simple #suggest.kids1 .ss-kidpad.nx.nx { outline-width: 2px; animation: upNxSoft 1.8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { #suggest .upnx, #songBar .upnx, #upSecs .upnx, #suggest.kids1 .ss-kidpad.nx.nx { animation: none; } }
+@keyframes nxPulseO { 0%, 100% { outline-color: rgba(196, 133, 63, .45); } 50% { outline-color: rgba(196, 133, 63, 1); } }
+@media (prefers-reduced-motion: reduce) { .kb .pad.nx::after, .ss .nx, .nx-arrow { animation: none; } }
+
+/* v70 Kids strip: one big basic triad chip; the rest of the board stays built but hidden */
+#suggest.kids1 > :not(.ss-kidwrap) { visibility: hidden !important; pointer-events: none !important; }
+#suggest.kids1 .ss-kidwrap { position: absolute; inset: 6px; z-index: 5; display: flex; flex-direction: column; gap: 6px; min-height: 0; }
+#suggest.kids1 .ss-kidnow { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+#suggest.kids1 .ss-kid { width: min(62%, 240px); height: min(100%, 150px); min-height: 0; border-radius: 22px; border-width: 2px;
+  font-size: clamp(26px, 9vmin, 60px); font-weight: 800; letter-spacing: 0; padding: 0 8px; }
+html.simple #suggest.kids1 .ss-kid { border-radius: 26px; }
+#suggest.kids1 .ss-kidpads { flex: 0 0 auto; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; height: clamp(36px, 7vmin, 56px); }
+#suggest.kids1 .ss-kidpad { grid-row: auto; grid-column: auto; min-width: 0; height: 100%; border-radius: 10px; border-width: 1px; padding: 0 1px; font-size: clamp(12px, 3.4vmin, 18px); font-weight: 800; letter-spacing: -0.02em; }
+/* narrow strips (phone portrait, full mode): 2 rows (4 + 3) */
+html.lay-phone-port:not(.simple) #suggest.kids1 .ss-kidpads { grid-template-columns: repeat(4, minmax(0, 1fr)); height: auto; grid-auto-rows: 38px; }
+/* v73 Kids: no big Now chip; the seven pads fill the strip */
+#suggest.kids1 .ss-kidnow { display: none; }
+#suggest.kids1 .ss-kidwrap { justify-content: center; }
+#suggest.kids1 .ss-kidpads { flex: 1 1 auto; height: auto; max-height: 132px; min-height: 44px; }
+#suggest.kids1 .ss-kidpad { font-size: clamp(15px, 4.6vmin, 26px); border-width: 2px; border-radius: 14px; }
+html.lay-phone-port:not(.simple) #suggest.kids1 .ss-kidpads { grid-auto-rows: minmax(44px, 1fr); max-height: 150px; }
+
+
+/* v70: master Volume on the main screen, beside the transport (Next) button, every mode */
+.pg-btns { align-items: center; }
+.pg-vol { display: flex; align-items: center; gap: 4px; flex: 1 1 auto; min-width: 0; height: 100%; padding: 0 4px 0 6px; color: var(--muted, #b9ad9a); }
+.pg-vol svg { flex: 0 0 auto; width: 16px; height: 16px; }
+.pg-vol input { flex: 1 1 auto; min-width: 0; width: 100%; margin: 0; accent-color: var(--copper); }
+.pg-vol b { display: none; }
+html.lay-phone-port:not(.simple) .pg-btns { flex-direction: row; gap: 2px; }
+html.lay-phone-port:not(.simple) .now-col > .prog, html.lay-phone-port:not(.simple) .pg-btns { width: 100%; }
+html.simple .pg-vol { flex: 1.5 1 0; }
+html.lay-phone-land:not(.simple) .pg-vol { flex: 2 1 0; height: 20px; padding: 0 2px; }
+html.lay-phone-port:not(.simple) .pg-vol { padding: 0 2px 0 4px; }
+html.lay-phone-port:not(.simple) .pg-vol svg, html.lay-phone-land:not(.simple) .pg-vol svg { display: none; }
+html.lay-phone-port:not(.simple) .pg-btn.pg-step { width: 32px; }
+/* v74: Play song beside Next (both modes) */
+html.lay-phone-port:not(.simple) .pg-btn.pg-song { width: 32px; }
+/* phone portrait (full): Next / Play song / Upload share the row, Volume gets its own thin row below */
+html.lay-phone-port:not(.simple) .pg-btns { flex-wrap: wrap; row-gap: 3px; height: auto; }
+html.lay-phone-port:not(.simple) .pg-btns > .pg-btn { flex: 1 1 0; width: auto; height: 27px; }
+html.lay-phone-port:not(.simple) .pg-btns > .pg-vol { flex: 1 0 100%; height: 14px; padding: 0 6px; }
+/* v76: Volume sits between the Now display and the key selector (Simple and Full, every layout). */
+.now-mix > .now-vol { flex: 0 0 auto; display: flex; align-items: center; height: 22px; min-height: 22px; }
+html:not(.simple) .now-col > .now-mix { order: 1; }   /* full mode orders the column: Now 1, Volume 1 (after it in the DOM), Key 2 */
+.now-mix > .now-vol .pg-vol { flex: 1 1 auto; height: 100%; padding: 0 6px 0 6px; gap: 6px; }
+.now-mix > .now-vol .pg-vol svg { display: block; width: 15px; height: 15px; }
+html.lay-phone-land .now-mix > .now-vol, html.lay-phone-port:not(.simple) .now-mix > .now-vol { height: 16px; min-height: 16px; }
+html.lay-phone-land .now-mix > .now-vol .pg-vol svg, html.lay-phone-port:not(.simple) .now-mix > .now-vol .pg-vol svg { width: 12px; height: 12px; }
+.pg-btn.pg-song.on { background: var(--copper); color: #1a1209; border-color: var(--copper); }
+
+/* v71 Kids next-note hint on the seven pads (both modes) */
+#suggest.kids1 .ss-kidpad { position: relative; overflow: visible; }
+#suggest.kids1 .ss-kidpad.nx, html.simple #suggest.kids1 .ss-kidpad.nx { outline: 3px solid #c4853f; outline-offset: 1px; animation: nxPulseO 1.5s ease-in-out infinite; }
+#suggest.kids1 .ss-kidpad.nx-root::before, html.simple #suggest.kids1 .ss-kidpad.nx-root::before { content: ""; display: block; position: absolute; left: 50%; top: 3px; width: 7px; height: 7px; margin-left: -3.5px;
+  border-radius: 50%; background: #c4853f; box-shadow: 0 0 0 1.5px rgba(20, 12, 4, .5); pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { #suggest.kids1 .ss-kidpad.nx { animation: none; } }
+
+/* v112 Play along hint: one small pill just above the keyboard (or near the bottom without one); 2 s; never takes a tap */
+.pa-hint { position: fixed; z-index: 60; left: 50%; top: 0; transform: translateX(-50%); width: max-content; max-width: calc(100vw - 24px); box-sizing: border-box;
+  padding: 7px 14px; border-radius: 999px; background: #2a1f14; color: #f3e6cf; border: 1.5px solid #c4853f; font-size: 14px; font-weight: 600;
+  line-height: 1.25; text-align: center; box-shadow: 0 4px 14px rgba(0, 0, 0, .45); pointer-events: none; opacity: 0; transition: opacity .18s; }
+.pa-hint.on { opacity: 1; }
+.pa-hint.compact { padding: 2px 10px; font-size: 12px; line-height: 1.2; border-width: 1px; }   /* v112.2: fits a gap between rows */
+.pa-hint[hidden] { display: none; }
+/* v112 first-launch Kids tour: the v110 How to spotlight look (rgba(0,0,0,.6) dim, soft cut-out, dashed #c4853f outline,
+   gold numbered marker) with a card: Next / Skip, Done on the last step. */
+.tour { position: fixed; inset: 0; z-index: 80; }
+.tour[hidden] { display: none; }
+.tour-dim { position: absolute; inset: 0; background: rgba(0, 0, 0, .6); }
+.tour-hole { position: absolute; border-radius: 12px; box-shadow: 0 0 0 200vmax rgba(0, 0, 0, .6), 0 0 14px 4px rgba(0, 0, 0, .35) inset;
+  outline: 2px dashed #c4853f; outline-offset: 3px; pointer-events: none; }
+.tour-num { position: absolute; width: 24px; height: 24px; border-radius: 50%; background: #c4853f; color: #1d140b; font-weight: 800; font-size: 13px;
+  display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px rgba(20, 12, 4, .6); pointer-events: none; }
+.tour-card { position: absolute; box-sizing: border-box; width: min(336px, calc(100vw - 24px)); background: #241a11; color: #f3e6cf;
+  border: 1.5px solid #c4853f; border-radius: 14px; padding: 14px 14px 10px; box-shadow: 0 8px 28px rgba(0, 0, 0, .5); }
+.tour-text { font-size: 17px; line-height: 1.35; margin: 0 0 12px; }
+.tour-foot { display: flex; align-items: center; gap: 8px; }
+.tour-step { flex: 1 1 auto; font-size: 12px; opacity: .75; }
+.tour-btn { min-height: 40px; padding: 0 16px; border-radius: 10px; font: inherit; font-weight: 700; border: 1px solid #c4853f; background: transparent; color: #f3e6cf; cursor: pointer; }
+.tour-btn.pri { background: #c4853f; color: #1d140b; }
+/* v112: two more rows (Show hints, Help > Tour): keep the gear menu on screen in landscape; it scrolls when taller */
+.config-menu { max-height: calc(100vh - 72px); max-height: calc(100dvh - 72px); overflow-y: auto; overscroll-behavior: contain; }
+.config-menu > * { flex-shrink: 0; }
+.config-menu .cfg-sub { padding-left: 22px; }
+.config-menu .cfg-help { display: flex; align-items: center; gap: 8px; }
+.config-menu .cfg-help .cfg-lbl { flex: 0 0 auto; font-size: 13px; opacity: .75; padding-left: 4px; }
+.config-menu .cfg-help #tourBtn { flex: 1 1 auto; width: auto; }
