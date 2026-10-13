@@ -145,6 +145,13 @@ html.up-lyr2.lay-phone-land:not(.simple) #app { --sb-h: calc(2 * var(--lr-h) + 4
 #songBar .sb-row.r2 { opacity: .62; }
 #songBar .sb-row .sb-ch { padding: 0 4px; line-height: calc(var(--lr-h) - 2px); }
 #songBar .sb-sec2 { margin-right: 4px; color: var(--copper); font-weight: 700; text-transform: capitalize; }
+/* iPad: Simple shows the lyric rows too; html.lyr3 (tall iPad screens, set in lyrics.js) shows a third row. Phones unchanged. */
+html.lyr3 #app { --lr-n: 3; --kl-n: 3; }
+html.up-on.up-lyr2.lay-pad-port #songBar, html.up-on.up-lyr2.lay-pad-land #songBar { height: calc(var(--lr-n, 2) * var(--lr-h) + 2px); }
+html.up-lyr2.lay-pad-port #app, html.up-lyr2.lay-pad-land #app { --sb-h: calc(var(--lr-n, 2) * var(--lr-h) + 5px); }
+html.lay-pad-port #songBar .sb-lyr, html.lay-pad-land #songBar .sb-lyr { height: calc(var(--lr-n, 2) * var(--lr-h)); }
+html.lay-pad-port #kidsLyr, html.lay-pad-land #kidsLyr { height: calc(var(--kl-n, 2) * var(--kl-h)); }
+html.kly-on.lyr3:not(.simple):not(.lay-phone-port) .next-card > .ss { height: calc(3 * var(--ss-row) + var(--ss-strip) + 3 * var(--ss-gap) - 3 * var(--kl-h) - 4px); }
 @media (prefers-reduced-motion: reduce) { #songBar .sb-roll.go { transition: none; } }
 /* v97: Kids lyrics: the same two rows (the line being sung, then the next line), bigger, the sung word lit. */
 #app { --kl-h: 19px; }

@@ -4,7 +4,7 @@ import { prog, placeBadges } from "../songs/playback.js?v=112.3";
 import { paintUpNext, upSelected, upT, upA, upPlaceLock, upEsc, upCurStep } from "../songs/song.js?v=112.3";
 import { upProgObj, upEv, upSym, upFlagged, upSecName } from "../songs/upload.js?v=112.3";
 import { state, shared } from "../state.js?v=112.3";
-import { upLyrMap, lyrState, paintLyr2 } from "./lyrics.js?v=112.3";
+import { upLyrMap, lyrState, paintLyr2, lyrPad } from "./lyrics.js?v=112.3";
 import { fitStrip } from "./strip.js?v=112.3";
 export function paintSongBar() {
   document.documentElement.classList.toggle("up-nonum", upSelected());   // v73: no sequence numbers on an uploaded song's grid
@@ -19,7 +19,7 @@ export function paintSongBar() {
     document.documentElement.classList.toggle("up-on", on);   // CSS: the strip rows give the bar its room
     setTimeout(function () { fitStrip(); placeBadges(); }, 0);
   }
-  var two = on && !state.simple && upLyrMap().any;   // v95
+  var two = on && (!state.simple || lyrPad()) && upLyrMap().any;   // v95; iPad: Simple gets the lyric rows too
   if (document.documentElement.classList.contains("up-lyr2") !== two) {
     document.documentElement.classList.toggle("up-lyr2", two);
     bar._html = null; lyrState.k = -1;
