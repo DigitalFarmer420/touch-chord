@@ -68,6 +68,10 @@ function splitWord() {
   t.removeChild(probe);
   return bad;
 }
+// v112.5 (#6): short names for the narrow phone picker, used only when the full name won't fit one line at 11 px.
+const SHORT_NAMES = { "Old MacDonald": "MacDonald", "Row Your Boat": "Row Boat", "Itsy Bitsy Spider": "Itsy Bitsy",
+  "London Bridge": "London", "Hey Diddle Diddle": "Hey Diddle", "Head Shoulders Knees and Toes": "Shoulders", "Mary's Lamb": "Mary", "Island Skank": "Skank", "Minor Riddim": "Riddim",
+  "Baa Baa Black Sheep": "Baa Baa", "Hickory Dickory Dock": "Hickory", "Hot Cross Buns": "Hot Buns", "Rhythm Changes": "Rhythm" };
 function fitProgName() {
   var el = document.getElementById("prog");
   if (!el || !el.offsetParent) return;
@@ -96,6 +100,14 @@ function fitProgName() {
     // line; two-word labels may wrap onto two lines at up to 12 px. Never smaller than before.
     if (!state.simple && fs1 < 13) {
       var base = fs1, bw0 = box.clientWidth + 0.5, bh0 = box.clientHeight + 0.5;
+      // v112.5 (#6): one line at 11-13 px first; a name too long for that shows its short phone name
+      // ("Old MacDonald" -> "MacDonald") before it may wrap. The full name stays in the picker's aria-label.
+      var cands = [L.feel]; if (SHORT_NAMES[L.feel]) cands.push(SHORT_NAMES[L.feel]);
+      for (var wi = 0; wi < cands.length; wi++) {
+        t.textContent = cands[wi];
+        for (var g1 = 13; g1 > 10.99; g1 -= 0.5) { t.style.fontSize = g1 + "px"; if (t.scrollWidth <= bw0 && t.offsetHeight <= bh0) return; }
+      }
+      t.textContent = L.feel; t.style.fontSize = "";
       // Two words: one line down to 11 px, then two lines (larger) before a smaller single line.
       var multi = L.feel.indexOf(" ") >= 0, low = multi ? Math.max(base, 11) - 0.01 : base;
       for (var g = 13; g > low; g -= 0.5) { t.style.fontSize = g + "px"; if (t.scrollWidth <= bw0 && t.offsetHeight <= bh0) return; }
@@ -119,19 +131,19 @@ function fitProgName() {
         var lhs = ["", "1"];
         for (var lh = 0; lh < 2; lh++) {
           t.style.lineHeight = lhs[lh];
-          for (g = 12; g > 10.49; g -= 0.5) { t.style.fontSize = g + "px"; if (ok2(g)) return; }
+          for (g = 12; g > 10.99; g -= 0.5) { t.style.fontSize = g + "px"; if (ok2(g)) return; }
         }
         // v64: a short picker (phone landscape, 26 px) holds two lines at >= 10.5 px only with a
         // line-height under 1: the glyph boxes overlap, the ink does not.
         var tight = ["0.9", "0.85", "0.8", "0.75"];
-        for (g = 12; g > 10.49; g -= 0.5) {
+        for (g = 12; g > 10.99; g -= 0.5) {
           t.style.fontSize = g + "px";
           for (var ti = 0; ti < tight.length; ti++) { t.style.lineHeight = tight[ti]; centre(); if (ok2(g)) return; }
         }
         t.style.position = t.style.top = "";
         for (lh = 0; lh < 2; lh++) {
           t.style.lineHeight = lhs[lh];
-          for (g = 10; g > base - 1.01; g -= 0.5) { t.style.fontSize = g + "px"; if (ok2(g)) return; }
+          for (g = 11; g > Math.max(base, 11) - 0.01; g -= 0.5) { t.style.fontSize = g + "px"; if (ok2(g)) return; }
         }
         t.style.lineHeight = "";
         t.style.whiteSpace = "nowrap";
@@ -139,28 +151,34 @@ function fitProgName() {
       }
       t.style.fontSize = "";
     }
-    while (fs1 > 9 && t.scrollWidth > box.clientWidth + 0.5) { fs1 = Math.max(9, fs1 - 0.5); t.style.fontSize = fs1 + "px"; }
+    while (fs1 > 11 && t.scrollWidth > box.clientWidth + 0.5) { fs1 = Math.max(11, fs1 - 0.5); t.style.fontSize = fs1 + "px"; }
     if (t.scrollWidth <= box.clientWidth + 0.5) return;
     // One word (e.g. "Turnaround") must not break mid-word: tighten, then an 8.5 px floor.
     if (L.feel.indexOf(" ") < 0) {
       var lsx = [-0.02, -0.04, -0.06];
       for (var li = 0; li < lsx.length; li++) { t.style.letterSpacing = lsx[li] + "em"; if (t.scrollWidth <= box.clientWidth + 0.5) return; }
-      t.style.fontSize = "8.5px";
+      t.style.fontSize = "11px";
       if (t.scrollWidth <= box.clientWidth + 0.5) return;
       t.style.letterSpacing = "";
     }
     t.style.whiteSpace = "";
     t.style.fontSize = "";
   }
-  var fs = parseFloat(getComputedStyle(t).fontSize) || 14, floor = state.simple ? 11 : 9;
+  if (state.simple && !wide) t.style.whiteSpace = "nowrap";   // v112.5 (#6): Simple phone names stay on one line
+  var fs = parseFloat(getComputedStyle(t).fontSize) || 14, floor = 11;   // v112.5 (#8): no text under 11 px
   function over() { return t.scrollWidth > box.clientWidth + 0.5 || t.offsetHeight > box.clientHeight + 0.5; }
   while (fs > floor && over()) {
     fs = Math.max(floor, fs - 0.5);
     t.style.fontSize = fs + "px";
   }
+  // v112.5 (#6): still too big (e.g. Simple, "Head Shoulders Knees and Toes"): the short name, refit from the top.
+  if (over() && !wide && SHORT_NAMES[L.feel]) {
+    t.textContent = SHORT_NAMES[L.feel]; t.style.fontSize = ""; fs = parseFloat(getComputedStyle(t).fontSize) || 14;
+    while (fs > floor && over()) { fs = Math.max(floor, fs - 0.5); t.style.fontSize = fs + "px"; }
+  }
   // v57: the longest name (Smooth, 5 chords) at the floor: tighten, then 8.5px rather than clip.
   if (over()) t.style.letterSpacing = "-0.03em";
-  if (over() && !state.simple) t.style.fontSize = "8.5px";
+  if (over() && !state.simple) t.style.fontSize = "11px";
 }
 export function wireProg() {
   var el = document.getElementById("prog");
@@ -184,10 +202,10 @@ export function wireProg() {
   sel.addEventListener("pointerdown", function (e) {
     if (e.button != null && e.button !== 0) return;
     e.preventDefault();
-    // Tap zones: each arrow plus the outer 30% of the row on its side (small arrows, big targets).
+    // Tap zones: each arrow plus its half of the row (v112.5: was the outer 30%; the middle did nothing on a tap).
     var arrow = e.target.closest ? e.target.closest(".pg-arrow") : null, r = sel.getBoundingClientRect();
     var side = arrow ? (arrow.classList.contains("pg-prev") ? -1 : 1)
-      : e.clientX < r.left + r.width * 0.3 ? -1 : e.clientX > r.right - r.width * 0.3 ? 1 : 0;
+      : e.clientX < r.left + r.width * 0.5 ? -1 : 1;
     drag = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: false, done: false,
       arrow: side, unit: Math.max(24, Math.min(40, sel.clientWidth / 6)) };
     try { sel.setPointerCapture(e.pointerId); } catch (err) {}

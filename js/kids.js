@@ -7,6 +7,7 @@ import { state, scheduleSave } from "./state.js?v=112.5";
 import { wrap12 } from "./theory/quality.js?v=112.5";
 import { accSym } from "./theory/spelling.js?v=112.5";
 import { setLockKey } from "./ui/keychip.js?v=112.5";
+import { updateSymbol } from "./ui/nowbox.js?v=112.5";
 import { STRIP_ICONS, prettyAcc, wireStripTap } from "./ui/strip.js?v=112.5";
 // v70: Kids strip = ONE big basic triad chip: the chord now current in the walk / loop
 // (or the home triad before anything plays). The full board is still built underneath
@@ -73,7 +74,15 @@ export function paintKidChip() {
 // the arrows do the same; the mode button flips Major/Minor. Sets the key lock.
 export function kidKey() { return activeKey() || { pc: 0, mode: "major" }; }
 function setKidKey(pc, mode) {
+  // v112.5 (#2): in Simple the Now box follows a key change: it shows the new key's home chord
+  // (I or i) instead of the last chord played before the switch (e.g. a Full-mode A). No sound.
+  if (state.simple) {
+    state.rootPc = wrap12(pc); state.type = mode === "minor" ? "minor" : "major";
+    state.extensions = { six: false, min7: false, maj7: false, nine: false };
+    state.forceChord = null; state.stripSpell = null; state.rootMidi = null;
+  }
   setLockKey({ pc: wrap12(pc), mode: mode });
+  if (state.simple) updateSymbol();
   scheduleSave(0);
 }
 export function paintKidKey() {
@@ -106,23 +115,30 @@ export function wireKidKey() {
     name.classList.add(d > 0 ? "nudge-r" : "nudge-l");
     setTimeout(function () { name.classList.remove("nudge-l", "nudge-r"); }, 140);
   }
-  box.querySelector(".kk-prev").addEventListener("click", function (e) { e.stopPropagation(); unlock(); step(-1); });
-  box.querySelector(".kk-next").addEventListener("click", function (e) { e.stopPropagation(); unlock(); step(1); });
+  // v112.5 (#7): each arrow's tap area covers its half of the box (CSS ::after); a swipe that starts there still
+  // steps by drag, and then its click is ignored.
+  var swiped = false;
+  box.querySelector(".kk-prev").addEventListener("click", function (e) { e.stopPropagation(); if (swiped) { swiped = false; return; } unlock(); step(-1); });
+  box.querySelector(".kk-next").addEventListener("click", function (e) { e.stopPropagation(); if (swiped) { swiped = false; return; } unlock(); step(1); });
   var drag = null;
   root.addEventListener("pointerdown", function (e) {
-    if (e.target.closest(".kk-arrow")) return;
-    e.preventDefault();
+    var onArrow = !!e.target.closest(".kk-arrow");
+    swiped = false;
+    if (!onArrow) e.preventDefault();
     unlock();
     // One step per ~quarter of the box (at least 36 px) so a small wobble does nothing.
-    drag = { id: e.pointerId, x: e.clientX, unit: Math.max(36, root.clientWidth / 4) };
-    try { root.setPointerCapture(e.pointerId); } catch (err) {}
+    drag = { id: e.pointerId, x: e.clientX, unit: Math.max(36, root.clientWidth / 4), cap: false };
+    // On an arrow the capture waits for real movement, so a plain tap still clicks the arrow.
+    if (!onArrow) { drag.cap = true; try { root.setPointerCapture(e.pointerId); } catch (err) {} }
   });
   root.addEventListener("pointermove", function (e) {
     if (!drag || e.pointerId !== drag.id) return;
     e.preventDefault();
     var dx = e.clientX - drag.x;
+    if (!drag.cap && Math.abs(dx) > 8) { drag.cap = true; try { root.setPointerCapture(e.pointerId); } catch (err) {} }
     while (Math.abs(dx) >= drag.unit) {
       var d = dx > 0 ? 1 : -1;
+      swiped = true;
       step(d);
       drag.x += d * drag.unit;
       dx = e.clientX - drag.x;

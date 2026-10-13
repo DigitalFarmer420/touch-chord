@@ -1,4 +1,6 @@
 /* Touch Chord: base. Files load in this order: base, layout, topbar, strip, panels, keyboard, modes, dialogs (the cascade order of v112.3). */
+/* v112.5 (#8): one small type scale. Static font sizes use these 6 steps; the auto-fit texts (chord symbol, song name, key row) and the --tx text-size setting scale from them. No text under 11 px. */
+:root { --fs-xs: 11px; --fs-s: 12px; --fs-m: 14px; --fs-l: 17px; --fs-xl: 24px; --fs-2xl: 34px; }
 :root {
   color-scheme: dark;
   --bg: #14120f;

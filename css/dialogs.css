@@ -4,18 +4,18 @@
 html.simple .pg-up { display: none !important; }   /* v73: Simple shows the song bar (lyrics + chords), not the Upload button */
 html.simple #songBar { cursor: default; }
 html.lay-phone-port:not(.simple) .pg-btn.pg-up { width: 32px; }
-#songBar { display: flex; align-items: center; gap: 5px; min-width: 0; min-height: 0; width: 100%; box-shadow: none; flex: 0 0 auto; height: 22px; margin: 0 0 3px; padding: 0 4px 0 2px; font-size: 11.5px; line-height: 1; color: var(--ink); background: none; border: 0; border-radius: 8px; text-align: left; cursor: pointer; overflow: hidden; }
+#songBar { display: flex; align-items: center; gap: 5px; min-width: 0; min-height: 0; width: 100%; box-shadow: none; flex: 0 0 auto; height: 22px; margin: 0 0 3px; padding: 0 4px 0 2px; font-size: var(--fs-xs); line-height: 1; color: var(--ink); background: none; border: 0; border-radius: 8px; text-align: left; cursor: pointer; overflow: hidden; }
 #songBar[hidden] { display: none !important; }
 /* v73 song chord Lock (song bar + Upload panel) */
 .next-card { position: relative; }
-#sbLock { position: absolute; z-index: 6; top: 0; right: 0; display: flex; align-items: center; gap: 3px; min-width: 0; min-height: 0; height: 22px; padding: 0 7px; font-size: 11px; font-weight: 700; line-height: 1; border-radius: 8px; box-shadow: none; color: var(--muted); background: rgba(255,255,255,.06); border: 1px solid var(--line); }
+#sbLock { position: absolute; z-index: 6; top: 0; right: 0; display: flex; align-items: center; gap: 3px; min-width: 0; min-height: 0; height: 22px; padding: 0 7px; font-size: var(--fs-xs); font-weight: 700; line-height: 1; border-radius: 8px; box-shadow: none; color: var(--muted); background: rgba(255,255,255,.06); border: 1px solid var(--line); }
 #sbLock[hidden], html.simple #sbLock { display: none !important; }
 #sbLock svg, #upLock svg { width: 12px; height: 12px; flex: 0 0 auto; }
 #sbLock[aria-pressed="true"], #upLock[aria-pressed="true"] { color: #1a1209; background: var(--copper); border-color: var(--copper); }
 #sbLock[aria-pressed="false"] .shk, #upLock[aria-pressed="false"] .shk { transform: translate(5px, -1.5px); }
 #upLock { display: inline-flex; align-items: center; gap: 5px; }
 .up-lockrow[hidden] { display: none; }
-.up-lockrow .up-lockhint { font-size: 12px; color: var(--muted); flex: 1 1 160px; }
+.up-lockrow .up-lockhint { font-size: var(--fs-s); color: var(--muted); flex: 1 1 160px; }
 html.up-locked .up-ch .alt { display: none; }
 #songBar .sb-sec { flex: 0 0 auto; padding: 3px 6px; border-radius: 7px; background: rgba(226, 161, 90, .18); color: var(--copper); font-weight: 700; text-transform: capitalize; }
 #songBar .sb-line { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
@@ -24,53 +24,53 @@ html.up-locked .up-ch .alt { display: none; }
 #songBar .sb-ch.flag::after, .up-ch.flag::after { content: "?"; display: inline-block; margin-left: 2px; padding: 0 3px; border-radius: 6px; background: #f08a24; color: #1a1209; font-size: .85em; font-weight: 800; }
 #songBar .sb-alt { flex: 0 0 auto; color: var(--copper); font-weight: 700; }
 .ss .ss-chip.up-flag { box-shadow: 0 0 0 2px #f08a24; }
-html.lay-pad-port #songBar, html.lay-pad-land #songBar { height: 28px; font-size: 14px; }
+html.lay-pad-port #songBar, html.lay-pad-land #songBar { height: 28px; font-size: var(--fs-m); }
 .up-pick .kp-box { max-width: 640px; display: flex; flex-direction: column; gap: 8px; }
 .up-pick .kp-box > * { flex: 0 0 auto; }
-.up-intro { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.35; }
+.up-intro { margin: 0; font-size: var(--fs-m); color: var(--muted); line-height: 1.35; }
 .up-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.up-fields label { display: flex; flex-direction: column; gap: 3px; font-size: 11px; color: var(--muted); font-weight: 700; min-width: 0; }
-.up-fields input, .up-paste textarea, .up-fallback textarea { width: 100%; box-sizing: border-box; min-width: 0; font: inherit; font-size: 15px; color: var(--ink); background: rgba(255,255,255,.06); border: 1px solid var(--line); border-radius: 9px; padding: 7px 8px; }
+.up-fields label { display: flex; flex-direction: column; gap: 3px; font-size: var(--fs-xs); color: var(--muted); font-weight: 700; min-width: 0; }
+.up-fields input, .up-paste textarea, .up-fallback textarea { width: 100%; box-sizing: border-box; min-width: 0; font: inherit; font-size: var(--fs-m); color: var(--ink); background: rgba(255,255,255,.06); border: 1px solid var(--line); border-radius: 9px; padding: 7px 8px; }
 .up-key { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 8px 12px; border: 2px solid var(--copper); border-radius: 12px; background: rgba(226,161,90,.10); }
-.up-key .uk-l { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-.up-key .uk-k { font-family: Palatino, "Iowan Old Style", Georgia, serif; font-size: 34px; font-weight: 700; line-height: 1.05; color: var(--copper); }
-.up-key .uk-t { font-size: 13px; color: var(--muted); text-align: right; }
+.up-key .uk-l { font-size: var(--fs-xs); font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.up-key .uk-k { font-family: Palatino, "Iowan Old Style", Georgia, serif; font-size: var(--fs-2xl); font-weight: 700; line-height: 1.05; color: var(--copper); }
+.up-key .uk-t { font-size: var(--fs-m); color: var(--muted); text-align: right; }
 /* v87: no key field or key display on the Upload form (song.key is still read and applied). */
 .up-key .uk-kbox[hidden] { display: none; }
 .up-key .uk-kbox[hidden] + .uk-t { text-align: left; }
-.up-review { border: 1px solid #f08a24; border-radius: 10px; padding: 6px 8px; font-size: 13px; }
+.up-review { border: 1px solid #f08a24; border-radius: 10px; padding: 6px 8px; font-size: var(--fs-m); }
 .up-review[hidden] { display: none; }
 .up-review b { color: #f08a24; }
 .up-review .ur-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 4px; }
-.up-review button, .up-alts button { min-height: 30px; height: 30px; padding: 0 8px; font-size: 13px; border-radius: 8px; }
+.up-review button, .up-alts button { min-height: 30px; height: 30px; padding: 0 8px; font-size: var(--fs-m); border-radius: 8px; }
 .up-secs { max-height: 44vh; overflow: auto; border: 1px solid var(--line); border-radius: 10px; padding: 4px 6px; overscroll-behavior: contain; }
-.up-secs .up-empty { padding: 10px 4px; font-size: 13px; color: var(--muted); }
+.up-secs .up-empty { padding: 10px 4px; font-size: var(--fs-m); color: var(--muted); }
 .up-sec { padding: 6px 0; border-bottom: 1px solid var(--line); }
 .up-sec:last-child { border-bottom: 0; }
-.up-sec .us-h { font-size: 12px; font-weight: 800; color: var(--copper); margin-bottom: 4px; }
+.up-sec .us-h { font-size: var(--fs-s); font-weight: 800; color: var(--copper); margin-bottom: 4px; }
 .up-sec .us-h span, .up-review .ur-row span { text-transform: capitalize; }
 .up-sec .us-h small { color: var(--muted); font-weight: 700; margin-left: 4px; }
 .up-chs { display: flex; flex-wrap: wrap; gap: 4px; }
-.up-ch { min-height: 30px; height: 30px; padding: 0 8px; font-size: 14px; font-weight: 700; border-radius: 8px; }
+.up-ch { min-height: 30px; height: 30px; padding: 0 8px; font-size: var(--fs-m); font-weight: 700; border-radius: 8px; }
 .up-ch.on { background: var(--copper); color: #1a1209; border-color: transparent; }
-.up-ch .alt { font-size: 10px; margin-left: 3px; color: var(--copper); }
+.up-ch .alt { font-size: var(--fs-xs); margin-left: 3px; color: var(--copper); }
 .up-ch.on .alt { color: #1a1209; }
-.up-alts { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; padding: 4px; border-radius: 8px; background: rgba(255,255,255,.05); font-size: 12px; align-items: center; }
+.up-alts { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; padding: 4px; border-radius: 8px; background: rgba(255,255,255,.05); font-size: var(--fs-s); align-items: center; }
 .up-alts button.on { background: var(--copper); color: #1a1209; }
-.up-ly { margin-top: 5px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.25; white-space: pre; overflow-x: auto; }
+.up-ly { margin-top: 5px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: var(--fs-s); line-height: 1.25; white-space: pre; overflow-x: auto; }
 .up-ly .ly-c { color: var(--copper); font-weight: 700; }
 .up-ly .ly-t { color: var(--ink); }
 .up-ly .ly-t .mk { text-decoration: underline 2px var(--copper); text-underline-offset: 2px; }
 /* v77: My songs (library). The list scrolls inside the panel. */
 .up-lib[hidden] { display: none; }
 .up-lib { display: flex; flex-direction: column; gap: 4px; }
-.up-lib .ul-h { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.up-lib .ul-h { font-size: var(--fs-s); font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
 .up-lib .ul-h small { font-weight: 600; letter-spacing: 0; text-transform: none; }
 .up-lib .ul-list { list-style: none; margin: 0; padding: 3px; max-height: min(30vh, 210px); overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--line); border-radius: 10px; display: flex; flex-direction: column; gap: 3px; }
 .up-lib .ul-row { display: flex; align-items: stretch; gap: 4px; min-width: 0; flex: 0 0 auto; }
 .up-lib .ul-open { flex: 1 1 auto; min-width: 0; height: auto; min-height: 40px; padding: 4px 10px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; text-align: left; border-radius: 9px; background: rgba(255,255,255,.04); border: 1px solid transparent; color: var(--ink); }
-.up-lib .ul-open b { font-size: 14px; font-weight: 700; line-height: 1.15; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.up-lib .ul-open span { font-size: 11.5px; color: var(--muted); line-height: 1.15; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.up-lib .ul-open b { font-size: var(--fs-m); font-weight: 700; line-height: 1.15; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.up-lib .ul-open span { font-size: var(--fs-xs); color: var(--muted); line-height: 1.15; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .up-lib .ul-row.on .ul-open { background: rgba(226,161,90,.16); border-color: var(--copper); }
 .up-lib .ul-row.on .ul-open b { color: var(--copper); }
 .up-lib .ul-del { flex: 0 0 40px; width: 40px; min-height: 40px; height: auto; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 9px; color: var(--muted); background: transparent; border: 1px solid var(--line); }
@@ -78,58 +78,58 @@ html.lay-pad-port #songBar, html.lay-pad-land #songBar { height: 28px; font-size
 html.lay-phone-land .up-lib .ul-list { max-height: 34vh; }
 html.lay-phone-land .up-lib .ul-open, html.lay-phone-land .up-lib .ul-del { min-height: 34px; }
 .up-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-.up-row button { min-height: 36px; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 10px; }
+.up-row button { min-height: 36px; height: 36px; padding: 0 12px; font-size: var(--fs-m); border-radius: 10px; }
 /* v80: prompt switch (Simple / Simple and Full) next to Copy for AI, and the per-song version switch in My songs */
 .up-pv, .up-lib .ul-ver { display: inline-flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; flex: 0 0 auto; }
-.up-row .up-pv button, .up-lib .ul-ver button { min-height: 30px; height: 30px; padding: 0 8px; font-size: 12.5px; font-weight: 700; border: 0; border-radius: 0; background: transparent; color: var(--muted); }
+.up-row .up-pv button, .up-lib .ul-ver button { min-height: 30px; height: 30px; padding: 0 8px; font-size: var(--fs-s); font-weight: 700; border: 0; border-radius: 0; background: transparent; color: var(--muted); }
 .up-row .up-pv button[aria-checked="true"], .up-lib .ul-ver button[aria-checked="true"] { background: var(--copper); color: #1a1209; }
 .up-lib .ul-ver { align-self: center; }
-.up-lib .ul-ver button { height: 28px; min-height: 28px; padding: 0 6px; font-size: 11.5px; }
-.up-row .up-ok { font-size: 13px; color: #8fd18f; font-weight: 700; }
+.up-lib .ul-ver button { height: 28px; min-height: 28px; padding: 0 6px; font-size: var(--fs-xs); }
+.up-row .up-ok { font-size: var(--fs-m); color: #8fd18f; font-weight: 700; }
 /* v91: the action row on top of the Upload screen wraps cleanly */
 .up-actions { row-gap: 6px; }
 .up-actions > * { flex: 0 0 auto; }
-.up-paste textarea { min-height: 70px; resize: vertical; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; }
+.up-paste textarea { min-height: 70px; resize: vertical; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: var(--fs-s); }
 .up-fallback[hidden], .up-err[hidden], .up-msg[hidden] { display: none; }
-.up-fallback textarea { min-height: 70px; font-size: 11px; }
-.up-err { border: 1px solid #e0605a; background: rgba(224,96,90,.12); border-radius: 10px; padding: 6px 8px; font-size: 13px; color: #ffd0cc; }
+.up-fallback textarea { min-height: 70px; font-size: var(--fs-xs); }
+.up-err { border: 1px solid #e0605a; background: rgba(224,96,90,.12); border-radius: 10px; padding: 6px 8px; font-size: var(--fs-m); color: #ffd0cc; }
 .up-err ul { margin: 4px 0 0; padding-left: 18px; }
-.up-err code { font-size: 12px; color: #fff; }
-.up-msg { font-size: 13px; color: #8fd18f; font-weight: 700; }
+.up-err code { font-size: var(--fs-s); color: #fff; }
+.up-msg { font-size: var(--fs-m); color: #8fd18f; font-weight: 700; }
 /* v73: "Song loaded" line at the top of the panel, with its own New song button */
-.up-note { font-size: 13px; color: #8fd18f; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.up-note { font-size: var(--fs-m); color: #8fd18f; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .up-note[hidden] { display: none; }
 /* v89: mode hint, multi-song summary, album line in My songs */
-.up-ask { font-size: 12px; color: var(--muted); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: -2px; }
+.up-ask { font-size: var(--fs-s); color: var(--muted); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: -2px; }
 .up-ask[hidden] { display: none; }
 .up-msg .us-l { display: block; }
 .up-msg .us-l + .us-l { font-weight: 600; color: #b9dcb9; }
 .up-msg details { margin-top: 4px; font-weight: 600; color: var(--ink); }
 .up-msg summary { cursor: pointer; color: #8fd18f; font-weight: 700; }
-.up-msg .us-list { list-style: none; margin: 4px 0 0; padding: 0 2px 0 0; max-height: 168px; overflow-y: auto; overscroll-behavior: contain; font-size: 12.5px; }
+.up-msg .us-list { list-style: none; margin: 4px 0 0; padding: 0 2px 0 0; max-height: 168px; overflow-y: auto; overscroll-behavior: contain; font-size: var(--fs-s); }
 html.lay-phone-land .up-msg .us-list { max-height: 120px; }
 .up-msg .us-list li { padding: 3px 0; border-top: 1px solid rgba(255,255,255,.06); overflow-wrap: anywhere; }
 .up-msg .us-list li.sk { color: #ffd0cc; }
 .up-msg .us-list li.fl { color: #f0c987; }
-.up-msg .us-list code { font-size: 11.5px; }
+.up-msg .us-list code { font-size: var(--fs-xs); }
 .up-lib .ul-open .ul-sub { display: flex; min-width: 0; max-width: 100%; }
 .up-lib .ul-open .ul-sub span { max-width: none; }
 .up-lib .ul-open .ul-art { flex: 0 1 auto; min-width: 0; }
 .up-lib .ul-open .ul-alb { flex: 0 1000 auto; min-width: 0; }
-.up-note button { min-height: 30px; height: 30px; padding: 0 10px; font-size: 13px; border-radius: 9px; }
+.up-note button { min-height: 30px; height: 30px; padding: 0 10px; font-size: var(--fs-m); border-radius: 9px; }
 /* v73: an uploaded song on the grid shows no sequence numbers (badges, Roman numerals) */
 html.up-nonum .ss .pg-badge, html.up-nonum .prog .pg-num { display: none !important; }
 html.up-nonum .ss .ss-chip .rn, html.up-nonum .ss .ss-note small { visibility: hidden; }
-.up-warn { font-size: 12px; color: var(--muted); }
+.up-warn { font-size: var(--fs-s); color: var(--muted); }
 html.lay-phone-land .up-pick .kp-box { max-height: 96vh; padding: 10px; }
-html.lay-phone-land .up-key .uk-k { font-size: 26px; }
+html.lay-phone-land .up-key .uk-k { font-size: var(--fs-xl); }
 /* The song bar sits above the strip inside the same card: the strip gives it the room
    (it fills what is left instead of the whole card). */
 html.up-on:not(.simple) .next-card > .ss { min-height: 0; flex: 1 1 0; height: auto; }
 html.up-on:not(.simple):not(.lay-phone-port) .next-card > .ss { flex: 0 0 auto; height: calc(3 * var(--ss-row) + var(--ss-strip) + 3 * var(--ss-gap) - var(--sb-h, 25px)); }
 html.lay-phone-land #app { --sb-h: 20px; }
 html.lay-pad-port #app, html.lay-pad-land #app { --sb-h: 31px; }
-html.up-on.lay-phone-land:not(.simple) #songBar { height: 18px; margin-bottom: 2px; font-size: 11px; }
+html.up-on.lay-phone-land:not(.simple) #songBar { height: 18px; margin-bottom: 2px; font-size: var(--fs-xs); }
 /* v95: full mode, a song with lyrics: two lyric rows (the line being sung, then the next line, a little
    muted). Same font and colours as the one-line song bar; the rows scroll up one line when the song moves on. */
 #app { --lr-h: 15px; }
@@ -146,12 +146,13 @@ html.up-lyr2.lay-phone-land:not(.simple) #app { --sb-h: calc(2 * var(--lr-h) + 4
 #songBar .sb-row .sb-ch { padding: 0 4px; line-height: calc(var(--lr-h) - 2px); }
 #songBar .sb-sec2 { margin-right: 4px; color: var(--copper); font-weight: 700; text-transform: capitalize; }
 /* iPad: Simple shows the lyric rows too; html.lyr3 (tall iPad screens, set in lyrics.js) shows a third row. Phones unchanged. */
-html.lyr3 #app { --lr-n: 3; --kl-n: 3; }
+html.lyr3 #app { --lr-n: 3; }
+html.klyr3 #app { --kl-n: 3; }   /* v112.5: Kids lyrics rows (iPad + phone portrait) */
 html.up-on.up-lyr2.lay-pad-port #songBar, html.up-on.up-lyr2.lay-pad-land #songBar { height: calc(var(--lr-n, 2) * var(--lr-h) + 2px); }
 html.up-lyr2.lay-pad-port #app, html.up-lyr2.lay-pad-land #app { --sb-h: calc(var(--lr-n, 2) * var(--lr-h) + 5px); }
 html.lay-pad-port #songBar .sb-lyr, html.lay-pad-land #songBar .sb-lyr { height: calc(var(--lr-n, 2) * var(--lr-h)); }
-html.lay-pad-port #kidsLyr, html.lay-pad-land #kidsLyr { height: calc(var(--kl-n, 2) * var(--kl-h)); }
-html.kly-on.lyr3:not(.simple):not(.lay-phone-port) .next-card > .ss { height: calc(3 * var(--ss-row) + var(--ss-strip) + 3 * var(--ss-gap) - 3 * var(--kl-h) - 4px); }
+html.lay-pad-port #kidsLyr, html.lay-pad-land #kidsLyr, html.lay-phone-port #kidsLyr { height: calc(var(--kl-n, 2) * var(--kl-h)); }
+html.kly-on.klyr3:not(.simple):not(.lay-phone-port) .next-card > .ss { height: calc(3 * var(--ss-row) + var(--ss-strip) + 3 * var(--ss-gap) - 3 * var(--kl-h) - 4px); }
 @media (prefers-reduced-motion: reduce) { #songBar .sb-roll.go { transition: none; } }
 /* v97: Kids lyrics: the same two rows (the line being sung, then the next line), bigger, the sung word lit. */
 #app { --kl-h: 19px; }
@@ -223,11 +224,11 @@ html.lay-phone-land:not(.simple) .pg-btns > .pg-btn.pg-step, html.lay-phone-land
 html.lay-phone-land .up-lib .ul-edit { min-height: 34px; }
 .up-lib .ul-list.editing { max-height: none; overflow: visible; }
 .up-lib .ul-list[hidden], .up-lib .ul-empty[hidden], .up-detail-home[hidden], .ud-head[hidden] { display: none; }
-.up-lib .ul-empty { font-size: 13px; color: var(--muted); padding: 6px 2px; }
+.up-lib .ul-empty { font-size: var(--fs-m); color: var(--muted); padding: 6px 2px; }
 .up-lib .ul-detrow { display: block; flex: 0 0 auto; }
 .up-detail { margin: 0 0 4px; padding: 8px; border: 1px solid var(--copper); border-radius: 10px; background: rgba(226, 161, 90, .06); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .up-detail .ud-head:not([hidden]) { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
-.up-detail .ud-note { font-size: 12px; color: var(--muted); text-align: right; }
+.up-detail .ud-note { font-size: var(--fs-s); color: var(--muted); text-align: right; }
 .up-detail .ud-note[hidden] { display: none; }
 .up-detail .ul-ver button:disabled { opacity: .4; cursor: default; }
 .up-detail.ro .up-ch, .up-detail.ro .up-ch .alt { pointer-events: none; }
@@ -259,20 +260,20 @@ html.lay-phone-land #suggest .ss-chip { padding-top: 6px; }
 /* v108 (3): Config > Play along enable, with a ? that opens a short explanation */
 .config-menu .cfg-pa { display: flex; align-items: center; gap: 4px; }
 .config-menu .cfg-pa .cfg-toggle { flex: 1 1 auto; width: auto; min-width: 0; }
-.config-menu .cfg-pa .cfg-q { flex: 0 0 30px; width: 30px; height: 30px; min-height: 30px; padding: 0; border-radius: 50%; text-align: center; font-weight: 700; font-size: 14px; }
+.config-menu .cfg-pa .cfg-q { flex: 0 0 30px; width: 30px; height: 30px; min-height: 30px; padding: 0; border-radius: 50%; text-align: center; font-weight: 700; font-size: var(--fs-m); }
 .config-menu .cfg-pa .cfg-q[aria-expanded="true"] { background: var(--copper); color: var(--copper-ink); border-color: transparent; }
-.config-menu .cfg-tip { box-sizing: border-box; width: 0; min-width: 100%; margin: 0; padding: 2px 10px 6px; font-size: 12px; line-height: 1.35; color: var(--muted); white-space: normal; }
+.config-menu .cfg-tip { box-sizing: border-box; width: 0; min-width: 100%; margin: 0; padding: 2px 10px 6px; font-size: var(--fs-s); line-height: 1.35; color: var(--muted); white-space: normal; }
 .config-menu .cfg-tip[hidden] { display: none; }
 /* Pre-save validation panel (validate.js): flags grouped by layer, then Go back and fix / Save anyway */
-.up-val { border: 1px solid #f0c987; background: rgba(240,201,135,.10); border-radius: 10px; padding: 6px 8px; font-size: 13px; color: #f6e2bd; }
+.up-val { border: 1px solid #f0c987; background: rgba(240,201,135,.10); border-radius: 10px; padding: 6px 8px; font-size: var(--fs-m); color: #f6e2bd; }
 .up-val[hidden] { display: none; }
 .up-val .uv-g { margin-top: 5px; }
-.up-val .uv-h { font-weight: 700; color: #f0c987; font-size: 12.5px; }
+.up-val .uv-h { font-weight: 700; color: #f0c987; font-size: var(--fs-s); }
 .up-val .uv-h small { font-weight: 600; color: var(--muted); }
-.up-val ul { margin: 2px 0 0; padding-left: 18px; max-height: 132px; overflow-y: auto; overscroll-behavior: contain; font-size: 12.5px; }
+.up-val ul { margin: 2px 0 0; padding-left: 18px; max-height: 132px; overflow-y: auto; overscroll-behavior: contain; font-size: var(--fs-s); }
 html.lay-phone-land .up-val ul { max-height: 84px; }
 .up-val li { padding: 1px 0; overflow-wrap: anywhere; }
 .up-val li.uv-error { color: #ffd0cc; }
 .up-val .uv-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 7px; }
-.up-val .uv-btns button { min-height: 34px; padding: 0 12px; font-size: 13px; border-radius: 9px; }
+.up-val .uv-btns button { min-height: 34px; padding: 0 12px; font-size: var(--fs-m); border-radius: 9px; }
 .up-val #upValSave { background: var(--copper); color: #1a1209; }

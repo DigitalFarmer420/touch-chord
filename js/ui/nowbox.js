@@ -28,7 +28,7 @@ export function fitNowSymbol() {
   // notes, key row) must sit at least 1.25 px inside the card's border. Start from the full CSS size
   // and shrink only as far as needed; the name never goes below the Simple key note's size unless
   // the note row and the padding have already given way.
-  card.style.paddingTop = card.style.paddingBottom = "";
+  card.style.paddingTop = card.style.paddingBottom = ""; card.style.rowGap = ""; if (tones) tones.style.lineHeight = "";
   var cr = card.getBoundingClientRect(), bTop = card.clientTop;
   function gap() {
     var m = 1e9;
@@ -44,22 +44,27 @@ export function fitNowSymbol() {
     return m;
   }
   var NEED = 1.25;
-  if (!(card.clientHeight > 0) || gap() >= NEED) return;
+  // v112.5 (#5): the line boxes must fit too (no text box past the card edge), not only the ink.
+  function ok() { return gap() >= NEED && card.scrollHeight <= card.clientHeight; }
+  if (!(card.clientHeight > 0) || ok()) return;
+  // 0) tighter spacing first (no size change): no gap between the lines, note row line-height 1
+  card.style.rowGap = "0px"; if (tones) tones.style.lineHeight = "1";
+  if (ok()) return;
   var kn = document.querySelector(".kk-name");
   var floor = state.simple && kn && kn.offsetParent ? Math.max(14, parseFloat(getComputedStyle(kn).fontSize) || 14) : 14;
   var fsS = parseFloat(getComputedStyle(sym).fontSize);
   // 1) the name, down to the floor
-  for (var k = 0; k < 80 && gap() < NEED && fsS > floor; k++) { fsS = Math.max(floor, fsS - 0.5); sym.style.fontSize = fsS + "px"; }
-  if (gap() >= NEED) return;
+  for (var k = 0; k < 80 && !ok() && fsS > floor; k++) { fsS = Math.max(floor, fsS - 0.5); sym.style.fontSize = fsS + "px"; }
+  if (ok()) return;
   // 2) the note row, down to 10 px
   var fsT = tones ? parseFloat(getComputedStyle(tones).fontSize) : 0;
-  for (k = 0; k < 20 && gap() < NEED && fsT > 10; k++) { fsT -= 0.5; tones.style.fontSize = fsT + "px"; }
-  if (gap() >= NEED) return;
+  for (k = 0; k < 20 && !ok() && fsT > 11; k++) { fsT = Math.max(11, fsT - 0.5); tones.style.fontSize = fsT + "px"; }
+  if (ok()) return;
   // 3) the padding
   card.style.paddingTop = card.style.paddingBottom = "2px";
-  if (gap() >= NEED) return;
+  if (ok()) return;
   // 4) last resort: the name below the floor
-  for (k = 0; k < 80 && gap() < NEED && fsS > 14; k++) { fsS -= 0.5; sym.style.fontSize = fsS + "px"; }
+  for (k = 0; k < 80 && !ok() && fsS > 14; k++) { fsS -= 0.5; sym.style.fontSize = fsS + "px"; }
 }
 
 export function updateSymbol() {

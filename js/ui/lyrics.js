@@ -43,11 +43,14 @@ function upLyrRow(ent, curCi, cls, sec2) {
   return "<span class=\"sb-row " + cls + "\">" + html + "</span>";
 }
 // iPad (pad layouts): three lyric rows (the line being sung + the next two) when the screen is tall enough,
-// else the usual two. Phones always get two. html.lyr3 switches the CSS row count (--lr-n / --kl-n).
-export function lyrRows() {
+// else the usual two (v112.5: see below). html.lyr3 switches the CSS row count (--lr-n / --kl-n).
+export function lyrRows(kids) {
   var de = document.documentElement, pad = de.classList.contains("lay-pad-port") || de.classList.contains("lay-pad-land");
-  var n = pad && (window.innerHeight || de.clientHeight) >= 800 ? 3 : 2;
-  if (de.classList.contains("lyr3") !== (n === 3)) de.classList.toggle("lyr3", n === 3);
+  // v112.5 (#3): every iPad size gets three rows (1024x768 too); phone portrait gets three Kids lyric rows
+  // (the uploaded-song bar stays at two there); phone landscape keeps two (no room at a readable size).
+  var n = pad || (kids && de.classList.contains("lay-phone-port")) ? 3 : 2;
+  var cls = kids ? "klyr3" : "lyr3";   // Kids lyrics and the uploaded-song bar keep separate classes (no flip-flop)
+  if (de.classList.contains(cls) !== (n === 3)) de.classList.toggle(cls, n === 3);
   return n;
 }
 export function lyrPad() {
@@ -114,7 +117,7 @@ export function paintKidsLyr() {
   if (name !== klState.name) { klState.name = name; klState.k = -1; box._html = null; }
   if (step >= 0) L.forEach(function (ln, i) { if (ln.markers.some(function (m) { return m.chordIndex <= step; })) li = i; });
   var r1 = kidsLyrRow(L[li], step, "r1"), r2 = kidsLyrRow(L[li + 1] || null, -1, "r2");
-  if (lyrRows() === 3) r2 += kidsLyrRow(L[li + 2] || null, -1, "r2 r3");
+  if (lyrRows(true) === 3) r2 += kidsLyrRow(L[li + 2] || null, -1, "r2 r3");
   var key = "<span class=\"sb-roll\">" + r1 + r2 + "</span>";
   box.setAttribute("aria-label", "Lyrics: " + L[li].text);
   if (klState.anim) { clearTimeout(klState.anim); klState.anim = 0; box._html = null; }

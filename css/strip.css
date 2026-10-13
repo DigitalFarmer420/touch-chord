@@ -10,7 +10,7 @@
   justify-content: center;
 }
 html.lay-pad-port .next-card, html.lay-pad-land .next-card { padding: 8px 12px 10px; }
-#app { --ss-lbl: 30px; --ss-ico: 22px; --ss-arrow: 14px; --ss-happy: #e2b15a; --ss-sad: #8a7bc0; --ss-ico-stroke: 2; --ss-rg: 3px; --ss-mid: 1.4fr; --ss-pad: 4px; --ss-row: 26px; --ss-strip: 38px; --ss-gap: 5px; --ss-cgap: 4px; --ss-fs: 14px; --ss-note: 16px; --ss-small: 9px; --ss-lfs: 9px; }
+#app { --ss-lbl: 30px; --ss-ico: 22px; --ss-arrow: 14px; --ss-happy: #e2b15a; --ss-sad: #8a7bc0; --ss-ico-stroke: 2; --ss-rg: 3px; --ss-mid: 1.4fr; --ss-pad: 4px; --ss-row: 26px; --ss-strip: 38px; --ss-gap: 5px; --ss-cgap: 4px; --ss-fs: 14px; --ss-note: 16px; --ss-small: 11px; --ss-lfs: 9px; }
 html.lay-phone-port #app { --ss-row: 30px; --ss-strip: 42px; --ss-cgap: 2px; --ss-fs: 13px; --ss-note: 15px; }
 html.lay-pad-port #app, html.lay-pad-land #app { --ss-lbl: 34px; --ss-rg: 5px; --ss-pad: 8px; --ss-row: 42px; --ss-strip: 58px; --ss-gap: 8px; --ss-cgap: 8px; --ss-fs: 19px; --ss-note: 22px; --ss-small: 12px; --ss-lfs: 11px; }
 .ss {
@@ -59,8 +59,8 @@ html.lay-phone-port .ss .ss-chip { border-radius: 7px; padding: 0 1px; }
 .ss.stack .ss-chip { flex-direction: column; gap: 1px; line-height: 1; font-size: calc((var(--ss-fs) - 2px) * var(--ss-k) * var(--tx, 1)); }
 .ss.stack .ss-chip .q { font-size: .85em; }
 /* v52: chip text never drops below 11 px on phones. */
-html.lay-phone-port .ss .ss-chip, html.lay-phone-land .ss .ss-chip { font-size: max(10px, calc(var(--ss-fs) * var(--ss-k) * var(--tx, 1))); }
-html.lay-phone-port .ss.stack .ss-chip, html.lay-phone-land .ss.stack .ss-chip { font-size: max(10px, calc((var(--ss-fs) - 2px) * var(--ss-k) * var(--tx, 1))); }
+html.lay-phone-port .ss .ss-chip, html.lay-phone-land .ss .ss-chip { font-size: max(var(--fs-xs), calc(var(--ss-fs) * var(--ss-k) * var(--tx, 1))); }
+html.lay-phone-port .ss.stack .ss-chip, html.lay-phone-land .ss.stack .ss-chip { font-size: max(var(--fs-xs), calc((var(--ss-fs) - 2px) * var(--ss-k) * var(--tx, 1))); }
 html.lay-phone-port .ss.stack .ss-chip .q, html.lay-phone-land .ss.stack .ss-chip .q { font-size: max(11px, .85em); }
 html.lay-phone-port #app { --ss-lbl: 18px; --ss-ico: 18px; --ss-arrow: 12px; --ss-cgap: 1px; }
 html.lay-phone-port .ss .ss-chip { padding: 0; letter-spacing: -0.04em; }
@@ -77,7 +77,7 @@ html.lay-phone-land:not(.simple) #app { --ss-row: 28px; --ss-rg: 2px; --ss-mid: 
   color: var(--ink); font-weight: 700; font-size: calc(var(--ss-note) * var(--tx, 1)); line-height: 1;
   touch-action: manipulation;
 }
-.ss .ss-note small { font-size: max(9px, calc(var(--ss-small) * var(--tx, 1))); font-weight: 600; color: var(--muted); margin-top: 2px; letter-spacing: .02em; }
+.ss .ss-note small { font-size: max(var(--fs-xs), calc(var(--ss-small) * var(--tx, 1))); font-weight: 600; color: var(--muted); margin-top: 2px; letter-spacing: .02em; }
 .ss .ss-note.home { color: var(--copper); }
 .ss .ss-note.home::before { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); aspect-ratio: 1; height: auto; width: min(calc(100% + 4px), calc(var(--ss-strip) + 6px)); border: 2.5px solid var(--copper); border-radius: 50%; background: rgba(226,161,90,.14); z-index: -1; box-sizing: border-box; }
 .ss .ss-note.home small { color: var(--copper); opacity: .85; }
