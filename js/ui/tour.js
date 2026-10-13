@@ -1,7 +1,7 @@
 // First-launch Kids tour.
-import { progStop, prog, progSet } from "../songs/playback.js?v=112.5";
-import { state } from "../state.js?v=112.5";
-import { paHintHide } from "./hints.js?v=112.5";
+import { progStop, prog, progSet } from "../songs/playback.js?v=112.6";
+import { state } from "../state.js?v=112.6";
+import { paHintHide } from "./hints.js?v=112.6";
 
 // v112 first-launch Kids tour: 6 steps in the v110 spotlight look. Runs once after the fresh Kids + Twinkle load,
 // saved as done on Skip / Done (its own storage key: Factory reset keeps it); Help > Tour (gear menu) replays it.

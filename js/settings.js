@@ -1,13 +1,14 @@
 // Applies loaded settings to the UI (applySettings, markOn) and the toast.
-import { api as ChordAudio } from "./audio/index.js?v=112.5";
-import { syncKeySel } from "./keys.js?v=112.5";
-import { setBpm } from "./loop.js?v=112.5";
-import { VOICINGS, state, shared } from "./state.js?v=112.5";
-import { applyStylePreset, enforceYogaDeepPaletteGate, setWarmth, styleTrim } from "./styles.js?v=112.5";
-import { paintProgNumsBtn, paintPlayAlongBtn, setVolume, setBand } from "./ui/gear.js?v=112.5";
-import { paintSimple } from "./ui/layout.js?v=112.5";
-import { setKeyModeState } from "./ui/palette.js?v=112.5";
-import { dumpSustain, paintSustainBtn } from "./ui/sustain.js?v=112.5";
+import { api as ChordAudio } from "./audio/index.js?v=112.6";
+import { syncKeySel } from "./keys.js?v=112.6";
+import { setBpm } from "./loop.js?v=112.6";
+import { VOICINGS, state, shared } from "./state.js?v=112.6";
+import { Theory } from "./theory/index.js?v=112.6";
+import { applyStylePreset, enforceYogaDeepPaletteGate, setWarmth, styleTrim } from "./styles.js?v=112.6";
+import { paintProgNumsBtn, paintPlayAlongBtn, setVolume, setBand } from "./ui/gear.js?v=112.6";
+import { paintSimple } from "./ui/layout.js?v=112.6";
+import { setKeyModeState } from "./ui/palette.js?v=112.6";
+import { dumpSustain, paintSustainBtn } from "./ui/sustain.js?v=112.6";
 
 function markOn(groupSel, attr, value) {
   var all = document.querySelectorAll(groupSel + " button");
@@ -43,6 +44,16 @@ export function applySettings(s) {
   state.keyScale = s.keyScale;
   state.rootPc = s.rootPc;
   state.degree = s.degree;
+  // v112.6: the Now chord's quality is not saved; after a reload it follows the saved key, so a saved D minor
+  // shows Dm (D F A), not D major, before the first tap. A root outside the key keeps the default.
+  state.type = "major";
+  try {
+    var lk = shared.lockKey;
+    if (lk) for (var dg = 1; dg <= 7; dg++) {
+      var dc = Theory.degreeChord(lk.pc, lk.mode, dg);
+      if (dc.rootPc === ((state.rootPc % 12) + 12) % 12) { state.type = dc.type; break; }
+    }
+  } catch (err) {}
   state.voicing = s.voicing;
   state.forceChord = null;
   state.rootMidi = null;

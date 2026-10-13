@@ -113,3 +113,14 @@ html.simple.lay-pad-port .now-col > .prog .pg-btns { height: auto; }
 .kk-mode { font-size: max(var(--fs-xs), calc(var(--kk-mfs, 17px) * var(--tx, 1))); }
 .prog.pg-wide .pg-num { font-size: max(var(--fs-xs), .68em); }
 html.simple.lay-phone-land .prog { --pg-afs: 20px; }
+
+/* v112.6 regression fix (Controls panel at 360x780 Full): opening a tab used to shrink the Now / Next row so
+   the panel's tab bar slid up over Full Range / Upload / Next. The rows above keep their content height; the
+   panel row takes only the space left (its pane scrolls), as in 935dd35 the panel opens downward in place. */
+html.lay-phone-port:not(.simple) #app { grid-template-rows: auto max-content max-content minmax(0, auto) var(--pal-h) minmax(0, 1fr); }
+html.lay-phone-port:not(.simple) #app > .now-col, html.lay-phone-port:not(.simple) #app > .next-card, html.lay-phone-port:not(.simple) #app > #styles { min-height: min-content; }
+/* v112.6 (#2): a song name that still does not fit its box ends in an ellipsis instead of a hard clip
+   (one-line names; the wide iPad name line). Two-line phone names are fitted by progbar.js. */
+.pg-t[style*="white-space: nowrap"] { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.prog.pg-wide .pg-t { max-width: 100%; }
+.prog.pg-wide .pg-nm, .prog.pg-wide .pg-num { display: block; max-width: 100%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

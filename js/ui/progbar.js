@@ -1,10 +1,10 @@
 // Progression picker (#prog): placement, name fitting, Play / Next wiring.
-import { unlock } from "../audio/unlock.js?v=112.5";
-import { paintLoop } from "../loop.js?v=112.5";
-import { progNext } from "../songs/magic.js?v=112.5";
-import { progPlay, prog, progSet } from "../songs/playback.js?v=112.5";
-import { progFeel, progSteps, progNumerals } from "../songs/presets.js?v=112.5";
-import { state } from "../state.js?v=112.5";
+import { unlock } from "../audio/unlock.js?v=112.6";
+import { paintLoop } from "../loop.js?v=112.6";
+import { progNext } from "../songs/magic.js?v=112.6";
+import { progPlay, prog, progSet } from "../songs/playback.js?v=112.6";
+import { progFeel, progSteps, progNumerals } from "../songs/presets.js?v=112.6";
+import { state } from "../state.js?v=112.6";
 
 // The picker: Simple = friendly name in the left column under Major / Minor; full mode =
 // the numerals in a cycler by the style row (phone landscape: top of the Now column; other
@@ -189,6 +189,11 @@ export function wireProg() {
     progSet(prog.idx + d);
     txt.classList.remove("nudge-l", "nudge-r");
     void txt.offsetWidth;
+    // v112.6: the nudge only moves the name as far as the free space beside it, so a name that fills the box
+    // is never pushed past the box edge (it was clipped without an ellipsis mid-animation).
+    var bx = el.querySelector(".pg-txt"), rg = document.createRange(); rg.selectNodeContents(txt);
+    var free = (bx.getBoundingClientRect().width - rg.getBoundingClientRect().width) / 2;
+    txt.style.setProperty("--pg-nudge", Math.max(0, Math.min(8, Math.floor(free))) + "px");
     txt.classList.add(d > 0 ? "nudge-r" : "nudge-l");
     setTimeout(function () { txt.classList.remove("nudge-l", "nudge-r"); }, 140);
   }

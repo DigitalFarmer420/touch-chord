@@ -1,21 +1,21 @@
 // The chord keyboard: layout spec, pads / keys, pointer input, sounding fingers, haptics.
-import { api as ChordAudio } from "../audio/index.js?v=112.5";
-import { unlock } from "../audio/unlock.js?v=112.5";
-import { keyRootSpell, modeKey, activeKey, keyDegrees, maybeLockKey } from "../keys.js?v=112.5";
-import { finalizeOne, armPending } from "../loop.js?v=112.5";
-import { paTwin, playAlongKey, playAlongGo } from "../songs/playalong.js?v=112.5";
-import { magic, setItemState } from "../songs/playback.js?v=112.5";
-import { state, loop, fingers, padsEl, shared } from "../state.js?v=112.5";
-import { Theory } from "../theory/index.js?v=112.5";
-import { hasDoubleAcc, plainToneName, enharmonicSpell } from "../theory/names.js?v=112.5";
-import { wrap12 } from "../theory/quality.js?v=112.5";
-import { accSym } from "../theory/spelling.js?v=112.5";
-import { playAlongKeyOk, paHintMiss } from "./hints.js?v=112.5";
-import { kbFullMode, kbFullRange, kbWindowMode, kbKeyLayout, kidsTonic, kbBorrowKey, kbChord, kbWantLow, kbUpdate } from "./keyboard.js?v=112.5";
-import { paintNextHint, kidsGoldKey, kidsGoldGo } from "./next.js?v=112.5";
-import { updateSymbol } from "./nowbox.js?v=112.5";
-import { clearStripExt, clearSuggestPreview } from "./strip.js?v=112.5";
-import { sustainActive, padPlayable, poolFingerGroup } from "./sustain.js?v=112.5";
+import { api as ChordAudio } from "../audio/index.js?v=112.6";
+import { unlock } from "../audio/unlock.js?v=112.6";
+import { keyRootSpell, modeKey, activeKey, keyDegrees, maybeLockKey } from "../keys.js?v=112.6";
+import { finalizeOne, armPending } from "../loop.js?v=112.6";
+import { paTwin, playAlongKey, playAlongGo } from "../songs/playalong.js?v=112.6";
+import { magic, setItemState } from "../songs/playback.js?v=112.6";
+import { state, loop, fingers, padsEl, shared } from "../state.js?v=112.6";
+import { Theory } from "../theory/index.js?v=112.6";
+import { hasDoubleAcc, plainToneName, enharmonicSpell } from "../theory/names.js?v=112.6";
+import { wrap12 } from "../theory/quality.js?v=112.6";
+import { accSym } from "../theory/spelling.js?v=112.6";
+import { playAlongKeyOk, paHintMiss } from "./hints.js?v=112.6";
+import { kbFullMode, kbFullRange, kbWindowMode, kbKeyLayout, kidsTonic, kbBorrowKey, kbChord, kbWantLow, kbUpdate } from "./keyboard.js?v=112.6";
+import { paintNextHint, kidsGoldKey, kidsGoldGo } from "./next.js?v=112.6";
+import { updateSymbol } from "./nowbox.js?v=112.6";
+import { clearStripExt, clearSuggestPreview } from "./strip.js?v=112.6";
+import { sustainActive, padPlayable, poolFingerGroup } from "./sustain.js?v=112.6";
 
 export function computeSpec() {
   var rootPc = state.rootPc;

@@ -364,7 +364,7 @@ html:not(.simple).lay-phone-port .ss .ss-chip .rn { display: none; }
 .pg-txt { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; pointer-events: none; }
 .pg-t { display: block; max-width: 100%; text-align: center; font-weight: 800; font-size: max(var(--fs-xs), calc(var(--pg-fs, 14px) * var(--tx, 1))); line-height: 1.12; color: var(--ink);
   overflow-wrap: break-word; transition: transform .12s ease-out; }
-.pg-t.nudge-l { transform: translateX(-8px); } .pg-t.nudge-r { transform: translateX(8px); }
+.pg-t.nudge-l { transform: translateX(calc(-1 * var(--pg-nudge, 8px))); } .pg-t.nudge-r { transform: translateX(var(--pg-nudge, 8px)); }
 .pg-btns { display: flex; gap: 4px; flex: 0 0 auto; }
 .pg-btn { flex: 0 0 auto; width: var(--pg-bw, 40px); height: var(--pg-h, 40px); min-height: 0; margin: 0; padding: 0; border-radius: 12px;
   display: inline-flex; align-items: center; justify-content: center; color: var(--copper); touch-action: manipulation; }

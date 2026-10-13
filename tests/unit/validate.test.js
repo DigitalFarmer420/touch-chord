@@ -61,3 +61,14 @@ test('BPM 40 and 200 are flagged, 50 and 180 pass, missing and non-numeric are e
   const miss = of(validateSong(song({ bpm: undefined, chords: I_IV_V })), 'bpm'); assert.equal(miss[0].severity, 'error'); assert.match(miss[0].message, /missing/);
   assert.equal(of(validateSong(song({ bpm: 'fast', chords: I_IV_V })), 'bpm')[0].severity, 'error');
 });
+test('v112.6: key flags name the version (Simple)/(Full) when both exist, so lines are not repeated', () => {
+  const s = song({ chords: [['C', 1, 1, 4], ['Bb', 2, 1, 4]] });
+  s.sectionsFull = JSON.parse(JSON.stringify(s.sections));
+  const k = of(validateSong(s), 'key');
+  assert.equal(k.length, 2);
+  assert.match(k[0].message, /^Verse 1 \(Simple\), chord 2 \(bar 2\): Bb is not in C major\.$/);
+  assert.match(k[1].message, /^Verse 1 \(Full\), chord 2 \(bar 2\): Bb is not in C major\.$/);
+  assert.notEqual(k[0].message, k[1].message);
+  // a Simple-only song keeps the plain section name
+  assert.match(of(validateSong(song({ chords: [['C', 1, 1, 4], ['Bb', 2, 1, 4]] })), 'key')[0].message, /^Verse 1, chord 2/);
+});

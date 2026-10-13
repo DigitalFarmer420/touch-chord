@@ -40,14 +40,17 @@ function keyLayer(song, flags) {
   var key = song && song.song && song.song.key, sc = keyScale(key);
   if (!sc) { flags.push({ layer: "key", severity: "error", message: "The song has no key the app can read, so its chords cannot be checked.", where: {} }); return; }
   var kn = rootName(key.tonic) + " " + (sc.minor ? "minor" : "major");
+  // v112.6: with both a Simple and a Full version, the section name says which one (as the timing flags do).
+  var full = !!(song && song.sectionsFull && song.sectionsFull.length);
   eachSection(song, function (sec, si, ver) {
+    var nm = secName(sec, si) + (full ? (ver === "sectionsFull" ? " (Full)" : " (Simple)") : "");
     (sec.chords || []).forEach(function (c, ci) {
       var pc = pcOf(c && c.chord);
       if (pc == null || sc.pcs.indexOf(pc) >= 0) return;
       var bar = c.position && c.position.bar;
       flags.push({ layer: "key", severity: "warn",
-        message: secName(sec, si) + ", chord " + (ci + 1) + (bar ? " (bar " + bar + ")" : "") + ": " + c.chord + " is not in " + kn + ".",
-        where: { version: ver, section: si, sectionName: secName(sec, si), bar: bar || null, chord: ci, chordName: c.chord } });
+        message: nm + ", chord " + (ci + 1) + (bar ? " (bar " + bar + ")" : "") + ": " + c.chord + " is not in " + kn + ".",
+        where: { version: ver, section: si, sectionName: nm, bar: bar || null, chord: ci, chordName: c.chord } });
     });
   });
 }

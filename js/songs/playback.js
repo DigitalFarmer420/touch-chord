@@ -1,23 +1,23 @@
 // The progression player: walk, Play song, step state, song key, progSet.
-import { api as ChordAudio } from "../audio/index.js?v=112.5";
-import { unlock } from "../audio/unlock.js?v=112.5";
-import { activeKey, namePc, keyRootName, setKeySpell } from "../keys.js?v=112.5";
-import { stopPlayback } from "../loop.js?v=112.5";
-import { KIDS_SONG_KEY } from "./kids-songs.js?v=112.5";
-import { upSave } from "./library.js?v=112.5";
-import { magicReset, progBadge } from "./magic.js?v=112.5";
-import { PROG_BAR, PROGRESSIONS, progList, progSteps, sameChord } from "./presets.js?v=112.5";
-import { upInList, songTempo, paintUpNext, progLoopBar, upKeyApply, upKeyNow } from "./song.js?v=112.5";
-import { state, loop, scheduleSave, shared } from "../state.js?v=112.5";
-import { wrap12 } from "../theory/quality.js?v=112.5";
-import { paHintHide } from "../ui/hints.js?v=112.5";
-import { kbSound, kidsSoloSpec } from "../ui/keyboard.js?v=112.5";
-import { paintNextHint, paintProgActive, magicHintClear } from "../ui/next.js?v=112.5";
-import { updateSymbol } from "../ui/nowbox.js?v=112.5";
-import { computeSpec, renderPads, highlightMidisFromSpec, PERCUSSIVE_SOUNDS, refreshHeld } from "../ui/pads.js?v=112.5";
-import { paintProg } from "../ui/progbar.js?v=112.5";
-import { fxStepPulse } from "../ui/pulse.js?v=112.5";
-import { clearSuggestPreview, STRIP_EXT, PREVIEW_MS, stripKey, applySuggestion, prettyAcc, stripLabel, wireStripTap, paintSuggestions, fitStrip } from "../ui/strip.js?v=112.5";
+import { api as ChordAudio } from "../audio/index.js?v=112.6";
+import { unlock } from "../audio/unlock.js?v=112.6";
+import { activeKey, namePc, keyRootName, setKeySpell } from "../keys.js?v=112.6";
+import { stopPlayback } from "../loop.js?v=112.6";
+import { KIDS_SONG_KEY } from "./kids-songs.js?v=112.6";
+import { upSave } from "./library.js?v=112.6";
+import { magicReset, progBadge } from "./magic.js?v=112.6";
+import { PROG_BAR, PROGRESSIONS, progList, progSteps, sameChord } from "./presets.js?v=112.6";
+import { upInList, songTempo, paintUpNext, progLoopBar, upKeyApply, upKeyNow } from "./song.js?v=112.6";
+import { state, loop, scheduleSave, shared } from "../state.js?v=112.6";
+import { wrap12 } from "../theory/quality.js?v=112.6";
+import { paHintHide } from "../ui/hints.js?v=112.6";
+import { kbSound, kidsSoloSpec } from "../ui/keyboard.js?v=112.6";
+import { paintNextHint, paintProgActive, magicHintClear } from "../ui/next.js?v=112.6";
+import { updateSymbol } from "../ui/nowbox.js?v=112.6";
+import { computeSpec, renderPads, highlightMidisFromSpec, PERCUSSIVE_SOUNDS, refreshHeld } from "../ui/pads.js?v=112.6";
+import { paintProg } from "../ui/progbar.js?v=112.6";
+import { fxStepPulse } from "../ui/pulse.js?v=112.6";
+import { clearSuggestPreview, STRIP_EXT, PREVIEW_MS, stripKey, applySuggestion, prettyAcc, stripLabel, wireStripTap, paintSuggestions, fitStrip } from "../ui/strip.js?v=112.6";
 
 export const prog = { style: null, mode: null, keySig: null, key: null, idx: 0, list: [], steps: [], targets: [], badges: [],
   cur: -1, playing: false, timer: 0, si: 0, nextT: 0, groups: [], gid: 0, uiT: [], flashT: 0, log: [], tmp: 0, unplaced: 0, model: null };
