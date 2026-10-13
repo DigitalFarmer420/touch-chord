@@ -1,7 +1,7 @@
 // First-launch Kids tour.
-import { progStop, prog, progSet } from "../songs/playback.js?v=112.3";
-import { state } from "../state.js?v=112.3";
-import { paHintHide } from "./hints.js?v=112.3";
+import { progStop, prog, progSet } from "../songs/playback.js?v=112.4";
+import { state } from "../state.js?v=112.4";
+import { paHintHide } from "./hints.js?v=112.4";
 
 // v112 first-launch Kids tour: 6 steps in the v110 spotlight look. Runs once after the fresh Kids + Twinkle load,
 // saved as done on Skip / Done (its own storage key: Factory reset keeps it); Help > Tour (gear menu) replays it.
@@ -12,7 +12,7 @@ const TOUR = [
   { sel: "#pads .pad.nx-root", text: "Or tap the gold key on the piano. This works too." },
   { sel: "#kidsLyr", text: "The words light up as you go." },
   { sel: "#prog .pg-song", text: "Tap Play to hear the whole song." },
-  { sel: "#prog .pg-sel", text: "Pick another song here. There are 10!" }
+  { sel: "#prog .pg-sel", text: "Pick another song here. There are 11!" }
 ];
 export var tourI;
 export const tourLog = { runs: 0, done: 0, skipped: 0, steps: [] };

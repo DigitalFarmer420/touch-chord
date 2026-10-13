@@ -7,7 +7,7 @@ const APPV=require('fs').readFileSync(require('path').resolve(__dirname,'../../j
 const { chromium } = require('playwright-core');const fs=require('fs');
 const URL=process.env.URL||(process.env.BASE||'http://localhost:8080/index.html');const SH=(process.env.SHOTS||'/tmp/tc-shots')+'/s111/';
 const R={fails:[],info:{}};const F=(c,m)=>{if(!c)R.fails.push(m)};
-const KIDS=["Kids Twinkle","Kids Mary's Lamb","Kids Row Your Boat","Kids Old MacDonald","Kids Itsy Bitsy Spider","Kids London Bridge","Kids Hey Diddle Diddle","Kids Head Shoulders Knees and Toes","Kids Baa Baa Black Sheep","Kids Hickory Dickory Dock"],BAL=['Ballad Classic','Ballad Hymn','Ballad Big Finish'];
+const KIDS=["Kids Twinkle","Kids Mary's Lamb","Kids Row Your Boat","Kids Hot Cross Buns","Kids Old MacDonald","Kids Itsy Bitsy Spider","Kids London Bridge","Kids Hey Diddle Diddle","Kids Head Shoulders Knees and Toes","Kids Baa Baa Black Sheep","Kids Hickory Dickory Dock"],BAL=['Ballad Classic','Ballad Hymn','Ballad Big Finish'];
 (async()=>{const b=await chromium.launch({executablePath:process.env.CHROME||undefined,args:['--autoplay-policy=no-user-gesture-required']});
 for(const [w,h] of [[360,780],[780,360]]){const tag=`${w}x${h}`;
  const mk=async(init)=>{const ctx=await b.newContext({viewport:{width:w,height:h},hasTouch:true,isMobile:true,deviceScaleFactor:2});if(init)await ctx.addInitScript(init);const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(''+e));p.on('console',m=>{if(m.type()==='error')errs.push(m.text())});await p.goto(URL+'?test=1');await p.waitForTimeout(900);const cdp=await ctx.newCDPSession(p);return {ctx,p,errs,cdp};};
@@ -30,7 +30,7 @@ for(const [w,h] of [[360,780],[780,360]]){const tag=`${w}x${h}`;
   // Kids
   await style(p,'kids');await p.waitForTimeout(700);
   n=await names(p);F(JSON.stringify(n)===JSON.stringify(KIDS),`${tag} ${mode} kids list ${JSON.stringify(n)}`);
-  const ks=[];for(let i=0;i<11;i++){ks.push(await cur(p));await p.click('#prog .pg-next');await p.waitForTimeout(300);}
+  const ks=[];for(let i=0;i<KIDS.length+1;i++){ks.push(await cur(p));await p.click('#prog .pg-next');await p.waitForTimeout(300);}
   F(JSON.stringify(ks)===JSON.stringify([...KIDS,KIDS[0]]),`${tag} ${mode} kids cycle ${JSON.stringify(ks)}`);
   for(let i=0;i<KIDS.length;i++){await p.evaluate(i=>__progApi.set(i),i);await p.waitForTimeout(400);
    const info=await p.evaluate(()=>({name:__prog.list[__prog.idx].name,n:__prog.steps.length,key:__prog.key&&__prog.key.mode}));
@@ -59,7 +59,7 @@ for(const [w,h] of [[360,780],[780,360]]){const tag=`${w}x${h}`;
   await p.screenshot({path:SH+`kids-${mode}-${tag}.png`});
   // Minor in Kids -> back to the song's key, 4 songs
   await p.evaluate(()=>__applySongKey('E','minor'));await p.waitForTimeout(400);
-  const km=await p.evaluate(()=>({n:__prog.list.length,mode:__prog.key.mode,name:__prog.list[__prog.idx].name}));F(km.n===10&&km.mode==='major',`${tag} ${mode} kids minor fallback ${JSON.stringify(km)}`);
+  const km=await p.evaluate(()=>({n:__prog.list.length,mode:__prog.key.mode,name:__prog.list[__prog.idx].name}));F(km.n===11&&km.mode==='major',`${tag} ${mode} kids minor fallback ${JSON.stringify(km)}`);
   F(!errs.length,`${tag} ${mode} errs ${errs}`);await ctx.close();}
  // old saved states: Kids with a minor key (Spooky / Rainy Day were the minor Kids songs); Ballad
  for(const [lab,set] of [['kids-minor',{simple:false,style:'kids',keyMode:true,keyRoot:9,keyScale:'minor',lockKey:{pc:9,mode:'minor'},prog:'Kids Spooky'}],['ballad',{simple:false,style:'ballad',prog:3,progName:'Ballad All I Ask'}],['kids-wheels',{simple:false,style:'kids',prog:5,progName:'Kids Wheels on the Bus'}],['kids-happy',{simple:true,style:'kids',prog:6,progName:"Kids If You're Happy"}]]){
@@ -68,7 +68,7 @@ for(const [w,h] of [[360,780],[780,360]]){const tag=`${w}x${h}`;
   const s=await p.evaluate(()=>({style:(document.querySelector('#styles button.on')||{dataset:{}}).dataset.style,names:__prog.list.map(x=>x.name),name:__prog.list[__prog.idx]&&__prog.list[__prog.idx].name,mode:__prog.key&&__prog.key.mode}));
   R.info[`${tag} saved ${lab}`]=s;
   if(lab==='ballad')F(s.name==='Ballad Classic'&&s.names.length===3,`${tag} saved ballad ${JSON.stringify(s)}`);
-  else F(s.names.length===10&&s.name==='Kids Twinkle'&&s.mode==='major'&&!s.names.some(n=>/Wheels|Happy/.test(n)),`${tag} saved ${lab} ${JSON.stringify(s)}`);
+  else F(s.names.length===11&&s.name==='Kids Twinkle'&&s.mode==='major'&&!s.names.some(n=>/Wheels|Happy/.test(n)),`${tag} saved ${lab} ${JSON.stringify(s)}`);
   await p.click('.pg-song');await p.waitForTimeout(1200);F(await p.evaluate(()=>__prog.playing&&__prog.cur>=0),`${tag} saved ${lab} does not play`);await p.click('.pg-song');
   F(!errs.length,`${tag} saved ${lab} errs ${errs}`);await ctx.close();}
 }

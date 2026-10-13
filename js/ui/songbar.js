@@ -1,11 +1,11 @@
 // Song bar (uploaded song sections) and the upload active state.
-import { api as ChordAudio } from "../audio/index.js?v=112.3";
-import { prog, placeBadges } from "../songs/playback.js?v=112.3";
-import { paintUpNext, upSelected, upT, upA, upPlaceLock, upEsc, upCurStep } from "../songs/song.js?v=112.3";
-import { upProgObj, upEv, upSym, upFlagged, upSecName } from "../songs/upload.js?v=112.3";
-import { state, shared } from "../state.js?v=112.3";
-import { upLyrMap, lyrState, paintLyr2 } from "./lyrics.js?v=112.3";
-import { fitStrip } from "./strip.js?v=112.3";
+import { api as ChordAudio } from "../audio/index.js?v=112.4";
+import { prog, placeBadges } from "../songs/playback.js?v=112.4";
+import { paintUpNext, upSelected, upT, upA, upPlaceLock, upEsc, upCurStep } from "../songs/song.js?v=112.4";
+import { upProgObj, upEv, upSym, upFlagged, upSecName } from "../songs/upload.js?v=112.4";
+import { state, shared } from "../state.js?v=112.4";
+import { upLyrMap, lyrState, paintLyr2 } from "./lyrics.js?v=112.4";
+import { fitStrip } from "./strip.js?v=112.4";
 export function paintSongBar() {
   document.documentElement.classList.toggle("up-nonum", upSelected());   // v73: no sequence numbers on an uploaded song's grid
   var bar = document.getElementById("songBar");

@@ -1,13 +1,13 @@
 // Tap flashes (Kids gold tap, full-mode tap pulse).
-import { PROG_TEST } from "../songs/playback.js?v=112.3";
-import { state } from "../state.js?v=112.3";
+import { PROG_TEST } from "../songs/playback.js?v=112.4";
+import { state } from "../state.js?v=112.4";
 export function kidsTapPulse(el) {
   if (!el) return;
   el.classList.remove("kgtap");
   void el.offsetWidth;   // restart the flash on a repeated tap
   el.classList.add("kgtap");
   clearTimeout(el._kgT);
-  el._kgT = setTimeout(function () { el.classList.remove("kgtap"); }, 450);
+  el._kgT = setTimeout(function () { el.classList.remove("kgtap", "nxb"); }, 450);   // v112.4: an overlapping next-chord burst ends with the flash (no second flash)
   if (PROG_TEST) kidsTapLog.pulses++;
 }
 // v93: the same flash for full mode (not Simple, not Kids): a tapped chip, and the chip Next / Play song lights

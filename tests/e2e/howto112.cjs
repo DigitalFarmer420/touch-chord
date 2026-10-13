@@ -5,7 +5,7 @@ const APPV=require('fs').readFileSync(require('path').resolve(__dirname,'../../j
 const { chromium } = require('playwright-core'); const fs = require('fs');
 const URL = process.env.URL || (process.env.BASE||'http://localhost:8080/index.html'); const SH = (process.env.SHOTS||'/tmp/tc-shots')+'/s111/howto-dialog-';
 const R = { fails: [], info: {} }; const F = (c, m) => { if (!c) R.fails.push(m); };
-const KIDS10 = ['Twinkle', 'Mary&#8217;s Lamb', 'Row Your Boat', 'Old MacDonald', 'Itsy Bitsy Spider', 'London Bridge', 'Hey Diddle Diddle', 'Head, Shoulders, Knees and Toes', 'Baa, Baa, Black Sheep', 'Hickory Dickory Dock'];
+const KIDS10 = ['Twinkle', 'Mary&#8217;s Lamb', 'Row Your Boat', 'Hot Cross Buns', 'Old MacDonald', 'Itsy Bitsy Spider', 'London Bridge', 'Hey Diddle Diddle', 'Head, Shoulders, Knees and Toes', 'Baa, Baa, Black Sheep', 'Hickory Dickory Dock'];
 (async () => { const b = await chromium.launch({ executablePath:process.env.CHROME||undefined,});
   const html = await (await fetch(URL)).text();
   F(html.includes('Tap a song to play it.'), 'step 9 "Tap a song to play it" changed');

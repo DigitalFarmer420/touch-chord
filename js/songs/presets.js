@@ -1,12 +1,12 @@
 // Built-in progressions (PROGRESSIONS: every style + Kids songs) and their parsing.
-import { keyDegrees } from "../keys.js?v=112.3";
-import { upInList, upSteps } from "./song.js?v=112.3";
-import { upProgObj } from "./upload.js?v=112.3";
-import { state, shared } from "../state.js?v=112.3";
-import { Theory } from "../theory/index.js?v=112.3";
-import { wrap12, blankExt } from "../theory/quality.js?v=112.3";
-import { accSym } from "../theory/spelling.js?v=112.3";
-import { STRIP_QUAL, plainRootSpell } from "../ui/strip.js?v=112.3";
+import { keyDegrees } from "../keys.js?v=112.4";
+import { upInList, upSteps } from "./song.js?v=112.4";
+import { upProgObj } from "./upload.js?v=112.4";
+import { state, shared } from "../state.js?v=112.4";
+import { Theory } from "../theory/index.js?v=112.4";
+import { wrap12, blankExt } from "../theory/quality.js?v=112.4";
+import { accSym } from "../theory/spelling.js?v=112.4";
+import { STRIP_QUAL, plainRootSpell } from "../ui/strip.js?v=112.4";
 const PROG_BPM = 80;
 export var PROG_BAR;
 function P(name, s) { return { name: name, steps: s.split("|") }; }
@@ -124,7 +124,8 @@ PROGRESSIONS = {
     kids: {
       major: [P("Kids Twinkle", "1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @7|1 maj x0.25 @7|4 maj x0.25 @9|4 maj x0.25 @9|1 maj x0.5 @7|4 maj x0.25 @5|4 maj x0.25 @5|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.25 @2|5 maj x0.25 @2|1 maj x0.5 @0|1 maj x0.25 @7|1 maj x0.25 @7|4 maj x0.25 @5|4 maj x0.25 @5|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.5 @2|1 maj x0.25 @7|1 maj x0.25 @7|4 maj x0.25 @5|4 maj x0.25 @5|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.5 @2|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @7|1 maj x0.25 @7|4 maj x0.25 @9|4 maj x0.25 @9|1 maj x0.5 @7|4 maj x0.25 @5|4 maj x0.25 @5|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.25 @2|5 maj x0.25 @2|1 maj x0.5 @0"),
               P("Kids Mary's Lamb", "1 maj x0.25 @4|1 maj x0.25 @2|1 maj x0.25 @0|1 maj x0.25 @2|1 maj x0.25 @4|1 maj x0.25 @4|1 maj x0.5 @4|5 maj x0.25 @2|5 maj x0.25 @2|5 maj x0.5 @2|1 maj x0.25 @4|1 maj x0.25 @7|1 maj x0.5 @7|1 maj x0.25 @4|1 maj x0.25 @2|1 maj x0.25 @0|1 maj x0.25 @2|1 maj x0.25 @4|1 maj x0.25 @4|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.25 @2|5 maj x0.25 @2|5 maj x0.25 @4|5 maj x0.25 @2|1 maj x1 @0"),
-              P("Kids Row Your Boat", "1 maj x0.375 @0|1 maj x0.375 @0|1 maj x0.25 @0|1 maj x0.125 @2|1 maj x0.375 @4|1 maj x0.25 @4|1 maj x0.125 @2|1 maj x0.25 @4|1 maj x0.125 @5|1 maj x0.75 @7|1 maj x0.125 @12|1 maj x0.125 @12|1 maj x0.125 @12|1 maj x0.125 @7|1 maj x0.125 @7|1 maj x0.125 @7|1 maj x0.125 @4|1 maj x0.125 @4|1 maj x0.125 @4|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.125 @0|5 maj x0.25 @7|5 maj x0.125 @5|5 maj x0.25 @4|5 maj x0.125 @2|1 maj x0.75 @0"),
+              P("Kids Row Your Boat", "1 maj x0.375 @0|1 maj x0.375 @0|1 maj x0.25 @0|1 maj x0.125 @2|1 maj x0.375 @4|1 maj x0.25 @4|1 maj x0.125 @2|1 maj x0.25 @4|1 maj x0.125 @5|1 maj x0.75 @7|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.125 @7|1 maj x0.125 @7|1 maj x0.125 @7|1 maj x0.125 @4|1 maj x0.125 @4|1 maj x0.125 @4|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.125 @0|5 maj x0.25 @7|5 maj x0.125 @5|5 maj x0.25 @4|5 maj x0.125 @2|1 maj x0.75 @0"),
+              P("Kids Hot Cross Buns", "1 maj x0.25 @4|1 maj x0.25 @2|1 maj x0.5 @0|1 maj x0.25 @4|1 maj x0.25 @2|1 maj x0.5 @0|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.125 @0|5 maj x0.125 @2|5 maj x0.125 @2|5 maj x0.125 @2|5 maj x0.125 @2|1 maj x0.25 @4|1 maj x0.25 @2|1 maj x0.5 @0"),   // v112.4: traditional (public domain), 4/4
               P("Kids Old MacDonald", "1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @7|4 maj x0.25 @9|4 maj x0.25 @9|1 maj x0.5 @7|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.25 @2|5 maj x0.25 @2|1 maj x0.75 @0|1 maj x0.25 @7|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @7|4 maj x0.25 @9|4 maj x0.25 @9|1 maj x0.5 @7|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.25 @2|5 maj x0.25 @2|1 maj x0.5 @0|1 maj x0.25 @7|1 maj x0.25 @7|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.125 @7|1 maj x0.125 @7|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.5 @0|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.25 @0|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.25 @0|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.125 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @0|1 maj x0.25 @7|4 maj x0.25 @9|4 maj x0.25 @9|1 maj x0.5 @7|1 maj x0.25 @4|1 maj x0.25 @4|5 maj x0.25 @2|5 maj x0.25 @2|1 maj x1 @0"),
               // v109: six more sing-alongs (traditional / public-domain words), same format as Twinkle
               P("Kids Itsy Bitsy Spider", "1 maj x0.125 @-5|1 maj x0.25 @0|1 maj x0.125 @0|1 maj x0.25 @0|1 maj x0.125 @2|1 maj x0.375 @4|1 maj x0.25 @4|1 maj x0.125 @4|5 maj x0.25 @2|5 maj x0.125 @0|5 maj x0.25 @2|5 maj x0.125 @4|1 maj x0.75 @0|1 maj x0.375 @4|1 maj x0.25 @4|1 maj x0.125 @5|5 maj x0.375 @7|5 maj x0.375 @7|7 dim x0.25 @5|7 dim x0.125 @4|7 dim x0.25 @5|7 dim x0.125 @7|1 maj x0.75 @4|1 maj x0.375 @0|1 maj x0.25 @0|1 maj x0.125 @2|1 maj x0.375 @4|1 maj x0.375 @4|5 maj x0.25 @2|5 maj x0.125 @0|5 maj x0.25 @2|5 maj x0.125 @4|1 maj x0.375 @0|1 maj x0.25 @-5|1 maj x0.125 @-5|1 maj x0.25 @0|1 maj x0.125 @0|1 maj x0.25 @0|1 maj x0.125 @2|1 maj x0.375 @4|1 maj x0.25 @4|1 maj x0.125 @4|5 maj x0.25 @2|5 maj x0.125 @0|5 maj x0.25 @2|5 maj x0.125 @4|1 maj x0.625 @0"),

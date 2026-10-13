@@ -667,3 +667,10 @@ html.lay-phone-land .now-mix > .now-vol .pg-vol svg, html.lay-phone-port:not(.si
 .config-menu .cfg-help { display: flex; align-items: center; gap: 8px; }
 .config-menu .cfg-help .cfg-lbl { flex: 0 0 auto; font-size: 13px; opacity: .75; padding-left: 4px; }
 .config-menu .cfg-help #tourBtn { flex: 1 1 auto; width: auto; }
+/* v112.4: Kids tap shake fix. A Kids pad tap stacked three effects on the same big pad: the press shrink
+   (transform: scale(.92), ~10px on Kids pads), the Kids gold flash (kgtap) and the next-chord burst (nxb), and the two
+   !important animations replaced each other mid-flash (flash, off, flash again). Kids pads keep the press brightness and
+   ONE flash, with no size change. */
+html #suggest.kids1 .ss-kidpad.press, html #suggest.kids1 .ss-kidpad.pg-on { transform: none; }
+#suggest.kids1 .ss-kidpad.kgtap.nxb, html.simple #suggest.kids1 .ss-kidpad.kgtap.nxb { animation: kgTap .4s ease-out 1 !important; }
+@media (prefers-reduced-motion: reduce) { #suggest.kids1 .ss-kidpad.kgtap.nxb, html.simple #suggest.kids1 .ss-kidpad.kgtap.nxb { animation: kgTapR .4s ease-out 1 !important; } }
