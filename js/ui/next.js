@@ -1,15 +1,15 @@
 // Next-chord marks: lookahead, next hint arrow, Kids gold pad / key.
-import { paintKidChip } from "../kids.js?v=112.7";
-import { magicTarget, magicQueue, magicAdvance } from "../songs/magic.js?v=112.7";
-import { magic, setItemState, prog, PROG_TEST, placeBadges, progPlayStart } from "../songs/playback.js?v=112.7";
-import { upSelected, upNextStep } from "../songs/song.js?v=112.7";
-import { state, padsEl } from "../state.js?v=112.7";
-import { wrap12 } from "../theory/quality.js?v=112.7";
-import { kbUpdate, kidsSoloSpec } from "./keyboard.js?v=112.7";
-import { paintKidsLyr } from "./lyrics.js?v=112.7";
-import { computeSpec, highlightMidisFromSpec } from "./pads.js?v=112.7";
-import { kidsTapPulse, kidsTapLog } from "./pulse.js?v=112.7";
-import { paintSongBar } from "./songbar.js?v=112.7";
+import { paintKidChip } from "../kids.js?v=112.8";
+import { magicTarget, magicQueue, magicAdvance } from "../songs/magic.js?v=112.8";
+import { magic, setItemState, prog, PROG_TEST, placeBadges, progPlayStart } from "../songs/playback.js?v=112.8";
+import { upSelected, upNextStep } from "../songs/song.js?v=112.8";
+import { state, padsEl } from "../state.js?v=112.8";
+import { wrap12 } from "../theory/quality.js?v=112.8";
+import { kbUpdate, kidsSoloSpec } from "./keyboard.js?v=112.8";
+import { paintKidsLyr } from "./lyrics.js?v=112.8";
+import { computeSpec, highlightMidisFromSpec } from "./pads.js?v=112.8";
+import { kidsTapPulse, kidsTapLog } from "./pulse.js?v=112.8";
+import { paintSongBar } from "./songbar.js?v=112.8";
 // v99: full mode (not Kids, not Simple, not an uploaded song, which has its own next-chord outline):
 // mark the grid cell of the chord Play would sound right now. Stopped: Play starts at step 1. Playing: the
 // step after the lit one (none in the random part after one pass). No mark when that step has no grid

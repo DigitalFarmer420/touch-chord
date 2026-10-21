@@ -61,13 +61,14 @@ lines  file
     36  js/theory/voicing.js       Voicings (drop / low / close / high / bright) and voiced MIDI notes.
    164  js/ui/gear.js              Gear (Config) menu: volume, band, toggles, factory reset.
    122  js/ui/hints.js             Play along hint pill (placement, misses, timers).
-   158  js/ui/keyboard.js          Keyboard window (which octave shows), Kids key placement and the Kids solo note.
+    35  js/ui/kbmath.js            kb-fix: pure key-tap pitch / chip octave / key-tap quality rules, KB_RESET_MS (unit-tested).
+   187  js/ui/keyboard.js          Keyboard window (which octave shows, snap-back to the key's tonic), Kids key placement and the Kids solo note.
    221  js/ui/keychip.js           Key chip / key row (Key chip hidden in every mode since the v113 (5) port; Full uses #kidKey).
    157  js/ui/layout.js            Simple mode, controls drawer / tabs, size-class changes.
    122  js/ui/lyrics.js            Two-row lyrics (uploaded songs) and Kids lyrics.
    295  js/ui/next.js              Next-chord marks: lookahead, next hint arrow, Kids gold pad / key.
    129  js/ui/nowbox.js            Now box: chord symbol and its fitting.
-   566  js/ui/pads.js              The chord keyboard: layout spec, pads / keys, pointer input, sounding fingers, haptics.
+   591  js/ui/pads.js              The chord keyboard: layout spec, pads / keys, pointer input, sounding fingers, haptics.
    106  js/ui/palette.js           Chord types / extensions palette holds.
    220  js/ui/progbar.js           Progression picker (#prog): placement, name fitting, Play / Next wiring.
     26  js/ui/pulse.js             Tap flashes (Kids gold tap, full-mode tap pulse).

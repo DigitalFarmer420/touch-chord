@@ -1,22 +1,22 @@
 // The chord table / scale strip: model, chips, taps, preview, fitting.
-import { api as ChordAudio } from "../audio/index.js?v=112.7";
-import { unlock } from "../audio/unlock.js?v=112.7";
-import { activeKey, keyDegrees, keyRootName, suggestionKey } from "../keys.js?v=112.7";
-import { paintKidChip } from "../kids.js?v=112.7";
-import { paTwin, playAlongGo, playAlongChip } from "../songs/playalong.js?v=112.7";
-import { setItemState, progSync, progDecorate, placeBadges } from "../songs/playback.js?v=112.7";
-import { state, fingers, shared } from "../state.js?v=112.7";
-import { Theory } from "../theory/index.js?v=112.7";
-import { wrap12, blankExt, mapQuality } from "../theory/quality.js?v=112.7";
-import { accSym } from "../theory/spelling.js?v=112.7";
-import { paHintMiss } from "./hints.js?v=112.7";
-import { kbSound, kidsSoloSpec } from "./keyboard.js?v=112.7";
-import { paintNextHint, kidsGoldGo, kidsGoldPad } from "./next.js?v=112.7";
-import { updateSymbol } from "./nowbox.js?v=112.7";
-import { computeSpec, highlightMidisFromSpec, refreshHeld } from "./pads.js?v=112.7";
-import { paintProg } from "./progbar.js?v=112.7";
-import { fxTapPulse } from "./pulse.js?v=112.7";
-import { sustainPool, sustainActive } from "./sustain.js?v=112.7";
+import { api as ChordAudio } from "../audio/index.js?v=112.8";
+import { unlock } from "../audio/unlock.js?v=112.8";
+import { activeKey, keyDegrees, keyRootName, suggestionKey } from "../keys.js?v=112.8";
+import { paintKidChip } from "../kids.js?v=112.8";
+import { paTwin, playAlongGo, playAlongChip } from "../songs/playalong.js?v=112.8";
+import { setItemState, progSync, progDecorate, placeBadges } from "../songs/playback.js?v=112.8";
+import { state, fingers, shared } from "../state.js?v=112.8";
+import { Theory } from "../theory/index.js?v=112.8";
+import { wrap12, blankExt, mapQuality } from "../theory/quality.js?v=112.8";
+import { accSym } from "../theory/spelling.js?v=112.8";
+import { paHintMiss } from "./hints.js?v=112.8";
+import { kbSound, kidsSoloSpec, kbScheduleReset, kbCancelReset } from "./keyboard.js?v=112.8";
+import { paintNextHint, kidsGoldGo, kidsGoldPad } from "./next.js?v=112.8";
+import { updateSymbol } from "./nowbox.js?v=112.8";
+import { computeSpec, highlightMidisFromSpec, refreshHeld } from "./pads.js?v=112.8";
+import { paintProg } from "./progbar.js?v=112.8";
+import { fxTapPulse } from "./pulse.js?v=112.8";
+import { sustainPool, sustainActive } from "./sustain.js?v=112.8";
 const suggestTapAt = 0;   // last touch/pen tap on a Next chip (click de-dupe)
 var suggestSeq;
 
@@ -28,6 +28,7 @@ export function clearSuggestPreview() {
   stopStripTails();
   if (!shared.suggestPreview) return;
   shared.suggestPreview = null;
+  kbScheduleReset();   // kb-fix: a Next / Play along / chip preview ended: the window goes back to the tonic
   state.forceChord = null;
   // v47: a preview the pedal has adopted keeps ringing until pedal-up.
   if (!sustainPool["suggest"]) ChordAudio.stopChord("suggest");
@@ -49,6 +50,7 @@ export const PREVIEW_MS = 1600;
 const stripHolds = {};   // pointerId -> { group, t0, silent }
 export const stripTails = {};   // group -> timer (let go, still ringing out its preview)
 function stripHoldCount() { return Object.keys(stripHolds).length; }
+export function stripHeldNow() { return Object.keys(stripHolds).length > 0; }   // kb-fix
 function stripHeld(h) { for (var k in stripHolds) if (stripHolds[k] === h) return true; return false; }
 function stopStripTails() {
   Object.keys(stripTails).forEach(function (g) {
@@ -68,6 +70,7 @@ function stripUp(pid) {
   var h = stripHolds[pid];
   if (!h) return;
   delete stripHolds[pid];
+  if (!stripHoldCount()) kbScheduleReset();   // kb-fix: KB_RESET_MS after the chip is let go
   var g = h.group;
   var left = PREVIEW_MS - (Date.now() - h.t0);
   if (g && !h.silent) {
@@ -97,6 +100,7 @@ export function applySuggestion(item, hold) {
     shared.paletteTimer = 0;
   }
   shared.paletteHolds = {};
+  kbCancelReset();   // kb-fix
   if (!shared.kbKeyGo) shared.kbKeyStay = false;   // v102: a chip / pad / Next chord may move the window again
   setItemState(item);   // v55: shared with the progression player
   var needReplay = !(ChordAudio.ctx && ChordAudio.ctx.state === "running");

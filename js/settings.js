@@ -1,14 +1,14 @@
 // Applies loaded settings to the UI (applySettings, markOn) and the toast.
-import { api as ChordAudio } from "./audio/index.js?v=112.7";
-import { syncKeySel } from "./keys.js?v=112.7";
-import { setBpm } from "./loop.js?v=112.7";
-import { VOICINGS, state, shared } from "./state.js?v=112.7";
-import { Theory } from "./theory/index.js?v=112.7";
-import { applyStylePreset, enforceYogaDeepPaletteGate, setWarmth, styleTrim } from "./styles.js?v=112.7";
-import { paintProgNumsBtn, paintPlayAlongBtn, setVolume, setBand } from "./ui/gear.js?v=112.7";
-import { paintSimple } from "./ui/layout.js?v=112.7";
-import { setKeyModeState } from "./ui/palette.js?v=112.7";
-import { dumpSustain, paintSustainBtn } from "./ui/sustain.js?v=112.7";
+import { api as ChordAudio } from "./audio/index.js?v=112.8";
+import { syncKeySel } from "./keys.js?v=112.8";
+import { setBpm } from "./loop.js?v=112.8";
+import { VOICINGS, state, shared } from "./state.js?v=112.8";
+import { Theory } from "./theory/index.js?v=112.8";
+import { applyStylePreset, enforceYogaDeepPaletteGate, setWarmth, styleTrim } from "./styles.js?v=112.8";
+import { paintProgNumsBtn, paintPlayAlongBtn, setVolume, setBand } from "./ui/gear.js?v=112.8";
+import { paintSimple } from "./ui/layout.js?v=112.8";
+import { setKeyModeState } from "./ui/palette.js?v=112.8";
+import { dumpSustain, paintSustainBtn } from "./ui/sustain.js?v=112.8";
 
 function markOn(groupSel, attr, value) {
   var all = document.querySelectorAll(groupSel + " button");
@@ -46,6 +46,8 @@ export function applySettings(s) {
   state.degree = s.degree;
   // v112.6: the Now chord's quality is not saved; after a reload it follows the saved key, so a saved D minor
   // shows Dm (D F A), not D major, before the first tap. A root outside the key keeps the default.
+  // kb-fix: this only feeds the Now display (and whatever the next chip / palette overwrites): a key tap
+  // takes its quality from its own degree (pads.js keyTapQuality), so a reload never changes key taps.
   state.type = "major";
   try {
     var lk = shared.lockKey;

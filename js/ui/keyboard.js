@@ -1,12 +1,14 @@
 // Keyboard window (which octave shows), Kids key placement and the Kids solo note.
-import { activeKey, keyDegrees } from "../keys.js?v=112.7";
-import { kidKey } from "../kids.js?v=112.7";
-import { magic, prog } from "../songs/playback.js?v=112.7";
-import { state, fingers, padsEl, shared } from "../state.js?v=112.7";
-import { wrap12 } from "../theory/quality.js?v=112.7";
-import { paintKeyChip } from "./keychip.js?v=112.7";
-import { kidsHintItem } from "./next.js?v=112.7";
-import { computeSpec, effectiveLayout, renderKeys, paintPads, kbKidsPtr } from "./pads.js?v=112.7";
+import { activeKey, keyDegrees } from "../keys.js?v=112.8";
+import { kidKey } from "../kids.js?v=112.8";
+import { magic, prog } from "../songs/playback.js?v=112.8";
+import { state, fingers, padsEl, shared } from "../state.js?v=112.8";
+import { wrap12 } from "../theory/quality.js?v=112.8";
+import { paintKeyChip } from "./keychip.js?v=112.8";
+import { kidsHintItem } from "./next.js?v=112.8";
+import { computeSpec, effectiveLayout, renderKeys, paintPads, kbKidsPtr } from "./pads.js?v=112.8";
+import { KB_RESET_MS, tonicLow } from "./kbmath.js?v=112.8";
+import { stripHeldNow } from "./strip.js?v=112.8";
 // ---- v83 one-octave window ----
 var kbLast;
 export var kbChord;
@@ -92,10 +94,18 @@ export function kbWantLow(force) {
   if (!force && state.style === "kids" && shared.kbWinLow != null && S.length && S.every(function (m) { return m >= shared.kbWinLow && m <= shared.kbWinLow + 12; })) return shared.kbWinLow;
   if (!kbLast || !kbLast.length) {
     var ak = activeKey(), pc = ak ? ak.pc : wrap12(state.keyRoot || 0);
-    var T = state.style === "kids" ? 55 + wrap12(pc - 7) : 60 + wrap12(pc);
+    var T = state.style === "kids" ? 55 + wrap12(pc - 7) : tonicLow(pc);
     if (S.every(function (m) { return m >= T && m <= T + 12; })) return T;   // v84: the tonic (Kids: when the gold fits)
   }
-  return Math.min.apply(null, S);
+  // kb-fix: chips are rooted C4..B4 by pitch class now, so move the 13-key window only as far as needed to
+  // show the whole chord (a chord that already fits stays put; else its top or bottom note at the edge);
+  // a chord wider than the window (slash bass far below): from its lowest note, as before.
+  var sMn = Math.min.apply(null, S), sMx = Math.max.apply(null, S), cur = shared.kbWinLow;
+  if (state.style !== "kids" && cur != null && sMx - sMn <= 12) {
+    if (sMn >= cur && sMx <= cur + 12) return cur;
+    return sMn < cur ? sMn : sMx - 12;
+  }
+  return sMn;
 }
 export function kbSound(midis, spec, item) {
   if (midis && midis.length) kbLast = midis.slice();
@@ -128,6 +138,33 @@ export function kbUpdate() {
   kbRebuild();
   return true;
 }
+// kb-fix: the at-rest window = the selected key's tonic (C 60, G 67, Eb 63, A 69). Key taps and chip
+// octaves are measured from it; chips / Next / Play along may move the window to show their chord,
+// and KB_RESET_MS after the last release (chip up, key up, the Next / Play along preview ending,
+// Play song stopped) it snaps back here. Kids keeps its own window rules (kbWantLow, kbKidsLift).
+export function kbTonicLow() { var ak = activeKey(); return tonicLow(ak ? ak.pc : wrap12(state.keyRoot || 0)); }
+var kbResetT = 0;
+export function kbScheduleReset(ms) {
+  if (state.style === "kids") return;
+  if (kbResetT) clearTimeout(kbResetT);
+  kbResetT = setTimeout(kbResetNow, ms == null ? KB_RESET_MS : ms);
+}
+// Snap back now unless something still holds the chord (a key, a chip, Play song): its release
+// (liftFinger / stripUp / clearSuggestPreview / progStop) schedules the reset again.
+export function kbResetNow() {
+  kbResetT = 0;
+  if (state.style === "kids" || !padsEl || !kbKeyLayout()) return false;
+  if (Object.keys(fingers).length || stripHeldNow() || (typeof prog !== "undefined" && prog && prog.playing)) return false;
+  var hadBorrow = !!(kbChord && padsEl.querySelector(".pad[data-borrow]"));
+  kbLast = null; kbChord = null;   // the window anchor and the chip's live borrowed root key go too
+  shared.kbKeyStay = false;   // v102 freeze ends with the reset (the window is back at rest)
+  var moved = false;
+  if (kbWindowMode()) { var T = kbTonicLow(); if (shared.kbWinLow !== T) { shared.kbWinLow = T; moved = true; } }
+  if (moved || hadBorrow) kbRebuild();
+  return moved || hadBorrow;
+}
+export function kbResetPending() { return !!kbResetT; }
+export function kbCancelReset() { if (kbResetT) { clearTimeout(kbResetT); kbResetT = 0; } }   // a new chip / Next / Play along chord: its own release or preview end reschedules
 // Redraw the window without lifting fingers: a held finger keeps sounding and stays lit.
 function kbRebuild() {
   renderKeys();

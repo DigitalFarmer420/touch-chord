@@ -1,9 +1,9 @@
 // Chord types / extensions palette holds.
-import { keyRootSpell, modeKey, keyDegrees } from "../keys.js?v=112.7";
-import { state, shared } from "../state.js?v=112.7";
-import { Theory } from "../theory/index.js?v=112.7";
-import { releaseFingers, liftFinger, refreshHeld } from "./pads.js?v=112.7";
-import { clearStripExt } from "./strip.js?v=112.7";
+import { keyRootSpell, modeKey, keyDegrees } from "../keys.js?v=112.8";
+import { state, shared } from "../state.js?v=112.8";
+import { Theory } from "../theory/index.js?v=112.8";
+import { releaseFingers, liftFinger, refreshHeld, restoreKeyQuality } from "./pads.js?v=112.8";
+import { clearStripExt } from "./strip.js?v=112.8";
 
 export function typeHeld(name) {
   for (var id in shared.paletteHolds) {
@@ -28,6 +28,7 @@ export function syncPalette() {
   var keys = ["six", "min7", "maj7", "nine"];
   for (var i = 0; i < keys.length; i++) state.extensions[keys[i]] = extStillHeld(keys[i]);
   clearStripExt();
+  if (!Object.keys(shared.paletteHolds).length) restoreKeyQuality();   // kb-fix: no button held: a held key plays its diatonic quality again
   if (shared.paletteTimer) clearTimeout(shared.paletteTimer);
   shared.paletteTimer = setTimeout(function () {
     shared.paletteTimer = 0;

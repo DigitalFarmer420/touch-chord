@@ -1,21 +1,22 @@
 // The chord keyboard: layout spec, pads / keys, pointer input, sounding fingers, haptics.
-import { api as ChordAudio } from "../audio/index.js?v=112.7";
-import { unlock } from "../audio/unlock.js?v=112.7";
-import { keyRootSpell, modeKey, activeKey, keyDegrees, maybeLockKey } from "../keys.js?v=112.7";
-import { finalizeOne, armPending } from "../loop.js?v=112.7";
-import { paTwin, playAlongKey, playAlongGo } from "../songs/playalong.js?v=112.7";
-import { magic, setItemState } from "../songs/playback.js?v=112.7";
-import { state, loop, fingers, padsEl, shared } from "../state.js?v=112.7";
-import { Theory } from "../theory/index.js?v=112.7";
-import { hasDoubleAcc, plainToneName, enharmonicSpell } from "../theory/names.js?v=112.7";
-import { wrap12 } from "../theory/quality.js?v=112.7";
-import { accSym } from "../theory/spelling.js?v=112.7";
-import { playAlongKeyOk, paHintMiss } from "./hints.js?v=112.7";
-import { kbFullMode, kbFullRange, kbWindowMode, kbKeyLayout, kidsTonic, kbBorrowKey, kbChord, kbWantLow, kbUpdate } from "./keyboard.js?v=112.7";
-import { paintNextHint, kidsGoldKey, kidsGoldGo } from "./next.js?v=112.7";
-import { updateSymbol } from "./nowbox.js?v=112.7";
-import { clearStripExt, clearSuggestPreview } from "./strip.js?v=112.7";
-import { sustainActive, padPlayable, poolFingerGroup } from "./sustain.js?v=112.7";
+import { api as ChordAudio } from "../audio/index.js?v=112.8";
+import { unlock } from "../audio/unlock.js?v=112.8";
+import { keyRootSpell, modeKey, activeKey, keyDegrees, maybeLockKey } from "../keys.js?v=112.8";
+import { finalizeOne, armPending } from "../loop.js?v=112.8";
+import { paTwin, playAlongKey, playAlongGo } from "../songs/playalong.js?v=112.8";
+import { magic, setItemState } from "../songs/playback.js?v=112.8";
+import { state, loop, fingers, padsEl, shared } from "../state.js?v=112.8";
+import { Theory } from "../theory/index.js?v=112.8";
+import { hasDoubleAcc, plainToneName, enharmonicSpell } from "../theory/names.js?v=112.8";
+import { wrap12 } from "../theory/quality.js?v=112.8";
+import { accSym } from "../theory/spelling.js?v=112.8";
+import { playAlongKeyOk, paHintMiss } from "./hints.js?v=112.8";
+import { kbFullMode, kbFullRange, kbWindowMode, kbKeyLayout, kidsTonic, kbBorrowKey, kbChord, kbWantLow, kbUpdate, kbTonicLow, kbScheduleReset } from "./keyboard.js?v=112.8";
+import { keyTapMidis, chipRootMidi, chipMidis, keyTapType } from "./kbmath.js?v=112.8";
+import { paintNextHint, kidsGoldKey, kidsGoldGo } from "./next.js?v=112.8";
+import { updateSymbol } from "./nowbox.js?v=112.8";
+import { clearStripExt, clearSuggestPreview } from "./strip.js?v=112.8";
+import { sustainActive, padPlayable, poolFingerGroup } from "./sustain.js?v=112.8";
 
 export function computeSpec() {
   var rootPc = state.rootPc;
@@ -97,16 +98,15 @@ export function computeSpec() {
 function kbPlace(chord, rootMidi) {
   var fromKey = typeof fingers !== "undefined" && Object.keys(fingers).length > 0;
   if (typeof shared.paKeyMidi !== "undefined" && shared.paKeyMidi != null && rootMidi === shared.paKeyMidi) fromKey = true;   // v111 (E): a Play along key advance = a key tap on that key
-  // v84: a keyboard key never moves the window. The touched key sounds at its own pitch (the
-  // top key too); the other tones go above it when they fit in the window, else an octave down.
+  // v84: a keyboard key never moves the window. kb-fix: the touched key sounds at its own pitch and
+  // the chord stacks UPWARD from it in root position (no v84 octave fold), exactly as the chip of that
+  // chord on that key. Tones above the drawn keys still sound; paintPads lights only keys that exist.
   var full = kbFullMode() ? kbFullRange() : null;   // v85
   if (fromKey && rootMidi != null && ((kbWindowMode() && shared.kbWinLow != null) || full)) {
-    var W = full ? full.lo : shared.kbWinLow, H = full ? full.hi : shared.kbWinLow + 12, X = rootMidi, kseen = {}, kout = [];
+    var W = full ? full.lo : shared.kbWinLow, H = full ? full.hi : shared.kbWinLow + 12, X = rootMidi;
     while (X > H) X -= 12;
     while (X < W) X += 12;
-    (chord.midis || []).forEach(function (m) { var x = X + wrap12(m - X); if (x > H) x -= 12; if (!kseen[x]) { kseen[x] = 1; kout.push(x); } });
-    kout.sort(function (a, b) { return a - b; });
-    return kout;
+    return keyTapMidis(chord.midis, X);
   }
   // Chips / Next / Play: a fixed home octave (C4..B4; Kids G3..F#4) moved by the Voicing slider,
   // so the register does not follow the last key tapped. A held key: that key.
@@ -124,14 +124,12 @@ function kbPlace(chord, rootMidi) {
     kOut.sort(function (a, b) { return a - b; });
     return kOut;
   }
-  if (!fromKey && !full && kbWindowMode() && shared.kbWinLow != null && !shared.kbKeyStay) {   // v111 (D3): move the window as little as possible
-    var vOff = ({ low: -12, high: 12, bright: 12 })[chord.voicing] || 0;
-    var best = null;   // the root's octave inside G3..E5 (55..76, + the Voicing octave) whose lowest key (root; slash: bass) is nearest the current left key
-    for (var R2 = 55 + vOff + wrap12(chord.rootPc - 55 - vOff); R2 <= 76 + vOff; R2 += 12) {
-      var d2 = Math.abs((ov ? R2 + ov - 12 : R2) - shared.kbWinLow);
-      if (best == null || d2 < best.d || (d2 === best.d && R2 < best.r)) best = { r: R2, d: d2 };   // a tie (tritone) goes down
-    }
-    if (best) R = best.r;
+  if (!fromKey && kbKeyLayout()) {   // kb-fix (replaces the v111 D3 nearest-window octave and, on Full, the v85 octave moves):
+    // root = its home-octave key C4..B4 by pitch class (kbmath chipRootMidi: grid rows rise left to right), chord in root
+    // position from it, a slash bass under it (chipMidis). Same notes whatever came before; the window shows it, then snaps back.
+    R = chipRootMidi(chord.rootPc, full ? 0 : ({ low: -12, high: 12, bright: 12 })[chord.voicing] || 0);   // Full: fixed C4..C6 keys, no Voicing octave
+    var tp = Theory.chordIntervals(chord.type, chord.extensions).map(function (iv) { return chord.rootPc + iv; });
+    return chipMidis(chord.midis, R, ov, tp);
   }
   var L = ov ? R + ov - 12 : R, seen = {}, out = [];
   (chord.midis || []).forEach(function (m) { var x = L + wrap12(m - L); if (!seen[x]) { seen[x] = 1; out.push(x); } });
@@ -302,9 +300,11 @@ export function highlightMidisFromSpec(specMidis) {
   }
   var out = {};
   if (!specMidis || !specMidis.length || !padMidis.length) return out;
+  var exact = kbKeyLayout();   // kb-fix: the piano keys light only the keys that sound; a tone above / below the drawn keys stays dark (as key taps), never an octave-moved stand-in
   for (var s = 0; s < specMidis.length; s++) {
     var m = specMidis[s];
     if (!isFinite(m)) continue;
+    if (exact) { if (padMidis.indexOf(m) >= 0) out[m] = true; continue; }
     var best = null;
     var bestDist = Infinity;
     for (var p = 0; p < padMidis.length; p++) {
@@ -352,11 +352,14 @@ export function specFromFinger(finger) {
   var root = state.rootPc;
   var degree = state.degree;
   var rootMidi = state.rootMidi, force = state.forceChord;
+  var type = state.type, ext = Object.assign({}, state.extensions), sspell = state.stripSpell;   // kb-fix
   if (state.keyMode) { if (finger.degree != null) state.degree = finger.degree; }
   else state.rootPc = finger.pc;
   state.rootMidi = finger.midi;
   if (finger.force) state.forceChord = finger.force;
+  applyFingerQuality(finger);   // kb-fix: each held key keeps its own quality
   var spec = computeSpec();
+  state.type = type; Object.assign(state.extensions, ext); state.stripSpell = sspell;
   state.rootPc = root;
   state.degree = degree;
   state.rootMidi = rootMidi;
@@ -364,10 +367,33 @@ export function specFromFinger(finger) {
   return spec;
 }
 
+// kb-fix: a plain key tap's quality. "Picked" = a palette type / extension button (Major, Minor,
+// Sus4, Dim, 6, min7, maj7, 9) held down right now (shared.paletteHolds, the palette's only state:
+// it is momentary, syncPalette resets state.type to major on release). Held: the palette wins, as
+// before. Not held: the diatonic chord of the key's degree (out-of-key: major), never the type /
+// extensions a chip, Next, Play along step or a reload left in state. Kids keeps its own rule.
+export function paletteHeld() { return !!shared.paletteHolds && Object.keys(shared.paletteHolds).length > 0; }
+export function keyTapQuality(pc) {
+  if (state.style === "kids") return null;
+  var ak = activeKey();
+  return { type: keyTapType(pc, ak ? keyDegrees(ak) : null) };
+}
+function applyFingerQuality(finger) {
+  if (!finger || !finger.kq || finger.force || paletteHeld()) return;
+  state.type = finger.kq.type;
+  state.extensions.six = state.extensions.min7 = state.extensions.maj7 = state.extensions.nine = false;
+  clearStripExt();
+}
 function rememberFinger(finger) {
   if (state.keyMode) { if (finger.degree != null) state.degree = finger.degree; }
   else state.rootPc = finger.pc;
   state.rootMidi = finger.midi;
+  applyFingerQuality(finger);   // kb-fix
+}
+// kb-fix: palette let go with keys still down: the last key goes back to its own diatonic quality.
+export function restoreKeyQuality() {
+  var ids = Object.keys(fingers);
+  if (ids.length) applyFingerQuality(fingers[ids[ids.length - 1]]);
 }
 
 function soundFinger(pointerId, pad) {
@@ -394,6 +420,7 @@ function soundFinger(pointerId, pad) {
   finger.midi = isFinite(padMidi) ? padMidi : null;
   finger.degree = pad.dataset.degree ? Number(pad.dataset.degree) : null;
   finger.force = pad.dataset.borrow && kbChord ? { rootPc: kbChord.rootPc, type: kbChord.type } : null;   // v84
+  finger.kq = finger.force ? null : keyTapQuality(finger.pc);   // kb-fix
   rememberFinger(finger);
   clearSuggestPreview();
   if (finger.force) {   // v84: the borrowed root key plays that chord (as the chip did)
@@ -425,6 +452,7 @@ function releaseFinger(pointerId) {
   else finger.pending = null;
   delete fingers[pointerId];
   kbKidsLift();
+  if (!Object.keys(fingers).length) kbScheduleReset();   // kb-fix: the window snaps back to the tonic after the last key up
   state.holding = Object.keys(fingers).length > 0;
   var ids = Object.keys(fingers);
   if (ids.length) rememberFinger(fingers[ids[ids.length - 1]]);
@@ -443,6 +471,7 @@ export function liftFinger(pointerId) {
   poolFingerGroup(finger);
   delete fingers[pointerId];
   kbKidsLift();
+  if (!Object.keys(fingers).length) kbScheduleReset();   // kb-fix
   var ids = Object.keys(fingers);
   state.holding = ids.length > 0;
   if (ids.length) rememberFinger(fingers[ids[ids.length - 1]]);
