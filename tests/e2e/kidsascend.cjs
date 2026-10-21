@@ -1,5 +1,5 @@
 // v112.9 Kids ascend: every Kids pad in root position (root lowest), the pads' lowest notes rising strictly in reading
-// order (row by row, left to right), lit = sounded on the keys, in all 12 major keys x Kids Octave / Full / Simple x
+// order (row by row, left to right), lit = sounded on the keys (v112.10: notes past the window sound but stay dark), in all 12 major keys x Kids Octave / Full / Simple x
 // 360x780 + 780x360 (phone emulation via -r emulate.cjs); the Octave window back at its rest position after the last pad;
 // Twinkle gold pad / gold key taps still advance the melody. Pop/Jazz untouched (kbaccept / kbfix cover them).
 // node -r ./emulate.cjs kidsascend.cjs [WxH]   env BASE, OUT, EXPECT_FIX=0 to record without failing, ONLY_TW=1 Twinkle only.
@@ -43,7 +43,7 @@ const keys = p => p.evaluate(() => { const ps = [...document.querySelectorAll('#
         F(m.length && w12(m[0]) === w12(c.rootPc), `${tag} ${NN[pc]} pad ${c.t}: root ${NN[w12(c.rootPc)]} not lowest ${m}`);
         F(m.every((x, i) => !i || x > m[i - 1]), `${tag} ${NN[pc]} pad ${c.t}: not ascending ${m}`);
         F(!m.length || m[m.length - 1] - m[0] < 12, `${tag} ${NN[pc]} pad ${c.t}: not close position ${m}`);
-        if (k.n) F(same(k.lit, m), `${tag} ${NN[pc]} pad ${c.t}: lit ${k.lit} != sounded ${m} (keys ${k.lo}..${k.hi})`);
+        if (k.n) F(same(k.lit, m.filter(x => x >= k.lo && x <= k.hi)), `${tag} ${NN[pc]} pad ${c.t}: lit ${k.lit} != sounded on the keys ${m} (keys ${k.lo}..${k.hi})`);   // v112.10: the gold keeps the window; notes past it sound dark
         await p.waitForTimeout(120);
       }
       const lows = rows.map(r => r.m[0]); F(lows.every((x, i) => !i || x > lows[i - 1]), `${tag} ${NN[pc]}: pad lows not rising in reading order ${rows.map(r => r.pad + '=' + r.m[0]).join(' ')}`);

@@ -1,17 +1,17 @@
 // Keyboard window (which octave shows), Kids key placement and the Kids solo note.
-import { activeKey, keyDegrees } from "../keys.js?v=112.9";
-import { kidKey } from "../kids.js?v=112.9";
-import { magic, prog } from "../songs/playback.js?v=112.9";
-import { state, fingers, padsEl, shared } from "../state.js?v=112.9";
-import { wrap12 } from "../theory/quality.js?v=112.9";
-import { paintKeyChip } from "./keychip.js?v=112.9";
-import { kidsHintItem } from "./next.js?v=112.9";
-import { computeSpec, effectiveLayout, renderKeys, paintPads, kbKidsPtr } from "./pads.js?v=112.9";
-import { KB_RESET_MS, tonicLow } from "./kbmath.js?v=112.9";
-import { stripHeldNow } from "./strip.js?v=112.9";
+import { activeKey, keyDegrees } from "../keys.js?v=112.10";
+import { kidKey } from "../kids.js?v=112.10";
+import { magic, prog } from "../songs/playback.js?v=112.10";
+import { state, fingers, padsEl, shared } from "../state.js?v=112.10";
+import { wrap12 } from "../theory/quality.js?v=112.10";
+import { paintKeyChip } from "./keychip.js?v=112.10";
+import { kidsHintItem } from "./next.js?v=112.10";
+import { computeSpec, effectiveLayout, renderKeys, paintPads, kbKidsPtr } from "./pads.js?v=112.10";
+import { KB_RESET_MS, tonicLow } from "./kbmath.js?v=112.10";
+import { stripHeldNow } from "./strip.js?v=112.10";
 // ---- v83 one-octave window ----
 var kbLast;
-var kbPadAnchor = false;   // v112.9: kbLast came from a Kids chord pad pressed by hand: it may outrank the gold (kbWantLow)
+var kbPadAnchor = false;   // v112.9: kbLast came from a Kids chord pad pressed by hand: it leads the window (kbWantLow); v112.10: never over the gold
 export var kbChord;
 var kbKeySig;
 function kbChordOf(spec) {
@@ -83,7 +83,13 @@ export function kbWantLow(force) {
     // while a chord pad pressed by hand is the window anchor (until the reset KB_RESET_MS after it is let go) it wins, so
     // all of it lights; gold melody notes, Play along keys, Next and Play song keep the gold first (the melody leads).
     var kPad = kbPadAnchor && kbLast && kbLast.length && !(typeof prog !== "undefined" && prog && prog.playing);
-    if (kS.length && Math.max.apply(null, kS) - Math.min.apply(null, kS) > 12) kS = kPad ? kbLast.slice() : kG != null ? [kG] : kS.slice(-1);   // the gold first (v112.9: a hand-pressed Kids pad chord first)
+    // v112.10: the gold always wins. A pad may slide the window only while the gold stays on it (pad + gold fit in 13 keys:
+    // the minimal move below shows both); a pad chord that cannot share the window with the gold does not move it (its notes
+    // past the window sound but stay dark). Without a gold (no song step) a hand-pressed pad chord still leads (v112.9).
+    if (kS.length && Math.max.apply(null, kS) - Math.min.apply(null, kS) > 12) {
+      if (kPad && kG != null && !force && shared.kbWinLow != null && kG >= shared.kbWinLow && kG <= shared.kbWinLow + 12) return shared.kbWinLow;   // v112.10: the window stays (the gold is on it)
+      kS = kG != null ? [kG] : kPad ? kbLast.slice() : kS.slice(-1);   // the gold first (v112.9: without a gold, a hand-pressed Kids pad chord first)
+    }
     var kFit = function (lo) { return kS.every(function (m) { return m >= lo && m <= lo + 12; }); };
     if (kFit(kT)) return kT;
     if (!force && shared.kbWinLow != null && kFit(shared.kbWinLow)) return shared.kbWinLow;

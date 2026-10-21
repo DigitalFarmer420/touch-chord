@@ -16,6 +16,7 @@ const SUITE = [   // [name, file, args]  (both phone sizes each: the tests loop 
   ['kbaccept-360-octave', 'kbaccept.cjs', ['360x780', 'octave']], ['kbaccept-360-full', 'kbaccept.cjs', ['360x780', 'full']],
   ['kbaccept-780-octave', 'kbaccept.cjs', ['780x360', 'octave']], ['kbaccept-780-full', 'kbaccept.cjs', ['780x360', 'full']],   // kb-fix acceptance matrix
   ['kidsascend', 'kidsascend.cjs', []],   // v112.9: Kids pads root position, rising in reading order, lit = sounded, Twinkle advance
+  ['kidsgold', 'kidsgold.cjs', []],   // v112.10: Kids gold always wins: a pad never slides the gold key off the keys
 ];
 const only = process.env.ONLY ? process.env.ONLY.split(',') : null;
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.webp': 'image/webp', '.json': 'application/json', '.png': 'image/png' };
