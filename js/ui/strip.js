@@ -1,22 +1,22 @@
 // The chord table / scale strip: model, chips, taps, preview, fitting.
-import { api as ChordAudio } from "../audio/index.js?v=112.6";
-import { unlock } from "../audio/unlock.js?v=112.6";
-import { activeKey, keyDegrees, keyRootName, suggestionKey } from "../keys.js?v=112.6";
-import { paintKidChip } from "../kids.js?v=112.6";
-import { paTwin, playAlongGo, playAlongChip } from "../songs/playalong.js?v=112.6";
-import { setItemState, progSync, progDecorate, placeBadges } from "../songs/playback.js?v=112.6";
-import { state, fingers, shared } from "../state.js?v=112.6";
-import { Theory } from "../theory/index.js?v=112.6";
-import { wrap12, blankExt, mapQuality } from "../theory/quality.js?v=112.6";
-import { accSym } from "../theory/spelling.js?v=112.6";
-import { paHintMiss } from "./hints.js?v=112.6";
-import { kbSound, kidsSoloSpec } from "./keyboard.js?v=112.6";
-import { paintNextHint, kidsGoldGo, kidsGoldPad } from "./next.js?v=112.6";
-import { updateSymbol } from "./nowbox.js?v=112.6";
-import { computeSpec, highlightMidisFromSpec, refreshHeld } from "./pads.js?v=112.6";
-import { paintProg } from "./progbar.js?v=112.6";
-import { fxTapPulse } from "./pulse.js?v=112.6";
-import { sustainPool, sustainActive } from "./sustain.js?v=112.6";
+import { api as ChordAudio } from "../audio/index.js?v=112.7";
+import { unlock } from "../audio/unlock.js?v=112.7";
+import { activeKey, keyDegrees, keyRootName, suggestionKey } from "../keys.js?v=112.7";
+import { paintKidChip } from "../kids.js?v=112.7";
+import { paTwin, playAlongGo, playAlongChip } from "../songs/playalong.js?v=112.7";
+import { setItemState, progSync, progDecorate, placeBadges } from "../songs/playback.js?v=112.7";
+import { state, fingers, shared } from "../state.js?v=112.7";
+import { Theory } from "../theory/index.js?v=112.7";
+import { wrap12, blankExt, mapQuality } from "../theory/quality.js?v=112.7";
+import { accSym } from "../theory/spelling.js?v=112.7";
+import { paHintMiss } from "./hints.js?v=112.7";
+import { kbSound, kidsSoloSpec } from "./keyboard.js?v=112.7";
+import { paintNextHint, kidsGoldGo, kidsGoldPad } from "./next.js?v=112.7";
+import { updateSymbol } from "./nowbox.js?v=112.7";
+import { computeSpec, highlightMidisFromSpec, refreshHeld } from "./pads.js?v=112.7";
+import { paintProg } from "./progbar.js?v=112.7";
+import { fxTapPulse } from "./pulse.js?v=112.7";
+import { sustainPool, sustainActive } from "./sustain.js?v=112.7";
 const suggestTapAt = 0;   // last touch/pen tap on a Next chip (click de-dupe)
 var suggestSeq;
 
@@ -533,6 +533,21 @@ export function paintSuggestions(spec) {
 }
 var notesPulsed;
 
+// v112.7: a long name that still overflows its chip at the 11 px floor (F#m7b5/C in a 29 px portrait chip):
+// first put the slash bass on its own line (root / quality / "/bass", only when the root is already over
+// the quality), and if it still overflows, ellipsize the quality so nothing spills past the border.
+// Layout only: the chip's text and aria-label are unchanged.
+function fitLong(ch) {
+  function over() { return ch.scrollWidth > ch.clientWidth + 0.5 || ch.scrollHeight > ch.clientHeight + 0.5; }
+  var q = ch.querySelector(".q"), stacked = getComputedStyle(ch).flexDirection === "column";
+  if (q && stacked && !q.querySelector(".sb")) {
+    var t = q.textContent, i = t.indexOf("/");
+    if (i > 0) { q.textContent = t.slice(0, i); var sb = document.createElement("span"); sb.className = "sb"; sb.textContent = t.slice(i); q.appendChild(sb); }
+  }
+  if (q && q.querySelector(".sb")) { ch.classList.add("sb3"); if (over()) ch.classList.remove("sb3"); }
+  if (over()) ch.classList.add("ell");
+}
+
 // Fit chip names to their column: shrink a little first; if a name still
 // overflows (narrow phones / portrait), stack root over quality, then shrink.
 export function fitStrip() {
@@ -559,7 +574,7 @@ export function fitStrip() {
   }
   el.style.setProperty("--tx", "1");
   el.classList.remove("tight");
-  for (var c0 = 0; c0 < chips.length; c0++) chips[c0].classList.remove("sq", "st1", "c2");
+  for (var c0 = 0; c0 < chips.length; c0++) chips[c0].classList.remove("sq", "st1", "c2", "sb3", "ell");
   var fs = parseFloat(getComputedStyle(el).getPropertyValue("--ss-fs")) || 16;
   var fl = Math.ceil(11 / fs * 100) / 100;   // chip names never below 11 px
   // v53 Simple: one line only. v55 full mode: the numeral sits beside the name; a chip where
@@ -598,6 +613,7 @@ export function fitStrip() {
       if (!overC(ch)) continue;
       ch.classList.add("sq");
       if (overC(ch) && best.m !== "stack") { ch.classList.add("st1"); if (overC(ch)) ch.classList.remove("st1"); }
+      if (overC(ch)) fitLong(ch);
     }
   }
   // The final size may leave room again: give a numeral back wherever it now fits.

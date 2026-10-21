@@ -1,12 +1,12 @@
 // Keyboard window (which octave shows), Kids key placement and the Kids solo note.
-import { activeKey, keyDegrees } from "../keys.js?v=112.6";
-import { kidKey } from "../kids.js?v=112.6";
-import { magic, prog } from "../songs/playback.js?v=112.6";
-import { state, fingers, padsEl, shared } from "../state.js?v=112.6";
-import { wrap12 } from "../theory/quality.js?v=112.6";
-import { paintKeyChip } from "./keychip.js?v=112.6";
-import { kidsHintItem } from "./next.js?v=112.6";
-import { computeSpec, effectiveLayout, renderKeys, paintPads, kbKidsPtr } from "./pads.js?v=112.6";
+import { activeKey, keyDegrees } from "../keys.js?v=112.7";
+import { kidKey } from "../kids.js?v=112.7";
+import { magic, prog } from "../songs/playback.js?v=112.7";
+import { state, fingers, padsEl, shared } from "../state.js?v=112.7";
+import { wrap12 } from "../theory/quality.js?v=112.7";
+import { paintKeyChip } from "./keychip.js?v=112.7";
+import { kidsHintItem } from "./next.js?v=112.7";
+import { computeSpec, effectiveLayout, renderKeys, paintPads, kbKidsPtr } from "./pads.js?v=112.7";
 // ---- v83 one-octave window ----
 var kbLast;
 export var kbChord;

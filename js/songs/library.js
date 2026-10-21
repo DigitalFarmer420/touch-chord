@@ -1,11 +1,11 @@
 // My songs library (touchChord.library.v1): storage, open, versions, delete, list.
-import { progStop } from "./playback.js?v=112.6";
-import { upSelected, upKeyApply, upKeyNow, upSelect, upEsc } from "./song.js?v=112.6";
-import { UP_STORE, upCheck, upBuild, upRemove } from "./upload.js?v=112.6";
-import { state, shared } from "../state.js?v=112.6";
-import { computeSpec } from "../ui/pads.js?v=112.6";
-import { paintSongBar } from "../ui/songbar.js?v=112.6";
-import { paintSuggestions } from "../ui/strip.js?v=112.6";
+import { progStop } from "./playback.js?v=112.7";
+import { upSelected, upKeyApply, upKeyNow, upSelect, upEsc } from "./song.js?v=112.7";
+import { UP_STORE, upCheck, upBuild, upRemove } from "./upload.js?v=112.7";
+import { state, shared } from "../state.js?v=112.7";
+import { computeSpec } from "../ui/pads.js?v=112.7";
+import { paintSongBar } from "../ui/songbar.js?v=112.7";
+import { paintSuggestions } from "../ui/strip.js?v=112.7";
 // v77: My songs. touchChord.library.v1 = { v: 1, active: id|null, sel, songs: [{ id, title, artist, added,
 // song: <raw JSON>, choice, reviewed, locked, liveKey }] }, max 50. U is the active song (or null).
 // Saving never fails silently (upSaveErr in the panel); a full library never evicts.

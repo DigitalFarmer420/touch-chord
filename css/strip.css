@@ -82,3 +82,9 @@ html.lay-phone-land:not(.simple) #app { --ss-row: 28px; --ss-rg: 2px; --ss-mid: 
 .ss .ss-note.home::before { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); aspect-ratio: 1; height: auto; width: min(calc(100% + 4px), calc(var(--ss-strip) + 6px)); border: 2.5px solid var(--copper); border-radius: 50%; background: rgba(226,161,90,.14); z-index: -1; box-sizing: border-box; }
 .ss .ss-note.home small { color: var(--copper); opacity: .85; }
 .ss .ss-note:focus-visible, .ss .ss-chip:focus-visible { outline: 2px solid var(--copper); outline-offset: 1px; }
+/* v112.7 (fitStrip -> fitLong): last resort for a long name in a narrow chip. .sb3 puts the slash bass on its own
+   line under the quality; .ell clips the quality with an ellipsis so the label never crosses the border. */
+.ss .ss-chip .q .sb { display: inline; }
+.ss .ss-chip.sb3 .q .sb { display: block; }
+.ss .ss-chip.ell .r, .ss .ss-chip.ell .q { max-width: 100%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ss .ss-chip.ell.sb3 .q .sb { overflow: hidden; text-overflow: ellipsis; }

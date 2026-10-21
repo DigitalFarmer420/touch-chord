@@ -11,6 +11,7 @@ const SUITE = [   // [name, file, args]  (both phone sizes each: the tests loop 
   ['hints1121-360', 'hints1121.cjs', ['360x780']], ['hints1121-780', 'hints1121.cjs', ['780x360']],
   ['test111', 'test111.cjs', []], ['keysplit', 'keysplit.cjs', []],
   ['validate', 'validate.cjs', []],
+  ['labelfit', 'labelfit.cjs', []],
 ];
 const only = process.env.ONLY ? process.env.ONLY.split(',') : null;
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.webp': 'image/webp', '.json': 'application/json', '.png': 'image/png' };
