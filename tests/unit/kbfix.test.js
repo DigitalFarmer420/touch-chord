@@ -150,8 +150,34 @@ test('the window returns to the tonic within 1.2 s after release (KB_RESET_MS = 
     assert.ok(Date.now() - t0 <= 1250);
   }
 });
-test('no snap-back under a held key or in Kids', async () => {
+test('no snap-back under a held key (Pop and Kids); Kids: only a hand-pressed pad anchor resets (v112.9)', async () => {
   setup(0, 'major'); shared.kbWinLow = 67; fingers[1] = { keyId: 'k', pc: 7, midi: 67 };
-  assert.equal(KB.kbResetNow(), false); assert.equal(shared.kbWinLow, 67); delete fingers[1];
-  state.style = 'kids'; shared.kbWinLow = 62; assert.equal(KB.kbResetNow(), false); assert.equal(shared.kbWinLow, 62);
+  assert.equal(KB.kbResetNow(), false); assert.equal(shared.kbWinLow, 67);
+  state.style = 'kids'; shared.kbWinLow = 62; assert.equal(KB.kbResetNow(), false); assert.equal(shared.kbWinLow, 62); delete fingers[1];
+  KB.kbResetNow(); assert.equal(shared.kbWinLow, 62, 'Kids: no hand-pressed pad anchor: the v111 Kids window is left alone');
+  KB.kbSound([71, 75, 78], null, null, true); KB.kbResetNow(); assert.equal(shared.kbWinLow, KB.kbWantLow(true), 'Kids pad anchor: back at the Kids rule (tonic, or the gold)');
+});
+
+// v112.9: Kids pads (Octave + Full, Simple shares Octave's placement): root position upward from the root on its key at or
+// above the Kids tonic (G3..F#4); the 7 pads (tonic first, reading order) rise strictly; no v111 fold into the keys.
+test('Kids pads: root lowest, close position, lows rising tonic-first, in all 12 major keys (Octave and Full)', () => {
+  const KN = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+  for (const layout of ['octave', 'full']) for (let pc = 0; pc < 12; pc++) {
+    setup(pc, 'major', layout); state.style = 'kids';
+    const kT = KB.kidsTonic(); shared.kbWinLow = layout === 'full' ? null : kT + 5;   // any moved window: pads must not follow it
+    const lows = [];
+    for (const d of degs(pc, 'major')) {   // Kids: every degree a major triad (its own rule)
+      const c = chip({ rootPc: d.pc, type: 'major', degree: d.degree, extensions: {}, rootSpell: d.rootSpell });
+      assert.equal(w12(c[0]), d.pc, `${KN[pc]} ${layout} degree ${d.degree}: root lowest ${c}`);
+      assert.ok(c.every((x, i) => !i || x > c[i - 1]) && c[c.length - 1] - c[0] < 12, `${KN[pc]} ${layout} ${d.degree}: close root position ${c}`);
+      lows.push(c[0]);
+    }
+    assert.ok(lows.every((x, i) => !i || x > lows[i - 1]), `${KN[pc]} ${layout}: pad lows rise ${lows}`);
+    if (layout === 'octave') assert.equal(lows[0], kT, `${KN[pc]}: tonic pad on the Kids tonic key`);
+  }
+});
+test('Kids: a key release never schedules the snap-back; a pad release does', () => {
+  setup(0, 'major'); state.style = 'kids'; shared.kbWinLow = 62;
+  KB.kbScheduleReset(); assert.equal(KB.kbResetPending(), false);
+  KB.kbScheduleReset(null, true); assert.equal(KB.kbResetPending(), true); KB.kbCancelReset();
 });

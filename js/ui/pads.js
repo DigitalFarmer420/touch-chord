@@ -1,22 +1,22 @@
 // The chord keyboard: layout spec, pads / keys, pointer input, sounding fingers, haptics.
-import { api as ChordAudio } from "../audio/index.js?v=112.8";
-import { unlock } from "../audio/unlock.js?v=112.8";
-import { keyRootSpell, modeKey, activeKey, keyDegrees, maybeLockKey } from "../keys.js?v=112.8";
-import { finalizeOne, armPending } from "../loop.js?v=112.8";
-import { paTwin, playAlongKey, playAlongGo } from "../songs/playalong.js?v=112.8";
-import { magic, setItemState } from "../songs/playback.js?v=112.8";
-import { state, loop, fingers, padsEl, shared } from "../state.js?v=112.8";
-import { Theory } from "../theory/index.js?v=112.8";
-import { hasDoubleAcc, plainToneName, enharmonicSpell } from "../theory/names.js?v=112.8";
-import { wrap12 } from "../theory/quality.js?v=112.8";
-import { accSym } from "../theory/spelling.js?v=112.8";
-import { playAlongKeyOk, paHintMiss } from "./hints.js?v=112.8";
-import { kbFullMode, kbFullRange, kbWindowMode, kbKeyLayout, kidsTonic, kbBorrowKey, kbChord, kbWantLow, kbUpdate, kbTonicLow, kbScheduleReset } from "./keyboard.js?v=112.8";
-import { keyTapMidis, chipRootMidi, chipMidis, keyTapType } from "./kbmath.js?v=112.8";
-import { paintNextHint, kidsGoldKey, kidsGoldGo } from "./next.js?v=112.8";
-import { updateSymbol } from "./nowbox.js?v=112.8";
-import { clearStripExt, clearSuggestPreview } from "./strip.js?v=112.8";
-import { sustainActive, padPlayable, poolFingerGroup } from "./sustain.js?v=112.8";
+import { api as ChordAudio } from "../audio/index.js?v=112.9";
+import { unlock } from "../audio/unlock.js?v=112.9";
+import { keyRootSpell, modeKey, activeKey, keyDegrees, maybeLockKey } from "../keys.js?v=112.9";
+import { finalizeOne, armPending } from "../loop.js?v=112.9";
+import { paTwin, playAlongKey, playAlongGo } from "../songs/playalong.js?v=112.9";
+import { magic, setItemState } from "../songs/playback.js?v=112.9";
+import { state, loop, fingers, padsEl, shared } from "../state.js?v=112.9";
+import { Theory } from "../theory/index.js?v=112.9";
+import { hasDoubleAcc, plainToneName, enharmonicSpell } from "../theory/names.js?v=112.9";
+import { wrap12 } from "../theory/quality.js?v=112.9";
+import { accSym } from "../theory/spelling.js?v=112.9";
+import { playAlongKeyOk, paHintMiss } from "./hints.js?v=112.9";
+import { kbFullMode, kbFullRange, kbWindowMode, kbKeyLayout, kidsTonic, kbBorrowKey, kbChord, kbWantLow, kbUpdate, kbTonicLow, kbScheduleReset } from "./keyboard.js?v=112.9";
+import { keyTapMidis, chipRootMidi, chipMidis, keyTapType } from "./kbmath.js?v=112.9";
+import { paintNextHint, kidsGoldKey, kidsGoldGo } from "./next.js?v=112.9";
+import { updateSymbol } from "./nowbox.js?v=112.9";
+import { clearStripExt, clearSuggestPreview } from "./strip.js?v=112.9";
+import { sustainActive, padPlayable, poolFingerGroup } from "./sustain.js?v=112.9";
 
 export function computeSpec() {
   var rootPc = state.rootPc;
@@ -118,11 +118,13 @@ function kbPlace(chord, rootMidi) {
   while (R > hi) R -= 12;
   while (R < lo) R += 12;
   var ov = chord.extensions && chord.extensions.over ? wrap12(chord.extensions.over) : 0;
-  if (!fromKey && state.style === "kids" && kbKeyLayout()) {   // v111 (I): Kids pad chord inside the tonic-anchored keys
-    var kT = full ? kbFullRange().lo : shared.kbWinLow == null ? kidsTonic() : shared.kbWinLow, kH = kT + (full ? 24 : 12), kR = kT + wrap12(chord.rootPc - kT), kSeen = {}, kOut = [];   // inside the keys as drawn
-    (chord.midis || []).forEach(function (m) { var x = kR + wrap12(m - kR); if (x > kH) x -= 12; if (!kSeen[x]) { kSeen[x] = 1; kOut.push(x); } });
-    kOut.sort(function (a, b) { return a - b; });
-    return kOut;
+  if (!fromKey && state.style === "kids" && kbKeyLayout()) {   // v111 (I) / v112.9: Kids pad chord on the tonic-anchored keys
+    // v112.9: the root on its key at or above the Kids tonic (Octave: kidsTonic G3..F#4 at rest, not the possibly moved
+    // window; Full: the drawn low key), chord in root position stacked UPWARD from it (no v111 fold into the keys), so
+    // every pad has its root lowest and the pads' roots rise strictly in reading order (tonic first). The window then
+    // moves to show the whole chord (kbWantLow Kids branch), so what sounds lights.
+    var kT = full ? kbFullRange().lo : kidsTonic(), kR = kT + wrap12(chord.rootPc - kT);
+    return chipMidis(chord.midis, kR, ov, Theory.chordIntervals(chord.type, chord.extensions).map(function (iv) { return chord.rootPc + iv; }));
   }
   if (!fromKey && kbKeyLayout()) {   // kb-fix (replaces the v111 D3 nearest-window octave and, on Full, the v85 octave moves):
     // root = its home-octave key C4..B4 by pitch class (kbmath chipRootMidi: grid rows rise left to right), chord in root

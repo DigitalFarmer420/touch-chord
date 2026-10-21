@@ -1,22 +1,22 @@
 // The chord table / scale strip: model, chips, taps, preview, fitting.
-import { api as ChordAudio } from "../audio/index.js?v=112.8";
-import { unlock } from "../audio/unlock.js?v=112.8";
-import { activeKey, keyDegrees, keyRootName, suggestionKey } from "../keys.js?v=112.8";
-import { paintKidChip } from "../kids.js?v=112.8";
-import { paTwin, playAlongGo, playAlongChip } from "../songs/playalong.js?v=112.8";
-import { setItemState, progSync, progDecorate, placeBadges } from "../songs/playback.js?v=112.8";
-import { state, fingers, shared } from "../state.js?v=112.8";
-import { Theory } from "../theory/index.js?v=112.8";
-import { wrap12, blankExt, mapQuality } from "../theory/quality.js?v=112.8";
-import { accSym } from "../theory/spelling.js?v=112.8";
-import { paHintMiss } from "./hints.js?v=112.8";
-import { kbSound, kidsSoloSpec, kbScheduleReset, kbCancelReset } from "./keyboard.js?v=112.8";
-import { paintNextHint, kidsGoldGo, kidsGoldPad } from "./next.js?v=112.8";
-import { updateSymbol } from "./nowbox.js?v=112.8";
-import { computeSpec, highlightMidisFromSpec, refreshHeld } from "./pads.js?v=112.8";
-import { paintProg } from "./progbar.js?v=112.8";
-import { fxTapPulse } from "./pulse.js?v=112.8";
-import { sustainPool, sustainActive } from "./sustain.js?v=112.8";
+import { api as ChordAudio } from "../audio/index.js?v=112.9";
+import { unlock } from "../audio/unlock.js?v=112.9";
+import { activeKey, keyDegrees, keyRootName, suggestionKey } from "../keys.js?v=112.9";
+import { paintKidChip } from "../kids.js?v=112.9";
+import { paTwin, playAlongGo, playAlongChip } from "../songs/playalong.js?v=112.9";
+import { setItemState, progSync, progDecorate, placeBadges } from "../songs/playback.js?v=112.9";
+import { state, fingers, shared } from "../state.js?v=112.9";
+import { Theory } from "../theory/index.js?v=112.9";
+import { wrap12, blankExt, mapQuality } from "../theory/quality.js?v=112.9";
+import { accSym } from "../theory/spelling.js?v=112.9";
+import { paHintMiss } from "./hints.js?v=112.9";
+import { kbSound, kidsSoloSpec, kbScheduleReset, kbCancelReset } from "./keyboard.js?v=112.9";
+import { paintNextHint, kidsGoldGo, kidsGoldPad } from "./next.js?v=112.9";
+import { updateSymbol } from "./nowbox.js?v=112.9";
+import { computeSpec, highlightMidisFromSpec, refreshHeld } from "./pads.js?v=112.9";
+import { paintProg } from "./progbar.js?v=112.9";
+import { fxTapPulse } from "./pulse.js?v=112.9";
+import { sustainPool, sustainActive } from "./sustain.js?v=112.9";
 const suggestTapAt = 0;   // last touch/pen tap on a Next chip (click de-dupe)
 var suggestSeq;
 
@@ -28,7 +28,7 @@ export function clearSuggestPreview() {
   stopStripTails();
   if (!shared.suggestPreview) return;
   shared.suggestPreview = null;
-  kbScheduleReset();   // kb-fix: a Next / Play along / chip preview ended: the window goes back to the tonic
+  kbScheduleReset(null, true);   // kb-fix: a Next / Play along / chip preview ended: the window goes back to the tonic
   state.forceChord = null;
   // v47: a preview the pedal has adopted keeps ringing until pedal-up.
   if (!sustainPool["suggest"]) ChordAudio.stopChord("suggest");
@@ -70,7 +70,7 @@ function stripUp(pid) {
   var h = stripHolds[pid];
   if (!h) return;
   delete stripHolds[pid];
-  if (!stripHoldCount()) kbScheduleReset();   // kb-fix: KB_RESET_MS after the chip is let go
+  if (!stripHoldCount()) kbScheduleReset(null, Date.now() - h.t0 >= PREVIEW_MS);   // kb-fix: KB_RESET_MS after the chip is let go (v112.9 Kids pads: after the preview tail, via clearSuggestPreview)
   var g = h.group;
   var left = PREVIEW_MS - (Date.now() - h.t0);
   if (g && !h.silent) {
@@ -113,7 +113,7 @@ export function applySuggestion(item, hold) {
     if (spec.midis.indexOf(shared.paKeyMidi) < 0) spec.midis = spec.midis.concat([shared.paKeyMidi]).sort(function (a, b) { return a - b; });
   } else spec = computeSpec();
   if (shared.kidsSolo) spec = kidsSoloSpec(spec, item.rootPc, item.mel);
-  if (!Object.keys(fingers).length) kbSound(spec.midis, spec, item);   // v83: move the window before mapping the lit keys (v84: not under a held key)
+  if (!Object.keys(fingers).length) kbSound(spec.midis, spec, item, !!hold && state.style === "kids" && !shared.kidsSolo && shared.paKeyMidi == null);   // v112.9: a Kids chord pad pressed by hand   // v83: move the window before mapping the lit keys (v84: not under a held key)
   // Highlight uses exact pad midis when present; otherwise nearest same-pc
   // pad so drop/low/bright (and off-keyboard registers) still light the
   // notes the suggestion is sounding. Audio keeps the true voiced midis.

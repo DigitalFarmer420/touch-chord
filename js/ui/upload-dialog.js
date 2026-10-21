@@ -1,15 +1,15 @@
 // Upload song dialog: prompt copy, paste, check, load, library list.
-import { unlock } from "../audio/unlock.js?v=112.8";
-import { namePc, keyRootName } from "../keys.js?v=112.8";
-import { upSave, libGet, paintLib, libEntryToU, upRestoreSel, libOpen, libSetVer, libDelete, libConfirm } from "../songs/library.js?v=112.8";
-import { progBadge } from "../songs/magic.js?v=112.8";
-import { progRedecorate } from "../songs/playback.js?v=112.8";
-import { upInList, paintUpNext, upSelected, upKeyApply, upKeyNow, upTr, upLiveKeyObj, upT, upA, upSetLock, upPlaceLock, upSelect, upEsc, upStepOf, upCurStep, upPickAlt, upLoadOne } from "../songs/song.js?v=112.8";
-import { validateSong, LAYER_NAMES } from "../songs/validate.js?v=112.8";
-import { UP_HEAD, UP_PASTE_LINE, UP_PASTE_LINE_2, UP_TAIL, UP_ARTIST_MAX, UP_SKIP_MAX, upListSchemaText, upEv, upSym, upFlagged, upFlagList, upSecName, upLoadBegin, upLoadCheck, upLoadCommit } from "../songs/upload.js?v=112.8";
-import { state, shared } from "../state.js?v=112.8";
-import { accSym } from "../theory/spelling.js?v=112.8";
-import { paintUploadActive, upLyricHtml } from "./songbar.js?v=112.8";
+import { unlock } from "../audio/unlock.js?v=112.9";
+import { namePc, keyRootName } from "../keys.js?v=112.9";
+import { upSave, libGet, paintLib, libEntryToU, upRestoreSel, libOpen, libSetVer, libDelete, libConfirm } from "../songs/library.js?v=112.9";
+import { progBadge } from "../songs/magic.js?v=112.9";
+import { progRedecorate } from "../songs/playback.js?v=112.9";
+import { upInList, paintUpNext, upSelected, upKeyApply, upKeyNow, upTr, upLiveKeyObj, upT, upA, upSetLock, upPlaceLock, upSelect, upEsc, upStepOf, upCurStep, upPickAlt, upLoadOne } from "../songs/song.js?v=112.9";
+import { validateSong, LAYER_NAMES } from "../songs/validate.js?v=112.9";
+import { UP_HEAD, UP_PASTE_LINE, UP_PASTE_LINE_2, UP_TAIL, UP_ARTIST_MAX, UP_SKIP_MAX, upListSchemaText, upEv, upSym, upFlagged, upFlagList, upSecName, upLoadBegin, upLoadCheck, upLoadCommit } from "../songs/upload.js?v=112.9";
+import { state, shared } from "../state.js?v=112.9";
+import { accSym } from "../theory/spelling.js?v=112.9";
+import { paintUploadActive, upLyricHtml } from "./songbar.js?v=112.9";
 // v88: the empty-state hint shortens once both title and artist are filled in (live on input)
 // v89: "ready" = the Artist box is filled (an empty title asks for songs by the artist)
 const UP_EMPTY_FULL = "No song yet. Fill in the artist, and a song title if you like. Tap Copy for AI, paste it into any AI, then paste its answer and tap Load.";

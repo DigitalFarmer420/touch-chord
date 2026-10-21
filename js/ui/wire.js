@@ -1,17 +1,17 @@
 // Main event wiring (wire()): style row, sound tiles, sliders, controls.
-import { api as ChordAudio } from "../audio/index.js?v=112.8";
-import { unlock } from "../audio/unlock.js?v=112.8";
-import { modeKey, namePc, buildKeySel, setKeySpell } from "../keys.js?v=112.8";
-import { killLoopVoices, onRecord, onPlay, onClear, setBpm } from "../loop.js?v=112.8";
-import { magic, progStop, prog, progSet } from "../songs/playback.js?v=112.8";
-import { upInList } from "../songs/song.js?v=112.8";
-import { VOICINGS, state, loop, padsEl, shared } from "../state.js?v=112.8";
-import { applyStylePreset, enforceYogaDeepPaletteGate, setWarmth } from "../styles.js?v=112.8";
-import { paintKeyChip } from "./keychip.js?v=112.8";
-import { computeSpec, eatMove, renderPads, releaseFingers, onPadUp, refreshHeld } from "./pads.js?v=112.8";
-import { onPaletteDown, onPaletteUp, onTouchGone, setKeyModeState } from "./palette.js?v=112.8";
-import { paintSuggestions } from "./strip.js?v=112.8";
-import { paintSustainBtn, setSustain, wireSustain } from "./sustain.js?v=112.8";
+import { api as ChordAudio } from "../audio/index.js?v=112.9";
+import { unlock } from "../audio/unlock.js?v=112.9";
+import { modeKey, namePc, buildKeySel, setKeySpell } from "../keys.js?v=112.9";
+import { killLoopVoices, onRecord, onPlay, onClear, setBpm } from "../loop.js?v=112.9";
+import { magic, progStop, prog, progSet } from "../songs/playback.js?v=112.9";
+import { upInList } from "../songs/song.js?v=112.9";
+import { VOICINGS, state, loop, padsEl, shared } from "../state.js?v=112.9";
+import { applyStylePreset, enforceYogaDeepPaletteGate, setWarmth } from "../styles.js?v=112.9";
+import { paintKeyChip } from "./keychip.js?v=112.9";
+import { computeSpec, eatMove, renderPads, releaseFingers, onPadUp, refreshHeld } from "./pads.js?v=112.9";
+import { onPaletteDown, onPaletteUp, onTouchGone, setKeyModeState } from "./palette.js?v=112.9";
+import { paintSuggestions } from "./strip.js?v=112.9";
+import { paintSustainBtn, setSustain, wireSustain } from "./sustain.js?v=112.9";
 
 export function wire() {
   var keySel = document.getElementById("keyRoot");

@@ -1,16 +1,17 @@
 // Keyboard window (which octave shows), Kids key placement and the Kids solo note.
-import { activeKey, keyDegrees } from "../keys.js?v=112.8";
-import { kidKey } from "../kids.js?v=112.8";
-import { magic, prog } from "../songs/playback.js?v=112.8";
-import { state, fingers, padsEl, shared } from "../state.js?v=112.8";
-import { wrap12 } from "../theory/quality.js?v=112.8";
-import { paintKeyChip } from "./keychip.js?v=112.8";
-import { kidsHintItem } from "./next.js?v=112.8";
-import { computeSpec, effectiveLayout, renderKeys, paintPads, kbKidsPtr } from "./pads.js?v=112.8";
-import { KB_RESET_MS, tonicLow } from "./kbmath.js?v=112.8";
-import { stripHeldNow } from "./strip.js?v=112.8";
+import { activeKey, keyDegrees } from "../keys.js?v=112.9";
+import { kidKey } from "../kids.js?v=112.9";
+import { magic, prog } from "../songs/playback.js?v=112.9";
+import { state, fingers, padsEl, shared } from "../state.js?v=112.9";
+import { wrap12 } from "../theory/quality.js?v=112.9";
+import { paintKeyChip } from "./keychip.js?v=112.9";
+import { kidsHintItem } from "./next.js?v=112.9";
+import { computeSpec, effectiveLayout, renderKeys, paintPads, kbKidsPtr } from "./pads.js?v=112.9";
+import { KB_RESET_MS, tonicLow } from "./kbmath.js?v=112.9";
+import { stripHeldNow } from "./strip.js?v=112.9";
 // ---- v83 one-octave window ----
 var kbLast;
+var kbPadAnchor = false;   // v112.9: kbLast came from a Kids chord pad pressed by hand: it may outrank the gold (kbWantLow)
 export var kbChord;
 var kbKeySig;
 function kbChordOf(spec) {
@@ -78,7 +79,11 @@ export function kbWantLow(force) {
     if (shared.kbWinLow != null && (Object.keys(fingers).length || Object.keys(kbKidsPtr).length)) return shared.kbWinLow;   // never slide the keys under a held finger (v84); kbKidsLift moves them on release
     var kS = kbLast && kbLast.length ? kbLast.slice() : [], kG = kidsGoldNow();
     if (kG != null) kS.push(kG);
-    if (kS.length && Math.max.apply(null, kS) - Math.min.apply(null, kS) > 12) kS = kG != null ? [kG] : kS.slice(-1);   // the gold first
+    // v112.9: a Kids pad chord now sounds in root position upward from its root (no fold), so it can reach past the gold:
+    // while a chord pad pressed by hand is the window anchor (until the reset KB_RESET_MS after it is let go) it wins, so
+    // all of it lights; gold melody notes, Play along keys, Next and Play song keep the gold first (the melody leads).
+    var kPad = kbPadAnchor && kbLast && kbLast.length && !(typeof prog !== "undefined" && prog && prog.playing);
+    if (kS.length && Math.max.apply(null, kS) - Math.min.apply(null, kS) > 12) kS = kPad ? kbLast.slice() : kG != null ? [kG] : kS.slice(-1);   // the gold first (v112.9: a hand-pressed Kids pad chord first)
     var kFit = function (lo) { return kS.every(function (m) { return m >= lo && m <= lo + 12; }); };
     if (kFit(kT)) return kT;
     if (!force && shared.kbWinLow != null && kFit(shared.kbWinLow)) return shared.kbWinLow;
@@ -107,8 +112,8 @@ export function kbWantLow(force) {
   }
   return sMn;
 }
-export function kbSound(midis, spec, item) {
-  if (midis && midis.length) kbLast = midis.slice();
+export function kbSound(midis, spec, item, kidsPad) {
+  if (midis && midis.length) { kbLast = midis.slice(); kbPadAnchor = !!kidsPad; }   // v112.9: kidsPad = a chord pad pressed by hand (not a Play along key / gold melody note / Next / Play)
   if (spec) { kbChord = kbChordOf(spec); if (kbChord) kbChord.item = item || null; }
   if (kbUpdate()) return true;
   if (!padsEl || !kbKeyLayout()) return false;
@@ -144,8 +149,8 @@ export function kbUpdate() {
 // Play song stopped) it snaps back here. Kids keeps its own window rules (kbWantLow, kbKidsLift).
 export function kbTonicLow() { var ak = activeKey(); return tonicLow(ak ? ak.pc : wrap12(state.keyRoot || 0)); }
 var kbResetT = 0;
-export function kbScheduleReset(ms) {
-  if (state.style === "kids") return;
+export function kbScheduleReset(ms, kidsPad) {
+  if (state.style === "kids" && !kidsPad) return;   // v112.9: in Kids only the chord grid (pad release / preview end) schedules it
   if (kbResetT) clearTimeout(kbResetT);
   kbResetT = setTimeout(kbResetNow, ms == null ? KB_RESET_MS : ms);
 }
@@ -153,7 +158,8 @@ export function kbScheduleReset(ms) {
 // (liftFinger / stripUp / clearSuggestPreview / progStop) schedules the reset again.
 export function kbResetNow() {
   kbResetT = 0;
-  if (state.style === "kids" || !padsEl || !kbKeyLayout()) return false;
+  if (state.style === "kids") return kbKidsReset();
+  if (!padsEl || !kbKeyLayout()) return false;
   if (Object.keys(fingers).length || stripHeldNow() || (typeof prog !== "undefined" && prog && prog.playing)) return false;
   var hadBorrow = !!(kbChord && padsEl.querySelector(".pad[data-borrow]"));
   kbLast = null; kbChord = null;   // the window anchor and the chip's live borrowed root key go too
@@ -162,6 +168,18 @@ export function kbResetNow() {
   if (kbWindowMode()) { var T = kbTonicLow(); if (shared.kbWinLow !== T) { shared.kbWinLow = T; moved = true; } }
   if (moved || hadBorrow) kbRebuild();
   return moved || hadBorrow;
+}
+// v112.9: Kids, KB_RESET_MS after a hand-pressed chord pad is let go (or its preview ends): the pad chord stops anchoring
+// the window, which goes back to the v111 Kids rule (tonic, or a minimal move to show the gold). Under a held finger the
+// keys stay; kbKidsLift moves them on release. Without a pad anchor nothing changes (gold notes keep the v111 rules).
+function kbKidsReset() {
+  if (!kbPadAnchor) return false;
+  if (!padsEl || !kbKeyLayout() || stripHeldNow() || (typeof prog !== "undefined" && prog && prog.playing)) return false;
+  kbLast = null; kbChord = null; kbPadAnchor = false;
+  if (!kbWindowMode() || Object.keys(fingers).length || Object.keys(kbKidsPtr).length) return false;
+  var L = kbWantLow(false);
+  if (L === shared.kbWinLow) return false;
+  shared.kbWinLow = L; kbRebuild(); return true;
 }
 export function kbResetPending() { return !!kbResetT; }
 export function kbCancelReset() { if (kbResetT) { clearTimeout(kbResetT); kbResetT = 0; } }   // a new chip / Next / Play along chord: its own release or preview end reschedules
@@ -190,6 +208,7 @@ export function kidsSoloSpec(spec, rootPc, mel) {   // v96: mel = the step melod
 // Boot step (runs once, in the original v112.3 order, from main.js)
 export function boot() {
 kbLast = null;     // midis of the chord layer last sounded (the window anchor)
+kbPadAnchor = false;
 kbChord = null;    // v84: {rootPc, type, root} of the chip / Next / Play chord that set the window
 kbKeySig = null;   // v84: the key the window last saw (a key change moves it to the tonic)
 }
