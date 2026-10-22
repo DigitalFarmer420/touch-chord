@@ -1,13 +1,13 @@
 // Gear (Config) menu: volume, band, toggles, factory reset.
-import { api as ChordAudio } from "../audio/index.js?v=112.10";
-import { applySettings, showToast } from "../settings.js?v=112.10";
-import { progStop, progRedecorate } from "../songs/playback.js?v=112.10";
-import { state, scheduleSave, factoryDefaults, storageClear, collectSettings, saveNow, shared } from "../state.js?v=112.10";
-import { paHintHide } from "./hints.js?v=112.10";
-import { updateSymbol } from "./nowbox.js?v=112.10";
-import { renderPads, refreshHeld } from "./pads.js?v=112.10";
-import { clearSuggestPreview } from "./strip.js?v=112.10";
-import { tourStart } from "./tour.js?v=112.10";
+import { api as ChordAudio } from "../audio/index.js?v=112.11";
+import { applySettings, showToast } from "../settings.js?v=112.11";
+import { progStop, progRedecorate } from "../songs/playback.js?v=112.11";
+import { state, scheduleSave, factoryDefaults, storageClear, collectSettings, saveNow, shared } from "../state.js?v=112.11";
+import { paHintHide } from "./hints.js?v=112.11";
+import { updateSymbol } from "./nowbox.js?v=112.11";
+import { renderPads, refreshHeld } from "./pads.js?v=112.11";
+import { clearSuggestPreview } from "./strip.js?v=112.11";
+import { tourStart } from "./tour.js?v=112.11";
 
 // v68: master Volume (Config). 0..100, gain = (v/100)^2 (perceptual), 100 = the old level.
 export function setVolume(v) {
@@ -57,6 +57,7 @@ export function paintProgNumsBtn() {
 export function paintPlayAlongBtn() {   // v108
   var b = document.getElementById("playAlongBtn");
   if (b) { b.setAttribute("aria-checked", state.playAlong !== false ? "true" : "false"); b.classList.toggle("on", state.playAlong !== false); }
+  document.documentElement.classList.toggle("pa-off", state.playAlong === false);   // v112.11: Play along off = no guide (the next-chord dot / chip marks are hidden by CSS; nothing else changes)
   var h = document.getElementById("paHintsBtn");   // v112: Show hints
   if (h) { h.setAttribute("aria-checked", state.paHints !== false ? "true" : "false"); h.classList.toggle("on", state.paHints !== false); }
 }

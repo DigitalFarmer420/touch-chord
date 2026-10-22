@@ -279,3 +279,16 @@ html.lay-phone-land .up-val ul { max-height: 84px; }
 .up-val .uv-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 7px; }
 .up-val .uv-btns button { min-height: 34px; padding: 0 12px; font-size: var(--fs-m); border-radius: 9px; }
 .up-val #upValSave { background: var(--copper); color: #1a1209; }
+/* v112.11: Play along OFF (html.pa-off, set in gear.js paintPlayAlongBtn) = no guide. The next-chord marks are hidden: the
+   yellow dot and gold outline on the keyboard (root key + chord keys), the yellow dot and gold outline on the marked grid
+   chip and chord-table buttons, the new-mark burst, the dashed Play-starts-here chip, the off-screen arrow, the uploaded
+   song's next-chord outline in the grid, and in Kids the gold pad / gold key / Now chip marks. Paint only: the classes stay
+   (no layout, window, sound or advance change); a chip's own tap flash (fxtap / kgtap) still plays. */
+html.pa-off .kb .pad.nx::after, html.pa-off .kb .pad.nx-root::before, html.pa-off #suggest.kids1 .ss-kidpad.nx-root::before { display: none !important; }
+html.pa-off .nxd, html.pa-off #nxArrow { display: none !important; }
+html.pa-off #app #suggest .nxdot.nxdot, html.pa-off #app #palette button.nxdot, html.pa-off #app .ss .ss-chip.nx, html.pa-off #app .ss .ss-note.nx,
+html.pa-off #app #suggest.kids1 .ss-kidpad.nx.nx, html.pa-off #app #suggest .ss-kid.nx, html.pa-off #app #suggest .upnx, html.pa-off #app #suggest .la-play { outline: none !important; }
+html.pa-off #app #suggest .nxdot.nxdot:not(.fxtap):not(.kgtap), html.pa-off #app #palette button.nxdot:not(.kgtap), html.pa-off #app .ss .nx:not(.fxtap):not(.kgtap),
+html.pa-off #app #suggest.kids1 .ss-kidpad.nx.nx:not(.kgtap), html.pa-off #app #suggest .upnx:not(.fxtap):not(.kgtap), html.pa-off #app #suggest .la-play:not(.fxtap):not(.kgtap),
+html.pa-off #app .nxb:not(.fxtap):not(.kgtap) { animation: none !important; }
+html.pa-off #app #suggest .la-play { filter: none !important; scale: none !important; }

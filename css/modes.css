@@ -565,7 +565,7 @@ html:not(.simple) #suggest:not(.kids1) .fxtap { animation: fxTap .32s ease-out 1
    gentle grow-and-pulse (the scale property only, so no layout shift). Reduced motion: the outline stays still. */
 @keyframes laPulse { 0%, 100% { scale: 1; filter: brightness(1.08); } 50% { scale: 1.035; filter: brightness(1.16); } }
 html:not(.simple) #suggest:not(.kids1) .la-play { outline: 1.5px dashed rgba(255, 236, 205, .62); outline-offset: 2px; filter: brightness(1.08); animation: laPulse 2.2s ease-in-out infinite; }
-html:not(.simple) #suggest:not(.kids1) .ss-note.la-play { background-color: rgba(255, 244, 222, .14); }
+html:not(.simple):not(.pa-off) #suggest:not(.kids1) .ss-note.la-play { background-color: rgba(255, 244, 222, .14); }
 html:not(.simple) #suggest:not(.kids1) .la-play.fxtap { animation: fxTap .32s ease-out 1; }
 @media (prefers-reduced-motion: reduce) { html:not(.simple) #suggest:not(.kids1) .la-play { animation: none; scale: none; } html:not(.simple) #suggest:not(.kids1) .la-play.fxtap { animation: fxTapR .32s ease-out 1; } }
 .ss .ss-chip.nx, .ss .ss-note.nx { outline: 2px solid #c4853f; outline-offset: 1px; animation: nxPulseO 1.5s ease-in-out infinite; }

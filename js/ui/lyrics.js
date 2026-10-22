@@ -1,11 +1,11 @@
 // Two-row lyrics (uploaded songs) and Kids lyrics.
-import { KIDS_LYRICS } from "../songs/kids-songs.js?v=112.10";
-import { prog, PROG_TEST, placeBadges } from "../songs/playback.js?v=112.10";
-import { upA, upEsc } from "../songs/song.js?v=112.10";
-import { upEv, upSym, upFlagged, upSecName } from "../songs/upload.js?v=112.10";
-import { state, shared } from "../state.js?v=112.10";
-import { paintSongBar } from "./songbar.js?v=112.10";
-import { fitStrip } from "./strip.js?v=112.10";
+import { KIDS_LYRICS } from "../songs/kids-songs.js?v=112.11";
+import { prog, PROG_TEST, placeBadges } from "../songs/playback.js?v=112.11";
+import { upA, upEsc } from "../songs/song.js?v=112.11";
+import { upEv, upSym, upFlagged, upSecName } from "../songs/upload.js?v=112.11";
+import { state, shared } from "../state.js?v=112.11";
+import { paintSongBar } from "./songbar.js?v=112.11";
+import { fitStrip } from "./strip.js?v=112.11";
 // v95: full-mode two-row lyrics. Lines in play order from the song's chord / section / lyric-line map (no
 // word timing): event i is on the line the one-line bar would show for it (first line with a marker on
 // that chord, else the last line with a marker before it; -1 = the section's chords). A new entry starts
