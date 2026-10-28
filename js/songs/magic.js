@@ -1,16 +1,16 @@
 // Magic Next (one chord per tap).
-import { api as ChordAudio } from "../audio/index.js?v=112.11";
-import { magic, progStop, prog, PROG_TEST, progLockKey } from "./playback.js?v=112.11";
-import { sameChord } from "./presets.js?v=112.11";
-import { progRingSec } from "./song.js?v=112.11";
-import { state, shared } from "../state.js?v=112.11";
-import { wrap12 } from "../theory/quality.js?v=112.11";
-import { paHintAdvanced } from "../ui/hints.js?v=112.11";
-import { paintNextHint, paintProgActive, magicHintClear } from "../ui/next.js?v=112.11";
-import { paintProg } from "../ui/progbar.js?v=112.11";
-import { fxStepPulse } from "../ui/pulse.js?v=112.11";
-import { clearSuggestPreview, applySuggestion, stripLabel } from "../ui/strip.js?v=112.11";
-import { sustainPool } from "../ui/sustain.js?v=112.11";
+import { api as ChordAudio } from "../audio/index.js?v=112.12";
+import { magic, progStop, prog, PROG_TEST, progLockKey } from "./playback.js?v=112.12";
+import { sameChord } from "./presets.js?v=112.12";
+import { progRingSec } from "./song.js?v=112.12";
+import { state, shared } from "../state.js?v=112.12";
+import { wrap12 } from "../theory/quality.js?v=112.12";
+import { paHintAdvanced } from "../ui/hints.js?v=112.12";
+import { paintNextHint, paintProgActive, magicHintClear } from "../ui/next.js?v=112.12";
+import { paintProg } from "../ui/progbar.js?v=112.12";
+import { fxStepPulse } from "../ui/pulse.js?v=112.12";
+import { clearSuggestPreview, applySuggestion, stripLabel } from "../ui/strip.js?v=112.12";
+import { sustainPool } from "../ui/sustain.js?v=112.12";
 // v68: magic Next. Each tap plays ONE chord: the first N taps walk the progression in order
 // (1 bar each at the style's BPM), then each tap is a random chord from the board (never the
 // same twice in a row, weighted toward strong moves), every 4th or 8th one the home chord for

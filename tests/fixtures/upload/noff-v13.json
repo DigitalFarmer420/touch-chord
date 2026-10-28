@@ -1,0 +1,3358 @@
+{
+ "contractVersion": "1.3",
+ "songs": [
+  {
+   "song": {
+    "title": "Anh Đã Ổn Hơn",
+    "artist": "RPT MCK",
+    "year": 2023,
+    "key": {
+     "tonic": "Eb",
+     "mode": "major",
+     "display": "Eb major",
+     "confidence": 0.85,
+     "source": "songbpm"
+    },
+    "capo": 0,
+    "sources": [
+     {
+      "id": "hac-basic",
+      "url": "https://hopamchuan.com/song/61738/anh-da-on-hon",
+      "title": "Hợp Âm Chuẩn – basic chart (C shapes, capo 3)",
+      "kind": "chord-chart",
+      "note": "Simple version chords, transposed to concert Eb."
+     },
+     {
+      "id": "hac-phongle",
+      "url": "https://hopamchuan.com/song/61738/anh-da-on-hon/phongsuygiang17102022",
+      "title": "Hợp Âm Chuẩn – Phong Lê chart (concert Eb, D#maj7)",
+      "kind": "chord-chart",
+      "note": "Full version chords. Which hopamchuan version is the Phong Lê chart is carried over from the v1.2 notes, not re-checked."
+     },
+     {
+      "id": "hac-donhung",
+      "url": "https://hopamchuan.com/song/61738/anh-da-on-hon/donhung01011",
+      "title": "Hợp Âm Chuẩn – alternate user chart",
+      "kind": "chord-chart",
+      "note": "Consulted for v1.2; no chord cites it."
+     },
+     {
+      "id": "songbpm",
+      "url": "https://songbpm.com/@rpt-mck/anh-da-on-hon-6icgA98I-p",
+      "title": "SongBPM – 142 BPM, key D#/Eb, duration 3:14 (page re-read 2026-10-28)",
+      "kind": "tempo-db"
+     },
+     {
+      "id": "yt-official",
+      "url": "https://www.youtube.com/watch?v=dz6xe0xXqYE",
+      "title": "Official YouTube (lyrics transcript)",
+      "kind": "recording",
+      "note": "Lyrics only. No timings were measured from this recording."
+     }
+    ]
+   },
+   "timing": {
+    "bpm": 71,
+    "bpmConfidence": 0.3,
+    "tempoFeel": "half-time",
+    "tempoNote": "SongBPM lists 142 BPM; counted here in half-time at 71 (one 4/4 bar = 3.38 s). hopamguitar.com instead lists a slow 3/4 at 66, so meter and tempo are estimates, not checked against the recording. bpmConfidence is held at 0.3 because the bar-sum check fails (see barSumCheck).",
+    "bpmSource": "songbpm",
+    "timeSignature": "4/4",
+    "firstDownbeatSeconds": null,
+    "durationSeconds": 194,
+    "durationSource": "songbpm",
+    "timingSource": "estimated",
+    "unknown": [
+     "firstDownbeatSeconds",
+     "sectionTimes"
+    ],
+    "barSumCheck": {
+     "totalBars": 62,
+     "expectedSeconds": 209.58,
+     "durationSeconds": 194,
+     "errorPercent": 8.03,
+     "pass": false
+    }
+   },
+   "form": [
+    "intro",
+    "verse1a",
+    "verse1b",
+    "chorus1",
+    "verse2a",
+    "verse2b",
+    "chorus2",
+    "solo",
+    "verse3"
+   ],
+   "sections": [
+    {
+     "id": "intro",
+     "type": "intro",
+     "label": "Intro",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Eb",
+         "confidence": 0.7,
+         "source": "hac-basic",
+         "roman": "I",
+         "alternates": [
+          {
+           "chord": "Ebmaj7",
+           "reason": "as on the record"
+          }
+         ]
+        },
+        {
+         "beat": 3,
+         "chord": "G7",
+         "confidence": 0.65,
+         "source": "hac-basic",
+         "roman": "III7",
+         "alternates": [
+          {
+           "chord": "G7#9",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm",
+         "confidence": 0.7,
+         "source": "hac-basic",
+         "roman": "vi",
+         "alternates": [
+          {
+           "chord": "Cm9",
+           "reason": "as on the record"
+          }
+         ]
+        },
+        {
+         "beat": 3,
+         "chord": "Abm",
+         "confidence": 0.6,
+         "source": "hac-basic",
+         "roman": "iv",
+         "alternates": [
+          {
+           "chord": "Fm7b5",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 3,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Gm",
+         "confidence": 0.65,
+         "source": "hac-basic",
+         "roman": "iii",
+         "alternates": [
+          {
+           "chord": "Gm7",
+           "reason": "richer"
+          }
+         ]
+        },
+        {
+         "beat": 3,
+         "chord": "Cm",
+         "confidence": 0.65,
+         "source": "hac-basic",
+         "roman": "vi",
+         "alternates": [
+          {
+           "chord": "Cm9",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 4,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm",
+         "confidence": 0.65,
+         "source": "hac-basic",
+         "roman": "ii",
+         "alternates": [
+          {
+           "chord": "Fm7",
+           "reason": "richer"
+          }
+         ]
+        },
+        {
+         "beat": 3,
+         "chord": "Bb",
+         "confidence": 0.65,
+         "source": "hac-basic",
+         "roman": "V",
+         "alternates": [
+          {
+           "chord": "Bb13",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "verse1a",
+     "type": "verse",
+     "label": "Verse 1 (first half)",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Eb",
+         "confidence": 0.85,
+         "source": "hac-basic",
+         "roman": "I",
+         "alternates": [
+          {
+           "chord": "Ebmaj7",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "G7",
+         "confidence": 0.75,
+         "source": "hac-basic",
+         "roman": "III7",
+         "alternates": [
+          {
+           "chord": "G7#9",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 3,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm",
+         "confidence": 0.85,
+         "source": "hac-basic",
+         "roman": "vi",
+         "alternates": [
+          {
+           "chord": "Cm9",
+           "reason": "richer, as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 4,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Abm",
+         "confidence": 0.7,
+         "source": "hac-basic",
+         "roman": "iv",
+         "alternates": [
+          {
+           "chord": "Fm7b5",
+           "reason": "as on the record (same sound, F bass)"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 5,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Gm",
+         "confidence": 0.75,
+         "source": "hac-basic",
+         "roman": "iii",
+         "alternates": [
+          {
+           "chord": "Gm7",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 6,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm",
+         "confidence": 0.8,
+         "source": "hac-basic",
+         "roman": "vi",
+         "alternates": [
+          {
+           "chord": "Cm9",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 7,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm",
+         "confidence": 0.8,
+         "source": "hac-basic",
+         "roman": "ii",
+         "alternates": [
+          {
+           "chord": "Fm7",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 8,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Bb",
+         "confidence": 0.7,
+         "source": "hac-basic",
+         "roman": "V",
+         "alternates": [
+          {
+           "chord": "Bb13",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "lyrics": [
+      {
+       "text": "la la la la la la l",
+       "markers": [
+        {
+         "charIndex": 10,
+         "bar": 1,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la la la la",
+       "markers": [
+        {
+         "charIndex": 17,
+         "bar": 2,
+         "beat": 1
+        },
+        {
+         "charIndex": 31,
+         "bar": 3,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la ",
+       "markers": [
+        {
+         "charIndex": 3,
+         "bar": 4,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 23,
+         "bar": 5,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la",
+       "markers": [
+        {
+         "charIndex": 12,
+         "bar": 6,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la la la la la la la",
+       "markers": [
+        {
+         "charIndex": 6,
+         "bar": 7,
+         "beat": 1
+        },
+        {
+         "charIndex": 42,
+         "bar": 8,
+         "beat": 1
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "verse1b",
+     "type": "verse",
+     "label": "Verse 1 (second half)",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Eb",
+         "confidence": 0.85,
+         "source": "hac-basic",
+         "roman": "I",
+         "alternates": [
+          {
+           "chord": "Ebmaj7",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "G7",
+         "confidence": 0.75,
+         "source": "hac-basic",
+         "roman": "III7",
+         "alternates": [
+          {
+           "chord": "G7#9",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 3,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm",
+         "confidence": 0.85,
+         "source": "hac-basic",
+         "roman": "vi",
+         "alternates": [
+          {
+           "chord": "Cm9",
+           "reason": "richer, as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 4,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Abm",
+         "confidence": 0.7,
+         "source": "hac-basic",
+         "roman": "iv",
+         "alternates": [
+          {
+           "chord": "Fm7b5",
+           "reason": "as on the record (same sound, F bass)"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 5,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Gm",
+         "confidence": 0.75,
+         "source": "hac-basic",
+         "roman": "iii",
+         "alternates": [
+          {
+           "chord": "Gm7",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 6,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm",
+         "confidence": 0.8,
+         "source": "hac-basic",
+         "roman": "vi",
+         "alternates": [
+          {
+           "chord": "Cm9",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 7,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm",
+         "confidence": 0.8,
+         "source": "hac-basic",
+         "roman": "ii",
+         "alternates": [
+          {
+           "chord": "Fm7",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 8,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Bb",
+         "confidence": 0.7,
+         "source": "hac-basic",
+         "roman": "V",
+         "alternates": [
+          {
+           "chord": "Bb13",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "lyrics": [
+      {
+       "text": "la la la la la la l",
+       "markers": [
+        {
+         "charIndex": 10,
+         "bar": 1,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la la la la la la",
+       "markers": [
+        {
+         "charIndex": 11,
+         "bar": 2,
+         "beat": 1
+        },
+        {
+         "charIndex": 38,
+         "bar": 3,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la l",
+       "markers": [
+        {
+         "charIndex": 7,
+         "bar": 4,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la ",
+       "markers": [
+        {
+         "charIndex": 12,
+         "bar": 5,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 7,
+         "bar": 6,
+         "beat": 1
+        },
+        {
+         "charIndex": 23,
+         "bar": 7,
+         "beat": 1
+        },
+        {
+         "charIndex": 31,
+         "bar": 8,
+         "beat": 1
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "chorus1",
+     "type": "chorus",
+     "label": "Chorus",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Eb",
+         "confidence": 0.85,
+         "source": "hac-basic",
+         "roman": "I",
+         "alternates": [
+          {
+           "chord": "Ebmaj7",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Ab",
+         "confidence": 0.75,
+         "source": "hac-basic",
+         "roman": "IV",
+         "alternates": [
+          {
+           "chord": "Abmaj7",
+           "reason": "as on the record"
+          },
+          {
+           "chord": "Abm",
+           "reason": "second bar turns minor on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 3,
+       "chords": []
+      },
+      {
+       "bar": 4,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Gm",
+         "confidence": 0.8,
+         "source": "hac-basic",
+         "roman": "iii",
+         "alternates": [
+          {
+           "chord": "Gm7",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 5,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm",
+         "confidence": 0.8,
+         "source": "hac-basic",
+         "roman": "vi",
+         "alternates": [
+          {
+           "chord": "Cm9",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 6,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm",
+         "confidence": 0.7,
+         "source": "hac-basic",
+         "roman": "ii",
+         "alternates": [
+          {
+           "chord": "Dm7b5",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 7,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Bb",
+         "confidence": 0.6,
+         "source": "hac-basic",
+         "roman": "V",
+         "alternates": [
+          {
+           "chord": "G7#9",
+           "reason": "as on the record, leads back to Cm"
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "lyrics": [
+      {
+       "text": "la la la la la la la la la la la",
+       "markers": [
+        {
+         "charIndex": 9,
+         "bar": 1,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la",
+       "markers": [
+        {
+         "charIndex": 9,
+         "bar": 2,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la",
+       "markers": [
+        {
+         "charIndex": 6,
+         "bar": 4,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 5,
+         "bar": 5,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 6,
+         "bar": 6,
+         "beat": 1
+        },
+        {
+         "charIndex": 16,
+         "bar": 7,
+         "beat": 1
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "verse2a",
+     "type": "verse",
+     "label": "Verse 2 (first half)",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Eb",
+         "confidence": 0.85,
+         "source": "hac-basic",
+         "roman": "I",
+         "alternates": [
+          {
+           "chord": "Ebmaj7",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "G7",
+         "confidence": 0.75,
+         "source": "hac-basic",
+         "roman": "III7",
+         "alternates": [
+          {
+           "chord": "G7#9",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 3,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm",
+         "confidence": 0.85,
+         "source": "hac-basic",
+         "roman": "vi",
+         "alternates": [
+          {
+           "chord": "Cm9",
+           "reason": "richer, as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 4,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Abm",
+         "confidence": 0.7,
+         "source": "hac-basic",
+         "roman": "iv",
+         "alternates": [
+          {
+           "chord": "Fm7b5",
+           "reason": "as on the record (same sound, F bass)"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 5,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Gm",
+         "confidence": 0.75,
+         "source": "hac-basic",
+         "roman": "iii",
+         "alternates": [
+          {
+           "chord": "Gm7",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 6,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm",
+         "confidence": 0.8,
+         "source": "hac-basic",
+         "roman": "vi",
+         "alternates": [
+          {
+           "chord": "Cm9",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 7,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm",
+         "confidence": 0.8,
+         "source": "hac-basic",
+         "roman": "ii",
+         "alternates": [
+          {
+           "chord": "Fm7",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 8,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Bb",
+         "confidence": 0.7,
+         "source": "hac-basic",
+         "roman": "V",
+         "alternates": [
+          {
+           "chord": "Bb13",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "lyrics": [
+      {
+       "text": "la la la la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 9,
+         "bar": 1,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 18,
+         "bar": 2,
+         "beat": 1
+        },
+        {
+         "charIndex": 29,
+         "bar": 3,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 0,
+         "bar": 4,
+         "beat": 1
+        },
+        {
+         "charIndex": 8,
+         "bar": 5,
+         "beat": 1
+        },
+        {
+         "charIndex": 25,
+         "bar": 6,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la",
+       "markers": [
+        {
+         "charIndex": 18,
+         "bar": 7,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 16,
+         "bar": 8,
+         "beat": 1
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "verse2b",
+     "type": "verse",
+     "label": "Verse 2 (second half)",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Eb",
+         "confidence": 0.85,
+         "source": "hac-basic",
+         "roman": "I",
+         "alternates": [
+          {
+           "chord": "Ebmaj7",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "G7",
+         "confidence": 0.75,
+         "source": "hac-basic",
+         "roman": "III7",
+         "alternates": [
+          {
+           "chord": "G7#9",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 3,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm",
+         "confidence": 0.85,
+         "source": "hac-basic",
+         "roman": "vi",
+         "alternates": [
+          {
+           "chord": "Cm9",
+           "reason": "richer, as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 4,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Abm",
+         "confidence": 0.7,
+         "source": "hac-basic",
+         "roman": "iv",
+         "alternates": [
+          {
+           "chord": "Fm7b5",
+           "reason": "as on the record (same sound, F bass)"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 5,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Gm",
+         "confidence": 0.75,
+         "source": "hac-basic",
+         "roman": "iii",
+         "alternates": [
+          {
+           "chord": "Gm7",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 6,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm",
+         "confidence": 0.8,
+         "source": "hac-basic",
+         "roman": "vi",
+         "alternates": [
+          {
+           "chord": "Cm9",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 7,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm",
+         "confidence": 0.8,
+         "source": "hac-basic",
+         "roman": "ii",
+         "alternates": [
+          {
+           "chord": "Fm7",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 8,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Bb",
+         "confidence": 0.7,
+         "source": "hac-basic",
+         "roman": "V",
+         "alternates": [
+          {
+           "chord": "Bb13",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "lyrics": [
+      {
+       "text": "la la la la la ",
+       "markers": [
+        {
+         "charIndex": 12,
+         "bar": 1,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la l",
+       "markers": [
+        {
+         "charIndex": 24,
+         "bar": 2,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la",
+       "markers": [
+        {
+         "charIndex": 0,
+         "bar": 3,
+         "beat": 1
+        },
+        {
+         "charIndex": 3,
+         "bar": 4,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la la la l",
+       "markers": [
+        {
+         "charIndex": 11,
+         "bar": 5,
+         "beat": 1
+        },
+        {
+         "charIndex": 32,
+         "bar": 6,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la",
+       "markers": [
+        {
+         "charIndex": 16,
+         "bar": 7,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la l",
+       "markers": [
+        {
+         "charIndex": 15,
+         "bar": 8,
+         "beat": 1
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "chorus2",
+     "type": "chorus",
+     "label": "Chorus",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Eb",
+         "confidence": 0.85,
+         "source": "hac-basic",
+         "roman": "I",
+         "alternates": [
+          {
+           "chord": "Ebmaj7",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Ab",
+         "confidence": 0.75,
+         "source": "hac-basic",
+         "roman": "IV",
+         "alternates": [
+          {
+           "chord": "Abmaj7",
+           "reason": "as on the record"
+          },
+          {
+           "chord": "Abm",
+           "reason": "second bar turns minor on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 3,
+       "chords": []
+      },
+      {
+       "bar": 4,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Gm",
+         "confidence": 0.8,
+         "source": "hac-basic",
+         "roman": "iii",
+         "alternates": [
+          {
+           "chord": "Gm7",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 5,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm",
+         "confidence": 0.8,
+         "source": "hac-basic",
+         "roman": "vi",
+         "alternates": [
+          {
+           "chord": "Cm9",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 6,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm",
+         "confidence": 0.7,
+         "source": "hac-basic",
+         "roman": "ii",
+         "alternates": [
+          {
+           "chord": "Dm7b5",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 7,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Bb",
+         "confidence": 0.6,
+         "source": "hac-basic",
+         "roman": "V",
+         "alternates": [
+          {
+           "chord": "G7#9",
+           "reason": "as on the record, leads back to Cm"
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "lyrics": [
+      {
+       "text": "la la la la la la la la la la la",
+       "markers": [
+        {
+         "charIndex": 9,
+         "bar": 1,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la",
+       "markers": [
+        {
+         "charIndex": 9,
+         "bar": 2,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la",
+       "markers": [
+        {
+         "charIndex": 6,
+         "bar": 4,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 5,
+         "bar": 5,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 6,
+         "bar": 6,
+         "beat": 1
+        },
+        {
+         "charIndex": 16,
+         "bar": 7,
+         "beat": 1
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "solo",
+     "type": "solo",
+     "label": "Solo (intro chords)",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Eb",
+         "confidence": 0.7,
+         "source": "hac-basic",
+         "roman": "I",
+         "alternates": [
+          {
+           "chord": "Ebmaj7",
+           "reason": "as on the record"
+          }
+         ]
+        },
+        {
+         "beat": 3,
+         "chord": "G7",
+         "confidence": 0.65,
+         "source": "hac-basic",
+         "roman": "III7",
+         "alternates": [
+          {
+           "chord": "G7#9",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm",
+         "confidence": 0.7,
+         "source": "hac-basic",
+         "roman": "vi",
+         "alternates": [
+          {
+           "chord": "Cm9",
+           "reason": "as on the record"
+          }
+         ]
+        },
+        {
+         "beat": 3,
+         "chord": "Abm",
+         "confidence": 0.6,
+         "source": "hac-basic",
+         "roman": "iv",
+         "alternates": [
+          {
+           "chord": "Fm7b5",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 3,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Gm",
+         "confidence": 0.65,
+         "source": "hac-basic",
+         "roman": "iii",
+         "alternates": [
+          {
+           "chord": "Gm7",
+           "reason": "richer"
+          }
+         ]
+        },
+        {
+         "beat": 3,
+         "chord": "Cm",
+         "confidence": 0.65,
+         "source": "hac-basic",
+         "roman": "vi",
+         "alternates": [
+          {
+           "chord": "Cm9",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 4,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm",
+         "confidence": 0.65,
+         "source": "hac-basic",
+         "roman": "ii",
+         "alternates": [
+          {
+           "chord": "Fm7",
+           "reason": "richer"
+          }
+         ]
+        },
+        {
+         "beat": 3,
+         "chord": "Bb",
+         "confidence": 0.65,
+         "source": "hac-basic",
+         "roman": "V",
+         "alternates": [
+          {
+           "chord": "Bb13",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "notes": "Solo length is unknown (v1.2 note); 4 bars is the chart's guess. Any outro tail after verse3 is unknown and not written."
+    },
+    {
+     "id": "verse3",
+     "type": "verse",
+     "label": "Last verse",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Eb",
+         "confidence": 0.85,
+         "source": "hac-basic",
+         "roman": "I",
+         "alternates": [
+          {
+           "chord": "Ebmaj7",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "G7",
+         "confidence": 0.75,
+         "source": "hac-basic",
+         "roman": "III7",
+         "alternates": [
+          {
+           "chord": "G7#9",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 3,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm",
+         "confidence": 0.85,
+         "source": "hac-basic",
+         "roman": "vi",
+         "alternates": [
+          {
+           "chord": "Cm9",
+           "reason": "richer, as on the record"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 4,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Abm",
+         "confidence": 0.7,
+         "source": "hac-basic",
+         "roman": "iv",
+         "alternates": [
+          {
+           "chord": "Fm7b5",
+           "reason": "as on the record (same sound, F bass)"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 5,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Gm",
+         "confidence": 0.75,
+         "source": "hac-basic",
+         "roman": "iii",
+         "alternates": [
+          {
+           "chord": "Gm7",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 6,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm",
+         "confidence": 0.8,
+         "source": "hac-basic",
+         "roman": "vi",
+         "alternates": [
+          {
+           "chord": "Cm9",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 7,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm",
+         "confidence": 0.8,
+         "source": "hac-basic",
+         "roman": "ii",
+         "alternates": [
+          {
+           "chord": "Fm7",
+           "reason": "richer"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 8,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Bb",
+         "confidence": 0.7,
+         "source": "hac-basic",
+         "roman": "V",
+         "alternates": [
+          {
+           "chord": "Bb13",
+           "reason": "as on the record"
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "lyrics": [
+      {
+       "text": "la la la la la la l",
+       "markers": [
+        {
+         "charIndex": 10,
+         "bar": 1,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la la la la la la",
+       "markers": [
+        {
+         "charIndex": 11,
+         "bar": 2,
+         "beat": 1
+        },
+        {
+         "charIndex": 33,
+         "bar": 3,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la l",
+       "markers": [
+        {
+         "charIndex": 7,
+         "bar": 4,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la ",
+       "markers": [
+        {
+         "charIndex": 12,
+         "bar": 5,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 7,
+         "bar": 6,
+         "beat": 1
+        },
+        {
+         "charIndex": 23,
+         "bar": 7,
+         "beat": 1
+        },
+        {
+         "charIndex": 31,
+         "bar": 8,
+         "beat": 1
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "sectionsFull": [
+    {
+     "id": "intro",
+     "type": "intro",
+     "label": "Intro",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Ebmaj7",
+         "confidence": 0.7,
+         "source": "hac-phongle",
+         "roman": "Imaj7"
+        },
+        {
+         "beat": 3,
+         "chord": "G7#9",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "III7"
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm9",
+         "confidence": 0.65,
+         "source": "hac-phongle",
+         "roman": "vi9"
+        },
+        {
+         "beat": 3,
+         "chord": "Fm7b5",
+         "confidence": 0.55,
+         "source": "hac-phongle",
+         "roman": "iiø7"
+        }
+       ]
+      },
+      {
+       "bar": 3,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Gm7",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "iii7"
+        },
+        {
+         "beat": 3,
+         "chord": "Cm9",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "vi9"
+        }
+       ]
+      },
+      {
+       "bar": 4,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm7",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "ii7"
+        },
+        {
+         "beat": 3,
+         "chord": "Bb13",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "V13"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "verse1a",
+     "type": "verse",
+     "label": "Verse 1 (first half)",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Ebmaj7",
+         "confidence": 0.8,
+         "source": "hac-phongle",
+         "roman": "Imaj7"
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "G7#9",
+         "confidence": 0.65,
+         "source": "hac-phongle",
+         "roman": "III7",
+         "alternates": [
+          {
+           "chord": "G7",
+           "reason": "simpler"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 3,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm9",
+         "confidence": 0.75,
+         "source": "hac-phongle",
+         "roman": "vi9"
+        }
+       ]
+      },
+      {
+       "bar": 4,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm7b5",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "iiø7",
+         "alternates": [
+          {
+           "chord": "Abm6",
+           "reason": "same notes, Ab bass"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 5,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Gm7",
+         "confidence": 0.7,
+         "source": "hac-phongle",
+         "roman": "iii7"
+        }
+       ]
+      },
+      {
+       "bar": 6,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm9",
+         "confidence": 0.7,
+         "source": "hac-phongle",
+         "roman": "vi9"
+        }
+       ]
+      },
+      {
+       "bar": 7,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm7",
+         "confidence": 0.75,
+         "source": "hac-phongle",
+         "roman": "ii7"
+        }
+       ]
+      },
+      {
+       "bar": 8,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Bb13",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "V13",
+         "alternates": [
+          {
+           "chord": "Fm7b5",
+           "reason": "first half of each verse ends here on the Phong Lê chart"
+          },
+          {
+           "chord": "Bb",
+           "reason": "simpler"
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "lyrics": [
+      {
+       "text": "la la la la la la l",
+       "markers": [
+        {
+         "charIndex": 10,
+         "bar": 1,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la la la la",
+       "markers": [
+        {
+         "charIndex": 17,
+         "bar": 2,
+         "beat": 1
+        },
+        {
+         "charIndex": 31,
+         "bar": 3,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la ",
+       "markers": [
+        {
+         "charIndex": 3,
+         "bar": 4,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 23,
+         "bar": 5,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la",
+       "markers": [
+        {
+         "charIndex": 12,
+         "bar": 6,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la la la la la la la",
+       "markers": [
+        {
+         "charIndex": 6,
+         "bar": 7,
+         "beat": 1
+        },
+        {
+         "charIndex": 42,
+         "bar": 8,
+         "beat": 1
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "verse1b",
+     "type": "verse",
+     "label": "Verse 1 (second half)",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Ebmaj7",
+         "confidence": 0.8,
+         "source": "hac-phongle",
+         "roman": "Imaj7"
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "G7#9",
+         "confidence": 0.65,
+         "source": "hac-phongle",
+         "roman": "III7",
+         "alternates": [
+          {
+           "chord": "G7",
+           "reason": "simpler"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 3,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm9",
+         "confidence": 0.75,
+         "source": "hac-phongle",
+         "roman": "vi9"
+        }
+       ]
+      },
+      {
+       "bar": 4,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm7b5",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "iiø7",
+         "alternates": [
+          {
+           "chord": "Abm6",
+           "reason": "same notes, Ab bass"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 5,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Gm7",
+         "confidence": 0.7,
+         "source": "hac-phongle",
+         "roman": "iii7"
+        }
+       ]
+      },
+      {
+       "bar": 6,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm9",
+         "confidence": 0.7,
+         "source": "hac-phongle",
+         "roman": "vi9"
+        }
+       ]
+      },
+      {
+       "bar": 7,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm7",
+         "confidence": 0.75,
+         "source": "hac-phongle",
+         "roman": "ii7"
+        }
+       ]
+      },
+      {
+       "bar": 8,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Bb13",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "V13",
+         "alternates": [
+          {
+           "chord": "Fm7b5",
+           "reason": "first half of each verse ends here on the Phong Lê chart"
+          },
+          {
+           "chord": "Bb",
+           "reason": "simpler"
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "lyrics": [
+      {
+       "text": "la la la la la la l",
+       "markers": [
+        {
+         "charIndex": 10,
+         "bar": 1,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la la la la la la",
+       "markers": [
+        {
+         "charIndex": 11,
+         "bar": 2,
+         "beat": 1
+        },
+        {
+         "charIndex": 38,
+         "bar": 3,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la l",
+       "markers": [
+        {
+         "charIndex": 7,
+         "bar": 4,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la ",
+       "markers": [
+        {
+         "charIndex": 12,
+         "bar": 5,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 7,
+         "bar": 6,
+         "beat": 1
+        },
+        {
+         "charIndex": 23,
+         "bar": 7,
+         "beat": 1
+        },
+        {
+         "charIndex": 31,
+         "bar": 8,
+         "beat": 1
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "chorus1",
+     "type": "chorus",
+     "label": "Chorus",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Ebmaj7",
+         "confidence": 0.8,
+         "source": "hac-phongle",
+         "roman": "Imaj7"
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Gm7",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "iii7"
+        },
+        {
+         "beat": 3,
+         "chord": "Abmaj7",
+         "confidence": 0.65,
+         "source": "hac-phongle",
+         "roman": "IVmaj7"
+        }
+       ]
+      },
+      {
+       "bar": 3,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Abm9",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "iv9"
+        }
+       ]
+      },
+      {
+       "bar": 4,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Gm7",
+         "confidence": 0.7,
+         "source": "hac-phongle",
+         "roman": "iii7"
+        }
+       ]
+      },
+      {
+       "bar": 5,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm7",
+         "confidence": 0.65,
+         "source": "hac-phongle",
+         "roman": "vi7"
+        },
+        {
+         "beat": 3,
+         "chord": "Cm9",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "vi9"
+        }
+       ]
+      },
+      {
+       "bar": 6,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Dm7b5",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "viiø7",
+         "alternates": [
+          {
+           "chord": "Fm7",
+           "reason": "simpler chart"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 7,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "G7#9",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "III7",
+         "alternates": [
+          {
+           "chord": "Bb",
+           "reason": "simpler chart"
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "lyrics": [
+      {
+       "text": "la la la la la la la la la la la",
+       "markers": [
+        {
+         "charIndex": 9,
+         "bar": 1,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la",
+       "markers": [
+        {
+         "charIndex": 9,
+         "bar": 2,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la",
+       "markers": [
+        {
+         "charIndex": 6,
+         "bar": 4,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 5,
+         "bar": 5,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 6,
+         "bar": 6,
+         "beat": 1
+        },
+        {
+         "charIndex": 16,
+         "bar": 7,
+         "beat": 1
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "verse2a",
+     "type": "verse",
+     "label": "Verse 2 (first half)",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Ebmaj7",
+         "confidence": 0.8,
+         "source": "hac-phongle",
+         "roman": "Imaj7"
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "G7#9",
+         "confidence": 0.65,
+         "source": "hac-phongle",
+         "roman": "III7",
+         "alternates": [
+          {
+           "chord": "G7",
+           "reason": "simpler"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 3,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm9",
+         "confidence": 0.75,
+         "source": "hac-phongle",
+         "roman": "vi9"
+        }
+       ]
+      },
+      {
+       "bar": 4,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm7b5",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "iiø7",
+         "alternates": [
+          {
+           "chord": "Abm6",
+           "reason": "same notes, Ab bass"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 5,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Gm7",
+         "confidence": 0.7,
+         "source": "hac-phongle",
+         "roman": "iii7"
+        }
+       ]
+      },
+      {
+       "bar": 6,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm9",
+         "confidence": 0.7,
+         "source": "hac-phongle",
+         "roman": "vi9"
+        }
+       ]
+      },
+      {
+       "bar": 7,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm7",
+         "confidence": 0.75,
+         "source": "hac-phongle",
+         "roman": "ii7"
+        }
+       ]
+      },
+      {
+       "bar": 8,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Bb13",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "V13",
+         "alternates": [
+          {
+           "chord": "Fm7b5",
+           "reason": "first half of each verse ends here on the Phong Lê chart"
+          },
+          {
+           "chord": "Bb",
+           "reason": "simpler"
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "lyrics": [
+      {
+       "text": "la la la la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 9,
+         "bar": 1,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 18,
+         "bar": 2,
+         "beat": 1
+        },
+        {
+         "charIndex": 29,
+         "bar": 3,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 0,
+         "bar": 4,
+         "beat": 1
+        },
+        {
+         "charIndex": 8,
+         "bar": 5,
+         "beat": 1
+        },
+        {
+         "charIndex": 25,
+         "bar": 6,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la",
+       "markers": [
+        {
+         "charIndex": 18,
+         "bar": 7,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 16,
+         "bar": 8,
+         "beat": 1
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "verse2b",
+     "type": "verse",
+     "label": "Verse 2 (second half)",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Ebmaj7",
+         "confidence": 0.8,
+         "source": "hac-phongle",
+         "roman": "Imaj7"
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "G7#9",
+         "confidence": 0.65,
+         "source": "hac-phongle",
+         "roman": "III7",
+         "alternates": [
+          {
+           "chord": "G7",
+           "reason": "simpler"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 3,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm9",
+         "confidence": 0.75,
+         "source": "hac-phongle",
+         "roman": "vi9"
+        }
+       ]
+      },
+      {
+       "bar": 4,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm7b5",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "iiø7",
+         "alternates": [
+          {
+           "chord": "Abm6",
+           "reason": "same notes, Ab bass"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 5,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Gm7",
+         "confidence": 0.7,
+         "source": "hac-phongle",
+         "roman": "iii7"
+        }
+       ]
+      },
+      {
+       "bar": 6,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm9",
+         "confidence": 0.7,
+         "source": "hac-phongle",
+         "roman": "vi9"
+        }
+       ]
+      },
+      {
+       "bar": 7,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm7",
+         "confidence": 0.75,
+         "source": "hac-phongle",
+         "roman": "ii7"
+        }
+       ]
+      },
+      {
+       "bar": 8,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Bb13",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "V13",
+         "alternates": [
+          {
+           "chord": "Fm7b5",
+           "reason": "first half of each verse ends here on the Phong Lê chart"
+          },
+          {
+           "chord": "Bb",
+           "reason": "simpler"
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "lyrics": [
+      {
+       "text": "la la la la la ",
+       "markers": [
+        {
+         "charIndex": 12,
+         "bar": 1,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la l",
+       "markers": [
+        {
+         "charIndex": 24,
+         "bar": 2,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la",
+       "markers": [
+        {
+         "charIndex": 0,
+         "bar": 3,
+         "beat": 1
+        },
+        {
+         "charIndex": 3,
+         "bar": 4,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la la la l",
+       "markers": [
+        {
+         "charIndex": 11,
+         "bar": 5,
+         "beat": 1
+        },
+        {
+         "charIndex": 32,
+         "bar": 6,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la",
+       "markers": [
+        {
+         "charIndex": 16,
+         "bar": 7,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la l",
+       "markers": [
+        {
+         "charIndex": 15,
+         "bar": 8,
+         "beat": 1
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "chorus2",
+     "type": "chorus",
+     "label": "Chorus",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Ebmaj7",
+         "confidence": 0.8,
+         "source": "hac-phongle",
+         "roman": "Imaj7"
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Gm7",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "iii7"
+        },
+        {
+         "beat": 3,
+         "chord": "Abmaj7",
+         "confidence": 0.65,
+         "source": "hac-phongle",
+         "roman": "IVmaj7"
+        }
+       ]
+      },
+      {
+       "bar": 3,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Abm9",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "iv9"
+        }
+       ]
+      },
+      {
+       "bar": 4,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Gm7",
+         "confidence": 0.7,
+         "source": "hac-phongle",
+         "roman": "iii7"
+        }
+       ]
+      },
+      {
+       "bar": 5,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm7",
+         "confidence": 0.65,
+         "source": "hac-phongle",
+         "roman": "vi7"
+        },
+        {
+         "beat": 3,
+         "chord": "Cm9",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "vi9"
+        }
+       ]
+      },
+      {
+       "bar": 6,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Dm7b5",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "viiø7",
+         "alternates": [
+          {
+           "chord": "Fm7",
+           "reason": "simpler chart"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 7,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "G7#9",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "III7",
+         "alternates": [
+          {
+           "chord": "Bb",
+           "reason": "simpler chart"
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "lyrics": [
+      {
+       "text": "la la la la la la la la la la la",
+       "markers": [
+        {
+         "charIndex": 9,
+         "bar": 1,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la",
+       "markers": [
+        {
+         "charIndex": 9,
+         "bar": 2,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la",
+       "markers": [
+        {
+         "charIndex": 6,
+         "bar": 4,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 5,
+         "bar": 5,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 6,
+         "bar": 6,
+         "beat": 1
+        },
+        {
+         "charIndex": 16,
+         "bar": 7,
+         "beat": 1
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "solo",
+     "type": "solo",
+     "label": "Solo (intro chords)",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Ebmaj7",
+         "confidence": 0.4,
+         "source": "hac-phongle",
+         "roman": "Imaj7"
+        },
+        {
+         "beat": 3,
+         "chord": "G7#9",
+         "confidence": 0.4,
+         "source": "hac-phongle",
+         "roman": "III7"
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm9",
+         "confidence": 0.4,
+         "source": "hac-phongle",
+         "roman": "vi9"
+        },
+        {
+         "beat": 3,
+         "chord": "Fm7b5",
+         "confidence": 0.4,
+         "source": "hac-phongle",
+         "roman": "iiø7"
+        }
+       ]
+      },
+      {
+       "bar": 3,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Gm7",
+         "confidence": 0.4,
+         "source": "hac-phongle",
+         "roman": "iii7"
+        },
+        {
+         "beat": 3,
+         "chord": "Cm9",
+         "confidence": 0.4,
+         "source": "hac-phongle",
+         "roman": "vi9"
+        }
+       ]
+      },
+      {
+       "bar": 4,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm7",
+         "confidence": 0.4,
+         "source": "hac-phongle",
+         "roman": "ii7"
+        },
+        {
+         "beat": 3,
+         "chord": "Bb13",
+         "confidence": 0.4,
+         "source": "hac-phongle",
+         "roman": "V13"
+        }
+       ]
+      }
+     ],
+     "notes": "The Phong Lê chart has no separate solo; the intro progression (with 2-beat chords, same as the Simple solo) is reused and capped at confidence 0.4."
+    },
+    {
+     "id": "verse3",
+     "type": "verse",
+     "label": "Last verse",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Ebmaj7",
+         "confidence": 0.8,
+         "source": "hac-phongle",
+         "roman": "Imaj7"
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "G7#9",
+         "confidence": 0.65,
+         "source": "hac-phongle",
+         "roman": "III7",
+         "alternates": [
+          {
+           "chord": "G7",
+           "reason": "simpler"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 3,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm9",
+         "confidence": 0.75,
+         "source": "hac-phongle",
+         "roman": "vi9"
+        }
+       ]
+      },
+      {
+       "bar": 4,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm7b5",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "iiø7",
+         "alternates": [
+          {
+           "chord": "Abm6",
+           "reason": "same notes, Ab bass"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bar": 5,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Gm7",
+         "confidence": 0.7,
+         "source": "hac-phongle",
+         "roman": "iii7"
+        }
+       ]
+      },
+      {
+       "bar": 6,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cm9",
+         "confidence": 0.7,
+         "source": "hac-phongle",
+         "roman": "vi9"
+        }
+       ]
+      },
+      {
+       "bar": 7,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Fm7",
+         "confidence": 0.75,
+         "source": "hac-phongle",
+         "roman": "ii7"
+        }
+       ]
+      },
+      {
+       "bar": 8,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Bb13",
+         "confidence": 0.6,
+         "source": "hac-phongle",
+         "roman": "V13",
+         "alternates": [
+          {
+           "chord": "Fm7b5",
+           "reason": "first half of each verse ends here on the Phong Lê chart"
+          },
+          {
+           "chord": "Bb",
+           "reason": "simpler"
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "lyrics": [
+      {
+       "text": "la la la la la la l",
+       "markers": [
+        {
+         "charIndex": 10,
+         "bar": 1,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la la la la la la",
+       "markers": [
+        {
+         "charIndex": 11,
+         "bar": 2,
+         "beat": 1
+        },
+        {
+         "charIndex": 33,
+         "bar": 3,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la l",
+       "markers": [
+        {
+         "charIndex": 7,
+         "bar": 4,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la ",
+       "markers": [
+        {
+         "charIndex": 12,
+         "bar": 5,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "la la la la la la la la la la la ",
+       "markers": [
+        {
+         "charIndex": 7,
+         "bar": 6,
+         "beat": 1
+        },
+        {
+         "charIndex": 23,
+         "bar": 7,
+         "beat": 1
+        },
+        {
+         "charIndex": 31,
+         "bar": 8,
+         "beat": 1
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "notes": "Concert pitch, key Eb major (charts are C shapes, capo 3, transposed up). Simple = basic Hợp Âm Chuẩn chart (source hac-basic); Full = Phong Lê chart (hac-phongle). Re-filled from the v1.2 file with the same sources and content: nothing was measured from the recording. Section start/end and the first downbeat are null/unknown; durationSeconds 194 is SongBPM's 3:14, not a measurement. The written-out form is 62 bars = 209.6 s at 71 BPM, +8.0% against 194 s, so the bar count, the tempo or the solo/outro length is off; this fails the 3% bar-sum check and is flagged, not fudged. Abm (iv) in the Simple verse stands for the Fm7b5 sound on the record. Lyrics from the official YouTube transcript; ad-libs left out."
+  }
+ ],
+ "notes": "Re-fill of the v1.2 answer anh-da-on-hon.json in contract v1.3."
+}

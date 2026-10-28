@@ -1,26 +1,26 @@
 // window.__* helpers for the Playwright suites. Loaded only with ?test=1 (dynamic import from main.js).
-import { api as ChordAudio } from "./audio/index.js?v=112.11";
-import { KIDS_LYRICS } from "./songs/kids-songs.js?v=112.11";
-import { upSave, libSaveErr, libOpen, libSetVer, libDelete } from "./songs/library.js?v=112.11";
-import { progNext, magicReset, magicHome, magicPool } from "./songs/magic.js?v=112.11";
-import { paLog } from "./songs/playalong.js?v=112.11";
-import { magic, progStop, progPlay, prog, PROG_TEST, progSet, applySongKey } from "./songs/playback.js?v=112.11";
-import { PROG_BAR, PROGRESSIONS, progSteps, progNumerals } from "./songs/presets.js?v=112.11";
-import { songTempo, upSelected, upNextStep, progRingSec, progLoopBar, upKeyApply, upSetLock, upPickAlt } from "./songs/song.js?v=112.11";
-import { UP_ARTIST_MAX, UP_SKIP_MAX, UP_LIST_MAX, upListSchemaText, upParseChord, upParseAnswer, upCheck, upSym, upFlagList, upLoadAll, upRemove } from "./songs/upload.js?v=112.11";
-import { state, shared } from "./state.js?v=112.11";
-import { wrap12 } from "./theory/quality.js?v=112.11";
-import { paHintLog } from "./ui/hints.js?v=112.11";
-import { kbChord } from "./ui/keyboard.js?v=112.11";
-import { upLyrMap, lyrState, klState } from "./ui/lyrics.js?v=112.11";
-import { laTarget, paintLookahead, nxNow, nxKeyEl, nxSigLast, nxBursts, paintNxMark, nextHintSpec } from "./ui/next.js?v=112.11";
-import { hapLog, hapTest } from "./ui/pads.js?v=112.11";
-import { setKidKey } from "./kids.js?v=112.11";
-import { updateSymbol } from "./ui/nowbox.js?v=112.11";
-import { kidsTapLog, fxTapLog } from "./ui/pulse.js?v=112.11";
-import { stripLabel } from "./ui/strip.js?v=112.11";
-import { tourI, tourLog, tourDone, tourStart } from "./ui/tour.js?v=112.11";
-import { paintUpload, upMode, upPromptFor, upShowErrors, upCopyText, upSetPrompt } from "./ui/upload-dialog.js?v=112.11";
+import { api as ChordAudio } from "./audio/index.js?v=112.12";
+import { KIDS_LYRICS } from "./songs/kids-songs.js?v=112.12";
+import { upSave, libSaveErr, libOpen, libSetVer, libDelete } from "./songs/library.js?v=112.12";
+import { progNext, magicReset, magicHome, magicPool } from "./songs/magic.js?v=112.12";
+import { paLog } from "./songs/playalong.js?v=112.12";
+import { magic, progStop, progPlay, prog, PROG_TEST, progSet, applySongKey } from "./songs/playback.js?v=112.12";
+import { PROG_BAR, PROGRESSIONS, progSteps, progNumerals } from "./songs/presets.js?v=112.12";
+import { songTempo, upSelected, upNextStep, progRingSec, progLoopBar, upKeyApply, upSetLock, upPickAlt } from "./songs/song.js?v=112.12";
+import { UP_ARTIST_MAX, UP_SKIP_MAX, UP_LIST_MAX, upListSchemaText, upListSchema13Text, upParseChord, upParseAnswer, upCheck, upSym, upFlagList, upLoadAll, upRemove } from "./songs/upload.js?v=112.12";
+import { state, shared } from "./state.js?v=112.12";
+import { wrap12 } from "./theory/quality.js?v=112.12";
+import { paHintLog } from "./ui/hints.js?v=112.12";
+import { kbChord } from "./ui/keyboard.js?v=112.12";
+import { upLyrMap, lyrState, klState } from "./ui/lyrics.js?v=112.12";
+import { laTarget, paintLookahead, nxNow, nxKeyEl, nxSigLast, nxBursts, paintNxMark, nextHintSpec } from "./ui/next.js?v=112.12";
+import { hapLog, hapTest } from "./ui/pads.js?v=112.12";
+import { setKidKey } from "./kids.js?v=112.12";
+import { updateSymbol } from "./ui/nowbox.js?v=112.12";
+import { kidsTapLog, fxTapLog } from "./ui/pulse.js?v=112.12";
+import { stripLabel } from "./ui/strip.js?v=112.12";
+import { tourI, tourLog, tourDone, tourStart } from "./ui/tour.js?v=112.12";
+import { paintUpload, upMode, upPromptFor, upShowErrors, upCopyText, upSetPrompt } from "./ui/upload-dialog.js?v=112.12";
 
 
 // Test hooks (loaded only with ?test=1)
@@ -68,6 +68,7 @@ export function install() {
     mode: function (t, a) { return upMode(t, a); },
     promptFor: function (md, ver, have) { return upPromptFor(md, ver, have); },
     listSchema: function () { return upListSchemaText; },
+    listSchema13: function () { return upListSchema13Text; },
     caps: function () { return { artist: UP_ARTIST_MAX, skip: UP_SKIP_MAX, list: UP_LIST_MAX }; },   // v105; v110 no album
     remove: function () { upRemove(); paintUpload(); },
     song: function () { return shared.U ? { title: shared.U.title, artist: shared.U.artist, key: shared.U.key, bpm: shared.U.bpm, ts: shared.U.ts, events: shared.U.events.length, sections: shared.U.secs.map(function (s) { return s.id; }), selected: upSelected(), two: !!shared.U.two, ver: shared.U.ver } : null; },

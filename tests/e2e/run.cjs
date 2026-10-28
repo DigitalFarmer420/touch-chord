@@ -18,6 +18,7 @@ const SUITE = [   // [name, file, args]  (both phone sizes each: the tests loop 
   ['kidsascend', 'kidsascend.cjs', []],   // v112.9: Kids pads root position, rising in reading order, lit = sounded, Twinkle advance
   ['kidsgold', 'kidsgold.cjs', []],   // v112.10: Kids gold always wins: a pad never slides the gold key off the keys
   ['playoff', 'playoff.cjs', []],   // v112.11: Play along off = no guide (dot / chip marks hidden), MIDI, lit and layout identical ON vs OFF
+  ['upload13', 'upload13.cjs', []],   // v112.12: Song Contract v1.3 upload (form order, length warning, chord tidy, JSON repair, honest messages)
 ];
 const only = process.env.ONLY ? process.env.ONLY.split(',') : null;
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.webp': 'image/webp', '.json': 'application/json', '.png': 'image/png' };

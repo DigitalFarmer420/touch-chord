@@ -1,15 +1,15 @@
 // Upload song dialog: prompt copy, paste, check, load, library list.
-import { unlock } from "../audio/unlock.js?v=112.11";
-import { namePc, keyRootName } from "../keys.js?v=112.11";
-import { upSave, libGet, paintLib, libEntryToU, upRestoreSel, libOpen, libSetVer, libDelete, libConfirm } from "../songs/library.js?v=112.11";
-import { progBadge } from "../songs/magic.js?v=112.11";
-import { progRedecorate } from "../songs/playback.js?v=112.11";
-import { upInList, paintUpNext, upSelected, upKeyApply, upKeyNow, upTr, upLiveKeyObj, upT, upA, upSetLock, upPlaceLock, upSelect, upEsc, upStepOf, upCurStep, upPickAlt, upLoadOne } from "../songs/song.js?v=112.11";
-import { validateSong, LAYER_NAMES } from "../songs/validate.js?v=112.11";
-import { UP_HEAD, UP_PASTE_LINE, UP_PASTE_LINE_2, UP_TAIL, UP_ARTIST_MAX, UP_SKIP_MAX, upListSchemaText, upEv, upSym, upFlagged, upFlagList, upSecName, upLoadBegin, upLoadCheck, upLoadCommit } from "../songs/upload.js?v=112.11";
-import { state, shared } from "../state.js?v=112.11";
-import { accSym } from "../theory/spelling.js?v=112.11";
-import { paintUploadActive, upLyricHtml } from "./songbar.js?v=112.11";
+import { unlock } from "../audio/unlock.js?v=112.12";
+import { namePc, keyRootName } from "../keys.js?v=112.12";
+import { upSave, libGet, paintLib, libEntryToU, upRestoreSel, libOpen, libSetVer, libDelete, libConfirm } from "../songs/library.js?v=112.12";
+import { progBadge } from "../songs/magic.js?v=112.12";
+import { progRedecorate } from "../songs/playback.js?v=112.12";
+import { upInList, paintUpNext, upSelected, upKeyApply, upKeyNow, upTr, upLiveKeyObj, upT, upA, upSetLock, upPlaceLock, upSelect, upEsc, upStepOf, upCurStep, upPickAlt, upLoadOne } from "../songs/song.js?v=112.12";
+import { validateSong, LAYER_NAMES } from "../songs/validate.js?v=112.12";
+import { UP_PROMPT, UP_ARTIST_MAX, UP_SKIP_MAX, upListSchema13Text, upEv, upSym, upFlagged, upFlagList, upSecName, upLoadBegin, upLoadCheck, upLoadCommit } from "../songs/upload.js?v=112.12";
+import { state, shared } from "../state.js?v=112.12";
+import { accSym } from "../theory/spelling.js?v=112.12";
+import { paintUploadActive, upLyricHtml } from "./songbar.js?v=112.12";
 // v88: the empty-state hint shortens once both title and artist are filled in (live on input)
 // v89: "ready" = the Artist box is filled (an empty title asks for songs by the artist)
 const UP_EMPTY_FULL = "No song yet. Fill in the artist, and a song title if you like. Tap Copy for AI, paste it into any AI, then paste its answer and tap Load.";
@@ -51,7 +51,7 @@ function upSkipLine(md, have) {
   return t.length ? " Leave out these songs, I already have them: " + t.join("; ") + "." : "";
 }
 export function upPromptFor(md, ver, have) {
-  return UP_HEAD + " " + (ver === "full" ? UP_PASTE_LINE_2 : UP_PASTE_LINE) + " " + UP_TAIL + " " + upAskLine(md) + upSkipLine(md, have || []);
+  return UP_PROMPT + "\n\n" + upAskLine(md) + upSkipLine(md, have || []);   // v112.12: the Contract v1.3 prompt (one text for Simple and Full)
 }
 function upViewSong() {
   if (!shared.upEdit) return null;
@@ -156,6 +156,8 @@ function upSummaryHtml(r) {
     var nm = upEsc(x.title || "Song " + (x.i + 1));
     if (x.status === "skipped") {
       h += "<li class=\"sk\">\u2717 " + nm + " \u00b7 skipped: " + upEsc(x.reason) + ((x.errors || []).slice(0, 3).map(function (e) { return "<br><code>songs[" + x.i + "]" + (e.path.charAt(0) === "(" ? " " : ".") + upEsc(e.path) + "</code>: " + upEsc(e.msg); }).join("")) + "</li>";
+    } else if (x.note) {   // v112.12: the length check / unknown tempo (a warning only; the song is saved)
+      h += "<li class=\"fl\">\u26a0 " + nm + " \u00b7 " + x.status + (x.flags ? " \u00b7 " + x.flags + " chord" + (x.flags > 1 ? "s" : "") + " to review" : "") + "<br><small>" + upEsc(x.note) + "</small></li>";
     } else if (x.flags) {
       h += "<li class=\"fl\">\u26a0 " + nm + " \u00b7 " + x.status + " \u00b7 " + x.flags + " chord" + (x.flags > 1 ? "s" : "") + " to review</li>";
     } else {
@@ -177,7 +179,7 @@ export function upShowErrors(r) {
 export function upCopyText() {
   var md = upModeNow(), have = shared.LIB.songs.map(function (e) { return { title: e.title, artist: e.artist }; });
   if (md.mode === "none") md = { mode: "artist", x: "", artist: "ARTIST" };
-  return upPromptFor(md, "full", have) + "\n\n" + upListSchemaText;   // v107: always ask for Simple and Full
+  return upPromptFor(md, "full", have) + "\n\nThe contract (JSON Schema):\n" + upListSchema13Text;   // v107: always Simple and Full; v112.12: contract v1.3
 }
 export function upSetPrompt(v) {
   shared.upPromptVer = "full";   // v107: hardcoded, the request is always Simple and Full
@@ -247,8 +249,10 @@ export function wireUpload() {
     if (!r.ok) { upStatusIntoView(); return; }
     if (!r.list) {
       var n = shared.U.events.length, fl = upFlagList().length;
+      var lw = r.warnings.filter(function (w) { return /^(Length check|Tempo unknown)/.test(w); }), ow = r.warnings.filter(function (w) { return lw.indexOf(w) < 0; });   // v112.12
       msg.textContent = "Loaded " + shared.U.title + ": " + shared.U.secs.length + " sections, " + n + " chords, " + shared.U.bpm + " BPM." +   // v87: no key on the Upload form
-        (fl ? " " + fl + " need review: tap the pencil on its row." : "") + (shared.U.two ? " Simple and Full versions: switch with the pencil on the song in My songs." : "") + (r.warnings.length ? " Note: " + r.warnings.slice(0, 3).join("; ") + (r.warnings.length > 3 ? "\u2026" : "") : "") + " Close this and tap Next or Play.";
+        (lw.length ? " \u26a0 " + lw.join(" ") : "") +
+        (fl ? " " + fl + " need review: tap the pencil on its row." : "") + (shared.U.two ? " Simple and Full versions: switch with the pencil on the song in My songs." : "") + (ow.length ? " Note: " + ow.slice(0, 3).join("; ") + (ow.length > 3 ? "\u2026" : "") : "") + " Close this and tap Next or Play.";
       msg.hidden = false;
       document.getElementById("upPaste").value = "";
     } else {

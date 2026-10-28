@@ -1,5 +1,5 @@
 // APP_VERSION (the one version constant) and the "Version x" label in the gear menu.
-var APP_VERSION = "112.11";   // display only ("Version 112.11")
+var APP_VERSION = "112.12";   // display only ("Version 112.12")
 export { APP_VERSION };
 document.addEventListener("DOMContentLoaded", function () {
 var v = document.getElementById("appVersion");
