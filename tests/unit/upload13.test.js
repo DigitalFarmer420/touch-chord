@@ -84,7 +84,7 @@ test('diag samples', () => {
 const sp = cs => JSON.stringify({ contractVersion: '1.2', song: { title: 'Spell', artist: 'T', key: { tonic: 'C', mode: 'major' } }, timing: { bpm: 100, timeSignature: '4/4' },
   sections: [{ id: 'v', type: 'verse', chords: ['C', ...cs].map((c, i) => ({ index: i, chord: c, position: { bar: i + 1, beat: 1 }, durationBeats: 4, confidence: 0.8 })) }] });
 test('chord spellings are tidied on load (never silently C)', () => {
-  const T = [['C6/9', 'C6add9'], ['Cm(maj7)', 'Cm'], ['CmM7', 'Cm'], ['Cø7', 'Cm7b5'], ['Cø', 'Cm7b5'], ['C°7', 'Cdim7'], ['C°', 'Cdim'], ['Co7', 'Cdim7'],
+  const T = [['C6/9', 'C6add9'], ['Cm(maj7)', 'CmM7'], ['CmM7', 'CmM7'], ['Cø7', 'Cm7b5'], ['Cø', 'Cm7b5'], ['C°7', 'Cdim7'], ['C°', 'Cdim'], ['Co7', 'Cdim7'],
     ['C+', 'Caug'], ['C7+5', 'C7#5'], ['C7alt', 'C7#9'], ['B♭', 'Bb'], ['F♯m', 'F#m'], ['Csus', 'Csus4'], ['C7sus2', 'C7sus2'], ['C-7', 'Cm7'], ['C-', 'Cm'],
     ['CΔ', 'Cmaj7'], ['CΔ7', 'Cmaj7'], ['Cmi7', 'Cm7'], ['Cma7', 'Cmaj7'], ['C7(b9)', 'C7b9'], ['C7(#9,b13)', 'C7#9b13'], ['C9sus', 'C9sus4'], ['Dm7(b5)', 'Dm7b5'], ['B♭/D', 'Bb/D'], ['Eb', 'Eb']];
   const r = one(sp(T.map(t => t[0])));

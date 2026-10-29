@@ -1,14 +1,14 @@
 // Upload: AI prompt text, schema, answer parsing and validation, load flow.
-import { keyDegrees, SPELL_LI } from "../keys.js?v=112.12";
-import { upSave, LIB_MAX, libKey, libFind, libId, libWrite, paintLib } from "./library.js?v=112.12";
-import { progStop, progSet } from "./playback.js?v=112.12";
-import { upSelected, upKeyApply, upSelect, upStoreCopy, upLoadOne } from "./song.js?v=112.12";
-import { state, shared } from "../state.js?v=112.12";
-import { Theory } from "../theory/index.js?v=112.12";
-import { wrap12 } from "../theory/quality.js?v=112.12";
-import { repairJson, tidyChord, is13, from13 } from "./normalize.js?v=112.12";
-import { computeSpec } from "../ui/pads.js?v=112.12";
-import { paintSuggestions } from "../ui/strip.js?v=112.12";
+import { keyDegrees, SPELL_LI } from "../keys.js?v=112.13";
+import { upSave, LIB_MAX, libKey, libFind, libId, libWrite, paintLib } from "./library.js?v=112.13";
+import { progStop, progSet } from "./playback.js?v=112.13";
+import { upSelected, upKeyApply, upSelect, upStoreCopy, upLoadOne } from "./song.js?v=112.13";
+import { state, shared } from "../state.js?v=112.13";
+import { Theory } from "../theory/index.js?v=112.13";
+import { wrap12 } from "../theory/quality.js?v=112.13";
+import { repairJson, tidyChord, is13, from13 } from "./normalize.js?v=112.13";
+import { computeSpec } from "../ui/pads.js?v=112.13";
+import { paintSuggestions } from "../ui/strip.js?v=112.13";
 
 // ===== Song Upload (full mode only) =====
 // Contract: contract/song-contract.schema.json (embedded below as #songSchemaJson, copied to the
@@ -25,7 +25,7 @@ const UP_FLAG = 0.6;   // confidence below this is flagged for review
 // ("What I want: ...", upload-dialog.js upAskLine / upSkipLine) + "\n\nThe contract (JSON Schema):\n" + the v1.3
 // list schema (#songSchema13Json). v1.0-1.2 answers still load; v1.3 answers are turned into the v1.2 shape
 // (normalize.js from13) before the checks, so upCheckObj, upBuild and storage are unchanged.
-export const UP_PROMPT = "Fill in the song form in the JSON contract below (Touch Chord Song List Contract v1.3) once for each song I ask for.\n\nOUTPUT: STRICT JSON ONLY\n- Reply with one JSON object and nothing else: {\"contractVersion\": \"1.3\", \"songs\": [ ... ], \"notes\": \"...\"}. No code fences, no headings, no prose, no citations or render tags before, inside or after it. Exactly one JSON block.\n- Strict JSON: straight double quotes only (never single or curly quotes), no trailing commas, no comments, no non-breaking spaces, no NaN.\n- contractVersion is the string \"1.3\" (with quotes, not the number 1.3). Leave contractVersion out of each song.\n- Use only the fields in the contract; add no others (no genre, no extra timing fields). Leave optional fields out rather than set them to null; null is allowed only where the contract says so (chord, bass, bpm, firstDownbeatSeconds, durationSeconds, startSeconds, endSeconds, year, capo).\n- Every required number is a real number (confidence 0 to 1, never 85 or \"0.8\").\n- Closed lists: key.mode is \"major\" or \"minor\"; key.tonic is one of C C# Db D D# Eb E F F# Gb G G# Ab A A# Bb B (ASCII); section type is one of intro, verse, prechorus, chorus, bridge, solo, instrumental, interlude, outro, other (write \"prechorus\", not \"pre-chorus\"; use \"other\" with a label for a hook, refrain, post-chorus, rap, breakdown or tag); timeSignature is a string like \"4/4\".\n\nPITCH AND CHORD SPELLING\n- Concert pitch always. If a chart uses a capo, transpose its chords to what sounds and set capo to 0.\n- Spell chords in ASCII in this grammar only: root A-G, then # or b (never ♯ or ♭); then optionally one of m, min, maj, M, dim, aug, sus2, sus4; then optionally one number from 2, 4, 5, 6, 7, 9, 11, 13 (or add plus a number: add9); then optionally b5, #5, b9, #9, #11, b13, add9, sus4.\n- So: half-diminished = m7b5 (Fm7b5, not Fø7 or Fm7(b5)); diminished seventh = dim7 (Cdim7, not C°7); augmented = aug (Caug, not C+; the app plays it as major); sus means sus4 or sus2 (Dsus4, never a bare Dsus); 7sus4 or 9sus4 are fine but 7sus2 is not; no parentheses, no 6/9 (write 6 or add9), no m(maj7)/mM7 (write m7 and say so in notes), no -7 or Δ, no alt.\n- Slash chords: chord plus \"bass\" (\"chord\": \"Ab\", \"bass\": \"C\" for Ab/C).\n- Prefer unknown over guessing: a chord you cannot tell, and N.C. (no chord), is \"chord\": \"unknown\" with \"confidence\": 0. Give every chord an honest 0-1 confidence and, in \"source\", the id of the song.sources entry it came from. roman is optional.\n- If you cannot find a song's chords, leave the song out and name it in the top-level notes. If none can be found, return \"songs\": [] with the reason in notes.\n\nTIMING: MEASURE, DO NOT INVENT\n- Measure tempo and times against the official recording. bpm is the beat you count in bars[]: one bar = beatsPerBar x 60 / bpm seconds. tempoFeel is \"as-counted\" if bpm equals the tempo that tempo sites list, \"half-time\" if you count at half of it, \"double-time\" if at twice it; explain in tempoNote (e.g. \"SongBPM lists 142; counted in half-time at 71\") and give bpmConfidence 0-1.\n- firstDownbeatSeconds is the time of bar 1 beat 1 of the form in the recording. Each section gets startSeconds and endSeconds read off the recording, with timingSource \"measured-from-recording\" (or \"from-source\" if a cited page states it, or \"estimated\").\n- If you have not measured a time, do not make one up: set it to null, set that timingSource to \"unknown\", and list it in timing.unknown (\"firstDownbeatSeconds\", \"durationSeconds\", \"bpm\" or \"sectionTimes\").\n\nFORM AND BARS\n- \"form\" lists section ids in exact play order from the first bar to the last, every repeat written out (intro, verse1, chorus1, verse2, chorus2, bridge, chorus3, outro). The app plays exactly this list and nothing else, so cover the whole song. Section ids are unique; give each appearance its own id (chorus1, chorus2) unless it is played identically, in which case repeat the id in form.\n- Each section is bars[]: {\"bar\": 1, \"chords\": [{\"beat\": 1, \"chord\": \"Eb\", \"confidence\": 0.8, \"source\": \"chart1\"}, {\"beat\": 3, ...}]}. Number bars 1, 2, 3 inside each section; there is no bar 0. Beats start at 1 and must fit the time signature (1-4 in 4/4, 1-3 in 3/4; halves like 2.5 are fine). An empty chords list means the previous chord keeps sounding. The song's first bar starts with a chord (or \"unknown\") on beat 1; a pickup goes at its beat inside bar 1 of the first section.\n- Lyric markers point at a bar and beat of their section: {\"charIndex\": 10, \"bar\": 1, \"beat\": 1}; charIndex is 0-based within the line.\n- \"sections\" is the Simple version for kids learning chords: plain major, minor, 7, sus2 or sus4 chords, 4 to 8 changes per section, the fancier chord in alternates. \"sectionsFull\" (optional) is the Full version as on the record. Both use the SAME section ids, the SAME bar count per id and the same form, so both cover the whole song. Write the lyrics in both. Give lyrics for 3 songs or fewer; leave them out for longer lists.\n\nCHECK BEFORE ANSWERING\n- Bar-sum check: add up the bars of every id in form (count repeated ids every time), multiply by beatsPerBar x 60 / bpm, add firstDownbeatSeconds (0 if unknown). The result must be within 3% of durationSeconds. Report it in timing.barSumCheck {totalBars, expectedSeconds, durationSeconds, errorPercent, pass}.\n- If it fails, recount the bars and the tempo first. If it still fails, do not stretch the numbers: set pass to false, bpmConfidence to 0.3 or less, and say what is off in the song's notes.\n- Also check: every form id exists in sections (and in sectionsFull), every source id exists in song.sources, every null timing is listed in timing.unknown, every chord matches the spelling rules above, and the JSON parses.";
+export const UP_PROMPT = "Fill in the song form in the JSON contract below (Touch Chord Song List Contract v1.3) once for each song I ask for.\n\nOUTPUT: STRICT JSON ONLY\n- Reply with one JSON object and nothing else: {\"contractVersion\": \"1.3\", \"songs\": [ ... ], \"notes\": \"...\"}. No code fences, no headings, no prose, no citations or render tags before, inside or after it. Exactly one JSON block.\n- Strict JSON: straight double quotes only (never single or curly quotes), no trailing commas, no comments, no non-breaking spaces, no NaN.\n- contractVersion is the string \"1.3\" (with quotes, not the number 1.3). Leave contractVersion out of each song.\n- Use only the fields in the contract; add no others (no genre, no extra timing fields). Leave optional fields out rather than set them to null; null is allowed only where the contract says so (chord, bass, bpm, firstDownbeatSeconds, durationSeconds, startSeconds, endSeconds, year, capo).\n- Every required number is a real number (confidence 0 to 1, never 85 or \"0.8\").\n- Closed lists: key.mode is \"major\" or \"minor\"; key.tonic is one of C C# Db D D# Eb E F F# Gb G G# Ab A A# Bb B (ASCII); section type is one of intro, verse, prechorus, chorus, bridge, solo, instrumental, interlude, outro, other (write \"prechorus\", not \"pre-chorus\"; use \"other\" with a label for a hook, refrain, post-chorus, rap, breakdown or tag); timeSignature is a string like \"4/4\".\n\nPITCH AND CHORD SPELLING\n- Concert pitch always. If a chart uses a capo, transpose its chords to what sounds and set capo to 0.\n- Spell chords in ASCII in this grammar only: root A-G, then # or b (never ♯ or ♭); then optionally one of m, min, maj, M, mM, dim, aug, sus2, sus4; then optionally one number from 2, 4, 5, 6, 7, 9, 11, 13 (or add plus a number: add9); then optionally b5, #5, b9, #9, #11, b13, add9, sus4.\n- So: half-diminished = m7b5 (Fm7b5, not Fø7 or Fm7(b5)); diminished seventh = dim7 (Cdim7, not C°7); augmented = aug (Caug, not C+; aug7 for C+7); minor-major seventh = mM7 (CmM7, not Cm(maj7)); sus means sus4 or sus2 (Dsus4, never a bare Dsus); 7sus4 or 9sus4 are fine but 7sus2 is not; no parentheses, no 6/9 (write 6 or add9), no -7 or Δ, no alt.\n- Slash chords: chord plus \"bass\" (\"chord\": \"Ab\", \"bass\": \"C\" for Ab/C).\n- Prefer unknown over guessing: a chord you cannot tell, and N.C. (no chord), is \"chord\": \"unknown\" with \"confidence\": 0. Give every chord an honest 0-1 confidence and, in \"source\", the id of the song.sources entry it came from. roman is optional.\n- If you cannot find a song's chords, leave the song out and name it in the top-level notes. If none can be found, return \"songs\": [] with the reason in notes.\n\nTIMING: MEASURE, DO NOT INVENT\n- Measure tempo and times against the official recording. bpm is the beat you count in bars[]: one bar = beatsPerBar x 60 / bpm seconds. tempoFeel is \"as-counted\" if bpm equals the tempo that tempo sites list, \"half-time\" if you count at half of it, \"double-time\" if at twice it; explain in tempoNote (e.g. \"SongBPM lists 142; counted in half-time at 71\") and give bpmConfidence 0-1.\n- firstDownbeatSeconds is the time of bar 1 beat 1 of the form in the recording. Each section gets startSeconds and endSeconds read off the recording, with timingSource \"measured-from-recording\" (or \"from-source\" if a cited page states it, or \"estimated\").\n- If you have not measured a time, do not make one up: set it to null, set that timingSource to \"unknown\", and list it in timing.unknown (\"firstDownbeatSeconds\", \"durationSeconds\", \"bpm\" or \"sectionTimes\").\n\nFORM AND BARS\n- \"form\" lists section ids in exact play order from the first bar to the last, every repeat written out (intro, verse1, chorus1, verse2, chorus2, bridge, chorus3, outro). The app plays exactly this list and nothing else, so cover the whole song. Section ids are unique; give each appearance its own id (chorus1, chorus2) unless it is played identically, in which case repeat the id in form.\n- Each section is bars[]: {\"bar\": 1, \"chords\": [{\"beat\": 1, \"chord\": \"Eb\", \"confidence\": 0.8, \"source\": \"chart1\"}, {\"beat\": 3, ...}]}. Number bars 1, 2, 3 inside each section; there is no bar 0. Beats start at 1 and must fit the time signature (1-4 in 4/4, 1-3 in 3/4; halves like 2.5 are fine). An empty chords list means the previous chord keeps sounding. The song's first bar starts with a chord (or \"unknown\") on beat 1; a pickup goes at its beat inside bar 1 of the first section.\n- Lyric markers point at a bar and beat of their section: {\"charIndex\": 10, \"bar\": 1, \"beat\": 1}; charIndex is 0-based within the line.\n- \"sections\" is the Simple version for kids learning chords: plain major, minor, 7, sus2 or sus4 chords, 4 to 8 changes per section, the fancier chord in alternates. \"sectionsFull\" (optional) is the Full version as on the record. Both use the SAME section ids, the SAME bar count per id and the same form, so both cover the whole song. Write the lyrics in both. Give lyrics for 3 songs or fewer; leave them out for longer lists.\n\nCHECK BEFORE ANSWERING\n- Bar-sum check: add up the bars of every id in form (count repeated ids every time), multiply by beatsPerBar x 60 / bpm, add firstDownbeatSeconds (0 if unknown). The result must be within 3% of durationSeconds. Report it in timing.barSumCheck {totalBars, expectedSeconds, durationSeconds, errorPercent, pass}.\n- If it fails, recount the bars and the tempo first. If it still fails, do not stretch the numbers: set pass to false, bpmConfidence to 0.3 or less, and say what is off in the song's notes.\n- Also check: every form id exists in sections (and in sectionsFull), every source id exists in song.sources, every null timing is listed in timing.unknown, every chord matches the spelling rules above, and the JSON parses.";
 export const UP_ARTIST_MAX = 20;
 export const UP_SKIP_MAX = 40;
 export const UP_LIST_MAX = 25;   // v110: no album mode (the album cap is gone)
@@ -36,18 +36,20 @@ export var upListSchema13Text;   // v112.12: the Contract v1.3 list schema copie
 export var upProgObj;
 
 // --- chord symbols (the contract's chordSymbol pattern) -> app chord items ---
-const UP_CHORD_RE = /^([A-G])(#|b)?(maj|min|dim|aug|sus2|sus4|add|m|M)?([0-9]*)((?:b5|#5|b9|#9|#11|b13|add9|sus4|sus2)*)(?:\/([A-G])(#|b)?)?$/;
+// v112.13: mM = minor-major (CmM7 = C Eb G B); a 5th alteration right after the root goes in parentheses
+// (C(b5) = C E Gb; never "Cb5", which is a C-flat root).
+const UP_CHORD_RE = /^([A-G])(#|b)?(mM|maj|min|dim|aug|sus2|sus4|add|m|M)?([0-9]*)(\((?:b5|#5)\)|(?:b5|#5|b9|#9|#11|b13|add9|sus4|sus2)*)(?:\/([A-G])(#|b)?)?$/;
 export function upParseChord(sym) {
   var m = UP_CHORD_RE.exec(String(sym));
-  if (!m) return { error: "is not a chord symbol the app can read (e.g. Bm, F#7, G/B)" };
+  if (!m || (m[5] && m[5].charAt(0) === "(" && (m[3] || m[4]))) return { error: "is not a chord symbol the app can read (e.g. Bm, F#7, G/B)" };   // v112.13: (b5) only right after the root
   var rs = { li: SPELL_LI.indexOf(m[1]), acc: m[2] === "#" ? 1 : m[2] === "b" ? -1 : 0 };
   var pc = wrap12([0, 2, 4, 5, 7, 9, 11][rs.li] + rs.acc);
-  var q = m[3] || "", n = m[4] || "", alts = m[5] ? m[5].match(/b5|#5|b9|#9|#11|b13|add9|sus4|sus2/g) : [];
+  var q = m[3] || "", n = m[4] || "", alts = m[5] ? m[5].replace(/[()]/g, "").match(/b5|#5|b9|#9|#11|b13|add9|sus4|sus2/g) : [];
   var type = "major", ext = { six: false, min7: false, maj7: false, nine: false, sus2: false, flat9: false, sharp9: false, thirteen: false, over: 0 };
-  var warn = [], maj = q === "maj" || q === "M", add = q === "add";
-  if (q === "m" || q === "min") type = "minor";
+  var warn = [], maj = q === "maj" || q === "M" || q === "mM", add = q === "add";
+  if (q === "m" || q === "min" || q === "mM") type = "minor";   // v112.13: mM = minor with a major 7th
   else if (q === "dim") type = "dim";
-  else if (q === "aug") warn.push("augmented is played as a major chord");
+  else if (q === "aug") ext.sharp5 = true;   // v112.13: augmented = raised 5th (Caug = C E G#, Caug7 = C E G# Bb)
   else if (q === "sus2") ext.sus2 = true;
   else if (q === "sus4") type = "sus4";
   function seven() { if (maj) ext.maj7 = true; else if (type === "dim" && q === "dim") ext.six = true; else ext.min7 = true; }
@@ -61,10 +63,11 @@ export function upParseChord(sym) {
   else if (n === "11") { seven(); ext.nine = true; if (type === "major") type = "sus4"; else warn.push("the 11th is left out"); }
   else if (n === "13") { seven(); ext.thirteen = true; }
   else return { error: "has a chord number (" + n + ") the app does not play" };
+  if (q === "mM" && n === "") ext.maj7 = true;   // v112.13: a bare CmM is the minor-major 7th
   for (var i = 0; i < alts.length; i++) {
     var a = alts[i];
-    if (a === "b5") { if (type === "minor") type = "dim"; else if (type !== "dim") warn.push("\u266d5 is left out"); }
-    else if (a === "#5") warn.push("\u266f5 is left out");
+    if (a === "b5") { if (type === "minor") { type = "dim"; if (ext.sharp5) ext.sharp5 = false; } else if (type === "major" && !ext.sharp5) ext.flat5 = true; else if (type !== "dim") warn.push("\u266d5 is left out"); }   // v112.13: C(b5), C7b5 sound the flat 5th
+    else if (a === "#5") { if ((type === "major" || type === "minor") && !ext.flat5) ext.sharp5 = true; else warn.push("\u266f5 is left out"); }   // v112.13: C7#5 = Caug7
     else if (a === "b9") { if (!ext.min7 && !ext.maj7) ext.min7 = true; ext.flat9 = true; ext.nine = false; }
     else if (a === "#9") { if (!ext.min7 && !ext.maj7) ext.min7 = true; ext.sharp9 = true; }
     else if (a === "#11" || a === "b13") warn.push(a.replace("b", "\u266d").replace("#", "\u266f") + " is left out");
@@ -77,6 +80,7 @@ export function upParseChord(sym) {
     ext.over = wrap12([0, 2, 4, 5, 7, 9, 11][bs.li] + bs.acc - pc);
   }
   var label = String(sym).slice(m[1].length + (m[2] ? 1 : 0)).replace(/b/g, "\u266d").replace(/#/g, "\u266f");
+  if (q === "mM") label = label.replace(/^mM(\d*)/, function (x, d) { return "m(maj" + (d || "7") + ")"; });   // v112.13: CmM7 shows as Cm(maj7)
   return { pc: pc, rs: rs, type: type, ext: ext, label: label, warn: warn };
 }
 // One uploaded chord as a progression step (same shape as progStep's, so badges, the strip's
@@ -275,9 +279,9 @@ export function upCheck(text) {
   var a = s.indexOf("{"), b = s.lastIndexOf("}");
   if (!s.replace(/\s+/g, "")) { out.errors.push({ path: "(paste)", msg: "is empty: paste the AI's answer first" }); return out; }
   if (a < 0 || b <= a) { out.errors.push({ path: "(paste)", msg: "has no JSON object in it (nothing between { and })" }); return out; }
-  var body = s.slice(a, b + 1), obj;
+  var body = s.slice(a, b + 1), obj, rep = false;
   try { obj = JSON.parse(body); }
-  catch (err0) { try { obj = JSON.parse(repairJson(body)); } catch (err1) { obj = undefined; } }   // v112.12 (P3)
+  catch (err0) { try { obj = JSON.parse(repairJson(body)); rep = true; } catch (err1) { obj = undefined; } }   // v112.12 (P3)
   if (obj === undefined) try { JSON.parse(body); }
   catch (err) {
     var msg = String(err && err.message || err), pos = /position (\d+)/.exec(msg), where = "";
@@ -287,12 +291,17 @@ export function upCheck(text) {
     out.errors.push({ path: "(JSON)", msg: "is not valid JSON" + where + ": " + msg.replace(/^JSON\.parse: /, "") });
     return out;
   }
-  return upCheckObj(obj);
+  return upCheckObj(obj, rep ? [UP_REPAIRED] : []);
 }
+export const UP_REPAIRED = "The answer was repaired: it had small JSON slips (like curly quotes, trailing commas, comments or odd spaces)";   // v112.13
 // v112.12: contract versions. A number (1.2) counts as the string; 1.0-1.3 are read (1.3 is turned into the
 // v1.2 shape by normalize.js from13 first); any other version gets a plain message.
 export const UP_VERSIONS = ["1.0", "1.1", "1.2", "1.3"];
-function upCv(v) { return typeof v === "number" && isFinite(v) ? (Math.floor(v) === v ? v + ".0" : String(v)) : v; }
+function upCv(v) {
+  if (typeof v === "number" && isFinite(v)) return Math.floor(v) === v ? v + ".0" : String(v);
+  if (typeof v === "string") { var m = /^\s*v?(\d+\.\d+)(?:\.0+)?\s*$/i.exec(v); if (m) return m[1]; }   // v112.13: "1.2.0", "1.3.0", " 1.3 "
+  return v;
+}
 function upCvMsg(v) { return JSON.stringify(v) + " is a contract version this app can't read (it reads 1.2 and 1.3). Copy the prompt again and ask the AI for contract 1.3."; }
 // v112.12: gentle fixes before the checks (a song form that already passes is not changed):
 // nulls where a value can be left out are dropped; a null confidence is 0 (listed for review); a null /
@@ -307,7 +316,44 @@ function upPrep(obj, W) {
     ["year", "capo", "album"].forEach(function (k) { if (sg[k] === null) delete sg[k]; });
     if (sg.key && typeof sg.key === "object" && sg.key.confidence === null) delete sg.key.confidence;
   }
-  var tm = obj.timing, nUnk = 0, nRest = 0, tidied = {};
+  var tm = obj.timing, nUnk = 0, nRest = 0, nHome = 0, homeSym = "", homeUnk = false, tidied = {};
+  if (sg && typeof sg === "object" && sg.key && typeof sg.key === "object" && !Array.isArray(sg.key)) {   // v112.13: E\u266d, "Major"
+    var ky0 = sg.key, kt = ky0.tonic, km = ky0.mode, kch = false;
+    if (typeof kt === "string") {
+      var t2 = kt.trim().replace(/\u266d/g, "b").replace(/\u266f/g, "#").replace(/^([a-g])/, function (x) { return x.toUpperCase(); }).replace(/^([A-G])B$/, "$1b");
+      if (t2 !== kt && /^[A-G](#|b)?$/.test(t2)) { ky0.tonic = t2; kch = true; }
+    }
+    if (typeof km === "string") {
+      var m2 = km.trim().toLowerCase(); m2 = m2 === "maj" ? "major" : m2 === "min" ? "minor" : m2;
+      if (m2 !== km && (m2 === "major" || m2 === "minor")) { ky0.mode = m2; kch = true; }
+    }
+    if (kch) W.push("song.key read as " + ky0.tonic + " " + ky0.mode);
+  }
+  if (tm && typeof tm === "object" && !Array.isArray(tm)) {   // v112.13: "4:4", 4, "4 / 4" -> "4/4"
+    var ts0 = tm.timeSignature, ts1 = null;
+    if (typeof ts0 === "number" && ts0 > 0 && Math.floor(ts0) === ts0) ts1 = ts0 + ([6, 9, 12].indexOf(ts0) >= 0 ? "/8" : "/4");
+    else if (typeof ts0 === "string" && !/^[0-9]{1,2}\/(2|4|8|16)$/.test(ts0)) { var tq = /^\s*([0-9]{1,2})\s*[:\/|-]\s*(2|4|8|16)\s*$/.exec(ts0); if (tq) ts1 = tq[1] + "/" + tq[2]; }
+    if (ts1) { W.push("timing.timeSignature " + JSON.stringify(ts0) + " read as " + ts1); tm.timeSignature = ts1; }
+  }
+  var SEC_TYPES = ["intro", "verse", "prechorus", "chorus", "bridge", "solo", "instrumental", "interlude", "outro", "other"];
+  var SEC_MAP = { "pre-chorus": "prechorus", "pre chorus": "prechorus", "pre": "prechorus", "build": "prechorus", "lift": "prechorus",
+    "hook": "chorus", "refrain": "chorus", "post-chorus": "chorus", "postchorus": "chorus", "post chorus": "chorus",
+    "rap": "verse", "spoken": "verse", "middle8": "bridge", "middle 8": "bridge", "middle-8": "bridge", "breakdown": "bridge",
+    "instrumental break": "instrumental", "break": "instrumental", "inst": "instrumental", "riff": "instrumental",
+    "tag": "outro", "coda": "outro", "ending": "outro", "end": "outro", "fade": "outro", "fadeout": "outro", "vamp": "outro",
+    "opening": "intro", "prelude": "intro" };
+  var retyped = {};
+  [obj.sections, obj.sectionsFull].forEach(function (L) {   // v112.13: hook, rap, pre-chorus, ... -> the nearest type, with a note
+    if (!Array.isArray(L)) return;
+    L.forEach(function (sec) {
+      if (!sec || typeof sec !== "object" || typeof sec.type !== "string" || SEC_TYPES.indexOf(sec.type) >= 0) return;
+      var raw = sec.type, k = raw.trim().toLowerCase().replace(/[_]+/g, "-").replace(/\s*\d+$/, ""), to = SEC_TYPES.indexOf(k) >= 0 ? k : SEC_MAP[k] || SEC_MAP[k.replace(/-/g, " ")] || (raw.trim() ? "other" : null);
+      if (!to) return;
+      if (!(typeof sec.label === "string" && sec.label) && to !== k) sec.label = raw.trim().charAt(0).toUpperCase() + raw.trim().slice(1);
+      sec.type = to;
+      if (!retyped[raw]) { retyped[raw] = true; W.push("Section type " + JSON.stringify(raw) + " read as " + to); }
+    });
+  });
   if (tm && typeof tm === "object" && !Array.isArray(tm)) {
     if (tm.durationSeconds === null) delete tm.durationSeconds;
     if (typeof tm.bpm === "string" && /^\s*\d+(\.\d+)?\s*$/.test(tm.bpm)) { tm.bpm = +tm.bpm; W.push("timing.bpm was text; read as " + tm.bpm); }
@@ -321,6 +367,8 @@ function upPrep(obj, W) {
     if (c.bass === null || typeof c.bass === "string") delete c.bass;
     if (Object.prototype.hasOwnProperty.call(c, "source")) delete c.source;
     if (c.confidence === null) { c.confidence = 0; }
+    if (c.roman === null) delete c.roman;   // v112.13 (v1.2): null optional fields count as left out
+    if (c.reason === null) delete c.reason;
     if (c.position && typeof c.position === "object" && c.position.startSeconds === null) delete c.position.startSeconds;
     var t = c.chord;
     if (typeof t === "string" && !upParseChord(t).error) return;
@@ -337,6 +385,7 @@ function upPrep(obj, W) {
     L[1].forEach(function (sec, si) {
       if (!sec || typeof sec !== "object" || !Array.isArray(sec.chords)) return;
       if (sec.repeat === null) delete sec.repeat;
+      if (Array.isArray(sec.lyrics)) sec.lyrics.forEach(function (ln) { if (ln && Array.isArray(ln.markers)) ln.markers.forEach(function (mk) { if (mk && mk.beforeLine === null) delete mk.beforeLine; }); });
       sec.chords.forEach(function (c, ci) {
         var P = L[0] + "[" + si + "].chords[" + ci + "]";
         tidy(c, P, true);
@@ -347,18 +396,21 @@ function upPrep(obj, W) {
         if (c && typeof c === "object") all.push(c);
       });
     });
-    // holds: the chord before (in play order), else the next known one, else the key's home chord
+    // holds: the chord before (in play order); at the very start (no chord before) the key's home chord (v112.13)
     var prev = null;
-    all.forEach(function (c, k) {
+    all.forEach(function (c) {
       if (!c._hold) { if (typeof c.chord === "string") prev = c.chord; return; }
       var sym = prev;
-      for (var j = k + 1; !sym && j < all.length; j++) if (!all[j]._hold && typeof all[j].chord === "string") sym = all[j].chord;
-      if (!sym) { var ky = sg && sg.key; sym = (ky && typeof ky.tonic === "string" ? ky.tonic : "C") + (ky && ky.mode === "minor" ? "m" : ""); }
-      if (c._hold === "unknown") { nUnk++; c.confidence = 0; } else nRest++;
+      if (!sym) {
+        var ky = sg && sg.key, tn = ky && typeof ky.tonic === "string" && /^[A-G](#|b)?$/.test(ky.tonic) ? ky.tonic : "C";
+        sym = tn + (ky && ky.mode === "minor" ? "m" : ""); nHome++; homeSym = sym;
+        if (c._hold === "unknown") { c.confidence = 0; homeUnk = true; }
+      } else if (c._hold === "unknown") { nUnk++; c.confidence = 0; } else nRest++;
       c.chord = sym;
       delete c._hold;
     });
   });
+  if (nHome) W.push("The song starts on " + (homeUnk ? "an unknown chord" : "N.C.") + " with no chord before it, so it plays the key's home chord, " + homeSym + (homeUnk ? " (listed for review)" : ""));
   if (nUnk) W.push(nUnk + " unknown chord" + (nUnk > 1 ? "s hold the chord" : " holds the chord") + " before " + (nUnk > 1 ? "them" : "it") + " (listed for review)");
   if (nRest) W.push(nRest + " N.C. (no chord) spot" + (nRest > 1 ? "s hold" : " holds") + " the chord before (the app has no rest)");
   if (tm && typeof tm === "object" && !Array.isArray(tm) && (tm.bpm === null || tm.bpm === "unknown" || tm.bpm === "")) {
@@ -538,10 +590,11 @@ export function upLoadBegin(text, opts) {
   }
   if (pa.kind === "single") {
     var r1 = upCheckSong(pa.items[0], undefined, true); r1.single = true;
+    if (pa.repaired) r1.warnings.unshift(UP_REPAIRED);   // v112.13: say so
     if (r1.ok && defer) return { pending: r1 };
     return { done: r1.ok ? upLoadOne(r1) : r1 };
   }
-  var L = { items: pa.items, envelope: pa.envelope, truncated: pa.truncated, warnings: [], errors: [], rows: [] };
+  var L = { items: pa.items, envelope: pa.envelope, truncated: pa.truncated, warnings: pa.repaired ? [UP_REPAIRED] : [], errors: [], rows: [] };
   if (pa.envelope) {
     var cv = upCv(pa.envelope.contractVersion);   // v112.12: 1.0-1.3 (a number counts), missing = read from the shape
     if (cv === undefined) { cv = pa.items.some(is13) ? "1.3" : "1.2"; L.warnings.push("contractVersion is missing; read as " + cv); }

@@ -1,12 +1,12 @@
 // Built-in progressions (PROGRESSIONS: every style + Kids songs) and their parsing.
-import { keyDegrees } from "../keys.js?v=112.12";
-import { upInList, upSteps } from "./song.js?v=112.12";
-import { upProgObj } from "./upload.js?v=112.12";
-import { state, shared } from "../state.js?v=112.12";
-import { Theory } from "../theory/index.js?v=112.12";
-import { wrap12, blankExt } from "../theory/quality.js?v=112.12";
-import { accSym } from "../theory/spelling.js?v=112.12";
-import { STRIP_QUAL, plainRootSpell } from "../ui/strip.js?v=112.12";
+import { keyDegrees } from "../keys.js?v=112.13";
+import { upInList, upSteps } from "./song.js?v=112.13";
+import { upProgObj } from "./upload.js?v=112.13";
+import { state, shared } from "../state.js?v=112.13";
+import { Theory } from "../theory/index.js?v=112.13";
+import { wrap12, blankExt } from "../theory/quality.js?v=112.13";
+import { accSym } from "../theory/spelling.js?v=112.13";
+import { STRIP_QUAL, plainRootSpell } from "../ui/strip.js?v=112.13";
 const PROG_BPM = 80;
 export var PROG_BAR;
 function P(name, s) { return { name: name, steps: s.split("|") }; }
@@ -98,7 +98,7 @@ export function progNumerals(steps) {
   }
   return txt;
 }
-const PROG_EXT_KEYS = ["six", "min7", "maj7", "nine", "sus2", "flat9", "sharp9", "thirteen", "over"];
+const PROG_EXT_KEYS = ["six", "min7", "maj7", "nine", "sus2", "flat9", "sharp9", "thirteen", "over", "sharp5", "flat5"];   // v112.13
 export function sameChord(a, b) {
   if (!a || !b || wrap12(a.rootPc) !== wrap12(b.rootPc) || a.type !== b.type) return false;
   var ea = a.extensions || {}, eb = b.extensions || {};

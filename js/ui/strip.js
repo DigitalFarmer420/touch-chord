@@ -1,22 +1,22 @@
 // The chord table / scale strip: model, chips, taps, preview, fitting.
-import { api as ChordAudio } from "../audio/index.js?v=112.12";
-import { unlock } from "../audio/unlock.js?v=112.12";
-import { activeKey, keyDegrees, keyRootName, suggestionKey } from "../keys.js?v=112.12";
-import { paintKidChip } from "../kids.js?v=112.12";
-import { paTwin, playAlongGo, playAlongChip } from "../songs/playalong.js?v=112.12";
-import { setItemState, progSync, progDecorate, placeBadges } from "../songs/playback.js?v=112.12";
-import { state, fingers, shared } from "../state.js?v=112.12";
-import { Theory } from "../theory/index.js?v=112.12";
-import { wrap12, blankExt, mapQuality } from "../theory/quality.js?v=112.12";
-import { accSym } from "../theory/spelling.js?v=112.12";
-import { paHintMiss } from "./hints.js?v=112.12";
-import { kbSound, kidsSoloSpec, kbScheduleReset, kbCancelReset } from "./keyboard.js?v=112.12";
-import { paintNextHint, kidsGoldGo, kidsGoldPad } from "./next.js?v=112.12";
-import { updateSymbol } from "./nowbox.js?v=112.12";
-import { computeSpec, highlightMidisFromSpec, refreshHeld } from "./pads.js?v=112.12";
-import { paintProg } from "./progbar.js?v=112.12";
-import { fxTapPulse } from "./pulse.js?v=112.12";
-import { sustainPool, sustainActive } from "./sustain.js?v=112.12";
+import { api as ChordAudio } from "../audio/index.js?v=112.13";
+import { unlock } from "../audio/unlock.js?v=112.13";
+import { activeKey, keyDegrees, keyRootName, suggestionKey } from "../keys.js?v=112.13";
+import { paintKidChip } from "../kids.js?v=112.13";
+import { paTwin, playAlongGo, playAlongChip } from "../songs/playalong.js?v=112.13";
+import { setItemState, progSync, progDecorate, placeBadges } from "../songs/playback.js?v=112.13";
+import { state, fingers, shared } from "../state.js?v=112.13";
+import { Theory } from "../theory/index.js?v=112.13";
+import { wrap12, blankExt, mapQuality } from "../theory/quality.js?v=112.13";
+import { accSym } from "../theory/spelling.js?v=112.13";
+import { paHintMiss } from "./hints.js?v=112.13";
+import { kbSound, kidsSoloSpec, kbScheduleReset, kbCancelReset } from "./keyboard.js?v=112.13";
+import { paintNextHint, kidsGoldGo, kidsGoldPad } from "./next.js?v=112.13";
+import { updateSymbol } from "./nowbox.js?v=112.13";
+import { computeSpec, highlightMidisFromSpec, refreshHeld } from "./pads.js?v=112.13";
+import { paintProg } from "./progbar.js?v=112.13";
+import { fxTapPulse } from "./pulse.js?v=112.13";
+import { sustainPool, sustainActive } from "./sustain.js?v=112.13";
 const suggestTapAt = 0;   // last touch/pen tap on a Next chip (click de-dupe)
 var suggestSeq;
 
@@ -36,7 +36,7 @@ export function clearSuggestPreview() {
 }
 
 // v52: chip-only chord colours; a pad press or palette touch drops them.
-export const STRIP_EXT = ["sus2", "flat9", "sharp9", "thirteen", "over"];
+export const STRIP_EXT = ["sus2", "flat9", "sharp9", "thirteen", "over", "sharp5", "flat5"];   // v112.13: + the altered 5th (uploaded aug / b5 chords)
 export function clearStripExt() {
   STRIP_EXT.forEach(function (k) { state.extensions[k] = k === "over" ? 0 : false; });
   state.stripSpell = null;

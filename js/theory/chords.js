@@ -1,6 +1,6 @@
 // Chord intervals, tones, symbols, buildChord, bass note.
-import { mod12, spellRoot, noteName, chordToneNames } from "./spelling.js?v=112.12";
-import { voicedMidis, pitchClasses } from "./voicing.js?v=112.12";
+import { mod12, spellRoot, noteName, chordToneNames } from "./spelling.js?v=112.13";
+import { voicedMidis, pitchClasses } from "./voicing.js?v=112.13";
 
 export function normalizeExt(ext) {
   ext = ext || {};
@@ -16,6 +16,9 @@ export function normalizeExt(ext) {
     flat9: !!ext.flat9,
     sharp9: !!ext.sharp9,
     thirteen: !!ext.thirteen,
+    // v112.13: altered 5th for uploaded chords (aug / #5 raise it, b5 on a major chord lowers it)
+    sharp5: !!ext.sharp5,
+    flat5: !!ext.flat5 && !ext.sharp5,
     over: (typeof ext.over === "number" && ext.over > 0 && ext.over < 12) ? ext.over : 0
   };
 }
@@ -34,13 +37,14 @@ export function chordIntervals(type, ext) {
   var hasMin7 = e.min7 && !hasMaj7;
   var has7 = hasMaj7 || hasMin7;
   if (e.sus2 && (type === "major" || type === "minor")) iv[1] = 2;
+  if ((e.sharp5 || e.flat5) && iv[2] === 7) iv[2] = e.sharp5 ? 8 : 6;   // v112.13
   if (e.six && !has7) iv.push(9);
   if (hasMin7) iv.push(10);
   if (hasMaj7) iv.push(11);
   if (e.flat9) iv.push(13);
   else if (e.nine || e.thirteen) iv.push(14);
   if (e.sharp9) iv.push(15);
-  if (e.thirteen) { iv.push(21); if (has7) iv.splice(iv.indexOf(7), 1); }
+  if (e.thirteen) { iv.push(21); if (has7 && !(e.sharp5 || e.flat5)) iv.splice(iv.indexOf(7), 1); }   // v112.13: an altered 5th stays
   return iv;
 }
 
@@ -50,6 +54,12 @@ export function tones(rootPc, type, ext) {
 
 export function chordSymbol(rootName, type, ext) {
   var e = normalizeExt(ext);
+  if (e.sharp5 || e.flat5) {   // v112.13: aug / 7#5 / maj7#5 / (b5) / 7b5 (the plain symbol plus the altered 5th)
+    var pe = Object.assign({}, e, { sharp5: false, flat5: false }), ps = chordSymbol(rootName, type, pe);
+    if (e.sharp5 && type === "major" && ps === rootName) return rootName + "aug";
+    if (e.sharp5 && type === "major" && ps === rootName + "7") return rootName + "aug7";
+    return ps + (ps === rootName ? "(" + (e.sharp5 ? "#5" : "b5") + ")" : (e.sharp5 ? "#5" : "b5"));
+  }
   var hasMaj7 = e.maj7;
   var hasMin7 = e.min7 && !hasMaj7;
   var has7 = hasMaj7 || hasMin7;

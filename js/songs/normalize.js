@@ -60,19 +60,33 @@ export function tidyChord(raw) {
   var root = m[1], q = m[2], bass = "";
   var sl = /\/([A-Ga-g](?:#|b)?)$/.exec(q);
   if (sl) { bass = "/" + sl[1].charAt(0).toUpperCase() + sl[1].slice(1); q = q.slice(0, sl.index); }
-  q = q.replace(/^dom(?=\d)/, "");
-  var mm = /^(m|min|mi|-)\(?(maj|ma|M|\u0394|\u2206)(7|9)?\)?/.exec(q);
-  if (mm) { q = "m" + (mm[3] === "9" ? "add9" : "") + q.slice(mm[0].length); note = "minor-major 7th: the app plays it as a minor chord"; }
+  q = q.replace(/^dom(?=\d)/i, "");
+  // v112.13: quality words are read in any case (CMaj7, CMAJ7, CMa7, CMI7, CDim, CAug, CSus4); only a lone
+  // M / m keeps its meaning (CM7 = Cmaj7, Cm7 = C minor 7).
+  q = q.replace(/(dim|aug|sus|add|alt)/gi, function (x) { return x.toLowerCase(); });
+  var mm = /^(min|mi|m|-)\(?(maj|ma|M|\u0394|\u2206)(7|9|11|13)?\)?/i.exec(q);
+  if (mm && (mm[1] === "-" || mm[1] === "m" || /^mi/i.test(mm[1])) && (/^ma/i.test(mm[2]) || mm[2] === "M" || /[\u0394\u2206]/.test(mm[2]))) {
+    q = "mM" + (mm[3] || "7") + q.slice(mm[0].length);
+    note = "minor-major " + (mm[3] && mm[3] !== "7" ? mm[3] + "th" : "7th") + ": minor with a major 7th";
+  }
   q = q.replace(/^[\u0394\u2206](?![0-9])/, "maj7").replace(/[\u0394\u2206]/, "maj");
-  q = q.replace(/^[\u00f8\u00d8]7?/, "m7b5");
+  q = q.replace(/^(maj|ma)(?=[0-9]|$|[(#b+-]|sus|add)/i, "maj").replace(/^(min|mi)(?=[0-9]|$|[(#b+-]|sus|add)/i, "m");
+  q = q.replace(/^[\u00f8\u00d8](7|9|11)?/, function (x, d) { return "m" + (d || "7") + "b5"; });   // v112.13: Cø9 = Cm9b5
   q = q.replace(/^(\u00b0|o|\u00ba)7/, "dim7").replace(/^(\u00b0|o|\u00ba)(?![a-z])/, "dim");
-  q = q.replace(/^\+5?/, "aug").replace(/\+(5|9|11)/g, "#$1");
+  q = q.replace(/^(\+|aug)\(?(maj|M)7\)?/, "maj7#5");   // v112.13: C+maj7 / Caug(maj7) = Cmaj7#5
+  q = q.replace(/^\+5?/, "aug").replace(/\+(5|9|11)/g, "#$1").replace(/^(\d+)\+$/, "$1#5");
   q = q.replace(/^-(?!5)/, "m").replace(/-(5|9|13)/g, "b$1");
-  q = q.replace(/^mi(?=[0-9]|$)/, "m").replace(/^ma(?=[0-9]|$)/, "maj");
   if (/alt/.test(q)) { q = q.replace(/7?alt/, "7#9"); note = "altered dominant: the app plays it as 7#9"; }
   q = q.replace(/6\/9/, "6add9").replace(/^(m?)69/, "$16add9");
   q = q.replace(/sus(?![24])/g, "sus4");
   q = q.replace(/[()[\],]/g, "");
+  // v112.13: a 5th alteration right after the root (C-5, C(b5), C+5 written as C#5) is C(b5) / Caug, never a
+  // b / # on the root (Cb5 would be a C-flat chord)
+  var a5 = /^(b5|#5)(.*)$/.exec(q);
+  if (a5) {
+    if (a5[1] === "#5") q = "aug" + a5[2];
+    else { q = "(b5)" + a5[2]; if (!note) note = "a major chord with a flat 5th"; }
+  }
   return { sym: root + q + bass, note: note };
 }
 

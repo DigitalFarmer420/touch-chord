@@ -1,6 +1,6 @@
 // Note letters, spelling of roots / intervals / chord tones, accSym (display accidentals).
-import { normalizeExt, chordIntervals } from "./chords.js?v=112.12";
-import { DEGREE_STEPS } from "./keys.js?v=112.12";
+import { normalizeExt, chordIntervals } from "./chords.js?v=112.13";
+import { DEGREE_STEPS } from "./keys.js?v=112.13";
 
 // v49: display-only accidentals. "Bb" -> "B♭", "F#" -> "F♯", "m7b5" -> "m7♭5".
 // Internal names stay ASCII; call this only where text is shown.
@@ -57,8 +57,8 @@ export function noteName(root) {
   return LETTERS[root.li] + accStr(root.acc);
 }
 
-export function spellInterval(root, semitones) {
-  var steps = DEGREE_STEPS[semitones];
+export function spellInterval(root, semitones, stepsOpt) {
+  var steps = stepsOpt != null ? stepsOpt : DEGREE_STEPS[semitones];
   if (steps == null) throw new Error("unsupported interval " + semitones);
   var li = (root.li + steps) % 7;
   var naturalPc = NATURAL[li];
@@ -86,6 +86,7 @@ function spellTone(rootSpell, iv) {
 export function chordToneNames(rootSpell, type, ext) {
   var e = normalizeExt(ext);
   var names = chordIntervals(type, e).map(function (iv) {
+    if (iv === 8 && e.sharp5) return spellInterval(rootSpell, 8, 4).name;   // v112.13: the raised 5th (G#), not a 6th
     return spellTone(rootSpell, iv).name;
   });
   if (e.over) names.unshift(spellInterval(rootSpell, e.over).name);

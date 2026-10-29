@@ -1,22 +1,22 @@
 // The chord keyboard: layout spec, pads / keys, pointer input, sounding fingers, haptics.
-import { api as ChordAudio } from "../audio/index.js?v=112.12";
-import { unlock } from "../audio/unlock.js?v=112.12";
-import { keyRootSpell, modeKey, activeKey, keyDegrees, maybeLockKey } from "../keys.js?v=112.12";
-import { finalizeOne, armPending } from "../loop.js?v=112.12";
-import { paTwin, playAlongKey, playAlongGo } from "../songs/playalong.js?v=112.12";
-import { magic, setItemState } from "../songs/playback.js?v=112.12";
-import { state, loop, fingers, padsEl, shared } from "../state.js?v=112.12";
-import { Theory } from "../theory/index.js?v=112.12";
-import { hasDoubleAcc, plainToneName, enharmonicSpell } from "../theory/names.js?v=112.12";
-import { wrap12 } from "../theory/quality.js?v=112.12";
-import { accSym } from "../theory/spelling.js?v=112.12";
-import { playAlongKeyOk, paHintMiss } from "./hints.js?v=112.12";
-import { kbFullMode, kbFullRange, kbWindowMode, kbKeyLayout, kidsTonic, kbBorrowKey, kbChord, kbWantLow, kbUpdate, kbTonicLow, kbScheduleReset } from "./keyboard.js?v=112.12";
-import { keyTapMidis, chipRootMidi, chipMidis, keyTapType } from "./kbmath.js?v=112.12";
-import { paintNextHint, kidsGoldKey, kidsGoldGo } from "./next.js?v=112.12";
-import { updateSymbol } from "./nowbox.js?v=112.12";
-import { clearStripExt, clearSuggestPreview } from "./strip.js?v=112.12";
-import { sustainActive, padPlayable, poolFingerGroup } from "./sustain.js?v=112.12";
+import { api as ChordAudio } from "../audio/index.js?v=112.13";
+import { unlock } from "../audio/unlock.js?v=112.13";
+import { keyRootSpell, modeKey, activeKey, keyDegrees, maybeLockKey } from "../keys.js?v=112.13";
+import { finalizeOne, armPending } from "../loop.js?v=112.13";
+import { paTwin, playAlongKey, playAlongGo } from "../songs/playalong.js?v=112.13";
+import { magic, setItemState } from "../songs/playback.js?v=112.13";
+import { state, loop, fingers, padsEl, shared } from "../state.js?v=112.13";
+import { Theory } from "../theory/index.js?v=112.13";
+import { hasDoubleAcc, plainToneName, enharmonicSpell } from "../theory/names.js?v=112.13";
+import { wrap12 } from "../theory/quality.js?v=112.13";
+import { accSym } from "../theory/spelling.js?v=112.13";
+import { playAlongKeyOk, paHintMiss } from "./hints.js?v=112.13";
+import { kbFullMode, kbFullRange, kbWindowMode, kbKeyLayout, kidsTonic, kbBorrowKey, kbChord, kbWantLow, kbUpdate, kbTonicLow, kbScheduleReset } from "./keyboard.js?v=112.13";
+import { keyTapMidis, chipRootMidi, chipMidis, keyTapType } from "./kbmath.js?v=112.13";
+import { paintNextHint, kidsGoldKey, kidsGoldGo } from "./next.js?v=112.13";
+import { updateSymbol } from "./nowbox.js?v=112.13";
+import { clearStripExt, clearSuggestPreview } from "./strip.js?v=112.13";
+import { sustainActive, padPlayable, poolFingerGroup } from "./sustain.js?v=112.13";
 
 export function computeSpec() {
   var rootPc = state.rootPc;

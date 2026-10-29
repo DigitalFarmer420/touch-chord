@@ -1,15 +1,15 @@
 // Upload song dialog: prompt copy, paste, check, load, library list.
-import { unlock } from "../audio/unlock.js?v=112.12";
-import { namePc, keyRootName } from "../keys.js?v=112.12";
-import { upSave, libGet, paintLib, libEntryToU, upRestoreSel, libOpen, libSetVer, libDelete, libConfirm } from "../songs/library.js?v=112.12";
-import { progBadge } from "../songs/magic.js?v=112.12";
-import { progRedecorate } from "../songs/playback.js?v=112.12";
-import { upInList, paintUpNext, upSelected, upKeyApply, upKeyNow, upTr, upLiveKeyObj, upT, upA, upSetLock, upPlaceLock, upSelect, upEsc, upStepOf, upCurStep, upPickAlt, upLoadOne } from "../songs/song.js?v=112.12";
-import { validateSong, LAYER_NAMES } from "../songs/validate.js?v=112.12";
-import { UP_PROMPT, UP_ARTIST_MAX, UP_SKIP_MAX, upListSchema13Text, upEv, upSym, upFlagged, upFlagList, upSecName, upLoadBegin, upLoadCheck, upLoadCommit } from "../songs/upload.js?v=112.12";
-import { state, shared } from "../state.js?v=112.12";
-import { accSym } from "../theory/spelling.js?v=112.12";
-import { paintUploadActive, upLyricHtml } from "./songbar.js?v=112.12";
+import { unlock } from "../audio/unlock.js?v=112.13";
+import { namePc, keyRootName } from "../keys.js?v=112.13";
+import { upSave, libGet, paintLib, libEntryToU, upRestoreSel, libOpen, libSetVer, libDelete, libConfirm } from "../songs/library.js?v=112.13";
+import { progBadge } from "../songs/magic.js?v=112.13";
+import { progRedecorate } from "../songs/playback.js?v=112.13";
+import { upInList, paintUpNext, upSelected, upKeyApply, upKeyNow, upTr, upLiveKeyObj, upT, upA, upSetLock, upPlaceLock, upSelect, upEsc, upStepOf, upCurStep, upPickAlt, upLoadOne } from "../songs/song.js?v=112.13";
+import { validateSong, LAYER_NAMES } from "../songs/validate.js?v=112.13";
+import { UP_PROMPT, UP_ARTIST_MAX, UP_SKIP_MAX, upListSchema13Text, upEv, upSym, upFlagged, upFlagList, upSecName, upLoadBegin, upLoadCheck, upLoadCommit } from "../songs/upload.js?v=112.13";
+import { state, shared } from "../state.js?v=112.13";
+import { accSym } from "../theory/spelling.js?v=112.13";
+import { paintUploadActive, upLyricHtml } from "./songbar.js?v=112.13";
 // v88: the empty-state hint shortens once both title and artist are filled in (live on input)
 // v89: "ready" = the Artist box is filled (an empty title asks for songs by the artist)
 const UP_EMPTY_FULL = "No song yet. Fill in the artist, and a song title if you like. Tap Copy for AI, paste it into any AI, then paste its answer and tap Load.";
@@ -141,6 +141,24 @@ function upPaintDetail(ro) {
   });
   secs.innerHTML = html;
 }
+// v112.13: every note from a load, grouped (chord spellings read as / chord notes first, then the rest), never capped.
+export function upNoteGroups(ws) {
+  var ch = [], ot = [], seen = {};
+  (ws || []).forEach(function (w) {
+    var m = /^Chord "([\s\S]*)" read as ([\s\S]*)$/.exec(w), pw = /^(?:sections|sectionsFull)\[\d+\]\.chords\[\d+\]\.chord (\S+): ([\s\S]*)$/.exec(w);
+    var t = m ? m[1] + " \u2192 " + m[2] : pw ? pw[1] + ": " + pw[2] : w;
+    if (seen[t]) return;
+    seen[t] = true;
+    (m || pw ? ch : ot).push(t);
+  });
+  return { chords: ch, other: ot };
+}
+function upNotesHtml(ws) {
+  var g = upNoteGroups(ws), h = "";
+  if (g.chords.length) h += "<span class=\"us-n\" data-notes=\"chords\"><b>Chords read as (" + g.chords.length + "):</b> " + g.chords.map(upEsc).join("; ") + "</span>";
+  if (g.other.length) h += "<span class=\"us-n\" data-notes=\"other\"><b>Note" + (g.other.length > 1 ? "s" : "") + ":</b> " + g.other.map(upEsc).join("; ") + "</span>";
+  return h;
+}
 // v89: the multi-song summary in #upMsg (no key anywhere, per v87)
 function upSummaryHtml(r) {
   var L = ["Loaded " + r.loaded + ", updated " + r.updated + ", skipped " + r.skipped + "."];
@@ -151,15 +169,18 @@ function upSummaryHtml(r) {
   if (nf) L.push(nf + " song" + (nf > 1 ? "s have" : " has") + " chords to review: play a song, then tap its pencil.");
   if (r.notes) L.push(r.notes.length > 140 ? r.notes.slice(0, 139) + "\u2026" : r.notes);
   var h = L.map(function (t) { return "<span class=\"us-l\">" + upEsc(t) + "</span>"; }).join("");
+  h += upNotesHtml(r.warnings);   // v112.13: list-level notes (repaired JSON, version read as)
   h += "<details" + (r.skipped ? " open" : "") + "><summary>Show songs (" + r.rows.length + ")</summary><ul class=\"us-list\">";
   r.rows.forEach(function (x) {
     var nm = upEsc(x.title || "Song " + (x.i + 1));
     if (x.status === "skipped") {
       h += "<li class=\"sk\">\u2717 " + nm + " \u00b7 skipped: " + upEsc(x.reason) + ((x.errors || []).slice(0, 3).map(function (e) { return "<br><code>songs[" + x.i + "]" + (e.path.charAt(0) === "(" ? " " : ".") + upEsc(e.path) + "</code>: " + upEsc(e.msg); }).join("")) + "</li>";
+    } else if (upNoteGroups(x.warnings).chords.length && !x.note && !x.flags) {   // v112.13: chord spellings read as
+      h += "<li>\u2713 " + nm + " \u00b7 " + x.status + "<br><small>Chords read as: " + upNoteGroups(x.warnings).chords.map(upEsc).join("; ") + "</small></li>";
     } else if (x.note) {   // v112.12: the length check / unknown tempo (a warning only; the song is saved)
-      h += "<li class=\"fl\">\u26a0 " + nm + " \u00b7 " + x.status + (x.flags ? " \u00b7 " + x.flags + " chord" + (x.flags > 1 ? "s" : "") + " to review" : "") + "<br><small>" + upEsc(x.note) + "</small></li>";
+      h += "<li class=\"fl\">\u26a0 " + nm + " \u00b7 " + x.status + (x.flags ? " \u00b7 " + x.flags + " chord" + (x.flags > 1 ? "s" : "") + " to review" : "") + "<br><small>" + upEsc(x.note) + "</small>" + (upNoteGroups(x.warnings).chords.length ? "<br><small>Chords read as: " + upNoteGroups(x.warnings).chords.map(upEsc).join("; ") + "</small>" : "") + "</li>";
     } else if (x.flags) {
-      h += "<li class=\"fl\">\u26a0 " + nm + " \u00b7 " + x.status + " \u00b7 " + x.flags + " chord" + (x.flags > 1 ? "s" : "") + " to review</li>";
+      h += "<li class=\"fl\">\u26a0 " + nm + " \u00b7 " + x.status + " \u00b7 " + x.flags + " chord" + (x.flags > 1 ? "s" : "") + " to review" + (upNoteGroups(x.warnings).chords.length ? "<br><small>Chords read as: " + upNoteGroups(x.warnings).chords.map(upEsc).join("; ") + "</small>" : "") + "</li>";
     } else {
       h += "<li>\u2713 " + nm + " \u00b7 " + x.status + "</li>";
     }
@@ -250,9 +271,10 @@ export function wireUpload() {
     if (!r.list) {
       var n = shared.U.events.length, fl = upFlagList().length;
       var lw = r.warnings.filter(function (w) { return /^(Length check|Tempo unknown)/.test(w); }), ow = r.warnings.filter(function (w) { return lw.indexOf(w) < 0; });   // v112.12
-      msg.textContent = "Loaded " + shared.U.title + ": " + shared.U.secs.length + " sections, " + n + " chords, " + shared.U.bpm + " BPM." +   // v87: no key on the Upload form
+      msg.innerHTML = upEsc("Loaded " + shared.U.title + ": " + shared.U.secs.length + " sections, " + n + " chords, " + shared.U.bpm + " BPM." +   // v87: no key on the Upload form
         (lw.length ? " \u26a0 " + lw.join(" ") : "") +
-        (fl ? " " + fl + " need review: tap the pencil on its row." : "") + (shared.U.two ? " Simple and Full versions: switch with the pencil on the song in My songs." : "") + (ow.length ? " Note: " + ow.slice(0, 3).join("; ") + (ow.length > 3 ? "\u2026" : "") : "") + " Close this and tap Next or Play.";
+        (fl ? " " + fl + " need review: tap the pencil on its row." : "") + (shared.U.two ? " Simple and Full versions: switch with the pencil on the song in My songs." : "")) +
+        upNotesHtml(ow) + "<span class=\"us-n\">" + upEsc("Close this and tap Next or Play.") + "</span>";   // v112.13: every note, grouped
       msg.hidden = false;
       document.getElementById("upPaste").value = "";
     } else {
@@ -276,6 +298,8 @@ export function wireUpload() {
       validateSong(it.song).flags.forEach(function (f) { groups[f.layer].push({ f: f, title: items.length > 1 ? it.title : "" }); n++; });
     });
     if (!n) { commit(); return; }
+    var chn = [];   // v112.13: the chords read as are shown here too (before Save), not only after it
+    items.forEach(function (it) { upNoteGroups(it.warnings).chords.forEach(function (t) { chn.push((items.length > 1 && it.title ? it.title + ": " : "") + t); }); });
     var v = document.getElementById("upVal"), h = "<b>Check before saving: " + n + " thing" + (n > 1 ? "s look" : " looks") + " off</b>";
     ["key", "timing", "bpm"].forEach(function (L) {
       var g = groups[L];
@@ -285,6 +309,7 @@ export function wireUpload() {
       if (g.length > 6) h += "<li>and " + (g.length - 6) + " more</li>";
       h += "</ul></div>";
     });
+    if (chn.length) h += "<div class=\"uv-g\" data-layer=\"chords\"><div class=\"uv-h\">Chords read as <small>" + chn.length + "</small></div><ul>" + chn.map(function (t) { return "<li class=\"uv-info\">" + upEsc(t) + "</li>"; }).join("") + "</ul></div>";
     h += "<div class=\"uv-btns\"><button type=\"button\" id=\"upValBack\">Go back and fix</button><button type=\"button\" id=\"upValSave\">Save anyway</button></div>";
     v.innerHTML = h; v.hidden = false;
     document.getElementById("upErr").hidden = true; document.getElementById("upMsg").hidden = true;
@@ -304,10 +329,10 @@ export function wireUpload() {
     upValHide();
     var b = upLoadBegin(document.getElementById("upPaste").value, { defer: true });
     if (b.done) { loadDone(b.done); return; }
-    if (b.pending) { var r = b.pending; upValGate([{ title: r.song.song.title, song: r.song }], function () { loadDone(upLoadOne(r)); }); return; }
+    if (b.pending) { var r = b.pending; upValGate([{ title: r.song.song.title, song: r.song, warnings: r.warnings }], function () { loadDone(upLoadOne(r)); }); return; }
     var L = b.list, N = L.items.length, msg = document.getElementById("upMsg");
     function gate() {
-      var ok = L.rows.filter(function (row) { return row.song; }).map(function (row) { return { title: row.title || row.song.song.title, song: row.song }; });
+      var ok = L.rows.filter(function (row) { return row.song; }).map(function (row) { return { title: row.title || row.song.song.title, song: row.song, warnings: row.warnings }; });
       upValGate(ok, function () { loadDone(upLoadCommit(L)); });
     }
     if (N <= 3) { for (var i = 0; i < N; i++) upLoadCheck(L, i); gate(); return; }

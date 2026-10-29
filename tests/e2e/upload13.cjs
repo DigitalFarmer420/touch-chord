@@ -10,6 +10,13 @@ const FX = path.join(__dirname, '../fixtures/upload'); const fx = f => fs.readFi
 const R = { fails: [], info: {} }; const F = (c, m) => { if (!c) R.fails.push(m); };
 const SPELL = JSON.stringify({ contractVersion: '1.2', song: { title: 'Spelling Test', artist: 'Upload13', key: { tonic: 'C', mode: 'major' } }, timing: { bpm: 100, timeSignature: '4/4' },
   sections: [{ id: 'v', type: 'verse', chords: ['C', 'C6/9', 'Cm(maj7)', 'Bø7', 'B°7', 'G+', 'G7alt', 'B♭', 'F♯m', 'Dsus', 'D7sus2', 'D-7', 'FΔ7', 'N.C.', 'unknown', 'G7(b9)'].map((c, i) => ({ index: i, chord: c, position: { bar: i + 1, beat: 1 }, durationBeats: 4, confidence: 0.8 })) }] });
+// v112.13 read-as song (key C): [input, pitch classes it must play, root first]
+const RA = [['C', [0, 4, 7]], ['Caug', [0, 4, 8]], ['F', [5, 9, 0]], ['Gaug7', [7, 11, 3, 5]], ['AmMaj7', [9, 0, 4, 8]], ['CmMaj7', [0, 3, 7, 11]], ['CMaj7', [0, 4, 7, 11]],
+  ['CMa7', [0, 4, 7, 11]], ['C\u00f89', [0, 3, 6, 10, 2]], ['C-5', [0, 4, 6]], ['C+7', [0, 4, 8, 10]], ['Cm(Maj7)', [0, 3, 7, 11]], ['Bb', [10, 2, 5]], ['G', [7, 11, 2]]];   // Bb: out of C major, so Check before saving opens
+const READAS = RA.map(x => x[0]), READAS_PCS = RA.map(x => x[1]);
+const READAS_TIDY = ['AmMaj7', 'CmMaj7', 'CMaj7', 'CMa7', 'C\u00f89', 'C-5', 'C+7', 'Cm(Maj7)'];   // the ones that get a "read as" note (Caug, Gaug7 are native)
+const READAS_JSON = JSON.stringify({ contractVersion: '1.2', song: { title: 'Read As Test', artist: 'Upload13', key: { tonic: 'C', mode: 'major' } }, timing: { bpm: 100, timeSignature: '4/4' },
+  sections: [{ id: 'v', type: 'verse', chords: READAS.map((c, i) => ({ index: i, chord: c, position: { bar: i + 1, beat: 1 }, durationBeats: 4, confidence: 0.9 })) }] });
 const REPAIR = fx('diag-v12-single.json').replace(/"title": "([^"]*)"/, '"title": "Repair Test"').replace(/"/g, (m, i) => (i % 2 ? '\u201c' : '\u201d')).replace(/\n {2}/g, '\n\u00a0\u00a0').replace(/\}(\s*)\]/g, '},$1]');
 (async () => { const b = await chromium.launch({ executablePath: process.env.CHROME || undefined });
   for (const [w, h] of [[360, 780], [780, 360]]) { const tag = `${w}x${h}`; const I = R.info[tag] = {};
@@ -61,7 +68,39 @@ const REPAIR = fx('diag-v12-single.json').replace(/"title": "([^"]*)"/, '"title"
     for (const [k, t] of Object.entries(cases)) { const r = await p.evaluate(t => __upload.load(t), t); I.loads[k] = { ok: r.ok, warnings: r.warnings, rows: r.rows.map(x => x.status || 'ok'), errors: r.errors };
       F(r.ok && r.rows.every(x => !x.status || /^(new|loaded|updated)$/.test(x.status)), tag + ' ' + k + ' did not load: ' + JSON.stringify(r.errors || r.rows)); }
     const sp = await p.evaluate(() => { const L = JSON.parse(localStorage.getItem('touchChord.library.v1')); const e = L.songs.find(x => x.title === 'Spelling Test'); return e && e.song.sections[0].chords.map(c => c.chord); });
-    F(JSON.stringify(sp) === JSON.stringify(['C', 'C6add9', 'Cm', 'Bm7b5', 'Bdim7', 'Gaug', 'G7#9', 'Bb', 'F#m', 'Dsus4', 'D7sus2', 'Dm7', 'Fmaj7', 'Fmaj7', 'Fmaj7', 'G7b9']), tag + ' spelling ' + sp);
+    F(JSON.stringify(sp) === JSON.stringify(['C', 'C6add9', 'CmM7', 'Bm7b5', 'Bdim7', 'Gaug', 'G7#9', 'Bb', 'F#m', 'Dsus4', 'D7sus2', 'Dm7', 'Fmaj7', 'Fmaj7', 'Fmaj7', 'G7b9']), tag + ' spelling ' + sp);
+    // 6. v112.13 read-as: every note shown (grouped) in the Check-before-saving panel and after Save; aug / mMaj7 /
+    // CMaj7 / ø9 / C-5 play the right notes (root lowest)
+    await p.evaluate(() => { const x = document.querySelector('#uploadPick .up-x'); if (x && !document.getElementById('uploadPick').hidden) x.click(); }); await p.waitForTimeout(300);
+    await p.click('#uploadBtn'); await p.waitForTimeout(300);
+    await p.fill('#upPaste', READAS_JSON); await p.click('#upLoad'); await p.waitForTimeout(600);
+    const pv = await p.evaluate(() => { const v = document.getElementById('upVal'), g = v.querySelector('.uv-g[data-layer="chords"]');
+      return { shown: !v.hidden, n: g ? g.querySelectorAll('li').length : 0, text: g ? g.innerText : '', over: document.documentElement.scrollWidth - innerWidth }; });
+    I.readAsPanel = pv;
+    F(pv.shown && pv.n === READAS_TIDY.length, tag + ' read-as notes in Check before saving: ' + pv.n + ' ' + pv.text);
+    for (const k of READAS_TIDY) F(pv.text.indexOf(k) >= 0, tag + ' panel misses ' + k);
+    F(pv.over <= 0, tag + ' panel overflow ' + pv.over);
+    await p.evaluate(() => document.getElementById('upVal').scrollIntoView({ block: 'center' })); await p.waitForTimeout(150);
+    await p.screenshot({ path: path.join(SH, `v11213-panel-${tag}.png`) });
+    if (pv.shown) { await p.click('#upValSave'); await p.waitForTimeout(600); }
+    const pm = await p.evaluate(() => { const e = document.getElementById('upMsg'), n = e.querySelector('[data-notes="chords"]');
+      return { shown: !e.hidden, text: e.innerText, notes: n ? n.innerText : '', over: document.documentElement.scrollWidth - innerWidth }; });
+    I.readAsMsg = pm.text;
+    F(pm.shown && new RegExp('Chords read as \\(' + READAS_TIDY.length + '\\)').test(pm.notes), tag + ' read-as notes after Save: ' + pm.notes);
+    for (const k of READAS_TIDY) F(pm.notes.indexOf(k) >= 0, tag + ' message misses ' + k);
+    F(!/augmented is played as a major|Cb5|C\u266d5/.test(pm.text), tag + ' misleading note: ' + pm.text);
+    await p.evaluate(() => document.getElementById('upMsg').scrollIntoView({ block: 'center' })); await p.waitForTimeout(150);
+    await p.screenshot({ path: path.join(SH, `v11213-notes-${tag}.png`) });
+    await p.evaluate(() => { const x = document.querySelector('#uploadPick .up-x'); if (x) x.click(); }); await p.waitForTimeout(400);
+    await p.evaluate(() => { const A = window.ChordAudio; window.__A = []; const f = A.playChord.bind(A); A.playChord = function (g, m, o) { window.__A.push(Array.isArray(m) ? m.slice() : m); return f(g, m, o); }; });
+    const heard = {};
+    for (let i = 0; i < READAS_PCS.length + 1; i++) { await p.evaluate(() => { window.__A = []; }); await p.tap('#prog .pg-step'); await p.waitForTimeout(200);
+      const h = await p.evaluate(() => ({ i: __prog.cur, m: window.__A[window.__A.length - 1] || null })); if (h.m && h.i >= 0) heard[h.i] = h.m; }
+    I.readAsHeard = heard;
+    READAS_PCS.forEach((want, i) => { const m = heard[i]; if (!m) { F(false, tag + ' step ' + i + ' not heard'); return; }
+      const got = [...new Set(m.map(x => x % 12))].sort((a, b) => a - b).join(','), w = [...new Set(want)].sort((a, b) => a - b).join(',');
+      F(got === w, tag + ' ' + READAS[i] + ' plays ' + got + ', want ' + w);
+      F(m[0] % 12 === want[0] && m.every((x, k) => !k || x > m[k - 1]), tag + ' ' + READAS[i] + ' not root lowest / rising: ' + m); });
     // 5. honest failures
     const bad = await p.evaluate(t => __upload.load(t), fx('diag-v12-clean.json').replace('"1.2"', '"2.0"'));
     F(!bad.ok && /can't read \(it reads 1\.2 and 1\.3\)/.test(JSON.stringify(bad.errors)), tag + ' version msg ' + JSON.stringify(bad.errors));
