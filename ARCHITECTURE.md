@@ -46,6 +46,7 @@ lines  file
     60  js/songs/playalong.js      Play along: advance on the marked key / chip.
    471  js/songs/playback.js       The progression player: walk, Play song, step state, song key, progSet.
    179  js/songs/presets.js        Built-in progressions (PROGRESSIONS: every style + Kids songs) and their parsing.
+    23  js/songs/proghold.js       Expert progression lock: keep the chosen sequence across a style change (pure helpers).
    167  js/songs/song.js           The loaded uploaded song: steps, key, lock, next step.
    510  js/songs/upload.js         Upload: AI prompt text, schema, answer parsing and validation, load flow.
    100  js/songs/validate.js       Pre-save check of AI song data (key, timing, BPM); pure; flags shown in the Upload dialog.

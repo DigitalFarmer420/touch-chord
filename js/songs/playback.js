@@ -7,6 +7,7 @@ import { KIDS_SONG_KEY } from "./kids-songs.js?v=112.13";
 import { upSave } from "./library.js?v=112.13";
 import { magicReset, progBadge } from "./magic.js?v=112.13";
 import { PROG_BAR, PROGRESSIONS, progList, progSteps, sameChord, progIndexFor } from "./presets.js?v=112.13";
+import { progHold, progLockPick } from "./proghold.js?v=112.13";
 import { upInList, songTempo, paintUpNext, progLoopBar, upKeyApply, upKeyNow } from "./song.js?v=112.13";
 import { state, loop, scheduleSave, shared } from "../state.js?v=112.13";
 import { wrap12 } from "../theory/quality.js?v=112.13";
@@ -21,7 +22,8 @@ import { clearSuggestPreview, STRIP_EXT, PREVIEW_MS, stripKey, applySuggestion, 
 import { BADGE_SLOTS, badgeCenter, badgeInset } from "../ui/badgeslots.js?v=112.13";
 
 export const prog = { style: null, mode: null, keySig: null, key: null, idx: 0, list: [], steps: [], targets: [], badges: [], badgeOverflow: [], badgeReport: null,
-  cur: -1, playing: false, timer: 0, si: 0, nextT: 0, groups: [], gid: 0, uiT: [], flashT: 0, log: [], tmp: 0, unplaced: 0, model: null };
+  cur: -1, playing: false, timer: 0, si: 0, nextT: 0, groups: [], gid: 0, uiT: [], flashT: 0, log: [], tmp: 0, unplaced: 0, model: null,
+  lock: false, lockPick: null };   // Expert progression lock (session only, not saved)
 // Test hooks only with ?test=1 (not in normal use).
 export var PROG_TEST;
 // v68: magic Next (state; logic after progNext).
@@ -59,12 +61,23 @@ export function progSync(key) {
   if (styleChanged || keyChanged) progStop();
   var oldName = prog.list[prog.idx] ? prog.list[prog.idx].name : null;
   var wasUp = !!(prog.list[prog.idx] && prog.list[prog.idx].up);   // Upload: a style change keeps the song
+  var oldRow = prog.list[prog.idx];
+  // Expert progression lock: the chosen sequence stays through a style (or key) change, voiced in the new style.
+  // Not in Kids or Simple, and never for a loaded song (the song has its own Lock).
+  var held = prog.lock && document.documentElement.classList.contains("expert") && state.style !== "kids";
+  if (held && prog.style !== "kids") prog.lockPick = progLockPick(oldRow, prog.style) || prog.lockPick;
   prog.list = progList(state.style, key.mode);
   // A loaded song stays on the song route. A factory name that is no longer on the
   // menu (held chart, or no chart in this mode) cannot stay selected: the label,
   // the steps and the next chord all come from the visible row, or the first one.
   if (wasUp) {
     for (var uj = 0; uj < prog.list.length; uj++) if (prog.list[uj].up) prog.idx = uj;
+  } else if (held && prog.lockPick) {
+    var hk = progHold(prog.list, prog.lockPick);
+    prog.list = hk.list; prog.idx = hk.idx;
+  } else if (oldRow && oldRow.held && !styleChanged && !keyChanged) {
+    var hr = progHold(prog.list, oldRow);   // unlocked: a held row stays until the next style or key change
+    prog.list = hr.list; prog.idx = hr.idx;
   } else if (styleChanged) {
     prog.idx = 0;
   } else if (oldName) {

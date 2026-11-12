@@ -13,6 +13,7 @@ import { magicQueue } from "../songs/magic.js?v=112.13";
 import { nextHintSpec } from "../ui/next.js?v=112.13";
 import { setHintAvoid } from "../ui/hints.js?v=112.13";
 import { progFeel, progSteps } from "../songs/presets.js?v=112.13";
+import { progLockPick } from "../songs/proghold.js?v=112.13";
 import { upSelected, upCurStep, upNextStep, upA } from "../songs/song.js?v=112.13";
 import { upSym } from "../songs/upload.js?v=112.13";
 import { state, shared, fingers, loop, scheduleSave } from "../state.js?v=112.13";
@@ -482,12 +483,22 @@ function paintSrc() {
     else if (!prog.list[lastProg] || prog.list[lastProg].up) lastProg = firstProg();
     var p = prog.list[songOn ? lastProg : prog.idx], n = songOn ? (p && p.steps ? p.steps.length : 0) : prog.steps.length;
     var dots = progDots(n, songOn ? -1 : prog.cur).map(function (d) { return "<i class=\"" + d + "\"></i>"; }).join("");
-    html = "<button type=\"button\" class=\"x-pbar" + (src.listOpen ? " open" : "") + "\" aria-expanded=\"" + src.listOpen + "\" aria-controls=\"xPList\"><span class=\"x-pcol\"><span class=\"x-pn\">" + esc(p ? progFeel(p.name) : "") + "</span><span class=\"x-dots\">" + dots + "</span></span><span class=\"x-car\">" + (src.listOpen ? "\u25b4" : "\u25be") + "</span></button>";
+    var plk = !!prog.lock;
+    html = "<button type=\"button\" class=\"x-pbar" + (src.listOpen ? " open" : "") + "\" aria-expanded=\"" + src.listOpen + "\" aria-controls=\"xPList\"><span class=\"x-pcol\"><span class=\"x-pn\">" + esc(p ? progFeel(p.name) : "") + heldTag(p) + "</span><span class=\"x-dots\">" + dots + "</span></span><span class=\"x-car\">" + (src.listOpen ? "\u25b4" : "\u25be") + "</span></button>"
+      // Progression lock (not the song Lock): keep this sequence when the style changes.
+      + "<button type=\"button\" class=\"x-b x-plock\" aria-pressed=\"" + plk + "\" aria-label=\"Keep this progression when the style changes\"><span class=\"x-lki\">" + (plk ? "\ud83d\udd12" : "\ud83d\udd13") + "</span>Lock</button>";
     box.className = "x-src x-mode-prog";
   }
   sig = src.view + "|" + html;
   if (box._sig !== sig) { box.innerHTML = html; box._sig = sig; }
   paintList();
+}
+function heldTag(p) { return p && p.held && p.from ? " <small>" + esc(styleName(p.from)) + "</small>" : ""; }   // a locked pick carried into another style
+function progLockTap() {
+  prog.lock = !prog.lock;
+  prog.lockPick = prog.lock ? progLockPick(prog.list[upSelected() ? lastProg : prog.idx], state.style) : null;
+  xLog.src.push("progLock:" + prog.lock);
+  paintSrc();
 }
 function firstProg() { for (var i = 0; i < prog.list.length; i++) if (!prog.list[i].up) return i; return 0; }
 function paintList() {
@@ -503,7 +514,7 @@ function paintList() {
     if (p.up) return;
     var steps = progSteps(k, p);
     var chips = steps.map(function (s) { return "<i class=\"x-pc " + esc(s.item.type) + "\">" + esc(accSym(stripLabel(s.item))) + "</i>"; }).join("");
-    h += "<button type=\"button\" role=\"option\" class=\"x-prow" + (i === (upSelected() ? lastProg : prog.idx) ? " on" : "") + "\" data-i=\"" + i + "\" aria-selected=\"" + (i === prog.idx && !upSelected()) + "\"><span class=\"x-pcol\"><b>" + esc(progFeel(p.name)) + "</b></span><span class=\"x-pchips\">" + chips + "</span></button>";
+    h += "<button type=\"button\" role=\"option\" class=\"x-prow" + (i === (upSelected() ? lastProg : prog.idx) ? " on" : "") + "\" data-i=\"" + i + "\" aria-selected=\"" + (i === prog.idx && !upSelected()) + "\"><span class=\"x-pcol\"><b>" + esc(progFeel(p.name)) + heldTag(p) + "</b></span><span class=\"x-pchips\">" + chips + "</span></button>";
   });
   h += "<p class=\"x-pnote\">Picking one unloads the song and folds this list to the bar above.</p>";
   L.innerHTML = h;
@@ -553,6 +564,7 @@ function wireAll() {
   });
   $("xSrc").addEventListener("click", function (e) {
     if (e.target.closest(".x-pbar")) { srcDo("tapBar"); return; }
+    if (e.target.closest(".x-plock")) { progLockTap(); return; }
     if (e.target.closest(".x-lock")) { click("#sbLock"); schedule(); return; }
     if (e.target.closest(".x-mode-song .x-songc")) click("#songBar");   // the song strip opens the song, as the classic song bar does
   });
