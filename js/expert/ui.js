@@ -13,7 +13,8 @@ import { magicQueue } from "../songs/magic.js?v=112.13";
 import { nextHintSpec } from "../ui/next.js?v=112.13";
 import { setHintAvoid } from "../ui/hints.js?v=112.13";
 import { progFeel, progSteps } from "../songs/presets.js?v=112.13";
-import { upSelected, upCurStep, upNextStep } from "../songs/song.js?v=112.13";
+import { upSelected, upCurStep, upNextStep, upA } from "../songs/song.js?v=112.13";
+import { upSym } from "../songs/upload.js?v=112.13";
 import { state, shared, fingers, loop, scheduleSave } from "../state.js?v=112.13";
 import { accSym } from "../theory/spelling.js?v=112.13";
 import { Theory } from "../theory/index.js?v=112.13";
@@ -466,7 +467,8 @@ function paintSrc() {
       var cur = upCurStep(), e0 = U.events[cur >= 0 ? cur : 0] || U.events[0], sec = e0 ? U.secs[e0.si] : null;
       var ly = sec ? lyricNow({ lyrics: secLyrics(sec, e0.rep) }, cur >= 0 ? e0.ci : -1) : null;   // rd10: this pass's lines
       var line = ly ? esc(ly.before) + (ly.word ? "<span class=\"x-now\">" + esc(ly.word) + "</span>" : "") + esc(ly.after)
-        : (sec ? sec.chords.map(function (c, ci) { return "<span class=\"" + (cur >= 0 && ci === e0.ci ? "x-now" : "") + "\">" + esc(accSym(c.chord)) + "</span>"; }).join(" ") : "");
+        // The chord names follow the locked key (same upA path as playback). c.chord in the saved chart is not rewritten.
+        : (sec ? sec.chords.map(function (c, ci) { return "<span class=\"" + (cur >= 0 && ci === e0.ci ? "x-now" : "") + "\">" + esc(upA(upSym(e0.si, ci))) + "</span>"; }).join(" ") : "");
       var locked = !!U.locked;
       html = "<div class=\"x-songc\"><div class=\"x-stitle\">" + esc(U.title) + (U.artist ? " \u00b7 " + esc(U.artist) : "") + "</div><div class=\"x-sline\">" + line + "</div></div>"
         + "<button type=\"button\" class=\"x-b x-lock\" aria-pressed=\"" + locked + "\" aria-label=\"Lock the song chords\"><span class=\"x-lki\">" + (locked ? "\ud83d\udd12" : "\ud83d\udd13") + "</span>Lock</button>";
