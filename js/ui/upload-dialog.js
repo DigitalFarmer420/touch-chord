@@ -229,8 +229,13 @@ function upCopy() {
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, legacy);
   else legacy();
 }
+// v3.2-ai-paste: after a Load that worked the paste box is cleared; a second tap on Load (a double tap, or a
+// tap while the phone was slow to repaint) used to replace "Loaded ..." with "(paste) is empty". Until the
+// paste box changes or the dialog opens again, Load with an empty box now keeps the Loaded message.
+var upJustLoaded = false;
 function openUpload() {
   var pick = document.getElementById("uploadPick");
+  upJustLoaded = false;
   // v105: opens as a clean list: the form is cleared, no details open, no status; playback is untouched
   ["upTitle", "upArtist", "upPaste", "upFallbackTxt"].forEach(function (id) { document.getElementById(id).value = ""; });
   ["upMsg", "upErr", "upFallback", "upCopied", "upVal"].forEach(function (id) { document.getElementById(id).hidden = true; });
@@ -266,7 +271,7 @@ export function wireUpload() {
     upShowErrors(r);
     if (r.full) { var fe = document.getElementById("upErr"); fe.textContent = "My songs is full, remove one first"; fe.hidden = false; }
     if (r.saveFail) { var se = document.getElementById("upErr"); se.textContent = "Couldn't save, storage is full"; se.hidden = false; }
-    if (!r.ok) { upStatusIntoView(); return; }
+    if (!r.ok) { upJustLoaded = false; upStatusIntoView(); return; }
     if (!r.list) {
       var n = shared.U.events.length, fl = upFlagList().length;
       var lw = r.warnings.filter(function (w) { return /^(Length check|Tempo unknown)/.test(w); }), ow = r.warnings.filter(function (w) { return lw.indexOf(w) < 0; });   // v112.12
@@ -276,10 +281,11 @@ export function wireUpload() {
         upNotesHtml(ow) + "<span class=\"us-n\">" + upEsc("Close this and tap Next or Play.") + "</span>";   // v112.13: every note, grouped
       msg.hidden = false;
       document.getElementById("upPaste").value = "";
+      upJustLoaded = true;
     } else {
       msg.innerHTML = upSummaryHtml(r);
       msg.hidden = false;
-      if (!r.skipped) document.getElementById("upPaste").value = "";   // kept so Load can run again after making room
+      if (!r.skipped) { document.getElementById("upPaste").value = ""; upJustLoaded = true; }   // kept so Load can run again after making room
     }
     ["upTitle", "upArtist"].forEach(function (id) { document.getElementById(id).value = ""; });   // v105: the form clears after Load
     shared.upOpenAlt = null; shared.upEdit = null;
@@ -324,6 +330,7 @@ export function wireUpload() {
   });
   document.getElementById("upLoad").addEventListener("click", function () {
     if (upLoading) return;   // v89: a Load tap during a run is ignored (Load itself stays tappable)
+    if (upJustLoaded && !document.getElementById("upPaste").value.trim()) return;
     unlock();
     upValHide();
     var b = upLoadBegin(document.getElementById("upPaste").value, { defer: true });

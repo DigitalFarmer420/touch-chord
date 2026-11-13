@@ -223,7 +223,47 @@ function upKind(v) {
   return null;
 }
 // -> { kind: "single"|"list", items, envelope, truncated, repaired } or { error: "empty"|"nojson"|"badjson", listy, unbalanced }
+// v3.2-ai-paste: an answer quoted with "> " on every line is read without the quote marks, and an answer with
+// two or more song answers in it (two ``` blocks, or two JSON objects one after the other) gives all their songs.
+function upDequote(raw) {
+  var ls = raw.split(/\r?\n/), ne = ls.filter(function (l) { return l.trim(); }), q = ne.filter(function (l) { return /^\s*>/.test(l); }).length;
+  return q >= 2 && q >= ne.length * 0.6 ? ls.map(function (l) { return l.replace(/^\s*(?:>[^\S\n]?)+/, ""); }).join("\n") : null;
+}
 export function upParseAnswer(text) {
+  var raw = String(text || ""), r = upParseOne(raw), src = raw;
+  if (r.error && r.error !== "empty") {
+    var dq = upDequote(raw);
+    if (dq !== null) { var r2 = upParseOne(dq); if (!r2.error) { r = r2; src = dq; } }
+  }
+  if (r.error || r.truncated) return r;
+  var fences = upFences(src), blocks = [];
+  if (fences.length >= 2) blocks = fences;
+  else if (!fences.length) {
+    for (var j = src.indexOf("{"); j >= 0 && blocks.length < 30; j = src.indexOf("{", j)) {
+      var e = upMatchEnd(src, j);
+      if (e < 0) break;
+      blocks.push(src.slice(j, e)); j = e;
+    }
+  }
+  if (blocks.length < 2) return r;
+  var parts = blocks.map(upParseOne).filter(function (p) { return !p.error && !p.truncated && (p.envelope || (p.kind === "single" && p.items[0] && p.items[0].song)); });
+  if (parts.length < 2) return r;
+  var items = [], seen = {}, rep = false;
+  parts.forEach(function (p) {
+    rep = rep || p.repaired;
+    var cv = p.envelope ? p.envelope.contractVersion : undefined;
+    p.items.forEach(function (it) {
+      var k = JSON.stringify(it);
+      if (seen[k]) return;   // the same song pasted twice (the AI repeated its answer)
+      seen[k] = true;
+      if (cv !== undefined && it && typeof it === "object" && !Array.isArray(it) && !Object.prototype.hasOwnProperty.call(it, "contractVersion")) it = Object.assign({ contractVersion: cv }, it);
+      items.push(it);
+    });
+  });
+  if (items.length <= r.items.length) return r;
+  return { kind: "list", items: items, envelope: null, truncated: false, repaired: rep, merged: parts.length };
+}
+function upParseOne(text) {
   var raw = String(text || "");
   if (!raw.trim()) return { error: "empty" };
   var fences = upFences(raw), cands = fences.concat([raw]), main = fences.length ? fences[0] : raw;
@@ -279,7 +319,7 @@ export function upCheck(text) {
   var s = String(text || "");
   var a = s.indexOf("{"), b = s.lastIndexOf("}");
   if (!s.replace(/\s+/g, "")) { out.errors.push({ path: "(paste)", msg: "is empty: paste the AI's answer first" }); return out; }
-  if (a < 0 || b <= a) { out.errors.push({ path: "(paste)", msg: "has no JSON object in it (nothing between { and })" }); return out; }
+  if (a < 0 || b <= a) { out.errors.push({ path: "(paste)", msg: UP_NOJSON }); return out; }
   var body = s.slice(a, b + 1), obj, rep = false;
   try { obj = JSON.parse(body); }
   catch (err0) { try { obj = JSON.parse(repairJson(body)); rep = true; } catch (err1) { obj = undefined; } }   // v112.12 (P3)
@@ -294,13 +334,14 @@ export function upCheck(text) {
   }
   return upCheckObj(obj, rep ? [UP_REPAIRED] : []);
 }
+export const UP_NOJSON = "has no JSON object in it (nothing between { and }). If the AI wrote a chord sheet, ask it again with the copied prompt so it answers in JSON";   // v3.2-ai-paste
 export const UP_REPAIRED = "The answer was repaired: it had small JSON slips (like curly quotes, trailing commas, comments or odd spaces)";   // v112.13
 // v112.12: contract versions. A number (1.2) counts as the string; 1.0-1.3 are read (1.3 is turned into the
 // v1.2 shape by normalize.js from13 first); any other version gets a plain message.
 export const UP_VERSIONS = ["1.0", "1.1", "1.2", "1.3"];
 function upCv(v) {
   if (typeof v === "number" && isFinite(v)) return Math.floor(v) === v ? v + ".0" : String(v);
-  if (typeof v === "string") { var m = /^\s*v?(\d+\.\d+)(?:\.0+)?\s*$/i.exec(v); if (m) return m[1]; }   // v112.13: "1.2.0", "1.3.0", " 1.3 "
+  if (typeof v === "string") { var m = /^\s*v?(\d+\.\d+)(?:\.\d+)?\s*$/i.exec(v); if (m) return m[1]; }   // v112.13: "1.2.0", "1.3.0", " 1.3 "; v3.2-ai-paste: "1.3.1" (a patch number)
   return v;
 }
 function upCvMsg(v) { return JSON.stringify(v) + " is a contract version this app can't read (it reads 1.2 and 1.3). Copy the prompt again and ask the AI for contract 1.3."; }
@@ -310,14 +351,135 @@ function upCvMsg(v) { return JSON.stringify(v) + " is a contract version this ap
 // read are tidied (P1); a chord's bass field joins its symbol as a slash bass and its source is accepted;
 // an "unknown" / null chord holds the chord before it with confidence 0 (listed for review) and N.C. holds it
 // too (the app has no rest), never a silent C.
+var KEY_ENH = { Cb: "B", Fb: "E", "E#": "F", "B#": "C" };
+var MODE_MAP = { major: "major", maj: "major", ionian: "major", lydian: "major", mixolydian: "major", minor: "minor", min: "minor", m: "minor", aeolian: "minor", dorian: "minor", phrygian: "minor", locrian: "minor" };
+// v3.2-ai-paste: "Eb major", "Am", "F# minor", "C dorian" -> { tonic, mode } (null when it isn't a key)
+function upKeyText(t) {
+  var m = /^\s*([A-Ga-g])\s*(#|b|\u266f|\u266d)?\s*-?\s*([A-Za-z]*)\s*$/.exec(String(t).replace(/[\u200b-\u200d\u2060\ufeff]/g, ""));
+  if (!m) return null;
+  var md = m[3] ? (m[3] === "M" ? "major" : MODE_MAP[m[3].toLowerCase()]) : "";
+  if (md === undefined) return null;
+  var tn = m[1].toUpperCase() + (m[2] ? (m[2] === "#" || m[2] === "\u266f" ? "#" : "b") : "");
+  return { tonic: KEY_ENH[tn] || tn, mode: md, modal: !!m[3] && !/^(major|maj|minor|min|m|M)$/i.test(m[3]) };
+}
+var UP_TONICS = ["C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B"];
+// v3.2-ai-paste: one wrong field in an AI's answer used to reject the whole song. These fixes only touch a value
+// that would fail the checks (a song form that already passes is not changed); each one leaves a warning.
+function upLenientKey(obj, W) {
+  var sg = obj.song;
+  if (sg && typeof sg === "object" && !Array.isArray(sg)) {
+    if (typeof sg.key === "string") {
+      var kk = upKeyText(sg.key);
+      if (kk) { W.push("song.key " + JSON.stringify(sg.key) + " read as " + kk.tonic + " " + (kk.mode || "major")); sg.key = { tonic: kk.tonic, mode: kk.mode || "major", display: sg.key }; }
+    }
+    var ky = sg.key;
+    if (ky && typeof ky === "object" && !Array.isArray(ky)) {
+      var kt = ky.tonic, ok = typeof kt === "string" && UP_TONICS.indexOf(kt) >= 0 && (ky.mode === "major" || ky.mode === "minor");
+      if (!ok && (typeof kt === "string" || typeof ky.mode === "string")) {
+        var kp = typeof kt === "string" ? upKeyText(kt) : null, md0 = typeof ky.mode === "string" ? ky.mode.trim().toLowerCase() : "";
+        var md = MODE_MAP[md0] || (kp && kp.mode) || (ky.mode == null ? "major" : "");
+        if (kp && md && (UP_TONICS.indexOf(kp.tonic) >= 0)) {
+          var was = JSON.stringify(kt) + (ky.mode !== undefined ? " " + JSON.stringify(ky.mode) : "");
+          if (kp.tonic !== kt || md !== ky.mode) {
+            ky.tonic = kp.tonic; ky.mode = md;
+            W.push("song.key " + was + " read as " + ky.tonic + " " + ky.mode + ((kp.modal || (md0 && md0 !== "major" && md0 !== "minor" && md0 !== "maj" && md0 !== "min")) ? " (the app plays major or minor keys)" : ""));
+          }
+        }
+      }
+    }
+  }
+}
+function upLenientPre(obj, W) {
+  var sg = obj.song;
+  if (sg && typeof sg === "object" && !Array.isArray(sg)) {
+    ["year", "capo"].forEach(function (k) {
+      var v = sg[k];
+      if (v === undefined || v === null || (typeof v === "number" && Math.floor(v) === v && (k === "year" ? v >= 1000 && v <= 2100 : v >= 0 && v <= 12))) return;
+      var nv = typeof v === "string" && /^\s*\d+\s*$/.test(v) ? +v : typeof v === "number" ? Math.round(v) : NaN;
+      if (nv === nv && (k === "year" ? nv >= 1000 && nv <= 2100 : nv >= 0 && nv <= 12)) { sg[k] = nv; W.push("song." + k + " " + JSON.stringify(v) + " read as " + nv); }
+      else { delete sg[k]; W.push("song." + k + " " + JSON.stringify(v) + " left out (not a " + (k === "year" ? "year" : "capo fret 0-12") + ")"); }
+    });
+    if (!(typeof sg.artist === "string" && sg.artist.trim()) && (sg.artist == null || typeof sg.artist === "string")) { sg.artist = "Unknown artist"; W.push("song.artist is missing; saved as \"Unknown artist\""); }
+  }
+  [obj.sections, obj.sectionsFull].forEach(function (L) {
+    if (!Array.isArray(L)) return;
+    L.forEach(function (sec) {
+      if (!sec || typeof sec !== "object" || Array.isArray(sec)) return;
+      if (sec.type == null || sec.type === "") {
+        sec.type = "other";
+        if (!(typeof sec.label === "string" && sec.label) && typeof sec.id === "string" && sec.id) sec.label = sec.id.charAt(0).toUpperCase() + sec.id.slice(1);
+        W.push("Section " + JSON.stringify(sec.id) + " has no type; read as other");
+      }
+    });
+  });
+}
+// a confidence the checks accept: 0-1. 85 / "85%" -> 0.85, "0.8" -> 0.8; null when it can't be read
+function upConfFix(v) {
+  if (typeof v === "string") { var m = /^\s*(\d+(?:\.\d+)?)\s*(%?)\s*$/.exec(v); if (!m) return null; v = +m[1]; if (m[2]) v = v / 100; }
+  if (typeof v !== "number" || !isFinite(v)) return null;
+  if (v > 1 && v <= 100) v = v / 100;
+  return Math.max(0, Math.min(1, Math.round(v * 1000) / 1000));
+}
+function upLenientPost(obj, W) {
+  var nNoConf = 0, nConf = 0, nClamp = 0, nDrop = 0, nLine = 0, nNum = 0;
+  function conf(c, req) {
+    if (!c || typeof c !== "object") return;
+    var v = c.confidence;
+    if (typeof v === "number" && v >= 0 && v <= 1) return;
+    if (v === undefined) { if (req) { c.confidence = 0.5; nNoConf++; } return; }
+    var f = upConfFix(v);
+    if (f === null) { if (req) { c.confidence = 0.5; nNoConf++; } else delete c.confidence; return; }
+    c.confidence = f; nConf++;
+  }
+  var sg = obj.song;
+  if (sg && sg.key && typeof sg.key === "object" && sg.key.confidence !== undefined) conf(sg.key, false);
+  function int(v) { if (typeof v === "string" && /^\s*-?\d+(\.\d+)?\s*$/.test(v)) { nNum++; v = +v; } return typeof v === "number" && isFinite(v) ? Math.floor(v) : NaN; }
+  [obj.sections, obj.sectionsFull].forEach(function (L) {
+    if (!Array.isArray(L)) return;
+    L.forEach(function (sec) {
+      if (!sec || typeof sec !== "object" || !Array.isArray(sec.chords)) return;
+      sec.chords.forEach(function (c) { conf(c, true); if (c && Array.isArray(c.alternates)) c.alternates.forEach(function (a) { conf(a, false); }); });
+      if (typeof sec.lyrics === "string") sec.lyrics = sec.lyrics.split(/\r?\n/).filter(function (x) { return x.trim(); }).map(function (x) { return { text: x, markers: [] }; });
+      if (!Array.isArray(sec.lyrics)) { if (sec.lyrics === null) delete sec.lyrics; return; }
+      var n = sec.chords.length;
+      sec.lyrics = sec.lyrics.map(function (ln) { return typeof ln === "string" ? { text: ln, markers: [] } : ln; }).filter(function (ln) {
+        if (ln && typeof ln === "object" && !Array.isArray(ln) && typeof ln.text === "string") return true;
+        nLine++; return false;
+      });
+      sec.lyrics.forEach(function (ln) {
+        if (ln.markers == null) ln.markers = [];
+        if (!Array.isArray(ln.markers)) return;
+        var len = ln.text.length;
+        ln.markers = ln.markers.filter(function (mk) {
+          if (!mk || typeof mk !== "object") return true;
+          var ok = typeof mk.charIndex === "number" && Math.floor(mk.charIndex) === mk.charIndex && mk.charIndex >= 0 && mk.charIndex <= len &&
+            typeof mk.chordIndex === "number" && Math.floor(mk.chordIndex) === mk.chordIndex && mk.chordIndex >= 0 && mk.chordIndex < n;
+          if (ok) return true;
+          var ch = int(mk.charIndex), ci = int(mk.chordIndex);
+          if (ch !== ch || ci !== ci || !n) { nDrop++; return false; }
+          if (ch > len || ch < 0 || ci >= n || ci < 0) nClamp++;
+          mk.charIndex = Math.max(0, Math.min(len, ch)); mk.chordIndex = Math.max(0, Math.min(n - 1, ci));
+          return true;
+        });
+      });
+    });
+  });
+  if (nNoConf) W.push(nNoConf + " chord" + (nNoConf > 1 ? "s have" : " has") + " no confidence; read as 0.5 (listed for review)");
+  if (nConf) W.push(nConf + " confidence value" + (nConf > 1 ? "s were" : " was") + " not a number from 0 to 1 (like 85 or \"0.8\"); read on the 0-1 scale");
+  if (nClamp) W.push(nClamp + " lyric chord mark" + (nClamp > 1 ? "s" : "") + " pointed past the end of the line or the section's chords; moved to the end");
+  if (nNum) W.push(nNum + " lyric mark position" + (nNum > 1 ? "s were" : " was") + " text; read as a number");
+  if (nDrop) W.push(nDrop + " lyric chord mark" + (nDrop > 1 ? "s" : "") + " could not be read; left out");
+  if (nLine) W.push(nLine + " lyric line" + (nLine > 1 ? "s" : "") + " with no text left out");
+}
 function upPrep(obj, W) {
   if (!obj || typeof obj !== "object" || Array.isArray(obj)) return;
+  upLenientPre(obj, W);
   var sg = obj.song;
   if (sg && typeof sg === "object" && !Array.isArray(sg)) {
     ["year", "capo", "album"].forEach(function (k) { if (sg[k] === null) delete sg[k]; });
     if (sg.key && typeof sg.key === "object" && sg.key.confidence === null) delete sg.key.confidence;
   }
-  var tm = obj.timing, nUnk = 0, nRest = 0, nHome = 0, homeSym = "", homeUnk = false, tidied = {};
+  var tm = obj.timing, nUnk = 0, nRest = 0, nRep = 0, nHome = 0, homeSym = "", homeUnk = false, tidied = {}, badSyms = [], altBad = [];
   if (sg && typeof sg === "object" && sg.key && typeof sg.key === "object" && !Array.isArray(sg.key)) {   // v112.13: E\u266d, "Major"
     var ky0 = sg.key, kt = ky0.tonic, km = ky0.mode, kch = false;
     if (typeof kt === "string") {
@@ -330,10 +492,11 @@ function upPrep(obj, W) {
     }
     if (kch) W.push("song.key read as " + ky0.tonic + " " + ky0.mode);
   }
+  upLenientKey(obj, W);
   if (tm && typeof tm === "object" && !Array.isArray(tm)) {   // v112.13: "4:4", 4, "4 / 4" -> "4/4"
     var ts0 = tm.timeSignature, ts1 = null;
     if (typeof ts0 === "number" && ts0 > 0 && Math.floor(ts0) === ts0) ts1 = ts0 + ([6, 9, 12].indexOf(ts0) >= 0 ? "/8" : "/4");
-    else if (typeof ts0 === "string" && !/^[0-9]{1,2}\/(2|4|8|16)$/.test(ts0)) { var tq = /^\s*([0-9]{1,2})\s*[:\/|-]\s*(2|4|8|16)\s*$/.exec(ts0); if (tq) ts1 = tq[1] + "/" + tq[2]; }
+    else if (typeof ts0 === "string" && !/^[0-9]{1,2}\/(2|4|8|16)$/.test(ts0)) { var tq = /^\s*([0-9]{1,2})\s*[:\/|-]\s*(2|4|8|16)(?![0-9])/.exec(ts0); if (tq) ts1 = tq[1] + "/" + tq[2]; }   // v3.2-ai-paste: "4/4 (common time)"
     if (ts1) { W.push("timing.timeSignature " + JSON.stringify(ts0) + " read as " + ts1); tm.timeSignature = ts1; }
   }
   var SEC_TYPES = ["intro", "verse", "prechorus", "chorus", "bridge", "solo", "instrumental", "interlude", "outro", "other"];
@@ -374,11 +537,11 @@ function upPrep(obj, W) {
     var t = c.chord;
     if (typeof t === "string" && !upParseChord(t).error) return;
     var td = tidyChord(t);
-    if (td.unknown || td.rest) { if (holdOk) { c._hold = td.rest ? "rest" : "unknown"; } return; }
+    if (td.unknown || td.rest || td.repeat) { if (holdOk) { c._hold = td.rest ? "rest" : td.repeat ? "repeat" : "unknown"; } return; }
     if (td.sym && !upParseChord(td.sym).error) {
       if (!tidied[t]) { tidied[t] = true; W.push("Chord \"" + t + "\" read as " + td.sym + (td.note ? " (" + td.note + ")" : "")); }
       c.chord = td.sym;
-    }
+    } else if (holdOk) c._bad = true;   // v3.2-ai-paste: decided per list below
   }
   [["sections", obj.sections], ["sectionsFull", obj.sectionsFull]].forEach(function (L) {
     if (!Array.isArray(L[1])) return;
@@ -391,12 +554,23 @@ function upPrep(obj, W) {
         var P = L[0] + "[" + si + "].chords[" + ci + "]";
         tidy(c, P, true);
         if (c && Array.isArray(c.alternates)) {
-          c.alternates = c.alternates.filter(function (a) { if (!a || typeof a !== "object") return true; tidy(a, P, false); var td = tidyChord(a.chord); return !(td.unknown || td.rest) || typeof a.chord === "string" && !upParseChord(a.chord).error; });
+          c.alternates = c.alternates.filter(function (a) { if (!a || typeof a !== "object") return true; tidy(a, P, false); var td = tidyChord(a.chord); return !(td.unknown || td.rest || td.repeat) || typeof a.chord === "string" && !upParseChord(a.chord).error; });
+          c.alternates = c.alternates.filter(function (a) {   // v3.2-ai-paste: an alternate is only a suggestion; one the app can't read is left out
+            if (!a || typeof a !== "object" || (typeof a.chord === "string" && !upParseChord(a.chord).error)) return true;
+            if (altBad.indexOf(String(a.chord)) < 0) altBad.push(String(a.chord));
+            return false;
+          });
           c.alternates.forEach(function (a) { if (a && a.confidence === null) delete a.confidence; });
         }
         if (c && typeof c === "object") all.push(c);
       });
     });
+    // v3.2-ai-paste: chords the app can't read become unknown (they hold the chord before and are listed for
+    // review) when they are a small part of the song (at most 1 in 4, so a song needs 4 chords or more); more than
+    // that and the answer is rejected as before
+    var bad = all.filter(function (c) { return c._bad; });
+    if (bad.length && bad.length <= Math.floor(all.length / 4)) bad.forEach(function (c) { if (badSyms.indexOf(String(c.chord)) < 0) badSyms.push(String(c.chord)); c._hold = "unknown"; });
+    bad.forEach(function (c) { delete c._bad; });
     // holds: the chord before (in play order); at the very start (no chord before) the key's home chord (v112.13)
     var prev = null;
     all.forEach(function (c) {
@@ -406,7 +580,7 @@ function upPrep(obj, W) {
         var ky = sg && sg.key, tn = ky && typeof ky.tonic === "string" && /^[A-G](#|b)?$/.test(ky.tonic) ? ky.tonic : "C";
         sym = tn + (ky && ky.mode === "minor" ? "m" : ""); nHome++; homeSym = sym;
         if (c._hold === "unknown") { c.confidence = 0; homeUnk = true; }
-      } else if (c._hold === "unknown") { nUnk++; c.confidence = 0; } else nRest++;
+      } else if (c._hold === "unknown") { nUnk++; c.confidence = 0; } else if (c._hold === "repeat") nRep++; else nRest++;
       c.chord = sym;
       delete c._hold;
     });
@@ -414,6 +588,10 @@ function upPrep(obj, W) {
   if (nHome) W.push("The song starts on " + (homeUnk ? "an unknown chord" : "N.C.") + " with no chord before it, so it plays the key's home chord, " + homeSym + (homeUnk ? " (listed for review)" : ""));
   if (nUnk) W.push(nUnk + " unknown chord" + (nUnk > 1 ? "s hold the chord" : " holds the chord") + " before " + (nUnk > 1 ? "them" : "it") + " (listed for review)");
   if (nRest) W.push(nRest + " N.C. (no chord) spot" + (nRest > 1 ? "s hold" : " holds") + " the chord before (the app has no rest)");
+  if (nRep) W.push(nRep + " repeat sign" + (nRep > 1 ? "s (%) hold" : " (%) holds") + " the chord before");
+  if (badSyms.length) W.push("The app can't read chord" + (badSyms.length > 1 ? "s " : " ") + badSyms.slice(0, 5).map(function (x) { return JSON.stringify(x); }).join(", ") + (badSyms.length > 5 ? ", \u2026" : "") + "; " + (badSyms.length > 1 ? "they hold" : "it holds") + " the chord before (listed for review)");
+  if (altBad.length) W.push("Left out suggested alternate" + (altBad.length > 1 ? "s" : "") + " the app can't read: " + altBad.slice(0, 5).map(function (x) { return JSON.stringify(x); }).join(", ") + (altBad.length > 5 ? ", \u2026" : ""));
+  upLenientPost(obj, W);
   if (tm && typeof tm === "object" && !Array.isArray(tm) && (tm.bpm === null || tm.bpm === "unknown" || tm.bpm === "")) {
     var beats = 0;
     (Array.isArray(obj.sections) ? obj.sections : []).forEach(function (sec) { if (sec && Array.isArray(sec.chords)) sec.chords.forEach(function (c) { if (c && c.durationBeats > 0) beats += c.durationBeats * (sec.repeat > 0 ? sec.repeat : 1); }); });
@@ -530,11 +708,23 @@ function upFlagCount(song) {
   return n;
 }
 function upEmptyErr(pa) {
-  return pa.error === "empty" ? { path: "(paste)", msg: "is empty: paste the AI's answer first" } : { path: "(paste)", msg: "has no JSON object in it (nothing between { and })" };
+  return pa.error === "empty" ? { path: "(paste)", msg: "is empty: paste the AI's answer first" } : { path: "(paste)", msg: UP_NOJSON };
+}
+// v3.2-ai-paste: zero-width characters or spaces inside a field name ("ti\u200btle", "chord ") -> the plain name
+function upCleanKeys(v, d) {
+  if (!v || typeof v !== "object" || d > 12) return;
+  if (Array.isArray(v)) { v.forEach(function (x) { upCleanKeys(x, d + 1); }); return; }
+  Object.keys(v).forEach(function (k) {
+    var c = k.replace(/[\u200b-\u200d\u2060\ufeff\u00a0]/g, "").trim();
+    var to = k;
+    if (c !== k && c && !Object.prototype.hasOwnProperty.call(v, c)) { v[c] = v[k]; delete v[k]; to = c; }
+    upCleanKeys(v[to], d + 1);
+  });
 }
 // v112.12: one song form of any version -> upCheckObj's result. cv = the answer's version (the envelope's), if any.
 // v1.3 (said, or the form / bars shape when no version is given) goes through normalize.js from13 first.
 function upCheckSong(o, cv, single) {
+  upCleanKeys(o, 0);
   var has = o && typeof o === "object" && !Array.isArray(o) && Object.prototype.hasOwnProperty.call(o, "contractVersion");
   var v = has ? upCv(o.contractVersion) : cv;
   if (v === "1.3" || (v === undefined && is13(o))) {
@@ -573,6 +763,7 @@ export function upLoadBegin(text, opts) {
     return { done: r1.ok ? upLoadOne(r1) : r1 };
   }
   var L = { items: pa.items, envelope: pa.envelope, truncated: pa.truncated, warnings: pa.repaired ? [UP_REPAIRED] : [], errors: [], rows: [] };
+  if (pa.merged) L.warnings.push("The paste has " + pa.merged + " answers in it; the songs from all of them were checked");
   if (pa.envelope) {
     var cv = upCv(pa.envelope.contractVersion);   // v112.12: 1.0-1.3 (a number counts), missing = read from the shape
     if (cv === undefined) { cv = pa.items.some(is13) ? "1.3" : "1.2"; L.warnings.push("contractVersion is missing; read as " + cv); }

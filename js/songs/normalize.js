@@ -15,9 +15,25 @@ export const BARSUM_TOL = 0.02;   // the length check warns past +-2% (a warning
 
 // ----- JSON repair -----
 var SMART_Q = "\u201c\u201d\u201e\u201f\u2033\u00ab\u00bb";
-function isUniSpace(c) { return /[\u00a0\u1680\u2000-\u200b\u2028\u2029\u202f\u205f\u3000\ufeff]/.test(c); }
+// v3.2-ai-paste: also U+200C/U+200D/U+2060 (joiners, word joiner), U+0085 (NEL), U+180E between tokens
+function isUniSpace(c) { return /[\u00a0\u1680\u2000-\u200d\u2028\u2029\u202f\u205f\u3000\ufeff\u2060\u0085\u180e]/.test(c); }
+var PY_LIT = { None: "null", True: "true", False: "false", NaN: "null", Infinity: "null", undefined: "null" };
 export function repairJson(text) {
-  var s = String(text == null ? "" : text), out = "", n = s.length, i = 0, str = 0;   // str: 0 none, 1 ASCII ", 2 smart
+  var s = String(text == null ? "" : text), out = "", n = s.length, i = 0, str = 0;   // str: 0 none, 1 ASCII ", 2 smart, 3 single '
+  var guard = false;   // v3.2-ai-paste: the open string is a JSON one (opened after { [ , :), so a stray " inside it can be told apart
+  function lastOut() { for (var q = out.length - 1; q >= 0; q--) if (!/\s/.test(out[q])) return out[q]; return ""; }
+  // a quote ends its string when what follows can come after a JSON string: , (then a value or a key) } ] : or the end
+  function ends(j) {
+    var k = skip(j);
+    if (k >= n) return true;
+    var d = s[k];
+    if (d === "}" || d === "]" || d === ":") return true;
+    if (d !== ",") return false;
+    var k2 = skip(k + 1);
+    if (k2 >= n || /["'{}\[\]0-9-]/.test(s[k2]) || SMART_Q.indexOf(s[k2]) >= 0) return true;
+    var w = s.slice(k2, k2 + 40);   // a word after the comma: a JSON / Python literal, or an unquoted key
+    return /^(true|false|null|None|True|False|NaN|Infinity)\s*[,}\]]/.test(w) || /^[A-Za-z_$][A-Za-z0-9_$]*\s*:/.test(w);
+  }
   function skip(j) {   // past whitespace and comments
     for (;;) {
       while (j < n && (/\s/.test(s[j]) || isUniSpace(s[j]))) j++;
@@ -29,16 +45,31 @@ export function repairJson(text) {
   while (i < n) {
     var c = s[i];
     if (str) {
+      if (str === 3) {   // v3.2-ai-paste: a Python-style 'single-quoted' string
+        if (c === "\\" && s[i + 1] === "'") { out += "'"; i += 2; continue; }
+        if (c === "\"") { out += "\\\""; i++; continue; }
+        if (c === "'" && ends(i + 1)) { out += "\""; str = 0; i++; continue; }
+      }
       if (c === "\\") { out += c + (i + 1 < n ? s[i + 1] : ""); i += 2; continue; }
-      if (c === "\"" || (str === 2 && SMART_Q.indexOf(c) >= 0)) { out += "\""; str = 0; i++; continue; }
+      if (str === 1 && c === "\"" && guard && !ends(i + 1)) { out += "\\\""; i++; continue; }   // v3.2-ai-paste: He said "hi"
+      if ((c === "\"" && str !== 3) || (str === 2 && SMART_Q.indexOf(c) >= 0)) { out += "\""; str = 0; i++; continue; }
       if (c === "\n") { out += "\\n"; i++; continue; }
       if (c === "\r") { i++; continue; }
       if (c === "\t") { out += "\\t"; i++; continue; }
       if (c === "\ufeff") { i++; continue; }
       out += c; i++; continue;
     }
-    if (c === "\"") { str = 1; out += c; i++; continue; }
+    if (c === "\"") { guard = /[{\[,:]/.test(lastOut()); str = 1; out += c; i++; continue; }
     if (SMART_Q.indexOf(c) >= 0) { str = 2; out += "\""; i++; continue; }
+    if (c === "'" && /[{\[,:]/.test(lastOut())) { str = 3; out += "\""; i++; continue; }   // v3.2-ai-paste: {'title': 'x'}
+    if (c === "\u3010") { var ce = s.indexOf("\u3011", i); if (ce > i && ce - i < 120) { i = ce + 1; continue; } }   // v3.2-ai-paste: ChatGPT citation marks
+    if (/[\ue000-\uf8ff]/.test(c)) { i++; continue; }   // private-use citation markers
+    if (/[A-Za-z_$]/.test(c) && !/[A-Za-z0-9_$.]/.test(out.slice(-1))) {   // v3.2-ai-paste: None / True / NaN, unquoted keys
+      var w = /^[A-Za-z_$][A-Za-z0-9_$]*/.exec(s.slice(i, i + 64))[0], pv = lastOut();
+      if (/[{,]/.test(pv) && s[skip(i + w.length)] === ":") { out += "\"" + w + "\""; i += w.length; continue; }
+      if (PY_LIT[w] && /[:\[,]/.test(pv)) { out += PY_LIT[w]; i += w.length; continue; }
+      out += w; i += w.length; continue;
+    }
     if (c === "/" && (s[i + 1] === "/" || s[i + 1] === "*")) { i = skip(i); out += " "; continue; }
     if (isUniSpace(c)) { out += c === "\ufeff" ? "" : " "; i++; continue; }
     if (c === ",") { var k = skip(i + 1); if (s[k] === "}" || s[k] === "]") { i++; continue; } }
@@ -50,14 +81,28 @@ export function repairJson(text) {
 // ----- chord spelling -----
 export function tidyChord(raw) {
   if (raw === null || raw === undefined) return { unknown: true };
-  var s = String(raw);
+  var s = String(raw).replace(/[\u200b-\u200d\u2060\ufeff]/g, "");   // v3.2-ai-paste: zero-width characters
   if (/^\s*(unknown|\?+|x)\s*$/i.test(s)) return { unknown: true };
   if (/^\s*(n\.?\s*c\.?|no\s*chord|tacet)\s*$/i.test(s)) return { rest: true };
+  if (/^\s*(%|\/|\u2215|simile|sim\.?)\s*$/i.test(s)) return { repeat: true };   // v3.2-ai-paste: a repeat sign holds the chord before
   var t = s.normalize ? s.normalize("NFKC") : s, note = null;
   t = t.replace(/\s+/g, "").replace(/\u266d/g, "b").replace(/\u266f/g, "#").replace(/\u266e/g, "").replace(/^([a-g])/, function (m) { return m.toUpperCase(); });
+  // v3.2-ai-paste: chart decoration around one chord: (C) [C] | C | C* C' C7(x2) C7 x2, and the dashes / minus signs
+  t = t.replace(/[\u2212\u2010\u2011\u2012\u2013\u2014\ufe63\uff0d]/g, "-");
+  t = t.replace(/^\|+|\|+$/g, "").replace(/\(?[x\u00d7]\d+\)?$|\(?\d+[x\u00d7]\)?$/i, "").replace(/[*'\u2019`\u00b4]+$/, "");
+  var wr = /^[(\[{](.*)[)\]}]$/.exec(t);
+  if (wr && /^[A-Ga-g]/.test(wr[1])) t = wr[1].replace(/^([a-g])/, function (m) { return m.toUpperCase(); });
+  var dbl = /^([A-G])(\ud834\udd2b|bb|\ud834\udd2a|##)(.*)$/.exec(t);   // E\ud834\udd2b / F\ud834\udd2a (double flat / sharp): the same pitch spelled simply
+  if (dbl) {
+    var NAT = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }, SH = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"], FL = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
+    var up = dbl[2] === "##" || dbl[2] === "\ud834\udd2a", pc = (NAT[dbl[1]] + (up ? 2 : 10)) % 12;
+    t = (up ? SH : FL)[pc] + dbl[3]; note = "a double " + (up ? "sharp" : "flat") + ", spelled as " + (up ? SH : FL)[pc];
+  }
   var m = /^([A-G](?:#|b)?)(.*)$/.exec(t);
   if (!m) return { sym: s };
   var root = m[1], q = m[2], bass = "";
+  q = q.replace(/^major$/i, "").replace(/^major(?=\d)/i, "maj").replace(/^minor/i, "m");   // v3.2-ai-paste: "C Major", "A minor"
+  q = q.replace(/^(m?)7\((9|11|13)\)/, "$1$2").replace(/^(m|maj)?7\(?add(9|11|13)\)?/, function (x, a, d) { return (a || "") + d; });   // C7(13) = C13, Am7(add11) = Am11
   var sl = /\/([A-Ga-g](?:#|b)?)$/.exec(q);
   if (sl) { bass = "/" + sl[1].charAt(0).toUpperCase() + sl[1].slice(1); q = q.slice(0, sl.index); }
   q = q.replace(/^dom(?=\d)/i, "");
@@ -121,15 +166,24 @@ export function from13(S) {
   if (!S || typeof S !== "object" || Array.isArray(S)) { err("(song)", "must be an object { }"); return done(); }
   extra(S, SONG13, "", W);
   var T = S.timing && typeof S.timing === "object" && !Array.isArray(S.timing) ? S.timing : null;
+  if (!T && S.timing == null && Array.isArray(S.sections) && S.sections.length) {   // v3.2-ai-paste: no timing at all -> 4/4, tempo worked out
+    T = { bpm: null, timeSignature: "4/4" }; W.push("timing is missing; read as 4/4 with the tempo unknown");
+  }
   if (!T) err("timing", "is required");
   else extra(T, TIM13, "timing.", W);
   var ts = T ? T.timeSignature : undefined, bpb = parseInt(ts, 10);
+  if (T && ts == null) { ts = "4/4"; W.push("timing.timeSignature is missing; read as 4/4"); }
   if (!(bpb > 0)) bpb = 4;
-  if (!Array.isArray(S.form) || !S.form.length) err("form", "is required: the section ids in play order, e.g. [\"intro\", \"verse1\", \"chorus\"]");
-  else S.form.forEach(function (id, i) { if (typeof id !== "string" || !id) err("form[" + i + "]", "must be a section id (a string)"); });
+  var form = S.form;
+  if ((form == null || (Array.isArray(form) && !form.length)) && Array.isArray(S.sections) && S.sections.length && S.sections.every(function (s) { return s && typeof s.id === "string" && s.id; }) && S.sections.some(function (s) { return Array.isArray(s.bars) && s.bars.length; })) {
+    form = S.sections.map(function (s) { return s.id; });   // v3.2-ai-paste: no form -> the sections in the order listed
+    W.push("form is missing; the sections play in the order listed");
+  }
+  if (!Array.isArray(form) || !form.length) err("form", "is required: the section ids in play order, e.g. [\"intro\", \"verse1\", \"chorus\"]");
+  else form.forEach(function (id, i) { if (typeof id !== "string" || !id) err("form[" + i + "]", "must be a section id (a string)"); });
   if (!Array.isArray(S.sections) || !S.sections.length) err("sections", "must be a list [ ] with at least 1 section");
   if (E.length) return done();
-  var form = S.form;
+  form = form.slice();
   function index(list, name) {
     var by = {};
     list.forEach(function (s, i) {
@@ -139,15 +193,34 @@ export function from13(S) {
       if (by[s.id]) err(P + ".id", "\"" + s.id + "\" is used twice; each section id must be unique (repeats go in form)");
       by[s.id] = { s: s, i: i };
       extra(s, SEC13, P + ".", W);
-      if (!Array.isArray(s.bars) || !s.bars.length) err(P + ".bars", "must be a list [ ] with at least 1 bar");
+      if ((s.bars == null && !Array.isArray(s.chords)) || (Array.isArray(s.bars) && !s.bars.length)) by[s.id].empty = true;   // v3.2-ai-paste: left out below, not a rejection
+      else if (!Array.isArray(s.bars)) err(P + ".bars", "must be a list [ ] with at least 1 bar");
     });
     return by;
   }
   var bySimple = index(S.sections, "sections");
   var full = Array.isArray(S.sectionsFull) && S.sectionsFull.length ? S.sectionsFull : null;
   var byFull = full ? index(full, "sectionsFull") : null;
+  // v3.2-ai-paste: a form id that is only a near miss of one section id ("Verse1" / "verse1", "chorus" / "chorus1")
+  var ids = Object.keys(bySimple), nid = function (x) { return String(x).toLowerCase().replace(/[\s_-]+/g, ""); }, mapped = {};
+  form = form.map(function (id) {
+    if (typeof id !== "string" || bySimple[id]) return id;
+    var k = nid(id), hit = ids.filter(function (x) { return nid(x) === k; });
+    if (hit.length !== 1) hit = ids.filter(function (x) { var a = nid(x); return (a.indexOf(k) === 0 && /^\d+$/.test(a.slice(k.length))) || (k.indexOf(a) === 0 && /^\d+$/.test(k.slice(a.length))); });
+    if (hit.length !== 1) return id;
+    if (!mapped[id]) { mapped[id] = true; W.push("form id " + JSON.stringify(id) + " read as section " + JSON.stringify(hit[0])); }
+    return hit[0];
+  });
   form.forEach(function (id, fi) { if (!bySimple[id]) err("form[" + fi + "]", JSON.stringify(id) + " is not the id of a section in sections"); });
   if (E.length) return done();
+  var emp = form.filter(function (id, k) { return bySimple[id].empty && form.indexOf(id) === k; });
+  if (emp.length) {
+    form = form.filter(function (id) { return !bySimple[id].empty; });
+    if (!form.length) { err("sections", "has no bars in any section in form"); return done(); }
+    W.push("Section" + (emp.length > 1 ? "s " : " ") + emp.map(function (x) { return JSON.stringify(x); }).join(", ") + (emp.length > 1 ? " have" : " has") + " no bars, so " + (emp.length > 1 ? "they are" : "it is") + " left out");
+  }
+  Object.keys(bySimple).forEach(function (id) { if (bySimple[id].empty) delete bySimple[id]; });
+  if (byFull && form.some(function (id) { return byFull[id] && byFull[id].empty; })) { W.push("The Full version was left out: a section in sectionsFull has no bars"); byFull = null; }
   Object.keys(bySimple).forEach(function (id) { if (form.indexOf(id) < 0) W.push("Section \"" + id + "\" is not in form, so it is not played"); });
   if (byFull) {
     var miss = form.filter(function (id, k) { return !byFull[id] && form.indexOf(id) === k; });
@@ -169,16 +242,28 @@ export function from13(S) {
         if (!b || typeof b !== "object" || Array.isArray(b)) { if (first) err(BP, "must be an object { }"); return; }
         if (first) extra(b, BAR13, BP + ".", W);
         if (first && b.bar != null && b.bar !== bi + 1) W.push(BP + ".bar is " + b.bar + "; bars play in list order");
-        var last = 0;
-        (Array.isArray(b.chords) ? b.chords : []).forEach(function (c, ci) {
+        var last = 0, bev = [], cl = Array.isArray(b.chords) ? b.chords : [];
+        // v3.2-ai-paste: beats are read leniently (a slip in one bar no longer rejects the song): beats counted
+        // from 0, beats out of order, a beat twice, a beat past the bar, chords with no beats (spread over the bar)
+        var nob = cl.length > 1 && cl.every(function (c) { return c && typeof c === "object" && c.beat == null; });
+        var nums = cl.map(function (c, ci) { if (!c || typeof c !== "object") return NaN; if (nob) return 1 + ci * bpb / cl.length; var v = typeof c.beat === "string" && /^\s*\d+(\.\d+)?\s*$/.test(c.beat) ? +c.beat : c.beat; return v == null ? (ci === 0 ? 1 : NaN) : typeof v === "number" ? v : NaN; });
+        var zero = nums.some(function (v) { return v === 0; }) && nums.every(function (v) { return v >= 0 && v < bpb; });
+        if (nob && first) W.push(BP + ": chords with no beat are spread over the bar");
+        if (zero) { nums = nums.map(function (v) { return v + 1; }); if (first) W.push(BP + ": beats counted from 0; read as from 1"); }
+        cl.forEach(function (c, ci) {
           var CP = BP + ".chords[" + ci + "]";
           if (!c || typeof c !== "object" || Array.isArray(c)) { if (first) err(CP, "must be an object { }"); return; }
           if (first) extra(c, CH13, CP + ".", W);
-          var bt = c.beat == null ? (ci === 0 ? 1 : NaN) : +c.beat;
-          if (!(bt >= 1 && bt < bpb + 1)) { if (first) err(CP + ".beat", "is " + JSON.stringify(c.beat) + "; it must be a beat from 1 to " + bpb + " (the time signature is " + (ts || "4/4") + ")"); return; }
-          if (bt <= last) { if (first) err(CP + ".beat", "is " + bt + "; beats in a bar must go up"); return; }
-          last = bt;
-          ev.push({ bar: bi + 1, beat: bt, c: c, P: CP });
+          var bt = nums[ci];
+          if (!(bt >= 1 && bt < bpb + 1)) { if (first) W.push(CP + ".beat is " + JSON.stringify(c.beat) + ", not a beat from 1 to " + bpb + " (" + (ts || "4/4") + "); that chord is left out"); return; }
+          bev.push({ bar: bi + 1, beat: bt, c: c, P: CP, o: ci });
+        });
+        var sorted = bev.slice().sort(function (x, y) { return x.beat - y.beat || x.o - y.o; });
+        if (first && sorted.some(function (x, k) { return x !== bev[k]; })) W.push(BP + ": beats were out of order; played in beat order");
+        sorted.forEach(function (x) {
+          if (x.beat <= last) { if (first) W.push(x.P + ".beat " + x.beat + " is used twice in the bar; the later chord is left out"); return; }
+          last = x.beat;
+          ev.push(x);
         });
       });
       var t0 = function (x) { return (x.bar - 1) * bpb + (x.beat - 1); }, end = s.bars.length * bpb, ch = [];
