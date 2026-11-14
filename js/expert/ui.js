@@ -15,7 +15,8 @@ import { setHintAvoid } from "../ui/hints.js?v=112.13";
 import { progFeel, progSteps } from "../songs/presets.js?v=112.13";
 import { progLockPick } from "../songs/proghold.js?v=112.13";
 import { upSelected, upCurStep, upNextStep, upA } from "../songs/song.js?v=112.13";
-import { upSym } from "../songs/upload.js?v=112.13";
+import { upSym, upSecName } from "../songs/upload.js?v=112.13";
+import { upLyrMap, lyrPad } from "../ui/lyrics.js?v=112.13";
 import { state, shared, fingers, loop, scheduleSave } from "../state.js?v=112.13";
 import { accSym } from "../theory/spelling.js?v=112.13";
 import { Theory } from "../theory/index.js?v=112.13";
@@ -33,7 +34,7 @@ import { KEYS_CHOICES, makeChip, configureSheet, openModeSheet, bootSheet, paint
 import { registerLook, lookApplyNow, lookShown } from "../ui/look.js?v=112.13";
 import { toggleHelpMenu } from "../ui/helpmenu.js?v=112.13";   // redesign-dev: the Kids view (kids-build) is the switch's Kids
 import { EXPERT_STORE, parsePref, prefFromUrl, modeOf, modeTarget, typeBarInit, typeBarReduce, typeBarLabel, TYPEBAR_HOLD_MS,
-  sourceInit, sourceReduce, progDots, lyricNow, STYLE_MENU, styleName, expertWindowKeys, expertStyleFix, fullToExpert, chartFor } from "./model.js?v=112.13";
+  sourceInit, sourceReduce, progDots, songCardRows, STYLE_MENU, styleName, expertWindowKeys, expertStyleFix, fullToExpert, chartFor } from "./model.js?v=112.13";
 // rd6: ?test=1&classic=1 keeps the legacy classic screens (Full layout, Kids style chip in Simple) for the sound-equivalence
 // suites (audioeq / kvaudio replay the 351c02c taps). Users can no longer reach them.
 const CLASSIC = /[?&]test=1(&|$)/.test(location.search) && /[?&]classic=1(&|$)/.test(location.search);
@@ -461,17 +462,19 @@ function paintSrc() {
   var sel = upSelected();
   if (sel !== lastSel) { lastSel = sel; src = sourceReduce(src, "sync", srcCtx()).s; }   // only when the selection changed elsewhere (load / open / pick)
   Array.prototype.forEach.call($("xTog").querySelectorAll("button"), function (b) { var o = b.dataset.v === src.view; b.classList.toggle("on", o); b.setAttribute("aria-selected", o ? "true" : "false"); });
-  var box = $("xSrc"), html, sig;
+  var box = $("xSrc"), html, sig, card = null, rowsHtml = "";
   if (src.view === "song") {
     var U = shared.U;
     if (U && upSelected()) {
-      var cur = upCurStep(), e0 = U.events[cur >= 0 ? cur : 0] || U.events[0], sec = e0 ? U.secs[e0.si] : null;
-      var ly = sec ? lyricNow({ lyrics: secLyrics(sec, e0.rep) }, cur >= 0 ? e0.ci : -1) : null;   // rd10: this pass's lines
-      var line = ly ? esc(ly.before) + (ly.word ? "<span class=\"x-now\">" + esc(ly.word) + "</span>" : "") + esc(ly.after)
-        // The chord names follow the locked key (same upA path as playback). c.chord in the saved chart is not rewritten.
-        : (sec ? sec.chords.map(function (c, ci) { return "<span class=\"" + (cur >= 0 && ci === e0.ci ? "x-now" : "") + "\">" + esc(upA(upSym(e0.si, ci))) + "</span>"; }).join(" ") : "");
+      var cur = upCurStep(), e0 = U.events[cur >= 0 ? cur : 0] || U.events[0];
+      // P4 (v3.2 UI polish): the song card rows come from the classic song bar's line map (same steps as playback).
+      // The chord names follow the locked key (same upA path as playback). c.chord in the saved chart is not rewritten.
+      var nRows = lyrPad() ? 3 : 2, ci = cur >= 0 && e0 ? e0.ci : -1;
+      card = songCardRows(upLyrMap(), cur, nRows, ci, function (si, rep) { return secLyrics(U.secs[si], rep); },
+        function (si) { return U.secs[si].chords.map(function (c, k) { return upA(upSym(si, k)); }); }, upSecName);
+      rowsHtml = card.rows.map(function (r, k) { return lyrRowHtml(r, k === 0 ? "cur" : "nxt"); }).join("");
       var locked = !!U.locked;
-      html = "<div class=\"x-songc\"><div class=\"x-stitle\">" + esc(U.title) + (U.artist ? " \u00b7 " + esc(U.artist) : "") + "</div><div class=\"x-sline\">" + line + "</div></div>"
+      html = "<div class=\"x-songc\"><div class=\"x-stitle\">" + esc(U.title) + (U.artist ? " \u00b7 " + esc(U.artist) : "") + "</div><div class=\"x-lrows\"><span class=\"x-lroll\">" + rowsHtml + "</span></div></div>"
         + "<button type=\"button\" class=\"x-b x-lock\" aria-pressed=\"" + locked + "\" aria-label=\"Lock the song chords\"><span class=\"x-lki\">" + (locked ? "\ud83d\udd12" : "\ud83d\udd13") + "</span>Lock</button>";
     } else {
       html = "<div class=\"x-songc x-empty\"><div class=\"x-stitle\">No song loaded</div><div class=\"x-sline\">Tap Song to open My songs and Upload</div></div>";
@@ -490,8 +493,59 @@ function paintSrc() {
     box.className = "x-src x-mode-prog";
   }
   sig = src.view + "|" + html;
-  if (box._sig !== sig) { box.innerHTML = html; box._sig = sig; }
+  if (src.view === "song" && card) { if (songCardPaint(box, html, sig, card, rowsHtml)) { paintList(); return; } }
+  else xLyr.k = -1;
+  if (box._sig !== sig) { box.innerHTML = html; box._sig = sig; if (card) fitLyrRow(box); }
   paintList();
+}
+// ---------- P4 song card rows (v3.2 UI polish) ----------
+function lyrRowHtml(r, cls) {
+  var h = "";
+  if (r.sec) h += "<span class=\"x-lsec\">" + esc(r.sec) + " \u00b7</span>";
+  if (r.kind === "lyric") h += esc(r.before) + (r.word ? "<span class=\"x-now\">" + esc(r.word) + "</span>" : "") + esc(r.after);
+  else if (r.kind === "text") h += esc(r.text);
+  else if (r.kind === "chords") h += r.chords.map(function (c) { return "<span class=\"" + (c.on ? "x-now" : "") + "\">" + esc(c.t) + "</span>"; }).join(" ");
+  return "<span class=\"x-lrow " + cls + "\">" + (cls === "cur" ? "<span class=\"x-lin\"><span class=\"x-sline\">" + h + "</span></span>" : h) + "</span>";
+}
+// One-row roll when playback moves on to the next line (the classic bar's 300 ms roll); none with reduced motion.
+var xLyr = { k: -1, ev: null, anim: 0, log: [] };
+export function songCardState() { return { k: xLyr.k, anim: !!xLyr.anim, log: xLyr.log.slice() }; }
+function songCardPaint(box, html, sig, card, rowsHtml) {
+  var U = shared.U, same = xLyr.ev === U.events;
+  if (xLyr.anim && same) return true;   // finish the roll first; the timer repaints
+  var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var step = same && xLyr.k >= 0 && card.idx === xLyr.k + 1 && box._sig && box.querySelector(".x-lrow.cur");
+  xLyr.ev = U.events;
+  if (step && !calm) {
+    var old = box.querySelector(".x-lrow.cur"), oldHtml = old.outerHTML.replace(/<span class="x-now">([^<]*)<\/span>/g, "$1").replace(" x-shift", "");
+    box.innerHTML = html.replace("<span class=\"x-lroll\">", "<span class=\"x-lroll\">" + oldHtml);
+    box._sig = null;
+    var roll = box.querySelector(".x-lroll");
+    void roll.offsetWidth;
+    roll.classList.add("go");
+    xLyr.anim = setTimeout(function () { xLyr.anim = 0; box._sig = null; paintSrc(); }, 300);
+    xLyr.log.push({ idx: card.idx, anim: true });
+    xLyr.k = card.idx;
+    return true;
+  }
+  if (card.idx !== xLyr.k) xLyr.log.push({ idx: card.idx, anim: false });
+  if (xLyr.log.length > 200) xLyr.log.shift();
+  xLyr.k = card.idx;
+  return false;
+}
+// A long current line never wraps: if the sung word would fall past the edge, slide the row left so the word sits
+// 24 css from the left, with a 16 css fade at the left edge.
+function fitLyrRow(box) {
+  var row = box.querySelector(".x-lrow.cur"), lin = row && row.querySelector(".x-lin"), w = lin && lin.querySelector(".x-now");
+  if (!lin) return;
+  lin.style.transform = ""; row.classList.remove("x-shift"); row.classList.remove("x-ovr");
+  var rr = row.getBoundingClientRect(), lr = lin.getBoundingClientRect(), dx = 0;
+  if (w) {
+    var wr = w.getBoundingClientRect();
+    if (wr.right > rr.right - 4) dx = Math.max(0, Math.min(wr.left - rr.left - 24, wr.right - rr.right + 8));
+  }
+  if (dx > 0) { lin.style.transform = "translateX(" + (-Math.round(dx)) + "px)"; row.classList.add("x-shift"); }
+  if (lr.right - dx > rr.right + 0.5) row.classList.add("x-ovr");   // more text past the right edge: fade it out
 }
 function heldTag(p) { return p && p.held && p.from ? " <small>" + esc(styleName(p.from)) + "</small>" : ""; }   // a locked pick carried into another style
 function progLockTap() {
@@ -618,6 +672,7 @@ function wireAll() {
     ["symbol", "songBar", "styles", "prog", "kidKey"].forEach(function (id) { var n = $(id); if (n) mo.observe(n, { attributes: true, childList: true, subtree: true, characterData: true }); });
   }
   setInterval(function () { if (active && prog.playing) paintSrc(); }, 400);
+  window.addEventListener("resize", function () { if (active && $("xSrc")) fitLyrRow($("xSrc")); });   // P4: re-fit the sung word after a rotation
   var rz = 0;
   function onResize() { clearTimeout(rz); rz = setTimeout(function () { if (!active) return; placeTog(); placeSheets(); fitStrip(); placeBadges(); fitNowSymbol(); }, 80); }
   window.addEventListener("resize", onResize); window.addEventListener("orientationchange", onResize);

@@ -135,6 +135,46 @@ export function lyricNow(sec, ci) {
   while (b < t.length && !/\s/.test(t.charAt(b))) b++;
   return { before: t.slice(0, a), word: t.slice(a, b), after: t.slice(b) };
 }
+// v3.2 UI polish (Uiux P4): the Expert song card shows the line being sung (sung word on the pill) and the next line
+// (iPad: the next two). Rows come from the classic song bar's line map (js/ui/lyrics.js upLyrMap: seq = lines in play
+// order {si, rep, li}, at[step] = seq index), so the card can't drift from what plays. Pure: the caller passes
+//   M      the map, cur the current step (-1 = not started), n the row count (2 phone, 3 iPad),
+//   ci     the current step's chord index in its section (-1 = not started),
+//   lines(si, rep) -> that pass's lyric lines, chords(si) -> the section's display chord names (upA(upSym) in the UI),
+//   name(si) -> the section name.
+// Row kinds: "lyric" {before, word, after} (row 0 only has a word), "text" {text} (a later lyric line),
+// "chords" {chords: [{t, on}]} (a section with no lyric line here), "empty" (past the last line; keeps its height).
+// sec = the section name on a later row when it starts a different section (chord rows always carry it).
+export function songCardRows(M, cur, n, ci, lines, chords, name) {
+  var at = M && M.at ? M.at[cur >= 0 ? cur : 0] : undefined;
+  var idx = at == null ? 0 : at, rows = [];
+  for (var k = 0; k < n; k++) {
+    var ent = M && M.seq ? M.seq[idx + k] : null, prev = k > 0 && M && M.seq ? M.seq[idx + k - 1] : null;
+    if (!ent) { rows.push({ kind: "empty" }); continue; }
+    var line = ent.li >= 0 ? (lines(ent.si, ent.rep) || [])[ent.li] : null;
+    var sec = k > 0 && (!line || (prev && prev.si !== ent.si)) ? name(ent.si) : null;
+    if (line) {
+      if (k === 0) {
+        var ly = lyricNow({ lyrics: [line] }, ci);
+        // AI charts sometimes put a lyric mark on the space before a word, or on the trailing space after the last
+        // word. Highlight the next word (or the last one if the line ends here), rather than an invisible space.
+        if (!ly.word && ly.before) {
+          var text = String(line.text || ""), a = ly.before.length, b = a;
+          while (a < text.length && /\s/.test(text.charAt(a))) a++;
+          if (a === text.length) { a = b; while (a > 0 && /\s/.test(text.charAt(a - 1))) a--; while (a > 0 && !/\s/.test(text.charAt(a - 1))) a--; }
+          b = a; while (b < text.length && !/\s/.test(text.charAt(b))) b++;
+          ly = { before: text.slice(0, a), word: text.slice(a, b), after: text.slice(b) };
+        }
+        rows.push({ kind: "lyric", before: ly.before, word: ly.word, after: ly.after, si: ent.si });
+      }
+      else rows.push({ kind: "text", text: String(line.text || ""), sec: sec, si: ent.si });
+    } else {
+      var names = chords(ent.si) || [];
+      rows.push({ kind: "chords", chords: names.map(function (t, i) { return { t: t, on: k === 0 && ci >= 0 && i === ci }; }), sec: sec, si: ent.si });
+    }
+  }
+  return { idx: idx, rows: rows };
+}
 // Style drop-down (decision 6): the nine styles with the mockup's short sound hints.
 // rd4: no Kids here - the Kids / Simple / Expert switch is the only way into Kids (the classic style chips keep Kids)
 export const STYLE_MENU = [

@@ -487,3 +487,71 @@ html.expert.x-ctl-on #ctl .band-row b { color: var(--x-ink); }
 html.expert.x-ctl-on #ctl .band-wrap.off .band-row b { color: var(--x-muted); }
 /* Nov 9: the progression list scrolls inside its own panel. */
 html.expert #xPList { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+
+/* ===== v3.2 UI polish (Uiux, Nov 14: ux-expert-layout-fixes.md P1-P7). Same look; only sizes and edges change. ===== */
+/* P1 phone portrait: the piano is 30% of the screen (200..260 css) and the chord grid takes the rest. */
+html.expert.lay-phone-port #app {
+  --x-ctl-h: 48px; --x-src-h: 64px; --x-kb-h: clamp(200px, 30dvh, 260px);
+  grid-template-rows: var(--x-row) var(--x-row) var(--x-src-h) minmax(200px, 1fr) var(--x-ctl-h) var(--x-kb-h) !important;
+}
+html.expert.lay-phone-port.x-types-open #app {
+  grid-template-rows: var(--x-row) var(--x-row) var(--x-src-h) minmax(180px, 1fr) var(--x-ctl-h) var(--x-pal-h) var(--x-kb-h) !important;
+}
+/* P2 + P3 phone landscape. The status bar is hidden natively (MainActivity), so its height goes to the song card (+14)
+   and the piano (+14). The side column is 148 css; SUSTAIN 56 tall; the two button rows are at least 48 each.
+   Insets: native padding is the only source; env(safe-area-inset-*) is 0 in the app, so nothing is added here. */
+html.expert.lay-phone-land #app { --x-side: 148px; --x-sus-h: 56px; --x-src-h: 46px; --x-kb-h: 126px; }
+html.expert.lay-phone-land #xCtl { grid-template-rows: minmax(48px, 1fr) minmax(48px, 1fr); }
+html.expert.lay-phone-land #xGo .x-play { width: 40px; }   /* P4 note: keep Play at its old width when the card grows to 46 */
+@media (max-height: 348px) {   /* 800x330: SUSTAIN stays 48 so two 48 rows still fit */
+  html.expert.lay-phone-land #app { --x-sus-h: 48px; --x-src-h: 40px; --x-kb-h: 96px; }
+  html.expert.lay-phone-land.x-types-open #app { --x-kb-h: 88px; }
+}
+/* P4 song card: title, the line being sung (sung word on the gold pill) and the next line (iPad: next two). */
+html.expert.lay-pad-port #app { --x-src-h: 112px; } html.expert.lay-pad-land #app { --x-src-h: 84px; }
+html.expert .x-songc { display: flex; flex-direction: column; justify-content: center; overflow: hidden; align-self: stretch; }
+html.expert .x-lrows { position: relative; overflow: hidden; height: calc(var(--x-lh1) + var(--x-lh2) * var(--x-lrn, 1)); }
+html.expert .x-lroll { display: block; will-change: transform; }
+html.expert .x-lroll.go { transition: transform .28s ease-out; transform: translateY(calc(-1 * var(--x-lh1))); }
+@media (prefers-reduced-motion: reduce) { html.expert .x-lroll.go { transition: none; } }
+html.expert .x-lrow { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-sizing: border-box; }
+html.expert .x-lrow.cur { font: 700 16px/var(--x-lh1) Andika, Nunito, system-ui, sans-serif; height: var(--x-lh1); color: var(--x-ink); text-overflow: clip; }
+html.expert .x-lrow.nxt { font: 600 14px/var(--x-lh2) Andika, Nunito, system-ui, sans-serif; height: var(--x-lh2); color: var(--x-muted); }
+html.expert .x-lrow .x-now { background: var(--x-gold); color: #3B2600; border-radius: 6px; padding: 0 4px; }
+html.expert .x-lrow .x-lsec { font-family: Fredoka, Nunito, system-ui, sans-serif; font-weight: 600; margin-right: 4px; }
+html.expert .x-lrow.cur .x-lin { display: inline-block; transition: transform .2s ease-out; }
+html.expert .x-lrow.cur.x-shift { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px); mask-image: linear-gradient(90deg, transparent 0, #000 16px); }
+html.expert .x-lrow.cur.x-ovr { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 16px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 16px), transparent); }
+html.expert .x-lrow.cur.x-shift.x-ovr { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent); mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent); }
+html.expert #app { --x-lh1: 20px; --x-lh2: 18px; }
+html.expert.lay-phone-land #app { --x-lh1: 16px; --x-lh2: 14px; }
+html.expert.lay-phone-land .x-stitle { font-size: 11px; line-height: 11px; }
+html.expert .x-stitle { line-height: 15px; }
+html.expert .x-lrow .x-sline { overflow: visible; font: inherit; white-space: inherit; }
+html.expert.lay-phone-land .x-lrow.cur { font-size: 14.5px; } html.expert.lay-phone-land .x-lrow.nxt { font-size: 13px; }
+html.expert.lay-pad-port #app { --x-lh1: 30px; --x-lh2: 24px; } html.expert.lay-pad-land #app { --x-lh1: 23px; --x-lh2: 17px; }
+html.expert.lay-pad-port .x-stitle, html.expert.lay-pad-land .x-stitle { line-height: 19px; } html.expert.lay-pad-land .x-stitle { line-height: 16px; }
+html.expert.lay-pad-port .x-lrow.cur { font-size: 26px; } html.expert.lay-pad-port .x-lrow.nxt { font-size: 20px; }
+html.expert.lay-pad-land .x-lrow.cur { font-size: 22px; } html.expert.lay-pad-land .x-lrow.nxt { font-size: 18px; }
+html.expert.lay-pad-port .x-lrows, html.expert.lay-pad-land .x-lrows { --x-lrn: 2; }
+html.expert.lay-phone-land #xSrc.x-mode-song { padding-top: 1px; padding-bottom: 1px; }
+/* P5 song Lock: 52 wide (48 in phone landscape), the tap area is at least 48 x 48 (same trick as the progression lock) */
+html.expert .x-lock { width: 52px; position: relative; }
+html.expert.lay-phone-land .x-lock { width: 48px; font-size: 10px; }
+html.expert.lay-pad-port .x-lock, html.expert.lay-pad-land .x-lock { width: 72px; }
+html.expert .x-lock::after { content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, 48px); height: max(100%, 48px); transform: translate(-50%, -50%); }
+html.expert.lay-phone-land .x-plock { width: 48px; }
+/* P6 borrowed chords: one solid warm edge on a soft tint (the 2px dashed edge broke up differently on every chip) */
+html.expert #suggest .ss-chip.borrowed { background: rgba(163, 75, 28, .07); border: 1.5px solid rgba(163, 75, 28, .55); color: var(--x-borrow); }
+html.expert.x-lamp #suggest .ss-chip.borrowed { background: rgba(242, 180, 138, .10); border-color: rgba(242, 180, 138, .55); }
+/* P7 out-of-key keys: the owner's "Soft fade". Labels fade by colour (3.4:1 / 3.6:1), not opacity; no teal minor tip. */
+html.expert .kb.piano .pad.white.nokey { background: #E0D8CE; color: #806F5D; box-shadow: inset 0 0 0 2px #A34B1C, inset 0 -4px 0 #A34B1C; }
+html.expert .kb.piano .pad.black.nokey { background: #4A4036; color: #A89884; border-color: #A34B1C; box-shadow: none !important; }
+@media (max-height: 348px) {
+  html.expert.lay-phone-land #app { --x-lh1: 14px; --x-lh2: 12px; }
+  html.expert.lay-phone-land .x-stitle { line-height: 9px; font-size: 9px; }
+  html.expert.lay-phone-land .x-lrow.cur { font-size: 13px; } html.expert.lay-phone-land .x-lrow.nxt { font-size: 11px; }
+}
+/* P4: Vietnamese stacked marks (ẫ, ố, Ổ) rise above a tight line box. Clip sideways as before, but leave a few px above and
+   below so the marks are not cut (overflow: clip + overflow-clip-margin; older WebViews keep overflow: hidden). */
+html.expert .x-stitle, html.expert .x-lrows, html.expert .x-lrow { overflow: hidden; overflow: clip; overflow-clip-margin: 4px; }
