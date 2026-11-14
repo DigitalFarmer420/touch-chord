@@ -23,7 +23,7 @@ import { stripPress, stripRelease } from "../ui/strip.js?v=112.13";
 import { keyOf, soundFinger, liftFinger, resoundHeldFinger } from "../ui/touch.js?v=112.13";
 import { api as ChordAudio } from "../audio/index.js?v=112.13";
 import { makeChip, openModeSheet } from "../ui/modesheet.js?v=112.13";
-import { kidsRowPlan, KIDS_ROWS } from "./grid.js?v=112.13";
+import { kidsRowPlan, KIDS_ROWS, kidsPadLabel } from "./grid.js?v=112.13";
 import { registerLook, lookApplyNow } from "../ui/look.js?v=112.13";
 
 // The six Kids songs (presets.js order): picture, title for parents, short chip name.
@@ -397,10 +397,11 @@ export function paint(force) {
   var m = meta(name);
   els.chip.innerHTML = "<span class=\"kv-pic\">" + m.pic + "</span><span class=\"kv-cn\">" + m.chip + "</span>";
   var lh = lyrHtml(); if (els.lyr._h !== lh) { els.lyr.innerHTML = lh; els.lyr._h = lh; }
+  var goldNote = !!kidsGoldStep();   // the gold pad plays the single song note only while play-along waits for it
   Array.prototype.forEach.call(els.pads.children, function (p) {
     var gold = goldPad != null && Number(p.dataset.pc) === goldPad;
     p.classList.toggle("gold", gold);
-    p.setAttribute("aria-label", p.dataset.letter + ", major chord" + (gold && !paOff ? ", next" : ""));
+    p.setAttribute("aria-label", kidsPadLabel(p.dataset.letter, gold && !paOff && goldNote));
   });
   Array.prototype.forEach.call(els.piano.querySelectorAll(".kv-wk, .kv-bk"), function (k) {
     var midi = keyMidi(Number(k.dataset.pc)), gold = g != null && wrap12(g) === wrap12(midi);

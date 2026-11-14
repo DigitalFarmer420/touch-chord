@@ -28,3 +28,6 @@ export function kidsRowPlan(H, n, cols, g, sz) {
   var rr = Math.floor(best.r);
   return { r: rr, full: best.full, peek: Math.round(((H - best.full * (rr + g)) / rr) * 100) / 100 };
 }
+// v3.2 UI polish: the Kids pad's screen-reader label says what a tap plays. A pad plays its major chord, but the gold
+// (next) pad in play-along plays the song's single melody note (next.js kidsGoldGo -> magicAdvance), not a chord.
+export function kidsPadLabel(letter, next) { return next ? letter + ", next: plays the song note" : letter + ", major chord"; }
