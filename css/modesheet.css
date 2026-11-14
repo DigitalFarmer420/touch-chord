@@ -70,6 +70,10 @@ html.lay-phone-land .ms-head { top: -8px; }
 .ms-note:empty { display: none; }
 .ms-ver { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; margin: 2px 0 8px; text-align: left; }
 .ms-ver-n { font-size: 14px; font-weight: 800; color: var(--ms-ink); }
+.ms-ver-b { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 12px; font-weight: 700; color: var(--ms-muted); font-variant-numeric: tabular-nums; user-select: text; -webkit-user-select: text; }
+.ms-ver-b code { font: inherit; color: var(--ms-ink); user-select: text; -webkit-user-select: text; word-break: break-all; }
+.ms-ver-copy { position: relative; border: 0; border-radius: 8px; background: var(--ms-btn); color: var(--ms-ink); padding: 0 12px; height: 32px !important; font: 800 12px Nunito, system-ui, sans-serif; }
+.ms-ver-copy::after { content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, 48px); height: 48px; transform: translate(-50%, -50%); }   /* tap area 48 x 48 */
 .ms-ver-rc { font-size: 13px; font-weight: 800; color: #8A3E16; }
 .ms-wrap:not(.ms-day) .ms-ver-rc { color: #F2B48A; }
 .ms-wrap button:focus-visible { outline: 3px solid var(--ms-tg); outline-offset: 2px; }

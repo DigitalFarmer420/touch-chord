@@ -131,6 +131,10 @@ __kbWin, __magic, __applySongKey, __lyr2, __kidsLyr, __upload, __haptic` (js/tes
   twice with two copies of its state). We chose queries over an import map so that Safari < 16.4 keeps working.
 - To release a new version: `python3 tools/bump-version.py 112.4` (rewrites APP_VERSION and every `?v=`), then
   `python3 tools/check-version.py` (fails on any stale or missing `?v=`).
+- `APP_BUILD` in `js/version.js` is the full build name shown in Settings ("Build ..." with a Copy button). Web builds
+  keep the default `<APP_VERSION>-web`. For an APK, run `python3 tools/write-build.py <versionName>` (or
+  `--gradle android/app/build.gradle`) before staging the web files, so Settings matches Android's versionName. It only
+  changes the APP_BUILD line; `?v=` stays APP_VERSION.
 - The DEV badge (`.github/dev/inject-dev-badge.py`) only edits `</head>`, `<title>` and `</body>` of index.html; it
   works unchanged with this structure (checked on a copy).
 

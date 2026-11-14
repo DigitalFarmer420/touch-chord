@@ -8,7 +8,7 @@
 //     the How to dialog), so nothing behaves differently from before.
 // The Expert view (js/expert/ui.js) configures it: the current mode, the switch, Start over and the looks.
 import { state } from "../state.js?v=112.13";
-import { APP_VERSION } from "../version.js?v=112.13";
+import { APP_VERSION, APP_BUILD } from "../version.js?v=112.13";
 import { LOOK_CHOICES, LOOK_LABELS } from "./lookmath.js?v=112.13";
 import { openHowto } from "./helpmenu.js?v=112.13";
 
@@ -91,7 +91,10 @@ function build() {
   sheet = h("div", "ms-sheet", null, { role: "dialog", "aria-modal": "true", "aria-label": "Settings" });
   var html = "<div class=\"ms-grab\"></div><div class=\"ms-head\"><h2>Settings</h2><button type=\"button\" class=\"ms-x\" aria-label=\"Close\">\u2715</button></div>"
     + "<div class=\"ms-body\">"
-    + "<div class=\"ms-ver\" id=\"msVer\"><div class=\"ms-ver-n\">Version " + APP_VERSION + "</div><div class=\"ms-ver-rc\">RC testing</div></div>"
+    + "<div class=\"ms-ver\" id=\"msVer\"><div class=\"ms-ver-n\">Version " + APP_VERSION + "</div>"
+    // v3.2 UI polish (Uiux P8): the full build name (APP_BUILD, written at packaging time), selectable, with Copy
+    + "<div class=\"ms-ver-b\">Build <code id=\"msBuild\">" + buildEsc(APP_BUILD) + "</code> <button type=\"button\" class=\"ms-ver-copy\" data-act=\"copybuild\" id=\"msBuildCopy\" aria-label=\"Copy the build name\">Copy</button></div>"
+    + "<div class=\"ms-ver-rc\">RC testing</div></div>"
     + "<div class=\"ms-lbl\" data-row=\"mode\">Mode</div><div class=\"ms-mode\" id=\"msMode\" role=\"radiogroup\" aria-label=\"Mode\">"
     + MODES.map(function (m) { return "<button type=\"button\" role=\"radio\" data-mode=\"" + m[0] + "\"><b>" + m[1] + "</b><small>" + m[2] + "</small></button>"; }).join("") + "</div>"
     + "<div class=\"ms-lbl\">Playing</div>"
@@ -143,11 +146,27 @@ function onClick(e) {
   }
   if (b.dataset.look) { var m = cfg.mode(); if (!cfg.lookSet) return; cfg.lookSet(m, b.dataset.look); paintSheet(); return; }
   var act = b.dataset.act;
+  if (act === "copybuild") { copyBuild(b); return; }
   if (act === "reset") { confirmEl.hidden = false; return; }
   if (act === "howto" || act === "tour") {
     openModeSheet(false);
     if (act === "howto") openHowto(); else { var n = $("tourBtn"); if (n) n.click(); }
   }
+}
+function buildEsc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]; }); }
+// Copy the build name; the button says "Copied" for 1.5 s (or "Copy failed" when the clipboard refuses).
+var copyT = 0;
+export function copyBuild(b) {
+  function say(t) { clearTimeout(copyT); b.textContent = t; copyT = setTimeout(function () { b.textContent = "Copy"; }, 1500); }
+  function fallback() {
+    try {
+      var ta = document.createElement("textarea"); ta.value = APP_BUILD; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select(); var ok = document.execCommand && document.execCommand("copy"); document.body.removeChild(ta);
+      say(ok ? "Copied" : "Copy failed");
+    } catch (e) { say("Copy failed"); }
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(APP_BUILD).then(function () { say("Copied"); }, fallback);
+  else fallback();
 }
 function setSw(b, on, dis) { b.classList.toggle("on", !!on); b.setAttribute("aria-checked", on ? "true" : "false"); b.disabled = !!dis; b.classList.toggle("dis", !!dis); }
 export function paintSheet() {
