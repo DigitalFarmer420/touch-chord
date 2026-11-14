@@ -173,3 +173,8 @@ button.on, button[aria-pressed="true"].toggle.on {
 }
 
 html.tc-boot #app { visibility: hidden; }
+/* v3.2 UI polish (Uiux P10): until saved settings apply (tc-boot), the page is the splash colour, so the native cream
+   splash hands over to the WebView with no white or dark flash (the APK's WebView background is the same #F6EFE3).
+   With the system in dark mode it is the Lamplight background, matching the optional values-night splash. */
+html.tc-boot, html.tc-boot body { background: #F6EFE3; }
+@media (prefers-color-scheme: dark) { html.tc-boot, html.tc-boot body { background: #1E1914; } }
