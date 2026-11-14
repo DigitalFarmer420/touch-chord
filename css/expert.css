@@ -500,7 +500,10 @@ html.expert.lay-phone-port.x-types-open #app {
 /* P2 + P3 phone landscape. The status bar is hidden natively (MainActivity), so its height goes to the song card (+14)
    and the piano (+14). The side column is 148 css; SUSTAIN 56 tall; the two button rows are at least 48 each.
    Insets: native padding is the only source; env(safe-area-inset-*) is 0 in the app, so nothing is added here. */
-html.expert.lay-phone-land #app { --x-side: 148px; --x-sus-h: 56px; --x-src-h: 46px; --x-kb-h: 126px; }
+html.expert.lay-phone-land #app { --x-side: 148px; --x-sus-h: 56px; --x-src-h: 46px; --x-kb-h: clamp(96px, calc(100dvh - 270px), 126px); }
+/* kb-h: 126 css once the screen is 396+ css tall (411 on Vinh's phone with the status bar hidden). On shorter screens
+   (status bar showing, or a small phone) the piano gives way first, so the five grid rows keep their 32 css floor and
+   never slide under the keys (780x360: 96 css, as before). */
 html.expert.lay-phone-land #xCtl { grid-template-rows: minmax(48px, 1fr) minmax(48px, 1fr); }
 html.expert.lay-phone-land #xGo .x-play { width: 40px; }   /* P4 note: keep Play at its old width when the card grows to 46 */
 @media (max-height: 348px) {   /* 800x330: SUSTAIN stays 48 so two 48 rows still fit */
