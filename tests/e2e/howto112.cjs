@@ -24,7 +24,7 @@ const R = { fails: [], info: {} }; const F = (c, m) => { if (!c) R.fails.push(m)
     await ctx.addInitScript(`try{localStorage.setItem('touchChord.settings.v1',JSON.stringify({v:1,settings:{simple:${simple}}}));}catch(e){}`);
     const p = await ctx.newPage(); const errs = [], bad = [], imgs = {};
     p.on('pageerror', e => errs.push('' + e)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
-    p.on('response', r => { if (r.status() >= 400) bad.push(r.status() + ' ' + r.url()); if (/\/images\//.test(r.url())) imgs[r.url()] = r.status(); });
+    p.on('response', r => { if (r.status() >= 400) bad.push(r.status() + ' ' + r.url()); if (/\/images\/howto-/.test(r.url())) imgs[r.url()] = r.status(); /* v3.2 guide: only the How to pictures (the brand icon also loads from images/) */ });
     await p.goto(URL + '?test=1'); await p.waitForTimeout(1000);
     // rd17: "?" opens How to / Tour. Expert's visible control is #xHelp (the classic #howtoBtn is in the hidden top bar).
     const help = await p.evaluate(() => { const vis = e => e && e.getClientRects().length && getComputedStyle(e).visibility !== 'hidden' && getComputedStyle(e).display !== 'none';
@@ -35,7 +35,7 @@ const R = { fails: [], info: {} }; const F = (c, m) => { if (!c) R.fails.push(m)
     const open = await p.evaluate(() => { const d = document.getElementById('howto'); return !d.hidden && getComputedStyle(d).display !== 'none'; }); F(open, tag + ' How to did not open');
     await p.screenshot({ path: SH + tag + '-top.png' });
     // scroll through, picture by picture
-    const n = await p.evaluate(() => document.querySelectorAll('#howto img').length); F(n === 12, tag + ' pictures ' + n);
+    const n = await p.evaluate(() => document.querySelectorAll('#howto img').length); F(n === 13, tag + ' pictures ' + n);
     for (let i = 0; i < n; i++) { await p.evaluate(i => document.querySelectorAll('#howto img')[i].scrollIntoView({ block: 'center' }), i); await p.waitForTimeout(250); }
     await p.waitForFunction(() => [...document.querySelectorAll('#howto img')].every(i => i.complete), null, { timeout: 8000 }).catch(() => F(0, tag + ' images not complete'));
     if (simple === false && w === 360) { await p.evaluate(() => [...document.querySelectorAll('#howto h3')].find(x => /Upload/.test(x.textContent)).scrollIntoView({ block: 'start' })); await p.waitForTimeout(300); await p.screenshot({ path: SH + tag + '-upload.png' }); }
@@ -46,7 +46,7 @@ const R = { fails: [], info: {} }; const F = (c, m) => { if (!c) R.fails.push(m)
       return { scrollable: box.scrollHeight > box.clientHeight, scrolled: after > before, boxOver: box.scrollWidth - box.clientWidth, docOver: document.documentElement.scrollWidth - innerWidth, bw: Math.round(bx.width), im }; });
     F(g.scrollable && g.scrolled, tag + ' does not scroll'); F(g.boxOver <= 0, tag + ' dialog overflows x by ' + g.boxOver); F(g.docOver <= 0, tag + ' page overflows x by ' + g.docOver);
     g.im.forEach(i => { F(i.nw === 1170 && i.nh === 540, tag + ' not loaded ' + i.src); F(i.inX, tag + ' outside box ' + i.src); F(i.h <= h, tag + ' taller than screen ' + i.src + ' ' + i.h); F(Math.abs(i.w / i.h - 1170 / 540) < 0.02, tag + ' distorted ' + i.src); F(i.src.endsWith('?v='+APPV), tag + ' cache tag ' + i.src); });
-    F(Object.keys(imgs).length === 12 && Object.values(imgs).every(s => s === 200 || s === 304), tag + ' image responses ' + JSON.stringify(imgs));
+    F(Object.keys(imgs).length === 13 && Object.values(imgs).every(s => s === 200 || s === 304), tag + ' image responses ' + JSON.stringify(imgs));
     F(!bad.length, tag + ' HTTP errors ' + bad); F(!errs.length, tag + ' console ' + errs);
     await p.screenshot({ path: SH + tag + '-end.png' });
     await p.click('#howto .ht-x'); await p.waitForTimeout(300); F(await p.evaluate(() => document.getElementById('howto').hidden), tag + ' did not close');

@@ -20,7 +20,7 @@ import { setKidKey } from "./kids.js?v=112.13";
 import { updateSymbol } from "./ui/nowbox.js?v=112.13";
 import { kidsTapLog, fxTapLog } from "./ui/pulse.js?v=112.13";
 import { stripLabel } from "./ui/strip.js?v=112.13";
-import { tourI, tourLog, tourDone, tourStart } from "./ui/tour.js?v=112.13";
+import { tourI, tourLog, tourDone, tourStart, tourSteps } from "./ui/tour.js?v=112.13";
 import { paintUpload, upMode, upPromptFor, upShowErrors, upCopyText, upSetPrompt } from "./ui/upload-dialog.js?v=112.13";
 
 
@@ -43,7 +43,7 @@ export function install() {
     return { n: all.length, label: t ? (t.getAttribute("aria-label") || t.textContent) : null, step: t ? prog.targets.indexOf(t) : -1, playing: prog.playing, cur: prog.cur, si: prog.si }; };
   if (PROG_TEST) { window.__playAlong = paLog; paLog.tones = function () { var c = nxNow(); if (!c || !c.item) return null; var sp = nextHintSpec(c.item), o = {}; (sp.midis || []).forEach(function (m) { if (isFinite(m)) o[wrap12(Number(m))] = 1; }); return Object.keys(o).map(Number); }; }
   if (PROG_TEST) window.__paHint = paHintLog;
-  if (PROG_TEST) window.__tour = { start: function (r) { tourStart(r !== false); }, log: tourLog, step: function () { return tourI; }, done: tourDone };
+  if (PROG_TEST) window.__tour = { start: function (r) { tourStart(r !== false); }, log: tourLog, step: function () { return tourI; }, done: tourDone, steps: tourSteps };
   if (PROG_TEST) window.__fxTap = fxTapLog;
   if (PROG_TEST) window.__kidsTap = kidsTapLog;
   if (PROG_TEST) window.__kidsPads = function () { return Array.prototype.map.call(document.querySelectorAll("#suggest .ss-kidpad"), function (b) { var it = b._tc && b._tc.item; return { label: b.textContent, cls: b.className, rootPc: it && it.rootPc, type: it && it.type, gold: b.classList.contains("nx-root") }; }); };   // v103

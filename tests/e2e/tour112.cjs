@@ -1,56 +1,72 @@
-const APPV=require('fs').readFileSync(require('path').resolve(__dirname,'../../js/version.js'),'utf8').match(/APP_VERSION = "([^"]+)"/)[1];   // CI: version from js/version.js
-// v112 tour: first launch only (fresh storage, Kids + Twinkle), 6 steps exact text, spotlight on each target, card inside
-// the screen and not over the spotlight, Next / Skip / Done, saved as done, replay from Config > Help > Tour (from Pop too),
-// Escape = Skip, saved settings = no tour, both sizes. Screenshots of every step.
-const { chromium } = require('playwright-core');const fs=require('fs');
-const U=(process.env.BASE||'http://localhost:8080/index.html');const J=JSON.stringify;
-const TXT=["Hi! Let's play Twinkle Twinkle Little Star.","Tap the gold pad to play the next chord.","Or tap the gold key on the piano. This works too.","The words light up as you go.","Tap Play to hear the whole song.","Pick another song here."];
-const SEL=[null,'#suggest .ss-kidpad.nx-root','#pads .pad.nx-root','#kidsLyr','#prog .pg-song','#prog .pg-sel'];
-const R={fails:[],count:{}};const F=(c,m)=>{R.count[c?'ok':'FAIL']=(R.count[c?'ok':'FAIL']||0)+1;if(!c)R.fails.push(m)};
-(async()=>{const b=await chromium.launch({executablePath:process.env.CHROME||undefined,});
-for(const [W,H] of [[360,780],[780,360]]){const sz=W+'x'+H;
- const mk=async()=>{const ctx=await b.newContext({viewport:{width:W,height:H},hasTouch:true,isMobile:true,deviceScaleFactor:2});const p=await ctx.newPage();p.errs=[];p.on('pageerror',e=>p.errs.push(''+e));p.on('console',m=>{if(m.type()==='error')p.errs.push(m.text())});return {ctx,p};};
- const st=p=>p.evaluate(SEL=>{const box=document.getElementById('tour');const i=window.__tour.step();const card=box.querySelector('.tour-card').getBoundingClientRect(),hole=box.querySelector('.tour-hole'),hr=hole.getBoundingClientRect();
-  const t=i>=0&&SEL[i]?document.querySelector(SEL[i]):null,tr=t?t.getBoundingClientRect():null;
-  return {open:!box.hidden,i,text:document.getElementById('tourText').textContent,step:box.querySelector('.tour-step').textContent,next:box.querySelector('.tour-next').textContent,skip:!box.querySelector('.tour-skip').hidden,
-   card:[card.left,card.top,card.right,card.bottom],hole:hole.hidden?null:[hr.left,hr.top,hr.right,hr.bottom],tgt:tr?[tr.left,tr.top,tr.right,tr.bottom]:null,num:box.querySelector('.tour-num').hidden?null:box.querySelector('.tour-num').textContent,
-   done:window.__tour.done(),style:(document.querySelector('#styles button.on')||{}).textContent,song:(document.querySelector('#prog .pg-t')||{}).textContent,W:innerWidth,H:innerHeight,
-   goldKeyIn:(()=>{const g=document.querySelector('#pads .pad.nx-root');if(!g)return null;const q=g.getBoundingClientRect(),P=document.getElementById('pads').getBoundingClientRect();return q.left>=P.left-1&&q.right<=P.right+1})()}},SEL);
- const check=(s,k,tag)=>{F(s.open&&s.i===k,`${tag} step ${k+1} open ${s.open} i ${s.i}`);F(s.text===TXT[k],`${tag} step ${k+1} text "${s.text}"`);F(s.step===`${k+1} / 6`,`${tag} counter ${s.step}`);
-  F(s.next===(k===5?'Done':'Next'),`${tag} step ${k+1} button ${s.next}`);F(k===5||s.skip,`${tag} step ${k+1} no Skip`);
-  const c=s.card;F(c[0]>=0&&c[1]>=0&&c[2]<=s.W&&c[3]<=s.H,`${tag} step ${k+1} card off screen ${J(c)}`);
-  if(SEL[k]){F(!!s.tgt&&!!s.hole,`${tag} step ${k+1} no target/hole`);if(s.tgt&&s.hole){const h=s.hole,t=s.tgt;F(h[0]<=t[0]+1&&h[1]<=Math.max(t[1],2)+1&&h[2]>=Math.min(t[2],s.W-2)-1&&h[3]>=Math.min(t[3],s.H-2)-1,`${tag} step ${k+1} hole ${J(h)} misses target ${J(t)}`);
-    const ov=!(c[2]<=h[0]||c[0]>=h[2]||c[3]<=h[1]||c[1]>=h[3]);F(!ov,`${tag} step ${k+1} card ${J(c)} overlaps spotlight ${J(h)}`);F(s.num===String(k+1),`${tag} step ${k+1} marker ${s.num}`);}}
-  else F(!s.hole,`${tag} step 1 should be whole screen`);
-  if(k===2)F(s.goldKeyIn===true,`${tag} gold key not in the keyboard view`);};
- // 1) fresh: auto tour, Next x5, Done; screenshots
- {const {ctx,p}=await mk();await p.goto(U+'?test=1&tour=1');await p.waitForTimeout(1600);
-  for(let k=0;k<6;k++){const s=await st(p);check(s,k,sz+' fresh');if(k===0)F(s.style==='Kids'&&/Twinkle/.test(s.song),`${sz} fresh not Kids Twinkle ${s.style} ${s.song}`);
-   await p.screenshot({path:`${process.env.SHOTS||'/tmp/tc-shots'}/tour-${sz}-step${k+1}.png`});await p.click('#tour .tour-next');await p.waitForTimeout(250);}
-  let s=await st(p);F(!s.open&&s.done,`${sz} Done: open ${s.open} done ${s.done}`);
-  await p.reload();await p.waitForTimeout(1600);s=await st(p);F(!s.open,`${sz} tour again after Done + reload`);
-  // replay from Pop via Config > Help > Tour
-  await p.evaluate(()=>document.querySelector('#styles button[data-style="pop"]').click());await p.waitForTimeout(400);
-  await p.click('#configBtn');await p.waitForTimeout(250);const vis=await p.evaluate(()=>{const t=document.getElementById('tourBtn').getBoundingClientRect();return t.width>0&&t.bottom<=innerHeight});F(vis,`${sz} Help > Tour not visible in the gear menu`);
-  if(W===360)await p.screenshot({path:`${process.env.SHOTS||'/tmp/tc-shots'}/gear-help-tour-${sz}.png`});
-  await p.click('#tourBtn');await p.waitForTimeout(600);s=await st(p);check(s,0,sz+' replay');F(s.style==='Kids'&&/Twinkle/.test(s.song),`${sz} replay not in Kids Twinkle: ${s.style} ${s.song}`);
-  for(let k=0;k<5;k++){await p.click('#tour .tour-next');await p.waitForTimeout(250);check(await st(p),k+1,sz+' replay');}
-  await p.click('#tour .tour-next');await p.waitForTimeout(200);s=await st(p);F(!s.open,`${sz} replay Done left it open`);
-  F(!p.errs.length,`${sz} errs ${J(p.errs)}`);await ctx.close();}
- // 2) Skip at step 3, saved; Escape skip on a replay
- {const {ctx,p}=await mk();await p.goto(U+'?test=1&tour=1');await p.waitForTimeout(1600);await p.click('#tour .tour-next');await p.waitForTimeout(150);await p.click('#tour .tour-next');await p.waitForTimeout(150);
-  let s=await st(p);check(s,2,sz+' skip');await p.click('#tour .tour-skip');await p.waitForTimeout(150);s=await st(p);F(!s.open&&s.done,`${sz} Skip: open ${s.open} done ${s.done}`);
-  await p.reload();await p.waitForTimeout(1600);s=await st(p);F(!s.open,`${sz} tour again after Skip`);
-  await p.evaluate(()=>window.__tour.start(true));await p.waitForTimeout(300);await p.keyboard.press('Escape');await p.waitForTimeout(150);s=await st(p);F(!s.open,`${sz} Escape did not skip`);
-  // the tour blocks taps underneath: a tap on the gold pad during the tour does not advance
-  await p.evaluate(()=>window.__tour.start(true));await p.waitForTimeout(300);await p.click('#tour .tour-next');await p.waitForTimeout(200);
-  const pos0=await p.evaluate(()=>__magic.state.pos);const gp=await p.evaluate(()=>{const q=document.querySelector('#suggest .ss-kidpad.nx-root').getBoundingClientRect();return {x:q.x+q.width/2,y:q.y+q.height/2}});
-  await p.mouse.click(gp.x,gp.y);await p.waitForTimeout(200);F(await p.evaluate(()=>__magic.state.pos)===pos0,`${sz} a tap reached the app under the tour`);
-  F(!p.errs.length,`${sz} errs ${J(p.errs)}`);await ctx.close();}
- // 3) saved settings, tour never done: no tour (only the fresh first load runs it)
- {const {ctx,p}=await mk();await p.goto(U+'?test=1');await p.evaluate(()=>{localStorage.setItem('touchChord.settings.v1',JSON.stringify({v:1,settings:{simple:false,style:'pop'}}));localStorage.removeItem('touchChord.tour.v1')});
-  await p.goto(U+'?test=1&tour=1');await p.waitForTimeout(1600);const s=await st(p);F(!s.open,`${sz} saved settings: tour opened`);F(!s.done,`${sz} saved settings: marked done`);await ctx.close();}
- // 4) without ?test=1 (the real app) a fresh load opens the Kids view (Kids redesign: Simple), where the full-app tour does not run
- {const {ctx,p}=await mk();await p.goto(U);await p.waitForTimeout(1600);F(await p.evaluate(()=>document.documentElement.classList.contains('kv')&&document.getElementById('tour').hidden),`${sz} real fresh load: not the Kids view, or the tour opened over it`);await ctx.close();}
-}
-await b.close();fs.writeFileSync((process.env.OUT||__dirname)+'/tour112.json',J(R,null,1));console.log(J({count:R.count,fails:R.fails.slice(0,20)}));})().catch(e=>{console.error(e);process.exit(1)});
+// Tour (v3.2 guide/tour refresh; was the v112 Kids-style tour, whose targets the Kids view, Simple and Expert no longer show).
+// For Kids, Simple and Expert at 360x780, 780x360, 390x844 and 844x390: open the tour the way a person does (Kids:
+// Settings > Tour; Simple / Expert: "?" > Tour), walk every step and check: the text and order are TOURS[mode] (tour.js)
+// with the steps whose target is not on screen left out (the "land" step only sideways); every spotlight step's target is
+// on screen, painted on top, not clipped by the screen or a scrolling/clipping parent, and inside the spotlight; the card
+// is on screen and clear of the spotlight; the marker number and "k / n" counter; Next / Done; saved as done; Skip and
+// Escape close it; Kids opens on Twinkle. Screenshots of every step: SHOTS/tour-<mode>-<WxH>-stepN.png.
+const { chromium } = require('playwright-core'); const fs = require('fs'); const path = require('path');
+const U = (process.env.BASE || 'http://localhost:8080/index.html'); const SH = process.env.SHOTS || '/tmp/tc-shots'; fs.mkdirSync(SH, { recursive: true });
+const J = JSON.stringify; const R = { fails: [], count: {}, runs: {} }; const F = (c, m) => { R.count[c ? 'ok' : 'FAIL'] = (R.count[c ? 'ok' : 'FAIL'] || 0) + 1; if (!c) R.fails.push(m); };
+const SIZES = (process.env.SIZES || '360x780,780x360,390x844,844x390').split(',').map(s => s.split('x').map(Number));
+const SRC = fs.readFileSync(path.resolve(__dirname, '../../js/ui/tour.js'), 'utf8');
+F(!/sel: "[^"]*(ss-kidpad|#kidsLyr|pg-song|pg-sel)/.test(SRC), 'tour.js still points at the classic Kids-style targets');
+(async () => {
+  const b = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--no-sandbox'] });
+  for (const [W, H] of SIZES) for (const mode of ['kids', 'simple', 'expert']) {
+    const tag = `${mode}-${W}x${H}`;
+    const ctx = await b.newContext({ viewport: { width: W, height: H }, hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
+    await ctx.addInitScript(() => { try { localStorage.setItem('touchChord.tour.v1', 'done'); } catch (e) {} });
+    const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push('' + e)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
+    await p.goto(U + '?test=1&expert=1&hour=12'); await p.waitForFunction(() => window.__xmode && window.__ms && window.__tour); await p.waitForTimeout(900);
+    if (mode !== 'expert') { await p.evaluate(() => window.__ms.open(true)); await p.waitForTimeout(400); await p.evaluate(m => document.querySelector(`#msMode button[data-mode="${m}"]`).click(), mode); await p.waitForTimeout(1100); }
+    F(await p.evaluate(() => window.__xmode.mode()) === mode, `${tag} not in ${mode}`);
+    if (mode === 'kids') { await p.evaluate(() => window.__ms.open(true)); await p.waitForTimeout(400); await p.evaluate(() => document.getElementById('msTour').click()); }
+    else { const hb = await p.evaluate(() => { const v = e => e && e.getClientRects().length && getComputedStyle(e).visibility !== 'hidden'; return v(document.getElementById('xHelp')) ? '#xHelp' : v(document.getElementById('howtoBtn')) ? '#howtoBtn' : null; });
+      F(!!hb, `${tag} no visible ?`); if (hb) { await p.click(hb); await p.waitForTimeout(300); await p.click('#helpMenu button[data-help="tour"]'); } }
+    await p.waitForTimeout(700);
+    const want = await p.evaluate(m => { const land = document.documentElement.classList.contains('lay-phone-land'); return { land, n: window.__tour.steps().length, texts: window.__tour.steps().map(s => s.text), log: window.__tour.log.mode }; }, mode);
+    const run = R.runs[tag] = { want, steps: [] };
+    F(want.log === mode, `${tag} tour ran the ${want.log} steps`); F(want.n >= 6, `${tag} only ${want.n} steps`);
+    if (mode === 'kids') F(await p.evaluate(() => document.getElementById('kv').dataset.screen === 'play' && /Twinkle/.test(document.querySelector('#kv .kv-chip').textContent + document.querySelector('#kv .kv-lyr').textContent)), `${tag} Kids tour not on Twinkle's play screen`);
+    for (let k = 0; k < want.n; k++) {
+      const s = await p.evaluate(() => {
+        const box = document.getElementById('tour'), i = window.__tour.step(), st = window.__tour.steps()[i] || {};
+        const r = e => { const q = e.getBoundingClientRect(); return [q.left, q.top, q.right, q.bottom].map(v => Math.round(v * 10) / 10); };
+        const open = !box.hidden && getComputedStyle(box).display !== 'none' && getComputedStyle(box).visibility !== 'hidden';
+        const hole = box.querySelector('.tour-hole'), card = box.querySelector('.tour-card'), num = box.querySelector('.tour-num');
+        let tgt = null, onTop = null, clipped = null;
+        const e = st.sel ? [...document.querySelectorAll(st.sel)].find(x => { const q = x.getBoundingClientRect(); return q.width > 0 && q.height > 0 && !x.closest('[hidden]') && getComputedStyle(x).visibility !== 'hidden'; }) : null;
+        if (e) { tgt = r(e); const q = e.getBoundingClientRect();
+          clipped = !(q.left >= -0.5 && q.top >= -0.5 && q.right <= innerWidth + 0.5 && q.bottom <= innerHeight + 0.5);
+          for (let a = e.parentElement; a && a !== document.body && !clipped; a = a.parentElement) { const c = getComputedStyle(a); if (/(hidden|clip|auto|scroll)/.test(c.overflowX + c.overflowY)) { const A = a.getBoundingClientRect(); if (q.left < A.left - 1 || q.right > A.right + 1 || q.top < A.top - 1 || q.bottom > A.bottom + 1) clipped = true; } }
+          box.style.visibility = 'hidden'; const pts = [[0.5, 0.5], [0.2, 0.3], [0.8, 0.7]].map(([fx, fy]) => document.elementFromPoint(Math.min(innerWidth - 1, q.left + q.width * fx), Math.min(innerHeight - 1, q.top + q.height * fy))); box.style.visibility = '';
+          onTop = pts.every(h => !!h && (h === e || e.contains(h) || h.contains(e))); }
+        return { open, i, sel: st.sel || null, land: !!st.land, text: document.getElementById('tourText').textContent, counter: box.querySelector('.tour-step').textContent, next: box.querySelector('.tour-next').textContent, skip: !box.querySelector('.tour-skip').hidden,
+          hole: hole.hidden ? null : r(hole), num: num.hidden ? null : num.textContent, card: r(card), tight: card.classList.contains('tight'), tgt, onTop, clipped, found: !!e, W: innerWidth, H: innerHeight };
+      });
+      run.steps.push(s); const t = `${tag} step ${k + 1}`;
+      await p.screenshot({ path: `${SH}/tour-${tag}-step${k + 1}.png` });
+      F(s.open && s.i === k, `${t} open ${s.open} i ${s.i}`); F(s.text === want.texts[k], `${t} text "${s.text}"`); F(s.counter === `${k + 1} / ${want.n}`, `${t} counter ${s.counter}`);
+      F(s.next === (k === want.n - 1 ? 'Done' : 'Next'), `${t} button ${s.next}`); F(k === want.n - 1 || s.skip, `${t} no Skip`);
+      if (s.land) F(want.land, `${t} landscape-only step shown upright`);
+      const c = s.card; F(c[0] >= 0 && c[1] >= 0 && c[2] <= s.W && c[3] <= s.H, `${t} card off screen ${J(c)}`);
+      if (s.sel) { F(s.found, `${t} target ${s.sel} not on screen`); F(s.onTop === true, `${t} target ${s.sel} covered`); F(s.clipped === false, `${t} target ${s.sel} clipped ${J(s.tgt)}`); F(!!s.hole, `${t} no spotlight`); F(s.num === String(k + 1), `${t} marker ${s.num}`);
+        if (s.hole && s.tgt) { const h = s.hole, g = s.tgt; F(h[0] <= g[0] + 1 && h[1] <= Math.max(g[1], 2) + 1 && h[2] >= Math.min(g[2], s.W - 2) - 1 && h[3] >= Math.min(g[3], s.H - 2) - 1, `${t} spotlight ${J(h)} misses target ${J(g)}`);
+          F(c[2] <= h[0] || c[0] >= h[2] || c[3] <= h[1] || c[1] >= h[3], `${t} card ${J(c)} over the spotlight ${J(h)}`); } }
+      else F(!s.hole, `${t} whole-screen step has a spotlight`);
+      await p.click('#tour .tour-next'); await p.waitForTimeout(250);
+    }
+    F(await p.evaluate(() => document.getElementById('tour').hidden && window.__tour.done() && window.__tour.step() === -1), `${tag} Done did not close / save`);
+    // Skip on step 2, then Escape on a replay
+    await p.evaluate(() => window.__tour.start(true)); await p.waitForTimeout(400); await p.click('#tour .tour-next'); await p.waitForTimeout(200); await p.click('#tour .tour-skip'); await p.waitForTimeout(200);
+    F(await p.evaluate(() => document.getElementById('tour').hidden && window.__tour.log.skipped === 1), `${tag} Skip`);
+    await p.evaluate(() => window.__tour.start(true)); await p.waitForTimeout(400); await p.keyboard.press('Escape'); await p.waitForTimeout(200);
+    F(await p.evaluate(() => document.getElementById('tour').hidden && window.__tour.log.skipped === 2), `${tag} Escape`);
+    F(await p.evaluate(m => window.__xmode.mode() === m, mode), `${tag} the tour changed the mode`);
+    F(!errs.length, `${tag} errors ${J(errs)}`);
+    await ctx.close();
+  }
+  await b.close();
+  fs.writeFileSync((process.env.OUT || __dirname) + '/tour112.json', J(R, null, 1)); console.log(J({ count: R.count, fails: R.fails.slice(0, 30) }));
+})().catch(e => { console.error(e); process.exit(1); });

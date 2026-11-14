@@ -660,6 +660,10 @@ html.lay-phone-land .now-mix > .now-vol .pg-vol svg, html.lay-phone-port:not(.si
 .tour-step { flex: 1 1 auto; font-size: var(--fs-s); opacity: .75; }
 .tour-btn { min-height: 40px; padding: 0 16px; border-radius: 10px; font: inherit; font-weight: 700; border: 1px solid var(--lk-c4853f); background: transparent; color: var(--lk-f3e6cf); cursor: pointer; }
 .tour-btn.pri { background: var(--lk-c4853f); color: var(--lk-1d140b); }
+/* v3.2 guide/tour: a big spotlight on a short landscape screen (the Expert chord grid) leaves only a thin strip: the card gets wider and tighter there */
+.tour-card.tight { display: flex; align-items: center; gap: 10px; padding: 6px 8px 6px 12px; }
+.tour-card.tight .tour-text { flex: 1 1 auto; font-size: var(--fs-m); line-height: 1.3; margin: 0; }
+.tour-card.tight .tour-foot { flex: 0 0 auto; }
 /* v112: two more rows (Show hints, Help > Tour): keep the gear menu on screen in landscape; it scrolls when taller */
 .config-menu { max-height: calc(100vh - 72px); max-height: calc(100dvh - 72px); overflow-y: auto; overscroll-behavior: contain; }
 .config-menu > * { flex-shrink: 0; }

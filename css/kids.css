@@ -1,7 +1,7 @@
 /* Kids view (Kids redesign, Simple mode): Hello, Song picker, Play, Reward, Settings. Tokens from the v5 mockups
    (touchchord-review/redesign/mockups.html). Daylight is the default look; html.kv-lamp = Lamplight.
    Only applies with html.kv: the full app (Expert) is untouched. */
-html.kv #app, html.kv #nxArrow, html.kv #tour { display: none !important; }
+html.kv #app, html.kv #nxArrow { display: none !important; }   /* v3.2 guide/tour: the tour now runs in the Kids view too */
 html.kv, html.kv body { background: var(--kv-bg, #FFF6E6); }
 .kv[hidden], .kv [hidden] { display: none !important; }
 .kv {
