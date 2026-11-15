@@ -17,7 +17,7 @@ export function progFeel(name) { if (upProgObj && shared.U && name === upProgObj
 const PROG_SUFFIX = { maj: "", min: "", "7": "7", maj7: "maj7", m7: "7", m7b5: "\u00f87", sus4: "sus4", sus2: "sus2",
   add9: "add9", madd9: "add9", "9": "9", maj9: "maj9", m9: "9", "9sus": "9sus", "13": "13", "7b9": "7\u266d9",
   "7#9": "7\u266f9", "7sus4": "7sus4", "6": "6", dim: "\u00b0", overV: "/V", moverV: "/V", over3: "/3", mover3: "/3" };
-// Ranked menu, Noff v3.1 (final-menus-export-v3.1.json 9d1f3143). PROGRESSIONS stays the full catalog.
+// Ranked menu, Noff v3.2 (final-menus-export-v3.2.json 51fd5585). PROGRESSIONS stays the full catalog.
 // Each style and mode lists exactly these charts, most popular first, as one list with nothing below.
 // A chart is [name, steps]. Its steps are a menu copy and do not write the source array.
 // A family with no chart for a mode is left out of that mode. Kids has no entry and shows its songs.
@@ -59,7 +59,6 @@ var PROG_MENU = {
       ["Jazz Lady", "2 m7|5 7|1 maj7|4 maj7|3 m7|6 7"],
       ["Jazz Slide", "2 m7|b2 7|1 maj7|6 m7"],
       ["Jazz Bossa", "1 maj7 x2|2 7 x2|2 m7|b2 7|1 maj7 x2"],
-      ["Jazz Modal Vamp", "1 m9 x2|4 m9 x2|b2 m9 x2|1 m9 x2"],
       ["Jazz Chain", "6 7|2 7|5 7|1 maj7"]
     ],
     minor: [
@@ -164,7 +163,7 @@ var PROG_MENU = {
     ],
     minor: [
       ["Funk OneFour", "1 m7|4 m7|1 m7|5 9"],
-      ["Funk Dorian", "1 m7|4 7|1 m7|b7 9"],
+      ["Funk Dorian", "1 m7|4 7|1 m7|7 9"],
       ["Funk Strut", "1 m7|7 9|4 m7|5 9"],
       ["Funk Breakdown", "1 m9|7 9|4 9|1 m9"],
       ["Funk iiV", "2 m7b5|5 9|1 m7|4 m7"],
@@ -181,8 +180,7 @@ var PROG_MENU = {
       ["Yoga Rise", "4 sus2|5 sus2|1 sus2|6 m7"],
       ["Yoga Float", "1 sus2 x2|4 sus2 x2|5 sus2 x2|1 sus2 x2"],
       ["Yoga Breathe", "1 sus2 x2|1 add9 x2|4 sus2 x2|5 sus2 x2"],
-      ["Yoga Moon", "2 m7 x2|5 sus2 x2|4 sus2 x2|1 sus2 x2"],
-      ["Yoga Still", "1 m9|b6 maj7|b7 6|1 m9"]
+      ["Yoga Moon", "2 m7 x2|5 sus2 x2|4 sus2 x2|1 sus2 x2"]
     ],
     minor: [
       ["Yoga Om", "1 m7|4 m7|1 m7|5 sus2"],

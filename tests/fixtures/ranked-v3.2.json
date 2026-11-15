@@ -1,5 +1,5 @@
 {
- "source": "final-menus-export-v3.1.json sha256 9d1f31431c68a92c3274345613b635522af30df2db89dd22ad8ebcf22b790d20",
+ "source": "final-menus-export-v3.2.json sha256 51fd558585544d6021d48c41742cc87cd8798b4e526aa84db63ca8ed9cbee3b8",
  "menus": {
   "pop": {
    "major": [
@@ -153,11 +153,6 @@
      "name": "Jazz Bossa",
      "steps": "1 maj7 x2|2 7 x2|2 m7|b2 7|1 maj7 x2",
      "origin": "Held-v2-in-RC"
-    },
-    {
-     "name": "Jazz Modal Vamp",
-     "steps": "1 m9 x2|4 m9 x2|b2 m9 x2|1 m9 x2",
-     "origin": "Existing"
     },
     {
      "name": "Jazz Chain",
@@ -577,7 +572,7 @@
     },
     {
      "name": "Funk Dorian",
-     "steps": "1 m7|4 7|1 m7|b7 9",
+     "steps": "1 m7|4 7|1 m7|7 9",
      "origin": "New (Noff-authored)"
     },
     {
@@ -648,11 +643,6 @@
      "name": "Yoga Moon",
      "steps": "2 m7 x2|5 sus2 x2|4 sus2 x2|1 sus2 x2",
      "origin": "Held-v2-in-RC"
-    },
-    {
-     "name": "Yoga Still",
-     "steps": "1 m9|b6 maj7|b7 6|1 m9",
-     "origin": "Existing"
     }
    ],
    "minor": [
