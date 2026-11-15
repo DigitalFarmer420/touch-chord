@@ -15,7 +15,7 @@ import { setHintAvoid } from "../ui/hints.js?v=112.13";
 import { progFeel, progSteps } from "../songs/presets.js?v=112.13";
 import { progLockPick } from "../songs/proghold.js?v=112.13";
 import { upSelected, upCurStep, upNextStep, upA, progLoopBar, songTempo } from "../songs/song.js?v=112.13";
-import { songCue, cueSoon, cueClock, cuePieces, placeCueTag } from "../ui/chordcue.js?v=112.13";
+import { songCue, cueSoon, cueClock, cuePieces, placeCueTag, cueChipClass } from "../ui/chordcue.js?v=112.13";
 import { upSym, upSecName } from "../songs/upload.js?v=112.13";
 import { upLyrMap, lyrPad } from "../ui/lyrics.js?v=112.13";
 import { state, shared, fingers, loop, scheduleSave } from "../state.js?v=112.13";
@@ -26,7 +26,7 @@ import { fitNowSymbol } from "../ui/nowbox.js?v=112.13";
 import { computeSpec, renderPads, refreshHeld, setWinKeys } from "../ui/pads.js?v=112.13";
 import { liftFinger } from "../ui/touch.js?v=112.13";
 import { stripRelease } from "../ui/strip.js?v=112.13";
-import { fitStrip, stripLabel } from "../ui/strip.js?v=112.13";
+import { fitStrip, stripLabel, stripChips } from "../ui/strip.js?v=112.13";
 import { setExpert as setKidsViewOff, setModeHandler, kidsStartOver, setTheme as setKidsTheme } from "../kids/view.js?v=112.13";
 import { setSimple } from "../ui/layout.js?v=112.13";
 import { libSetVer } from "../songs/library.js?v=112.13";
@@ -476,6 +476,7 @@ function paintSrc() {
       // v3.2 test.5: the next-chord cue (gold underline + the chord name above the word where the next change lands)
       var names = U.events.map(function (e) { return upA(upSym(e.si, e.ci)); });
       var cue = songCue(upLyrMap(), card.idx, nRows, U.events, names, cur, function (si, rep) { return secLyrics(U.secs[si], rep); });
+      if (cue) { var st = prog.steps[cue.j]; cue.cls = cueChipClass(st && st.item, stripChips(activeKey()), st && st.row); }
       if (cue && cue.k === 0 && card.rows[0].kind === "lyric" && card.rows[0].word) {   // never on the sung (gold) word itself
         var na = card.rows[0].before.length, nb = na + card.rows[0].word.length;
         if (cue.a < nb && cue.b > na) cue = null;
@@ -487,7 +488,7 @@ function paintSrc() {
       rowsHtml = card.rows.map(function (r, k) { return lyrRowHtml(r, k === 0 ? "cur" : "nxt", cue && cue.k === k ? cue : null, inl); }).join("");
       var locked = !!U.locked;
       html = "<div class=\"x-songc\"><div class=\"x-stitle\">" + esc(U.title) + (U.artist ? " \u00b7 " + esc(U.artist) : "") + "</div><div class=\"x-lrows\"><span class=\"x-lroll\">" + rowsHtml + "</span></div></div>"
-        + (cue && !inl ? "<span class=\"x-cuetag\" aria-hidden=\"true\" hidden>" + esc(cue.chord) + "</span>" : "")
+        + (cue && !inl ? "<span class=\"x-cuetag" + (cue.cls ? " " + cue.cls : "") + "\" aria-hidden=\"true\" hidden>" + esc(cue.chord) + "</span>" : "")
         + "<button type=\"button\" class=\"x-b x-lock\" aria-pressed=\"" + locked + "\" aria-label=\"Lock the song chords\"><span class=\"x-lki\">" + (locked ? "\ud83d\udd12" : "\ud83d\udd13") + "</span>Lock</button>";
     } else {
       html = "<div class=\"x-songc x-empty\"><div class=\"x-stitle\">No song loaded</div><div class=\"x-sline\">Tap Song to open My songs and Upload</div></div>";
@@ -541,7 +542,7 @@ function lyrRowHtml(r, cls, cue, inl) {
     var text = r.kind === "lyric" ? r.before + r.word + r.after : r.text, rg = [{ a: cue.a, b: cue.b, cls: "x-cue" }];
     if (r.kind === "lyric" && r.word) rg.push({ a: r.before.length, b: r.before.length + r.word.length, cls: "x-now" });
     h += cuePieces(text, rg).map(function (p) { return (p.cls ? "<span class=\"" + p.cls + "\">" + esc(p.t) + "</span>" : esc(p.t))
-      + (inl && p.cls === "x-cue" ? "<span class=\"x-cuetag x-cuein\" aria-hidden=\"true\">" + esc(cue.chord) + "</span>" : ""); }).join("");
+      + (inl && p.cls === "x-cue" ? "<span class=\"x-cuetag x-cuein" + (cue.cls ? " " + cue.cls : "") + "\" aria-hidden=\"true\">" + esc(cue.chord) + "</span>" : ""); }).join("");
   }
   else if (r.kind === "lyric") h += esc(r.before) + (r.word ? "<span class=\"x-now\">" + esc(r.word) + "</span>" : "") + esc(r.after);
   else if (r.kind === "text") h += esc(r.text);

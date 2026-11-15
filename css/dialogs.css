@@ -312,7 +312,7 @@ html.lay-pad-port:not(.tc-classic) #songBar .sb-lyr, html.lay-pad-land:not(.tc-c
 html.sz-medium.simple:not(.tc-classic) #songBar { height: 26px; font-size: 16px; }
 
 /* v3.2 test.5: next-chord cue in Simple's song bar. The chord name is already inline before its word, so the cue turns
-   that name teal and underlines its word (no size change); brighter one beat before the change. */
+   that name to its grid colour and underlines its word (no size change); brighter one beat before the change. */
 #songBar { --sb-cue: #4FB3A5; }   /* the dark looks */
 html.s-day #songBar { --sb-cue: #2F8F83; }
 #songBar .sb-ch.sb-cue:not(.on) { color: var(--sb-cue); box-shadow: inset 0 0 0 1.5px var(--sb-cue); }
@@ -323,7 +323,7 @@ html.s-day #songBar { --sb-cue: #2F8F83; }
 
 /* v3.2 test.5 (Vinh): Simple shows the song's words like Expert's song card (songbar.js paintSimpleLyr): three lines
    (phone landscape two), the line being sung on top in ink with its sung word on gold, the next lines muted, and
-   Expert's next-chord cue (gold underline + the chord name in small teal text). Space is tight under Simple's grid (its
+   Expert's next-chord cue (gold underline + the chord name in that chord's grid colour). Space is tight under Simple's grid (its
    chord rows keep their 44 px floor), so the name is inline, right of its word, everywhere (--sl-cb 0: no band; a
    band above each line is supported, see placeCueTag): it never touches another line and the rows never move.
    Short phones (under 820 css tall: 360x780) show two lines, with the grid's row gaps 8 -> 3 px to make room. */
@@ -351,9 +351,19 @@ html.simple.up-slyr #songBar .sb-sec { margin-top: calc(var(--sl-cb) + (var(--sl
 #songBar .sl-cue { text-decoration: underline 2px var(--sb-gold); text-underline-offset: 2px; text-decoration-skip-ink: none; }
 #songBar .sl-cue.soon { text-decoration-thickness: 3px; }
 #songBar .sl-cuetag { position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; padding: 0 3px; border-radius: 4px;
-  font: 700 11px/12px Fredoka, Nunito, system-ui, sans-serif; color: var(--sb-cue); white-space: nowrap; }
-#songBar .sl-cuetag.soon { color: #fff; background: var(--sb-cue); animation: slCuePulse .5s ease-in-out infinite alternate; }
+  font: 700 11px/12px Fredoka, Nunito, system-ui, sans-serif; color: var(--ink); white-space: nowrap; }   /* 11px floor; phone size unchanged */
+/* Same tokens as the Simple grid chips in strip.css. Day pastels (major, color) and Lamp minor / tension are mixed
+   just enough to read on the page background; the hue is kept. */
+#songBar .sl-cuetag.major { --cue-fill: var(--lk-e2b15a); --cue-ink: var(--lk-2a1c0c); color: var(--lk-e2b15a); }
+#songBar .sl-cuetag.minor { --cue-fill: var(--lk-7d6ea8); --cue-ink: var(--lk-f7f3ff); color: var(--lk-7d6ea8); }
+#songBar .sl-cuetag.tension { --cue-fill: var(--lk-2a1f45); --cue-ink: var(--lk-e8dff8); color: var(--lk-2a1f45); }
+#songBar .sl-cuetag.color { --cue-fill: var(--lk-6a8f7e); --cue-ink: var(--lk-0f1f18); color: var(--lk-6a8f7e); }
+html.s-day #songBar .sl-cuetag.major:not(.soon) { color: color-mix(in srgb, var(--lk-e2b15a) 55%, var(--lk-2a1c0c)); }
+html.s-day #songBar .sl-cuetag.color:not(.soon) { color: color-mix(in srgb, var(--lk-6a8f7e) 70%, var(--lk-0f1f18)); }
+html:not(.s-day) #songBar .sl-cuetag.minor:not(.soon) { color: color-mix(in srgb, var(--lk-7d6ea8) 70%, var(--ink)); }
+html:not(.s-day) #songBar .sl-cuetag.tension:not(.soon) { color: color-mix(in srgb, var(--lk-2a1f45) 45%, var(--ink)); }
+#songBar .sl-cuetag.soon { color: var(--cue-ink, #fff); background: var(--cue-fill, var(--sb-cue)); animation: slCuePulse .5s ease-in-out infinite alternate; }
 #songBar .sl-cuetag.sl-cuein { position: static; display: inline-block; margin-left: 3px; vertical-align: 1px; transform: none !important; }
-html.lay-pad-port #songBar .sl-cuetag, html.lay-pad-land #songBar .sl-cuetag { font-size: 15px; line-height: 17px; }
-@keyframes slCuePulse { from { box-shadow: 0 0 0 0 rgba(47, 143, 131, .55); } to { box-shadow: 0 0 0 3px rgba(47, 143, 131, 0); } }
+html.lay-pad-port #songBar .sl-cuetag, html.lay-pad-land #songBar .sl-cuetag { font-size: 12px; line-height: 14px; }   /* was 15/17; ~80% */
+@keyframes slCuePulse { from { filter: brightness(1); } to { filter: brightness(1.2); } }
 @media (prefers-reduced-motion: reduce) { #songBar .sl-roll.go, #songBar .sl-lin { transition: none; } #songBar .sl-cuetag.soon { animation: none; } }

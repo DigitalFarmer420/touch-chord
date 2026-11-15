@@ -394,6 +394,8 @@ function stripModel(key) {
   return { key: key, notes: notes, chips: chips };
 }
 
+export function stripChips(key) { return stripModel(key || suggestionKey()).chips; }
+
 // Touch/pen fire on pointerup: browsers drop the synthetic click when
 // another finger is down (e.g. holding Sustain). Click stays for
 // mouse / keyboard, de-duplicated against the pointer tap.

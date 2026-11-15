@@ -1,7 +1,8 @@
-// v3.2 test.5: the next-chord cue on the two-line lyrics (the Expert song card and the Kids view; Simple shows no
-// lyrics). The word where the next chord change lands gets a gold underline (test.5 yellow), with the chord's name in small teal text
-// above it. It brightens about one beat before the change and moves on once that chord is played. Only a word on one of
-// the shown lines gets it: a change that falls on a line not shown yet, or between words, shows no cue.
+// v3.2 test.5: the next-chord cue on the two-line lyrics (the Expert song card, the Kids view, and Simple's song words).
+// The word where the next chord change lands gets a gold underline (test.5 yellow), with the chord's name in the same
+// colour that chord uses on the grid (Expert / Simple: the chip's row colour; Kids: the pad letter's colour). It
+// brightens about one beat before the change and moves on once that chord is played. Only a word on one of the shown
+// lines gets it: a change that falls on a line not shown yet, or between words, shows no cue.
 // Pure helpers first (unit tested), then one DOM helper that places the name tag.
 
 // The step of the next chord change after step cur: the first later step whose chord differs (keys = one comparable
@@ -107,4 +108,40 @@ export function placeCueTag(host, word, tag, avoid) {
   }
   x = Math.max(2, Math.min(hr.width - tw - 2, x)); y = Math.max(0, y);
   tag.style.transform = "translate(" + Math.round(x) + "px," + (band >= th + 1 ? Math.round(y * 2) / 2 : Math.round(y)) + "px)";
+}
+// The CSS class for the name tag: the same class the grid chip uses (major / minor / tension / color, plus borrowed
+// when the chip is dashed). chips = the current strip's chips ({item, cls, borrowed}). When the chord is not on the
+// grid, the row (from the song step) or the item's type falls back through the same row-to-class map the strip uses.
+var CUE_EXT = ["six", "min7", "maj7", "nine", "sus2", "flat9", "sharp9", "thirteen", "over", "sharp5", "flat5"];
+function sameCueChord(a, b) {
+  if (!a || !b) return false;
+  var ap = a.rootPc, bp = b.rootPc;
+  if (((ap % 12) + 12) % 12 !== ((bp % 12) + 12) % 12 || a.type !== b.type) return false;
+  var ea = a.extensions || {}, eb = b.extensions || {};
+  for (var i = 0; i < CUE_EXT.length; i++) if ((ea[CUE_EXT[i]] || 0) !== (eb[CUE_EXT[i]] || 0)) return false;
+  return true;
+}
+export function cueRowClass(row, borrowed) {
+  var cls = row === "bright" ? "color" : row === "happy" ? "major" : row === "sad" ? "minor" : row === "tension" ? "tension" : "";
+  return cls && borrowed ? cls + " borrowed" : cls;
+}
+function cueRowFromItem(item) {
+  if (!item) return "";
+  var ext = item.extensions || {};
+  if (item.type === "minor" && !ext.over) return "sad";
+  if (item.type === "dim" || item.type === "sus4" || ext.flat9 || ext.sharp9 || ext.over) return "tension";
+  return "happy";
+}
+export function cueChipClass(item, chips, row) {
+  if (item && chips) {
+    for (var i = 0; i < chips.length; i++) {
+      if (sameCueChord(chips[i].item, item)) return chips[i].cls + (chips[i].borrowed ? " borrowed" : "");
+    }
+  }
+  return cueRowClass(row || cueRowFromItem(item), false);
+}
+// Kids: the pad letter's colour class (C..B), so the tag can use the same --C..--B tokens as the pads.
+export function cueLetterClass(letter) {
+  var L = String(letter || "").charAt(0).toUpperCase();
+  return /[CDEFGAB]/.test(L) ? "kv-padc kv-cue" + L : "";
 }

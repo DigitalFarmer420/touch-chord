@@ -12,7 +12,7 @@ import { KIDS_LYRICS } from "../songs/kids-songs.js?v=112.13";
 import { magicQueue, progNext } from "../songs/magic.js?v=112.13";
 import { magic, prog, progSet, progPlay, progStop, applySongKey, progWalkAt, progWalkTo } from "../songs/playback.js?v=112.13";
 import { progLoopBar } from "../songs/song.js?v=112.13";
-import { nextChange, cueSoon, cueClock, cueWord, cuePieces, placeCueTag } from "../ui/chordcue.js?v=112.13";
+import { nextChange, cueSoon, cueClock, cueWord, cuePieces, placeCueTag, cueLetterClass } from "../ui/chordcue.js?v=112.13";
 import { state, fingers, shared, scheduleSave } from "../state.js?v=112.13";
 import { wrap12 } from "../theory/quality.js?v=112.13";
 import { APP_VERSION } from "../version.js?v=112.13";
@@ -380,6 +380,7 @@ function lyrHtml() {
   function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
   var land = document.documentElement.classList.contains("lay-phone-land");   // sideways: the next line is hidden
   var cue = kidsCue(L, cur, li, land ? 1 : 2);
+  if (cue) cue.cls = cueLetterClass(cue.chord);
   // test.5 crowding fix: phones keep a band above each line for the letter (kids.css); an iPad's big lines leave no
   // room for one, so there the letter is inline, right of its word.
   var inl = document.documentElement.classList.contains("lay-pad-port") || document.documentElement.classList.contains("lay-pad-land");
@@ -390,7 +391,7 @@ function lyrHtml() {
       var rg = [];
       if (cue && cue.r === R.i) { var a = Math.max(sg.a, cue.a), b = Math.min(sg.b, cue.b); if (b > a) rg.push({ a: a - sg.a, b: b - sg.a, cls: "cue" }); }
       cuePieces(R.t.slice(sg.a, sg.b), rg).forEach(function (p) { var c = (sg.cls + " " + p.cls).trim(); out += c ? "<span class=\"" + c + "\">" + esc(p.t) + "</span>" : esc(p.t);
-        if (inl && p.cls === "cue" && sg.b >= cue.b) out += "<span class=\"kv-cuetag kv-cuein\" aria-hidden=\"true\">" + esc(cue.chord) + "</span>"; });
+        if (inl && p.cls === "cue" && sg.b >= cue.b) out += "<span class=\"kv-cuetag kv-cuein" + (cue.cls ? " " + cue.cls : "") + "\" aria-hidden=\"true\">" + esc(cue.chord) + "</span>"; });
     });
     return out;
   }
@@ -408,7 +409,7 @@ function lyrHtml() {
   var l2 = L[li + 1] ? paintRange([{ a: 0, b: L[li + 1].text.length, cls: "" }], { t: L[li + 1].text, i: 1 }) : "&nbsp;";
   if (cue) { kvCue.j = cue.j; kvCue.chord = cue.chord; }
   return "<div class=\"kv-l1\" data-cue-row>" + l1 + "</div><div class=\"kv-l2\" data-cue-row>" + l2 + "</div>"
-    + (cue && !inl ? "<span class=\"kv-cuetag\" aria-hidden=\"true\" hidden>" + esc(cue.chord) + "</span>" : "");
+    + (cue && !inl ? "<span class=\"kv-cuetag" + (cue.cls ? " " + cue.cls : "") + "\" aria-hidden=\"true\" hidden>" + esc(cue.chord) + "</span>" : "");
 }
 function kidsCueSoon() {
   if (kvCue.j < 0) return false;

@@ -4,14 +4,15 @@ import { prog, placeBadges } from "../songs/playback.js?v=112.13";
 import { paintUpNext, upSelected, upT, upA, upPlaceLock, upEsc, upCurStep } from "../songs/song.js?v=112.13";
 import { upProgObj, upEv, upSym, upFlagged, upSecName } from "../songs/upload.js?v=112.13";
 import { state, shared } from "../state.js?v=112.13";
+import { activeKey } from "../keys.js?v=112.13";
 import { secLyrics } from "../songs/fullchart.js?v=112.13";
 import { upLyrMap, lyrState, paintLyr2, lyrPad } from "./lyrics.js?v=112.13";
-import { fitStrip } from "./strip.js?v=112.13";
-import { nextChange, songCue, cueSoon, cueClock, cueWord, cuePieces, placeCueTag } from "./chordcue.js?v=112.13";
+import { fitStrip, stripChips } from "./strip.js?v=112.13";
+import { nextChange, songCue, cueSoon, cueClock, cueWord, cuePieces, placeCueTag, cueChipClass } from "./chordcue.js?v=112.13";
 import { songCardRows } from "../expert/model.js?v=112.13";
 import { progLoopBar, songTempo } from "../songs/song.js?v=112.13";
 // v3.2 test.5: the next-chord cue in the song bar. Full (classic) mode's rows print each chord name inline, right
-// before its word, so there the cue colours that chord name teal and underlines its word; it brightens one beat
+// before its word, so there the cue colours that chord name in its grid colour and underlines its word; it brightens one beat
 // before the change (Play) or when the change is the next tap. Simple (Vinh, test.5) shows the words like Expert's
 // song card instead (paintSimpleLyr below), with Expert's cue. A song without words keeps the one-line chord bar.
 export const sbCue = { j: -1, pc: -2, cur: -2, t: 0, soon: null, log: [] };
@@ -67,7 +68,7 @@ export function slRowHtml(r, cls, cue, inl) {
     if (cue) rg.push({ a: cue.a, b: cue.b, cls: "sl-cue" });
     h += cuePieces(text, rg).map(function (p) {
       return (p.cls ? "<span class=\"" + p.cls + "\">" + upEsc(p.t) + "</span>" : upEsc(p.t))
-        + (inl && cue && p.cls === "sl-cue" ? "<span class=\"sl-cuetag sl-cuein\" aria-hidden=\"true\">" + upEsc(cue.chord) + "</span>" : "");
+        + (inl && cue && p.cls === "sl-cue" ? "<span class=\"sl-cuetag sl-cuein" + (cue.cls ? " " + cue.cls : "") + "\" aria-hidden=\"true\">" + upEsc(cue.chord) + "</span>" : "");
     }).join("");
   } else if (r.kind === "chords") h += r.chords.map(function (c) { return "<span class=\"sl-ch" + (c.on ? " sl-now" : "") + "\">" + upEsc(c.t) + "</span>"; }).join(" ");
   var lin = cls === "cur" || (inl && cue);   // rows that may slide: the sung line, and a line holding an inline name
@@ -96,6 +97,7 @@ function paintSimpleLyr(bar, cur) {
   var lines = function (si, rep) { return secLyrics(U.secs[si], rep); };
   var card = songCardRows(M, cur, n, ci, lines, function (si) { return U.secs[si].chords.map(function (c, k) { return upA(upSym(si, k)); }); }, upSecName);
   var cue = sbCueFor(cur, n, card.idx), r0 = card.rows[0];
+  if (cue) { var st = prog.steps[cue.j]; cue.cls = cueChipClass(st && st.item, stripChips(activeKey()), st && st.row); }
   if (cue && cue.k === 0 && r0.kind === "lyric" && r0.word) {   // never on the sung (gold) word itself
     var na = r0.before.length, nb = na + r0.word.length;
     if (cue.a < nb && cue.b > na) cue = null;
@@ -104,7 +106,7 @@ function paintSimpleLyr(bar, cur) {
   var ent = M.seq[card.idx] || { si: e0 ? e0.si : 0 };
   var alts = ci >= 0 && !U.locked && (upEv(e0.si, ci).alternates || []).length;
   var rows = card.rows.map(function (r, k) { return slRowHtml(r, k === 0 ? "cur" : "nxt", cue && cue.k === k ? cue : null, inl); }).join("");
-  var tag = cue && !inl ? "<span class=\"sl-cuetag\" aria-hidden=\"true\" hidden>" + upEsc(cue.chord) + "</span>" : "";
+  var tag = cue && !inl ? "<span class=\"sl-cuetag" + (cue.cls ? " " + cue.cls : "") + "\" aria-hidden=\"true\" hidden>" + upEsc(cue.chord) + "</span>" : "";
   var head = "<span class=\"sb-sec\">" + upEsc(upSecName(ent.si)) + "</span>", tail = alts ? "<span class=\"sb-alt\">alt \u25be</span>" : "";
   var key = head + "<span class=\"sl-lyr\" data-n=\"" + n + "\"><span class=\"sl-roll\">" + rows + "</span>" + tag + "</span>" + tail;
   var same = slState.ev === U.events;

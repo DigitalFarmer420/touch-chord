@@ -247,16 +247,21 @@ html.lay-pad-land .kv-rbtns, html.lay-pad-port .kv-rbtns { top: calc(22% + 250px
 html.lay-pad-land .kv-ccard, html.lay-pad-port .kv-ccard { top: 22%; }
 
 /* v3.2 test.5: next-chord cue on the Kids lyrics: a gold (--gold) underline on the word where the pad changes and the pad letter
-   above it (absolutely placed by view.js: the lines never move). Brighter one beat before the change. */
-.kv { --cue: #2F8F83; } html.kv-lamp .kv { --cue: #4FB3A5; }
+   above it in that pad's colour (absolutely placed by view.js: the lines never move). Brighter one beat before the change. */
 .kv-lyr { position: relative; }
 .kv-lyr .cue { text-decoration: underline 3px var(--gold); text-underline-offset: 4px; text-decoration-skip-ink: none; }
 .kv-lyr .cue.soon { text-decoration-thickness: 4px; }   /* test.5 yellow: gold underline, the word keeps its colour */
-.kv-cuetag { position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; padding: 0 5px; border-radius: 8px; font: 700 16px/18px Fredoka, Nunito, system-ui, sans-serif;
-  color: var(--cue); background: var(--surface); opacity: .9; white-space: nowrap; }
-.kv-cuetag.soon { opacity: 1; color: #fff; background: var(--cue); animation: kvCuePulse .5s ease-in-out infinite alternate; }
-html.lay-phone-land .kv-cuetag { font-size: 12px; line-height: 13px; padding: 0 4px; border-radius: 6px; }
-html.lay-pad-port .kv-cuetag, html.lay-pad-land .kv-cuetag { font-size: 18px; line-height: 22px; }
+.kv-cuetag { position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; padding: 0 5px; border-radius: 8px; font: 700 13px/15px Fredoka, Nunito, system-ui, sans-serif;
+  color: var(--ink); background: var(--surface); opacity: .9; white-space: nowrap; }   /* was 16/18; ~80% */
+.kv-cuetag.kv-cueC { --cue-fill: var(--C); } .kv-cuetag.kv-cueD { --cue-fill: var(--D); } .kv-cuetag.kv-cueE { --cue-fill: var(--E); }
+.kv-cuetag.kv-cueF { --cue-fill: var(--F); } .kv-cuetag.kv-cueG { --cue-fill: var(--G); } .kv-cuetag.kv-cueA { --cue-fill: var(--A); }
+.kv-cuetag.kv-cueB { --cue-fill: var(--B); }
+.kv-cuetag.kv-padc { color: var(--cue-fill); }
+/* Day: the pad fills are pastels that fail as text on the white lyric card; mix toward the pad letter ink, keep the hue. */
+html:not(.kv-lamp) .kv-cuetag.kv-padc:not(.soon) { color: color-mix(in srgb, var(--cue-fill) 50%, #2E2016); }
+.kv-cuetag.soon { opacity: 1; color: #2E2016; background: var(--cue-fill, var(--gold)); animation: kvCuePulse .5s ease-in-out infinite alternate; }
+html.lay-phone-land .kv-cuetag { font-size: 11px; line-height: 12px; padding: 0 4px; border-radius: 6px; }   /* was 12/13; 11px floor */
+html.lay-pad-port .kv-cuetag, html.lay-pad-land .kv-cuetag { font-size: 14px; line-height: 16px; }   /* was 18/22; ~80% */
 @keyframes kvCuePulse { from { transform-origin: center; filter: brightness(1); } to { filter: brightness(1.25); } }
 @media (prefers-reduced-motion: reduce) { .kv-cuetag.soon { animation: none; } }
 /* v3.2 test.5 crowding fix: on phones each lyric line always has a band above its text for the pad letter (placed in
@@ -264,4 +269,4 @@ html.lay-pad-port .kv-cuetag, html.lay-pad-land .kv-cuetag { font-size: 18px; li
 html.lay-phone-port .kv-lyr .kv-l1, html.lay-phone-port .kv-lyr .kv-l2 { padding-top: 19px; }
 html.lay-phone-port .kv-lyr .kv-l2 { margin-top: 0; }
 html.lay-phone-land .kv-top .kv-lyr .kv-l1 { padding-top: 14px; }
-.kv-cuetag.kv-cuein { position: static; display: inline-block; margin-left: 4px; vertical-align: .15em; transform: none !important; font-size: 18px; line-height: 22px; }
+.kv-cuetag.kv-cuein { position: static; display: inline-block; margin-left: 4px; vertical-align: .15em; transform: none !important; font-size: 14px; line-height: 16px; }   /* was 18/22 */

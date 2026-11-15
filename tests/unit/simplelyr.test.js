@@ -35,12 +35,13 @@ test('Simple uses its own rows for a song with words (phones and iPad); full mod
   assert.match(src, /var two = on && !state\.simple && upLyrMap\(\)\.any;/);
   assert.match(src, /if \(slyr\) \{\n    paintSimpleLyr\(bar, cur\);/);
 });
-test('CSS: three lines (two on short phones and sideways), inline names, gold sung word and underline, teal name', () => {
+test('CSS: three lines (two on short phones and sideways), inline names, gold sung word and underline, grid-coloured name', () => {
   assert.match(dlg, /html\.simple\.up-slyr #app \{ --sl-n: 3; --sl-cb: 0px; --sl-l1: 22px; --sl-l2: 19px;/);
   assert.match(dlg, /@media \(max-height: 819px\) \{\n  html\.simple\.up-slyr\.lay-phone-port #app \{ --sl-n: 2; --ss-rg: 3px; \}/);
   assert.match(dlg, /html\.simple\.up-slyr\.lay-phone-land #app \{ --sl-n: 2; --sl-cb: 0px;/);
   assert.match(dlg, /#songBar \.sl-row \{ display: block; box-sizing: border-box; padding-top: var\(--sl-cb\);/);
   assert.match(dlg, /#songBar \.sl-now \{ background: var\(--sb-gold\);/);
   assert.match(dlg, /#songBar \.sl-cue \{ text-decoration: underline 2px var\(--sb-gold\);/);
-  assert.match(dlg, /#songBar \.sl-cuetag \{[^}]*color: var\(--sb-cue\);/);
+  assert.match(dlg, /#songBar \.sl-cuetag\.major \{[^}]*color: var\(--lk-e2b15a\);/);
+  assert.match(dlg, /#songBar \.sl-cuetag\.minor \{[^}]*color: var\(--lk-7d6ea8\);/);
 });

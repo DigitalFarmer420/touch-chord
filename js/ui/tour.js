@@ -38,7 +38,7 @@ export const TOURS = {
     { sel: "#app .next-card", text: "Tap any chord: they all fit your key. An orange edge means it is borrowed from a nearby key." },
     { sel: "#app .kb-wrap", text: "Tap a key to play its chord. Faded keys are outside your key: tap All notes to use them." },
     { sel: "#xKeysChip", text: "Switch the keys here: Octave, Keyboard or Buttons. To slide a finger across the keys, use Keyboard." },
-    { sel: "#xTog", text: "Song opens your songs. The sung word lights up, and a teal name marks the word where the next chord comes." },
+    { sel: "#xTog", text: "Song opens your songs. The sung word lights up, and the next chord's name marks that word in its grid colour." },
     { sel: "#xModeChip", text: "Tap Expert for Settings: modes, Play along, and the version and build, with Copy." }
   ]
 };

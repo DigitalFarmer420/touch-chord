@@ -560,23 +560,32 @@ html.expert .kb.piano .pad.black.nokey { background: #4A4036; color: #A89884; bo
 html.expert .x-stitle, html.expert .x-lrows, html.expert .x-lrow { overflow: hidden; overflow: clip; overflow-clip-margin: 4px; }
 
 /* v3.2 test.5: next-chord cue on the song card lyrics. The word where the next chord change lands gets a gold (--x-gold) underline
-   (no layout change); the chord name sits above it in small teal text (absolutely placed by ui.js, so the two lines
-   never move). It brightens about one beat before the change (Play) or when the change is the next tap. */
+   (no layout change); the chord name sits above it in the same colour as that chord's grid chip (absolutely placed by ui.js,
+   so the two lines never move). It brightens about one beat before the change (Play) or when the change is the next tap. */
 html.expert #xSrc.x-mode-song { position: relative; }
 html.expert .x-lrow .x-cue { text-decoration: underline 2px var(--x-gold); text-underline-offset: 2px; text-decoration-skip-ink: none; }
 html.expert .x-lrow .x-cue.soon { text-decoration-thickness: 3px; }   /* test.5 yellow: the word keeps its own colour */
 html.expert .x-cuetag { position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; padding: 0 3px; border-radius: 4px;
-  font: 700 10px/11px Fredoka, Nunito, system-ui, sans-serif; color: var(--x-next); background: var(--x-surface); opacity: .85; white-space: nowrap; }
-html.expert .x-cuetag.soon { opacity: 1; color: #fff; background: var(--x-next); animation: xCuePulse .5s ease-in-out infinite alternate; }
-html.expert.lay-pad-port .x-cuetag, html.expert.lay-pad-land .x-cuetag { font-size: 14px; line-height: 16px; }
-@keyframes xCuePulse { from { box-shadow: 0 0 0 0 rgba(47, 143, 131, .55); } to { box-shadow: 0 0 0 3px rgba(47, 143, 131, 0); } }
+  font: 700 10px/11px Fredoka, Nunito, system-ui, sans-serif; color: var(--x-ink); background: var(--x-surface); opacity: .85; white-space: nowrap; }
+/* Grid chip colours as text (same tokens as #suggest .ss-chip). Day pastels are mixed a little darker, and Lamp tension
+   a little lighter, so the small name stays readable on the song-card surface; the hue is kept. */
+html.expert .x-cuetag.major, html.expert .x-cuetag.color { --cue-fill: var(--x-happy); --cue-ink: #22180f; color: var(--x-happy); }
+html.expert .x-cuetag.minor { --cue-fill: var(--x-sad); --cue-ink: #22180f; color: var(--x-sad); }
+html.expert .x-cuetag.tension, html.expert .x-cuetag.dim { --cue-fill: var(--x-tension); --cue-ink: #F4EAD9; color: var(--x-tension); }
+html.expert .x-cuetag.borrowed { --cue-fill: var(--x-borrow); --cue-ink: var(--x-onink); color: var(--x-borrow); }
+html.expert.x-day .x-cuetag.major:not(.soon), html.expert.x-day .x-cuetag.color:not(.soon) { color: color-mix(in srgb, var(--x-happy) 55%, #22180f); }
+html.expert.x-day .x-cuetag.minor:not(.soon) { color: color-mix(in srgb, var(--x-sad) 60%, #22180f); }
+html.expert.x-lamp .x-cuetag.tension:not(.soon), html.expert.x-lamp .x-cuetag.dim:not(.soon) { color: color-mix(in srgb, var(--x-tension) 60%, #F4EAD9); }
+html.expert .x-cuetag.soon { opacity: 1; color: var(--cue-ink, #fff); background: var(--cue-fill, var(--x-next)); animation: xCuePulse .5s ease-in-out infinite alternate; }
+html.expert.lay-pad-port .x-cuetag, html.expert.lay-pad-land .x-cuetag { font-size: 11px; line-height: 13px; }   /* was 14/16; ~80%, not below 11px */
+@keyframes xCuePulse { from { filter: brightness(1); } to { filter: brightness(1.2); } }
 @media (prefers-reduced-motion: reduce) { html.expert .x-cuetag.soon { animation: none; } }
 
 /* v3.2 test.5 crowding fix (Vinh, Nov 14): the chord name never touches the line above or the song title, and the lyric
    rows never move. Phone portrait: every lyric line always has a 15 px band above its text (the name is 11 px tall and
    sits 0.5 px under the band's top edge, chordcue.js placeCueTag; Andika's tall marks reach ~3 px above the line), so
    the card is 28 px taller (64 -> 92; the grid gives the room). Phone landscape and iPad: no height to spare, so the name is inline, right of its
-   word (.x-cuein), in the same small teal text. */
+   word (.x-cuein), in the same small grid-coloured text. */
 html.expert.lay-phone-port #app { --x-cb: 15px; --x-src-h: 92px; }
 html.expert.lay-phone-port .x-lrow { padding-top: var(--x-cb); }
 html.expert.lay-phone-port .x-lrow.cur { height: calc(var(--x-lh1) + var(--x-cb)); }
@@ -584,4 +593,4 @@ html.expert.lay-phone-port .x-lrow.nxt { height: calc(var(--x-lh2) + var(--x-cb)
 html.expert.lay-phone-port .x-lrows { height: calc(var(--x-lh1) + var(--x-lh2) * var(--x-lrn, 1) + var(--x-cb) * (1 + var(--x-lrn, 1))); }
 html.expert.lay-phone-port .x-lroll.go { transform: translateY(calc(-1 * (var(--x-lh1) + var(--x-cb)))); }
 html.expert .x-cuetag.x-cuein { position: static; display: inline-block; margin-left: 3px; vertical-align: 1px; transform: none !important; }
-html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x-cuein { font-size: 13px; line-height: 14px; }   /* inline on iPad: inside the 17 px next-line box */
+html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x-cuein { font-size: 11px; line-height: 12px; }   /* was 13/14; 11px floor, still inside the 17 px next-line box */
