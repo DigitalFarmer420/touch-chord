@@ -380,13 +380,17 @@ function lyrHtml() {
   function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
   var land = document.documentElement.classList.contains("lay-phone-land");   // sideways: the next line is hidden
   var cue = kidsCue(L, cur, li, land ? 1 : 2);
+  // test.5 crowding fix: phones keep a band above each line for the letter (kids.css); an iPad's big lines leave no
+  // room for one, so there the letter is inline, right of its word.
+  var inl = document.documentElement.classList.contains("lay-pad-port") || document.documentElement.classList.contains("lay-pad-land");
   function paintRange(segs, R) {   // segs [{a, b, cls}] covering the line; the cue word gets "cue" on top
     var out = "";
     segs.forEach(function (sg) {
       if (sg.b <= sg.a) return;
       var rg = [];
       if (cue && cue.r === R.i) { var a = Math.max(sg.a, cue.a), b = Math.min(sg.b, cue.b); if (b > a) rg.push({ a: a - sg.a, b: b - sg.a, cls: "cue" }); }
-      cuePieces(R.t.slice(sg.a, sg.b), rg).forEach(function (p) { var c = (sg.cls + " " + p.cls).trim(); out += c ? "<span class=\"" + c + "\">" + esc(p.t) + "</span>" : esc(p.t); });
+      cuePieces(R.t.slice(sg.a, sg.b), rg).forEach(function (p) { var c = (sg.cls + " " + p.cls).trim(); out += c ? "<span class=\"" + c + "\">" + esc(p.t) + "</span>" : esc(p.t);
+        if (inl && p.cls === "cue" && sg.b >= cue.b) out += "<span class=\"kv-cuetag kv-cuein\" aria-hidden=\"true\">" + esc(cue.chord) + "</span>"; });
     });
     return out;
   }
@@ -404,7 +408,7 @@ function lyrHtml() {
   var l2 = L[li + 1] ? paintRange([{ a: 0, b: L[li + 1].text.length, cls: "" }], { t: L[li + 1].text, i: 1 }) : "&nbsp;";
   if (cue) { kvCue.j = cue.j; kvCue.chord = cue.chord; }
   return "<div class=\"kv-l1\" data-cue-row>" + l1 + "</div><div class=\"kv-l2\" data-cue-row>" + l2 + "</div>"
-    + (cue ? "<span class=\"kv-cuetag\" aria-hidden=\"true\" hidden>" + esc(cue.chord) + "</span>" : "");
+    + (cue && !inl ? "<span class=\"kv-cuetag\" aria-hidden=\"true\" hidden>" + esc(cue.chord) + "</span>" : "");
 }
 function kidsCueSoon() {
   if (kvCue.j < 0) return false;

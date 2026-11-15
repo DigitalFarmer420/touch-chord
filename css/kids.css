@@ -264,3 +264,4 @@ html.lay-pad-port .kv-cuetag, html.lay-pad-land .kv-cuetag { font-size: 18px; li
 html.lay-phone-port .kv-lyr .kv-l1, html.lay-phone-port .kv-lyr .kv-l2 { padding-top: 19px; }
 html.lay-phone-port .kv-lyr .kv-l2 { margin-top: 0; }
 html.lay-phone-land .kv-top .kv-lyr .kv-l1 { padding-top: 14px; }
+.kv-cuetag.kv-cuein { position: static; display: inline-block; margin-left: 4px; vertical-align: .15em; transform: none !important; font-size: 18px; line-height: 22px; }

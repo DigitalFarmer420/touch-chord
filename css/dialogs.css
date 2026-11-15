@@ -320,3 +320,34 @@ html.s-day #songBar { --sb-cue: #2F8F83; }
 #songBar { --sb-gold: #FFC21A; }   /* test.5 yellow: the app gold (Expert --x-gold, Kids --gold); Simple has no token of its own */
 #songBar .sb-cuew { text-decoration: underline 2px var(--sb-gold); text-underline-offset: 2px; text-decoration-skip-ink: none; }
 #songBar .sb-cuew.soon { text-decoration-thickness: 3px; }
+
+/* v3.2 test.5 (Vinh): Simple shows the song's words like Expert's song card (songbar.js paintSimpleLyr): three lines
+   (phone landscape two), the line being sung on top in ink with its sung word on gold, the next lines muted, and
+   Expert's next-chord cue (gold underline + the chord name in small teal text). Phone portrait: every line always
+   keeps a 16 px band above its text for the name, so it never touches the line above and the rows never move; phone
+   landscape and iPad: the name is inline, right of its word. The grid below gives the room. */
+html.simple.up-slyr #app { --sl-n: 3; --sl-cb: 16px; --sl-l1: 22px; --sl-l2: 19px; --sl-f1: 17px; --sl-f2: 15px; }
+html.simple.up-slyr.lay-phone-land #app { --sl-n: 2; --sl-cb: 0px; --sl-l1: 19px; --sl-l2: 16px; --sl-f1: 15px; --sl-f2: 13px; }
+html.simple.up-slyr.lay-pad-port #app, html.simple.up-slyr.lay-pad-land #app { --sl-cb: 0px; --sl-l1: 32px; --sl-l2: 26px; --sl-f1: 24px; --sl-f2: 19px; }
+html.simple.up-slyr.up-on #songBar { height: auto; align-items: flex-start; margin-bottom: 4px; }
+html.simple.up-slyr #songBar .sb-sec { margin-top: calc(var(--sl-cb) + (var(--sl-l1) - 1.6em) / 2); }
+#songBar .sl-lyr { display: block; flex: 1 1 auto; min-width: 0; position: relative; overflow: hidden;
+  height: calc(var(--sl-l1) + var(--sl-cb) + (var(--sl-l2) + var(--sl-cb)) * (var(--sl-n, 3) - 1)); }
+#songBar .sl-roll { display: block; will-change: transform; }
+#songBar .sl-roll.go { transition: transform .28s ease-out; transform: translateY(calc(-1 * (var(--sl-l1) + var(--sl-cb)))); }
+#songBar .sl-row { display: block; box-sizing: border-box; padding-top: var(--sl-cb); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
+#songBar .sl-row.cur { height: calc(var(--sl-l1) + var(--sl-cb)); font: 700 var(--sl-f1)/var(--sl-l1) Andika, Nunito, system-ui, sans-serif; color: var(--ink); text-overflow: clip; }
+#songBar .sl-row.nxt { height: calc(var(--sl-l2) + var(--sl-cb)); font: 600 var(--sl-f2)/var(--sl-l2) Andika, Nunito, system-ui, sans-serif; color: var(--muted); }
+#songBar .sl-lin { display: inline-block; transition: transform .2s ease-out; }
+#songBar .sl-row.cur.sl-shift { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px); mask-image: linear-gradient(90deg, transparent 0, #000 16px); }
+#songBar .sl-now { background: var(--sb-gold); color: #3B2600; border-radius: 6px; padding: 0 4px; }
+#songBar .sl-sec { font-family: Fredoka, Nunito, system-ui, sans-serif; font-weight: 600; color: var(--copper-t); text-transform: capitalize; }
+#songBar .sl-cue { text-decoration: underline 2px var(--sb-gold); text-underline-offset: 2px; text-decoration-skip-ink: none; }
+#songBar .sl-cue.soon { text-decoration-thickness: 3px; }
+#songBar .sl-cuetag { position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; padding: 0 3px; border-radius: 4px;
+  font: 700 11px/12px Fredoka, Nunito, system-ui, sans-serif; color: var(--sb-cue); white-space: nowrap; }
+#songBar .sl-cuetag.soon { color: #fff; background: var(--sb-cue); animation: slCuePulse .5s ease-in-out infinite alternate; }
+#songBar .sl-cuetag.sl-cuein { position: static; display: inline-block; margin-left: 3px; vertical-align: 1px; transform: none !important; }
+html.lay-pad-port #songBar .sl-cuetag, html.lay-pad-land #songBar .sl-cuetag { font-size: 15px; line-height: 17px; }
+@keyframes slCuePulse { from { box-shadow: 0 0 0 0 rgba(47, 143, 131, .55); } to { box-shadow: 0 0 0 3px rgba(47, 143, 131, 0); } }
+@media (prefers-reduced-motion: reduce) { #songBar .sl-roll.go, #songBar .sl-lin { transition: none; } #songBar .sl-cuetag.soon { animation: none; } }

@@ -96,8 +96,12 @@ export function placeCueTag(host, word, tag, avoid) {
   var band = row ? parseFloat(getComputedStyle(row).paddingTop) || 0 : 0;
   var cx = Math.max(wr.left, vis.left) + (Math.min(wr.right, vis.right) - Math.max(wr.left, vis.left)) / 2;
   var x = cx - tw / 2 - hr.left, y = band >= th + 1 ? vis.top - hr.top + 0.5 : wr.top + (wr.height - fs) / 2 + fs * 0.12 - th - hr.top;
-  if (avoid) {
-    var ar = avoid.getBoundingClientRect();
+  if (avoid) {   // the sung word as it paints: clipped by its row (plus the row's overflow-clip-margin)
+    var ar = avoid.getBoundingClientRect(), arow = avoid.closest ? avoid.closest("[data-cue-row]") : null;
+    if (arow) {
+      var rb = arow.getBoundingClientRect(), cm = parseFloat(getComputedStyle(arow).overflowClipMargin) || 0;
+      ar = { left: ar.left, right: ar.right, width: ar.width, top: Math.max(ar.top, rb.top - cm), bottom: Math.min(ar.bottom, rb.bottom + cm) };
+    }
     if (ar.width && ar.bottom - hr.top > y + 1 && ar.top - hr.top < y + th - 1 && ar.right - hr.left > x && ar.left - hr.left < x + tw)
       x = ar.right - hr.left + tw + 2 <= wr.right - hr.left + tw / 2 ? ar.right - hr.left + 2 : ar.left - hr.left - tw - 2;
   }

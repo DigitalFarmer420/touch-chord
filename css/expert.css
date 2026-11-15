@@ -584,3 +584,4 @@ html.expert.lay-phone-port .x-lrow.nxt { height: calc(var(--x-lh2) + var(--x-cb)
 html.expert.lay-phone-port .x-lrows { height: calc(var(--x-lh1) + var(--x-lh2) * var(--x-lrn, 1) + var(--x-cb) * (1 + var(--x-lrn, 1))); }
 html.expert.lay-phone-port .x-lroll.go { transform: translateY(calc(-1 * (var(--x-lh1) + var(--x-cb)))); }
 html.expert .x-cuetag.x-cuein { position: static; display: inline-block; margin-left: 3px; vertical-align: 1px; transform: none !important; }
+html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x-cuein { font-size: 13px; line-height: 14px; }   /* inline on iPad: inside the 17 px next-line box */

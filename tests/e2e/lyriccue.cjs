@@ -1,4 +1,5 @@
-// v3.2 test.5: the next-chord cue on the two-line lyrics (Expert song card + Kids view; Simple shows no lyrics).
+// v3.2 test.5: the next-chord cue on the lyrics (Expert song card, Kids view, and Simple's song bar, which shows the words like
+// Expert since test.5: 3 lines upright, 2 sideways).
 // At 390x844 and 844x390: the cue word and chord follow the next chord change while tapping Next / the gold pad; it is
 // bright when the change is the next tap; it moves on once the change plays; a change on a hidden line gets no cue;
 // the tag stays inside its card, on screen, clear of the gold word, and the lyric rows do not move or resize (rects
@@ -13,7 +14,7 @@ const geo = ([host, rowSel, tagSel, nowSel]) => {   // rows + tag geometry, then
   const h = document.querySelector(host), r = e => { const q = e.getBoundingClientRect(); return [q.left, q.top, q.width, q.height].map(v => Math.round(v * 10) / 10); };
   const rows = () => [...h.querySelectorAll(rowSel)].map(r), tag = h.querySelector(tagSel), now = h.querySelector(nowSel);
   const out = { host: r(h), rows: rows(), tag: tag && !tag.hidden ? r(tag) : null, now: now ? r(now) : null, W: innerWidth, H: innerHeight };
-  const save = h.innerHTML; h.querySelectorAll('.x-cue, .cue').forEach(e => e.classList.remove('x-cue', 'cue', 'soon')); if (tag) tag.remove();
+  const save = h.innerHTML; h.querySelectorAll('.x-cue, .cue, .sl-cue').forEach(e => e.classList.remove('x-cue', 'cue', 'sl-cue', 'soon')); if (tag) tag.remove();
   out.rows0 = rows(); out.host0 = r(h); h.innerHTML = save; return out; };
 const chk = (tag, g) => {
   F(JSON.stringify(g.rows) === JSON.stringify(g.rows0) && JSON.stringify(g.host) === JSON.stringify(g.host0), `${tag} the cue moved the lyric rows ${JSON.stringify(g.rows)} vs ${JSON.stringify(g.rows0)}`);
@@ -74,30 +75,34 @@ const chk = (tag, g) => {
       F(smp.some(s => s.soon) && smp.some(s => s.cur >= 2), `${sz} kids Play: no bright cue / no steps`); F(stale.every(s => s <= 150), `${sz} kids Play: cue stayed on a played step ${stale}`);
       R.info[`kids-${sz}-play`] = { soonShare: +(smp.filter(s => s.soon).length / smp.length).toFixed(2), staleMs: stale };
       F(errs.length === 0, `${sz} kids page errors ${errs}`); await ctx.close(); }
-    // ---- Simple: the one-line song bar (chord names inline): the next change's name turns teal and its word is underlined
+    // ---- Simple (test.5): the words like Expert, with Expert's cue (gold underline + the name above / inline sideways)
     { const { ctx, p, errs } = await mk('?test=1&expert=1&hour=12'); await p.waitForFunction(() => window.__upload && window.__ms && window.__magic);
       await p.evaluate(t => window.__upload.load(t), SONG); await p.waitForTimeout(400);
       await p.evaluate(() => window.__ms.open(true)); await p.waitForTimeout(400); await p.evaluate(() => document.querySelector('#msMode button[data-mode="simple"]').click()); await p.waitForTimeout(1000);
       const seen = [];
       for (let n = 1; n <= 8; n++) {
-        await p.evaluate(() => window.__magic.tap()); await p.waitForTimeout(300);
-        const c = await p.evaluate(() => { const bar = document.getElementById('songBar'), ch = bar.querySelector('.sb-ch.sb-cue'), w = bar.querySelector('.sb-cuew');
-          const r = e => { const q = e.getBoundingClientRect(); return [q.left, q.top, q.width, q.height].map(v => Math.round(v)); };
-          const g = { bar: r(bar), chips: [...bar.querySelectorAll('.sb-ch')].map(r) }; const save = bar.innerHTML, soon = !!(ch && ch.classList.contains('soon'));
-          bar.querySelectorAll('.sb-cue, .sb-cuew').forEach(e => e.classList.remove('sb-cue', 'sb-cuew', 'soon')); const g0 = { bar: r(bar), chips: [...bar.querySelectorAll('.sb-ch')].map(r) }; bar.innerHTML = save;
-          return { cur: window.__prog.cur, shown: !bar.hidden, text: bar.textContent, chip: ch ? ch.textContent : null, word: w ? w.textContent : null, soon, same: JSON.stringify(g) === JSON.stringify(g0) }; });
-        seen.push(c); const t = `${sz} simple tap${n}`;
-        F(c.shown, `${t} song bar hidden`); F(c.same, `${t} the cue moved the song bar`);
-        if (c.chip) F(!!c.word, `${t} cue chord ${c.chip} without its word`);
-        if (c.chip) F(c.soon, `${t} tapping: the cue should be bright (next tap = the change)`);
+        await p.evaluate(() => window.__magic.tap()); await p.waitForTimeout(400);
+        const c = await p.evaluate(() => Object.assign(window.__simpleLyr(), { cur: window.__prog.cur }));
+        const t = `${sz} simple tap${n}`; seen.push({ cur: c.cur, j: c.j, word: c.word, chord: c.chord, row: c.row, soon: c.soon, now: c.now });
+        const lay = await p.evaluate(() => ({ pl: document.documentElement.classList.contains('lay-phone-land'), pp: document.documentElement.classList.contains('lay-phone-port') }));
+        F(c.on && c.rows === (lay.pl ? 2 : 3), `${t} Simple lyric rows ${c.on}/${c.rows}`);
+        F(c.inline === !lay.pp || !c.tagShown, `${t} name inline ${c.inline} at ${sz}`);
+        if (c.j >= 0) { F(c.j > c.cur, `${t} cue on a played step`); F(!!c.word && c.tagShown, `${t} no word/tag`); F(c.soon === (c.j === c.cur + 1), `${t} brightness ${c.soon} for j ${c.j} cur ${c.cur}`); }
+        chk(t, await p.evaluate(geo, ['#songBar .sl-lyr', '.sl-row', '.sl-cuetag', '.sl-row.cur .sl-now']));
       }
-      F(seen.some(c => c.chip && c.word), `${sz} simple: never a cue ${JSON.stringify(seen.map(c => [c.cur, c.chip, c.word]))}`);
-      R.info[`simple-${sz}`] = seen.map(c => ({ cur: c.cur, chip: c.chip, word: c.word, soon: c.soon }));
+      F(seen.some(s => s.row === 0) && seen.some(s => s.row === 1), `${sz} simple: expected cues on two lines ${JSON.stringify(seen)}`);
+      R.info[`simple-${sz}`] = seen;
+      const tempo = await p.evaluate(() => window.__upload.tempo()); const beat = tempo.loopBar / (tempo.song && tempo.song.ts ? +String(tempo.song.ts).split('/')[0] : 4);
       await p.evaluate(() => window.__progApi.play());
-      const smp = await p.evaluate(async () => { const out = [], t0 = performance.now(); while (performance.now() - t0 < 8000) { const ch = document.querySelector('#songBar .sb-ch.sb-cue'); out.push({ t: performance.now() - t0, cur: window.__prog.cur, cue: ch ? ch.textContent : null, soon: !!(ch && ch.classList.contains('soon')), off: !!(ch && !ch.classList.contains('soon')) }); await new Promise(r => setTimeout(r, 25)); } return out; });
+      const smp = await p.evaluate(async () => { const out = [], t0 = performance.now(); while (performance.now() - t0 < 9000) { const c = window.__simpleLyr(); out.push({ t: performance.now() - t0, cur: window.__prog.cur, j: c.j, soon: c.soon }); await new Promise(r => setTimeout(r, 25)); } return out; });
       await p.evaluate(() => window.__progApi.stop && window.__progApi.stop());
-      F(smp.some(x => x.soon) && smp.some(x => x.off), `${sz} simple Play: the cue should be dim, then bright before a change`);
-      R.info[`simple-${sz}-play`] = { soonShare: +(smp.filter(x => x.soon).length / smp.length).toFixed(2), dimShare: +(smp.filter(x => x.off).length / smp.length).toFixed(2) };
+      const lead = [], stale = [];
+      for (let i = 0; i < smp.length; i++) { const s = smp[i]; if (s.soon && (i === 0 || !smp[i - 1].soon || smp[i - 1].j !== s.j)) { const hit = smp.slice(i).find(x => x.cur >= s.j && x.cur < s.j + 4); if (hit) lead.push(+(hit.t - s.t).toFixed(0)); } }
+      let run = 0; smp.forEach(s => { if (s.j >= 0 && s.cur >= s.j && s.cur < s.j + 4) run += 25; else { if (run) stale.push(run); run = 0; } });
+      R.info[`simple-${sz}-play`] = { beatMs: Math.round(beat * 1000), leadMs: lead, staleMs: stale };
+      F(lead.length >= 2, `${sz} simple Play: the cue never brightened before a change`);
+      F(lead.every(l => l <= beat * 1000 + 180), `${sz} simple Play: brightened too early ${lead} (beat ${beat})`);
+      F(stale.every(s => s <= 200), `${sz} simple Play: the cue stayed on a played step ${stale} ms`);
       F(errs.length === 0, `${sz} simple page errors ${errs}`); await ctx.close(); }
   }
   await b.close();

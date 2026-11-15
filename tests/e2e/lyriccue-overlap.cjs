@@ -7,6 +7,7 @@
 //  - Simple song bar: at least two lyric rows (three in portrait), the line being sung on top with its sung word on
 //    gold, the same cue as Expert (gold underline + the name above, or inline in landscape), the name clear of the
 //    other lines, the rows steady, and nothing in the bar over a control (grid chips, buttons).
+//  (iPad sizes work too, e.g. SIZES=820x1180,1180x820: names inline there, Kids included.)
 // Text boxes are Range client rects (the font's content area, a little taller than the ink), clipped to the line's
 // own box. BASE=http://host/index.html CHROME=/path SIZES=390x844,... node tests/e2e/lyriccue-overlap.cjs
 const { chromium } = require('playwright-core'); const fs = require('fs'); const path = require('path');
@@ -33,7 +34,9 @@ const probe = sel => {
   const ctr = (sel.controls ? [...document.querySelectorAll(sel.controls)] : []).filter(e => e.getClientRects().length && !host.contains(e) && !e.contains(host) && getComputedStyle(e).visibility !== 'hidden');
   return { host: q(host), tag: shown ? q(tag) : null, tagIn: shown && rows.some(r => r.contains(tag)), tagText: shown ? tag.textContent : null,
     rows: rows.map(r => ({ box: q(r), text: textBox(r, tag), cls: r.className })), wrow, word: word ? q(word) : null, wordText: word ? word.textContent : null,
-    now: (() => { const n = host.querySelector(sel.now); return n ? { box: q(n), bg: getComputedStyle(n).backgroundColor, text: n.textContent } : null; })(),
+    now: (() => { const n = host.querySelector(sel.now); if (!n) return null; const rw = n.closest('[data-cue-row]'), b = q(n);   // as painted: clipped by its row (+ clip margin)
+      if (rw) { const rb = q(rw), cm = parseFloat(getComputedStyle(rw).overflowClipMargin) || 0; b.t = Math.max(b.t, rb.t - cm); b.b = Math.min(b.b, rb.b + cm); }
+      return { box: b, bg: getComputedStyle(n).backgroundColor, text: n.textContent }; })(),
     title: title ? textBox(title) : null, lock: sel.lock && document.querySelector(sel.lock) ? q(document.querySelector(sel.lock)) : null,
     controls: ctr.map(e => ({ id: (e.id || e.className || e.tagName).toString().slice(0, 40), box: q(e) })), W: innerWidth, H: innerHeight };
 };
@@ -52,11 +55,12 @@ function check(t, g, info, opt = {}) {
   F(g.wrow >= 0, `${t} name shown without its word`);
   g.rows.forEach((r, k) => { if (k === g.wrow && g.tagIn) return;   // inline: its own line holds it
     F(!hit(T, r.text), `${t} name ${J(T)} touches line ${k} text ${J(r.text)} (cue on line ${g.wrow}, inline ${g.tagIn})`); });
-  if (g.now && g.wrow === 0) F(!hit(T, g.now.box), `${t} name covers the sung word`);
+  if (g.now) F(!hit(T, g.now.box, 0.5), `${t} name ${J(T)} covers the sung word ${J(g.now.box)}`);
   if (g.word && !g.tagIn) F(T.b <= g.word.t + 4 && T.r > g.word.l && T.l < g.word.r, `${t} name ${J(T)} not above its word ${J(g.word)}`);
   if (g.word && g.tagIn) F(T.l >= g.word.r - 0.5 && T.l <= g.word.r + 8, `${t} inline name ${J(T)} not right of its word ${J(g.word)}`);
   if (opt.inline != null) F(g.tagIn === opt.inline, `${t} name inline ${g.tagIn}, want ${opt.inline}`);
 }
+const inlineLay = () => !document.documentElement.classList.contains('lay-phone-port');   // the name is inline unless phone portrait
 const tapGold = () => { const g = document.querySelector('#kv .kv-pad.gold'); g.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerId: 1 })); g.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, pointerId: 1 })); };
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--no-sandbox'] });
@@ -73,7 +77,7 @@ const tapGold = () => { const g = document.querySelector('#kv .kv-pad.gold'); g.
       const sel = { host: '#xSrc', title: '#xSrc .x-stitle', rows: '.x-lrow', tag: '.x-cuetag', word: '.x-cue', now: '.x-lrow.cur .x-now', lock: '#xSrc .x-lock' };
       for (let n = 0; n <= 18; n++) {
         if (n) { await p.evaluate(() => document.getElementById('xNext').click()); await p.waitForTimeout(420); }
-        check(`${sz} expert step${n}`, await p.evaluate(probe, sel), info, { inline: land });
+        check(`${sz} expert step${n}`, await p.evaluate(probe, sel), info, { inline: await p.evaluate(inlineLay) });
       }
       F(info.tags >= 8 && info.rows.has(0) && info.rows.has(1), `${sz} expert: want names on both lines, got ${info.tags} on ${[...info.rows]}`);
       F(info.rowsTop.size === 1, `${sz} expert: the lyric rows moved between steps ${[...info.rowsTop]}`);
@@ -99,11 +103,12 @@ const tapGold = () => { const g = document.querySelector('#kv .kv-pad.gold'); g.
       for (let n = 0; n <= 18; n++) {
         if (n) { await p.evaluate(() => window.__magic.tap()); await p.waitForTimeout(420); }
         const g = await p.evaluate(probe, sel), t = `${sz} simple tap${n}`;
-        check(t, g, info, { inline: land });
+        check(t, g, info, { inline: await p.evaluate(inlineLay) });
         if (g.none) continue;
         nRows.add(g.rows.length);
         F(g.rows.length >= 2, `${t} only ${g.rows.length} lyric rows`);
-        if (!land) F(g.rows.length === 3, `${t} portrait: want 3 rows, got ${g.rows.length}`);
+        const pl = await p.evaluate(() => document.documentElement.classList.contains('lay-phone-land'));
+        F(g.rows.length === (pl ? 2 : 3), `${t} want ${pl ? 2 : 3} rows, got ${g.rows.length}`);
         F(g.rows.length && /\bcur\b/.test(g.rows[0].cls), `${t} the first row is not the line being sung`);
         if (g.now) { words++; if (/255, 194, 26/.test(g.now.bg)) gold++; }
         const all = [g.host].concat(g.tag ? [g.tag] : []);

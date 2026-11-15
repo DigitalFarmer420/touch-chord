@@ -7,12 +7,13 @@ import { state, shared } from "../state.js?v=112.13";
 import { secLyrics } from "../songs/fullchart.js?v=112.13";
 import { upLyrMap, lyrState, paintLyr2, lyrPad } from "./lyrics.js?v=112.13";
 import { fitStrip } from "./strip.js?v=112.13";
-import { nextChange, songCue, cueSoon, cueClock, cueWord } from "./chordcue.js?v=112.13";
+import { nextChange, songCue, cueSoon, cueClock, cueWord, cuePieces, placeCueTag } from "./chordcue.js?v=112.13";
+import { songCardRows } from "../expert/model.js?v=112.13";
 import { progLoopBar, songTempo } from "../songs/song.js?v=112.13";
-// v3.2 test.5: the next-chord cue in Simple's song bar. Its lyrics already print each chord name inline, right before
-// its word, so the cue colours that chord name teal and underlines its word (no second name above it); it brightens
-// one beat before the change (Play) or when the change is the next tap. Phone Simple = the one-line bar; iPad = the
-// two-row lyrics (lyrics.js paintLyr2, which takes the same cue).
+// v3.2 test.5: the next-chord cue in the song bar. Full (classic) mode's rows print each chord name inline, right
+// before its word, so there the cue colours that chord name teal and underlines its word; it brightens one beat
+// before the change (Play) or when the change is the next tap. Simple (Vinh, test.5) shows the words like Expert's
+// song card instead (paintSimpleLyr below), with Expert's cue. A song without words keeps the one-line chord bar.
 export const sbCue = { j: -1, pc: -2, cur: -2, t: 0, soon: null, log: [] };
 export function sbCueFor(cur, rows, idx) {   // rows/idx: the two-row map window; rows 0 = the one-line bar (same line)
   var U = shared.U, names = U.events.map(function (e) { return upA(upSym(e.si, e.ci)); });
@@ -39,11 +40,98 @@ function sbCueTick() {
   var cur = upCurStep();
   if (cur !== sbCue.pc) { paintSongBar(); return; }
   var t = songTempo(), soon = cueSoon({ j: sbCue.j, cur: cur, playing: !!prog.playing, bars: prog.steps.map(function (st) { return st.bars; }), barSec: progLoopBar(), bpb: t && t.bpb || 4, since: cueClock(sbCue, cur, performance.now()) });
-  Array.prototype.forEach.call(bar.querySelectorAll(".sb-cue, .sb-cuew"), function (n) { n.classList.toggle("soon", soon); });
+  Array.prototype.forEach.call(bar.querySelectorAll(".sb-cue, .sb-cuew, .sl-cue, .sl-cuetag"), function (n) { n.classList.toggle("soon", soon); });
+  slPlace(bar);
   if (soon !== sbCue.soon) { sbCue.log.push({ j: sbCue.j, cur: cur, soon: soon, playing: !!prog.playing }); if (sbCue.log.length > 200) sbCue.log.shift(); }
   sbCue.soon = soon;
 }
 var sbCueT = 0;   // started by the first song bar paint (not at import: unit tests import this file)
+// ---------- v3.2 test.5 (Vinh): Simple shows the song's words like Expert's song card ----------
+// Up to three lines (phone landscape: two; no room for a third at a readable size): the line being sung on top, in
+// ink, with its sung word on gold (a chord-only part: its chords, the sounding one on gold), then the next lines,
+// muted. The next-chord cue is Expert's: a gold underline on the word where the next chord change lands and the
+// chord's name in small teal text. Phone portrait: every line always keeps a band above its text and the name sits
+// in it (chordcue.js placeCueTag), so it never touches the line above and the rows never move; phone landscape and
+// iPad: the name is inline, right of its word. Rows come from the same line map as playback (songCardRows).
+export const slState = { k: -1, ev: null, anim: 0, log: [] };
+export function slRowCount() { return document.documentElement.classList.contains("lay-phone-land") ? 2 : 3; }
+function slInline() { return !document.documentElement.classList.contains("lay-phone-port"); }
+export function slRowHtml(r, cls, cue, inl) {
+  var h = "";
+  if (r.sec) h += "<span class=\"sl-sec\">" + upEsc(r.sec) + " \u00b7</span> ";
+  if (r.kind === "lyric" || r.kind === "text") {
+    var text = r.kind === "lyric" ? r.before + r.word + r.after : r.text, rg = [];
+    if (r.kind === "lyric" && r.word) rg.push({ a: r.before.length, b: r.before.length + r.word.length, cls: "sl-now" });
+    if (cue) rg.push({ a: cue.a, b: cue.b, cls: "sl-cue" });
+    h += cuePieces(text, rg).map(function (p) {
+      return (p.cls ? "<span class=\"" + p.cls + "\">" + upEsc(p.t) + "</span>" : upEsc(p.t))
+        + (inl && cue && p.cls === "sl-cue" ? "<span class=\"sl-cuetag sl-cuein\" aria-hidden=\"true\">" + upEsc(cue.chord) + "</span>" : "");
+    }).join("");
+  } else if (r.kind === "chords") h += r.chords.map(function (c) { return "<span class=\"sl-ch" + (c.on ? " sl-now" : "") + "\">" + upEsc(c.t) + "</span>"; }).join(" ");
+  return "<span class=\"sl-row " + cls + "\" data-cue-row>" + (cls === "cur" ? "<span class=\"sl-lin\">" + h + "</span>" : h) + "</span>";
+}
+function slFit(bar) {   // a long sung line never wraps: slide it so the sung word stays in view (Expert's fitLyrRow)
+  var row = bar.querySelector(".sl-row.cur"), lin = row && row.querySelector(".sl-lin"), w = lin && lin.querySelector(".sl-now");
+  if (!lin) return;
+  lin.style.transform = ""; row.classList.remove("sl-shift");
+  if (!w) return;
+  var rr = row.getBoundingClientRect(), wr = w.getBoundingClientRect(), dx = 0;
+  if (wr.right > rr.right - 4) dx = Math.max(0, Math.min(wr.left - rr.left - 24, wr.right - rr.right + 8));
+  if (dx > 0) { lin.style.transform = "translateX(" + (-Math.round(dx)) + "px)"; row.classList.add("sl-shift"); }
+}
+function slPlace(bar) {
+  var host = bar.querySelector(".sl-lyr"); if (!host) return;
+  var tag = host.querySelector(".sl-cuetag"); if (!tag) return;
+  placeCueTag(host, host.querySelector(".sl-cue"), tag, host.querySelector(".sl-row.cur .sl-now"));
+}
+function paintSimpleLyr(bar, cur) {
+  var U = shared.U, M = upLyrMap(), n = slRowCount(), inl = slInline();
+  var e0 = U.events[cur >= 0 ? cur : 0] || U.events[0], ci = cur >= 0 && e0 ? e0.ci : -1;
+  var lines = function (si, rep) { return secLyrics(U.secs[si], rep); };
+  var card = songCardRows(M, cur, n, ci, lines, function (si) { return U.secs[si].chords.map(function (c, k) { return upA(upSym(si, k)); }); }, upSecName);
+  var cue = sbCueFor(cur, n, card.idx), r0 = card.rows[0];
+  if (cue && cue.k === 0 && r0.kind === "lyric" && r0.word) {   // never on the sung (gold) word itself
+    var na = r0.before.length, nb = na + r0.word.length;
+    if (cue.a < nb && cue.b > na) cue = null;
+  }
+  sbCue.j = cue ? cue.j : -1;
+  var ent = M.seq[card.idx] || { si: e0 ? e0.si : 0 };
+  var alts = ci >= 0 && !U.locked && (upEv(e0.si, ci).alternates || []).length;
+  var rows = card.rows.map(function (r, k) { return slRowHtml(r, k === 0 ? "cur" : "nxt", cue && cue.k === k ? cue : null, inl); }).join("");
+  var tag = cue && !inl ? "<span class=\"sl-cuetag\" aria-hidden=\"true\" hidden>" + upEsc(cue.chord) + "</span>" : "";
+  var head = "<span class=\"sb-sec\">" + upEsc(upSecName(ent.si)) + "</span>", tail = alts ? "<span class=\"sb-alt\">alt \u25be</span>" : "";
+  var key = head + "<span class=\"sl-lyr\" data-n=\"" + n + "\"><span class=\"sl-roll\">" + rows + "</span>" + tag + "</span>" + tail;
+  var same = slState.ev === U.events;
+  if (slState.anim && same) return;   // finish the roll first; its timer repaints
+  var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var step = same && slState.k >= 0 && card.idx === slState.k + 1 && bar._html && bar.querySelector(".sl-row.cur");
+  slState.ev = U.events;
+  if (step && !calm) {   // the line being sung rolls up one row (300 ms, as Expert); none with reduced motion
+    var old = bar.querySelector(".sl-row.cur"), oldHtml = old.outerHTML.replace(/<span class="sl-cuetag[^"]*" aria-hidden="true">[^<]*<\/span>/g, "").replace(/<span class="sl-(?:now|cue)[^"]*">([^<]*)<\/span>/g, "$1").replace(/ style="[^"]*"/g, "");
+    bar.innerHTML = key.replace("<span class=\"sl-roll\">", "<span class=\"sl-roll\">" + oldHtml);
+    bar._html = null;
+    var roll = bar.querySelector(".sl-roll");
+    void roll.offsetWidth;
+    roll.classList.add("go");
+    slState.anim = setTimeout(function () { slState.anim = 0; bar._html = null; paintSongBar(); }, 300);
+    slState.log.push({ idx: card.idx, anim: true });
+  } else {
+    if (bar._html !== key) { bar.innerHTML = key; bar._html = key; slFit(bar); }
+    if (card.idx !== slState.k) slState.log.push({ idx: card.idx, anim: false });
+  }
+  if (slState.log.length > 200) slState.log.shift();
+  slState.k = card.idx;
+  bar.dataset.si = ent.si;
+  slPlace(bar);
+}
+if (typeof location !== "undefined" && /[?&]test=1\b/.test(location.search)) window.__simpleLyr = function () {   // tests: Simple's rows and cue
+  var bar = document.getElementById("songBar"), w = bar && bar.querySelector(".sl-cue"), tag = bar && bar.querySelector(".sl-cuetag");
+  return { on: document.documentElement.classList.contains("up-slyr"), j: sbCue.j, rows: bar ? bar.querySelectorAll(".sl-lyr > .sl-roll > .sl-row").length : 0,
+    word: w ? w.textContent : null, row: w ? Array.prototype.indexOf.call(bar.querySelectorAll(".sl-roll > .sl-row"), w.closest(".sl-row")) : -1,
+    chord: tag ? tag.textContent : null, tagShown: !!(tag && !tag.hidden), inline: !!(tag && tag.classList.contains("sl-cuein")),
+    soon: !!(w && w.classList.contains("soon")), now: (function () { var n = bar && bar.querySelector(".sl-row.cur .sl-now"); return n ? n.textContent : null; })(), log: slState.log.slice(-40) };
+};
+if (typeof window !== "undefined" && window.addEventListener) window.addEventListener("resize", function () { var bar = document.getElementById("songBar"); if (bar && document.documentElement.classList.contains("up-slyr")) { bar._html = null; setTimeout(paintSongBar, 90); } });
 export function paintSongBar() {
   document.documentElement.classList.toggle("up-nonum", upSelected());   // v73: no sequence numbers on an uploaded song's grid
   var bar = document.getElementById("songBar");
@@ -57,10 +145,12 @@ export function paintSongBar() {
     document.documentElement.classList.toggle("up-on", on);   // CSS: the strip rows give the bar its room
     setTimeout(function () { fitStrip(); placeBadges(); }, 0);
   }
-  var two = on && (!state.simple || lyrPad()) && upLyrMap().any;   // v95; iPad: Simple gets the lyric rows too
-  if (document.documentElement.classList.contains("up-lyr2") !== two) {
+  var slyr = on && state.simple && upLyrMap().any;   // v3.2 test.5: Simple shows the words like Expert (phones and iPad)
+  var two = on && !state.simple && upLyrMap().any;   // v95: full mode's two-row lyrics
+  if (document.documentElement.classList.contains("up-lyr2") !== two || document.documentElement.classList.contains("up-slyr") !== slyr) {
     document.documentElement.classList.toggle("up-lyr2", two);
-    bar._html = null; lyrState.k = -1;
+    document.documentElement.classList.toggle("up-slyr", slyr);
+    bar._html = null; lyrState.k = -1; slState.k = -1;
     setTimeout(function () { fitStrip(); placeBadges(); upPlaceLock(); }, 0);
   }
   if (!on) { paintUploadActive(-1); upPlaceLock(); paintUpNext(); return; }
@@ -72,6 +162,14 @@ export function paintSongBar() {
   var curCi = cur >= 0 ? e0.ci : -1;
   sbCue.j = -1; sbCue.pc = cur;
   if (!sbCueT) sbCueT = setInterval(sbCueTick, 60);
+  if (slyr) {
+    paintSimpleLyr(bar, cur);
+    upPlaceLock();
+    paintUpNext();
+    bar.setAttribute("aria-label", "Song " + upProgObj.name + ", " + upSecName(si) + (curCi >= 0 ? ", now " + upT(upSym(si, curCi)) : "") + ". Open the song");
+    paintUploadActive(cur >= 0 ? cur : -1);
+    return;
+  }
   if (two) {
     paintLyr2(bar, cur);
     upPlaceLock();
