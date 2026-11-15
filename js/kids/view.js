@@ -12,6 +12,7 @@ import { KIDS_LYRICS } from "../songs/kids-songs.js?v=112.13";
 import { magicQueue, progNext } from "../songs/magic.js?v=112.13";
 import { magic, prog, progSet, progPlay, progStop, applySongKey, progWalkAt, progWalkTo } from "../songs/playback.js?v=112.13";
 import { progLoopBar } from "../songs/song.js?v=112.13";
+import { nextChange, cueSoon, cueClock, cueWord, cuePieces, placeCueTag } from "../ui/chordcue.js?v=112.13";
 import { state, fingers, shared, scheduleSave } from "../state.js?v=112.13";
 import { wrap12 } from "../theory/quality.js?v=112.13";
 import { APP_VERSION } from "../version.js?v=112.13";
@@ -349,23 +350,75 @@ function hideReward() {
 }
 
 // ---------- paint ----------
+// v3.2 test.5: the next-chord cue. Each Kids step is one sung note on its own major chord (the pad letter), so the cue
+// marks the word where the pad changes: a teal underline and the pad letter above it, brighter one beat before the
+// change (Play song) or when it is the very next note (taps: no beat timing). Shown lines only (sideways: one line).
+export const kvCue = { j: -1, chord: null, soon: false, cur: -2, t: 0, log: [] };
+function padName(st) {
+  var it = st && (st.item || st), pc = it && it.rootPc != null ? wrap12(it.rootPc) : null, i = pc == null ? -1 : WHITE_PC.indexOf(pc);
+  return i >= 0 ? LETTERS[i] : pc == null ? "" : ["C", "C\u266F", "D", "E\u266D", "E", "F", "F\u266F", "G", "A\u266D", "A", "B\u266D", "B"][pc];
+}
+function kidsCue(L, cur, li, rows) {
+  var names = prog.steps.map(padName), j = nextChange(names, cur);
+  if (j < 0 || !names[j]) return null;
+  for (var r = 0; r < rows; r++) {
+    var ln = L[li + r]; if (!ln) break;
+    for (var k = 0; k < ln.markers.length; k++) if (ln.markers[k].chordIndex === j) {
+      var w = cueWord(ln.text, ln.markers[k].charIndex, function (c) { return /[A-Za-z\u00C0-\u024F'\u2019]/.test(c); });
+      return w ? { j: j, r: r, a: w[0], b: w[1], chord: names[j] } : null;
+    }
+  }
+  return null;   // the change is on a line not shown yet
+}
 function lyrHtml() {
   var L = KIDS_LYRICS[songName()];
+  kvCue.j = -1; kvCue.chord = null;
   if (!L || !L.length) return "";
   var cur = prog.cur >= 0 ? prog.cur : (magic ? magic.pos - 1 : -1), li = 0;
   if (cur >= prog.steps.length) cur = prog.steps.length - 1;
   if (cur >= 0) L.forEach(function (ln, i) { if (ln.markers.some(function (m) { return m.chordIndex <= cur; })) li = i; });
   function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+  var land = document.documentElement.classList.contains("lay-phone-land");   // sideways: the next line is hidden
+  var cue = kidsCue(L, cur, li, land ? 1 : 2);
+  function paintRange(segs, R) {   // segs [{a, b, cls}] covering the line; the cue word gets "cue" on top
+    var out = "";
+    segs.forEach(function (sg) {
+      if (sg.b <= sg.a) return;
+      var rg = [];
+      if (cue && cue.r === R.i) { var a = Math.max(sg.a, cue.a), b = Math.min(sg.b, cue.b); if (b > a) rg.push({ a: a - sg.a, b: b - sg.a, cls: "cue" }); }
+      cuePieces(R.t.slice(sg.a, sg.b), rg).forEach(function (p) { var c = (sg.cls + " " + p.cls).trim(); out += c ? "<span class=\"" + c + "\">" + esc(p.t) + "</span>" : esc(p.t); });
+    });
+    return out;
+  }
   function line(ln) {   // sung words solid, the current word (whole word, even when the note is its 2nd syllable) on gold, the rest faint
     var t = ln.text, mk = ln.markers, m = null;
     mk.forEach(function (x) { if (x.chordIndex === cur) m = x; });
-    if (!m) return "<span class=\"" + (cur >= mk[mk.length - 1].chordIndex ? "done" : "w") + "\">" + esc(t) + "</span>";
-    var L = /[A-Za-z\u00C0-\u024F'\u2019-]/, ws = m.charIndex, we = m.charIndex;
-    while (ws > 0 && L.test(t.charAt(ws - 1)) && t.charAt(ws - 1) !== "-") ws--;
-    while (we < t.length && L.test(t.charAt(we)) && t.charAt(we) !== "-") we++;
-    return "<span class=\"done\">" + esc(t.slice(0, ws)) + "</span><span class=\"now\">" + esc(t.slice(ws, we)) + "</span><span class=\"w\">" + esc(t.slice(we)) + "</span>";
+    if (!m) return paintRange([{ a: 0, b: t.length, cls: cur >= mk[mk.length - 1].chordIndex ? "done" : "w" }], { t: t, i: 0 });
+    var Lr = /[A-Za-z\u00C0-\u024F'\u2019-]/, ws = m.charIndex, we = m.charIndex;
+    while (ws > 0 && Lr.test(t.charAt(ws - 1)) && t.charAt(ws - 1) !== "-") ws--;
+    while (we < t.length && Lr.test(t.charAt(we)) && t.charAt(we) !== "-") we++;
+    if (cue && cue.r === 0 && cue.a < we && cue.b > ws) cue = null;   // never on the gold (sung) word itself
+    return paintRange([{ a: 0, b: ws, cls: "done" }, { a: ws, b: we, cls: "now" }, { a: we, b: t.length, cls: "w" }], { t: t, i: 0 });
   }
-  return "<div class=\"kv-l1\">" + line(L[li]) + "</div><div class=\"kv-l2\">" + (L[li + 1] ? esc(L[li + 1].text) : "&nbsp;") + "</div>";
+  var l1 = line(L[li]);
+  var l2 = L[li + 1] ? paintRange([{ a: 0, b: L[li + 1].text.length, cls: "" }], { t: L[li + 1].text, i: 1 }) : "&nbsp;";
+  if (cue) { kvCue.j = cue.j; kvCue.chord = cue.chord; }
+  return "<div class=\"kv-l1\" data-cue-row>" + l1 + "</div><div class=\"kv-l2\" data-cue-row>" + l2 + "</div>"
+    + (cue ? "<span class=\"kv-cuetag\" aria-hidden=\"true\" hidden>" + esc(cue.chord) + "</span>" : "");
+}
+function kidsCueSoon() {
+  if (kvCue.j < 0) return false;
+  var cur = prog.cur >= 0 ? prog.cur : (magic ? magic.pos - 1 : -1);
+  return cueSoon({ j: kvCue.j, cur: cur, playing: !!prog.playing, bars: prog.steps.map(function (s) { return s.bars; }), barSec: progLoopBar(), bpb: 4,
+    since: cueClock(kvCue, cur, performance.now()) });
+}
+function paintKidsCue(soon) {
+  var w = els.lyr.querySelectorAll(".cue"), tag = els.lyr.querySelector(".kv-cuetag");
+  Array.prototype.forEach.call(w, function (e) { e.classList.toggle("soon", soon); });
+  if (tag) tag.classList.toggle("soon", soon);
+  if (soon !== kvCue.soon) { kvCue.log.push({ j: kvCue.j, soon: soon, playing: !!prog.playing }); if (kvCue.log.length > 200) kvCue.log.shift(); }
+  kvCue.soon = soon;
+  placeCueTag(els.lyr, w[0] || null, tag, els.lyr.querySelector(".kv-l1 .now"));
 }
 function layoutSlots() {   // phone landscape: the lyric line moves into the top bar
   var de = document.documentElement, land = de.classList.contains("lay-phone-land");
@@ -389,7 +442,8 @@ export function paint(force) {
   var name = songName();
   if (kv.screen === "play" && name && KV_SONGS[name] && state.kidsSong !== name) { state.kidsSong = name; scheduleSave(); }   // Hello opens the last song played
   if (kv.screen === "play" && name && KV_SONGS[name]) saveWalk(progWalkAt());   // rd6: the step is saved with the song
-  var sig = [kv.screen, name, prog.cur, magic ? magic.pos : -1, prog.playing, g, goldPad, paOff, Object.keys(lit).join(","), state.theme, kv.reward].join("|");
+  var cueOn = kidsCueSoon();   // v3.2 test.5: the cue brightens by time while Play runs
+  var sig = [kv.screen, name, prog.cur, magic ? magic.pos : -1, prog.playing, g, goldPad, paOff, Object.keys(lit).join(","), state.theme, kv.reward, cueOn].join("|");
   if (!force && sig === kv.sig) return;
   kv.sig = sig;
   root.classList.toggle("pa-off", paOff);
@@ -397,6 +451,7 @@ export function paint(force) {
   var m = meta(name);
   els.chip.innerHTML = "<span class=\"kv-pic\">" + m.pic + "</span><span class=\"kv-cn\">" + m.chip + "</span>";
   var lh = lyrHtml(); if (els.lyr._h !== lh) { els.lyr.innerHTML = lh; els.lyr._h = lh; }
+  paintKidsCue(kidsCueSoon());
   var goldNote = !!kidsGoldStep();   // the gold pad plays the single song note only while play-along waits for it
   Array.prototype.forEach.call(els.pads.children, function (p) {
     var gold = goldPad != null && Number(p.dataset.pc) === goldPad;
@@ -424,5 +479,5 @@ export function boot() {
   registerLook("kids", function () { return state.theme; }, function (l) { document.documentElement.classList.toggle("kv-lamp", l === "lamp"); });
   window.addEventListener("resize", function () { paint(true); if (kv.on && kv.screen === "songs") fitCards(); });
   if (!state.expert) enter(true);
-  if (TEST) window.__kv = { kv: kv, show: show, setExpert: setExpert, setTheme: setTheme, paint: paint, reward: showReward, gold: goldMidi, songs: function () { return prog.list.map(function (p) { return p.name; }); }, fitCards: fitCards };
+  if (TEST) window.__kv = { kv: kv, show: show, setExpert: setExpert, setTheme: setTheme, paint: paint, reward: showReward, gold: goldMidi, songs: function () { return prog.list.map(function (p) { return p.name; }); }, fitCards: fitCards, cue: function () { var w = els.lyr.querySelector('.cue'), t = els.lyr.querySelector('.kv-cuetag'); return { j: kvCue.j, chord: kvCue.chord, word: w ? w.textContent : null, row: w ? (w.closest('.kv-l1') ? 0 : 1) : -1, soon: !!(w && w.classList.contains('soon')), tagShown: !!(t && !t.hidden), log: kvCue.log.slice(-40) }; } };
 }

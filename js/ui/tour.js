@@ -15,7 +15,7 @@ export const TOURS = {
     { sel: null, text: "Hi! Let's play Twinkle Twinkle Little Star." },
     { sel: "#kv .kv-pads .kv-pad.gold", text: "Tap the gold pad to play the next note of the song." },
     { sel: "#kv .kv-piano .kv-wk.gold, #kv .kv-piano .kv-bk.gold", text: "Or tap the gold key on the piano. This works too." },
-    { sel: "#kv .kv-lyr", text: "The words light up as you go." },
+    { sel: "#kv .kv-lyr", text: "The words light up as you go. The letter above a word is the next pad to play." },
     { sel: "#kv .kv-playbtn", text: "Tap Play to hear the whole song." },
     { sel: "#kv .kv-home", text: "Tap the house to pick another song." },
     { sel: "#kv .kv-play .mode-chip", text: "Grown-ups: press and hold Kids for Settings." }
@@ -38,7 +38,7 @@ export const TOURS = {
     { sel: "#app .next-card", text: "Tap any chord: they all fit your key. An orange edge means it is borrowed from a nearby key." },
     { sel: "#app .kb-wrap", text: "Tap a key to play its chord. Faded keys are outside your key: tap All notes to use them." },
     { sel: "#xKeysChip", text: "Switch the keys here: Octave, Keyboard or Buttons. To slide a finger across the keys, use Keyboard." },
-    { sel: "#xTog", text: "Song opens your songs. Two lines of words show: the sung word lights up, and the next line waits below." },
+    { sel: "#xTog", text: "Song opens your songs. The sung word lights up, and a teal name marks the word where the next chord comes." },
     { sel: "#xModeChip", text: "Tap Expert for Settings: modes, Play along, and the version and build, with Copy." }
   ]
 };

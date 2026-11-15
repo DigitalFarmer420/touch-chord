@@ -310,3 +310,12 @@ html.lay-pad-port:not(.tc-classic) #songBar .sb-sec:has(~ .sb-lyr), html.lay-pad
 html.lay-pad-port:not(.tc-classic) #app, html.lay-pad-land:not(.tc-classic) #app { --lr-h: 22px; }
 html.lay-pad-port:not(.tc-classic) #songBar .sb-lyr, html.lay-pad-land:not(.tc-classic) #songBar .sb-lyr { font-size: 16px; }
 html.sz-medium.simple:not(.tc-classic) #songBar { height: 26px; font-size: 16px; }
+
+/* v3.2 test.5: next-chord cue in Simple's song bar. The chord name is already inline before its word, so the cue turns
+   that name teal and underlines its word (no size change); brighter one beat before the change. */
+#songBar { --sb-cue: #4FB3A5; }   /* the dark looks */
+html.s-day #songBar { --sb-cue: #2F8F83; }
+#songBar .sb-ch.sb-cue:not(.on) { color: var(--sb-cue); box-shadow: inset 0 0 0 1.5px var(--sb-cue); }
+#songBar .sb-ch.sb-cue.soon:not(.on) { color: #fff; background: var(--sb-cue); }
+#songBar .sb-cuew { text-decoration: underline 2px var(--sb-cue); text-underline-offset: 2px; text-decoration-skip-ink: none; }
+#songBar .sb-cuew.soon { text-decoration-thickness: 3px; color: var(--ink); }

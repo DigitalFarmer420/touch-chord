@@ -14,7 +14,8 @@ import { nextHintSpec } from "../ui/next.js?v=112.13";
 import { setHintAvoid } from "../ui/hints.js?v=112.13";
 import { progFeel, progSteps } from "../songs/presets.js?v=112.13";
 import { progLockPick } from "../songs/proghold.js?v=112.13";
-import { upSelected, upCurStep, upNextStep, upA } from "../songs/song.js?v=112.13";
+import { upSelected, upCurStep, upNextStep, upA, progLoopBar, songTempo } from "../songs/song.js?v=112.13";
+import { songCue, cueSoon, cueClock, cuePieces, placeCueTag } from "../ui/chordcue.js?v=112.13";
 import { upSym, upSecName } from "../songs/upload.js?v=112.13";
 import { upLyrMap, lyrPad } from "../ui/lyrics.js?v=112.13";
 import { state, shared, fingers, loop, scheduleSave } from "../state.js?v=112.13";
@@ -40,7 +41,7 @@ import { EXPERT_STORE, parsePref, prefFromUrl, modeOf, modeTarget, typeBarInit, 
 const CLASSIC = /[?&]test=1(&|$)/.test(location.search) && /[?&]classic=1(&|$)/.test(location.search);
 
 var pref, tb, src, lastStyle = "pop", active = false, built = false, lastSel = null, lastProg = 0;
-export const xLog = { mode: [], src: [], tb: [], chart: [] };   // read by the e2e suite (?test=1 hooks)
+export const xLog = { mode: [], src: [], tb: [], chart: [], cue: [] };   // read by the e2e suite (?test=1 hooks)
 var $ = function (id) { return document.getElementById(id); };
 function el(tag, cls, html, attrs) {
   var e = document.createElement(tag);
@@ -472,9 +473,18 @@ function paintSrc() {
       var nRows = lyrPad() ? 3 : 2, ci = cur >= 0 && e0 ? e0.ci : -1;
       card = songCardRows(upLyrMap(), cur, nRows, ci, function (si, rep) { return secLyrics(U.secs[si], rep); },
         function (si) { return U.secs[si].chords.map(function (c, k) { return upA(upSym(si, k)); }); }, upSecName);
-      rowsHtml = card.rows.map(function (r, k) { return lyrRowHtml(r, k === 0 ? "cur" : "nxt"); }).join("");
+      // v3.2 test.5: the next-chord cue (teal underline + the chord name above the word where the next change lands)
+      var names = U.events.map(function (e) { return upA(upSym(e.si, e.ci)); });
+      var cue = songCue(upLyrMap(), card.idx, nRows, U.events, names, cur, function (si, rep) { return secLyrics(U.secs[si], rep); });
+      if (cue && cue.k === 0 && card.rows[0].kind === "lyric" && card.rows[0].word) {   // never on the sung (gold) word itself
+        var na = card.rows[0].before.length, nb = na + card.rows[0].word.length;
+        if (cue.a < nb && cue.b > na) cue = null;
+      }
+      xCue.j = cue ? cue.j : -1; xCue.pc = cur;
+      rowsHtml = card.rows.map(function (r, k) { return lyrRowHtml(r, k === 0 ? "cur" : "nxt", cue && cue.k === k ? cue : null); }).join("");
       var locked = !!U.locked;
       html = "<div class=\"x-songc\"><div class=\"x-stitle\">" + esc(U.title) + (U.artist ? " \u00b7 " + esc(U.artist) : "") + "</div><div class=\"x-lrows\"><span class=\"x-lroll\">" + rowsHtml + "</span></div></div>"
+        + (cue ? "<span class=\"x-cuetag\" aria-hidden=\"true\" hidden>" + esc(cue.chord) + "</span>" : "")
         + "<button type=\"button\" class=\"x-b x-lock\" aria-pressed=\"" + locked + "\" aria-label=\"Lock the song chords\"><span class=\"x-lki\">" + (locked ? "\ud83d\udd12" : "\ud83d\udd13") + "</span>Lock</button>";
     } else {
       html = "<div class=\"x-songc x-empty\"><div class=\"x-stitle\">No song loaded</div><div class=\"x-sline\">Tap Song to open My songs and Upload</div></div>";
@@ -496,16 +506,43 @@ function paintSrc() {
   if (src.view === "song" && card) { if (songCardPaint(box, html, sig, card, rowsHtml)) { paintList(); return; } }
   else xLyr.k = -1;
   if (box._sig !== sig) { box.innerHTML = html; box._sig = sig; if (card) fitLyrRow(box); }
+  if (src.view !== "song") xCue.j = -1;
+  paintCue();
   paintList();
 }
+// v3.2 test.5: brighten the cue about one beat before the change (Play), or when the change is the next step (Next /
+// taps: no beat timing), and keep the name tag above its word (the row slides / rolls). Runs every 60 ms while shown.
+var xCue = { j: -1, pc: -2, cur: -2, t: 0, soon: null };
+function paintCue() {
+  var box = $("xSrc"); if (!box) return;
+  var w = box.querySelector(".x-cue"), tag = box.querySelector(".x-cuetag");
+  if (!w || !tag || xCue.j < 0) { if (tag) tag.hidden = true; xCue.soon = null; return; }
+  var cur = upCurStep(), t = songTempo();
+  var soon = cueSoon({ j: xCue.j, cur: cur, playing: !!prog.playing, bars: prog.steps.map(function (s) { return s.bars; }),
+    barSec: progLoopBar(), bpb: t && t.bpb || 4, since: cueClock(xCue, cur, performance.now()) });
+  w.classList.toggle("soon", soon); tag.classList.toggle("soon", soon);
+  if (soon !== xCue.soon) { xLog.cue.push({ j: xCue.j, cur: cur, soon: soon, playing: !!prog.playing }); if (xLog.cue.length > 200) xLog.cue.shift(); }
+  xCue.soon = soon;
+  placeCueTag(box, w, tag, box.querySelector(".x-lrow.cur .x-now"));
+}
+export function cueState() {
+  var box = $("xSrc"), w = box && box.querySelector(".x-cue"), tag = box && box.querySelector(".x-cuetag");
+  return { j: xCue.j, word: w ? w.textContent : null, row: w ? (w.closest(".x-lrow").classList.contains("cur") ? 0 : 1) : -1, chord: tag ? tag.textContent : null,
+    soon: !!(w && w.classList.contains("soon")), tagShown: !!(tag && !tag.hidden), log: xLog.cue.slice(-40) };
+}
 // ---------- P4 song card rows (v3.2 UI polish) ----------
-function lyrRowHtml(r, cls) {
+function lyrRowHtml(r, cls, cue) {
   var h = "";
   if (r.sec) h += "<span class=\"x-lsec\">" + esc(r.sec) + " \u00b7</span>";
-  if (r.kind === "lyric") h += esc(r.before) + (r.word ? "<span class=\"x-now\">" + esc(r.word) + "</span>" : "") + esc(r.after);
+  if ((r.kind === "lyric" || r.kind === "text") && cue) {   // v3.2 test.5: the cue word (and the sung word on row 1)
+    var text = r.kind === "lyric" ? r.before + r.word + r.after : r.text, rg = [{ a: cue.a, b: cue.b, cls: "x-cue" }];
+    if (r.kind === "lyric" && r.word) rg.push({ a: r.before.length, b: r.before.length + r.word.length, cls: "x-now" });
+    h += cuePieces(text, rg).map(function (p) { return p.cls ? "<span class=\"" + p.cls + "\">" + esc(p.t) + "</span>" : esc(p.t); }).join("");
+  }
+  else if (r.kind === "lyric") h += esc(r.before) + (r.word ? "<span class=\"x-now\">" + esc(r.word) + "</span>" : "") + esc(r.after);
   else if (r.kind === "text") h += esc(r.text);
   else if (r.kind === "chords") h += r.chords.map(function (c) { return "<span class=\"" + (c.on ? "x-now" : "") + "\">" + esc(c.t) + "</span>"; }).join(" ");
-  return "<span class=\"x-lrow " + cls + "\">" + (cls === "cur" ? "<span class=\"x-lin\"><span class=\"x-sline\">" + h + "</span></span>" : h) + "</span>";
+  return "<span class=\"x-lrow " + cls + "\" data-cue-row>" + (cls === "cur" ? "<span class=\"x-lin\"><span class=\"x-sline\">" + h + "</span></span>" : h) + "</span>";
 }
 // One-row roll when playback moves on to the next line (the classic bar's 300 ms roll); none with reduced motion.
 var xLyr = { k: -1, ev: null, anim: 0, log: [] };
@@ -517,7 +554,7 @@ function songCardPaint(box, html, sig, card, rowsHtml) {
   var step = same && xLyr.k >= 0 && card.idx === xLyr.k + 1 && box._sig && box.querySelector(".x-lrow.cur");
   xLyr.ev = U.events;
   if (step && !calm) {
-    var old = box.querySelector(".x-lrow.cur"), oldHtml = old.outerHTML.replace(/<span class="x-now">([^<]*)<\/span>/g, "$1").replace(" x-shift", "");
+    var old = box.querySelector(".x-lrow.cur"), oldHtml = old.outerHTML.replace(/<span class="x-(?:now|cue)[^"]*">([^<]*)<\/span>/g, "$1").replace(" x-shift", "");
     box.innerHTML = html.replace("<span class=\"x-lroll\">", "<span class=\"x-lroll\">" + oldHtml);
     box._sig = null;
     var roll = box.querySelector(".x-lroll");
@@ -672,6 +709,7 @@ function wireAll() {
     ["symbol", "songBar", "styles", "prog", "kidKey"].forEach(function (id) { var n = $(id); if (n) mo.observe(n, { attributes: true, childList: true, subtree: true, characterData: true }); });
   }
   setInterval(function () { if (active && prog.playing) paintSrc(); }, 400);
+  setInterval(function () { if (!active || xCue.j < 0) return; if (upCurStep() !== xCue.pc) paintSrc(); else paintCue(); }, 60);   // v3.2 test.5: the cue moves on once its chord plays
   window.addEventListener("resize", function () { if (active && $("xSrc")) fitLyrRow($("xSrc")); });   // P4: re-fit the sung word after a rotation
   var rz = 0;
   function onResize() { clearTimeout(rz); rz = setTimeout(function () { if (!active) return; placeTog(); placeSheets(); fitStrip(); placeBadges(); fitNowSymbol(); }, 80); }
@@ -785,4 +823,4 @@ export function boot() {
   if (oldFull) { xLog.oldFull = true; showDenseNote(); }
   setTimeout(function () { if (active) { placeTog(); placeSheets(); fitStrip(); placeBadges(); fitNowSymbol(); } }, 60);
 }
-if (/[?&]test=1(&|$)/.test(location.search)) window.__xmode = { log: xLog, mode: function () { return currentMode(); }, chart: chartState, scrollSel: scrollStyleSel, pref: function () { return Object.assign({}, pref); }, keys: keysPick, setKeys: setKeys };
+if (/[?&]test=1(&|$)/.test(location.search)) window.__xmode = { log: xLog, mode: function () { return currentMode(); }, chart: chartState, scrollSel: scrollStyleSel, pref: function () { return Object.assign({}, pref); }, keys: keysPick, setKeys: setKeys, cue: cueState };

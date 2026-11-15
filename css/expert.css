@@ -558,3 +558,16 @@ html.expert .kb.piano .pad.black.nokey { background: #4A4036; color: #A89884; bo
 /* P4: Vietnamese stacked marks (ẫ, ố, Ổ) rise above a tight line box. Clip sideways as before, but leave a few px above and
    below so the marks are not cut (overflow: clip + overflow-clip-margin; older WebViews keep overflow: hidden). */
 html.expert .x-stitle, html.expert .x-lrows, html.expert .x-lrow { overflow: hidden; overflow: clip; overflow-clip-margin: 4px; }
+
+/* v3.2 test.5: next-chord cue on the song card lyrics. The word where the next chord change lands gets a teal underline
+   (no layout change); the chord name sits above it in small teal text (absolutely placed by ui.js, so the two lines
+   never move). It brightens about one beat before the change (Play) or when the change is the next tap. */
+html.expert #xSrc.x-mode-song { position: relative; }
+html.expert .x-lrow .x-cue { text-decoration: underline 2px var(--x-next-l); text-underline-offset: 2px; text-decoration-skip-ink: none; transition: color .15s; }
+html.expert .x-lrow .x-cue.soon { color: var(--x-next); text-decoration-color: var(--x-next); text-decoration-thickness: 3px; }
+html.expert .x-cuetag { position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; padding: 0 3px; border-radius: 4px;
+  font: 700 10px/11px Fredoka, Nunito, system-ui, sans-serif; color: var(--x-next); background: var(--x-surface); opacity: .85; white-space: nowrap; }
+html.expert .x-cuetag.soon { opacity: 1; color: #fff; background: var(--x-next); animation: xCuePulse .5s ease-in-out infinite alternate; }
+html.expert.lay-pad-port .x-cuetag, html.expert.lay-pad-land .x-cuetag { font-size: 14px; line-height: 16px; }
+@keyframes xCuePulse { from { box-shadow: 0 0 0 0 rgba(47, 143, 131, .55); } to { box-shadow: 0 0 0 3px rgba(47, 143, 131, 0); } }
+@media (prefers-reduced-motion: reduce) { html.expert .x-cuetag.soon { animation: none; } }

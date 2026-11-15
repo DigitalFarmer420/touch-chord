@@ -7,6 +7,7 @@ import { state, shared } from "../state.js?v=112.13";
 import { secLyrics } from "../songs/fullchart.js?v=112.13";
 import { paintSongBar } from "./songbar.js?v=112.13";
 import { fitStrip } from "./strip.js?v=112.13";
+import { sbCue, sbCueFor, sbChipLine } from "./songbar.js?v=112.13";
 // v95: full-mode two-row lyrics. Lines in play order from the song's chord / section / lyric-line map (no
 // word timing): event i is on the line the one-line bar would show for it (first line with a marker on
 // that chord, else the last line with a marker before it; -1 = the section's chords). A new entry starts
@@ -29,18 +30,15 @@ export function upLyrMap() {
   shared.U._lyr = { secs: shared.U.secs, seq: seq, at: at, any: any };
   return shared.U._lyr;
 }
-function upLyrRow(ent, curCi, cls, sec2) {
+function upLyrRow(ent, curCi, cls, sec2, cueCi) {
   if (!ent) return "<span class=\"sb-row " + cls + "\"></span>";
   var si = ent.si, sec = shared.U.secs[si], html = sec2 ? "<span class=\"sb-sec2\">" + upEsc(upSecName(si)) + "</span>" : "";
-  function tag(ci) {   // row 2: no data-c, so the next-chord outline stays on row 1
-    return "<span" + (cls === "r1" ? " data-c=\"" + ci + "\"" : "") + " class=\"sb-ch" + (ci === curCi ? " on" : "") + (upFlagged(si, ci) ? " flag" : "") + "\">" + upEsc(upA(upSym(si, ci))) + "</span>";
+  function tag(ci, cue) {   // row 2: no data-c, so the next-chord outline stays on row 1
+    return "<span" + (cls === "r1" ? " data-c=\"" + ci + "\"" : "") + " class=\"sb-ch" + (ci === curCi ? " on" : "") + (upFlagged(si, ci) ? " flag" : "") + (cue ? " sb-cue" : "") + "\">" + upEsc(upA(upSym(si, ci))) + "</span>";
   }
   var line = ent.li >= 0 ? secLyrics(sec, ent.rep)[ent.li] : null;
-  if (line) {
-    var mk = line.markers.slice().sort(function (a, b) { return a.charIndex - b.charIndex; }), q = 0;
-    mk.forEach(function (m) { html += upEsc(line.text.slice(q, m.charIndex)) + tag(m.chordIndex); q = Math.max(q, m.charIndex); });
-    html += upEsc(line.text.slice(q));
-  } else sec.chords.forEach(function (c, ci) { html += tag(ci); });
+  if (line) html += sbChipLine(line, tag, cueCi == null ? -1 : cueCi);   // v3.2 test.5: the next-chord cue
+  else sec.chords.forEach(function (c, ci) { html += tag(ci); });
   return "<span class=\"sb-row " + cls + "\">" + html + "</span>";
 }
 // iPad (pad layouts): three lyric rows (the line being sung + the next two) when the screen is tall enough,
@@ -63,8 +61,11 @@ export function paintLyr2(bar, cur) {
   var M = upLyrMap(), idx = M.at[cur >= 0 ? cur : 0], ent = M.seq[idx], nxt = M.seq[idx + 1] || null;
   var e0 = shared.U.events[cur >= 0 ? cur : 0], curCi = cur >= 0 ? e0.ci : -1;
   var alts = curCi >= 0 && !shared.U.locked && (upEv(e0.si, curCi).alternates || []).length;
-  var r1 = upLyrRow(ent, curCi, "r1", false), r2 = upLyrRow(nxt, -1, "r2", !!nxt && nxt.si !== ent.si);
-  if (lyrRows() === 3) { var nx2 = M.seq[idx + 2] || null; r2 += upLyrRow(nx2, -1, "r2 r3", !!nx2 && !!nxt && nx2.si !== nxt.si); }
+  var nr = lyrRows(), cue = sbCueFor(cur, nr, idx), cc = function (k) { return cue && cue.k === k ? shared.U.events[cue.j].ci : -1; };
+  if (cue && cue.k === 0 && shared.U.events[cue.j].ci === curCi) cue = null;
+  sbCue.j = cue ? cue.j : -1;
+  var r1 = upLyrRow(ent, curCi, "r1", false, cc(0)), r2 = upLyrRow(nxt, -1, "r2", !!nxt && nxt.si !== ent.si, cc(1));
+  if (nr === 3) { var nx2 = M.seq[idx + 2] || null; r2 += upLyrRow(nx2, -1, "r2 r3", !!nx2 && !!nxt && nx2.si !== nxt.si, cc(2)); }
   var head = "<span class=\"sb-sec\">" + upEsc(upSecName(ent.si)) + "</span>", tail = alts ? "<span class=\"sb-alt\">alt \u25be</span>" : "";
   var key = head + "<span class=\"sb-lyr\"><span class=\"sb-roll\">" + r1 + r2 + "</span></span>" + tail;
   var step = idx === lyrState.k + 1 && lyrState.k >= 0 && bar._html && bar._html.indexOf("sb-lyr") >= 0;
@@ -72,7 +73,7 @@ export function paintLyr2(bar, cur) {
   if (lyrState.anim) { lyrState.pend = true; bar.dataset.si = ent.si; return; }   // finish the scroll first
   if (step && !calm) {
     // old row 1 on top, then the new rows; scroll up one row, then settle on the plain two rows
-    var old = bar.querySelector(".sb-row.r1"), oldHtml = old ? old.outerHTML.replace(/ data-c="\d+"/g, "").replace(" on\"", "\"") : "";
+    var old = bar.querySelector(".sb-row.r1"), oldHtml = old ? old.outerHTML.replace(/ data-c="\d+"/g, "").replace(" on\"", "\"").replace(/ sb-cue(?: soon)?/g, "").replace(/<span class="sb-cuew[^"]*">([^<]*)<\/span>/g, "$1") : "";
     bar.innerHTML = head + "<span class=\"sb-lyr\"><span class=\"sb-roll\">" + oldHtml + r1 + r2 + "</span></span>" + tail;
     bar._html = null;
     var roll = bar.querySelector(".sb-roll");

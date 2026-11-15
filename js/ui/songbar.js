@@ -7,6 +7,43 @@ import { state, shared } from "../state.js?v=112.13";
 import { secLyrics } from "../songs/fullchart.js?v=112.13";
 import { upLyrMap, lyrState, paintLyr2, lyrPad } from "./lyrics.js?v=112.13";
 import { fitStrip } from "./strip.js?v=112.13";
+import { nextChange, songCue, cueSoon, cueClock, cueWord } from "./chordcue.js?v=112.13";
+import { progLoopBar, songTempo } from "../songs/song.js?v=112.13";
+// v3.2 test.5: the next-chord cue in Simple's song bar. Its lyrics already print each chord name inline, right before
+// its word, so the cue colours that chord name teal and underlines its word (no second name above it); it brightens
+// one beat before the change (Play) or when the change is the next tap. Phone Simple = the one-line bar; iPad = the
+// two-row lyrics (lyrics.js paintLyr2, which takes the same cue).
+export const sbCue = { j: -1, pc: -2, cur: -2, t: 0, soon: null, log: [] };
+export function sbCueFor(cur, rows, idx) {   // rows/idx: the two-row map window; rows 0 = the one-line bar (same line)
+  var U = shared.U, names = U.events.map(function (e) { return upA(upSym(e.si, e.ci)); });
+  if (rows) return songCue(upLyrMap(), idx, rows, U.events, names, cur, function (si, rep) { return secLyrics(U.secs[si], rep); });
+  var j = nextChange(names, cur);
+  return j >= 0 ? { j: j, ev: U.events[j], chord: names[j] } : null;
+}
+// A lyric line with its chord names inline; cueCi = the chord whose name and word get the cue (-1 none).
+export function sbChipLine(line, tag, cueCi) {
+  var mk = line.markers.slice().sort(function (a, b) { return a.charIndex - b.charIndex; }), q = 0, html = "", t = line.text;
+  mk.forEach(function (m, k) {
+    html += upEsc(t.slice(q, m.charIndex)) + tag(m.chordIndex, m.chordIndex === cueCi); q = Math.max(q, m.charIndex);
+    if (m.chordIndex === cueCi) {
+      var w = cueWord(t, m.charIndex), end = k + 1 < mk.length ? mk[k + 1].charIndex : t.length;
+      var wa = w ? Math.max(q, w[0]) : 0, wb = w ? Math.min(end, w[1]) : 0;   // a mark mid-word: the part after the chord name
+      if (wb > wa) { html += upEsc(t.slice(q, wa)) + "<span class=\"sb-cuew\">" + upEsc(t.slice(wa, wb)) + "</span>"; q = wb; }
+    }
+  });
+  return html + upEsc(t.slice(q));
+}
+function sbCueTick() {
+  var bar = document.getElementById("songBar");
+  if (!bar || bar.hidden || sbCue.j < 0 || !upSelected()) return;
+  var cur = upCurStep();
+  if (cur !== sbCue.pc) { paintSongBar(); return; }
+  var t = songTempo(), soon = cueSoon({ j: sbCue.j, cur: cur, playing: !!prog.playing, bars: prog.steps.map(function (st) { return st.bars; }), barSec: progLoopBar(), bpb: t && t.bpb || 4, since: cueClock(sbCue, cur, performance.now()) });
+  Array.prototype.forEach.call(bar.querySelectorAll(".sb-cue, .sb-cuew"), function (n) { n.classList.toggle("soon", soon); });
+  if (soon !== sbCue.soon) { sbCue.log.push({ j: sbCue.j, cur: cur, soon: soon, playing: !!prog.playing }); if (sbCue.log.length > 200) sbCue.log.shift(); }
+  sbCue.soon = soon;
+}
+var sbCueT = 0;   // started by the first song bar paint (not at import: unit tests import this file)
 export function paintSongBar() {
   document.documentElement.classList.toggle("up-nonum", upSelected());   // v73: no sequence numbers on an uploaded song's grid
   var bar = document.getElementById("songBar");
@@ -33,6 +70,8 @@ export function paintSongBar() {
   });
   var cur = upCurStep(), e0 = shared.U.events[cur >= 0 ? cur : 0] || shared.U.events[0], si = e0 ? e0.si : 0, sec = shared.U.secs[si];   // rd9: never a missing event
   var curCi = cur >= 0 ? e0.ci : -1;
+  sbCue.j = -1; sbCue.pc = cur;
+  if (!sbCueT) sbCueT = setInterval(sbCueTick, 60);
   if (two) {
     paintLyr2(bar, cur);
     upPlaceLock();
@@ -41,7 +80,7 @@ export function paintSongBar() {
     paintUploadActive(cur >= 0 ? cur : -1);
     return;
   }
-  function chTag(ci) { return "<span data-c=\"" + ci + "\" class=\"sb-ch" + (ci === curCi ? " on" : "") + (upFlagged(si, ci) ? " flag" : "") + "\">" + upEsc(upA(upSym(si, ci))) + "</span>"; }
+  function chTag(ci, cue) { return "<span data-c=\"" + ci + "\" class=\"sb-ch" + (ci === curCi ? " on" : "") + (upFlagged(si, ci) ? " flag" : "") + (cue ? " sb-cue" : "") + "\">" + upEsc(upA(upSym(si, ci))) + "</span>"; }
   var html = "", line = null, LY = secLyrics(sec, e0 ? e0.rep : 0);   // rd10: this pass's lines
   LY.forEach(function (ln) {
     var has = ln.markers.some(function (m) { return m.chordIndex === Math.max(0, curCi); });
@@ -51,9 +90,9 @@ export function paintSongBar() {
     LY.forEach(function (ln) { if (ln.markers.some(function (m) { return m.chordIndex <= curCi; })) line = ln; });
   }
   if (line) {
-    var mk = line.markers.slice().sort(function (a, b) { return a.charIndex - b.charIndex; }), p = 0;
-    mk.forEach(function (m) { html += upEsc(line.text.slice(p, m.charIndex)) + chTag(m.chordIndex); p = Math.max(p, m.charIndex); });
-    html += upEsc(line.text.slice(p));
+    var cue = sbCueFor(cur, 0), cueCi = -1;   // v3.2 test.5: only a change on this same line (section pass) gets the cue
+    if (cue && cue.ev.si === si && cue.ev.rep === (e0 ? e0.rep : 0) && cue.ev.ci !== curCi && line.markers.some(function (m) { return m.chordIndex === cue.ev.ci; })) { cueCi = cue.ev.ci; sbCue.j = cue.j; }
+    html = sbChipLine(line, chTag, cueCi);
   } else {
     sec.chords.forEach(function (c, ci) { html += chTag(ci); });
   }
