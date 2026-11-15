@@ -1,0 +1,823 @@
+{
+ "source": "final-menus-export-v3.1.json sha256 9d1f31431c68a92c3274345613b635522af30df2db89dd22ad8ebcf22b790d20",
+ "menus": {
+  "pop": {
+   "major": [
+    {
+     "name": "Pop Four-Chord",
+     "steps": "1 maj|5 maj|6 min|4 maj",
+     "origin": "Existing"
+    },
+    {
+     "name": "Pop Turnaround",
+     "steps": "1 maj|6 min|4 maj|5 maj",
+     "origin": "Existing"
+    },
+    {
+     "name": "Pop Oldies",
+     "steps": "1 maj|6 min|2 min|5 maj",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Pop Electropop",
+     "steps": "6 min|1 maj|4 maj|5 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Pop Sensitive",
+     "steps": "1 maj|5 maj|6 min|3 min",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Pop Plagal",
+     "steps": "1 maj|4 maj|1 maj|5 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Pop Climb",
+     "steps": "4 maj|5 maj|3 min|6 min",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Pop Rock",
+     "steps": "1 maj|b7 maj|4 maj|5 maj",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Pop Bounce",
+     "steps": "1 maj|4 maj|6 min|5 maj",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Pop Garage",
+     "steps": "1 maj|b7 maj|4 maj|b7 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Pop Canon",
+     "steps": "1 maj|5 maj|6 min|3 min|4 maj|5 maj",
+     "origin": "Queued-in-RC"
+    }
+   ],
+   "minor": [
+    {
+     "name": "Pop Four-Chord",
+     "steps": "1 min|5 min|6 maj|4 min",
+     "origin": "Existing"
+    },
+    {
+     "name": "Pop Turnaround",
+     "steps": "1 min|6 maj|4 min|5 maj",
+     "origin": "Existing"
+    },
+    {
+     "name": "Pop Electropop",
+     "steps": "1 min|3 maj|6 maj|7 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Pop Sensitive",
+     "steps": "1 min|5 min|6 maj|3 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Pop Axis",
+     "steps": "1 min|6 maj|3 maj|7 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Pop Plagal",
+     "steps": "1 min|4 min|1 min|5 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Pop Rock",
+     "steps": "1 min|7 maj|6 maj|5 maj",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Pop Bounce",
+     "steps": "1 min|4 min|6 maj|5 maj",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Pop Canon",
+     "steps": "1 min|5 min|6 maj|3 maj|4 min|5 min",
+     "origin": "Queued-in-RC"
+    }
+   ]
+  },
+  "jazz": {
+   "major": [
+    {
+     "name": "Jazz ii\u2013V\u2013I",
+     "steps": "2 m7|5 7|1 maj7",
+     "origin": "Existing"
+    },
+    {
+     "name": "Jazz Turnaround",
+     "steps": "1 maj7|6 m7|2 m7|5 7",
+     "origin": "Existing"
+    },
+    {
+     "name": "Jazz Blues",
+     "steps": "1 7|4 7|5 7|1 7",
+     "origin": "Existing"
+    },
+    {
+     "name": "Jazz Leaves",
+     "steps": "2 m7|5 7|1 maj7|4 maj7|7 m7b5|3 7|6 m7 x2",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Jazz Circle",
+     "steps": "3 m7|6 m7|2 m7|5 7|1 maj7",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Jazz Backdoor",
+     "steps": "4 m7|b7 7|1 maj7",
+     "origin": "Existing"
+    },
+    {
+     "name": "Jazz Lady",
+     "steps": "2 m7|5 7|1 maj7|4 maj7|3 m7|6 7",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Jazz Slide",
+     "steps": "2 m7|b2 7|1 maj7|6 m7",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Jazz Bossa",
+     "steps": "1 maj7 x2|2 7 x2|2 m7|b2 7|1 maj7 x2",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Jazz Modal Vamp",
+     "steps": "1 m9 x2|4 m9 x2|b2 m9 x2|1 m9 x2",
+     "origin": "Existing"
+    },
+    {
+     "name": "Jazz Chain",
+     "steps": "6 7|2 7|5 7|1 maj7",
+     "origin": "Held-v2-in-RC"
+    }
+   ],
+   "minor": [
+    {
+     "name": "Jazz Minor ii\u2013V\u2013i",
+     "steps": "2 m7b5|5 7b9|1 m7",
+     "origin": "Existing"
+    },
+    {
+     "name": "Jazz Turnaround",
+     "steps": "1 m7|6 maj7|2 m7b5|5 7b9",
+     "origin": "Existing"
+    },
+    {
+     "name": "Jazz Leaves",
+     "steps": "4 m7|7 7|3 maj7|6 maj7|2 m7b5|5 7b9|1 m7 x2",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Jazz Circle",
+     "steps": "5 m7|1 m7|4 m7|7 7|3 maj7",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Jazz Backdoor",
+     "steps": "4 m7|7 7|1 m7",
+     "origin": "Existing"
+    },
+    {
+     "name": "Jazz Slide",
+     "steps": "2 m7b5|b2 7|1 m7|4 m7",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Jazz Andalusian",
+     "steps": "1 m7|7 maj7|6 maj7|5 7",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Jazz Minor Turn",
+     "steps": "1 m7|4 m7|2 m7b5|5 7b9",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Jazz Bossa",
+     "steps": "1 m7 x2|4 m7 x2|2 m7b5|5 7b9|1 m7 x2",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Jazz Modal Vamp",
+     "steps": "1 m9 x2|4 m9 x2|b2 m9 x2|1 m9 x2",
+     "origin": "Existing"
+    }
+   ]
+  },
+  "rnb": {
+   "major": [
+    {
+     "name": "R&B DooWop",
+     "steps": "1 maj|6 min|4 maj|5 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "R&B Classic",
+     "steps": "1 maj7|6 m7|4 maj7|5 7",
+     "origin": "Existing"
+    },
+    {
+     "name": "R&B Neo",
+     "steps": "2 m9|5 9|1 maj9|6 m9",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "R&B Slow Jam",
+     "steps": "4 maj7|3 m7|2 m7|1 maj7",
+     "origin": "Existing"
+    },
+    {
+     "name": "R&B Church",
+     "steps": "4 maj9|3 m7|6 m9|2 m9|5 9sus|1 maj9",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "R&B Quiet",
+     "steps": "1 maj7|3 m7|4 maj7|5 7",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "R&B Sway",
+     "steps": "1 maj9|4 maj9|1 maj9|5 9",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "R&B Ladder",
+     "steps": "6 m7|5 7|4 maj7|3 m7",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "R&B Smooth",
+     "steps": "1 maj9|3 m7|6 m9|2 m9|5 13",
+     "origin": "Existing"
+    }
+   ],
+   "minor": [
+    {
+     "name": "R&B DooWop",
+     "steps": "1 min|6 maj|4 min|5 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "R&B Classic",
+     "steps": "1 m7|6 maj7|4 m7|5 7",
+     "origin": "Existing"
+    },
+    {
+     "name": "R&B Slow Jam",
+     "steps": "4 m9|3 maj9|2 m7b5|1 m9",
+     "origin": "Existing"
+    },
+    {
+     "name": "R&B Church",
+     "steps": "6 maj9|7 13|1 m9|4 m9|5 7#9|1 m9",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "R&B Float",
+     "steps": "4 m9|7 13|3 maj9|6 maj9",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "R&B Quiet",
+     "steps": "1 m7|3 maj7|4 m7|5 7",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "R&B Sway",
+     "steps": "1 m9|4 m9|1 m9|5 9",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "R&B Smooth",
+     "steps": "1 m9|3 maj9|6 maj9|2 m7b5|5 7#9",
+     "origin": "Existing"
+    },
+    {
+     "name": "R&B Groove",
+     "steps": "1 m9|7 13|6 maj9|5 m7",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "R&B ii\u2013V\u2013I",
+     "steps": "2 m7b5|5 7#9|1 m9|6 maj9",
+     "origin": "Existing"
+    }
+   ]
+  },
+  "ballad": {
+   "major": [
+    {
+     "name": "Ballad Axis",
+     "steps": "6 min|4 maj|1 maj|5 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Ballad 50s",
+     "steps": "1 maj|6 min|4 maj|5 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Ballad Steps",
+     "steps": "1 add9|5 over3|6 m7|4 add9",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Ballad Piano",
+     "steps": "1 maj|3 min|4 maj|5 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Ballad Tender",
+     "steps": "1 add9|4 add9|4 min|1 add9",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Ballad Rising",
+     "steps": "4 maj|5 maj|3 min|6 min",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Ballad Home",
+     "steps": "6 m7|2 m7|5 maj|1 add9",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Ballad Hymn",
+     "steps": "1 maj|4 maj|1 over3|5 maj",
+     "origin": "Existing"
+    },
+    {
+     "name": "Ballad Gentle",
+     "steps": "1 add9|3 min|6 m7|4 add9",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Ballad Big Finish",
+     "steps": "4 maj|4 overV|3 min|6 min|2 min|5 maj|1 maj",
+     "origin": "Existing"
+    }
+   ],
+   "minor": [
+    {
+     "name": "Ballad Axis",
+     "steps": "1 min|6 maj|3 maj|7 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Ballad 50s",
+     "steps": "1 min|6 maj|4 min|5 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Ballad Lament",
+     "steps": "1 min|7 maj|6 maj|5 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Ballad Steps",
+     "steps": "1 m7|7 maj|6 add9|5 maj",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Ballad Piano",
+     "steps": "1 min|3 maj|4 min|5 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Ballad Tender",
+     "steps": "1 m7|4 m7|1 m7|5 maj",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Ballad Rising",
+     "steps": "4 min|5 maj|3 maj|6 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Ballad Home",
+     "steps": "6 add9|4 m7|5 maj|1 m7",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Ballad Hymn",
+     "steps": "1 min|4 min|1 mover3|5 maj",
+     "origin": "Existing"
+    },
+    {
+     "name": "Ballad Gentle",
+     "steps": "1 m7|3 add9|6 add9|7 maj",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Ballad Big Finish",
+     "steps": "4 min|4 moverV|3 maj|6 maj|2 dim|5 maj|1 min",
+     "origin": "Existing"
+    }
+   ]
+  },
+  "reggae": {
+   "major": [
+    {
+     "name": "Reggae Island Skank",
+     "steps": "1 maj|4 maj|5 maj|4 maj",
+     "origin": "Existing"
+    },
+    {
+     "name": "Reggae One Drop",
+     "steps": "1 maj|b7 maj|4 maj|1 maj",
+     "origin": "Existing"
+    },
+    {
+     "name": "Reggae Lovers",
+     "steps": "1 maj|6 min|4 maj|5 maj",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Reggae Easy",
+     "steps": "1 maj|4 maj|5 maj|b7 maj",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Reggae Roots",
+     "steps": "6 min|5 maj|4 maj|5 maj",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Reggae Rocksteady",
+     "steps": "1 maj|5 maj|6 min|4 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Reggae Sway",
+     "steps": "1 maj|2 min|1 maj|4 maj",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Reggae Ska",
+     "steps": "1 maj x0.5|6 min x0.5|2 min x0.5|5 maj x0.5",
+     "origin": "Held-v2-in-RC"
+    }
+   ],
+   "minor": [
+    {
+     "name": "Reggae Lovers",
+     "steps": "1 min|6 maj|3 maj|7 maj",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Reggae Skank I",
+     "steps": "1 min|4 min|5 maj|4 min",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Reggae Drop",
+     "steps": "1 min|7 maj|4 min|1 min",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Reggae Easy",
+     "steps": "6 maj|7 maj|1 min|4 min",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Reggae Roots",
+     "steps": "1 min|7 maj|6 maj|7 maj",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Reggae Lover",
+     "steps": "1 min|6 maj|4 min|5 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Reggae Rocksteady",
+     "steps": "1 min|5 maj|6 maj|4 min",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Reggae Sway",
+     "steps": "1 min|2 m7|1 min|4 min",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Reggae Ska",
+     "steps": "1 min x0.5|4 min x0.5|5 maj x0.5|1 min x0.5",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Reggae Minor Riddim",
+     "steps": "1 min|4 min|5 min|4 min",
+     "origin": "Existing"
+    }
+   ]
+  },
+  "funk": {
+   "major": [
+    {
+     "name": "Funk OneFour",
+     "steps": "1 9|4 9|1 9|5 9",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Funk Vamp",
+     "steps": "1 7|4 7|1 7|5 7",
+     "origin": "Existing"
+    },
+    {
+     "name": "Funk Mixo",
+     "steps": "1 9|b7 9|4 9|1 9",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Funk Strut",
+     "steps": "1 9|b7 9|4 9|5 9",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Funk iiV",
+     "steps": "2 m7|5 9|1 9|4 9",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Funk Chrome",
+     "steps": "1 9|2 m7|4 9|5 9",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Funk Cool",
+     "steps": "6 m7|2 m7|6 m7|5 9",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Funk Party",
+     "steps": "1 9|4 9|5 9|4 9",
+     "origin": "Held-v2-in-RC"
+    }
+   ],
+   "minor": [
+    {
+     "name": "Funk OneFour",
+     "steps": "1 m7|4 m7|1 m7|5 9",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Funk Dorian",
+     "steps": "1 m7|4 7|1 m7|b7 9",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Funk Strut",
+     "steps": "1 m7|7 9|4 m7|5 9",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Funk Breakdown",
+     "steps": "1 m9|7 9|4 9|1 m9",
+     "origin": "Existing"
+    },
+    {
+     "name": "Funk iiV",
+     "steps": "2 m7b5|5 9|1 m7|4 m7",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Funk Chrome",
+     "steps": "1 m7|2 m7b5|4 m7|5 9",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Funk Cool",
+     "steps": "1 m7|3 maj7|4 m7|5 7#9",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Funk Party",
+     "steps": "1 m7|6 maj7|7 9|1 m7",
+     "origin": "Held-v2-in-RC"
+    }
+   ]
+  },
+  "yogaDeep": {
+   "major": [
+    {
+     "name": "Yoga Om",
+     "steps": "1 sus2|4 sus2|1 sus2|5 sus2",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Yoga Path",
+     "steps": "1 sus2|5 sus2|6 m7|4 sus2",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Yoga Open",
+     "steps": "1 sus2|b7 sus2|4 sus2",
+     "origin": "Existing"
+    },
+    {
+     "name": "Yoga Rise",
+     "steps": "4 sus2|5 sus2|1 sus2|6 m7",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Yoga Float",
+     "steps": "1 sus2 x2|4 sus2 x2|5 sus2 x2|1 sus2 x2",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Yoga Breathe",
+     "steps": "1 sus2 x2|1 add9 x2|4 sus2 x2|5 sus2 x2",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Yoga Moon",
+     "steps": "2 m7 x2|5 sus2 x2|4 sus2 x2|1 sus2 x2",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Yoga Still",
+     "steps": "1 m9|b6 maj7|b7 6|1 m9",
+     "origin": "Existing"
+    }
+   ],
+   "minor": [
+    {
+     "name": "Yoga Om",
+     "steps": "1 m7|4 m7|1 m7|5 sus2",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Yoga Path",
+     "steps": "1 m7|5 sus2|6 sus2|4 m7",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Yoga Open",
+     "steps": "1 sus2|7 sus2|4 sus2",
+     "origin": "Existing"
+    },
+    {
+     "name": "Yoga Rise",
+     "steps": "4 m7|5 sus2|1 m7|6 sus2",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Yoga Float",
+     "steps": "1 m7 x2|4 m7 x2|5 sus2 x2|1 m7 x2",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Yoga Breathe",
+     "steps": "1 m7 x2|1 m9 x2|4 m7 x2|5 sus2 x2",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Yoga Moon",
+     "steps": "4 m7 x2|7 sus2 x2|3 sus2 x2|1 m7 x2",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Yoga Still",
+     "steps": "1 m9|6 maj7|7 6|1 m9",
+     "origin": "Existing"
+    },
+    {
+     "name": "Yoga Glow",
+     "steps": "6 sus2 x2|7 sus2 x2|1 m7 x4",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Yoga Sky",
+     "steps": "1 m7 x2|3 sus2 x2|6 sus2 x2|7 sus2 x2",
+     "origin": "Held-v2-in-RC"
+    }
+   ]
+  },
+  "country": {
+   "major": [
+    {
+     "name": "Country Three-Chord",
+     "steps": "1 maj|4 maj|5 7|1 maj",
+     "origin": "Existing"
+    },
+    {
+     "name": "Country Story",
+     "steps": "1 maj|6 min|4 maj|5 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Country Wagon",
+     "steps": "1 maj|5 maj|6 min|4 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Country Train",
+     "steps": "1 maj|4 maj|5 7|6 min",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Country Honky",
+     "steps": "1 maj|4 maj|5 7|4 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Country Ramble",
+     "steps": "1 maj|b7 maj|4 maj|5 maj",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Country Rag",
+     "steps": "1 maj|6 7|2 7|5 7",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Country Sunset",
+     "steps": "1 maj|3 min|4 maj|5 7",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Country Two-Step",
+     "steps": "1 maj|4 maj|1 maj|5 7",
+     "origin": "Existing"
+    }
+   ],
+   "minor": [
+    {
+     "name": "Country Story",
+     "steps": "1 min|6 maj|4 min|5 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Country Outlaw",
+     "steps": "1 min|7 maj|6 maj|7 maj",
+     "origin": "Existing"
+    },
+    {
+     "name": "Country Wagon",
+     "steps": "1 min|5 maj|6 maj|4 min",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Country Classic",
+     "steps": "1 min|4 min|5 maj|1 min",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Country Holler",
+     "steps": "1 min|3 maj|7 maj|4 min",
+     "origin": "Existing"
+    },
+    {
+     "name": "Country Train",
+     "steps": "1 min|4 min|5 7|7 maj",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Country Honky",
+     "steps": "1 min|4 min|5 7|4 min",
+     "origin": "New (Noff-authored)"
+    },
+    {
+     "name": "Country Ramble",
+     "steps": "1 min|4 maj|1 min|7 maj",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Country Hoedown",
+     "steps": "1 min|7 maj|5 7|1 min",
+     "origin": "Held-v2-in-RC"
+    },
+    {
+     "name": "Country Rag",
+     "steps": "1 min|6 maj|2 dim|5 7",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Country Sunset",
+     "steps": "1 min|3 maj|6 maj|5 7",
+     "origin": "Queued-in-RC"
+    },
+    {
+     "name": "Country Minor Three-Chord",
+     "steps": "1 min|4 min|1 min|5 min",
+     "origin": "Existing"
+    }
+   ]
+  }
+ }
+}

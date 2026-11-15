@@ -6,7 +6,7 @@ import { stopPlayback } from "../loop.js?v=112.13";
 import { KIDS_SONG_KEY } from "./kids-songs.js?v=112.13";
 import { upSave } from "./library.js?v=112.13";
 import { magicReset, progBadge } from "./magic.js?v=112.13";
-import { PROG_BAR, PROGRESSIONS, progList, progSteps, sameChord } from "./presets.js?v=112.13";
+import { PROG_BAR, PROGRESSIONS, progList, progSteps, sameChord, progIndexFor } from "./presets.js?v=112.13";
 import { upInList, songTempo, paintUpNext, progLoopBar, upKeyApply, upKeyNow } from "./song.js?v=112.13";
 import { state, loop, scheduleSave, shared } from "../state.js?v=112.13";
 import { wrap12 } from "../theory/quality.js?v=112.13";
@@ -68,9 +68,7 @@ export function progSync(key) {
   } else if (styleChanged) {
     prog.idx = 0;
   } else if (oldName) {
-    var ix = -1;
-    prog.list.forEach(function (p, i) { if (!p.up && p.name === oldName) ix = i; });
-    prog.idx = ix >= 0 ? ix : 0;
+    prog.idx = progIndexFor(prog.list, oldName);
   }
   if (prog.idx >= prog.list.length) prog.idx = 0;
   if (shared.U && shared.U.locked && prog.list[prog.idx] && prog.list[prog.idx].up) {   // v73 Lock: the key change is the transpose target

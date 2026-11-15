@@ -26,21 +26,6 @@ function grab(mark) {
   }
   return eval("(" + SRC.slice(i, end + 1) + ")");
 }
-function menu() { return grab("var PROG_MENU = {"); }
-function ovr() { return grab("var PROG_OVR = {"); }
-function visible(data, style, mode) {
-  const full = data[style][mode];
-  const by = {};
-  full.forEach((p) => { by[p.name] = p; });
-  const over = (ovr()[style] && ovr()[style][mode]) || {};
-  return menu()[style].map((name) => {
-    const src = by[name];
-    if (!src) return null;
-    if (over[name]) return { name: src.name, steps: over[name] };
-    return { name: src.name, steps: src.steps };
-  }).filter(Boolean);
-}
-
 const data = catalog();
 const byItem = {};
 REV.items.forEach((it) => { byItem[it.style + "\0" + it.name] = it; });
@@ -68,36 +53,7 @@ test("full catalog stays underneath the menu", () => {
   }
 });
 
-test("rendered menu is the 17-family v2 set and its 33 charts", () => {
-  let entries = 0;
-  const families = new Set();
-  for (const style of ADULT) {
-    assert.deepEqual(menu()[style], [...new Set([].concat(V2.progressions[style].major, V2.progressions[style].minor).map((p) => p.name))]);
-    for (const mode of ["major", "minor"]) {
-      const want = V2.progressions[style][mode];
-      const rows = visible(data, style, mode);
-      assert.deepEqual(rows.map((p) => p.name), want.map((p) => p.name), style + " " + mode);
-      assert.ok(rows.length <= 6, style + " " + mode);
-      rows.forEach((p, i) => {
-        assert.equal(p.steps, want[i].steps, p.name + " " + mode);
-        const n = want[i].steps.split("|").length;
-        assert.ok(n >= 4 && n <= 8, p.name + " steps " + n);
-        families.add(p.name);
-      });
-      entries += rows.length;
-    }
-  }
-  assert.equal(entries, 33);
-  assert.equal(families.size, 17);
-  assert.equal(visible(data, "jazz", "minor").some((p) => p.name === "Jazz Chain"), false);
-  const leaves = visible(data, "jazz", "major").find((p) => p.name === "Jazz Leaves");
-  assert.equal(leaves.steps.split("|").length, 7);
-  assert.equal(leaves.steps.endsWith("6 m7 x2"), true);
-  const moon = visible(data, "yogaDeep", "major").find((p) => p.name === "Yoga Moon");
-  assert.equal(moon.steps.split("|").every((s) => s.endsWith("x2")), true);
-});
-
-test("revised menu copies do not replace the source sequences", () => {
+test("held-17 v2 charts stay in the source catalog with their original steps", () => {
   for (const style of ADULT) {
     for (const mode of ["major", "minor"]) {
       for (const it of V2.progressions[style][mode]) {

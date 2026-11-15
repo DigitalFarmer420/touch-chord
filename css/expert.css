@@ -473,3 +473,5 @@ html.expert.x-ctl-on #ctl .band-wrap { margin-top: 10px; }
 html.expert.x-ctl-on #ctl .band-row span { color: var(--x-ink); font-weight: 700; }
 html.expert.x-ctl-on #ctl .band-row b { color: var(--x-ink); }
 html.expert.x-ctl-on #ctl .band-wrap.off .band-row b { color: var(--x-muted); }
+/* Nov 9: the progression list scrolls inside its own panel. */
+html.expert #xPList { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }

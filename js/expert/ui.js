@@ -505,6 +505,8 @@ function paintList() {
   });
   h += "<p class=\"x-pnote\">Picking one unloads the song and folds this list to the bar above.</p>";
   L.innerHTML = h;
+  var onRow = L.querySelector(".x-prow.on");   // open at the current pick
+  if (onRow) L.scrollTop = Math.max(0, onRow.offsetTop - 40);
 }
 
 // ---------- paint ----------
