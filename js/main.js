@@ -113,7 +113,10 @@ startBanner = document.getElementById("unlock");
     shared.lastSaved = JSON.stringify(collectSettings());
     shared.persistReady = true;
     kidsView.boot();   // Kids redesign: the Kids view (Simple) opens over the full app; Expert = the full app as before
-    if (state.state.expert !== false && shared.firstFresh && !tourDone() && (!PROG_TEST || /[?&]tour=1(&|$)/.test(location.search))) setTimeout(function () { tourStart(false); }, 700);   // v112: once, after the fresh Kids + Twinkle load (tests: only with tour=1)
+    // v3.2 test.5: the first-launch tour runs in whatever mode a fresh install opens in (Kids, so the Kids tour). It used to
+    // require expert !== false, so a real first visit (the Kids view, expert false) never got it. Still once: only with no
+    // saved settings (shared.firstFresh, so existing users never get it) and no saved "done" (touchChord.tour.v1).
+    if (shared.firstFresh && !tourDone() && (!PROG_TEST || /[?&]tour=1(&|$)/.test(location.search))) setTimeout(function () { tourStart(false); }, 700);   // tests: only with tour=1
   } finally {
     document.documentElement.classList.remove("tc-boot");
   }

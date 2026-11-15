@@ -31,3 +31,15 @@ test('Tour: one list per mode, the classic Kids-style targets gone, each step ha
   assert.ok(T.TOURS.expert.some(s => s.land && /status bar/.test(s.text)), 'Expert: a sideways-only status bar step');
   assert.ok(T.TOURS.expert.some(s => s.sel === '#xKeysChip' && /Keyboard/.test(s.text)), 'Expert: sliding needs the Keyboard view');
 });
+test('First-launch tour: runs in whatever mode a fresh install opens in (Kids), once', () => {
+  const main = readFileSync(new URL('js/main.js', R), 'utf8');
+  const line = main.split('\n').find(l => /tourStart\(false\)/.test(l));
+  assert.ok(line, 'main.js auto-starts the tour');
+  assert.doesNotMatch(line, /expert/, 'the auto-start must not depend on Expert (a first visit opens Kids)');
+  assert.match(line, /shared\.firstFresh/, 'only a fresh install (no saved settings)');
+  assert.match(line, /!tourDone\(\)/, 'never after the tour was seen');
+  const tour = readFileSync(new URL('js/ui/tour.js', R), 'utf8');
+  assert.match(tour, /const TOUR_KEY = "touchChord\.tour\.v1"/, 'same seen key as before');
+  const st = readFileSync(new URL('js/state.js', R), 'utf8');
+  assert.match(st, /if \(!str\) \{[^\n]*shared\.firstFresh = true/, 'firstFresh is set only with no saved settings');
+});
