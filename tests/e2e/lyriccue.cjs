@@ -1,5 +1,5 @@
 // v3.2 test.5: the next-chord cue on the lyrics (Expert song card, Kids view, and Simple's song bar, which shows the words like
-// Expert since test.5: 3 lines upright, 2 sideways).
+// Expert since test.5: 3 lines upright, 2 sideways and on short phones; the name inline, right of its word).
 // At 390x844 and 844x390: the cue word and chord follow the next chord change while tapping Next / the gold pad; it is
 // bright when the change is the next tap; it moves on once the change plays; a change on a hidden line gets no cue;
 // the tag stays inside its card, on screen, clear of the gold word, and the lyric rows do not move or resize (rects
@@ -84,9 +84,9 @@ const chk = (tag, g) => {
         await p.evaluate(() => window.__magic.tap()); await p.waitForTimeout(400);
         const c = await p.evaluate(() => Object.assign(window.__simpleLyr(), { cur: window.__prog.cur }));
         const t = `${sz} simple tap${n}`; seen.push({ cur: c.cur, j: c.j, word: c.word, chord: c.chord, row: c.row, soon: c.soon, now: c.now });
-        const lay = await p.evaluate(() => ({ pl: document.documentElement.classList.contains('lay-phone-land'), pp: document.documentElement.classList.contains('lay-phone-port') }));
-        F(c.on && c.rows === (lay.pl ? 2 : 3), `${t} Simple lyric rows ${c.on}/${c.rows}`);
-        F(c.inline === !lay.pp || !c.tagShown, `${t} name inline ${c.inline} at ${sz}`);
+        const want = await p.evaluate(() => { const c = document.documentElement.classList; return c.contains('lay-phone-land') || (c.contains('lay-phone-port') && innerHeight < 820) ? 2 : 3; });
+        F(c.on && c.rows === want, `${t} Simple lyric rows ${c.on}/${c.rows}, want ${want}`);
+        F(c.inline || !c.tagShown, `${t} name not inline at ${sz}`);
         if (c.j >= 0) { F(c.j > c.cur, `${t} cue on a played step`); F(!!c.word && c.tagShown, `${t} no word/tag`); F(c.soon === (c.j === c.cur + 1), `${t} brightness ${c.soon} for j ${c.j} cur ${c.cur}`); }
         chk(t, await p.evaluate(geo, ['#songBar .sl-lyr', '.sl-row', '.sl-cuetag', '.sl-row.cur .sl-now']));
       }

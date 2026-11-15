@@ -11,7 +11,7 @@ globalThis.document = new Proxy(globalThis.document, { get: (t, k) => k === 'doc
 const S = await import(`../../js/ui/songbar.js?v=${V}`);
 const dlg = readFileSync(new URL('css/dialogs.css', R), 'utf8'), src = readFileSync(new URL('js/ui/songbar.js', R), 'utf8');
 
-test('three rows upright and on iPad, two in phone landscape', () => {
+test('without the CSS numbers: three rows upright and on iPad, two in phone landscape', () => {
   cls.clear(); cls.add('lay-phone-port'); assert.equal(S.slRowCount(), 3);
   cls.clear(); cls.add('lay-phone-land'); assert.equal(S.slRowCount(), 2);
   cls.clear(); cls.add('lay-pad-land'); assert.equal(S.slRowCount(), 3);
@@ -35,8 +35,9 @@ test('Simple uses its own rows for a song with words (phones and iPad); full mod
   assert.match(src, /var two = on && !state\.simple && upLyrMap\(\)\.any;/);
   assert.match(src, /if \(slyr\) \{\n    paintSimpleLyr\(bar, cur\);/);
 });
-test('CSS: a fixed band above every line upright, gold sung word and underline, teal name', () => {
-  assert.match(dlg, /html\.simple\.up-slyr #app \{ --sl-n: 3; --sl-cb: 16px; --sl-l1: 22px; --sl-l2: 19px;/);
+test('CSS: three lines (two on short phones and sideways), inline names, gold sung word and underline, teal name', () => {
+  assert.match(dlg, /html\.simple\.up-slyr #app \{ --sl-n: 3; --sl-cb: 0px; --sl-l1: 22px; --sl-l2: 19px;/);
+  assert.match(dlg, /@media \(max-height: 819px\) \{\n  html\.simple\.up-slyr\.lay-phone-port #app \{ --sl-n: 2; --ss-rg: 3px; \}/);
   assert.match(dlg, /html\.simple\.up-slyr\.lay-phone-land #app \{ --sl-n: 2; --sl-cb: 0px;/);
   assert.match(dlg, /#songBar \.sl-row \{ display: block; box-sizing: border-box; padding-top: var\(--sl-cb\);/);
   assert.match(dlg, /#songBar \.sl-now \{ background: var\(--sb-gold\);/);

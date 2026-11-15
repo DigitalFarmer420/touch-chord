@@ -50,12 +50,14 @@ var sbCueT = 0;   // started by the first song bar paint (not at import: unit te
 // Up to three lines (phone landscape: two; no room for a third at a readable size): the line being sung on top, in
 // ink, with its sung word on gold (a chord-only part: its chords, the sounding one on gold), then the next lines,
 // muted. The next-chord cue is Expert's: a gold underline on the word where the next chord change lands and the
-// chord's name in small teal text. Phone portrait: every line always keeps a band above its text and the name sits
-// in it (chordcue.js placeCueTag), so it never touches the line above and the rows never move; phone landscape and
-// iPad: the name is inline, right of its word. Rows come from the same line map as playback (songCardRows).
+// chord's name in small teal text, inline right of its word (Simple's grid leaves no height for a band above each
+// line; dialogs.css --sl-cb). Rows (--sl-n: 3, short phones 2) come from the same line map as playback (songCardRows).
 export const slState = { k: -1, ev: null, anim: 0, log: [] };
-export function slRowCount() { return document.documentElement.classList.contains("lay-phone-land") ? 2 : 3; }
-function slInline() { return !document.documentElement.classList.contains("lay-phone-port"); }
+function slVar(n) {   // the CSS numbers (dialogs.css): rows shown (--sl-n), band above each line (--sl-cb)
+  try { var a = document.getElementById("app"), v = a && window.getComputedStyle ? getComputedStyle(a).getPropertyValue(n) : ""; return v ? parseFloat(v) : NaN; } catch (e) { return NaN; }
+}
+export function slRowCount() { var v = slVar("--sl-n"); return v >= 2 ? v : document.documentElement.classList.contains("lay-phone-land") ? 2 : 3; }
+function slInline() { var cb = slVar("--sl-cb"); return isNaN(cb) ? !document.documentElement.classList.contains("lay-phone-port") : cb < 1; }
 export function slRowHtml(r, cls, cue, inl) {
   var h = "";
   if (r.sec) h += "<span class=\"sl-sec\">" + upEsc(r.sec) + " \u00b7</span> ";
@@ -68,16 +70,20 @@ export function slRowHtml(r, cls, cue, inl) {
         + (inl && cue && p.cls === "sl-cue" ? "<span class=\"sl-cuetag sl-cuein\" aria-hidden=\"true\">" + upEsc(cue.chord) + "</span>" : "");
     }).join("");
   } else if (r.kind === "chords") h += r.chords.map(function (c) { return "<span class=\"sl-ch" + (c.on ? " sl-now" : "") + "\">" + upEsc(c.t) + "</span>"; }).join(" ");
-  return "<span class=\"sl-row " + cls + "\" data-cue-row>" + (cls === "cur" ? "<span class=\"sl-lin\">" + h + "</span>" : h) + "</span>";
+  var lin = cls === "cur" || (inl && cue);   // rows that may slide: the sung line, and a line holding an inline name
+  return "<span class=\"sl-row " + cls + (lin && cls !== "cur" ? " sl-slide" : "") + "\" data-cue-row>" + (lin ? "<span class=\"sl-lin\">" + h + "</span>" : h) + "</span>";
 }
-function slFit(bar) {   // a long sung line never wraps: slide it so the sung word stays in view (Expert's fitLyrRow)
-  var row = bar.querySelector(".sl-row.cur"), lin = row && row.querySelector(".sl-lin"), w = lin && lin.querySelector(".sl-now");
-  if (!lin) return;
-  lin.style.transform = ""; row.classList.remove("sl-shift");
-  if (!w) return;
-  var rr = row.getBoundingClientRect(), wr = w.getBoundingClientRect(), dx = 0;
-  if (wr.right > rr.right - 4) dx = Math.max(0, Math.min(wr.left - rr.left - 24, wr.right - rr.right + 8));
-  if (dx > 0) { lin.style.transform = "translateX(" + (-Math.round(dx)) + "px)"; row.classList.add("sl-shift"); }
+function slFit(bar) {   // a long line never wraps: slide it so the sung word and an inline chord name stay in view (Expert's fitLyrRow)
+  Array.prototype.forEach.call(bar.querySelectorAll(".sl-row"), function (row) {
+    var lin = row.querySelector(".sl-lin"); if (!lin) return;
+    lin.style.transform = ""; row.classList.remove("sl-shift");
+    var keep = [row.querySelector(".sl-now"), row.querySelector(".sl-cuein")].filter(Boolean);
+    if (!keep.length) return;
+    var rr = row.getBoundingClientRect(), lo = Infinity, hi = -Infinity, dx = 0;
+    keep.forEach(function (e) { var r = e.getBoundingClientRect(); lo = Math.min(lo, r.left); hi = Math.max(hi, r.right); });
+    if (hi > rr.right - 4) dx = Math.max(0, Math.min(lo - rr.left - 24, hi - rr.right + 8));
+    if (dx > 0) { lin.style.transform = "translateX(" + (-Math.round(dx)) + "px)"; row.classList.add("sl-shift"); }
+  });
 }
 function slPlace(bar) {
   var host = bar.querySelector(".sl-lyr"); if (!host) return;

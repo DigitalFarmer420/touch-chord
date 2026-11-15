@@ -323,10 +323,15 @@ html.s-day #songBar { --sb-cue: #2F8F83; }
 
 /* v3.2 test.5 (Vinh): Simple shows the song's words like Expert's song card (songbar.js paintSimpleLyr): three lines
    (phone landscape two), the line being sung on top in ink with its sung word on gold, the next lines muted, and
-   Expert's next-chord cue (gold underline + the chord name in small teal text). Phone portrait: every line always
-   keeps a 16 px band above its text for the name, so it never touches the line above and the rows never move; phone
-   landscape and iPad: the name is inline, right of its word. The grid below gives the room. */
-html.simple.up-slyr #app { --sl-n: 3; --sl-cb: 16px; --sl-l1: 22px; --sl-l2: 19px; --sl-f1: 17px; --sl-f2: 15px; }
+   Expert's next-chord cue (gold underline + the chord name in small teal text). Space is tight under Simple's grid (its
+   chord rows keep their 44 px floor), so the name is inline, right of its word, everywhere (--sl-cb 0: no band; a
+   band above each line is supported, see placeCueTag): it never touches another line and the rows never move.
+   Short phones (under 820 css tall: 360x780) show two lines, with the grid's row gaps 8 -> 3 px to make room. */
+html.simple.up-slyr #app { --sl-n: 3; --sl-cb: 0px; --sl-l1: 22px; --sl-l2: 19px; --sl-f1: 17px; --sl-f2: 15px; }
+@media (max-height: 819px) {
+  html.simple.up-slyr.lay-phone-port #app { --sl-n: 2; --ss-rg: 3px; }
+  html.simple.up-slyr.lay-phone-port .ss { padding: 2px 0; }
+}
 html.simple.up-slyr.lay-phone-land #app { --sl-n: 2; --sl-cb: 0px; --sl-l1: 19px; --sl-l2: 16px; --sl-f1: 15px; --sl-f2: 13px; }
 html.simple.up-slyr.lay-pad-port #app, html.simple.up-slyr.lay-pad-land #app { --sl-cb: 0px; --sl-l1: 32px; --sl-l2: 26px; --sl-f1: 24px; --sl-f2: 19px; }
 html.simple.up-slyr.up-on #songBar { height: auto; align-items: flex-start; margin-bottom: 4px; }
@@ -339,7 +344,8 @@ html.simple.up-slyr #songBar .sb-sec { margin-top: calc(var(--sl-cb) + (var(--sl
 #songBar .sl-row.cur { height: calc(var(--sl-l1) + var(--sl-cb)); font: 700 var(--sl-f1)/var(--sl-l1) Andika, Nunito, system-ui, sans-serif; color: var(--ink); text-overflow: clip; }
 #songBar .sl-row.nxt { height: calc(var(--sl-l2) + var(--sl-cb)); font: 600 var(--sl-f2)/var(--sl-l2) Andika, Nunito, system-ui, sans-serif; color: var(--muted); }
 #songBar .sl-lin { display: inline-block; transition: transform .2s ease-out; }
-#songBar .sl-row.cur.sl-shift { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px); mask-image: linear-gradient(90deg, transparent 0, #000 16px); }
+#songBar .sl-row.nxt.sl-slide { text-overflow: clip; }
+#songBar .sl-row.sl-shift { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px); mask-image: linear-gradient(90deg, transparent 0, #000 16px); }
 #songBar .sl-now { background: var(--sb-gold); color: #3B2600; border-radius: 6px; padding: 0 4px; }
 #songBar .sl-sec { font-family: Fredoka, Nunito, system-ui, sans-serif; font-weight: 600; color: var(--copper-t); text-transform: capitalize; }
 #songBar .sl-cue { text-decoration: underline 2px var(--sb-gold); text-underline-offset: 2px; text-decoration-skip-ink: none; }

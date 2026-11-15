@@ -5,8 +5,8 @@
 //    reserved space is always there, so nothing shifts while the song plays).
 //  - Kids lyrics: the pad letter never overlaps the other line's text.
 //  - Simple song bar: at least two lyric rows (three in portrait), the line being sung on top with its sung word on
-//    gold, the same cue as Expert (gold underline + the name above, or inline in landscape), the name clear of the
-//    other lines, the rows steady, and nothing in the bar over a control (grid chips, buttons).
+//    gold, the same cue as Expert (gold underline + the name, inline right of its word), the name clear of the
+//    other lines, the rows steady, nothing in the bar over a control, and every grid chip still inside its card.
 //  (iPad sizes work too, e.g. SIZES=820x1180,1180x820: names inline there, Kids included.)
 // Text boxes are Range client rects (the font's content area, a little taller than the ink), clipped to the line's
 // own box. BASE=http://host/index.html CHROME=/path SIZES=390x844,... node tests/e2e/lyriccue-overlap.cjs
@@ -103,12 +103,16 @@ const tapGold = () => { const g = document.querySelector('#kv .kv-pad.gold'); g.
       for (let n = 0; n <= 18; n++) {
         if (n) { await p.evaluate(() => window.__magic.tap()); await p.waitForTimeout(420); }
         const g = await p.evaluate(probe, sel), t = `${sz} simple tap${n}`;
-        check(t, g, info, { inline: await p.evaluate(inlineLay) });
+        check(t, g, info, { inline: true });   // Simple: always inline (no height for a band under its 44 px grid rows)
         if (g.none) continue;
         nRows.add(g.rows.length);
         F(g.rows.length >= 2, `${t} only ${g.rows.length} lyric rows`);
-        const pl = await p.evaluate(() => document.documentElement.classList.contains('lay-phone-land'));
-        F(g.rows.length === (pl ? 2 : 3), `${t} want ${pl ? 2 : 3} rows, got ${g.rows.length}`);
+        const want = await p.evaluate(() => { const c = document.documentElement.classList; return c.contains('lay-phone-land') || (c.contains('lay-phone-port') && innerHeight < 820) ? 2 : 3; });
+        F(g.rows.length === want, `${t} want ${want} rows, got ${g.rows.length}`);
+        const fit = await p.evaluate(() => { const card = document.querySelector('.next-card').getBoundingClientRect(), bar = document.getElementById('songBar').getBoundingClientRect();
+          return [...document.querySelectorAll('#suggest .ss-chip, #suggest .ss-note')].filter(e => e.getClientRects().length).map(e => ({ t: e.textContent, r: e.getBoundingClientRect() }))
+            .filter(c => c.r.bottom > card.bottom + 0.5 || c.r.top < bar.bottom - 0.5).map(c => c.t + '@' + Math.round(c.r.top) + '-' + Math.round(c.r.bottom)); });
+        F(fit.length === 0, `${t} grid chips pushed out of the card or under the song bar: ${fit}`);
         F(g.rows.length && /\bcur\b/.test(g.rows[0].cls), `${t} the first row is not the line being sung`);
         if (g.now) { words++; if (/255, 194, 26/.test(g.now.bg)) gold++; }
         const all = [g.host].concat(g.tag ? [g.tag] : []);
