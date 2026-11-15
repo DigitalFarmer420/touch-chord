@@ -79,21 +79,28 @@ export function cueClock(c, cur, nowMs) {
 // Place the name tag (an absolutely positioned child of host) centred above the cue word, its bottom on the word's
 // letter tops (so on the next line it sits in the gap between the two lines), kept inside the host and clear of the
 // sung word (avoid = that element, e.g. the gold word on the line above).
+// v3.2 test.5 crowding fix: when the word's row reserves a band above its text (padding-top at least the tag's height,
+// always there, so the rows never move), the tag sits in that band, 0.5 px below the row's top edge: it can't reach the
+// line above or the song title. A tag inside the row itself (inline, right of the word: phone landscape, iPad) is
+// already placed by the text flow.
 export function placeCueTag(host, word, tag, avoid) {
   if (!host || !tag) return;
   if (!word) { tag.hidden = true; return; }
-  var hr = host.getBoundingClientRect(), wr = word.getBoundingClientRect(), row = word.closest("[data-cue-row]");
+  if (tag.closest("[data-cue-row]")) { tag.hidden = false; return; }   // inline
+  var hb = host.getBoundingClientRect(), wr = word.getBoundingClientRect(), row = word.closest("[data-cue-row]");
+  var hr = { left: hb.left + (host.clientLeft || 0), top: hb.top + (host.clientTop || 0), width: host.clientWidth || hb.width };   // the tag's containing block: inside the border
   var vis = row ? row.getBoundingClientRect() : wr;
   if (!wr.width || wr.right < vis.left + 4 || wr.left > vis.right - 4) { tag.hidden = true; return; }   // slid out of view
   tag.hidden = false;
   var fs = parseFloat(getComputedStyle(word).fontSize) || 14, tw = tag.offsetWidth, th = tag.offsetHeight;
+  var band = row ? parseFloat(getComputedStyle(row).paddingTop) || 0 : 0;
   var cx = Math.max(wr.left, vis.left) + (Math.min(wr.right, vis.right) - Math.max(wr.left, vis.left)) / 2;
-  var x = cx - tw / 2 - hr.left, y = wr.top + (wr.height - fs) / 2 + fs * 0.12 - th - hr.top;
+  var x = cx - tw / 2 - hr.left, y = band >= th + 1 ? vis.top - hr.top + 0.5 : wr.top + (wr.height - fs) / 2 + fs * 0.12 - th - hr.top;
   if (avoid) {
     var ar = avoid.getBoundingClientRect();
     if (ar.width && ar.bottom - hr.top > y + 1 && ar.top - hr.top < y + th - 1 && ar.right - hr.left > x && ar.left - hr.left < x + tw)
       x = ar.right - hr.left + tw + 2 <= wr.right - hr.left + tw / 2 ? ar.right - hr.left + 2 : ar.left - hr.left - tw - 2;
   }
   x = Math.max(2, Math.min(hr.width - tw - 2, x)); y = Math.max(0, y);
-  tag.style.transform = "translate(" + Math.round(x) + "px," + Math.round(y) + "px)";
+  tag.style.transform = "translate(" + Math.round(x) + "px," + (band >= th + 1 ? Math.round(y * 2) / 2 : Math.round(y)) + "px)";
 }

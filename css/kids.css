@@ -259,3 +259,8 @@ html.lay-phone-land .kv-cuetag { font-size: 12px; line-height: 13px; padding: 0 
 html.lay-pad-port .kv-cuetag, html.lay-pad-land .kv-cuetag { font-size: 18px; line-height: 22px; }
 @keyframes kvCuePulse { from { transform-origin: center; filter: brightness(1); } to { filter: brightness(1.25); } }
 @media (prefers-reduced-motion: reduce) { .kv-cuetag.soon { animation: none; } }
+/* v3.2 test.5 crowding fix: on phones each lyric line always has a band above its text for the pad letter (placed in
+   it by chordcue.js), so the letter never touches the line above and the lines never move. iPad: unchanged. */
+html.lay-phone-port .kv-lyr .kv-l1, html.lay-phone-port .kv-lyr .kv-l2 { padding-top: 19px; }
+html.lay-phone-port .kv-lyr .kv-l2 { margin-top: 0; }
+html.lay-phone-land .kv-top .kv-lyr .kv-l1 { padding-top: 14px; }

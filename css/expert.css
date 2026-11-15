@@ -571,3 +571,16 @@ html.expert .x-cuetag.soon { opacity: 1; color: #fff; background: var(--x-next);
 html.expert.lay-pad-port .x-cuetag, html.expert.lay-pad-land .x-cuetag { font-size: 14px; line-height: 16px; }
 @keyframes xCuePulse { from { box-shadow: 0 0 0 0 rgba(47, 143, 131, .55); } to { box-shadow: 0 0 0 3px rgba(47, 143, 131, 0); } }
 @media (prefers-reduced-motion: reduce) { html.expert .x-cuetag.soon { animation: none; } }
+
+/* v3.2 test.5 crowding fix (Vinh, Nov 14): the chord name never touches the line above or the song title, and the lyric
+   rows never move. Phone portrait: every lyric line always has a 15 px band above its text (the name is 11 px tall and
+   sits 0.5 px under the band's top edge, chordcue.js placeCueTag; Andika's tall marks reach ~3 px above the line), so
+   the card is 28 px taller (64 -> 92; the grid gives the room). Phone landscape and iPad: no height to spare, so the name is inline, right of its
+   word (.x-cuein), in the same small teal text. */
+html.expert.lay-phone-port #app { --x-cb: 15px; --x-src-h: 92px; }
+html.expert.lay-phone-port .x-lrow { padding-top: var(--x-cb); }
+html.expert.lay-phone-port .x-lrow.cur { height: calc(var(--x-lh1) + var(--x-cb)); }
+html.expert.lay-phone-port .x-lrow.nxt { height: calc(var(--x-lh2) + var(--x-cb)); }
+html.expert.lay-phone-port .x-lrows { height: calc(var(--x-lh1) + var(--x-lh2) * var(--x-lrn, 1) + var(--x-cb) * (1 + var(--x-lrn, 1))); }
+html.expert.lay-phone-port .x-lroll.go { transform: translateY(calc(-1 * (var(--x-lh1) + var(--x-cb)))); }
+html.expert .x-cuetag.x-cuein { position: static; display: inline-block; margin-left: 3px; vertical-align: 1px; transform: none !important; }

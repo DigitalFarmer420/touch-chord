@@ -481,10 +481,13 @@ function paintSrc() {
         if (cue.a < nb && cue.b > na) cue = null;
       }
       xCue.j = cue ? cue.j : -1; xCue.pc = cur;
-      rowsHtml = card.rows.map(function (r, k) { return lyrRowHtml(r, k === 0 ? "cur" : "nxt", cue && cue.k === k ? cue : null); }).join("");
+      // v3.2 test.5 crowding fix: phone portrait reserves a band above each line for the name (CSS --x-cb); phone
+      // landscape and iPad have no height to spare but plenty of width, so the name sits inline, right of its word.
+      var inl = !document.documentElement.classList.contains("lay-phone-port");
+      rowsHtml = card.rows.map(function (r, k) { return lyrRowHtml(r, k === 0 ? "cur" : "nxt", cue && cue.k === k ? cue : null, inl); }).join("");
       var locked = !!U.locked;
       html = "<div class=\"x-songc\"><div class=\"x-stitle\">" + esc(U.title) + (U.artist ? " \u00b7 " + esc(U.artist) : "") + "</div><div class=\"x-lrows\"><span class=\"x-lroll\">" + rowsHtml + "</span></div></div>"
-        + (cue ? "<span class=\"x-cuetag\" aria-hidden=\"true\" hidden>" + esc(cue.chord) + "</span>" : "")
+        + (cue && !inl ? "<span class=\"x-cuetag\" aria-hidden=\"true\" hidden>" + esc(cue.chord) + "</span>" : "")
         + "<button type=\"button\" class=\"x-b x-lock\" aria-pressed=\"" + locked + "\" aria-label=\"Lock the song chords\"><span class=\"x-lki\">" + (locked ? "\ud83d\udd12" : "\ud83d\udd13") + "</span>Lock</button>";
     } else {
       html = "<div class=\"x-songc x-empty\"><div class=\"x-stitle\">No song loaded</div><div class=\"x-sline\">Tap Song to open My songs and Upload</div></div>";
@@ -531,13 +534,14 @@ export function cueState() {
     soon: !!(w && w.classList.contains("soon")), tagShown: !!(tag && !tag.hidden), log: xLog.cue.slice(-40) };
 }
 // ---------- P4 song card rows (v3.2 UI polish) ----------
-function lyrRowHtml(r, cls, cue) {
+function lyrRowHtml(r, cls, cue, inl) {
   var h = "";
   if (r.sec) h += "<span class=\"x-lsec\">" + esc(r.sec) + " \u00b7</span>";
   if ((r.kind === "lyric" || r.kind === "text") && cue) {   // v3.2 test.5: the cue word (and the sung word on row 1)
     var text = r.kind === "lyric" ? r.before + r.word + r.after : r.text, rg = [{ a: cue.a, b: cue.b, cls: "x-cue" }];
     if (r.kind === "lyric" && r.word) rg.push({ a: r.before.length, b: r.before.length + r.word.length, cls: "x-now" });
-    h += cuePieces(text, rg).map(function (p) { return p.cls ? "<span class=\"" + p.cls + "\">" + esc(p.t) + "</span>" : esc(p.t); }).join("");
+    h += cuePieces(text, rg).map(function (p) { return (p.cls ? "<span class=\"" + p.cls + "\">" + esc(p.t) + "</span>" : esc(p.t))
+      + (inl && p.cls === "x-cue" ? "<span class=\"x-cuetag x-cuein\" aria-hidden=\"true\">" + esc(cue.chord) + "</span>" : ""); }).join("");
   }
   else if (r.kind === "lyric") h += esc(r.before) + (r.word ? "<span class=\"x-now\">" + esc(r.word) + "</span>" : "") + esc(r.after);
   else if (r.kind === "text") h += esc(r.text);
@@ -554,7 +558,7 @@ function songCardPaint(box, html, sig, card, rowsHtml) {
   var step = same && xLyr.k >= 0 && card.idx === xLyr.k + 1 && box._sig && box.querySelector(".x-lrow.cur");
   xLyr.ev = U.events;
   if (step && !calm) {
-    var old = box.querySelector(".x-lrow.cur"), oldHtml = old.outerHTML.replace(/<span class="x-(?:now|cue)[^"]*">([^<]*)<\/span>/g, "$1").replace(" x-shift", "");
+    var old = box.querySelector(".x-lrow.cur"), oldHtml = old.outerHTML.replace(/<span class="x-cuetag[^"]*" aria-hidden="true">[^<]*<\/span>/g, "").replace(/<span class="x-(?:now|cue)[^"]*">([^<]*)<\/span>/g, "$1").replace(" x-shift", "");
     box.innerHTML = html.replace("<span class=\"x-lroll\">", "<span class=\"x-lroll\">" + oldHtml);
     box._sig = null;
     var roll = box.querySelector(".x-lroll");
@@ -712,7 +716,7 @@ function wireAll() {
   setInterval(function () { if (!active || xCue.j < 0) return; if (upCurStep() !== xCue.pc) paintSrc(); else paintCue(); }, 60);   // v3.2 test.5: the cue moves on once its chord plays
   window.addEventListener("resize", function () { if (active && $("xSrc")) fitLyrRow($("xSrc")); });   // P4: re-fit the sung word after a rotation
   var rz = 0;
-  function onResize() { clearTimeout(rz); rz = setTimeout(function () { if (!active) return; placeTog(); placeSheets(); fitStrip(); placeBadges(); fitNowSymbol(); }, 80); }
+  function onResize() { clearTimeout(rz); rz = setTimeout(function () { if (!active) return; placeTog(); placeSheets(); fitStrip(); placeBadges(); fitNowSymbol(); paintSrc(); }, 80); }   // test.5: the cue name is inline / above by layout
   window.addEventListener("resize", onResize); window.addEventListener("orientationchange", onResize);
 }
 
