@@ -1,5 +1,5 @@
 // Uncommitted cleanup, bound to the working tree (not to 4ee84e8 and not to an older audioeq run).
-// Expert: eight actual-step badges, top-centre teal root dot on white and black keys, no per-key
+// Expert: eight actual-step badges, top-centre root dot (gold since v3.2 test.5) on white and black keys, no per-key
 // colour bars, no decorative octave arrows, warm gold press kept. No 40-pack song data.
 // node -r ./emulate.cjs preclean.cjs
 const { chromium } = require('playwright-core');
@@ -102,7 +102,7 @@ const near = (a, b, e) => Math.abs(a - b) <= e;
       F(d.display !== 'none' && d.w >= 6 && d.w <= 10 && near(d.w, d.h, 0.6) && /50%/.test(d.radius), tag + ': ' + name + ' dot is not a circle ' + JSON.stringify(d));
       F(near(cx, d.kw / 2, 2.5), tag + ': ' + name + ' dot not centred (cx ' + cx.toFixed(1) + ' key ' + d.kw.toFixed(1) + ')');
       F(d.top >= 3 && d.top <= 12 && insetR >= 2 && insetB >= 8, tag + ': ' + name + ' dot not inside the top of the key ' + JSON.stringify(d));
-      F(/47,\s*143,\s*131|79,\s*179,\s*165|2F8F83|4FB3A5/i.test(d.bg) || d.bg.indexOf('47') >= 0, tag + ': ' + name + ' dot colour ' + d.bg);
+      F(/255,\s*194,\s*26|FFC21A/i.test(d.bg), tag + ': ' + name + ' dot colour (test.5: gold --x-gold) ' + d.bg);
     }
     const deco = await p.evaluate(() => {
       const w = [...document.querySelectorAll('#pads .pad.white')].find(k => !k.classList.contains('nx-root')) || document.querySelector('#pads .pad.white');

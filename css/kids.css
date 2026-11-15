@@ -246,12 +246,12 @@ html.lay-pad-land .kv-star, html.lay-pad-port .kv-star { top: 22%; width: 200px;
 html.lay-pad-land .kv-rbtns, html.lay-pad-port .kv-rbtns { top: calc(22% + 250px); left: 50%; right: auto; width: 460px; margin-left: -230px; }
 html.lay-pad-land .kv-ccard, html.lay-pad-port .kv-ccard { top: 22%; }
 
-/* v3.2 test.5: next-chord cue on the Kids lyrics: a teal underline on the word where the pad changes and the pad letter
+/* v3.2 test.5: next-chord cue on the Kids lyrics: a gold (--gold) underline on the word where the pad changes and the pad letter
    above it (absolutely placed by view.js: the lines never move). Brighter one beat before the change. */
 .kv { --cue: #2F8F83; } html.kv-lamp .kv { --cue: #4FB3A5; }
 .kv-lyr { position: relative; }
-.kv-lyr .cue { text-decoration: underline 3px var(--cue); text-underline-offset: 4px; text-decoration-skip-ink: none; }
-.kv-lyr .cue.soon { text-decoration-thickness: 4px; color: var(--ink); }
+.kv-lyr .cue { text-decoration: underline 3px var(--gold); text-underline-offset: 4px; text-decoration-skip-ink: none; }
+.kv-lyr .cue.soon { text-decoration-thickness: 4px; }   /* test.5 yellow: gold underline, the word keeps its colour */
 .kv-cuetag { position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; padding: 0 5px; border-radius: 8px; font: 700 16px/18px Fredoka, Nunito, system-ui, sans-serif;
   color: var(--cue); background: var(--surface); opacity: .9; white-space: nowrap; }
 .kv-cuetag.soon { opacity: 1; color: #fff; background: var(--cue); animation: kvCuePulse .5s ease-in-out infinite alternate; }

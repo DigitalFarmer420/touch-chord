@@ -92,7 +92,7 @@ async function playSample(p) {
     });
     R.data[tag] = { m, forced };
     F(m.nx > 0 && m.dash === 0, tag + ': teal dashed outline still on a next key ' + JSON.stringify(m));
-    F(m.roots > 0 && m.dotBg && m.dotBg.indexOf('47, 143, 131') >= 0, tag + ': root dot missing ' + JSON.stringify(m));
+    F(m.roots > 0 && m.dotBg && m.dotBg.indexOf('255, 194, 26') >= 0, tag + ': root dot missing / not gold (test.5: --x-gold) ' + JSON.stringify(m));
     F(m.arrows === 0, tag + ': decorative octave arrow still drawn ' + JSON.stringify(m));
     F(forced.length > 0 && forced.every(x => x.display === 'none' || x.content === 'none'), tag + ': displacement glyph still painted ' + JSON.stringify(forced));
     F(m.nav && m.keysChip, tag + ': navigation arrow node or Keys chip missing');

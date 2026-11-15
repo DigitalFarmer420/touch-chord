@@ -473,7 +473,7 @@ function paintSrc() {
       var nRows = lyrPad() ? 3 : 2, ci = cur >= 0 && e0 ? e0.ci : -1;
       card = songCardRows(upLyrMap(), cur, nRows, ci, function (si, rep) { return secLyrics(U.secs[si], rep); },
         function (si) { return U.secs[si].chords.map(function (c, k) { return upA(upSym(si, k)); }); }, upSecName);
-      // v3.2 test.5: the next-chord cue (teal underline + the chord name above the word where the next change lands)
+      // v3.2 test.5: the next-chord cue (gold underline + the chord name above the word where the next change lands)
       var names = U.events.map(function (e) { return upA(upSym(e.si, e.ci)); });
       var cue = songCue(upLyrMap(), card.idx, nRows, U.events, names, cur, function (si, rep) { return secLyrics(U.secs[si], rep); });
       if (cue && cue.k === 0 && card.rows[0].kind === "lyric" && card.rows[0].word) {   // never on the sung (gold) word itself

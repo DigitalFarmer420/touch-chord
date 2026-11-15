@@ -351,7 +351,7 @@ function hideReward() {
 
 // ---------- paint ----------
 // v3.2 test.5: the next-chord cue. Each Kids step is one sung note on its own major chord (the pad letter), so the cue
-// marks the word where the pad changes: a teal underline and the pad letter above it, brighter one beat before the
+// marks the word where the pad changes: a gold underline and the pad letter above it, brighter one beat before the
 // change (Play song) or when it is the very next note (taps: no beat timing). Shown lines only (sideways: one line).
 export const kvCue = { j: -1, chord: null, soon: false, cur: -2, t: 0, log: [] };
 function padName(st) {

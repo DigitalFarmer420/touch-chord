@@ -299,12 +299,12 @@ html.expert .kb.piano .black.held { background: var(--x-gold-deep) !important; }
    that are not sounding. The classic copper next-box (.nx::after) is not used in Expert; the root dot turns teal. */
 html.expert .kb.piano .pad.nx::after { display: none !important; }
 /* The next-chord root dot stays ::before on its own key (it slides with the piano). On a white key the
-   chord-colour bar is also ::before, so this rule has to win there: an 8px teal circle, top-centre,
+   chord-colour bar is also ::before, so this rule has to win there: an 8px gold circle (v3.2 test.5: --x-gold, the grid's sounding-chord yellow), top-centre,
    inset far enough that the ring stays inside a white key and a short black key. Not a new mark. */
 html.expert .kb.piano .pad.nx-root::before, html.expert .kb.piano .pad.white.nx-root::before {
   content: "" !important; position: absolute; left: 50% !important; right: auto !important; top: 6px !important; bottom: auto !important;
   width: 8px !important; height: 8px !important; margin: 0 0 0 -4px !important; border-radius: 50% !important;
-  background: var(--x-next-l) !important; box-shadow: 0 0 0 1.5px rgba(20, 12, 4, .55); pointer-events: none; z-index: 5; }
+  background: var(--x-gold) !important; box-shadow: 0 0 0 1.5px rgba(20, 12, 4, .55); pointer-events: none; z-index: 5; }
 html.expert .kb.piano .pad.black.nx-root::before { top: 5px !important; width: 7px !important; height: 7px !important; margin-left: -3.5px !important; }
 html.expert .kb.piano .pad.held { outline: 3px solid var(--x-gold-deep) !important; outline-offset: -3px !important; box-shadow: none !important; }
 /* rd17: the teal dashed next-outline is off. The root preview dot (.nx-root::before / .nxd) stays. A sounding key keeps the warm gold outline. */
@@ -559,12 +559,12 @@ html.expert .kb.piano .pad.black.nokey { background: #4A4036; color: #A89884; bo
    below so the marks are not cut (overflow: clip + overflow-clip-margin; older WebViews keep overflow: hidden). */
 html.expert .x-stitle, html.expert .x-lrows, html.expert .x-lrow { overflow: hidden; overflow: clip; overflow-clip-margin: 4px; }
 
-/* v3.2 test.5: next-chord cue on the song card lyrics. The word where the next chord change lands gets a teal underline
+/* v3.2 test.5: next-chord cue on the song card lyrics. The word where the next chord change lands gets a gold (--x-gold) underline
    (no layout change); the chord name sits above it in small teal text (absolutely placed by ui.js, so the two lines
    never move). It brightens about one beat before the change (Play) or when the change is the next tap. */
 html.expert #xSrc.x-mode-song { position: relative; }
-html.expert .x-lrow .x-cue { text-decoration: underline 2px var(--x-next-l); text-underline-offset: 2px; text-decoration-skip-ink: none; transition: color .15s; }
-html.expert .x-lrow .x-cue.soon { color: var(--x-next); text-decoration-color: var(--x-next); text-decoration-thickness: 3px; }
+html.expert .x-lrow .x-cue { text-decoration: underline 2px var(--x-gold); text-underline-offset: 2px; text-decoration-skip-ink: none; }
+html.expert .x-lrow .x-cue.soon { text-decoration-thickness: 3px; }   /* test.5 yellow: the word keeps its own colour */
 html.expert .x-cuetag { position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; padding: 0 3px; border-radius: 4px;
   font: 700 10px/11px Fredoka, Nunito, system-ui, sans-serif; color: var(--x-next); background: var(--x-surface); opacity: .85; white-space: nowrap; }
 html.expert .x-cuetag.soon { opacity: 1; color: #fff; background: var(--x-next); animation: xCuePulse .5s ease-in-out infinite alternate; }

@@ -1,5 +1,5 @@
 // v3.2 test.5: the next-chord cue on the two-line lyrics (the Expert song card and the Kids view; Simple shows no
-// lyrics). The word where the next chord change lands gets a teal underline, with the chord's name in small teal text
+// lyrics). The word where the next chord change lands gets a gold underline (test.5 yellow), with the chord's name in small teal text
 // above it. It brightens about one beat before the change and moves on once that chord is played. Only a word on one of
 // the shown lines gets it: a change that falls on a line not shown yet, or between words, shows no cue.
 // Pure helpers first (unit tested), then one DOM helper that places the name tag.
