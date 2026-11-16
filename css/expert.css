@@ -623,7 +623,10 @@ html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x
     --x-side: clamp(168px, calc(184 * var(--xl-w)), 260px); --x-now-w: var(--x-side);
     --x-sus-h: clamp(104px, 14vh, 160px);
     --x-kb-h: clamp(264px, 33vh, 400px);
-    --x-lh1: 25px; --x-lh2: 20px;
+    /* Lyric rows: 25 / 20 at 820 tall (approved). On shorter screens (1024x768, 1133x744) the card is shorter, so the rows and
+       their type shrink with it and the title + 6 px gap + 3 rows still fit inside the card: (card row - 25) * 25 / 65 and
+       * 20 / 65, where 25 = the title's 3 px accent room + 16 px line + 6 px gap (PR #5, Uiux: the last look-ahead line was cut). */
+    --x-lh1: min(25px, calc((var(--x-src-h) - 25px) * 25 / 65)); --x-lh2: min(20px, calc((var(--x-src-h) - 25px) * 20 / 65));
   }
   html.expert.lay-pad-port #app {
     --xl-row-min: 56px; --xl-row-max: 80px;
@@ -702,12 +705,13 @@ html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x
   html.expert.lay-pad-land #xCtl .x-full small,
   html.expert.lay-pad-land #xCtl .x-sound small { font-size: 12px; }
   html.expert.lay-pad-land #symbol { font-size: 34px !important; }
-  html.expert.lay-pad-land .x-lrow.cur { font-size: 23px; }
-  html.expert.lay-pad-land .x-lrow.nxt { font-size: 18px; }
+  html.expert.lay-pad-land .x-lrow.cur { font-size: calc(var(--x-lh1) * 23 / 25); }   /* 23 px at 820 tall */
+  html.expert.lay-pad-land .x-lrow.nxt { font-size: calc(var(--x-lh2) * 18 / 20); }   /* 18 px at 820 tall */
   /* Song title vs the first lyric line: the stacked Vietnamese accents (Ừ, ổ) and the cue highlight rose into the title
      line (0 px ink clearance). 6 px under the title keeps them >= 5 px apart. The text block also uses the card's 4-px
-     top/bottom padding and starts at the top, so the lines below keep their room inside the card (1024x768 is tightest). */
-  html.expert:is(.lay-pad-land, .lay-pad-port) .x-songc > .x-stitle { margin-bottom: 6px; }
+     top/bottom padding and starts at the top, so the lines below keep their room inside the card (1024x768 is tightest).
+     PR #5 (Uiux): 3 px above the title keeps its own stacked accents (the hook on Ổ) inside the card's top edge. */
+  html.expert:is(.lay-pad-land, .lay-pad-port) .x-songc > .x-stitle { padding-top: 3px; margin-bottom: 6px; }
   html.expert:is(.lay-pad-land, .lay-pad-port) #xSrc.x-mode-song > .x-songc { margin: -4px 0; justify-content: flex-start; }
   html.expert.lay-pad-land #suggest.ss { --ss-fs: 26px; --ss-rg: 6px; }
 }
