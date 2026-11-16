@@ -9,6 +9,7 @@ import { fitNowSymbol } from "./nowbox.js?v=112.13";
 import { computeSpec, padSpan, octaveSpan, effectiveLayout, renderPads, liftFinger, refreshHeld } from "./pads.js?v=112.13";
 import { syncPalette, setKeyModeState } from "./palette.js?v=112.13";
 import { placeProg } from "./progbar.js?v=112.13";
+import { paintSimpleSrc } from "./simplesrc.js?v=112.13";
 import { paintSuggestions } from "./strip.js?v=112.13";
 import { paintSustainBtn, setSustain } from "./sustain.js?v=112.13";
 import { upPlaceLock } from "../songs/song.js?v=112.13";
@@ -21,6 +22,7 @@ export function paintSimple() {
   if (btn) btn.setAttribute("aria-checked", state.simple ? "true" : "false");
   if (state.simple) setDrawer(false);
   placeProg();
+  paintSimpleSrc();
 }
 
 // rd6: no Simple toggle any more; the Kids / Simple / Expert switch (expert/ui.js setMode) calls this.

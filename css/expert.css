@@ -3,9 +3,11 @@
    Mockups: /workspace/touchchord-review/redesign/expert-v9-*.png (phone), expert-ipad-v2-*.png (iPad). */
 
 /* ---------- Expert-only elements: never shown outside Expert ---------- */
-html:not(.expert) #xTop, html:not(.expert) #xTog, html:not(.expert) #xGo, html:not(.expert) #xSrc, html:not(.expert) #xPList,
+/* #xTog is lifted for Simple (same Song | Progressions track). Kids and classic stay hidden. */
+html:not(.expert) #xTop, html:not(.expert) #xGo, html:not(.expert) #xSrc, html:not(.expert) #xPList,
 html:not(.expert) #xCtl, html:not(.expert) #xScrim, html:not(.expert) #xStyleMenu, html:not(.expert) #xKeySheet,
 html:not(.expert) #xSettings, html:not(.expert) .x-volrow { display: none !important; }
+html:not(.expert):not(.simple) #xTog, html.kv #xTog { display: none !important; }
 [hidden].x-scrim, [hidden].x-menu, [hidden].x-sheet, [hidden].x-plist { display: none !important; }
 /* Decision 11: the mode switch in the classic gear menu */
 .x-gearmode { display: flex; align-items: center; gap: 8px; padding: 6px 10px 8px; border-bottom: 1px solid var(--line); }
@@ -701,3 +703,35 @@ html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x
   html.expert.lay-pad-land .x-lrow.nxt { font-size: 18px; }
   html.expert.lay-pad-land #suggest.ss { --ss-fs: 26px; --ss-rg: 6px; }
 }
+
+
+/* ---------- Simple Song | Progressions: reuse Expert's #xTog / .x-tog in the top bar ----------
+   Sizes follow --x-row and --x-fs on phones (44 upright, 36 sideways, same as Expert). */
+html.simple {
+  --x-row: 44px; --x-fs: 15px;
+  --x-card: #2F271F; --x-ink: #F4EAD9; --x-muted: #B9A890; --x-onink: #1E1914;
+}
+html.simple.s-day {
+  --x-card: #FBF6EE; --x-ink: #2B2118; --x-muted: #7A6855; --x-onink: #FFFFFF;
+}
+html.simple.lay-phone-land { --x-row: 36px; --x-fs: 13px; }
+
+html.simple #xTog {
+  display: flex; background: var(--x-card); border-radius: 14px; padding: 3px; gap: 3px; min-width: 0;
+  height: var(--x-row); box-sizing: border-box; border: 0; align-self: center;
+  flex: 1 1 200px; max-width: 380px; margin: 0 8px 0 0;
+}
+html.simple #xTog button {
+  flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 11px;
+  background: transparent; color: var(--x-muted); font: 700 calc(var(--x-fs) - 1px) Nunito, system-ui, sans-serif;
+  white-space: nowrap; overflow: hidden; height: calc(var(--x-row) - 6px); min-height: 0;
+}
+html.simple #xTog button.on { background: var(--x-ink); color: var(--x-onink); }
+/* Same split as Expert phone portrait: "Progressions" takes the spare room so it is not clipped at 360px. */
+html.simple #xTog button[data-v="song"] { flex: 0.72 1 0; padding: 0 8px; }
+html.simple #xTog button[data-v="prog"] { flex: 1.38 1 0; padding: 0 8px; }
+/* Phone portrait: drop the brand so Song | Progressions fits the existing 44px top bar (no extra row). */
+html.simple.lay-phone-port header.topbar .brand { display: none; }
+
+html.simple.s-src-prog #songBar { display: none !important; }
+html.simple.s-src-song #prog .pg-sel { display: none; }

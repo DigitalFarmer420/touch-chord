@@ -19,6 +19,7 @@ import { songCue, cueSoon, cueClock, cuePieces, placeCueTag, cueChipClass } from
 import { upSym, upSecName } from "../songs/upload.js?v=112.13";
 import { upLyrMap, lyrPad } from "../ui/lyrics.js?v=112.13";
 import { state, shared, fingers, loop, scheduleSave } from "../state.js?v=112.13";
+import { tapSimpleSrc } from "../ui/simplesrc.js?v=112.13";
 import { accSym } from "../theory/spelling.js?v=112.13";
 import { Theory } from "../theory/index.js?v=112.13";
 import { paintKeyChip, keyLabel } from "../ui/keychip.js?v=112.13";
@@ -328,6 +329,7 @@ function paintStyleMore() {
   m.classList.toggle("x-more", m.scrollHeight - m.clientHeight - m.scrollTop > 4);
 }
 function placeTog() {   // landscape: the Song | Progressions toggle sits in the top bar's free middle (iPad landscape mockup)
+  if (state.simple && !active) return;   // Simple owns #xTog while that mode is on (header.topbar)
   var tog = $("xTog"), slot = document.querySelector("#xTop .x-slot");
   if (isLand()) { if (tog.parentNode !== slot) slot.appendChild(tog); }
   else if (tog.parentNode !== $("app")) $("app").insertBefore(tog, $("xGo"));
@@ -656,6 +658,7 @@ function wireAll() {
   $("xPlay").addEventListener("click", function () { click("#prog .pg-song"); schedule(); });
   $("xTog").addEventListener("click", function (e) {
     var b = e.target.closest("button[data-v]"); if (!b) return;
+    if (state.simple) { tapSimpleSrc(b.dataset.v); return; }
     srcDo(b.dataset.v === "song" ? "tapSong" : "tapProg");
   });
   $("xSrc").addEventListener("click", function (e) {
