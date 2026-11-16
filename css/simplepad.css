@@ -58,6 +58,9 @@ html.simple.lay-pad-land #sbLock:not([hidden]), html.simple.lay-pad-port #sbLock
   width: 72px; height: 78px !important; margin-top: 3px; padding: 0; box-sizing: border-box;
   background: #FFFFFF !important; border: 1.5px solid #E2D6C4 !important; color: #2B2118 !important; border-radius: 12px;
   font: 700 13px Nunito, system-ui, sans-serif; box-shadow: none; }
+/* Lamp (PR #5, Uiux): the Day white tile stood out on the dark lyric card; Lamp uses Simple's dark card, line and ink. */
+html.simple:not(.s-day).lay-pad-land #sbLock:not([hidden]), html.simple:not(.s-day).lay-pad-port #sbLock:not([hidden]) {
+  background: var(--x-card) !important; border-color: var(--line) !important; color: var(--x-ink) !important; }
 html.simple.lay-pad-land #sbLock svg, html.simple.lay-pad-port #sbLock svg { display: none; }
 html.simple.lay-pad-land #sbLock::before, html.simple.lay-pad-port #sbLock::before { content: "\1F513"; font-size: 15px; line-height: 1.1; }
 html.simple.lay-pad-land #sbLock[aria-pressed="true"]::before, html.simple.lay-pad-port #sbLock[aria-pressed="true"]::before { content: "\1F512"; }
