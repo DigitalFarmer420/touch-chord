@@ -314,6 +314,11 @@ function fitProgList() {
     L.classList.remove("x-more");
     return;
   }
+  var de = document.documentElement;
+  if (de.classList.contains("lay-pad-land") || de.classList.contains("lay-pad-port")) {   // N13: iPad keeps all the room above the piano (test.6: 326 px at 1180x820); the faded part row shows it scrolls
+    paintProgMore();
+    return;
+  }
   var cs = getComputedStyle(L);
   var padBot = parseFloat(cs.paddingBottom) + parseFloat(cs.borderBottomWidth);
   var rows = L.querySelectorAll(".x-prow");
@@ -326,6 +331,18 @@ function fitProgList() {
   h = lastFit + padBot;
   if (h < 80) h = avail;
   L.style.maxHeight = Math.floor(h) + "px";
+  paintProgMore();
+}
+// N13: when the list opens, the picked row is fully in view and clear of the bottom fade (centred when it was not).
+function showProgPick() {
+  var L = $("xPList"), de = document.documentElement; if (!L || L.hidden) return;
+  if (!de.classList.contains("lay-pad-land") && !de.classList.contains("lay-pad-port")) return;   // phones unchanged
+  var on = L.querySelector(".x-prow.on"); if (!on) return;
+  var lr = L.getBoundingClientRect(), br = on.getBoundingClientRect(), bt = parseFloat(getComputedStyle(L).borderTopWidth) || 0;
+  var top = br.top - lr.top - bt + L.scrollTop, bot = top + br.height;
+  var fade = L.scrollHeight > L.clientHeight + 1 ? 28 : 0;   // the x-more mask is the last 28 px
+  if (top >= L.scrollTop && bot <= L.scrollTop + L.clientHeight - fade) return;
+  L.scrollTop = Math.max(0, Math.min(L.scrollHeight - L.clientHeight, top - (L.clientHeight - br.height) / 2));
   paintProgMore();
 }
 function paintProgMore() {
@@ -488,6 +505,7 @@ function watchMarks() {   // the classic code repaints the keys often (held / nx
 // ---------- Song | Progressions (decision 8) ----------
 function srcDo(a) {
   var r = sourceReduce(src, a, srcCtx());
+  var opened = r.s.listOpen && !src.listOpen;   // N13: this action opens the list
   src = r.s; lastSel = upSelected();
   xLog.src.push((typeof a === "string" ? a : a.type) + ":" + src.view + (src.listOpen ? "+list" : ""));
   if (r.fx === "openLibrary") { closeAll(); click("#uploadBtn"); }
@@ -498,6 +516,7 @@ function srcDo(a) {
   else if ($("xScrim") && !document.documentElement.classList.contains("x-sheet-on")) $("xScrim").hidden = true;
   paintSrc();
   if (src.listOpen) placeSheets();   // after paint: the bar height is final, then the list is sized to sit above the piano
+  if (opened) showProgPick();
 }
 export function sourceState() { return Object.assign({}, src); }
 function paintSrc() {
