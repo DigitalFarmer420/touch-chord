@@ -323,6 +323,24 @@ function progJump(i) {
 
 // v111: where Play starts: the Next walk position, or step 0 when the walk is at / after the end
 export function progPlayStart() { var n = prog.steps.length, p = magic ? magic.pos | 0 : 0; return p > 0 && p < n ? p : 0; }
+// Snapshot of Play-song transport for ?test=1 headless checks (window.__tcTest.transport).
+// There is no pause state yet: a second tap on Play calls progStop, which clears groups
+// and sets cur to -1; si is left as the next-to-schedule index but the next Play ignores
+// it and starts from progPlayStart() (the Next walk position).
+export function getTransportState() {
+  var ctx = ChordAudio && ChordAudio.ctx;
+  return {
+    playing: !!prog.playing,
+    si: prog.si | 0,
+    cur: prog.cur,
+    nextT: prog.nextT || 0,
+    stepCount: prog.steps ? prog.steps.length : 0,
+    ctxState: ctx ? ctx.state : null,
+    currentTime: ctx ? ChordAudio.currentTime() : null,
+    magicPos: magic ? magic.pos | 0 : 0,
+    groups: prog.groups ? prog.groups.length : 0
+  };
+}
 // Loop: its own lookahead scheduler on the Web Audio clock (like the phrase loop's).
 export function progPlay() {
   if (prog.playing) { progStop(); return; }
@@ -388,7 +406,7 @@ function progSchedule(i, t) {
   var tied = !!(prog.lastItem && prog.groups.length && sameChord(prog.lastItem, st.item)) && state.style !== "kids" && !PERCUSSIVE_SOUNDS[state.sound];
   if (!tied) {
     var g = "P" + (++prog.gid);
-    ChordAudio.playChord(g, spec.midis, { bass: spec.bassOut, sound: state.sound, time: t });
+    ChordAudio.playChord(g, spec.midis, { bass: spec.bassOut, sound: state.sound, time: t, step: i });
     prog.groups.forEach(function (o) { ChordAudio.stopChord(o.g, Math.max(t, o.t)); });
     prog.prevG = prog.groups;   // v111 (D4): the chord sounding until t; Stop cuts it now, not at t
     prog.groups = [{ g: g, t: t }];

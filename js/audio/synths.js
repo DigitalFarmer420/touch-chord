@@ -1,5 +1,5 @@
 // Voices: piano, e-piano, strings, pad, reed, bell, and the per-style voices (makeVoice, makeStyleVoice).
-import { REL_TAU, REL_TAU_BASS, TAIL_TAUS, ChordAudio, glide, BASS_PEAK } from "./engine.js?v=112.14";
+import { REL_TAU, REL_TAU_BASS, TAIL_TAUS, ChordAudio, glide, BASS_PEAK, recordEngineNote } from "./engine.js?v=112.14";
 
 // Signal path per voice:
 //   oscs -> filter -> env (attack/decay shape) -> level (velocity) -> gate (release) -> bus
@@ -368,6 +368,10 @@ ChordAudio.prototype.makeVoice = function (spec) {
       if (voice.released || voice.fading) return;
       voice.fading = true;
       var t = ctx.currentTime;
+      if (!voice._noteOffLogged) {
+        voice._noteOffLogged = true;
+        recordEngineNote("off", { t: t, midi: spec.midi, step: spec.step, velocity: spec.velocity == null ? 1 : spec.velocity });
+      }
       try {
         var cur = level.gain.value;
         level.gain.cancelScheduledValues(t);
@@ -386,6 +390,10 @@ ChordAudio.prototype.makeVoice = function (spec) {
       if (voice.released && !(force && voice.relAt != null && t < voice.relAt - 0.002)) return;
       voice.released = true;
       voice.relAt = t;
+      if (!voice._noteOffLogged) {
+        voice._noteOffLogged = true;
+        recordEngineNote("off", { t: t, midi: spec.midi, step: spec.step, velocity: spec.velocity == null ? 1 : spec.velocity });
+      }
       var k = tau || (spec.bass ? REL_TAU_BASS : REL_TAU);
       try {
         gate.gain.cancelScheduledValues(t);
@@ -400,6 +408,7 @@ ChordAudio.prototype.makeVoice = function (spec) {
       voice.done = stopAt + 0.05;
     }
   };
+  recordEngineNote("on", { t: time, midi: spec.midi, step: spec.step, velocity: spec.velocity == null ? 1 : spec.velocity });
   return voice;
 };
 
@@ -437,6 +446,10 @@ function voiceObject(ctx, spec, filter, env, level, gate, oscs, nodes, time, exp
       if (voice.released || voice.fading) return;
       voice.fading = true;
       var t = ctx.currentTime;
+      if (!voice._noteOffLogged) {
+        voice._noteOffLogged = true;
+        recordEngineNote("off", { t: t, midi: spec.midi, step: spec.step, velocity: spec.velocity == null ? 1 : spec.velocity });
+      }
       try {
         var cur = level.gain.value;
         level.gain.cancelScheduledValues(t);
@@ -455,6 +468,10 @@ function voiceObject(ctx, spec, filter, env, level, gate, oscs, nodes, time, exp
       if (voice.released && !(force && voice.relAt != null && t < voice.relAt - 0.002)) return;
       voice.released = true;
       voice.relAt = t;
+      if (!voice._noteOffLogged) {
+        voice._noteOffLogged = true;
+        recordEngineNote("off", { t: t, midi: spec.midi, step: spec.step, velocity: spec.velocity == null ? 1 : spec.velocity });
+      }
       var k = tau || (spec.bass ? REL_TAU_BASS : REL_TAU);
       try {
         gate.gain.cancelScheduledValues(t);
@@ -469,6 +486,7 @@ function voiceObject(ctx, spec, filter, env, level, gate, oscs, nodes, time, exp
       voice.done = stopAt + 0.05;
     }
   };
+  recordEngineNote("on", { t: time, midi: spec.midi, step: spec.step, velocity: spec.velocity == null ? 1 : spec.velocity });
   return voice;
 }
 

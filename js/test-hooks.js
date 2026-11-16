@@ -1,11 +1,12 @@
 // window.__* helpers for the Playwright suites. Loaded only with ?test=1 (dynamic import from main.js).
 import { secLyrics } from "./songs/fullchart.js?v=112.14";
 import { api as ChordAudio } from "./audio/index.js?v=112.14";
+import { attachNoteLog } from "./audio/engine.js?v=112.14";
 import { KIDS_LYRICS } from "./songs/kids-songs.js?v=112.14";
 import { upSave, libSaveErr, libOpen, libSetVer, libDelete } from "./songs/library.js?v=112.14";
 import { progNext, magicReset, magicHome, magicPool } from "./songs/magic.js?v=112.14";
 import { paLog } from "./songs/playalong.js?v=112.14";
-import { magic, progStop, progPlay, prog, PROG_TEST, progSet, applySongKey } from "./songs/playback.js?v=112.14";
+import { magic, progStop, progPlay, prog, PROG_TEST, progSet, applySongKey, getTransportState } from "./songs/playback.js?v=112.14";
 import { PROG_BAR, PROGRESSIONS, progSteps, progNumerals } from "./songs/presets.js?v=112.14";
 import { songTempo, upSelected, upNextStep, progRingSec, progLoopBar, upKeyApply, upSetLock, upPickAlt } from "./songs/song.js?v=112.14";
 import { UP_ARTIST_MAX, UP_SKIP_MAX, UP_LIST_MAX, upListSchemaText, upListSchema13Text, upParseChord, upParseAnswer, upCheck, upSym, upFlagList, upLoadAll, upRemove } from "./songs/upload.js?v=112.14";
@@ -26,6 +27,13 @@ import { paintUpload, upMode, upPromptFor, upShowErrors, upCopyText, upSetPrompt
 
 // Test hooks (loaded only with ?test=1)
 export function install() {
+  var noteLog = [];
+  attachNoteLog(noteLog);
+  window.__tcTest = {
+    noteLog: noteLog,
+    clear: function () { noteLog.length = 0; },
+    transport: function () { return getTransportState(); }
+  };
   if (hapTest) window.__haptic = hapLog;
   if (PROG_TEST) window.__prog = prog;
   if (PROG_TEST) window.__band = ChordAudio.band;
