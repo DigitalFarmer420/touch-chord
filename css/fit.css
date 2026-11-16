@@ -101,13 +101,7 @@ html.lay-pad-land:not(.simple) .key-bar button { height: 40px; min-height: 40px;
 html.lay-pad-land:not(.simple) .pg-btns > .pg-btn.pg-up { height: 34px; min-height: 34px; }
 html.lay-pad-land .vticks { display: none; }
 
-/* #4 iPad Simple: portrait gives the Now card 50 px more (the chord name can grow instead of shrinking to fit; the
-   strip below had an empty bottom band); landscape lets the chord buttons grow into their tall rows (92 -> 112 px). */
-html.simple.lay-pad-port #app { grid-template-rows: auto auto 430px minmax(0, 1fr); }
-html.simple.lay-pad-land .ss .ss-chip { height: min(100%, 112px); }
-html.simple.lay-pad-port .kid-key { --kk-h: 72px; --kk-mh: 48px; }
-html.simple.lay-pad-port .prog .pg-btn { height: 48px; flex-basis: auto; }
-html.simple.lay-pad-port .now-col > .prog .pg-btns { height: auto; }
+/* #4 iPad Simple sizes (rows, key, song picker, Next / Play, chord pads) live in simplepad.css, in fluid units. */
 
 /* #8 type scale floors: the Major/Minor word and the progression numerals never go under 11 px. */
 .kk-mode { font-size: max(var(--fs-xs), calc(var(--kk-mfs, 17px) * var(--tx, 1))); }

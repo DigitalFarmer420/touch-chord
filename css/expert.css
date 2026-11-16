@@ -43,8 +43,10 @@ html.expert.x-types-open #app {
   grid-template-areas: "xtop xtop xtop xtop" "xtog xtog xtog xgo" "now xsrc xsrc xsrc" "grid grid grid grid" "sus sus xctl xctl" "sus sus pal pal" "kb kb kb kb" !important;
 }
 /* iPad portrait (820x1180) */
-html.expert.lay-pad-port #app { --x-g: 10px; --x-now-w: 150px; --x-row: 64px; --x-src-h: 88px; --x-ctl-h: 72px; --x-chip-r: 16px; --x-fs: 21px; --x-pal-h: 140px; --x-grid-h: 400px; padding: 16px 16px 12px !important; }
-html.expert.lay-pad-port.x-types-open #app { --x-grid-h: 380px; }
+/* Fluid (anchored at 820x1180: the values below equal 150 / 72 / 400 / 380 px there). Now column follows the width; the
+   Sustain/Sound/All notes row and the chord grid follow the height, and the keyboard keeps the rest (1fr). */
+html.expert.lay-pad-port #app { --x-g: 10px; --x-now-w: clamp(140px, calc(150 / 820 * 100vw), 220px); --x-row: 64px; --x-src-h: 88px; --x-ctl-h: clamp(56px, calc(72 / 1180 * 100dvh), 96px); --x-chip-r: 16px; --x-fs: 21px; --x-pal-h: 140px; --x-grid-h: clamp(340px, calc(400 / 1180 * 100dvh), 600px); padding: 16px 16px 12px !important; }
+html.expert.lay-pad-port.x-types-open #app { --x-grid-h: clamp(320px, calc(380 / 1180 * 100dvh), 570px); }
 /* Landscape, phone and tablet: the playable chord grid is on the right.
    Sustain and the control column keep their old width, on the left. Not the paused rd18 relayout. */
 html.expert.lay-pad-land #app, html.expert.lay-phone-land #app {
@@ -87,9 +89,10 @@ html.expert #xTop .mode-chip { flex: 0 0 auto; color: var(--x-gold); border-colo
 html.expert #xTop .x-help { flex: 0 0 44px; width: 44px; height: 44px; min-width: 44px; min-height: 44px; align-self: center; border-radius: 50%; padding: 0; display: inline-flex; align-items: center; justify-content: center; }   /* rd7: the same 44px circle as Simple's "?" */
 html.expert #xTop .x-help svg { display: block; }
 html.expert #xTop .x-style.open { border-color: var(--x-gold); color: var(--x-ink); }
-html.expert.lay-pad-port #xTop .x-key, html.expert.lay-pad-land #xTop .x-key { flex-basis: 190px; }
-html.expert.lay-pad-port #xTop .x-style, html.expert.lay-pad-land #xTop .x-style { flex-basis: 170px; }
-html.expert.lay-pad-port #xTop .mode-chip, html.expert.lay-pad-land #xTop .mode-chip { flex-basis: 120px; }
+/* iPad portrait top row, fluid with the width (190 / 170 / 120 px at 820 wide). Landscape sizes are in the large-screen layer. */
+html.expert.lay-pad-port #xTop .x-key { flex-basis: clamp(160px, calc(190 / 820 * 100vw), 260px); }
+html.expert.lay-pad-port #xTop .x-style { flex-basis: clamp(144px, calc(170 / 820 * 100vw), 232px); }
+html.expert.lay-pad-port #xTop .mode-chip { flex-basis: clamp(104px, calc(120 / 820 * 100vw), 164px); }
 html.expert #xTop .x-slot #xTog { flex: 0 1 380px; }
 
 /* ---------- Song | Progressions (decision 8) ---------- */
@@ -506,6 +509,7 @@ html.expert.lay-phone-land #app { --x-side: 148px; --x-sus-h: 56px; --x-src-h: 4
    never slide under the keys (780x360: 96 css, as before). */
 html.expert.lay-phone-land #xCtl { grid-template-rows: minmax(48px, 1fr) minmax(48px, 1fr); }
 html.expert.lay-phone-land #xGo .x-play { width: 40px; }   /* P4 note: keep Play at its old width when the card grows to 46 */
+html.expert.lay-phone-land #xGo > .x-b { height: auto; min-height: 0; align-self: stretch; }   /* Next / Play fill the song-card row: 46 tall at 390+ (were 32), 40 on 330-tall screens */
 @media (max-height: 348px) {   /* 800x330: SUSTAIN stays 48 so two 48 rows still fit */
   html.expert.lay-phone-land #app { --x-sus-h: 48px; --x-src-h: 40px; --x-kb-h: 96px; }
   html.expert.lay-phone-land.x-types-open #app { --x-kb-h: 88px; }
@@ -612,7 +616,9 @@ html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x
     --xl-play-icon: calc(var(--xl-go) * 36 / 90);
     --xl-tog-width: clamp(280px, calc(360 / 1180 * 100vw), 410px);
     --x-row: var(--xl-row); --x-src-h: var(--xl-go);
-    --x-side: 184px; --x-now-w: var(--x-side);
+    --xl-w: calc(100vw / 1180);   /* 1px at the 1180 reference width */
+    --xl-ctl-max: clamp(88px, calc(102.3 / 820 * 100dvh), 150px);   /* Sound / All notes: 102.3 at 820 tall (as approved), never the 306 they reached at 2560x1440 */
+    --x-side: clamp(168px, calc(184 * var(--xl-w)), 260px); --x-now-w: var(--x-side);
     --x-sus-h: clamp(104px, 14vh, 160px);
     --x-kb-h: clamp(264px, 33vh, 400px);
     --x-lh1: 25px; --x-lh2: 20px;
@@ -632,19 +638,22 @@ html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x
   html.expert:is(.lay-pad-land, .lay-pad-port) #xTop .x-style {
     height: var(--xl-row); min-height: 44px; align-self: stretch; box-sizing: border-box;
   }
-  html.expert.lay-pad-land #xTop .x-key { flex: 1 1 200px; max-width: 250px; min-width: 90px; }
-  html.expert.lay-pad-land #xTop .x-style { flex: 1 1 170px; max-width: 220px; min-width: 80px; }
+  html.expert.lay-pad-land #xTop .x-key { flex: 1 1 200px; max-width: clamp(200px, calc(250 * var(--xl-w)), 340px); min-width: 90px; }
+  html.expert.lay-pad-land #xTop .x-style { flex: 1 1 170px; max-width: clamp(176px, calc(220 * var(--xl-w)), 300px); min-width: 80px; }
   html.expert.lay-pad-land #xTop > .x-b,
   html.expert.lay-pad-land #xTop .mode-chip {
     height: var(--xl-row); min-height: 44px; align-self: stretch;
     box-sizing: border-box; font-size: 22px; border-radius: 16px;
   }
-  html.expert.lay-pad-land #xTop .mode-chip { flex: 0 1 132px; min-width: 96px; padding: 0 12px; }
-  html.expert.lay-pad-land #xTop .x-help {
-    flex: 0 0 56px; width: 56px; height: 56px; min-width: 56px; min-height: 56px;
+  html.expert.lay-pad-land #xTop .mode-chip { flex: 0 1 clamp(110px, calc(132 * var(--xl-w)), 180px); min-width: 96px; padding: 0 12px; }
+  /* Help circle follows the row: 56 in a 64 row (landscape), 44 in a 64 row (portrait); never under 44. */
+  html.expert.lay-pad-land #xTop { --xl-help: max(44px, calc(var(--xl-row) * 56 / 64)); }
+  html.expert.lay-pad-port #xTop { --xl-help: max(44px, calc(var(--xl-row) * 44 / 64)); }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xTop .x-help {
+    flex: 0 0 var(--xl-help); width: var(--xl-help); height: var(--xl-help); min-width: var(--xl-help); min-height: var(--xl-help);
     align-self: center; border-radius: 50%;
   }
-  html.expert.lay-pad-land #xTop .x-help svg { width: 26px; height: 26px; }
+  html.expert.lay-pad-land #xTop .x-help svg { width: calc(var(--xl-help) * 26 / 56); height: calc(var(--xl-help) * 26 / 56); }
   html.expert.lay-pad-land #xTop .x-slot { flex: 1 1 0; min-width: 280px; }
   html.expert.lay-pad-land #xTop .x-slot #xTog { flex: 0 1 var(--xl-tog-width); }
   html.expert:is(.lay-pad-land, .lay-pad-port) #xTog {
@@ -678,6 +687,9 @@ html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x
   html.expert:is(.lay-pad-land, .lay-pad-port) #xCtl .x-sound { order: 1; }
   html.expert:is(.lay-pad-land, .lay-pad-port) #xCtl .x-full { order: 2; }
   html.expert.lay-pad-land #xCtl { flex-flow: column nowrap; align-content: stretch; }
+  /* Sustain takes the left column's spare height; the Sound / All notes row grows only to 2 x --xl-ctl-max
+     (fixed-limit tracks are filled before the 1fr track, so at 1180x820 the rows stay 115 / 214). */
+  html.expert.lay-pad-land #app { grid-template-rows: var(--x-row) var(--x-src-h) minmax(var(--x-sus-h), 1fr) minmax(0, calc(2 * var(--xl-ctl-max) + var(--x-g))) var(--x-kb-h) !important; }
   html.expert.lay-pad-land #xCtl .x-full,
   html.expert.lay-pad-land #xCtl .x-sound {
     flex: 1 1 0; height: auto; min-height: 56px; width: 100%; font-size: 18px;

@@ -92,6 +92,11 @@ function fitProgName() {
     t.appendChild(a);
     // Simple (for kids): the name only, no numerals.
     if (!state.simple) { var b = document.createElement("span"); b.className = "pg-num"; b.textContent = L.num; t.appendChild(b); }
+    // Simple, wide picker (iPad / desktop): a long name shrinks (0.5 px steps, down to 13 px) before it ellipsizes.
+    if (state.simple && a.scrollWidth > a.clientWidth + 0.5) {
+      var fw = parseFloat(getComputedStyle(a).fontSize) || 22;
+      for (var fz = fw - 0.5; ; fz -= 0.5) { fz = Math.max(13, fz); t.style.fontSize = fz + "px"; if (a.scrollWidth <= a.clientWidth || fz === 13) break; }
+    }
   } else {
     t.textContent = L.feel;
     t.style.whiteSpace = "nowrap";
