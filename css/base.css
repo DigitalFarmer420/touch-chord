@@ -34,11 +34,11 @@
   --lk-fff6e8: #fff6e8;
   --lk-000000-45: rgba(0, 0, 0, 0.45);
   --lk-e2b15a: #e2b15a;
-  --lk-8a7bc0: #8a7bc0;
+  --lk-8a7bc0: #725FB3; /* was #8a7bc0; .kk-mode.minor fill, #f7f3ff reaches 4.80:1 */
   --lk-c4923e: #c4923e;
   --lk-2a1c0c: #2a1c0c;
-  --lk-7d6ea8: #7d6ea8;
-  --lk-6a5c96: #6a5c96;
+  --lk-7d6ea8: #7261A0; /* was #7d6ea8; minor chip fill, #f7f3ff reaches 4.89:1 */
+  --lk-6a5c96: #685994; /* was #6a5c96; minor chip edge, one step darker than the new fill */
   --lk-f7f3ff: #f7f3ff;
   --lk-2a1f45: #2a1f45;
   --lk-4a3a72: #4a3a72;

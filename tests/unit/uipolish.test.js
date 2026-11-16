@@ -136,8 +136,12 @@ test('P1-P7: the spec\'s CSS values', () => {
   assert.match(tail, /\.x-lock::after \{[^}]*width: max\(100%, 48px\); height: max\(100%, 48px\)/);
   assert.match(tail, /html\.expert \.x-lock \{ width: 52px;/); assert.match(tail, /lay-phone-land \.x-lock \{ width: 48px;/);
   assert.match(tail, /\.ss-chip\.borrowed \{ background: rgba\(163, 75, 28, \.07\); border: 1\.5px solid/);
-  assert.match(tail, /\.pad\.white\.nokey \{ background: #E0D8CE; color: #806F5D;/);
-  assert.match(tail, /\.pad\.black\.nokey \{ background: #4A4036; color: #A89884; border-color: #A34B1C; box-shadow: none !important; \}/);
+  assert.match(CSS, /--x-wkey-nokey: #E0D8CE;/);
+  assert.match(CSS, /--x-wkey-nokey-ink: #6B543E;/);
+  assert.match(CSS, /--x-bkey-nokey: #4A4036;/);
+  assert.match(CSS, /--x-bkey-nokey-ink: #D7C4AE;/);
+  assert.match(tail, /\.pad\.white\.nokey \{ background: var\(--x-wkey-nokey\); color: var\(--x-wkey-nokey-ink\);/);
+  assert.match(tail, /\.pad\.black\.nokey \{ background: var\(--x-bkey-nokey\); color: var\(--x-bkey-nokey-ink\); border-color: #A34B1C; box-shadow: none !important; \}/);
   assert.doesNotMatch(tailRules, /env\(safe-area/, 'P2: no new env() padding (native padding is the only inset source)');
 });
 test('P10: the boot background is the splash colour', () => {

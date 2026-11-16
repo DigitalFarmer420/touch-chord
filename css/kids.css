@@ -6,7 +6,7 @@ html.kv, html.kv body { background: var(--kv-bg, #FFF6E6); }
 .kv[hidden], .kv [hidden] { display: none !important; }
 .kv {
   --bg: #FFF6E6; --surface: #FFFFFF; --card: #FFEED3; --ink: #3B2A1A; --muted: #86705A; --line: #EBD9BC;
-  --gold: #FFC21A; --gold-deep: #E39A00; --next: #2F8F83; --next-deep: #21665E;
+  --gold: #FFC21A; --gold-deep: #E39A00; --next: #2A8075; --next-deep: #21665E;
   --happy: #7FD3B5; --sad: #9AAAD6; --danger: #C8553D; --wkey: #FFFDF8; --kbody: #3B2A1A; --kbk: #3B2A1A; --kbk-edge: #574432;
   --C: #EF8A7E; --D: #F2A0C4; --E: #B9A3E8; --F: #8EC5F0; --G: #7FD3B5; --A: #A8D47E; --B: #D8A47F;
   --lit: #CFEFE6;
