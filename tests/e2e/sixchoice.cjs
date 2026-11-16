@@ -96,7 +96,7 @@ async function main() {
   out.settings = { title: ver.title, sheet, badge: ver.badge };
   check(ver.title === "Touch Chord", "title " + ver.title);
   check(!ver.badge && !sheet.badge, "floating badge present");
-  check(sheet.ver && sheet.ver.indexOf("Version") >= 0 && sheet.ver.indexOf("RC testing") >= 0, "settings version " + sheet.ver);
+  check(sheet.ver && sheet.ver.indexOf("Version") >= 0 && sheet.ver.indexOf("Build") >= 0 && sheet.ver.indexOf("RC testing") < 0, "settings version " + sheet.ver);
 
   for (const style of ADULT) {
     await setStyle(page, style);

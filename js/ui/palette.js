@@ -1,9 +1,9 @@
 // Chord types / extensions palette holds.
-import { keyRootSpell, modeKey, keyDegrees } from "../keys.js?v=112.13";
-import { state, shared } from "../state.js?v=112.13";
-import { Theory } from "../theory/index.js?v=112.13";
-import { releaseFingers, liftFinger, refreshHeld, restoreKeyQuality } from "./pads.js?v=112.13";
-import { clearStripExt } from "./strip.js?v=112.13";
+import { keyRootSpell, modeKey, keyDegrees } from "../keys.js?v=112.14";
+import { state, shared } from "../state.js?v=112.14";
+import { Theory } from "../theory/index.js?v=112.14";
+import { releaseFingers, liftFinger, refreshHeld, restoreKeyQuality } from "./pads.js?v=112.14";
+import { clearStripExt } from "./strip.js?v=112.14";
 
 export function typeHeld(name) {
   for (var id in shared.paletteHolds) {
