@@ -634,7 +634,10 @@ export function paint() {
   var fs = $("xFull").querySelector(".x-fsub"), ft = state.allKeys ? "all 12" : "in key only";
   if (fs.textContent !== ft) { fs.textContent = ft; $("xFull").setAttribute("aria-label", "All notes: " + ft); }
   var ps = document.querySelector("#prog .pg-song"), pon = !!(ps && ps.classList.contains("on"));
-  $("xPlay").textContent = pon ? "\u25a0" : "\u25b6"; $("xPlay").setAttribute("aria-pressed", pon ? "true" : "false"); $("xPlay").setAttribute("aria-label", pon ? "Stop song" : "Play song");
+  // Phones follow the transport rule (Vinh): Play stays ▶ while a song plays, never ■ Stop.
+  // aria-pressed / aria-label still reflect Stop so assistive tech hears the state. iPad and desktop are unchanged.
+  var phonePlay = document.documentElement.classList.contains("lay-phone-port") || document.documentElement.classList.contains("lay-phone-land");
+  $("xPlay").textContent = (pon && !phonePlay) ? "\u25a0" : "\u25b6"; $("xPlay").setAttribute("aria-pressed", pon ? "true" : "false"); $("xPlay").setAttribute("aria-label", pon ? "Stop song" : "Play song");
   var v = $("volume"); if (v) { $("xVol").value = v.value; $("xVolVal").textContent = v.value; }
   paintType();
   paintSrc();
