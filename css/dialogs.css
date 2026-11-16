@@ -217,6 +217,8 @@ html.lay-pad-land:not(.simple) .now-col > .prog .pg-btn.pg-step, html.lay-pad-po
 /* v104.1: Next and Play split the whole transport row (no side gaps), same height as v103 */
 html.lay-phone-port:not(.simple) .pg-btns > .pg-btn.pg-step, html.lay-phone-port:not(.simple) .pg-btns > .pg-btn.pg-song,
 html.lay-phone-land:not(.simple) .pg-btns > .pg-btn.pg-step, html.lay-phone-land:not(.simple) .pg-btns > .pg-btn.pg-song { flex: 1 1 0; width: auto; min-width: 0; }
+/* Simple's phone play-next is teal (#2A8075, same as Expert --x-next). Play-stays-▶ is global (css/modes.css, js/ui/progbar.js). */
+html.simple.lay-phone-port #prog .pg-step, html.simple.lay-phone-land #prog .pg-step { background: #2A8075; border-color: #2A8075; color: #FFFFFF; }
 /* v105 Upload, list-first: form (title/album, artist, Simple/Full, Copy for AI, paste, Load, results), then My songs.
    Each row: open (play) | pencil (details) | trash. Details sit under the row in a copper box. */
 .up-cols { display: flex; flex-direction: column; gap: 8px; min-width: 0; }

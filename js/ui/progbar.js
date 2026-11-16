@@ -1,15 +1,15 @@
 // Progression picker (#prog): placement, name fitting, Play / Next wiring.
-import { unlock } from "../audio/unlock.js?v=112.13";
-import { paintLoop } from "../loop.js?v=112.13";
-import { progNext } from "../songs/magic.js?v=112.13";
-import { progPlay, prog, progSet } from "../songs/playback.js?v=112.13";
-import { progFeel, progSteps, progNumerals } from "../songs/presets.js?v=112.13";
-import { state } from "../state.js?v=112.13";
-import { simpleProgStepIndex } from "./simplesrc.js?v=112.13";
+import { unlock } from "../audio/unlock.js?v=112.14";
+import { paintLoop } from "../loop.js?v=112.14";
+import { progNext } from "../songs/magic.js?v=112.14";
+import { progPlay, prog, progSet } from "../songs/playback.js?v=112.14";
+import { progFeel, progSteps, progNumerals } from "../songs/presets.js?v=112.14";
+import { state } from "../state.js?v=112.14";
+import { simpleProgStepIndex } from "./simplesrc.js?v=112.14";
 
 // The picker: Simple = friendly name in the left column under Major / Minor; full mode =
 // the numerals in a cycler by the style row (phone landscape: top of the Now column; other
-// layouts: the top bar). Play/Stop sits inside it; full mode adds Next.
+// layouts: the top bar). Play sits inside it; full mode adds Next.
 export function placeProg() {
   var el = document.getElementById("prog");
   if (!el) return;
@@ -44,19 +44,20 @@ export function paintProg() {
   sel.setAttribute("aria-valuemax", String(Math.max(0, prog.list.length - 1)));
   sel.setAttribute("aria-valuetext", name + " (" + prog.steps.map(function (s) { return s.roman; }).join(" ") + ")");
   sel.title = name + ": " + prog.steps.map(function (s) { return s.roman; }).join(" ");
-  var ps = el.querySelector(".pg-song"), pon = !!prog.playing;   // v74: Play song shows Stop while the pass / random tail runs
+  var ps = el.querySelector(".pg-song"), pon = !!prog.playing;   // Play stays ▶ while a song plays (never ■ Stop). aria-label still says "Stop song".
   if (ps && PROG_PLAY_SVG && ps._on !== pon) {
     ps._on = pon;
-    ps.innerHTML = pon ? PROG_STOP_SVG : PROG_PLAY_SVG;
+    if (!ps.querySelector("path") || ps.querySelector("rect")) ps.innerHTML = PROG_PLAY_SVG;
     ps.classList.toggle("on", pon);
-    ps.setAttribute("aria-pressed", pon ? "true" : "false");
+    ps.removeAttribute("aria-pressed");
     ps.setAttribute("aria-label", pon ? "Stop song" : "Play song");
     ps.title = pon ? "Stop" : "Play song: the whole song / progression, over and over";
+  } else if (ps && ps.hasAttribute("aria-pressed")) {
+    ps.removeAttribute("aria-pressed");
   }
   fitProgName();
 }
 const PROG_PLAY_SVG = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 4.5v15l12.5-7.5z\" fill=\"currentColor\"/></svg>";
-const PROG_STOP_SVG = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"6\" y=\"6\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"currentColor\"/></svg>";
 // Name fits its box: shrink the font (not below 9 px full / 11 px Simple), up to 2 lines.
 // True when a word of the label would have to break (a word wider than the name box).
 function splitWord() {

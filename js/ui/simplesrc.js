@@ -2,10 +2,10 @@
 // sourceInit / sourceReduce (decision 8) in a separate in-memory instance:
 // Expert does not persist the tab, so Simple does not either, and the two
 // modes do not share the selection.
-import { sourceInit, sourceReduce } from "../expert/model.js?v=112.13";
-import { placeBadges, prog, progSet } from "../songs/playback.js?v=112.13";
-import { upSelected } from "../songs/song.js?v=112.13";
-import { shared, state } from "../state.js?v=112.13";
+import { sourceInit, sourceReduce } from "../expert/model.js?v=112.14";
+import { placeBadges, prog, progSet } from "../songs/playback.js?v=112.14";
+import { upSelected } from "../songs/song.js?v=112.14";
+import { shared, state } from "../state.js?v=112.14";
 
 var src = null, lastSel = false, lastProg = 0, after = function () {};
 

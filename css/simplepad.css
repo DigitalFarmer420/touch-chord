@@ -65,8 +65,8 @@ html.simple.lay-pad-land #sbLock svg, html.simple.lay-pad-port #sbLock svg { dis
 html.simple.lay-pad-land #sbLock::before, html.simple.lay-pad-port #sbLock::before { content: "\1F513"; font-size: 15px; line-height: 1.1; }
 html.simple.lay-pad-land #sbLock[aria-pressed="true"]::before, html.simple.lay-pad-port #sbLock[aria-pressed="true"]::before { content: "\1F512"; }
 
-/* ▶| play-next: Expert's skip-next glyph, teal fill (#2F8F83, Expert's --x-next), white icon. */
-html.simple.lay-pad-land #prog .pg-step, html.simple.lay-pad-port #prog .pg-step { background: #2F8F83; border-color: #2F8F83; color: #FFFFFF; }
+/* ▶| play-next: Expert's skip-next glyph, teal fill (#2A8075, Expert's --x-next since #10), white icon. */
+html.simple.lay-pad-land #prog .pg-step, html.simple.lay-pad-port #prog .pg-step { background: #2A8075; border-color: #2A8075; color: #FFFFFF; }
 html.simple.lay-pad-land #prog .pg-step svg { width: calc(40 * var(--sh)); height: calc(40 * var(--sh)); margin: calc(-3.5 * var(--sh)); }
 html.simple.lay-pad-land #prog .pg-song svg { width: calc(33 * var(--sh)); height: calc(33 * var(--sh)); }
 /* Play stays white with a ▶ while the song plays (never the copper Stop square). The button still stops the song on a

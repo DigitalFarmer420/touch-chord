@@ -6,7 +6,7 @@ html.kv, html.kv body { background: var(--kv-bg, #FFF6E6); }
 .kv[hidden], .kv [hidden] { display: none !important; }
 .kv {
   --bg: #FFF6E6; --surface: #FFFFFF; --card: #FFEED3; --ink: #3B2A1A; --muted: #86705A; --line: #EBD9BC;
-  --gold: #FFC21A; --gold-deep: #E39A00; --next: #2F8F83; --next-deep: #21665E;
+  --gold: #FFC21A; --gold-deep: #E39A00; --next: #2A8075; --next-deep: #21665E;
   --happy: #7FD3B5; --sad: #9AAAD6; --danger: #C8553D; --wkey: #FFFDF8; --kbody: #3B2A1A; --kbk: #3B2A1A; --kbk-edge: #574432;
   --C: #EF8A7E; --D: #F2A0C4; --E: #B9A3E8; --F: #8EC5F0; --G: #7FD3B5; --A: #A8D47E; --B: #D8A47F;
   --lit: #CFEFE6;
@@ -92,8 +92,8 @@ html.kv-lamp .kv { --upc: #CDBFA8; }
 .kv-ctl { display: flex; gap: 10px; height: 80px; margin-top: 18px; }
 .kv-playbtn { width: 80px; height: 80px; flex: none; border-radius: 50%; background: var(--surface); border: 4px solid var(--next); display: flex; align-items: center; justify-content: center; padding: 0; }
 .kv-playbtn .kv-tri { width: 0; height: 0; border-left: 24px solid var(--next); border-top: 15px solid transparent; border-bottom: 15px solid transparent; margin-left: 6px; }
-.kv-playbtn.on { background: var(--surface); }
-.kv-playbtn.on .kv-tri { border: none; width: 22px; height: 22px; margin: 0; background: var(--next); border-radius: 4px; }
+/* Play stays its idle ▶ while a song plays (never the ■ Stop), at every size. */
+.kv-playbtn.on { background: var(--surface); border-color: var(--next); }
 .kv-next { flex: 1; border-radius: 26px; border: none; background: var(--next); color: #fff; font-size: 40px; box-shadow: inset 0 -7px 0 var(--next-deep); display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0; }
 .kv-next:active, .kv-playbtn:active { transform: translateY(2px); }
 .kv-arrow { line-height: 1; }

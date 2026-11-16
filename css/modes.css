@@ -623,7 +623,9 @@ html:not(.simple) .now-col > .now-mix { order: 1; }   /* full mode orders the co
 .now-mix > .now-vol .pg-vol svg { display: block; width: 15px; height: 15px; }
 html.lay-phone-land .now-mix > .now-vol, html.lay-phone-port:not(.simple) .now-mix > .now-vol { height: 16px; min-height: 16px; }
 html.lay-phone-land .now-mix > .now-vol .pg-vol svg, html.lay-phone-port:not(.simple) .now-mix > .now-vol .pg-vol svg { width: 12px; height: 12px; }
-.pg-btn.pg-song.on { background: var(--copper); color: var(--lk-1a1209); border-color: var(--copper-b); }
+/* Play stays its idle colours with a ▶ while a song plays (never the copper ■ Stop), at every size. */
+.pg-btn.pg-song.on { background: var(--bg-2); color: var(--copper-t); border-color: var(--line); }
+html.s-day .pg-btn.pg-song.on { border-color: var(--edge); }   /* as simpleday.css's idle buttons */
 
 /* v71 Kids next-note hint on the seven pads (both modes) */
 #suggest.kids1 .ss-kidpad { position: relative; overflow: visible; }
