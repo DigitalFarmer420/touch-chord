@@ -56,26 +56,32 @@ test('CSS: Simple #xTog uses --x-row / --x-fs on phones; lyrics hidden in Progre
   assert.doesNotMatch(css, /s-src-song #prog \.pg-sel/);   // the picker (with the song name) stays in Song view
 });
 
-test('Simple source switch: Progressions picks a style progression, Song picks the uploaded song', () => {
+test('Simple source switch (N11): Progressions keeps the selection, Song picks the uploaded song', () => {
   const list = [
     { name: 'I V vi IV', up: false },
     { name: 'vi IV I V', up: false },
     { name: 'Anh Đã Ổn Hơn', up: true },
   ];
-  // From the song, Progressions lands on the first style row (or lastProg if remembered).
-  assert.equal(S.simpleSourceIndex('prog', list, 2, 0), 0);
-  assert.equal(S.simpleSourceIndex('prog', list, 2, 1), 1);
-  // Already on a style progression: stay there.
-  assert.equal(S.simpleSourceIndex('prog', list, 1, 0), 1);
+  // Like Expert: tapping Progressions never re-picks a row, so the song keeps its step and Play.
+  assert.equal(S.simpleSourceIndex('prog', list, 2), 2);
+  assert.equal(S.simpleSourceIndex('prog', list, 1), 1);
   // Song view always returns to the uploaded song.
-  assert.equal(S.simpleSourceIndex('song', list, 0, 1), 2);
-  assert.equal(S.simpleSourceIndex('song', list, 2, 0), 2);
-  // No song in the list: Song view leaves the current row alone.
+  assert.equal(S.simpleSourceIndex('song', list, 0), 2);
+  assert.equal(S.simpleSourceIndex('song', list, 2), 2);
+  // No song in the list: both views leave the current row alone.
   const noSong = [{ name: 'I V vi IV' }, { name: 'vi IV I V' }];
-  assert.equal(S.simpleSourceIndex('song', noSong, 1, 0), 1);
-  assert.equal(S.simpleSourceIndex('prog', noSong, 1, 0), 1);
-  // lastProg pointing at the song is ignored.
-  assert.equal(S.simpleSourceIndex('prog', list, 2, 2), 0);
+  assert.equal(S.simpleSourceIndex('song', noSong, 1), 1);
+  assert.equal(S.simpleSourceIndex('prog', noSong, 1), 1);
+});
+
+test('Simple toggle (N11): the song walk is saved before a pick and restored on Song', () => {
+  const tap = srcJs.slice(srcJs.indexOf('export function tapSimpleSrc'), srcJs.indexOf('export function bootSimpleSrc'));
+  // No progSet on the tapProg path: only fx pick / selectSong touch the selection.
+  assert.doesNotMatch(tap, /lastProg/);
+  assert.match(tap, /function selectSong\(\) \{[\s\S]*progSet\(i\);\s*if \(songWalk\) progWalkTo\(songWalk\);/);
+  assert.match(srcJs, /export function noteSimpleSongWalk\(\) \{\s*if \(!simpleOn\(\) \|\| !upSelected\(\)\) return;\s*songWalk = progWalkAt\(\);/);
+  const pb = readFileSync(new URL('js/ui/progbar.js', R), 'utf8');
+  assert.match(pb, /noteSimpleSongWalk\(\);[^\n]*\n\s*progSet\(next\);/);
 });
 
 test('Simple Progressions stepping skips the uploaded song', () => {

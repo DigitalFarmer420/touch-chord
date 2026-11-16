@@ -2,12 +2,15 @@
 // sourceInit / sourceReduce (decision 8) in a separate in-memory instance:
 // Expert does not persist the tab, so Simple does not either, and the two
 // modes do not share the selection.
+// N11/N12 (PR #5): like Expert, tapping Progressions only switches the view. The song stays selected (its step and
+// Play are kept) until a progression is picked with the picker arrows. The song's walk position is saved when the
+// picker leaves the song and restored when Song re-selects it, separately from any progression's own state.
 import { sourceInit, sourceReduce } from "../expert/model.js?v=112.14";
-import { placeBadges, prog, progSet } from "../songs/playback.js?v=112.14";
+import { placeBadges, prog, progSet, progWalkAt, progWalkTo } from "../songs/playback.js?v=112.14";
 import { upSelected } from "../songs/song.js?v=112.14";
 import { shared, state } from "../state.js?v=112.14";
 
-var src = null, lastSel = false, lastProg = 0, after = function () {};
+var src = null, lastSel = false, songWalk = null, after = function () {};
 
 function $(id) { return document.getElementById(id); }
 function srcCtx() { return { hasSong: !!shared.U, songSelected: upSelected() }; }
@@ -23,29 +26,15 @@ export function simpleSourceChrome(view, songSelected) {
 }
 
 // Pure: which list index Simple should select for the current tab.
-// Song view stays on the uploaded song; Progressions view stays on a style
-// progression (the last one if the current row is the song). Expert's
-// sourceReduce leaves the song selected until a progression is picked, but
-// Simple's #prog picker always shows prog.list[prog.idx], so we switch here.
-export function simpleSourceIndex(view, list, curIdx, lastProg) {
+// Song view selects the uploaded song. Progressions view keeps the current selection, as Expert's sourceReduce does
+// (the song keeps its step and keeps playing until a progression is picked with the picker arrows), so the toggle
+// never re-picks a progression on its own (N11).
+export function simpleSourceIndex(view, list, curIdx) {
   list = list || [];
-  function firstStyle() {
-    for (var i = 0; i < list.length; i++) if (list[i] && !list[i].up) return i;
-    return curIdx;
-  }
-  function songIdx() {
-    for (var i = 0; i < list.length; i++) if (list[i] && list[i].up) return i;
-    return -1;
-  }
   if (view === "song") {
-    var s = songIdx();
-    return s >= 0 ? s : curIdx;
+    for (var i = 0; i < list.length; i++) if (list[i] && list[i].up) return i;
   }
-  var cur = list[curIdx];
-  if (cur && !cur.up) return curIdx;
-  var lp = list[lastProg];
-  if (lp && !lp.up) return lastProg;
-  return firstStyle();
+  return curIdx;
 }
 
 // Pure: next/prev index in Progressions view, skipping the uploaded song.
@@ -60,7 +49,13 @@ export function simpleProgStepIndex(list, from, dir) {
   return from;
 }
 
-export function simpleSrcState() { return src ? { view: src.view, listOpen: src.listOpen } : null; }
+export function simpleSrcState() { return src ? { view: src.view, listOpen: src.listOpen, songWalk: songWalk } : null; }
+// Called by the picker (progbar.js) right before it changes the selection: if the song is selected, save its walk
+// position so tapping Song brings it back at the same step (N11). Simple only.
+export function noteSimpleSongWalk() {
+  if (!simpleOn() || !upSelected()) return;
+  songWalk = progWalkAt();
+}
 export function setSimpleSrcAfter(fn) { after = fn || function () {}; }
 
 export function placeSimpleTog() {
@@ -89,18 +84,25 @@ export function paintSimpleSrc() {
 export function tapSimpleSrc(v) {
   if (!simpleOn()) return;
   if (!src) src = sourceInit(srcCtx());
-  if (src.view === "prog" && prog.list[prog.idx] && !prog.list[prog.idx].up) lastProg = prog.idx;
   var r = sourceReduce(src, v === "song" ? "tapSong" : "tapProg", srcCtx());
   src = r.s;
   if (r.fx === "openLibrary") click("#uploadBtn");
-  else if (r.fx === "selectSong") { for (var i = 0; i < prog.list.length; i++) if (prog.list[i].up) { progSet(i); break; } }
+  else if (r.fx === "selectSong") selectSong();
   else if (r.fx && r.fx.pick != null) progSet(r.fx.pick);
-  var want = simpleSourceIndex(src.view, prog.list, prog.idx, lastProg);
-  if (want != null && want !== prog.idx) progSet(want);
-  if (src.view === "prog" && prog.list[prog.idx] && !prog.list[prog.idx].up) lastProg = prog.idx;
+  var want = simpleSourceIndex(src.view, prog.list, prog.idx);
+  if (want != null && want !== prog.idx) selectSong();
   lastSel = upSelected();
   paintSimpleSrc();
   after();
+}
+// Back to the song after a progression was picked: re-select it and put its walk back where it was.
+function selectSong() {
+  for (var i = 0; i < prog.list.length; i++) if (prog.list[i].up) {
+    progSet(i);
+    if (songWalk) progWalkTo(songWalk);
+    break;
+  }
+  songWalk = null;
 }
 
 export function bootSimpleSrc() {

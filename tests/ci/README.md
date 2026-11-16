@@ -29,4 +29,6 @@ A failing check saves `tests/ci/out/<name>.png` before the process exits. The wo
 
 The Song | Progressions walk is skipped (`FIXME`) while the toggle bug on develop / PR #5 is open. In GitHub Actions that line is a `::warning::` on the smoke job. `TOGGLE_FIXME=0 node tests/ci/smoke.mjs` runs the walk and fails the process if the toggle is missing, zero-sized, off-screen, or covering a chord pad. `placeSimpleTog` is optional in the unit test: absent on develop, and a function when `js/ui/simplesrc.js` is in the tree. The walk still owns the on-screen behaviour.
 
+The `simple toggle keeps song step` check (390x844 and 1180x820, always on) loads `tests/fixtures/upload/anh-v13.json`, switches to Simple, taps Next five times, then Progressions, Song and Next, and expects the 6th step. It also taps Progressions and Song during Play and expects Play to keep running. A build with no Simple toggle reports it as `FIXME` instead of failing.
+
 Not covered here: a real iPhone or Android device, audio you can hear, and loading the page with no network.
