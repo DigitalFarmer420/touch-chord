@@ -1,11 +1,14 @@
 name: pr-checks
 
-# Gate for every pull request into develop. Static site: no build.
-# The older tests.yml workflow (main / dev / modular) is left as it is.
+# Gate for pull requests into develop, and for a develop -> main release candidate.
+# Static site: no build.
 on:
   pull_request:
-    branches: [develop]
+    branches: [develop, main]
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: pr-checks-${{ github.ref }}
@@ -18,10 +21,11 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
       - name: Unit tests
         run: node --test tests/unit/*.test.js
 
@@ -31,6 +35,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
@@ -43,17 +49,19 @@ jobs:
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-      - run: npm install --no-audit --no-fund
+      - run: npm ci
       - name: Cache Playwright browsers
         id: pwcache
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: pw-${{ runner.os }}-playwright-core-1.64.0
+          key: pw-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Install Chromium
         if: steps.pwcache.outputs.cache-hit != 'true'
         run: npx playwright-core install --with-deps chromium
@@ -61,5 +69,13 @@ jobs:
         if: steps.pwcache.outputs.cache-hit == 'true'
         run: npx playwright-core install-deps chromium
       # tests/ci/smoke.mjs serves the repo root itself (static, no build) and runs the checks.
+      # A failing check writes tests/ci/out/<name>.png before the process exits.
       - name: Smoke tests
         run: node tests/ci/smoke.mjs
+      - name: Upload smoke screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-screenshots
+          path: tests/ci/out/
+          if-no-files-found: ignore

@@ -1,8 +1,8 @@
 // CI regression checks for pull requests into develop. Each case calls the real modules in js/.
-// Simple's Song | Progressions placement (placeSimpleTog in js/ui/simplesrc.js) is not in this
-// revision: that file arrives with the open toggle work (PR #5). The state machine both modes
-// use is sourceReduce, tested here. Where the toggle sits after a mode switch is a DOM question,
-// so tests/ci/smoke.mjs covers it.
+// The Song | Progressions state machine both modes use is sourceReduce, tested here.
+// placeSimpleTog (js/ui/simplesrc.js) is absent on develop and present on the toggle branch.
+// This file only checks that the export is a function when the module is there. Where the
+// toggle sits after a mode switch is a DOM question, so tests/ci/smoke.mjs covers it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
@@ -92,12 +92,16 @@ test('Song | Progressions: a pick folds the list, and sync follows a song loaded
   assert.equal(reduce({ view: 'song', listOpen: false }, 'sync', { hasSong: true, songSelected: false }).s.view, 'prog');
   assert.equal(reduce({ view: 'song', listOpen: false }, 'close', {}).s.listOpen, false);
 });
-test('Expert #xTog is wired to that reducer; Simple has no placement module on this revision', () => {
+test('Expert #xTog is wired to that reducer; placeSimpleTog is a function when the module is present', async () => {
   const ui = readFileSync(new URL('js/expert/ui.js', R), 'utf8');
   assert.match(ui, /\$\("xTog"\)\.addEventListener\("click"/);
   assert.match(ui, /srcDo\(b\.dataset\.v === "song" \? "tapSong" : "tapProg"\)/);
   assert.match(ui, /function srcDo\(a\) \{\n  var r = sourceReduce\(src, a, srcCtx\(\)\);/);
-  assert.equal(existsSync(new URL('js/ui/simplesrc.js', R)), false, 'placeSimpleTog is not on develop; the smoke step checks the toggle box');
+  // Absent on develop. Present on the toggle branch (PR #5). The smoke walk checks the box.
+  const srcFile = new URL('js/ui/simplesrc.js', R);
+  if (!existsSync(srcFile)) return;
+  const mod = await import(`../../js/ui/simplesrc.js?v=${V}`);
+  assert.equal(typeof mod.placeSimpleTog, 'function');
 });
 
 // ---------- locked transpose of anh-v13 ----------

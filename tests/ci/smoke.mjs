@@ -13,13 +13,14 @@
 // still fails the run. Every other check fails the process.
 
 import { createServer } from 'node:http';
-import { readFileSync, existsSync, statSync, createReadStream } from 'node:fs';
+import { mkdirSync, existsSync, statSync, createReadStream } from 'node:fs';
 import { dirname, extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '../..');
-const PORT = +(process.env.PORT || 8091);
+const SHOTS = join(ROOT, 'tests/ci/out');
+const PREFERRED_PORT = process.env.PORT ? +process.env.PORT : 8091;
 // Known open bug: develop / PR #5. The walk is skipped so this gate stays green; the
 // reason is printed and written into the PR. Set TOGGLE_FIXME=0 to run it for real.
 const TOGGLE_FIXME = process.env.TOGGLE_FIXME !== '0';
@@ -37,23 +38,42 @@ const MIME = {
   '.webmanifest': 'application/manifest+json'
 };
 
-function serve() {
-  return new Promise(resolve => {
-    const srv = createServer((q, res) => {
-      const path = decodeURIComponent((q.url || '/').split('?')[0]);
-      const rel = path === '/' ? 'index.html' : path.replace(/^\/+/, '');
-      const file = normalize(join(ROOT, rel));
-      if (!file.startsWith(ROOT) || !existsSync(file) || statSync(file).isDirectory()) {
-        res.writeHead(404); res.end(); return;
-      }
-      res.writeHead(200, { 'Content-Type': MIME[extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-store' });
-      createReadStream(file).pipe(res);
-    });
-    srv.listen(PORT, '127.0.0.1', () => resolve(srv));
+function onRequest(q, res) {
+  const path = decodeURIComponent((q.url || '/').split('?')[0]);
+  const rel = path === '/' ? 'index.html' : path.replace(/^\/+/, '');
+  const file = normalize(join(ROOT, rel));
+  if (!file.startsWith(ROOT) || !existsSync(file) || statSync(file).isDirectory()) {
+    res.writeHead(404); res.end(); return;
+  }
+  res.writeHead(200, { 'Content-Type': MIME[extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-store' });
+  createReadStream(file).pipe(res);
+}
+function listen(port) {
+  return new Promise((resolve, reject) => {
+    const srv = createServer(onRequest);
+    srv.once('error', (err) => { srv.close(() => reject(err)); });
+    srv.listen(port, '127.0.0.1', () => resolve(srv));
   });
 }
+// PORT set: that port, or a clear failure. Otherwise 8091, and a free port if 8091 is taken.
+async function serve() {
+  try {
+    return { srv: await listen(PREFERRED_PORT), port: PREFERRED_PORT };
+  } catch (err) {
+    if (!err || err.code !== 'EADDRINUSE') throw err;
+    if (process.env.PORT) {
+      console.error(`Port ${PREFERRED_PORT} is already in use. Stop the other server or set PORT to a free port.`);
+      process.exit(1);
+    }
+    const srv = await listen(0);
+    const port = srv.address().port;
+    console.log(`Port ${PREFERRED_PORT} is already in use; serving on ${port}.`);
+    return { srv, port };
+  }
+}
 
-const base = () => `http://127.0.0.1:${PORT}/index.html`;
+let port = PREFERRED_PORT;
+const base = () => `http://127.0.0.1:${port}/index.html`;
 
 function track(page) {
   const errors = [];
@@ -228,8 +248,26 @@ function record(name, ok, detail) {
   results.push({ name, ok, detail });
   console.log((ok ? 'PASS' : 'FAIL') + '  ' + name + (detail ? '  ' + detail : ''));
 }
+function shotFile(name) {
+  return join(SHOTS, name.replace(/[^A-Za-z0-9._-]+/g, '_') + '.png');
+}
+async function shot(page, name) {
+  try {
+    mkdirSync(SHOTS, { recursive: true });
+    const file = shotFile(name);
+    await page.screenshot({ path: file });
+    console.log('screenshot ' + file);
+  } catch (err) {
+    console.log('screenshot failed for ' + name + ': ' + (err && err.message || err));
+  }
+}
+function ghWarning(message) {
+  const text = String(message).replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A');
+  console.log('::warning title=Song | Progressions toggle::' + text);
+}
 
-const srv = await serve();
+const { srv, port: bound } = await serve();
+port = bound;
 const browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
 const t0 = Date.now();
 try {
@@ -247,6 +285,7 @@ try {
           landed = await landedMode(page);
         }
         if (landed !== mode.name) {
+          await shot(page, name);
           record(name, false, 'landed in ' + landed + ' not ' + mode.name);
           continue;
         }
@@ -260,8 +299,10 @@ try {
           .concat(late.slice(0, 4))
           .concat(bag.ignored.length ? ['ignored browser /favicon.ico'] : [])
           .join('; ');
+        if (!ok) await shot(page, name);
         record(name, ok, detail);
       } catch (e) {
+        await shot(page, name);
         record(name, false, (e && e.message || String(e)).split('\n')[0]);
       } finally {
         await ctx.close();
@@ -287,14 +328,17 @@ try {
           if (rep.problems.length) stepNotes.push(walk[i] + ': ' + rep.problems.join('; '));
         }
         if (bag.errors.length || bag.failed.length) stepNotes.push('page: ' + bag.errors.concat(bag.failed).slice(0, 3).join('; '));
+        const pageNotes = stepNotes.filter(n => n.startsWith('page:'));
+        const toggleNotes = stepNotes.filter(n => !n.startsWith('page:'));
+        if (pageNotes.length || (!TOGGLE_FIXME && toggleNotes.length)) await shot(page, 'toggle ' + label);
+        walks.push({ label, pageNotes, toggleNotes });
       } catch (e) {
         stepNotes.push((e && e.message || String(e)).split('\n')[0]);
+        await shot(page, 'toggle ' + label);
+        walks.push({ label, pageNotes: stepNotes.filter(n => n.startsWith('page:')), toggleNotes: stepNotes.filter(n => !n.startsWith('page:')) });
       } finally {
         await ctx.close();
       }
-      const pageNotes = stepNotes.filter(n => n.startsWith('page:'));
-      const toggleNotes = stepNotes.filter(n => !n.startsWith('page:'));
-      walks.push({ label, pageNotes, toggleNotes });
     }
   }
 
@@ -303,6 +347,7 @@ try {
   }
   const geometry = walks.filter(w => w.toggleNotes.length);
   if (TOGGLE_FIXME) {
+    ghWarning('FIXME toggle walk skipped (' + geometry.length + '/' + walks.length + ' viewports would fail the toggle box). ' + TOGGLE_WHY);
     console.log('FIXME toggle walk skipped (' + geometry.length + '/' + walks.length + ' viewports would fail the toggle box). ' + TOGGLE_WHY);
     for (const w of geometry) console.log('      ' + w.label + '  ' + w.toggleNotes.join(' | '));
     results.push({ name: 'toggle walk', ok: true, fixme: true, detail: TOGGLE_WHY });
