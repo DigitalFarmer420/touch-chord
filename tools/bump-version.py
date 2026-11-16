@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Set the app version everywhere in one go (run from the repo root): python3 tools/bump-version.py 112.4
 - js/version.js: APP_VERSION = "<new>", BUILD_ID = "<new>", APP_BUILD = "<new>-web" (if it was "<old>-web")
-- every ?v=<old> in index.html (CSS links, boot-early.js, main.js, How to images), css/*.css, js/**/*.js (all import specifiers)
+- every ?v=<old> in index.html (CSS links, boot-early.js, main.js, How to images), css/*.css, js/**/*.js (all import specifiers), and manifest.webmanifest (icon URLs)
 Then checks that no other ?v= value is left (a module imported under two different ?v= values would load twice)."""
 import sys, re, pathlib
 root = pathlib.Path('.'); new = sys.argv[1]
 vf = root / 'js/version.js'; t = vf.read_text(encoding='utf-8')
 old = re.search(r'APP_VERSION = "([^"]+)"', t).group(1)
-files = [root / 'index.html', *root.glob('css/*.css'), *root.glob('js/**/*.js')]
+files = [root / 'index.html', *root.glob('css/*.css'), *root.glob('js/**/*.js'), root / 'manifest.webmanifest']
 for f in files:
     s = f.read_text(encoding='utf-8')
     s2 = s.replace('?v=' + old + '"', '?v=' + new + '"').replace('?v=' + old + "'", '?v=' + new + "'")
