@@ -1,0 +1,63 @@
+{
+  "contractVersion": "v1.3",
+  "song": {
+    "title": "Morning Light",
+    "artist": "Test Artist",
+    "key": {
+      "tonic": "C",
+      "mode": "major"
+    }
+  },
+  "timing": {
+    "bpm": 120,
+    "timeSignature": "4/4"
+  },
+  "form": [
+    "verse1"
+  ],
+  "sections": [
+    {
+      "id": "verse1",
+      "type": "verse",
+      "bars": [
+        {
+          "bar": 1,
+          "chords": [
+            {
+              "beat": 1,
+              "chord": "C",
+              "confidence": 1
+            }
+          ]
+        },
+        {
+          "bar": 2,
+          "chords": [
+            {
+              "beat": 1,
+              "chord": "G",
+              "confidence": 1
+            }
+          ]
+        }
+      ],
+      "lyrics": [
+        {
+          "text": "Hello world",
+          "markers": [
+            {
+              "charIndex": 0,
+              "bar": 1,
+              "beat": 1
+            },
+            {
+              "charIndex": 6,
+              "bar": 2,
+              "beat": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
