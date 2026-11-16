@@ -704,6 +704,11 @@ html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x
   html.expert.lay-pad-land #symbol { font-size: 34px !important; }
   html.expert.lay-pad-land .x-lrow.cur { font-size: 23px; }
   html.expert.lay-pad-land .x-lrow.nxt { font-size: 18px; }
+  /* Song title vs the first lyric line: the stacked Vietnamese accents (Ừ, ổ) and the cue highlight rose into the title
+     line (0 px ink clearance). 6 px under the title keeps them >= 5 px apart. The text block also uses the card's 4-px
+     top/bottom padding and starts at the top, so the lines below keep their room inside the card (1024x768 is tightest). */
+  html.expert:is(.lay-pad-land, .lay-pad-port) .x-songc > .x-stitle { margin-bottom: 6px; }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xSrc.x-mode-song > .x-songc { margin: -4px 0; justify-content: flex-start; }
   html.expert.lay-pad-land #suggest.ss { --ss-fs: 26px; --ss-rg: 6px; }
 }
 
