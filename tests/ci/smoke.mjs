@@ -17,7 +17,19 @@
 // inside the viewport, and clear of the chord pads; Simple's #xTog is display:none and 0x0
 // (placeSimpleTog is not in this tree). When TOGGLE_FIXME is true that geometry check is
 // skipped and the reason is printed. A console error or a failed request during the walk
-// still fails the run. Every other check fails the process. Requests to the same host that
+// still fails the run. Every other check fails the process.
+//
+// N20 (phone-browser fluid UI, Uiux PR-A for Simple phone portrait) measures Simple /
+// Expert / Kids at portrait (360x640, 390x664, 412x732, 412x780), landscape (640x360,
+// 732x412) and the 600-767 band (700x900, 712x1000, 744x1133), plus Simple iPad portrait
+// Sustain-left at 820x1180, 768x1024, 834x1194 and 1024x1366. PR-A Simple-portrait
+// acceptance (last grid row has ≥8px spare, min row ≥44.5px, Sustain in the left half,
+// style chips on one line with a 44px tap height) is fixme on develop until that PR
+// lands. Sustain-left is also fixme at 700x900, 712x1000 and 744x1133 (under 768 wide).
+// iPad portrait Sustain-left is a real check (already passes; simplepad.css overrides
+// modes.css). Cells that already pass otherwise are real checks. Set TOGGLE_FIXME=0 to
+// run known fails for real. Landscape Song/Progressions and volume under 44px are N21
+// (fixme). Other taps under 44px are logged as informational only. Requests to the same host that
 // sit outside the site prefix are ignored and named; they are not checks. A console error
 // that mentions such a URL is ignored the same way. Each one is printed in full as
 // "ignored (outside prefix): <check>: <text>" and counted on the summary line.
@@ -520,6 +532,281 @@ try {
       await ctx.close();
     }
   }
+
+  // N20: phone-browser fluid UI, rebased onto develop fd01bfc (112.15). Setup: Simple/Expert
+  // at Jazz, key pc=1 (shown as D♭ in Simple major; Uiux's PR-A used C♯ minor — last-row
+  // overflow still matched 96 / 73 / 15.4px), song "Anh Đã Ổn Hơn"; Kids after Go + first
+  // card. Day only (Lamp matched Day on the 9a444df baseline and on PR-A).
+  const N20_VPS = [[360, 640], [390, 664], [412, 732], [412, 780], [640, 360], [732, 412], [700, 900]];
+  const N20_BAND = [[712, 1000], [744, 1133]]; // 600-767, Simple only; Sustain-left is fixme
+  const N20_IPAD = [[820, 1180], [768, 1024], [834, 1194], [1024, 1366]]; // Simple Sustain-left, real
+  const N20_PRA = new Set(['360x640', '390x664', '412x732', '412x780', '700x900']);
+  const N20_FIXME_A = new Set(['360x640 simple', '390x664 simple', '412x732 simple', '360x640 expert']);
+  const N20_FIXME_B = new Set([
+    '360x640 simple', '390x664 simple', '412x732 simple', '412x780 simple',
+    '700x900 simple', '712x1000 simple', '744x1133 simple'
+  ]);
+  const N20_N21 = new Set(['640x360 simple', '732x412 simple']);
+  const N20_A_LABEL = { simple: 'last grid row', expert: 'piano', kids: 'pads' };
+  function recordN20(name, ok, detail, knownFail) {
+    if (knownFail && TOGGLE_FIXME) {
+      results.push({ name, ok: true, fixme: true, detail });
+      console.log('FIXME ' + name + (detail ? '  ' + detail : ''));
+    } else {
+      record(name, ok, detail);
+    }
+  }
+  async function n20Fresh(w, h, where) {
+    const ctx = await browser.newContext({ viewport: { width: w, height: h }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 });
+    await ctx.addInitScript(() => {
+      try { localStorage.clear(); localStorage.setItem('touchChord.tour.v1', 'done'); } catch (e) {}
+    });
+    const page = await ctx.newPage();
+    return { ctx, page, bag: track(page, where) };
+  }
+  async function n20Prepare(page, mode) {
+    if (mode === 'kids') {
+      await boot(page, 'test=1&hour=12&kv=1');
+      await page.waitForSelector('#kv .kv-go', { timeout: 8000 });
+      await page.locator('#kv .kv-go').click();
+      await page.waitForSelector('#kv .kv-card', { timeout: 8000 });
+      await page.locator('#kv .kv-card').first().click();
+      await page.waitForSelector('.kv-pad, .kv-playbtn', { timeout: 8000 });
+    } else {
+      await boot(page, mode === 'expert' ? 'test=1&hour=12&expert=1' : 'test=1&hour=12');
+      if (mode === 'simple') {
+        const landed = await landedMode(page);
+        if (landed !== 'simple') await switchTo(page, 'simple');
+      }
+      await page.evaluate(() => { const b = document.querySelector('#styles button[data-style="jazz"]'); if (b) b.click(); });
+      await page.waitForTimeout(80);
+      await page.evaluate(t => { if (window.__upload && typeof window.__upload.load === 'function') window.__upload.load(t); }, N11_SONG);
+      await page.waitForTimeout(450);
+      await page.keyboard.press('Escape').catch(() => {});
+      await page.evaluate(() => {
+        document.querySelectorAll('.up-x, .kp-x').forEach(x => { if (x.offsetParent) x.click(); });
+        const up = document.getElementById('uploadPick'); if (up) up.hidden = true;
+        if (typeof window.__setKey === 'function') window.__setKey(1, 'major');
+      });
+      await page.waitForTimeout(200);
+    }
+    await page.evaluate(() => document.fonts && document.fonts.ready);
+    await page.waitForTimeout(100);
+  }
+  async function n20Measure(page, mode) {
+    return page.evaluate((modeName) => {
+      const vis = el => {
+        if (!el) return false;
+        const s = getComputedStyle(el);
+        const r = el.getBoundingClientRect();
+        return s.display !== 'none' && s.visibility !== 'hidden' && r.width > 0 && r.height > 0;
+      };
+      const vv = window.visualViewport;
+      const se = document.scrollingElement || document.documentElement;
+      const vvTop = vv ? vv.offsetTop : 0;
+      const vvH = vv ? vv.height : innerHeight;
+      const vvW = vv ? vv.width : innerWidth;
+      const vvLeft = vv ? vv.offsetLeft : 0;
+      const vvBottom = vvTop + vvH;
+      const vvRight = vvLeft + vvW;
+      let box = null, kind = modeName, minRowH = null, rowCount = 0;
+      if (modeName === 'simple') {
+        const suggest = document.getElementById('suggest');
+        const cells = suggest ? [...suggest.querySelectorAll('.ss-chip, .ss-note')].filter(vis) : [];
+        const rowMap = new Map();
+        for (const el of cells) {
+          const top = Math.round(el.getBoundingClientRect().top);
+          let key = top;
+          for (const k of rowMap.keys()) if (Math.abs(k - top) <= 4) { key = k; break; }
+          if (!rowMap.has(key)) rowMap.set(key, []);
+          rowMap.get(key).push(el);
+        }
+        const rows = [...rowMap.entries()].sort((a, b) => a[0] - b[0]);
+        rowCount = rows.length;
+        const heights = rows.map(([, els]) => {
+          const rs = els.map(el => el.getBoundingClientRect());
+          return Math.max(...rs.map(r => r.bottom)) - Math.min(...rs.map(r => r.top));
+        });
+        if (heights.length) minRowH = +Math.min(...heights).toFixed(1);
+        const last = rows.length ? rows[rows.length - 1][1] : [];
+        if (last.length) {
+          const rs = last.map(el => el.getBoundingClientRect());
+          box = { top: Math.min(...rs.map(r => r.top)), bottom: Math.max(...rs.map(r => r.bottom)), left: Math.min(...rs.map(r => r.left)), right: Math.max(...rs.map(r => r.right)) };
+        }
+        kind = 'last grid row';
+      } else if (modeName === 'expert') {
+        const pads = document.getElementById('pads');
+        const wrap = document.querySelector('.kb-wrap');
+        const el = pads && vis(pads) ? pads : (wrap && vis(wrap) ? wrap : null);
+        if (el) box = el.getBoundingClientRect();
+        kind = 'piano';
+      } else {
+        const wrap = document.querySelector('.kv-pads');
+        const pads = [...document.querySelectorAll('.kv-pad')].filter(vis);
+        if (wrap && vis(wrap)) box = wrap.getBoundingClientRect();
+        else if (pads.length) {
+          const rs = pads.map(el => el.getBoundingClientRect());
+          box = { top: Math.min(...rs.map(r => r.top)), bottom: Math.max(...rs.map(r => r.bottom)), left: Math.min(...rs.map(r => r.left)), right: Math.max(...rs.map(r => r.right)) };
+        }
+        kind = 'pads';
+      }
+      const overflowVv = box ? +(box.bottom - vvBottom).toFixed(1) : null;
+      const sparePx = overflowVv == null ? null : +(-overflowVv).toFixed(1);
+      const app = document.getElementById('app');
+      const appBox = app && vis(app) ? app.getBoundingClientRect() : null;
+      const midline = appBox ? appBox.left + appBox.width / 2 : innerWidth / 2;
+      const sus = document.getElementById('sustainBtn');
+      const susOn = vis(sus);
+      const susR = susOn ? sus.getBoundingClientRect() : null;
+      const susCx = susR ? susR.left + susR.width / 2 : null;
+      const rights = [];
+      for (const root of [app, document.getElementById('kv'), document.body].filter(Boolean)) {
+        rights.push(root.getBoundingClientRect().right);
+        for (const el of root.children) if (vis(el)) rights.push(el.getBoundingClientRect().right);
+      }
+      if (box) rights.push(box.right);
+      const maxRight = rights.length ? Math.max(...rights) : 0;
+      const hOverflow = Math.max(0, +(maxRight - vvRight).toFixed(1), +((se.scrollWidth || 0) - innerWidth).toFixed(1));
+      const tapSel = 'button, [role="button"], a[href], input, select, textarea, .ss-chip, .ss-note, .pad, .kv-pad, .kv-playbtn, .kv-next, .kv-card, .kv-go, .mode-chip, .pg-btn';
+      const seen = new Set();
+      const offenders = [];
+      for (const el of document.querySelectorAll(tapSel)) {
+        if (seen.has(el) || !vis(el) || getComputedStyle(el).pointerEvents === 'none') continue;
+        seen.add(el);
+        const r = el.getBoundingClientRect();
+        const min = Math.min(r.width, r.height);
+        if (min + 0.5 < 44) {
+          offenders.push({
+            id: el.id || '',
+            text: (el.getAttribute('aria-label') || el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 40),
+            w: +r.width.toFixed(1), h: +r.height.toFixed(1), min: +min.toFixed(1)
+          });
+        }
+      }
+      // Style chips: one line by offsetTop; tap height includes the ::after hit padding (R4).
+      const styleBtns = [...document.querySelectorAll('#styles button')].filter(vis);
+      const chipTops = [...new Set(styleBtns.map(b => Math.round(b.offsetTop)))];
+      let chipTapMin = null;
+      for (const b of styleBtns) {
+        const r = b.getBoundingClientRect();
+        const after = getComputedStyle(b, '::after');
+        const ext = (after && after.content && after.content !== 'none')
+          ? Math.abs(parseFloat(after.top) || 0) + Math.abs(parseFloat(after.bottom) || 0)
+          : 0;
+        const hit = r.height + ext;
+        if (chipTapMin == null || hit < chipTapMin) chipTapMin = hit;
+      }
+      if (chipTapMin != null) chipTapMin = +chipTapMin.toFixed(1);
+      const togBtns = [...document.querySelectorAll('#xTog button, .topbar button')].filter(el => {
+        const t = (el.textContent || el.getAttribute('aria-label') || '');
+        return /Song|Progressions/.test(t) && vis(el);
+      });
+      const togH = togBtns.length ? +Math.min(...togBtns.map(b => b.getBoundingClientRect().height)).toFixed(1) : null;
+      const volEl = document.getElementById('volume') || document.querySelector('#nowMix, .now-vol, .pg-vol');
+      const volH = volEl && vis(volEl) ? +volEl.getBoundingClientRect().height.toFixed(1) : null;
+      const volWrap = document.querySelector('#nowMix, .now-vol');
+      const volWrapH = volWrap && vis(volWrap) ? +volWrap.getBoundingClientRect().height.toFixed(1) : null;
+      return {
+        kind, overflowVv, sparePx, minRowH, rowCount,
+        bottom: box ? +box.bottom.toFixed(1) : null, vvBottom: +vvBottom.toFixed(1),
+        hasBox: !!box, susOn, susCx: susCx == null ? null : +susCx.toFixed(1),
+        midline: +midline.toFixed(1),
+        susLeft: susOn && susCx < midline - 0.5,
+        susDelta: susOn ? +(susCx - midline).toFixed(1) : null,
+        hOverflow, offenders,
+        chipLines: chipTops.length, chipTapMin, togH, volH, volWrapH,
+        lay: [...document.documentElement.classList].filter(c => c.startsWith('lay-') || c.startsWith('sz-')).join(' ')
+      };
+    }, mode);
+  }
+  async function n20RunCell(w, h, mode, opts = {}) {
+    const cell = w + 'x' + h + ' ' + mode;
+    const where = 'N20 ' + cell;
+    const { ctx, page, bag } = await n20Fresh(w, h, where);
+    try {
+      await n20Prepare(page, mode);
+      const m = await n20Measure(page, mode);
+      const pageNotes = bag.errors.concat(bag.failed).slice(0, 3);
+      const size = w + 'x' + h;
+      if (mode === 'simple' && N20_PRA.has(size)) {
+        // PR-A acceptance, fixme on develop until the Simple portrait PR lands.
+        const name = 'N20 PR-A ' + cell + ': last grid row has ≥8px spare, min row ≥44.5px, Sustain left, chips one 44px line';
+        const notes = [];
+        if (!m.hasBox) notes.push('no last grid row to measure');
+        else {
+          if (m.sparePx == null || m.sparePx < 8) {
+            if (m.overflowVv > 0) notes.push('last grid row overflows the visual viewport by ' + m.overflowVv + 'px (bottom ' + m.bottom + ' vs vv ' + m.vvBottom + ', spare ' + m.sparePx + 'px, need ≥8)');
+            else notes.push('last grid row spare ' + m.sparePx + 'px (bottom ' + m.bottom + ' vs vv ' + m.vvBottom + ', need ≥8)');
+          }
+        }
+        if (m.minRowH == null) notes.push('no grid rows to measure');
+        else if (m.minRowH + 0.05 < 44.5) notes.push('min grid row ' + m.minRowH + 'px (< 44.5)');
+        if (!m.susOn) notes.push('Sustain is not visible');
+        else if (!m.susLeft) notes.push('Sustain center x ' + m.susCx + ' is not left of the layout midline ' + m.midline + ' (delta ' + m.susDelta + 'px)');
+        if (m.chipLines !== 1) notes.push('style chips are on ' + m.chipLines + ' lines (need 1, by offsetTop)');
+        if (m.chipTapMin == null) notes.push('no style chips to measure tap height');
+        else if (m.chipTapMin + 0.5 < 44) notes.push('style chip tap height ' + m.chipTapMin + 'px (< 44)');
+        if (pageNotes.length) notes.push('page: ' + pageNotes.join('; '));
+        if (notes.length) await shot(page, name);
+        const okDetail = 'spare ' + m.sparePx + 'px, min row ' + m.minRowH + 'px, Sustain cx ' + m.susCx + ' / mid ' + m.midline + ', chips ' + m.chipLines + ' line × ' + m.chipTapMin + 'px tap';
+        recordN20(name, !notes.length, notes.length ? notes.join(' | ') : okDetail, true);
+      } else {
+        const aName = 'N20 ' + cell + ': ' + N20_A_LABEL[mode] + ' fully inside the visual viewport';
+        const aNotes = [];
+        if (!m.hasBox) aNotes.push('no ' + N20_A_LABEL[mode] + ' to measure');
+        else if (m.overflowVv > 1) aNotes.push(m.kind + ' overflows the visual viewport by ' + m.overflowVv + 'px (bottom ' + m.bottom + ' vs vv ' + m.vvBottom + ')');
+        if (pageNotes.length) aNotes.push('page: ' + pageNotes.join('; '));
+        if (aNotes.length) await shot(page, aName);
+        recordN20(aName, !aNotes.length, aNotes.length ? aNotes.join(' | ') : (m.kind + ' ' + m.overflowVv + 'px vs the visual viewport'), N20_FIXME_A.has(cell));
+
+        if (mode !== 'kids') {
+          const bName = 'N20 ' + cell + ': Sustain center is in the left half';
+          const bNotes = [];
+          if (!m.susOn) bNotes.push('Sustain is not visible');
+          else if (!m.susLeft) bNotes.push('Sustain center x ' + m.susCx + ' is not left of the layout midline ' + m.midline + ' (delta ' + m.susDelta + 'px)');
+          if (pageNotes.length) bNotes.push('page: ' + pageNotes.join('; '));
+          if (bNotes.length) await shot(page, bName);
+          recordN20(bName, !bNotes.length, bNotes.length ? bNotes.join(' | ') : ('Sustain cx ' + m.susCx + ', midline ' + m.midline + (m.lay ? ', ' + m.lay : '')), N20_FIXME_B.has(cell));
+        }
+      }
+
+      const dName = 'N20 ' + cell + ': no horizontal overflow';
+      const dNotes = [];
+      if (m.hOverflow > 1) dNotes.push('horizontal overflow ' + m.hOverflow + 'px');
+      if (pageNotes.length) dNotes.push('page: ' + pageNotes.join('; '));
+      if (dNotes.length) await shot(page, dName);
+      record(dName, !dNotes.length, dNotes.length ? dNotes.join(' | ') : '0px');
+
+      if (N20_N21.has(cell)) {
+        const n21 = 'N21 ' + cell + ': Song/Progressions and volume tap height ≥ 44px';
+        const n21n = [];
+        if (m.togH == null) n21n.push('no Song/Progressions control to measure');
+        else if (m.togH + 0.5 < 44) n21n.push('Song/Progressions ' + m.togH + 'px');
+        const vol = m.volWrapH != null ? m.volWrapH : m.volH;
+        if (vol == null) n21n.push('no volume control to measure');
+        else if (vol + 0.5 < 44) n21n.push('volume ' + vol + 'px' + (m.volH != null && m.volH !== vol ? ' (input ' + m.volH + 'px)' : ''));
+        if (pageNotes.length) n21n.push('page: ' + pageNotes.join('; '));
+        if (n21n.length) await shot(page, n21);
+        recordN20(n21, !n21n.length, n21n.length ? n21n.join(', ') : ('Song/Progressions ' + m.togH + 'px, volume ' + vol + 'px'), true);
+      }
+
+      if (m.offenders && m.offenders.length) {
+        const head = m.offenders.slice(0, 8).map(o => (o.id ? '#' + o.id : o.text || 'target') + ' ' + o.w + 'x' + o.h).join('; ');
+        console.log('N20 tap targets (informational) ' + cell + ': ' + m.offenders.length + ' under 44px: ' + head);
+      }
+    } catch (e) {
+      await shot(page, where);
+      record(where, false, (e && e.message || String(e)).split('\n')[0]);
+    } finally {
+      await ctx.close();
+    }
+  }
+
+  for (const [w, h] of N20_VPS) {
+    for (const mode of ['simple', 'expert', 'kids']) await n20RunCell(w, h, mode);
+  }
+  for (const [w, h] of N20_BAND) await n20RunCell(w, h, 'simple');
+  for (const [w, h] of N20_IPAD) await n20RunCell(w, h, 'simple');
 
   for (const w of walks) {
     if (w.pageNotes.length) record('toggle ' + w.label, false, w.pageNotes.join(' | '));
