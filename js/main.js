@@ -24,9 +24,9 @@ import "./styles.js?v=112.14";
 import "./ui/gear.js?v=112.14";
 import "./ui/lyrics.js?v=112.14";
 import "./ui/palette.js?v=112.14";
-import "./ui/progbar.js?v=112.14";
+import { paintProg, placeProg } from "./ui/progbar.js?v=112.14";
 import "./ui/pulse.js?v=112.14";
-import "./ui/songbar.js?v=112.14";
+import { paintSongBar } from "./ui/songbar.js?v=112.14";
 import "./ui/upload-dialog.js?v=112.14";
 import "./ui/wire.js?v=112.14";
 import * as state from "./state.js?v=112.14";
@@ -50,6 +50,7 @@ import * as settings from "./settings.js?v=112.14";
 import * as uiLayout from "./ui/layout.js?v=112.14";
 import * as kidsView from "./kids/view.js?v=112.14";
 import * as expertUi from "./expert/ui.js?v=112.14";   // Expert redesign (html.expert screen set)
+import { bootSimpleSrc, setSimpleSrcAfter } from "./ui/simplesrc.js?v=112.14";
 // Entry point: loads every module, runs the boot steps in the v112.3 order, final boot (saved settings, first song, tour), deliberate globals, test hooks with ?test=1.
 import { wireKidKey } from "./kids.js?v=112.14";
 import { applySettings } from "./settings.js?v=112.14";
@@ -152,3 +153,12 @@ settings.boot();
 uiLayout.boot();
 boot();
 expertUi.boot();   // Expert redesign: after the app boot (saved settings applied)
+setSimpleSrcAfter(function () {
+  paintSongBar();
+  paintProg();
+  placeProg();
+  uiStrip.fitStrip();
+  songsPlayback.placeBadges();
+  updateSymbol();
+});
+bootSimpleSrc();
