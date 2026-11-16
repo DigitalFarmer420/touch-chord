@@ -1,19 +1,24 @@
 "use strict";
 const fs = require("fs");
+const path = require("path");
 const { chromium } = require("/workspace/node_modules/playwright-core");
-const REV = JSON.parse(fs.readFileSync(require("path").join(__dirname, "../fixtures/six-choice-review.json"), "utf8"));
+// Shipped menus are the v3.2 ranked lists (152 major+minor rows), not the old
+// six-per-style review. Regenerate with tests/fixtures/gen-ranked-v32.mjs.
+const MENUS = JSON.parse(fs.readFileSync(path.join(__dirname, "../fixtures/ranked-v3.2.json"), "utf8")).menus;
 const ADULT = ["pop", "jazz", "rnb", "ballad", "reggae", "funk", "yogaDeep", "country"];
-const by = {};
-REV.items.forEach((it) => { by[it.style + "\0" + it.name] = it; });
 function feel(name) { return name.replace(/^(Pop|Jazz|R&B|Ballad|Reggae|Funk|Yoga|Country)\s+/, ""); }
-function expectRows(style, mode) {
-  return REV.selected[style].filter((name) => by[style + "\0" + name].modes[mode]).map(feel);
+function feels(style, mode) { return MENUS[style][mode].map((e) => feel(e.name)); }
+function charts(style, mode) { return MENUS[style][mode].map((e) => ({ name: e.name, steps: e.steps })); }
+function same(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
+async function factory(page) {
+  return page.evaluate(() => window.__prog.list.filter((p) => !p.up).map((p) => ({ name: p.name, steps: p.steps.join("|") })));
 }
 const HOOK = `(() => { const A = window.ChordAudio; if (!A || A.__r27) return; const o = A.playChord.bind(A); window.__eng = []; A.playChord = function (g, m, opts) { window.__eng.push({ g: String(g), midis: (m||[]).map(Number), bass: opts && opts.bass != null ? opts.bass : null, time: opts && opts.time != null ? opts.time : null }); return o(g, m, opts); }; A.__r27 = true; })()`;
 const CHROME = "/usr/local/bin/google-chrome";
 const ARGS = ["--autoplay-policy=no-user-gesture-required", "--disable-background-timer-throttling", "--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"];
 const errors = [];
-function check(cond, msg) { if (!cond) errors.push(msg); }
+let ncheck = 0;
+function check(cond, msg) { ncheck++; if (!cond) errors.push(msg); }
 
 async function boot(browser, origin, surface) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
@@ -103,14 +108,19 @@ async function main() {
     for (const mode of ["major", "minor"]) {
       await setKey(page, 0, mode);
       const rows = await readExpertMenu(page);
-      const want = expectRows(style, mode);
+      const want = feels(style, mode);
+      const wantCharts = charts(style, mode);
       out.menus.push({ style, mode, rows, want });
-      check(JSON.stringify(rows) === JSON.stringify(want), style + " " + mode + " menu " + rows.join(",") + " != " + want.join(","));
+      check(same(rows, want), style + " " + mode + " menu " + rows.join(",") + " != " + want.join(","));
+      const live = await factory(page);
+      check(same(live, wantCharts), style + " " + mode + " steps " + live.map((e) => e.name + "=" + e.steps).join(";"));
       await page.keyboard.press("Escape").catch(() => {});
       if (mode === "major") {
         await setKey(page, 7, "major");
         const again = await readExpertMenu(page);
-        check(JSON.stringify(again) === JSON.stringify(want), style + " reopen after G " + again.join(","));
+        check(same(again, want), style + " reopen after G " + again.join(","));
+        const liveG = await factory(page);
+        check(same(liveG, wantCharts), style + " G steps " + liveG.map((e) => e.name + "=" + e.steps).join(";"));
         await page.keyboard.press("Escape").catch(() => {});
       }
     }
@@ -122,13 +132,15 @@ async function main() {
   const blues = await identity(page);
   check(blues.name === "Jazz Blues", "blues name " + blues.name);
   await setKey(page, 0, "minor");
-  await page.waitForFunction(() => ((document.querySelector("#xSrc .x-pn") || {}).innerText || "").indexOf("Turnaround") >= 0, { timeout: 3000 }).catch(() => {});
+  const jazzMinor0 = MENUS.jazz.minor[0].name;
+  await page.waitForFunction((feelName) => ((document.querySelector("#xSrc .x-pn") || {}).innerText || "").indexOf(feelName) >= 0, feel(jazzMinor0), { timeout: 3000 }).catch(() => {});
   const after = await identity(page);
   const minorMenu = await readExpertMenu(page);
   after.menu = minorMenu;
   out.deferred.push({ from: blues, to: after });
-  check(after.name === "Jazz Turnaround", "minor fallback " + after.name);
-  check(after.bar.indexOf("Turnaround") >= 0, "bar " + after.bar);
+  // v3.2 lists Jazz Blues in major only. A mode change with no matching row lands on minor row 0.
+  check(after.name === jazzMinor0, "minor fallback " + after.name);
+  check(after.bar.indexOf(feel(jazzMinor0)) >= 0, "bar " + after.bar);
   check(after.name !== "Jazz Blues" && minorMenu.indexOf("Blues") < 0, "blues still offered in minor " + minorMenu.join(","));
   const played = await page.evaluate(() => window.__prog.list[window.__prog.idx].name);
   check(played === after.name, "playback name " + played + " != bar " + after.name);
@@ -137,11 +149,13 @@ async function main() {
   await setKey(page, 0, "major");
   await pickFeel(page, "Three-Chord");
   await setKey(page, 0, "minor");
-  await page.waitForFunction(() => ((document.querySelector("#xSrc .x-pn") || {}).innerText || "").indexOf("Outlaw") >= 0, { timeout: 3000 }).catch(() => {});
+  const countryMinor0 = MENUS.country.minor[0].name;
+  await page.waitForFunction((feelName) => ((document.querySelector("#xSrc .x-pn") || {}).innerText || "").indexOf(feelName) >= 0, feel(countryMinor0), { timeout: 3000 }).catch(() => {});
   const country = await identity(page);
   out.deferred.push({ country });
-  check(country.name === "Country Outlaw", "country minor " + country.name);
-  check(country.bar.indexOf("Outlaw") >= 0, "country bar " + country.bar);
+  // v3.2 lists Country Three-Chord in major only. A mode change with no matching row lands on minor row 0.
+  check(country.name === countryMinor0, "country minor " + country.name);
+  check(country.bar.indexOf(feel(countryMinor0)) >= 0, "country bar " + country.bar);
 
   await setStyle(page, "pop");
   await setKey(page, 0, "major");
@@ -151,8 +165,10 @@ async function main() {
   await page.waitForFunction(() => ((document.querySelector("#xSrc .x-pn") || {}).innerText || "").indexOf("Four-Chord") >= 0, { timeout: 3000 }).catch(() => {});
   const back = await identity(page);
   out.deferred.push({ backToPop: back });
-  check(back.name === "Pop Four-Chord", "style return " + back.name);
-  check(back.bar.indexOf("Four-Chord") >= 0, "style bar " + back.bar);
+  // A style change opens that style's first major row (v3.2 pop major row 0).
+  const pop0 = MENUS.pop.major[0].name;
+  check(back.name === pop0, "style return " + back.name);
+  check(back.bar.indexOf(feel(pop0)) >= 0, "style bar " + back.bar);
 
   await setStyle(page, "ballad");
   await setKey(page, 0, "major");
@@ -185,25 +201,28 @@ async function main() {
     for (const mode of ["major", "minor"]) {
       const nowMode = await s.page.evaluate(() => window.__prog.key.mode);
       if (nowMode !== mode) await s.page.locator("#kidKey .kk-mode").click();
-      const want = REV.selected[style].filter((n) => by[style + "\0" + n].modes[mode]);
-      for (let i = 0; i < 8; i++) {
+      const want = MENUS[style][mode].map((e) => e.name);
+      const spins = want.length + 1;
+      for (let i = 0; i < spins; i++) {
         const name = await s.page.evaluate(() => window.__prog.list[window.__prog.idx].name);
         if (name === want[0]) break;
         await s.page.locator("#prog .pg-prev").click();
       }
+      const at = await s.page.evaluate(() => window.__prog.list[window.__prog.idx].name);
+      check(at === want[0], "simple " + style + " " + mode + " start " + at + " != " + want[0]);
+      const live = await factory(s.page);
+      check(same(live, charts(style, mode)), "simple " + style + " " + mode + " steps " + live.map((e) => e.name + "=" + e.steps).join(";"));
       const names = [];
-      for (let i = 0; i < 8; i++) {
+      for (let i = 0; i < spins; i++) {
         const name = await s.page.evaluate(() => window.__prog.list[window.__prog.idx].name);
         if (names[0] === name) break;
         names.push(name);
         const shown = await s.page.evaluate(() => ((document.querySelector("#prog .pg-t") || {}).innerText || "").replace(/\s+/g, " ").trim());
-        if (shown && name.indexOf(shown) < 0 && shown.indexOf(name.replace(/^(Pop|Jazz|R&B|Ballad|Reggae|Funk|Yoga|Country)\s+/, "")) < 0) {
-          errors.push("simple label " + shown + " != " + name);
-        }
+        check(!shown || name.indexOf(shown) >= 0 || shown.indexOf(feel(name)) >= 0, "simple label " + shown + " != " + name);
         await s.page.locator("#prog .pg-next").click();
       }
       out.simple.push({ style, mode, names, want });
-      check(JSON.stringify(names) === JSON.stringify(want), "simple " + style + " " + mode + " " + names.join("|"));
+      check(same(names, want), "simple " + style + " " + mode + " " + names.join("|") + " != " + want.join("|"));
     }
   }
   await s.context.close();
@@ -241,9 +260,16 @@ async function main() {
   check(out.upload.beforeLocked === out.upload.afterLocked, "lock changed");
   check(JSON.stringify(out.upload.beforeLive) === JSON.stringify(out.upload.afterLive), "liveKey changed");
   check(out.upload.songAfter === "Anh Đã Ổn Hơn", "song not restored " + out.upload.songAfter);
+  const saved = await up.evaluate(() => ({
+    style: window.__prog.style,
+    mode: window.__prog.mode,
+    factory: window.__prog.list.filter((p) => !p.up).map((p) => ({ name: p.name, steps: p.steps.join("|") }))
+  }));
   const menu = await readExpertMenu(up);
   out.upload.menuAfterSong = menu;
-  check(menu.length === 6 && menu.indexOf("Anh Đã Ổn Hơn") < 0, "upload became a factory row " + menu.join(","));
+  check(same(saved.factory, charts(saved.style, saved.mode)), "upload factory steps " + saved.style + " " + saved.mode + " " + saved.factory.map((e) => e.name).join(","));
+  check(same(menu, feels(saved.style, saved.mode)), "upload factory menu " + menu.join(",") + " != " + feels(saved.style, saved.mode).join(","));
+  check(menu.indexOf("Anh Đã Ổn Hơn") < 0, "upload became a factory row " + menu.join(","));
   await up.keyboard.press("Escape").catch(() => {});
   await u.context.close();
 
@@ -273,7 +299,7 @@ async function main() {
   await browser.close();
   out.errors = errors;
   fs.writeFileSync(process.env.OUT, JSON.stringify(out, null, 2));
-  console.log("checks", errors.length);
+  console.log("pass", ncheck - errors.length, "fail", errors.length, "checks", ncheck);
   errors.forEach((e) => console.log("FAIL", e));
   process.exitCode = errors.length ? 1 : 0;
 }
