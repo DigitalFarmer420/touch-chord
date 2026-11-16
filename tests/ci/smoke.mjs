@@ -19,20 +19,26 @@
 // skipped and the reason is printed. A console error or a failed request during the walk
 // still fails the run. Every other check fails the process.
 //
-// N20 (phone-browser fluid UI, Uiux PR-A for Simple phone portrait) measures Simple /
-// Expert / Kids at portrait (360x640, 390x664, 412x732, 412x780), landscape (640x360,
-// 732x412) and the 600-767 band (700x900, 712x1000, 744x1133), plus Simple iPad portrait
-// Sustain-left at 820x1180, 768x1024, 834x1194 and 1024x1366. PR-A Simple-portrait
-// acceptance (last grid row has ≥8px spare, every grid row ≥44px (the spec A7 floor; the
-// actual spare and smallest row are logged), Sustain in the left half, style chips on one
-// line with a 44px tap height) is a real check since PR-A. Sustain-left is a real check at
-// 700x900, 712x1000 and 744x1133 (under 768 wide) too.
-// iPad portrait Sustain-left is a real check (already passes; simplepad.css overrides
-// modes.css). N20 PR-A2 (Simple pad-land height budget) adds real checks at 1280x600
-// and 1920x600: last grid row has ≥8px spare, Sustain is fully visible, smallest row
-// ≥43.9px, and the spare is logged. Names start with "N20 PR-A2 Simple" so they stay
-// distinct from later test-only fixmes for the same cells. Cells that already pass
-// otherwise are real checks. Set TOGGLE_FIXME=0 to
+// N20 (phone-browser fluid UI, Uiux PR-A for Simple phone portrait, plus layout
+// consistency C1–C11) measures Simple / Expert / Kids at portrait (360x640, 390x664,
+// 412x732, 412x780, 390x844), landscape (640x360, 732x412, 844x390, 780x360, 932x430)
+// and the 600-767 band (700x900, 712x1000, 744x1133), plus iPad portrait (820x1180,
+// 768x1024, 834x1194, 1024x1366), iPad landscape (1180x820, 1133x744, 1366x1024), and
+// desktop 1280x720, 1440x900, 1920x1080 plus the short/wide extras 1280x600, 1920x600,
+// 2560x1080. PR-A Simple-portrait acceptance (last grid row has ≥8px spare, every grid
+// row ≥44px (the spec A7 floor; the actual spare and smallest row are logged), Sustain
+// in the left half, style chips on one line with a 44px tap height) is a real check
+// since PR-A. Sustain-left is a real check at 700x900, 712x1000 and 744x1133 (under 768
+// wide) too. iPad portrait Sustain-left is a real check (already passes; simplepad.css
+// overrides modes.css). N20 PR-A2 (Simple pad-land height budget, from #23) adds real
+// checks at 1280x600 and 1920x600: last grid row has ≥8px spare, Sustain is fully
+// visible, smallest row ≥43.9px, and the spare is logged. Names start with "N20 PR-A2
+// Simple" so they stay distinct from later test-only fixmes for the same cells. Piano /
+// chord LTR pitch order is a real check. Horizontal overflow stays a real check. Known
+// consistency failures from N20-SPEC C7–C10 are fixme: Kids gold key clipped at 1280x600
+// and 1920x600 (C10, PR-C); iPad portrait Simple column order vs the PR-A canonical
+// (C7.1, pending the owner's decision). The C8 Simple 600-tall fixmes were dropped
+// because #23's PR-A2 checks cover them. Set TOGGLE_FIXME=0 to
 // run known fails for real. Landscape Song/Progressions and volume under 44px are N21
 // (fixme). Other taps under 44px are logged as informational only. Requests to the same host that
 // sit outside the site prefix are ignored and named; they are not checks. A console error
@@ -678,14 +684,21 @@ try {
   // at Jazz, key pc=1 (shown as D♭ in Simple major; Uiux's PR-A used C♯ minor — last-row
   // overflow still matched 96 / 73 / 15.4px), song "Anh Đã Ổn Hơn"; Kids after Go + first
   // card. Day only (Lamp matched Day on the 9a444df baseline and on PR-A).
-  const N20_VPS = [[360, 640], [390, 664], [412, 732], [412, 780], [640, 360], [732, 412], [700, 900]];
-  const N20_BAND = [[712, 1000], [744, 1133]]; // 600-767, Simple only; Sustain-left is real since PR-A
-  const N20_IPAD = [[820, 1180], [768, 1024], [834, 1194], [1024, 1366]]; // Simple Sustain-left, real
+  const N20_VPS = [[360, 640], [390, 664], [412, 732], [412, 780], [390, 844], [640, 360], [732, 412], [844, 390], [780, 360], [932, 430], [700, 900]];
+  const N20_BAND = [[712, 1000], [744, 1133]]; // 600-767, all modes; Sustain-left is real since PR-A
+  const N20_IPAD = [[820, 1180], [768, 1024], [834, 1194], [1024, 1366]]; // all modes; Simple Sustain-left is real
+  const N20_IPAD_LAND = [[1180, 820], [1133, 744], [1366, 1024]];
+  const N20_DESKTOP = [[1280, 720], [1440, 900], [1920, 1080], [1280, 600], [1920, 600], [2560, 1080]];
   const N20_PRA = new Set(['360x640', '390x664', '412x732', '412x780', '700x900']);
   const N20_PRA2 = new Set(['1280x600', '1920x600']); // real checks; names start with "N20 PR-A2 Simple"
-  const N20_FIXME_A = new Set(['360x640 expert']);   // PR-B
+  const N20_FIXME_A = new Set(['360x640 expert']);   // PR-B (generic last-row / piano)
   const N20_FIXME_B = new Set([]);   // PR-A fixed every Simple Sustain-left cell
   const N20_N21 = new Set(['640x360 simple', '732x412 simple']);
+  // C10 and C7.1 stay fixme. C8 Simple 600-tall duplicates were dropped: #23's
+  // N20_PRA2 real checks cover 1280x600 and 1920x600 Simple.
+  const N20_GOLD_CLIP = new Set(['1280x600 kids', '1920x600 kids']);
+  const N20_IPAD_ORDER = new Set(['820x1180', '768x1024', '834x1194', '1024x1366']);
+  const N20_SIMPLE_CANON = 'L[sustain > song > nextPlay] R[now > volume > key]';
   const N20_A_LABEL = { simple: 'last grid row', expert: 'piano', kids: 'pads' };
   function recordN20(name, ok, detail, knownFail) {
     if (knownFail && TOGGLE_FIXME) {
@@ -696,7 +709,8 @@ try {
     }
   }
   async function n20Fresh(w, h, where) {
-    const ctx = await browser.newContext({ viewport: { width: w, height: h }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 });
+    const desk = w >= 1280;
+    const ctx = await browser.newContext({ viewport: { width: w, height: h }, hasTouch: !desk, isMobile: !desk, deviceScaleFactor: 1 });
     await ctx.addInitScript(() => {
       try { localStorage.clear(); localStorage.setItem('touchChord.tour.v1', 'done'); } catch (e) {}
     });
@@ -863,6 +877,147 @@ try {
       };
     }, mode);
   }
+  async function n20ConsMeasure(page, mode) {
+    return page.evaluate((modeName) => {
+      const vis = el => {
+        if (!el) return false;
+        const s = getComputedStyle(el);
+        const r = el.getBoundingClientRect();
+        return s.display !== 'none' && s.visibility !== 'hidden' && r.width > 0.5 && r.height > 0.5;
+      };
+      const pick = sel => document.querySelector(sel);
+      const boxOf = el => {
+        if (!el || !vis(el)) return null;
+        const r = el.getBoundingClientRect();
+        return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, w: r.width, h: r.height, cx: r.left + r.width / 2, cy: r.top + r.height / 2 };
+      };
+      const boxes = {};
+      const add = (name, el) => { const b = boxOf(el); if (b) boxes[name] = b; };
+      add('sustain', pick('#sustainBtn'));
+      add('song', pick('#prog .pg-sel'));
+      add('nextPlay', pick('#prog .pg-btns'));
+      add('now', pick('.now-card'));
+      add('volume', pick('#nowVol') || pick('.now-vol') || (pick('#volume') && pick('#volume').closest('label')));
+      add('key', pick('#kidKey'));
+      const CANON_IDS = ['sustain', 'song', 'nextPlay', 'now', 'volume', 'key'];
+      const items = CANON_IDS.map(id => boxes[id] ? { ...boxes[id], id } : null).filter(Boolean);
+      const overlapAmt = (a1, a2, b1, b2) => Math.max(0, Math.min(a2, b2) - Math.max(a1, b1));
+      const sameCol = (a, b) => {
+        const o = overlapAmt(a.left, a.right, b.left, b.right);
+        return o >= 8 && o >= 0.25 * Math.min(a.w, b.w);
+      };
+      const sameRow = (a, b) => {
+        if (Math.abs(a.cy - b.cy) <= 18) return true;
+        const o = overlapAmt(a.top, a.bottom, b.top, b.bottom);
+        return Math.min(a.h, b.h) >= 0.7 * Math.max(a.h, b.h) && o >= 0.5 * Math.min(a.h, b.h);
+      };
+      const clusters = [];
+      for (const it of items) {
+        let found = -1;
+        for (let i = 0; i < clusters.length; i++) {
+          if (clusters[i].some(m => sameCol(m, it))) { found = i; break; }
+        }
+        if (found < 0) clusters.push([it]);
+        else {
+          clusters[found].push(it);
+          for (let j = clusters.length - 1; j > found; j--) {
+            if (clusters[j].some(m => clusters[found].some(n => sameCol(m, n)))) {
+              clusters[found].push(...clusters[j]);
+              clusters.splice(j, 1);
+            }
+          }
+        }
+      }
+      const colMid = items.length
+        ? (Math.min(...items.map(i => i.left)) + Math.max(...items.map(i => i.right))) / 2
+        : innerWidth / 2;
+      const columns = clusters.map(col => {
+        col.sort((a, b) => a.top - b.top || a.left - b.left);
+        const left = Math.min(...col.map(i => i.left));
+        const right = Math.max(...col.map(i => i.right));
+        const cx = (left + right) / 2;
+        const ids = [];
+        const used = new Set();
+        for (const it of col) {
+          if (used.has(it.id)) continue;
+          const rowMates = col.filter(o => !used.has(o.id) && (o.id === it.id || sameRow(it, o)));
+          rowMates.sort((a, b) => a.left - b.left);
+          rowMates.forEach(o => used.add(o.id));
+          ids.push(rowMates.length > 1 ? rowMates.map(o => o.id).join('+') : it.id);
+        }
+        return { cx, ids };
+      }).sort((a, b) => a.cx - b.cx);
+      if (columns.length === 2) { columns[0].side = 'L'; columns[1].side = 'R'; }
+      else if (columns.length === 1) columns[0].side = 'C';
+      else columns.forEach((c, i) => { c.side = c.cx < colMid - 4 ? 'L' : c.cx > colMid + 4 ? 'R' : 'C'; });
+      const signature = columns.map(c => (c.side || 'C') + '[' + c.ids.join(' > ') + ']').join(' ');
+
+      const pitchOf = el => {
+        if (el.dataset && el.dataset.midi != null && el.dataset.midi !== '') return { kind: 'midi', v: Number(el.dataset.midi) };
+        if (el.dataset && el.dataset.pc != null && el.dataset.pc !== '') return { kind: 'pc', v: Number(el.dataset.pc) };
+        const item = el._tc && el._tc.item;
+        if (item) {
+          if (item.rootMidi != null) return { kind: 'midi', v: Number(item.rootMidi) };
+          if (item.rootPc != null) return { kind: 'pc', v: Number(item.rootPc) };
+        }
+        return null;
+      };
+      const sel = modeName === 'expert' ? '#pads .pad'
+        : modeName === 'kids' ? '#kv .kv-wk, #kv .kv-bk, #kv .kv-pad'
+        : '#suggest .ss-note, #suggest .ss-chip';
+      const recs = [...document.querySelectorAll(sel)].filter(vis).map(el => {
+        const p = pitchOf(el);
+        const r = el.getBoundingClientRect();
+        return p && Number.isFinite(p.v) ? { kind: p.kind, pitch: p.v, cx: r.left + r.width / 2, y: r.top } : null;
+      }).filter(Boolean);
+      recs.sort((a, b) => a.y - b.y || a.cx - b.cx);
+      const rows = [];
+      for (const r of recs) {
+        const last = rows[rows.length - 1];
+        if (last && Math.abs(last[0].y - r.y) <= 8) last.push(r);
+        else rows.push([r]);
+      }
+      let flips = 0;
+      const samples = [];
+      for (const row of rows) {
+        row.sort((a, b) => a.cx - b.cx);
+        for (let i = 1; i < row.length; i++) {
+          const a = row[i - 1], b = row[i];
+          if (a.kind === b.kind && b.pitch < a.pitch && (a.kind === 'midi' || (a.pitch - b.pitch) < 8)) {
+            flips++;
+            if (samples.length < 4) samples.push({ left: a.pitch, right: b.pitch });
+          }
+        }
+      }
+
+      const vvH = window.visualViewport ? window.visualViewport.height : innerHeight;
+      const vvW = window.visualViewport ? window.visualViewport.width : innerWidth;
+      const inside = (b, l, t, r, bot, slop = 1) => b && b.left >= l - slop && b.right <= r + slop && b.top >= t - slop && b.bottom <= bot + slop;
+      const goldEls = [...document.querySelectorAll('#kv .kv-wk.gold, #kv .kv-bk.gold')].filter(vis);
+      const piano = pick('#kv .kv-piano');
+      const pr = piano && vis(piano) ? piano.getBoundingClientRect() : null;
+      const goldKeys = goldEls.map(el => {
+        const b = boxOf(el);
+        return { box: b, inViewport: inside(b, 0, 0, vvW, vvH, 1), inKeyboard: pr ? inside(b, pr.left, pr.top, pr.right, pr.bottom, 1) : false };
+      });
+      const sus = boxes.sustain;
+      return {
+        signature,
+        susBottom: sus ? +sus.bottom.toFixed(1) : null,
+        susOverflow: sus ? +(sus.bottom - vvH).toFixed(1) : null,
+        pitchN: recs.length,
+        pitchFlips: flips,
+        pitchSamples: samples,
+        goldN: goldKeys.length,
+        goldKeyInView: goldKeys.length ? goldKeys.every(k => k.inViewport && k.inKeyboard) : (modeName === 'kids' ? false : null),
+        goldKeyBottom: goldKeys[0] && goldKeys[0].box ? +goldKeys[0].box.bottom.toFixed(1) : null,
+        pianoBottom: pr ? +pr.bottom.toFixed(1) : null,
+        pianoOverflow: pr ? +(pr.bottom - vvH).toFixed(1) : null,
+        vvH: +vvH.toFixed(1)
+      };
+    }, mode);
+  }
+
   async function n20RunCell(w, h, mode, opts = {}) {
     const cell = w + 'x' + h + ' ' + mode;
     const where = 'N20 ' + cell;
@@ -962,6 +1117,30 @@ try {
         const head = m.offenders.slice(0, 8).map(o => (o.id ? '#' + o.id : o.text || 'target') + ' ' + o.w + 'x' + o.h).join('; ');
         console.log('N20 tap targets (informational) ' + cell + ': ' + m.offenders.length + ' under 44px: ' + head);
       }
+
+      const c = await n20ConsMeasure(page, mode);
+
+      if (mode === 'kids' && N20_GOLD_CLIP.has(cell)) {
+        const name = 'N20 C10 ' + cell + ': gold key fully inside the viewport and the keyboard';
+        const notes = [];
+        if (!c.goldN) notes.push('no gold key to measure');
+        else if (c.goldKeyInView === false) notes.push('gold key is clipped (key bottom ' + c.goldKeyBottom + ', piano bottom ' + c.pianoBottom + ' vs vv ' + c.vvH + ', piano overflow ' + c.pianoOverflow + 'px)');
+        if (notes.length) await shot(page, name);
+        recordN20(name, !notes.length, notes.length ? notes.join(' | ') : ('gold key in view, piano bottom ' + c.pianoBottom), true);
+      }
+
+      if (mode === 'simple' && N20_IPAD_ORDER.has(size)) {
+        const name = 'N20 C7.1 ' + cell + ': Simple column order matches the PR-A canonical (pending the owner\'s decision)';
+        const notes = [];
+        if (c.signature !== N20_SIMPLE_CANON) notes.push('order is ' + c.signature + ' (canonical ' + N20_SIMPLE_CANON + '; iPad portrait grouping is pending the owner\'s decision)');
+        if (notes.length) await shot(page, name);
+        recordN20(name, !notes.length, notes.length ? notes.join(' | ') : c.signature, true);
+      }
+
+      if (c.pitchN > 0) {
+        const name = 'N20 C2 ' + cell + ': keyboard and chord buttons run in rising pitch left to right';
+        record(name, c.pitchFlips === 0, c.pitchFlips ? (c.pitchFlips + ' flip(s) ' + JSON.stringify(c.pitchSamples)) : (c.pitchN + ' keys/chips, 0 flips'));
+      }
     } catch (e) {
       await shot(page, where);
       record(where, false, (e && e.message || String(e)).split('\n')[0]);
@@ -973,9 +1152,18 @@ try {
   for (const [w, h] of N20_VPS) {
     for (const mode of ['simple', 'expert', 'kids']) await n20RunCell(w, h, mode);
   }
-  for (const [w, h] of N20_BAND) await n20RunCell(w, h, 'simple');
-  for (const [w, h] of N20_IPAD) await n20RunCell(w, h, 'simple');
-  for (const [w, h] of [[1280, 600], [1920, 600]]) await n20RunCell(w, h, 'simple');
+  for (const [w, h] of N20_BAND) {
+    for (const mode of ['simple', 'expert', 'kids']) await n20RunCell(w, h, mode);
+  }
+  for (const [w, h] of N20_IPAD) {
+    for (const mode of ['simple', 'expert', 'kids']) await n20RunCell(w, h, mode);
+  }
+  for (const [w, h] of N20_IPAD_LAND) {
+    for (const mode of ['simple', 'expert', 'kids']) await n20RunCell(w, h, mode);
+  }
+  for (const [w, h] of N20_DESKTOP) {
+    for (const mode of ['simple', 'expert', 'kids']) await n20RunCell(w, h, mode);
+  }
 
   for (const w of walks) {
     if (w.pageNotes.length) record('toggle ' + w.label, false, w.pageNotes.join(' | '));
