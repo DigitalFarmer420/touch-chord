@@ -124,3 +124,26 @@ html.lay-phone-port:not(.simple) #app > .now-col, html.lay-phone-port:not(.simpl
 .pg-t[style*="white-space: nowrap"] { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .prog.pg-wide .pg-t { max-width: 100%; }
 .prog.pg-wide .pg-nm, .prog.pg-wide .pg-num { display: block; max-width: 100%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Phone landscape Expert: Next / Play sit in the 46px song-card row (40px on 330-tall screens) but
+   only painted 32px tall. Stretch them to fill the row. Play stays 40px wide visually (P4); a
+   transparent ::after brings the hit area up to 44 x 44 without changing iPad or portrait. Compatible
+   with feat/large-screen-fluid, which also stretches these buttons at 844x390. */
+html.expert.lay-phone-land #xGo { align-items: stretch; }
+html.expert.lay-phone-land #xGo > .x-b { position: relative; height: auto; min-height: 0; align-self: stretch; box-sizing: border-box; }
+html.expert.lay-phone-land #xGo > .x-b::after { content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, 44px); height: max(100%, 44px); transform: translate(-50%, -50%); }
+
+/* Phone landscape Simple: the progression name row was 26px (and Next / Play had stretched to 68px).
+   Give the name row a 44px box, keep Next / Play at the intended 44px, and extend the existing
+   half-box arrow ::after to a 44px floor. The key stepper is already 42px; the extra 1px each side
+   goes into the gap. Portrait and iPad are unchanged. */
+html.simple.lay-phone-land .prog { --pg-h: 44px; --pg-nh: 44px; }
+html.simple.lay-phone-land .pg-sel { height: 44px; min-height: 44px; flex: 0 0 44px; overflow: visible; }
+html.simple.lay-phone-land .pg-txt { overflow: hidden; }
+html.simple.lay-phone-land .pg-btn { height: 44px; min-height: 44px; max-height: 44px; }
+html.simple.lay-phone-land .kk-root { overflow: visible; }
+html.simple.lay-phone-land .kk-name { overflow: hidden; }
+html.simple.lay-phone-land .kk-root .kk-prev::after,
+html.simple.lay-phone-land .kk-root .kk-next::after,
+html.simple.lay-phone-land .pg-sel .pg-prev::after,
+html.simple.lay-phone-land .pg-sel .pg-next::after { top: 50%; bottom: auto; height: max(100%, 44px); transform: translateY(-50%); }

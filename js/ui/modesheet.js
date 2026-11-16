@@ -7,10 +7,10 @@
 //     Start over. Rows drive the app's own controls (#playAlongBtn, #paHintsBtn, #progNumsBtn, #tourBtn; How to opens
 //     the How to dialog), so nothing behaves differently from before.
 // The Expert view (js/expert/ui.js) configures it: the current mode, the switch, Start over and the looks.
-import { state } from "../state.js?v=112.13";
-import { APP_VERSION, APP_BUILD } from "../version.js?v=112.13";
-import { LOOK_CHOICES, LOOK_LABELS } from "./lookmath.js?v=112.13";
-import { openHowto } from "./helpmenu.js?v=112.13";
+import { state } from "../state.js?v=112.14";
+import { APP_VERSION, APP_BUILD } from "../version.js?v=112.14";
+import { LOOK_CHOICES, LOOK_LABELS } from "./lookmath.js?v=112.14";
+import { openHowto } from "./helpmenu.js?v=112.14";
 
 export const MODES = [["kids", "Kids", "big & easy", "\u2605"], ["simple", "Simple", "chords + key", "\u25D0"], ["expert", "Expert", "everything", "\u25C6"]];
 // rd17 (Uiux, one home per control): no Keys row (the keyboard bar cycles it), no Upload row (the Song tab is its home),
@@ -93,8 +93,7 @@ function build() {
     + "<div class=\"ms-body\">"
     + "<div class=\"ms-ver\" id=\"msVer\"><div class=\"ms-ver-n\">Version " + APP_VERSION + "</div>"
     // v3.2 UI polish (Uiux P8): the full build name (APP_BUILD, written at packaging time), selectable, with Copy
-    + "<div class=\"ms-ver-b\">Build <code id=\"msBuild\">" + buildEsc(APP_BUILD) + "</code> <button type=\"button\" class=\"ms-ver-copy\" data-act=\"copybuild\" id=\"msBuildCopy\" aria-label=\"Copy the build name\">Copy</button></div>"
-    + "<div class=\"ms-ver-rc\">RC testing</div></div>"
+    + "<div class=\"ms-ver-b\">Build <code id=\"msBuild\">" + buildEsc(APP_BUILD) + "</code> <button type=\"button\" class=\"ms-ver-copy\" data-act=\"copybuild\" id=\"msBuildCopy\" aria-label=\"Copy the build name\">Copy</button></div></div>"
     + "<div class=\"ms-lbl\" data-row=\"mode\">Mode</div><div class=\"ms-mode\" id=\"msMode\" role=\"radiogroup\" aria-label=\"Mode\">"
     + MODES.map(function (m) { return "<button type=\"button\" role=\"radio\" data-mode=\"" + m[0] + "\"><b>" + m[1] + "</b><small>" + m[2] + "</small></button>"; }).join("") + "</div>"
     + "<div class=\"ms-lbl\">Playing</div>"
