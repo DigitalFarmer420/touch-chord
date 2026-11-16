@@ -144,10 +144,12 @@ test('?test=1 does not change service worker install or wait behaviour', () => {
   assert.match(sw, /self\.skipWaiting\(\)/);
 });
 
-test('the service worker is registered as sw.js?v=APP_VERSION', () => {
+test('the service worker is registered as sw.js?v=BUILD_ID (APP_VERSION unless a deploy stamped it)', () => {
   const off = read('js/offline.js');
-  assert.match(off, /import \{ APP_VERSION \} from "\.\/version\.js\?v=/);
-  assert.match(off, /new URL\("sw\.js\?v=" \+ APP_VERSION/);
+  assert.match(off, /import \{ BUILD_ID \} from "\.\/version\.js\?v=/);
+  assert.match(off, /new URL\("sw\.js\?v=" \+ BUILD_ID/);
+  const ver = read('js/version.js');
+  assert.equal(/BUILD_ID = "([^"]+)"/.exec(ver)[1], /APP_VERSION = "([^"]+)"/.exec(ver)[1], 'the repo is never committed stamped');
   assert.doesNotMatch(off, /new URL\("sw\.js"/);
   const { sw } = loadPrecache();
   assert.match(sw, /new URL\(self\.location\)\.searchParams\.get\("v"\)/);
@@ -278,22 +280,26 @@ test('isNativeWrapper detects Capacitor, cordova, and wrapper protocols', () => 
 // ---- PR #15 fix: a versioned request is never answered from another version's cache entry. ----
 import vm from 'node:vm';
 
-function loadSw({ version, cached, online }) {
+function loadSw({ version, cached, online, html }) {
   const SCOPE = 'https://h.test/touch-chord-dev/';
   const store = new Map(); // cacheName -> Map(url -> body)
   for (const [name, entries] of Object.entries(cached)) store.set(name, new Map(Object.entries(entries)));
   const listeners = {};
   const fetched = [];
+  const inits = [];
   const strip = u => u.split('?')[0];
   const cacheObj = (name) => ({
     match(req, opt) {
       const url = typeof req === 'string' ? req : req.url;
       const m = store.get(name) || new Map();
-      if (m.has(url)) return Promise.resolve({ body: m.get(url), from: name });
-      if (opt && opt.ignoreSearch) for (const [k, v] of m) if (strip(k) === strip(url)) return Promise.resolve({ body: v, from: name });
+      const hit = (body) => Promise.resolve({ body, from: name, text: () => Promise.resolve(body) });
+      if (m.has(url)) return hit(m.get(url));
+      if (opt && opt.ignoreSearch) for (const [k, v] of m) if (strip(k) === strip(url)) return hit(v);
       return Promise.resolve(undefined);
     },
-    addAll() { return Promise.resolve(); }
+    addAll() { return Promise.resolve(); },
+    keys() { return Promise.resolve([]); },
+    put() { return Promise.resolve(); }
   });
   const caches = {
     keys: () => Promise.resolve([...store.keys()]),
@@ -312,17 +318,22 @@ function loadSw({ version, cached, online }) {
   };
   const ctx = {
     self, caches, URL, Request: class { constructor(u, o) { this.url = u; Object.assign(this, o); } },
-    fetch: (req) => { const url = typeof req === 'string' ? req : req.url; fetched.push(url);
-      return online ? Promise.resolve({ body: 'net:' + url, from: 'network' }) : Promise.reject(new TypeError('offline')); },
+    fetch: (req, init) => { const url = typeof req === 'string' ? req : req.url; fetched.push(url); inits.push({ url, init });
+      if (!online) return Promise.reject(new TypeError('offline'));
+      const res = { body: 'net:' + url, from: 'network' };
+      if (html !== undefined && /\/(index\.html)?(\?|$)/.test(new URL(url).pathname + new URL(url).search)) {
+        Object.assign(res, { ok: true, type: 'basic', clone: () => res, text: () => Promise.resolve(html) });
+      }
+      return Promise.resolve(res); },
     Promise, Error
   };
   vm.runInNewContext(read('sw.js'), ctx);
-  function request(path, mode) {
+  function request(path, mode, ids) {
     return new Promise((resolve, reject) => {
-      listeners.fetch({ request: { method: 'GET', url: SCOPE + path, mode: mode || 'no-cors' }, respondWith: p => p.then(resolve, reject) });
+      listeners.fetch(Object.assign({ request: { method: 'GET', url: SCOPE + path, mode: mode || 'no-cors' }, respondWith: p => p.then(resolve, reject), waitUntil() {} }, ids || {}));
     });
   }
-  return { request, fetched };
+  return { request, fetched, inits };
 }
 
 const A = 'touch-chord/touch-chord-dev/112.14';
@@ -375,4 +386,38 @@ test('install precaches with cache: "reload" so the HTTP cache cannot leak anoth
   const sw = read('sw.js');
   const install = sw.slice(sw.indexOf('addEventListener("install"'), sw.indexOf('addEventListener("activate"'));
   assert.match(install, /cache: "reload"/);
+});
+
+// ---- BUG-2: every network fetch of an app file revalidates (cache: "no-cache"), so Pages' max-age=600
+// HTTP cache can never pair a new same-version HTML with an old same-URL JS file. ----
+test('navigations fetch with cache: "no-cache"', async () => {
+  const sw = loadSw({ version: '112.14', cached: { [A]: A_ENTRIES }, online: true });
+  await sw.request('index.html?test=1', 'navigate');
+  assert.equal(sw.inits.length, 1);
+  assert.equal(sw.inits[0].init && sw.inits[0].init.cache, 'no-cache');
+});
+
+test('a versioned asset missing from the cache is fetched with cache: "no-cache"', async () => {
+  const sw = loadSw({ version: '112.14', cached: { [A]: A_ENTRIES }, online: true });
+  await sw.request('js/main.js?v=112.15-abc1234');
+  assert.deepEqual(sw.inits.map(x => x.init && x.init.cache), ['no-cache']);
+});
+
+test('a page with a new same-version HTML gets its assets network first with cache: "no-cache"', async () => {
+  const sw = loadSw({ version: '112.14', cached: { [A]: A_ENTRIES }, online: true,
+    html: '<script type="module" src="js/main.js?v=112.14"></script><!-- new build -->' });
+  await sw.request('index.html', 'navigate', { resultingClientId: 'c1' });
+  const before = sw.inits.length;
+  const res = await sw.request('js/version.js?v=112.14', 'cors', { clientId: 'c1' });
+  assert.equal(res.from, 'network', 'not the cached A copy');
+  const own = sw.inits.slice(before).filter(x => x.url.endsWith('js/version.js?v=112.14'));
+  assert.ok(own.length >= 1);
+  for (const x of own) assert.equal(x.init && x.init.cache, 'no-cache');
+});
+
+test('every fetch() in sw.js goes through netFetch, install/refill (cache: "reload") or version.js (no-store)', () => {
+  const sw = read('sw.js');
+  const calls = [...sw.matchAll(/\bfetch\(([^)]*)/g)].map(m => m[1]);
+  for (const c of calls) assert.ok(/^req, NET$|^new URL\("js\/version\.js"/.test(c), 'unexpected fetch(' + c + ')');
+  assert.match(sw, /var NET = \{ cache: "no-cache" \};/);
 });

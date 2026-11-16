@@ -16,6 +16,18 @@
 //   2. offline after B is active: an offline reload boots B (label, HTML and JS).
 //   3. asset-only change A->A2: the online reload shows A2's HTML with A2's JS, and once the
 //      cache is refilled an offline reload shows A2's HTML with A2's JS (never mixed).
+//   5. code-only deploy (BUG-1): deploy copies are made on disk the way deploy-dev.yml makes them
+//      (copy, then tools/stamp-build.py <dir> <sha> when the tree has it). D1 = this tree, D2 = only
+//      js/ui/next.js changed, same APP_VERSION, another sha. Served with max-age=600 like Pages.
+//      Three reloads and two cold launches: no load mixes builds (HTML ?v= tags, every loaded js/css
+//      ?v= and the next.js marker agree), and D2's code is live and in control by the first cold launch.
+//   6. CSS-only deploy: the same with only css/base.css changed.
+//   7. same-version HTML+JS change, deployed like deploy-dev.yml (stamped), max-age=600 (BUG-2): the
+//      first online reload must not pair the new HTML with an old same-URL JS file. Note: in Chromium a
+//      reload reuses the renderer's memory cache for same-URL subresources without asking the worker
+//      (workerStart 0, transferSize 0), so only a new ?v= per deploy fixes this; sw.js's
+//      cache: "no-cache" covers the HTTP-cache half. Unstamped (production main) relies on
+//      tools/check-bump.py making every release into main bump APP_VERSION.
 //   4. existing install from 971119a: A is served with tests/fixtures/offline/sw-971119a.js
 //      (the worker PR #15 shipped at 971119a), then this tree's B. B's label, HTML and JS on
 //      the first cold launch, and the controller is sw.js?v=B by the second cold launch.
@@ -24,7 +36,9 @@
 //   AB_ROOT=/path/to/other/tree node tests/ci/update-ab.mjs
 
 import { createServer } from 'node:http';
-import { existsSync, statSync, readFileSync } from 'node:fs';
+import { existsSync, statSync, readFileSync, writeFileSync, appendFileSync, cpSync, mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { spawnSync } from 'node:child_process';
 import { dirname, extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -40,10 +54,11 @@ const MIME = {
 const TEXT = new Set(['.html', '.js', '.css', '.webmanifest', '.json']);
 function esc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
-function makeServer(root, state) {
+function makeServer(baseRoot, state) {
   const { vA, vB } = state;
   const tagA = new RegExp('\\?v=' + esc(vA) + '(?![0-9.])', 'g');
   return createServer((q, res) => {
+    const root = state.dir || baseRoot;
     const path = decodeURIComponent((q.url || '/').split('?')[0]);
     if (!path.startsWith(PREFIX)) { res.writeHead(404); res.end(); return; }
     const rel = path === PREFIX ? 'index.html' : path.slice(PREFIX.length);
@@ -52,7 +67,7 @@ function makeServer(root, state) {
     else if (!file.startsWith(root) || !existsSync(file) || statSync(file).isDirectory()) { res.writeHead(404); res.end(); return; }
     const ext = extname(file);
     let body = readFileSync(file);
-    if (state.build !== 'A' && TEXT.has(ext)) {
+    if (!state.dir && state.build !== 'A' && TEXT.has(ext)) {
       let text = body.toString('utf8');
       if (state.build === 'B') {
         text = text.replace(tagA, '?v=' + vB);
@@ -64,7 +79,7 @@ function makeServer(root, state) {
       }
       body = Buffer.from(text, 'utf8');
     }
-    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': 'no-store' });
+    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': state.cacheControl || 'no-store' });
     res.end(body);
   });
 }
@@ -83,6 +98,10 @@ async function snap(page) {
       html: meta ? meta.content : 'A',
       js: globalThis.__TC_BUILD || 'A',
       mark: window.__TC_ASSET_MARK || 'A',
+      next: globalThis.__TC_NEXT_MARK || 'A',
+      css: getComputedStyle(document.documentElement).getPropertyValue('--tc-css-mark').replace(/["' ]/g, '') || 'A',
+      htmlTags: [...new Set([...document.querySelectorAll('script[src],link[href]')].map(e => (e.getAttribute('src') || e.getAttribute('href') || '').split('?v=')[1]).filter(Boolean))],
+      loadedTags: [...new Set(performance.getEntriesByType('resource').map(e => new URL(e.name)).filter(u => /\/(js|css)\//.test(u.pathname) && u.searchParams.get('v')).map(u => u.searchParams.get('v')))],
       controller: navigator.serviceWorker.controller ? new URL(navigator.serviceWorker.controller.scriptURL).search : null,
       active: reg ? q(reg.active) : null,
       waiting: reg ? q(reg.waiting) : null,
@@ -118,6 +137,23 @@ async function coldLaunch(ctx, page, url) {
 }
 
 const brief = s => JSON.stringify({ label: s.label, html: s.html, js: s.js, controller: s.controller, waiting: s.waiting });
+
+// Deploy copies, made like deploy-dev.yml: copy the app files, change some, then stamp with the tree's own
+// tools/stamp-build.py (a tree without it, like 14fc21e, deploys its files as they are).
+const APP_FILES = ['index.html', 'sw.js', 'manifest.webmanifest', 'css', 'js', 'fonts', 'images'];
+function makeDeploy(root, work, name, sha, change, stamp = true) {
+  const dir = join(work, name);
+  for (const f of APP_FILES) if (existsSync(join(root, f))) cpSync(join(root, f), join(dir, f), { recursive: true });
+  if (change) change(dir);
+  const script = join(root, 'tools/stamp-build.py');
+  if (stamp && existsSync(script)) {
+    const r = spawnSync('python3', [script, dir, sha], { encoding: 'utf8' });
+    if (r.status !== 0) throw new Error('stamp-build failed: ' + r.stderr + r.stdout);
+  }
+  const vt = readFileSync(join(dir, 'js/version.js'), 'utf8');
+  const id = (/BUILD_ID\s*=\s*"([^"]+)"/.exec(vt) || /APP_VERSION\s*=\s*"([^"]+)"/.exec(vt))[1];
+  return { dir, id };
+}
 
 export async function runUpdateCheck(browser, opts = {}) {
   const root = resolve(opts.root || process.env.AB_ROOT || join(HERE, '../..'));
@@ -216,6 +252,85 @@ export async function runUpdateCheck(browser, opts = {}) {
     else if (off.html !== 'A2') notes.push('offline reload serves stale ' + off.html);
     return 'online HTML ' + on.html + '/JS ' + on.mark + ', offline HTML ' + off.html + '/JS ' + off.mark;
   });
+
+  const work = mkdtempSync(join(tmpdir(), 'tc-update-ab-'));
+  try {
+    // 5 + 6. Code-only and CSS-only deploys, same APP_VERSION, served with Pages' max-age=600.
+    const D1 = makeDeploy(root, work, 'd1', 'aaaaaaa1');
+    const kinds = [
+      ['offline code-only deploy (js/ui/next.js, same APP_VERSION)', 'next', d => appendFileSync(join(d, 'js/ui/next.js'), '\nglobalThis.__TC_NEXT_MARK = "D2";\n')],
+      ['offline CSS-only deploy (css/base.css, same APP_VERSION)', 'css', d => appendFileSync(join(d, 'css/base.css'), '\n:root { --tc-css-mark: "D2"; }\n')]
+    ];
+    for (const [title, key, change] of kinds) {
+      const D2 = makeDeploy(root, work, 'd2-' + key, 'ccccccc2', change);
+      await scenario(title, async ({ ctx, box, url, state, notes }) => {
+        state.dir = D1.dir; state.cacheControl = 'max-age=600';
+        await box.page.goto(url, { waitUntil: 'load', timeout: 20000 });
+        await box.page.evaluate(() => navigator.serviceWorker.ready);
+        if (!(await snap(box.page)).controller) await box.page.reload({ waitUntil: 'load' });
+        let s = await snap(box.page);
+        if (s.controller !== '?v=' + D1.id || s[key] !== 'A') notes.push('D1 not installed: ' + JSON.stringify({ controller: s.controller, mark: s[key] }));
+        state.dir = D2.dir;
+        const isD2 = x => x[key] === 'D2';
+        const htmlBuild = x => (x.htmlTags.length === 1 && x.htmlTags[0] === D2.id && D2.id !== D1.id) ? 'D2' : (D2.id === D1.id ? '?' : 'D1');
+        function mixed(x, where) {
+          if (x.htmlTags.length !== 1 || x.loadedTags.some(t => t !== x.htmlTags[0])) notes.push(where + ': mixed ?v= tags HTML ' + JSON.stringify(x.htmlTags) + ' loaded ' + JSON.stringify(x.loadedTags));
+          const h = htmlBuild(x);
+          if (h !== '?' && (h === 'D2') !== isD2(x)) notes.push(where + ': HTML ' + h + ' with code ' + x[key]);
+        }
+        const log = [];
+        for (let i = 1; i <= 3; i++) {
+          await box.page.reload({ waitUntil: 'load' });
+          s = await snap(box.page); mixed(s, 'reload ' + i);
+          log.push('r' + i + ' ' + s[key] + ' ctl ' + s.controller);
+        }
+        await waitWorker(box.page, D2.id, 15000, ['waiting', 'active']);
+        for (let i = 1; i <= 2; i++) {
+          box.page = await coldLaunch(ctx, box.page, url);
+          s = await snap(box.page); mixed(s, 'cold launch ' + i);
+          log.push('c' + i + ' ' + s[key] + ' ctl ' + s.controller);
+          if (!isD2(s) || s.controller !== '?v=' + D2.id) notes.push('cold launch ' + i + ': code ' + s[key] + ', controller ' + s.controller + ' (expected D2 code under sw.js?v=' + D2.id + ')');
+        }
+        const keys = await box.page.evaluate(() => caches.keys());
+        if (D1.id !== D2.id && keys.includes('touch-chord/touch-chord/' + D1.id)) notes.push("D1's cache not deleted: " + JSON.stringify(keys));
+        await ctx.setOffline(true);
+        await box.page.reload({ waitUntil: 'load', timeout: 20000 });
+        const o = await snap(box.page);
+        await ctx.setOffline(false);
+        mixed(o, 'offline reload');
+        if (!isD2(o)) notes.push('offline reload serves ' + o[key]);
+        log.push('offline ' + o[key]);
+        return D1.id + ' -> ' + D2.id + ': ' + log.join(', ');
+      });
+    }
+
+    // 7. Same-version HTML + JS change, deployed (stamped) like deploy-dev.yml, max-age=600.
+    const U1 = makeDeploy(root, work, 'u1', 'aaaaaaa1');
+    const U2 = makeDeploy(root, work, 'u2', 'ddddddd4', d => {
+      const f = join(d, 'index.html');
+      writeFileSync(f, readFileSync(f, 'utf8').replace('</head>', '<meta name="tc-html-mark" content="A2"></head>'));
+      appendFileSync(join(d, 'js/boot-early.js'), '\nwindow.__TC_ASSET_MARK = "A2";\n');
+    });
+    await scenario('same-version HTML+JS deploy under max-age=600', async ({ ctx, box, url, state, notes }) => {
+      state.dir = U1.dir; state.cacheControl = 'max-age=600';
+      await box.page.goto(url, { waitUntil: 'load', timeout: 20000 });
+      await box.page.evaluate(() => navigator.serviceWorker.ready);
+      if (!(await snap(box.page)).controller) await box.page.reload({ waitUntil: 'load' });
+      state.dir = U2.dir;
+      const log = [];
+      for (let i = 1; i <= 3; i++) {
+        await box.page.reload({ waitUntil: 'load' });
+        const s = await snap(box.page);
+        const html = await box.page.evaluate(() => (document.querySelector('meta[name="tc-html-mark"]') || { content: 'A' }).content);
+        log.push('r' + i + ' HTML ' + html + '/JS ' + s.mark);
+        if (html !== s.mark) notes.push('reload ' + i + ' mixes HTML ' + html + ' with JS ' + s.mark);
+        if (i === 1 && html !== 'A2') notes.push('reload 1 did not load the new HTML: ' + html);
+      }
+      return U1.id + ' -> ' + U2.id + ': ' + log.join(', ');
+    });
+  } finally {
+    rmSync(work, { recursive: true, force: true });
+  }
 
   // 4. A profile installed by the 971119a worker gets this tree's B.
   await scenario('offline existing 971119a install picks up B', async ({ ctx, box, url, state, notes }) => {

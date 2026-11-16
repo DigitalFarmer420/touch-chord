@@ -1,9 +1,9 @@
 // Register the offline service worker (feature-detected, not in the Android/Capacitor wrapper).
 // Install/wait behaviour is unchanged when a test query is present: the new worker waits for a
 // cold launch, or for window.tc.applyUpdate() when transport is not playing.
-import { APP_VERSION } from "./version.js?v=112.14";
-import { prog } from "./songs/playback.js?v=112.14";
-import { makeApplyUpdate, isNativeWrapper } from "./offline-update.js?v=112.14";
+import { BUILD_ID } from "./version.js?v=112.15";
+import { prog } from "./songs/playback.js?v=112.15";
+import { makeApplyUpdate, isNativeWrapper } from "./offline-update.js?v=112.15";
 
 export function readTransportState() {
   if (typeof window !== "undefined" && window.__tcTest && typeof window.__tcTest.transport === "function") {
@@ -93,7 +93,7 @@ export function boot() {
   bindApplyUpdate();
   if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
   if (isNativeWrapper()) return;
-  var url = new URL("sw.js?v=" + APP_VERSION, (typeof document !== "undefined" && document.baseURI) || location.href);
+  var url = new URL("sw.js?v=" + BUILD_ID, (typeof document !== "undefined" && document.baseURI) || location.href);
   navigator.serviceWorker.register(url.href, { scope: "./", updateViaCache: "none" }).then(watchRegistration).catch(function () {});
 }
 

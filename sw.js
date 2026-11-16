@@ -1,6 +1,8 @@
-// Touch Chord service worker. The script is registered as sw.js?v=APP_VERSION so a
-// version bump is a new registration URL, so a new worker installs even when sw.js bytes are unchanged. Precache URLs use that same v
-// (with a fetch of js/version.js only if the query is missing). Do not hardcode a version.
+// Touch Chord service worker. The script is registered as sw.js?v=BUILD_ID (js/version.js). In the repo
+// BUILD_ID equals APP_VERSION; each Pages deploy stamps it to APP_VERSION-<short sha> (tools/stamp-build.py),
+// so every deploy, even a JS- or CSS-only one, is a new registration URL and a new worker installs even when
+// sw.js bytes are unchanged. The cache name and precache ?v= URLs use that same v (with a fetch of
+// js/version.js only if the query is missing). Do not hardcode a version.
 // A new worker waits for the next cold launch (or window.tc.applyUpdate()).
 // Never skipWaiting on install. Query-string test flags must not change wait behaviour.
 
@@ -149,8 +151,8 @@ function fetchVersionJs() {
     if (!res.ok) throw new Error("version.js " + res.status);
     return res.text();
   }).then(function (text) {
-    var m = /APP_VERSION\s*=\s*"([^"]+)"/.exec(text);
-    if (!m) throw new Error("APP_VERSION missing from version.js");
+    var m = /BUILD_ID\s*=\s*"([^"]+)"/.exec(text) || /APP_VERSION\s*=\s*"([^"]+)"/.exec(text);
+    if (!m) throw new Error("BUILD_ID/APP_VERSION missing from version.js");
     return m[1];
   });
 }
@@ -229,6 +231,13 @@ self.addEventListener("message", function (event) {
 // first (no new-HTML/old-JS mix online), and this version's cache is re-filled in the background into
 // a staging cache and copied over with the HTML last, so an offline reload never pairs new HTML with
 // old assets or old HTML with new assets.
+// Every network fetch of an app file revalidates with the server (cache: "no-cache"), so Pages'
+// max-age=600 HTTP cache can never hand an old same-URL file to a new build's page.
+var NET = { cache: "no-cache" };
+function netFetch(req) {
+  return fetch(req, NET);
+}
+
 var freshClients = {};
 var refreshing = null;
 
@@ -244,7 +253,7 @@ self.addEventListener("fetch", function (event) {
 
 function networkFirst(event) {
   var req = event.request;
-  return fetch(req).then(function (res) {
+  return netFetch(req).then(function (res) {
     if (!res || !res.ok || res.type !== "basic" || typeof res.clone !== "function") return res;
     return res.clone().text().then(function (html) {
       return noteBuild(html, event);
@@ -308,7 +317,7 @@ function refreshBuild(version) {
 
 // Network first, cache on failure. Used for a page whose HTML is a new same-version build.
 function networkThenCache(req) {
-  return fetch(req).catch(function (err) {
+  return netFetch(req).catch(function (err) {
     return exactMatch(req).then(function (hit) {
       return hit || offlineFallback(req);
     }).then(function (hit) {
@@ -321,7 +330,7 @@ function networkThenCache(req) {
 function cacheFirst(req) {
   return exactMatch(req).then(function (hit) {
     if (hit) return hit;
-    return fetch(req).catch(function (err) {
+    return netFetch(req).catch(function (err) {
       return offlineFallback(req).then(function (again) {
         if (again) return again;
         throw err || new Error("offline miss");
