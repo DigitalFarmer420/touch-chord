@@ -1,0 +1,128 @@
+{
+  "normalized": {
+    "contractVersion": "v1.3",
+    "song": {
+      "title": "Morning Light",
+      "artist": "Test Artist",
+      "key": {
+        "tonic": "C",
+        "mode": "major"
+      }
+    },
+    "timing": {
+      "bpm": 120,
+      "timeSignature": "4/4"
+    },
+    "form": [
+      "verse1"
+    ],
+    "sections": [
+      {
+        "id": "verse1",
+        "type": "verse",
+        "bars": [
+          {
+            "bar": 1,
+            "chords": [
+              {
+                "beat": 1,
+                "chord": "C",
+                "confidence": 1
+              }
+            ]
+          },
+          {
+            "bar": 2,
+            "chords": [
+              {
+                "beat": 1,
+                "chord": "G",
+                "confidence": 1
+              }
+            ]
+          }
+        ],
+        "lyrics": [
+          {
+            "text": "Hello world",
+            "markers": [
+              {
+                "charIndex": 0,
+                "bar": 1,
+                "beat": 1
+              },
+              {
+                "charIndex": 6,
+                "bar": 2,
+                "beat": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "load": {
+    "ok": true,
+    "warnings": [],
+    "errors": [],
+    "song": {
+      "song": {
+        "title": "Morning Light",
+        "artist": "Test Artist",
+        "key": {
+          "tonic": "C",
+          "mode": "major"
+        }
+      },
+      "timing": {
+        "bpm": 120,
+        "timeSignature": "4/4"
+      },
+      "sections": [
+        {
+          "id": "verse1",
+          "type": "verse",
+          "chords": [
+            {
+              "index": 0,
+              "chord": "C",
+              "position": {
+                "bar": 1,
+                "beat": 1
+              },
+              "durationBeats": 4,
+              "confidence": 1
+            },
+            {
+              "index": 1,
+              "chord": "G",
+              "position": {
+                "bar": 2,
+                "beat": 1
+              },
+              "durationBeats": 4,
+              "confidence": 1
+            }
+          ],
+          "lyrics": [
+            {
+              "text": "Hello world",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "chordIndex": 0
+                },
+                {
+                  "charIndex": 6,
+                  "chordIndex": 1
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "contractVersion": "1.2"
+    }
+  }
+}

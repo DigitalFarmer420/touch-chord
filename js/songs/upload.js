@@ -7,6 +7,7 @@ import { state, shared } from "../state.js?v=112.14";
 import { Theory } from "../theory/index.js?v=112.14";
 import { wrap12 } from "../theory/quality.js?v=112.14";
 import { repairJson, tidyChord, is13, from13 } from "./normalize.js?v=112.14";
+import { normalizeAiPaste, normalizeAiVersion } from "./aipaste.js?v=112.14";
 import { upFullSecs } from "./fullchart.js?v=112.14";
 import { computeSpec } from "../ui/pads.js?v=112.14";
 import { paintSuggestions } from "../ui/strip.js?v=112.14";
@@ -266,11 +267,14 @@ export function upParseAnswer(text) {
 function upParseOne(text) {
   var raw = String(text || "");
   if (!raw.trim()) return { error: "empty" };
+  var _ai = normalizeAiPaste(raw);
+  if (_ai.text) raw = _ai.text;
+  var _aiRep = !!_ai.repaired;
   var fences = upFences(raw), cands = fences.concat([raw]), main = fences.length ? fences[0] : raw;
   if (main.indexOf("{") < 0 && main.indexOf("[") < 0 && raw.indexOf("{") < 0 && raw.indexOf("[") < 0) return { error: "nojson" };
   var fbList = null, fbAny = null;
-  function at(s, st) { var end = upMatchEnd(s, st); if (end < 0) return null; try { return { v: JSON.parse(s.slice(st, end)), end: end }; } catch (err) { return { end: end }; } }
-  function done(k, rep) { k.repaired = rep; return k; }
+  function at(s, st) { var end = upMatchEnd(s, st); if (end < 0) return null; try { var v = JSON.parse(s.slice(st, end)); var vr = normalizeAiVersion(v); if (vr.error) return { end: end, verErr: vr.error, v: v }; return { v: v, end: end, verWarn: vr.warnings }; } catch (err) { return { end: end }; } }
+  function done(k, rep) { k.repaired = !!(rep || _aiRep); return k; }
   for (var pass = 0; pass < 2; pass++) {
     for (var c = 0; c < cands.length; c++) {   // 1) the first { and the first [ of each block (the v89 rule)
       var s = pass ? repairJson(cands[c]) : cands[c], a = s.indexOf("{"), b = s.indexOf("[");
@@ -317,10 +321,12 @@ function upParseOne(text) {
 export function upCheck(text) {
   var out = { ok: false, song: null, errors: [], warnings: [] };
   var s = String(text || "");
-  var a = s.indexOf("{"), b = s.lastIndexOf("}");
-  if (!s.replace(/\s+/g, "")) { out.errors.push({ path: "(paste)", msg: "is empty: paste the AI's answer first" }); return out; }
+  if (!s.replace(/\s+/g, "").replace(/\ufeff/g, "")) { out.errors.push({ path: "(paste)", msg: "is empty: paste the AI's answer first" }); return out; }
+  var _ai = normalizeAiPaste(s);
+  if (_ai.error && !_ai.text) { out.errors.push({ path: "(paste)", msg: _ai.error === "is empty: paste the AI's answer first" ? _ai.error : UP_NOJSON }); return out; }
+  var body = _ai.text, obj, rep = !!_ai.repaired;
+  var a = body.indexOf("{"), b = body.lastIndexOf("}");
   if (a < 0 || b <= a) { out.errors.push({ path: "(paste)", msg: UP_NOJSON }); return out; }
-  var body = s.slice(a, b + 1), obj, rep = false;
   try { obj = JSON.parse(body); }
   catch (err0) { try { obj = JSON.parse(repairJson(body)); rep = true; } catch (err1) { obj = undefined; } }   // v112.12 (P3)
   if (obj === undefined) try { JSON.parse(body); }
@@ -332,7 +338,11 @@ export function upCheck(text) {
     out.errors.push({ path: "(JSON)", msg: "is not valid JSON" + where + ": " + msg.replace(/^JSON\.parse: /, "") });
     return out;
   }
-  return upCheckObj(obj, rep ? [UP_REPAIRED] : []);
+  var vr = normalizeAiVersion(obj);
+  var pre = (rep ? [UP_REPAIRED] : []).concat(vr.warnings || []);
+  if (vr.error) { out.errors.push({ path: "contractVersion", msg: vr.error }); out.warnings = pre; return out; }
+  return upCheckObj(obj, pre);
+
 }
 export const UP_NOJSON = "has no JSON object in it (nothing between { and }). If the AI wrote a chord sheet, ask it again with the copied prompt so it answers in JSON";   // v3.2-ai-paste
 export const UP_REPAIRED = "The answer was repaired: it had small JSON slips (like curly quotes, trailing commas, comments or odd spaces)";   // v112.13
@@ -725,16 +735,18 @@ function upCleanKeys(v, d) {
 // v1.3 (said, or the form / bars shape when no version is given) goes through normalize.js from13 first.
 function upCheckSong(o, cv, single) {
   upCleanKeys(o, 0);
+  var vr = normalizeAiVersion(o);
+  if (vr.error) return { ok: false, song: null, errors: [{ path: "contractVersion", msg: vr.error }], warnings: vr.warnings || [] };
   var has = o && typeof o === "object" && !Array.isArray(o) && Object.prototype.hasOwnProperty.call(o, "contractVersion");
   var v = has ? upCv(o.contractVersion) : cv;
   if (v === "1.3" || (v === undefined && is13(o))) {
     var c = from13(o);
     if (c.errors.length) return { ok: false, song: null, errors: c.errors, warnings: c.warnings };
     c.song.contractVersion = "1.2";
-    var r = upCheckObj(c.song, c.warnings); r.barSum = c.barSum;
+    var r = upCheckObj(c.song, (vr.warnings || []).concat(c.warnings)); r.barSum = c.barSum;
     return r;
   }
-  var pre = [];
+  var pre = (vr.warnings || []).slice();
   if (!has && o && typeof o === "object" && !Array.isArray(o)) { o.contractVersion = v || "1.2"; if (single) pre.push("contractVersion is missing; read as " + o.contractVersion); }
   return upCheckObj(o, pre);
 }
@@ -765,9 +777,12 @@ export function upLoadBegin(text, opts) {
   var L = { items: pa.items, envelope: pa.envelope, truncated: pa.truncated, warnings: pa.repaired ? [UP_REPAIRED] : [], errors: [], rows: [] };
   if (pa.merged) L.warnings.push("The paste has " + pa.merged + " answers in it; the songs from all of them were checked");
   if (pa.envelope) {
+    var ev = normalizeAiVersion(pa.envelope);
+    if (ev.warnings && ev.warnings.length) L.warnings.push.apply(L.warnings, ev.warnings);
+    if (ev.error) L.errors.push({ path: "contractVersion", msg: ev.error });
     var cv = upCv(pa.envelope.contractVersion);   // v112.12: 1.0-1.3 (a number counts), missing = read from the shape
     if (cv === undefined) { cv = pa.items.some(is13) ? "1.3" : "1.2"; L.warnings.push("contractVersion is missing; read as " + cv); }
-    else if (UP_VERSIONS.indexOf(cv) < 0) L.errors.push({ path: "contractVersion", msg: upCvMsg(pa.envelope.contractVersion) });
+    else if (UP_VERSIONS.indexOf(cv) < 0) L.errors.push({ path: "contractVersion", msg: ev.error || upCvMsg(pa.envelope.contractVersion) });
     L.cv = cv;
     Object.keys(pa.envelope).forEach(function (k) { if (k !== "contractVersion" && k !== "songs" && k !== "notes") L.warnings.push(k + " is not a field of the song list"); });
   }
