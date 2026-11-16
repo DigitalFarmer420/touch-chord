@@ -18,7 +18,9 @@
 // (placeSimpleTog is not in this tree). When TOGGLE_FIXME is true that geometry check is
 // skipped and the reason is printed. A console error or a failed request during the walk
 // still fails the run. Every other check fails the process. Requests to the same host that
-// sit outside the site prefix are ignored and named; they are not checks.
+// sit outside the site prefix are ignored and named; they are not checks. A console error
+// that mentions such a URL is ignored the same way. Each one is printed in full as
+// "ignored (outside prefix): <check>: <text>" and counted on the summary line.
 
 import { createServer } from 'node:http';
 import { mkdirSync, existsSync, statSync, createReadStream } from 'node:fs';
@@ -135,8 +137,15 @@ function mentionsOutside(text) {
   const found = String(text).match(/https?:\/\/[^\s)'"]+/g) || [];
   return found.some(outsideSite);
 }
+// Console errors dropped by mentionsOutside. Counted on the summary. Not a failed check.
+let ignoredOutside = 0;
+function logIgnoredConsole(where, text) {
+  ignoredOutside += 1;
+  const oneLine = String(text).replace(/\r\n|\r|\n/g, '\\n');
+  console.log('ignored (outside prefix): ' + where + ': ' + oneLine);
+}
 
-function track(page) {
+function track(page, where) {
   const errors = [];
   const failed = [];
   const ignored = [];
@@ -144,7 +153,9 @@ function track(page) {
   page.on('console', msg => {
     if (msg.type() !== 'error') return;
     const text = msg.text();
-    if (mentionsOutside(text)) { ignored.push(text); return; }
+    // Keep the full message out of `ignored`. ignoredNote folds favicon text into one
+    // "ignored browser /favicon.ico" note, which would hide a real error behind it.
+    if (mentionsOutside(text)) { logIgnoredConsole(where, text); return; }
     errors.push(text);
   });
   page.on('requestfailed', req => {
@@ -299,13 +310,13 @@ async function toggleReport(page, mode) {
   }, mode);
 }
 
-async function fresh(browser, w, h) {
+async function fresh(browser, w, h, where) {
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, hasTouch: true, deviceScaleFactor: 1 });
   await ctx.addInitScript(() => {
     try { localStorage.clear(); localStorage.setItem('touchChord.tour.v1', 'done'); } catch (e) {}
   });
   const page = await ctx.newPage();
-  const bag = track(page);
+  const bag = track(page, where);
   return { ctx, page, bag };
 }
 
@@ -350,7 +361,7 @@ try {
   for (const [w, h] of VIEWPORTS) {
     for (const mode of MODES) {
       const name = `${w}x${h} ${mode.name}`;
-      const { ctx, page, bag } = await fresh(browser, w, h);
+      const { ctx, page, bag } = await fresh(browser, w, h, name);
       try {
         await boot(page, mode.query);
         let landed = await landedMode(page);
@@ -391,7 +402,7 @@ try {
   for (const [w, h] of VIEWPORTS) {
     for (const walk of [['expert', 'simple', 'expert'], ['simple', 'expert', 'simple']]) {
       const label = `${w}x${h} ${walk.join('>')}`;
-      const { ctx, page, bag } = await fresh(browser, w, h);
+      const { ctx, page, bag } = await fresh(browser, w, h, 'toggle ' + label);
       const stepNotes = [];
       try {
         await boot(page, 'test=1&hour=12&expert=1');
@@ -440,5 +451,5 @@ const pass = results.filter(r => r.ok && !r.fixme).length;
 const fixme = results.filter(r => r.fixme).length;
 const fail = results.filter(r => !r.ok).length;
 const sec = ((Date.now() - t0) / 1000).toFixed(1);
-console.log(`smoke: ${pass} passed, ${fail} failed, ${fixme} fixme, ${sec}s`);
+console.log(`smoke: ${pass} passed, ${fail} failed, ${fixme} fixme, ${ignoredOutside} ignored (outside prefix), ${sec}s`);
 process.exit(fail ? 1 : 0);
