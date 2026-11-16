@@ -1,5 +1,8 @@
 {
- "source": "final-menus-export-v3.2.json sha256 51fd558585544d6021d48c41742cc87cd8798b4e526aa84db63ca8ed9cbee3b8",
+ "source": "final-menus-export-v3.2.json",
+ "sourceSha256": "51fd558585544d6021d48c41742cc87cd8798b4e526aa84db63ca8ed9cbee3b8",
+ "version": "3.2",
+ "entries": 152,
  "menus": {
   "pop": {
    "major": [
