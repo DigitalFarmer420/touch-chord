@@ -18,10 +18,12 @@
 // (placeSimpleTog is not in this tree). When TOGGLE_FIXME is true that geometry check is
 // skipped and the reason is printed. A console error or a failed request during the walk
 // still fails the run. Every other check fails the process. Requests to the same host that
-// sit outside the site prefix are ignored and named; they are not checks.
+// sit outside the site prefix are ignored and named; they are not checks. A console error
+// that mentions such a URL is ignored the same way. Each one is printed in full as
+// "ignored (outside prefix): <check>: <text>" and counted on the summary line.
 
 import { createServer } from 'node:http';
-import { mkdirSync, existsSync, statSync, createReadStream } from 'node:fs';
+import { mkdirSync, existsSync, statSync, createReadStream, readFileSync } from 'node:fs';
 import { dirname, extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
@@ -135,8 +137,15 @@ function mentionsOutside(text) {
   const found = String(text).match(/https?:\/\/[^\s)'"]+/g) || [];
   return found.some(outsideSite);
 }
+// Console errors dropped by mentionsOutside. Counted on the summary. Not a failed check.
+let ignoredOutside = 0;
+function logIgnoredConsole(where, text) {
+  ignoredOutside += 1;
+  const oneLine = String(text).replace(/\r\n|\r|\n/g, '\\n');
+  console.log('ignored (outside prefix): ' + where + ': ' + oneLine);
+}
 
-function track(page) {
+function track(page, where) {
   const errors = [];
   const failed = [];
   const ignored = [];
@@ -144,7 +153,9 @@ function track(page) {
   page.on('console', msg => {
     if (msg.type() !== 'error') return;
     const text = msg.text();
-    if (mentionsOutside(text)) { ignored.push(text); return; }
+    // Keep the full message out of `ignored`. ignoredNote folds favicon text into one
+    // "ignored browser /favicon.ico" note, which would hide a real error behind it.
+    if (mentionsOutside(text)) { logIgnoredConsole(where, text); return; }
     errors.push(text);
   });
   page.on('requestfailed', req => {
@@ -299,13 +310,13 @@ async function toggleReport(page, mode) {
   }, mode);
 }
 
-async function fresh(browser, w, h) {
+async function fresh(browser, w, h, where) {
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, hasTouch: true, deviceScaleFactor: 1 });
   await ctx.addInitScript(() => {
     try { localStorage.clear(); localStorage.setItem('touchChord.tour.v1', 'done'); } catch (e) {}
   });
   const page = await ctx.newPage();
-  const bag = track(page);
+  const bag = track(page, where);
   return { ctx, page, bag };
 }
 
@@ -350,7 +361,7 @@ try {
   for (const [w, h] of VIEWPORTS) {
     for (const mode of MODES) {
       const name = `${w}x${h} ${mode.name}`;
-      const { ctx, page, bag } = await fresh(browser, w, h);
+      const { ctx, page, bag } = await fresh(browser, w, h, name);
       try {
         await boot(page, mode.query);
         let landed = await landedMode(page);
@@ -391,7 +402,7 @@ try {
   for (const [w, h] of VIEWPORTS) {
     for (const walk of [['expert', 'simple', 'expert'], ['simple', 'expert', 'simple']]) {
       const label = `${w}x${h} ${walk.join('>')}`;
-      const { ctx, page, bag } = await fresh(browser, w, h);
+      const { ctx, page, bag } = await fresh(browser, w, h, 'toggle ' + label);
       const stepNotes = [];
       try {
         await boot(page, 'test=1&hour=12&expert=1');
@@ -419,6 +430,53 @@ try {
     }
   }
 
+  // N11 (PR #5): Simple's Song | Progressions toggle keeps the song step and keeps Play running (as Expert does).
+  const N11_SONG = readFileSync(join(ROOT, 'tests/fixtures/upload/anh-v13.json'), 'utf8');
+  for (const [w, h] of [[390, 844], [1180, 820]]) {
+    const label = `${w}x${h} simple toggle keeps song step`;
+    const { ctx, page, bag } = await fresh(browser, w, h, label);
+    try {
+      await boot(page, 'test=1&hour=12&expert=1');
+      await page.evaluate(async t => {
+        const ta = document.getElementById('upPaste'); ta.value = t; ta.dispatchEvent(new Event('input', { bubbles: true }));
+        document.getElementById('upLoad').click(); await new Promise(r => setTimeout(r, 600));
+      }, N11_SONG);
+      await page.keyboard.press('Escape').catch(() => {});
+      await page.evaluate(() => { document.querySelectorAll('.up-x, .kp-x').forEach(x => { if (x.offsetParent) x.click(); }); });
+      await page.waitForTimeout(300);
+      await switchTo(page, 'simple');
+      const hasTog = await page.evaluate(() => { const b = document.querySelector('#xTog button[data-v="prog"]'); return !!(b && b.getClientRects().length); });
+      if (!hasTog) { results.push({ name: label, ok: true, fixme: true }); console.log('FIXME ' + label + ': no Simple toggle in this build'); continue; }
+      const st = () => page.evaluate(() => { const P = window.__prog, e = P.list[P.idx]; return { up: !!(e && e.up), cur: P.cur, playing: P.playing }; });
+      const tap = async v => { await page.locator(`#xTog button[data-v="${v}"]`).click(); await page.waitForTimeout(300); };
+      const notes = [];
+      for (let k = 0; k < 5; k++) { await page.locator('#prog .pg-step').click(); await page.waitForTimeout(150); }
+      const a = await st();
+      await tap('prog'); await tap('song');
+      await page.locator('#prog .pg-step').click(); await page.waitForTimeout(150);
+      const b = await st();
+      if (!a.up || a.cur !== 4) notes.push('after Next x5: ' + JSON.stringify(a));
+      if (!b.up || b.cur !== 5) notes.push('Progressions > Song > Next should play step 6, got ' + JSON.stringify(b));
+      await page.locator('#prog .pg-song').click();
+      await page.waitForFunction(() => window.__prog.playing && window.__prog.cur >= 0, null, { timeout: 8000 }).catch(() => {});
+      await tap('prog');
+      const c = await st();
+      await tap('song');
+      const d = await st();
+      if (!c.playing || !c.up) notes.push('tap Progressions while playing: ' + JSON.stringify(c));
+      if (!d.playing || !d.up) notes.push('back to Song while playing: ' + JSON.stringify(d));
+      if (d.playing) await page.locator('#prog .pg-song').click();
+      if (bag.errors.length || bag.failed.length) notes.push('page: ' + bag.errors.concat(bag.failed).slice(0, 3).join('; '));
+      if (notes.length) await shot(page, label);
+      record(label, !notes.length, notes.join(' | '));
+    } catch (e) {
+      await shot(page, label);
+      record(label, false, (e && e.message || String(e)).split('\n')[0]);
+    } finally {
+      await ctx.close();
+    }
+  }
+
   for (const w of walks) {
     if (w.pageNotes.length) record('toggle ' + w.label, false, w.pageNotes.join(' | '));
   }
@@ -440,5 +498,5 @@ const pass = results.filter(r => r.ok && !r.fixme).length;
 const fixme = results.filter(r => r.fixme).length;
 const fail = results.filter(r => !r.ok).length;
 const sec = ((Date.now() - t0) / 1000).toFixed(1);
-console.log(`smoke: ${pass} passed, ${fail} failed, ${fixme} fixme, ${sec}s`);
+console.log(`smoke: ${pass} passed, ${fail} failed, ${fixme} fixme, ${ignoredOutside} ignored (outside prefix), ${sec}s`);
 process.exit(fail ? 1 : 0);
