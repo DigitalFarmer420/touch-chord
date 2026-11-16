@@ -473,7 +473,9 @@ export function paint(force) {
     k.classList.toggle("lit", !!lit[midi]);
   });
   els.play.classList.toggle("on", !!prog.playing);
-  els.play.setAttribute("aria-label", prog.playing ? "Stop" : "Play song");
+  // Play stays ▶ while a song plays (never ■ Stop), at every size. aria-label still says "Stop song".
+  els.play.removeAttribute("aria-pressed");
+  els.play.setAttribute("aria-label", prog.playing ? "Stop song" : "Play song");
 }
 function startPaint() { if (!kv.timer) kv.timer = setInterval(function () { paint(false); }, 50); }
 function stopPaint() { if (kv.timer) { clearInterval(kv.timer); kv.timer = 0; } }
