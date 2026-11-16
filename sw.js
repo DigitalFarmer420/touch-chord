@@ -61,6 +61,7 @@ var PRECACHE = [
   "js/loop.js",
   "js/main.js",
   "js/settings.js",
+  "js/songs/aipaste.js",
   "js/songs/fullchart.js",
   "js/songs/kids-songs.js",
   "js/songs/library.js",
