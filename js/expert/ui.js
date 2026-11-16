@@ -19,7 +19,7 @@ import { songCue, cueSoon, cueClock, cuePieces, placeCueTag, cueChipClass } from
 import { upSym, upSecName } from "../songs/upload.js?v=112.13";
 import { upLyrMap, lyrPad } from "../ui/lyrics.js?v=112.13";
 import { state, shared, fingers, loop, scheduleSave } from "../state.js?v=112.13";
-import { tapSimpleSrc } from "../ui/simplesrc.js?v=112.13";
+import { tapSimpleSrc, paintSimpleSrc } from "../ui/simplesrc.js?v=112.13";
 import { accSym } from "../theory/spelling.js?v=112.13";
 import { Theory } from "../theory/index.js?v=112.13";
 import { paintKeyChip, keyLabel } from "../ui/keychip.js?v=112.13";
@@ -170,6 +170,9 @@ function paintMode() {
     renderPads(); refreshHeld(); paintKeyChip(computeSpec());
     setTimeout(function () { fitStrip(); placeBadges(); fitNowSymbol(); }, 0);
   }
+  // PR #5 (Uiux): #xTog is shared with Simple's top bar, so every mode change puts it back in the active mode's slot
+  // (Expert: placeTog's top-bar slot or the column; Simple: header.topbar). Each mode keeps its own Song | Progressions view.
+  if (on) placeTog(); else paintSimpleSrc();
   paintModeSegs();
   paintSimpleLook();
   syncChart();
@@ -331,6 +334,7 @@ function paintStyleMore() {
 function placeTog() {   // landscape: the Song | Progressions toggle sits in the top bar's free middle (iPad landscape mockup)
   if (state.simple && !active) return;   // Simple owns #xTog while that mode is on (header.topbar)
   var tog = $("xTog"), slot = document.querySelector("#xTop .x-slot");
+  if (!tog || !slot) return;
   if (isLand()) { if (tog.parentNode !== slot) slot.appendChild(tog); }
   else if (tog.parentNode !== $("app")) $("app").insertBefore(tog, $("xGo"));
 }
