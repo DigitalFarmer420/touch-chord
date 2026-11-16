@@ -101,6 +101,7 @@ test('P8: APP_BUILD defaults to "<APP_VERSION>-web" and the Settings sheet shows
   assert.match(ms, /data-act=\\"copybuild\\"/);
   assert.match(ms, /navigator\.clipboard\.writeText\(APP_BUILD\)/);
   assert.match(ms, /"Copied"/);
+  assert.doesNotMatch(ms, /RC testing/);
 });
 test('P8: tools/write-build.py rewrites only APP_BUILD (from a name or build.gradle) and rejects bad names', () => {
   const d = mkdtempSync(tmpdir() + '/wb-'); mkdirSync(d + '/js'); mkdirSync(d + '/tools');
@@ -114,7 +115,7 @@ test('P8: tools/write-build.py rewrites only APP_BUILD (from a name or build.gra
   assert.match(readFileSync(d + '/js/version.js', 'utf8'), /var APP_BUILD = "112\.13-ranked-v3\.2-test\.5";/);
   assert.equal(execFileSync('python3', ['tools/write-build.py', '--check'], { cwd: d }).toString().trim(), '112.13-ranked-v3.2-test.5');
   assert.throws(() => execFileSync('python3', ['tools/write-build.py', 'bad"name'], { cwd: d, stdio: 'pipe' }));
-  assert.match(readFileSync(d + '/js/version.js', 'utf8'), /APP_VERSION = "112\.13"/, 'APP_VERSION untouched');
+  assert.ok(readFileSync(d + '/js/version.js', 'utf8').includes('APP_VERSION = "' + V + '"'), 'APP_VERSION untouched');
 });
 
 // ---------- Kids ----------

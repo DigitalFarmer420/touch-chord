@@ -74,8 +74,6 @@ html.lay-phone-land .ms-head { top: -8px; }
 .ms-ver-b code { font: inherit; color: var(--ms-ink); user-select: text; -webkit-user-select: text; word-break: break-all; }
 .ms-ver-copy { position: relative; border: 0; border-radius: 8px; background: var(--ms-btn); color: var(--ms-ink); padding: 0 12px; height: 32px !important; font: 800 12px Nunito, system-ui, sans-serif; }
 .ms-ver-copy::after { content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, 48px); height: 48px; transform: translate(-50%, -50%); }   /* tap area 48 x 48 */
-.ms-ver-rc { font-size: 13px; font-weight: 800; color: #8A3E16; }
-.ms-wrap:not(.ms-day) .ms-ver-rc { color: #F2B48A; }
 .ms-wrap button:focus-visible { outline: 3px solid var(--ms-tg); outline-offset: 2px; }
 /* Kids: the Kids look and font */
 .ms-wrap[data-mode="kids"] { font-family: Fredoka, Nunito, system-ui, sans-serif; }
