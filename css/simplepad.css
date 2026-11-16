@@ -70,7 +70,7 @@ html.simple.lay-pad-land #prog .pg-step, html.simple.lay-pad-port #prog .pg-step
 html.simple.lay-pad-land #prog .pg-step svg { width: calc(40 * var(--sh)); height: calc(40 * var(--sh)); margin: calc(-3.5 * var(--sh)); }
 html.simple.lay-pad-land #prog .pg-song svg { width: calc(33 * var(--sh)); height: calc(33 * var(--sh)); }
 /* Play stays white with a ▶ while the song plays (never the copper Stop square). The button still stops the song on a
-   second tap, and progbar.js still sets aria-pressed / aria-label "Stop song", so assistive tech hears the state. */
+   second tap; progbar.js drops aria-pressed and sets aria-label "Stop song" / "Play song", so assistive tech hears the state. */
 html.simple.lay-pad-land #prog .pg-song.on, html.simple.lay-pad-port #prog .pg-song.on { background: var(--bg-2); color: var(--copper-t); border-color: var(--line); }
 html.s-day.simple.lay-pad-land #prog .pg-song.on, html.s-day.simple.lay-pad-port #prog .pg-song.on { border-color: var(--edge); }   /* as simpleday.css's idle buttons */
 html.simple.lay-pad-land #prog .pg-song.on svg rect, html.simple.lay-pad-port #prog .pg-song.on svg rect { display: none; }
