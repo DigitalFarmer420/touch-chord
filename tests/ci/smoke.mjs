@@ -23,7 +23,7 @@
 // "ignored (outside prefix): <check>: <text>" and counted on the summary line.
 
 import { createServer } from 'node:http';
-import { mkdirSync, existsSync, statSync, createReadStream } from 'node:fs';
+import { mkdirSync, existsSync, statSync, createReadStream, readFileSync } from 'node:fs';
 import { dirname, extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
@@ -427,6 +427,53 @@ try {
       } finally {
         await ctx.close();
       }
+    }
+  }
+
+  // N11 (PR #5): Simple's Song | Progressions toggle keeps the song step and keeps Play running (as Expert does).
+  const N11_SONG = readFileSync(join(ROOT, 'tests/fixtures/upload/anh-v13.json'), 'utf8');
+  for (const [w, h] of [[390, 844], [1180, 820]]) {
+    const label = `${w}x${h} simple toggle keeps song step`;
+    const { ctx, page, bag } = await fresh(browser, w, h, label);
+    try {
+      await boot(page, 'test=1&hour=12&expert=1');
+      await page.evaluate(async t => {
+        const ta = document.getElementById('upPaste'); ta.value = t; ta.dispatchEvent(new Event('input', { bubbles: true }));
+        document.getElementById('upLoad').click(); await new Promise(r => setTimeout(r, 600));
+      }, N11_SONG);
+      await page.keyboard.press('Escape').catch(() => {});
+      await page.evaluate(() => { document.querySelectorAll('.up-x, .kp-x').forEach(x => { if (x.offsetParent) x.click(); }); });
+      await page.waitForTimeout(300);
+      await switchTo(page, 'simple');
+      const hasTog = await page.evaluate(() => { const b = document.querySelector('#xTog button[data-v="prog"]'); return !!(b && b.getClientRects().length); });
+      if (!hasTog) { results.push({ name: label, ok: true, fixme: true }); console.log('FIXME ' + label + ': no Simple toggle in this build'); continue; }
+      const st = () => page.evaluate(() => { const P = window.__prog, e = P.list[P.idx]; return { up: !!(e && e.up), cur: P.cur, playing: P.playing }; });
+      const tap = async v => { await page.locator(`#xTog button[data-v="${v}"]`).click(); await page.waitForTimeout(300); };
+      const notes = [];
+      for (let k = 0; k < 5; k++) { await page.locator('#prog .pg-step').click(); await page.waitForTimeout(150); }
+      const a = await st();
+      await tap('prog'); await tap('song');
+      await page.locator('#prog .pg-step').click(); await page.waitForTimeout(150);
+      const b = await st();
+      if (!a.up || a.cur !== 4) notes.push('after Next x5: ' + JSON.stringify(a));
+      if (!b.up || b.cur !== 5) notes.push('Progressions > Song > Next should play step 6, got ' + JSON.stringify(b));
+      await page.locator('#prog .pg-song').click();
+      await page.waitForFunction(() => window.__prog.playing && window.__prog.cur >= 0, null, { timeout: 8000 }).catch(() => {});
+      await tap('prog');
+      const c = await st();
+      await tap('song');
+      const d = await st();
+      if (!c.playing || !c.up) notes.push('tap Progressions while playing: ' + JSON.stringify(c));
+      if (!d.playing || !d.up) notes.push('back to Song while playing: ' + JSON.stringify(d));
+      if (d.playing) await page.locator('#prog .pg-song').click();
+      if (bag.errors.length || bag.failed.length) notes.push('page: ' + bag.errors.concat(bag.failed).slice(0, 3).join('; '));
+      if (notes.length) await shot(page, label);
+      record(label, !notes.length, notes.join(' | '));
+    } catch (e) {
+      await shot(page, label);
+      record(label, false, (e && e.message || String(e)).split('\n')[0]);
+    } finally {
+      await ctx.close();
     }
   }
 

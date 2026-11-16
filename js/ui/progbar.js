@@ -5,6 +5,7 @@ import { progNext } from "../songs/magic.js?v=112.14";
 import { progPlay, prog, progSet } from "../songs/playback.js?v=112.14";
 import { progFeel, progSteps, progNumerals } from "../songs/presets.js?v=112.14";
 import { state } from "../state.js?v=112.14";
+import { noteSimpleSongWalk, simpleProgStepIndex } from "./simplesrc.js?v=112.14";
 
 // The picker: Simple = friendly name in the left column under Major / Minor; full mode =
 // the numerals in a cycler by the style row (phone landscape: top of the Now column; other
@@ -93,6 +94,11 @@ function fitProgName() {
     t.appendChild(a);
     // Simple (for kids): the name only, no numerals.
     if (!state.simple) { var b = document.createElement("span"); b.className = "pg-num"; b.textContent = L.num; t.appendChild(b); }
+    // Simple, wide picker (iPad / desktop): a long name shrinks (0.5 px steps, down to 13 px) before it ellipsizes.
+    if (state.simple && a.scrollWidth > a.clientWidth + 0.5) {
+      var fw = parseFloat(getComputedStyle(a).fontSize) || 22;
+      for (var fz = fw - 0.5; ; fz -= 0.5) { fz = Math.max(13, fz); t.style.fontSize = fz + "px"; if (a.scrollWidth <= a.clientWidth || fz === 13) break; }
+    }
   } else {
     t.textContent = L.feel;
     t.style.whiteSpace = "nowrap";
@@ -187,7 +193,11 @@ export function wireProg() {
   var sel = el.querySelector(".pg-sel"), txt = el.querySelector(".pg-t");
   function step(d) {
     unlock();
-    progSet(prog.idx + d);
+    var next = document.documentElement.classList.contains("s-src-prog")
+      ? simpleProgStepIndex(prog.list, prog.idx, d)
+      : prog.idx + d;
+    noteSimpleSongWalk();   // N11: Simple keeps the song's step while a progression is picked
+    progSet(next);
     txt.classList.remove("nudge-l", "nudge-r");
     void txt.offsetWidth;
     // v112.6: the nudge only moves the name as far as the free space beside it, so a name that fills the box
