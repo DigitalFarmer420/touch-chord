@@ -489,7 +489,7 @@ try {
   });
   const tpPlay = async (page, sel) => { await page.locator(sel).click(); await page.waitForTimeout(320); };   // past the 280 ms Play debounce
   const tpUntil = (page, k) => page.waitForFunction(k => window.__prog.playing && window.__prog.cur >= k, k, { timeout: 15000 });
-  const tpLabel = (page, sel) => page.evaluate(sel => { const b = document.querySelector(sel); return b ? b.getAttribute('aria-label') : null; }, sel);
+  const tpLabel = (page, sel) => page.evaluate(sel => { const b = document.querySelector(sel); return b ? { aria: b.getAttribute('aria-label'), title: b.getAttribute('title') } : null; }, sel);
   async function tpCase(label, w, h, query, fn) {
     const { ctx, page, bag } = await fresh(browser, w, h, label);
     try {
@@ -537,7 +537,7 @@ try {
       if (b.cur !== want) notes.push(`after Next cur ${b.cur} (want ${want}, paused on ${a.cur})`);
       if (b.pos !== want + 1) notes.push(`walk pos ${b.pos} (want ${want + 1})`);
       const lab = await tpLabel(page, sel);
-      if (lab !== 'Resume') notes.push('Play label "' + lab + '" (want Resume)');
+      if (!lab || lab.aria !== 'Resume' || lab.title !== 'Resume') notes.push('Play label ' + JSON.stringify(lab) + ' (want aria and title Resume)');
       if (!b.live) notes.push('Next sounded nothing');
       const ring = await page.evaluate(() => (window.__magic && window.__magic.state ? window.__magic.state.endAt : 0) - window.ChordAudio.currentTime());
       await page.waitForTimeout(Math.max(0, ring * 1000) + 700);
@@ -579,7 +579,7 @@ try {
       const c = await tpSnap(page);
       if (c.state !== 'paused') notes.push('shown again: state ' + c.state + ' (want paused, no auto-resume)');
       const lab = await tpLabel(page, sel);
-      if (lab !== 'Resume') notes.push('shown again: Play label "' + lab + '" (want Resume)');
+      if (!lab || lab.aria !== 'Resume' || lab.title !== 'Resume') notes.push('shown again: Play label ' + JSON.stringify(lab) + ' (want aria and title Resume)');
       await tpPlay(page, sel);
       await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true })));
       await page.waitForTimeout(300);
@@ -599,7 +599,13 @@ try {
       if (mode !== 'kids' && await landedMode(page) !== mode) await switchTo(page, mode);
       await prepare(page, mode);
       const sel = playSel(mode), notes = [];
-      const want = async (w, when) => { const l = await tpLabel(page, sel); if (l !== w) notes.push(`${when}: "${l}" (want "${w}")`); };
+      const expect = (w) => w === 'Play song'
+        ? { aria: 'Play song', title: 'Play song: the whole song / progression, over and over' }
+        : { aria: w, title: w };
+      const want = async (w, when) => {
+        const l = await tpLabel(page, sel), e = expect(w);
+        if (!l || l.aria !== e.aria || l.title !== e.title) notes.push(`${when}: ${JSON.stringify(l)} (want ${JSON.stringify(e)})`);
+      };
       await want('Play song', 'idle');
       await tpPlay(page, sel); await page.waitForTimeout(150); await want('Pause', 'playing');
       await tpPlay(page, sel); await page.waitForTimeout(150); await want('Resume', 'paused');

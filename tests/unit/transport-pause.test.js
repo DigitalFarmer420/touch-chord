@@ -546,6 +546,8 @@ test('Play button label: "Play song" idle, "Pause" playing, "Resume" paused (Kid
     const src = readFileSync(new URL(f, R), 'utf8');
     assert.ok(src.includes('playButtonLabel('), f + ' uses playButtonLabel');
     assert.ok(!src.includes('"Stop song"'), f + ' no longer says Stop song');
+    assert.ok(/setAttribute\("aria-label", \w+\.aria\)/.test(src), f + ' sets aria-label from playButtonLabel');
+    assert.ok(/\.title\s*=\s*\w+\.title/.test(src) || /setAttribute\("title", \w+\.title\)/.test(src), f + ' sets title from playButtonLabel');
   }
 });
 

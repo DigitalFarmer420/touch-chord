@@ -477,6 +477,7 @@ export function paint(force) {
   var kl = playButtonLabel();
   els.play.removeAttribute("aria-pressed");
   els.play.setAttribute("aria-label", kl.aria);
+  els.play.title = kl.title;
 }
 function startPaint() { if (!kv.timer) kv.timer = setInterval(function () { paint(false); }, 50); }
 function stopPaint() { if (kv.timer) { clearInterval(kv.timer); kv.timer = 0; } }

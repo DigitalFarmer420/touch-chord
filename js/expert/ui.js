@@ -677,7 +677,7 @@ export function paint() {
   if (fs.textContent !== ft) { fs.textContent = ft; $("xFull").setAttribute("aria-label", "All notes: " + ft); }
   // Play stays ▶ while a song plays (never ■ Stop), at every size. Label: Play song / Pause / Resume.
   var xl = playButtonLabel();
-  $("xPlay").textContent = "\u25b6"; $("xPlay").removeAttribute("aria-pressed"); $("xPlay").setAttribute("aria-label", xl.aria);
+  $("xPlay").textContent = "\u25b6"; $("xPlay").removeAttribute("aria-pressed"); $("xPlay").setAttribute("aria-label", xl.aria); $("xPlay").title = xl.title;
   var v = $("volume"); if (v) { $("xVol").value = v.value; $("xVolVal").textContent = v.value; }
   paintType();
   paintSrc();
