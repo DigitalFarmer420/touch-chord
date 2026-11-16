@@ -78,10 +78,10 @@ html.simple.lay-pad-land #prog .pg-song.on svg, html.simple.lay-pad-port #prog .
 
 /* Song | Progressions (#xTog, placed before the mode chip by simplesrc.js) as in the simple-v4 renders: 44 tall, 3-px
    padding, 14-px radius track; 38-42-px buttons, Nunito 700 19 px; 320 wide in landscape, 380 in portrait; Song 0.8 : 1.2. */
-html.simple.lay-pad-land #xTog, html.simple.lay-pad-port #xTog { height: 44px; max-width: none; margin: 0; align-self: center; }
-html.simple.lay-pad-land #xTog { flex: 0 0 320px; }
-html.simple.lay-pad-port #xTog { flex: 0 0 380px; }
-html.simple.lay-pad-land #xTog button, html.simple.lay-pad-port #xTog button { height: 38px; min-height: var(--ctrl); font: 700 19px Nunito, system-ui, sans-serif; }   /* as rendered in simple-v4: the app's button floor (--ctrl: 42 portrait, 40 landscape) wins over 38, so portrait buttons overhang the track's bottom by 1 px */
+html.simple.lay-pad-land #xTog, html.simple.lay-pad-port #xTog { height: var(--sp-tap); max-width: none; margin: 0; align-self: center; }
+html.simple.lay-pad-land #xTog { flex: 0 0 calc(320 * var(--sw)); }   /* 320 at 1180 wide */
+html.simple.lay-pad-port #xTog { flex: 0 0 clamp(300px, calc(380 / 820 * 100vw), 520px); }   /* 380 at 820 wide */
+html.simple.lay-pad-land #xTog button, html.simple.lay-pad-port #xTog button { height: calc(var(--sp-tap) - 6px); min-height: var(--ctrl); font: 700 max(17px, calc(19 * var(--sh))) Nunito, system-ui, sans-serif; }   /* as rendered in simple-v4: the app's button floor (--ctrl: 42 portrait, 40 landscape) wins over 38, so portrait buttons overhang the track's bottom by 1 px */
 html.simple.lay-pad-land #xTog button[data-v="song"], html.simple.lay-pad-port #xTog button[data-v="song"] { flex: 0.8 1 0; }
 html.simple.lay-pad-land #xTog button[data-v="prog"], html.simple.lay-pad-port #xTog button[data-v="prog"] { flex: 1.2 1 0; }
 
