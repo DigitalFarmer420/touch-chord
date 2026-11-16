@@ -4,7 +4,10 @@
 module.exports = function eqhAudit(opt) {
   opt = opt || {}; var tol = opt.tol == null ? 1 : opt.tol, GAP = opt.gap || 24;
   var SKIP = '#pads, #pads *, #suggest *, #kvPads *, .kv-pads *, #xPList .x-prow *, #dev-badge, .x-note, #howto *, .ht-shot, html.simple #songBar';   // rd15: Simple's song strip is a display (no tap action in Simple)
-  var UNIT = '.seg, .x-seg, [role=radiogroup], [role=tablist], .ms-seg, .ms-pair';   // rd14: + .x-seg (the Song | Progressions track)
+  // N20 PR-A: Simple phone portrait pairs the whole song picker (#prog) with the whole key control (#kidKey), and
+  // Sustain with the NOW card + volume stack it spans (see FL_STACK below).
+  var FL = 'html.simple.lay-phone-port:not(.expert):not(.kv) ';
+  var UNIT = '.seg, .x-seg, [role=radiogroup], [role=tablist], .ms-seg, .ms-pair, ' + FL + '#prog, ' + FL + '#kidKey';   // rd14: + .x-seg (the Song | Progressions track)
   var SEL = 'button, select, [role=button], input[type=text], input[type=search], .now-card, ' + UNIT + (opt.extra ? ', ' + opt.extra : '');
   function vis(e) { if (!e.getClientRects().length) return false; if (e.closest('[hidden]')) return false; var cs = getComputedStyle(e);
     if (cs.visibility === 'hidden' || cs.display === 'none') return false; for (var x = e; x && x.nodeType === 1; x = x.parentElement) { var c = getComputedStyle(x); if (+c.opacity < 0.05) return false; } return true; }
@@ -12,13 +15,18 @@ module.exports = function eqhAudit(opt) {
     return e.tagName.toLowerCase() + (e.id ? '#' + e.id : '') + (typeof e.className === 'string' && e.className.trim() ? '.' + e.className.trim().split(/\s+/).slice(0, 2).join('.') : '') + (t ? ' "' + t + '"' : ''); }
   // rd15: a control behind an open sheet's dim layer is not in a row with the sheet's controls (it cannot be tapped)
   var DIM = '.ms-dim, .ms-cdim, #xScrim:not(.x-clear)';   // the sheet's dim and the Start over confirm's dim
-  function behindDim(e) { var r = e.getBoundingClientRect(), c = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return !!(c && !e.contains(c) && c.closest(DIM)); }
+  // N20 PR-A: a page control under an open modal sheet's panel (not only its dim) is behind it too.
+  function behindDim(e) { var r = e.getBoundingClientRect(), c = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); if (!c || e.contains(c)) return false;
+    if (c.closest(DIM)) return true; var m = c.closest('[aria-modal="true"]'); return !!(m && !m.contains(e)); }
   var all = Array.prototype.filter.call(document.querySelectorAll(SEL), function (e) { return !e.matches(SKIP) && vis(e) && !behindDim(e); });
   var units = all.filter(function (e) { var u = e.parentElement && e.parentElement.closest(UNIT); return !(u && all.indexOf(u) >= 0); });
   // a control that only wraps other controls (a bar) is not itself a control in the row
   units = units.filter(function (e) { return !units.some(function (o) { return o !== e && e.contains(o); }) || e.matches(UNIT); });
   // rd14: the outer box (a visible outline counts, e.g. a segment track's ring), not only the border box
+  // N20 PR-A: in Simple phone portrait the NOW card and the volume row under it are one stack beside Sustain.
+  var FL_STACK = document.querySelector(FL + '#nowMix');
   function outer(e) { var r = e.getBoundingClientRect(), cs = getComputedStyle(e), o = cs.outlineStyle !== 'none' ? Math.max(0, parseFloat(cs.outlineWidth) + parseFloat(cs.outlineOffset)) : 0;
+    if (FL_STACK && e.matches(FL + '.now-card') && FL_STACK.getClientRects().length) { var v = FL_STACK.getBoundingClientRect(); r = { left: Math.min(r.left, v.left), right: Math.max(r.right, v.right), top: Math.min(r.top, v.top), bottom: Math.max(r.bottom, v.bottom) }; r.width = r.right - r.left; r.height = r.bottom - r.top; }
     return { left: r.left - o, right: r.right + o, top: r.top - o, bottom: r.bottom + o, width: r.width + 2 * o, height: r.height + 2 * o }; }
   var R = units.map(function (e) { var r = outer(e); return { e: e, l: r.left, r: r.right, t: r.top, b: r.bottom, h: r.height, w: r.width }; })
     .filter(function (x) { return x.h >= 16 && x.w >= 16 && x.b > 0 && x.t < innerHeight && x.r > 0 && x.l < innerWidth; });
