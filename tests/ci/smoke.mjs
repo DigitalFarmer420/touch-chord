@@ -27,6 +27,7 @@ import { mkdirSync, existsSync, statSync, createReadStream, readFileSync } from 
 import { dirname, extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
+import { runUpdateCheck } from './update-ab.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const SHOTS = join(ROOT, 'tests/ci/out');
@@ -476,6 +477,10 @@ try {
       await ctx.close();
     }
   }
+
+  // PR #15: a version-bumped deploy must reach a returning user (local server only).
+  if (REMOTE) console.log('skip offline update A->B: needs the local server (BASE_URL is set)');
+  else await runUpdateCheck(browser, { root: ROOT, record, shot });
 
   for (const w of walks) {
     if (w.pageNotes.length) record('toggle ' + w.label, false, w.pageNotes.join(' | '));

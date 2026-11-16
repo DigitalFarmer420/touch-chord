@@ -274,3 +274,105 @@ test('isNativeWrapper detects Capacitor, cordova, and wrapper protocols', () => 
   assert.equal(isNativeWrapper({ location: { protocol: 'ionic:' } }), true);
   assert.equal(isNativeWrapper({ location: { protocol: 'file:' } }), true);
 });
+
+// ---- PR #15 fix: a versioned request is never answered from another version's cache entry. ----
+import vm from 'node:vm';
+
+function loadSw({ version, cached, online }) {
+  const SCOPE = 'https://h.test/touch-chord-dev/';
+  const store = new Map(); // cacheName -> Map(url -> body)
+  for (const [name, entries] of Object.entries(cached)) store.set(name, new Map(Object.entries(entries)));
+  const listeners = {};
+  const fetched = [];
+  const strip = u => u.split('?')[0];
+  const cacheObj = (name) => ({
+    match(req, opt) {
+      const url = typeof req === 'string' ? req : req.url;
+      const m = store.get(name) || new Map();
+      if (m.has(url)) return Promise.resolve({ body: m.get(url), from: name });
+      if (opt && opt.ignoreSearch) for (const [k, v] of m) if (strip(k) === strip(url)) return Promise.resolve({ body: v, from: name });
+      return Promise.resolve(undefined);
+    },
+    addAll() { return Promise.resolve(); }
+  });
+  const caches = {
+    keys: () => Promise.resolve([...store.keys()]),
+    open: (n) => Promise.resolve(cacheObj(n)),
+    delete: (n) => Promise.resolve(store.delete(n)),
+    match(req, opt) {
+      const names = opt && opt.cacheName ? [opt.cacheName] : [...store.keys()];
+      return names.reduce((p, n) => p.then(hit => hit || cacheObj(n).match(req, opt)), Promise.resolve(undefined));
+    }
+  };
+  const self = {
+    location: new URL(SCOPE + 'sw.js?v=' + version),
+    registration: { scope: SCOPE },
+    addEventListener: (t, fn) => { listeners[t] = fn; },
+    skipWaiting() {}
+  };
+  const ctx = {
+    self, caches, URL, Request: class { constructor(u, o) { this.url = u; Object.assign(this, o); } },
+    fetch: (req) => { const url = typeof req === 'string' ? req : req.url; fetched.push(url);
+      return online ? Promise.resolve({ body: 'net:' + url, from: 'network' }) : Promise.reject(new TypeError('offline')); },
+    Promise, Error
+  };
+  vm.runInNewContext(read('sw.js'), ctx);
+  function request(path, mode) {
+    return new Promise((resolve, reject) => {
+      listeners.fetch({ request: { method: 'GET', url: SCOPE + path, mode: mode || 'no-cors' }, respondWith: p => p.then(resolve, reject) });
+    });
+  }
+  return { request, fetched };
+}
+
+const A = 'touch-chord/touch-chord-dev/112.14';
+const A_ENTRIES = {
+  'https://h.test/touch-chord-dev/js/version.js': 'A-bare',
+  'https://h.test/touch-chord-dev/js/version.js?v=112.14': 'A-v',
+  'https://h.test/touch-chord-dev/index.html': 'A-html'
+};
+
+test('online: a ?v=B request misses A\'s cache and goes to the network', async () => {
+  const sw = loadSw({ version: '112.14', cached: { [A]: A_ENTRIES }, online: true });
+  const res = await sw.request('js/version.js?v=112.15');
+  assert.equal(res.from, 'network');
+  assert.deepEqual(sw.fetched, ['https://h.test/touch-chord-dev/js/version.js?v=112.15']);
+});
+
+test('online: an exact ?v= match is served from the cache with no network request', async () => {
+  const sw = loadSw({ version: '112.14', cached: { [A]: A_ENTRIES }, online: true });
+  const res = await sw.request('js/version.js?v=112.14');
+  assert.equal(res.body, 'A-v');
+  assert.deepEqual(sw.fetched, []);
+});
+
+test('offline: a ?v=B request with no exact entry falls back to a cached copy of the path', async () => {
+  const sw = loadSw({ version: '112.14', cached: { [A]: A_ENTRIES }, online: false });
+  const res = await sw.request('js/version.js?v=112.15');
+  assert.match(res.body, /^A-/);
+});
+
+test('offline: the fallback prefers this worker\'s cache and never reads the other site\'s cache', async () => {
+  const B = 'touch-chord/touch-chord-dev/112.15';
+  const PROD = 'touch-chord/touch-chord/112.15';
+  const sw = loadSw({ version: '112.15', online: false, cached: {
+    [A]: A_ENTRIES,
+    [B]: { 'https://h.test/touch-chord-dev/js/version.js': 'B-bare' },
+    [PROD]: { 'https://h.test/touch-chord-dev/js/x.js': 'prod' }
+  } });
+  assert.equal((await sw.request('js/version.js?v=999')).body, 'B-bare');
+  await assert.rejects(sw.request('js/x.js?v=112.15'));
+});
+
+test('navigations are network first, with the cached index.html only when offline', async () => {
+  const on = loadSw({ version: '112.14', cached: { [A]: A_ENTRIES }, online: true });
+  assert.equal((await on.request('index.html?test=1', 'navigate')).from, 'network');
+  const off = loadSw({ version: '112.14', cached: { [A]: A_ENTRIES }, online: false });
+  assert.equal((await off.request('index.html?test=1', 'navigate')).body, 'A-html');
+});
+
+test('install precaches with cache: "reload" so the HTTP cache cannot leak another version in', () => {
+  const sw = read('sw.js');
+  const install = sw.slice(sw.indexOf('addEventListener("install"'), sw.indexOf('addEventListener("activate"'));
+  assert.match(install, /cache: "reload"/);
+});

@@ -1,5 +1,5 @@
 // Touch Chord service worker. The script is registered as sw.js?v=APP_VERSION so a
-// version bump is part of the browser byte check. Precache URLs use that same v
+// version bump is a new registration URL, so a new worker installs even when sw.js bytes are unchanged. Precache URLs use that same v
 // (with a fetch of js/version.js only if the query is missing). Do not hardcode a version.
 // A new worker waits for the next cold launch (or window.tc.applyUpdate()).
 // Never skipWaiting on install. Query-string test flags must not change wait behaviour.
@@ -186,7 +186,11 @@ self.addEventListener("install", function (event) {
   // The new version waits until a cold launch or applyUpdate(); do not activate early.
   event.waitUntil(readAppVersion().then(function (version) {
     return caches.open(cacheName(version)).then(function (cache) {
-      return cache.addAll(precacheUrls(version));
+      // cache: "reload" skips the HTTP cache, so B's cache never stores an HTTP-cached copy of A's
+      // bare files (GitHub Pages sends max-age=600).
+      return cache.addAll(precacheUrls(version).map(function (u) {
+        return new Request(u, { cache: "reload" });
+      }));
     });
   }));
 });
@@ -210,64 +214,147 @@ self.addEventListener("message", function (event) {
   }
 });
 
+// Fetch strategy.
+// - Navigations (and index.html): network first, so a new deploy's HTML always loads when online.
+// - Versioned assets (?v=X): this exact URL from the cache, otherwise the network. A versioned request
+//   is never answered from another version's entry while the network works, so build B's HTML gets
+//   B's modules (including js/offline.js, which then registers sw.js?v=B and installs B's worker).
+// - Unversioned same-origin assets: exact cache match, otherwise the network.
+// - Offline only (the network request failed and no exact entry exists): fall back to a copy of the
+//   same path, this worker's cache first, then any cache in this scope. That keeps the app usable
+//   offline when the HTML and its assets disagree, and can never mask a deploy while online.
+// Same-version asset change (a deploy that changes files but not APP_VERSION): the HTML from the
+// network differs from this version's cached index.html. That page then gets its subresources network
+// first (no new-HTML/old-JS mix online), and this version's cache is re-filled in the background into
+// a staging cache and copied over with the HTML last, so an offline reload never pairs new HTML with
+// old assets or old HTML with new assets.
+var freshClients = {};
+var refreshing = null;
+
 self.addEventListener("fetch", function (event) {
   if (event.request.method !== "GET") return;
   var url;
   try { url = new URL(event.request.url); } catch (err) { return; }
   if (url.origin !== self.location.origin) return;
   var navigate = event.request.mode === "navigate" || /\/$|\/index\.html$/.test(url.pathname);
-  event.respondWith(navigate ? networkFirst(event.request) : cacheFirst(event.request));
+  if (navigate) { event.respondWith(networkFirst(event)); return; }
+  event.respondWith(event.clientId && freshClients[event.clientId] ? networkThenCache(event.request) : cacheFirst(event.request));
 });
 
-function networkFirst(req) {
+function networkFirst(event) {
+  var req = event.request;
   return fetch(req).then(function (res) {
-    return res;
-  }).catch(function () {
-    return matchAsset(req).then(function (hit) {
+    if (!res || !res.ok || res.type !== "basic" || typeof res.clone !== "function") return res;
+    return res.clone().text().then(function (html) {
+      return noteBuild(html, event);
+    }).then(function () { return res; }, function () { return res; });
+  }, function () {
+    return offlineFallback(req).then(function (hit) {
       if (hit) return hit;
-      return caches.match(new URL("./index.html", self.registration.scope));
+      return caches.match(new URL("./index.html", self.registration.scope).href, { cacheName: ownCacheName() })
+        .then(function (own) { return own || caches.match(new URL("./index.html", self.registration.scope).href); });
+    });
+  });
+}
+
+// Only a same-version HTML change is handled here. HTML for another version (?v=B under worker A)
+// loads B's assets from the network anyway (no exact match) and registers sw.js?v=B.
+function noteBuild(html, event) {
+  var v = versionFromScriptUrl();
+  if (!v || html.indexOf("?v=" + v + '"') < 0) return Promise.resolve();
+  var htmlUrl = new URL("./index.html", self.registration.scope).href;
+  return caches.match(htmlUrl, { cacheName: cacheName(v) }).then(function (cached) {
+    return cached ? cached.text() : "";
+  }).then(function (old) {
+    if (old === html) return;
+    var id = event.resultingClientId || event.clientId;
+    if (id) freshClients[id] = true;
+    var job = refreshBuild(v);
+    if (event.waitUntil) event.waitUntil(job);
+  });
+}
+
+function refreshBuild(version) {
+  if (refreshing) return refreshing;
+  var live = cacheName(version);
+  var stage = live + "~refresh";
+  var htmlFirst = [new URL("./", self.registration.scope).href, new URL("./index.html", self.registration.scope).href];
+  refreshing = caches.delete(stage).then(function () {
+    return caches.open(stage);
+  }).then(function (sc) {
+    return sc.addAll(precacheUrls(version).map(function (u) {
+      return new Request(u, { cache: "reload" });
+    })).then(function () {
+      return Promise.all([caches.open(live), sc.keys()]);
+    }).then(function (both) {
+      var lc = both[0], reqs = both[1];
+      var assets = reqs.filter(function (r) { return htmlFirst.indexOf(r.url) < 0; });
+      var pages = reqs.filter(function (r) { return htmlFirst.indexOf(r.url) >= 0; });
+      function copy(list) {
+        return Promise.all(list.map(function (r) {
+          return sc.match(r).then(function (res) { return res && lc.put(r, res); });
+        }));
+      }
+      return copy(assets).then(function () { return copy(pages); });
+    });
+  }).then(function () {
+    return caches.delete(stage);
+  }, function () {
+    return caches.delete(stage);
+  }).then(function () { refreshing = null; });
+  return refreshing;
+}
+
+// Network first, cache on failure. Used for a page whose HTML is a new same-version build.
+function networkThenCache(req) {
+  return fetch(req).catch(function (err) {
+    return exactMatch(req).then(function (hit) {
+      return hit || offlineFallback(req);
+    }).then(function (hit) {
+      if (hit) return hit;
+      throw err || new Error("offline miss");
     });
   });
 }
 
 function cacheFirst(req) {
-  return matchAsset(req).then(function (hit) {
+  return exactMatch(req).then(function (hit) {
     if (hit) return hit;
-    return fetch(req).catch(function () {
-      return matchAsset(req).then(function (again) {
+    return fetch(req).catch(function (err) {
+      return offlineFallback(req).then(function (again) {
         if (again) return again;
-        throw new Error("offline miss");
+        throw err || new Error("offline miss");
       });
     });
   });
 }
 
-function matchAsset(req) {
-  return caches.match(req).then(function (exact) {
-    if (exact) return exact;
-    var url = new URL(req.url);
-    var bare = url.origin + url.pathname;
-    return caches.match(bare).then(function (noQ) {
-      if (noQ) return noQ;
-      var prefix = cachePrefix();
-      return caches.keys().then(function (keys) {
-        return keys.reduce(function (chain, k) {
-          return chain.then(function (found) {
-            if (found) return found;
-            if (k.indexOf(prefix) !== 0) return null;
-            return caches.open(k).then(function (cache) {
-              return cache.keys().then(function (reqs) {
-                var i, u;
-                for (i = 0; i < reqs.length; i++) {
-                  u = new URL(reqs[i].url);
-                  if (u.pathname === url.pathname) return cache.match(reqs[i]);
-                }
-                return null;
-              });
-            });
-          });
-        }, Promise.resolve(null));
+// Exact URL (query included). A ?v=X request only ever matches a ?v=X entry.
+function exactMatch(req) {
+  return caches.match(req);
+}
+
+function ownCacheName() {
+  var v = versionFromScriptUrl();
+  return v ? cacheName(v) : "";
+}
+
+// Used only after the network failed: same path, any query. This worker's cache first, then
+// the other caches of this scope (dev and prod never see each other's caches).
+function offlineFallback(req) {
+  var url = new URL(req.url);
+  var prefix = cachePrefix();
+  var own = ownCacheName();
+  return caches.keys().then(function (keys) {
+    var mine = keys.filter(function (k) { return k.indexOf(prefix) === 0 && k.indexOf("~") < 0; });
+    mine.sort(function (a, b) { return (b === own) - (a === own); });
+    return mine.reduce(function (chain, k) {
+      return chain.then(function (found) {
+        if (found) return found;
+        return caches.open(k).then(function (cache) {
+          return cache.match(req, { ignoreSearch: true });
+        });
       });
-    });
+    }, Promise.resolve(null));
   });
 }
