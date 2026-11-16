@@ -1,23 +1,23 @@
-# Deploys the `dev` branch of touch-chord to the separate DEV Pages site:
+# Deploys the `develop` branch of touch-chord to the separate DEV Pages site:
 #   https://digitalfarmer420.github.io/touch-chord-dev/
 # Production (branch main, https://digitalfarmer420.github.io/touch-chord/) is never touched.
 name: Deploy dev preview
 on:
   push:
-    branches: [dev]
+    branches: [develop]
   workflow_dispatch:
 concurrency:
   group: deploy-dev
   cancel-in-progress: false
 jobs:
   deploy:
-    if: github.ref == 'refs/heads/dev'
+    if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout dev branch
+      - name: Checkout develop branch
         uses: actions/checkout@v4
         with:
-          ref: dev
+          ref: develop
           path: src
       - name: Clone touch-chord-dev with deploy key
         env:
@@ -44,6 +44,6 @@ jobs:
           git config user.email "vinteedle@gmail.com"
           git add -A
           if git diff --cached --quiet; then echo "No changes"; exit 0; fi
-          git commit -q -m "Deploy touch-chord dev@${GITHUB_SHA::7}"
+          git commit -q -m "Deploy touch-chord develop@${GITHUB_SHA::7}"
           git push origin HEAD:main
-          echo "Deployed $(git rev-parse HEAD) from dev@${GITHUB_SHA}"
+          echo "Deployed $(git rev-parse HEAD) from develop@${GITHUB_SHA}"
