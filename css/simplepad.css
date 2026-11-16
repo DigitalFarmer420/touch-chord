@@ -1,0 +1,79 @@
+/* Simple mode, large screens (iPad and desktop browser windows): Uiux's simple-v4 design (Vinh, 15 Nov 2026).
+   Built from the rev3 stack, in order: song-preview + next-icon (step glyph), div (divider), simple-lock (lock, gaps),
+   lock-landscape-left-column, simple-v2, simple-v3, simple-v4. Superseded values are folded in; the result renders
+   pixel-identical to Uiux's sandbox (minus its static preview Song | Progressions control, which is not part of this build).
+   Scope: the @media matches boot-early.js's "regular" size class (w >= 768 and h >= 600), which is what sets lay-pad-*.
+   Phones (lay-phone-*), Expert (html:not(.simple)) and Kids are not touched. */
+@media (min-width: 768px) and (min-height: 600px) {
+
+/* ---- Both orientations ---- */
+/* One 10-px gap between grid pads, across and down; the note row is as tall as the others. */
+html.simple.lay-pad-land #app, html.simple.lay-pad-port #app { --ss-cgap: 10px; --ss-rg: 10px; --ss-mid: 1fr; }
+html.simple.lay-pad-land #kidKey, html.simple.lay-pad-port #kidKey { gap: 10px; }
+html.simple.lay-pad-land #prog, html.simple.lay-pad-port #prog { gap: 10px; }
+
+/* Lyrics and chord grid share one card. Between them a 1-px divider in the card's outline colour (var(--line)), spanning the
+   grid's pad columns (same column maths as .ss), with 20 px clear above (padding 21 = 20 + the 1-px line) and 20 below. */
+html.simple.up-slyr.lay-pad-land #songBar, html.simple.up-slyr.lay-pad-port #songBar {
+  position: relative; padding-bottom: 21px; margin-bottom: 20px; overflow: visible; }
+html.simple.up-slyr.lay-pad-land #songBar::after, html.simple.up-slyr.lay-pad-port #songBar::after {
+  content: ""; position: absolute; bottom: 0; height: 1px; background: var(--line); pointer-events: none;
+  left: calc(var(--ss-lbl) + (100% - 2 * var(--ss-lbl)) / 16 + var(--ss-cgap) / 2);
+  width: calc((100% - 2 * var(--ss-lbl)) * 14 / 16 - var(--ss-cgap)); }
+html.simple.up-slyr.lay-pad-land #suggest, html.simple.up-slyr.lay-pad-port #suggest { min-height: 0; flex: 1 1 0; height: auto; }   /* the grid takes what is left of the card */
+/* The play-next preview dot on the next chord pad: 9 px (phones keep 6). */
+html.simple.lay-pad-land #suggest .nxd, html.simple.lay-pad-port #suggest .nxd { width: 9px; height: 9px; margin-left: -4.5px; }
+
+/* The song-chord lock (#sbLock, hidden in Simple by dialogs.css) is shown at the top right of the lyrics, dressed as
+   Expert's Lock: white, 1.5-px #E2D6C4 border, 12-px radius, 72 x 78, padlock over "Lock". upPlaceLock() still places it. */
+html.simple.lay-pad-land #sbLock:not([hidden]), html.simple.lay-pad-port #sbLock:not([hidden]) {
+  display: flex !important; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+  width: 72px; height: 78px !important; margin-top: 3px; padding: 0; box-sizing: border-box;
+  background: #FFFFFF !important; border: 1.5px solid #E2D6C4 !important; color: #2B2118 !important; border-radius: 12px;
+  font: 700 13px Nunito, system-ui, sans-serif; box-shadow: none; }
+html.simple.lay-pad-land #sbLock svg, html.simple.lay-pad-port #sbLock svg { display: none; }
+html.simple.lay-pad-land #sbLock::before, html.simple.lay-pad-port #sbLock::before { content: "\1F513"; font-size: 15px; line-height: 1.1; }
+html.simple.lay-pad-land #sbLock[aria-pressed="true"]::before, html.simple.lay-pad-port #sbLock[aria-pressed="true"]::before { content: "\1F512"; }
+
+/* ▶| play-next: Expert's skip-next glyph, teal fill (#2F8F83, Expert's --x-next), white icon. */
+html.simple.lay-pad-land #prog .pg-step, html.simple.lay-pad-port #prog .pg-step { background: #2F8F83; border-color: #2F8F83; color: #FFFFFF; }
+html.simple.lay-pad-land #prog .pg-step svg { width: 40px; height: 40px; margin: -3.5px; }
+/* Play stays white with a ▶ while the song plays (never the copper Stop square). The button still stops the song on a
+   second tap, and progbar.js still sets aria-pressed / aria-label "Stop song", so assistive tech hears the state. */
+html.simple.lay-pad-land #prog .pg-song.on, html.simple.lay-pad-port #prog .pg-song.on { background: var(--bg-2); color: var(--copper-t); border-color: var(--line); }
+html.s-day.simple.lay-pad-land #prog .pg-song.on, html.s-day.simple.lay-pad-port #prog .pg-song.on { border-color: var(--edge); }   /* as simpleday.css's idle buttons */
+html.simple.lay-pad-land #prog .pg-song.on svg rect, html.simple.lay-pad-port #prog .pg-song.on svg rect { display: none; }
+html.simple.lay-pad-land #prog .pg-song.on svg, html.simple.lay-pad-port #prog .pg-song.on svg {
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 4.5v15l12.5-7.5z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 4.5v15l12.5-7.5z'/%3E%3C/svg%3E") center / 100% 100% no-repeat; }
+
+/* ---- Landscape: left column NOW 222 / slider 22 / key 84 / Major 56 / song picker 48 / play-next + Play 92 / Sustain 154 ---- */
+html.simple.lay-pad-land #app { grid-template-rows: auto minmax(0, 1fr) 154px; row-gap: 10px; }
+html.simple.lay-pad-land .now-col { gap: 10px; }
+html.simple.lay-pad-land #prog .pg-btns > .pg-btn { height: 92px; }
+
+/* ---- Portrait: band y 122-558, every gap 10 px.
+   Left: key 96 / Major-minor 64 / Sustain 256.  Right: NOW 170 / slider 44 / song picker 58 / play-next + Play 134.
+   .now-col becomes display: contents so its children sit in #app's grid; #prog stays one box (its label code measures it). ---- */
+html.simple.lay-pad-port #app {
+  row-gap: 10px;
+  grid-template-rows: 44px 44px 170px 44px 58px 134px minmax(0, 1fr);
+  grid-template-areas: "top top" "sty sty" "key now" "sus sld" "sus prog" "sus prog" "nxt nxt"; }
+html.simple.lay-pad-port #styles button { flex: 1 1 0; min-width: 0; padding: 0 4px; }   /* the 8 style pills share the row */
+html.simple.lay-pad-port .now-col { display: contents; }
+html.simple.lay-pad-port .now-col > .now-card { grid-area: now; min-height: 0; }
+html.simple.lay-pad-port .now-col > #nowMix { grid-area: sld; align-self: center; }
+html.simple.lay-pad-port .now-col > #kidKey { grid-area: key; min-height: 0; }
+html.simple.lay-pad-port .kid-key { --kk-h: 96px; --kk-mh: 64px; display: flex; flex-direction: column; gap: 10px; }
+html.simple.lay-pad-port .kid-key > .kk-root { flex: 0 0 96px; height: 96px; }
+html.simple.lay-pad-port .kid-key > .kk-mode { flex: 0 0 64px; height: 64px; }
+html.simple.lay-pad-port .now-col > #prog { grid-area: prog; min-height: 0; display: flex; flex-direction: column; }
+html.simple.lay-pad-port #prog > :first-child { flex: 0 0 58px; height: 58px; }
+html.simple.lay-pad-port #prog > :first-child > * { height: 100%; }
+html.simple.lay-pad-port #prog > .pg-btns { flex: 1 1 auto; height: auto; min-height: 0; }
+html.simple.lay-pad-port #prog > .pg-btns > .pg-btn { height: 100%; flex: 1 1 0; min-width: 0; }
+html.simple.lay-pad-port #prog .pg-step svg { width: 52px; height: 52px; margin: 0; }
+html.simple.lay-pad-port #prog .pg-song svg { width: 44px; height: 44px; }
+
+}

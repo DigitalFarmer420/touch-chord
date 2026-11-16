@@ -11,6 +11,7 @@ import { syncPalette, setKeyModeState } from "./palette.js?v=112.13";
 import { placeProg } from "./progbar.js?v=112.13";
 import { paintSuggestions } from "./strip.js?v=112.13";
 import { paintSustainBtn, setSustain } from "./sustain.js?v=112.13";
+import { upPlaceLock } from "../songs/song.js?v=112.13";
 
 // ---- Simple mode + responsive controls (v20) ----
 export function paintSimple() {
@@ -115,6 +116,7 @@ function onSizeChange() {
   paintCtl();
   placeProg();
   fitNowSymbol();
+  upPlaceLock();   // the song lock follows the lyrics once the new size class is on (the resize listener runs before it)
 }
 
 export function wireLayoutUi() {
