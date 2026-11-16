@@ -183,7 +183,7 @@ html.simple.lay-phone-port #app {
   grid-template-areas: "top top" "sty sty" "now sus" "nxt nxt";
 }
 html.simple.lay-phone-port #sustainBtn { font-size: var(--fs-l); }
-@media (max-height: 700px) { html.simple.lay-phone-port #app { --sym: 38px; grid-template-rows: auto auto 196px minmax(0, 1fr); --ss-rg: 5px; --ss-fs: 15px; --ss-note: 22px; }
+@media (max-height: 700px) { html.simple.lay-phone-port #app { --sym: 38px; --ss-rg: 5px; --ss-fs: 15px; --ss-note: 22px; }
   html.simple.lay-phone-port .kid-key { --kk-h: 50px; --kk-fs: 30px; --kk-mh: 38px; --kk-mfs: 15px; gap: 5px; }
   html.simple.lay-phone-port #tones { margin-top: 4px; } }
 /* iPad landscape: the phone-landscape mockup, scaled. */
@@ -202,7 +202,7 @@ html.simple.lay-pad-port #app {
   --sym: 96px; --ss-lbl: 56px; --ss-rg: 14px; --ss-cgap: 10px; --ss-pad: 12px; --ss-fs: 26px; --ss-note: 38px; --ss-strip: 72px;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: auto auto 380px minmax(0, 1fr);
-  grid-template-areas: "top top" "sty sty" "now sus" "nxt nxt";
+  grid-template-areas: "top top" "sty sty" "sus now" "nxt nxt";
 }
 
 /* ===== v53: strip rows by named lines (b = green bright-borrowed, h = happy, n = notes,
@@ -229,7 +229,7 @@ html.simple.lay-pad-land .ss .ss-chip, html.simple.lay-pad-port .ss .ss-chip { a
    notes and chips about one column wide (44 px+), chips 44-48 px tall, one-line names. */
 html.simple.lay-phone-port #app { --ss-lbl: 0px; --ss-cgap: 3px; --ss-rg: 8px; --ss-pad: 7px; --ss-fs: 16px; --ss-ch: minmax(44px, 48px); --ss-ico: 28px; --ss-arrow: 14px; --ss-fgap: 7px; }
 @media (max-width: 370px) { html.simple.lay-phone-port #app { --ss-cgap: 2px; --ss-pad: 6px; } }
-@media (max-height: 700px) { html.simple.lay-phone-port #app { --ss-rg: 6px; --sym: 34px; grid-template-rows: auto auto 176px minmax(0, 1fr); }
+@media (max-height: 700px) { html.simple.lay-phone-port #app { --ss-rg: 6px; --sym: 34px; }
   html.simple.lay-phone-port .now-card .card-label { display: none; }
   html.simple.lay-phone-port #tones { margin-top: 2px; font-size: calc(15px * var(--tx, 1)); } }
 html.simple.lay-phone-port .ss { padding: 5px 0; align-content: safe center;
@@ -383,7 +383,6 @@ html.simple.lay-phone-land .now-col, html.simple.lay-phone-port .now-col { gap: 
 html.simple.lay-phone-land .kid-key, html.simple.lay-phone-port .kid-key { --kk-h: 42px; --kk-fs: 28px; --kk-mh: 30px; --kk-mfs: 15px; gap: 4px; }
 html.simple.lay-phone-land .prog, html.simple.lay-phone-port .prog { --pg-h: 30px; --pg-arrow: 24px; --pg-afs: 24px; --pg-fs: 15px; --pg-nh: 26px; gap: 4px; }
 @media (max-width: 700px) { html.simple.lay-phone-land .prog { --pg-nh: 22px; } html.simple.lay-phone-land .kid-key { --kk-h: 40px; --kk-mh: 28px; } }
-@media (max-height: 700px) { html.simple.lay-phone-port #app { grid-template-rows: auto auto 194px minmax(0, 1fr); } }
 @media (max-height: 700px) { html.simple.lay-phone-port .kid-key { --kk-h: 40px; --kk-mh: 28px; } html.simple.lay-phone-port .prog { --pg-nh: 24px; } }
 html.simple.lay-pad-land .prog, html.simple.lay-pad-port .prog { --pg-h: 48px; --pg-arrow: 40px; --pg-afs: 32px; --pg-fs: 22px; --pg-ico: 22px; --pg-nh: 40px; gap: 6px; }
 /* v60 iPad key control and rows: now in simplepad.css (Uiux simple-v4, fluid units). */
