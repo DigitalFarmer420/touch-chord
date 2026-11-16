@@ -37,6 +37,9 @@ jobs:
           rsync -a --exclude .git --exclude .github src/ site/
           touch site/.nojekyll
           python3 src/.github/dev/inject-dev-badge.py site/index.html
+          # Stamp BUILD_ID = APP_VERSION-<short sha> into index.html, js/version.js and every ?v= tag, so a
+          # JS- or CSS-only deploy still registers a new sw.js?v=BUILD_ID and installed users get it.
+          python3 src/tools/stamp-build.py site "$(git -C src rev-parse HEAD)"
       - name: Commit and push (normal push, no force)
         run: |
           cd site

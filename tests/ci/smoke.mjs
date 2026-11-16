@@ -27,6 +27,7 @@ import { mkdirSync, existsSync, statSync, createReadStream, readFileSync } from 
 import { dirname, extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
+import { runUpdateCheck } from './update-ab.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const SHOTS = join(ROOT, 'tests/ci/out');
@@ -784,6 +785,10 @@ try {
     return notes;
   });
 
+
+  // PR #15: a version-bumped deploy must reach a returning user (local server only).
+  if (REMOTE) console.log('skip offline update A->B: needs the local server (BASE_URL is set)');
+  else await runUpdateCheck(browser, { root: ROOT, record, shot });
 
   // N13: Expert iPad landscape. Pick the last progression (Pop Canon), reopen the list: the picked row is fully in view,
   // clear of the bottom fade, and the list still ends above the piano.

@@ -2,18 +2,18 @@
 // (computeSpec / kbPlace), finger tracking, spec from a finger, sounding / re-sounding a finger, release / lift,
 // the held-chord refresh and the Kids pointer set. Any view (the grown-up keyboard in pads.js, the Kids piano)
 // calls soundFinger(pointerId, keyOf(...)) / liftFinger(pointerId), so sound and timing are the same everywhere.
-import { api as ChordAudio } from "../audio/index.js?v=112.14";
-import { keyRootSpell, modeKey, activeKey, keyDegrees, maybeLockKey } from "../keys.js?v=112.14";
-import { finalizeOne, armPending } from "../loop.js?v=112.14";
-import { setItemState } from "../songs/playback.js?v=112.14";
-import { state, loop, fingers, shared } from "../state.js?v=112.14";
-import { Theory } from "../theory/index.js?v=112.14";
-import { hasDoubleAcc, plainToneName, enharmonicSpell } from "../theory/names.js?v=112.14";
-import { wrap12 } from "../theory/quality.js?v=112.14";
-import { kbFullMode, kbFullRange, kbWindowMode, kbKeyLayout, kidsTonic, kbChord, kbUpdate, kbScheduleReset } from "./keyboard.js?v=112.14";
-import { keyTapMidis, chipRootMidi, chipMidis, keyTapType } from "./kbmath.js?v=112.14";
-import { clearStripExt, clearSuggestPreview } from "./strip.js?v=112.14";
-import { sustainActive, poolFingerGroup } from "./sustain.js?v=112.14";
+import { api as ChordAudio } from "../audio/index.js?v=112.15";
+import { keyRootSpell, modeKey, activeKey, keyDegrees, maybeLockKey } from "../keys.js?v=112.15";
+import { finalizeOne, armPending } from "../loop.js?v=112.15";
+import { setItemState } from "../songs/playback.js?v=112.15";
+import { state, loop, fingers, shared } from "../state.js?v=112.15";
+import { Theory } from "../theory/index.js?v=112.15";
+import { hasDoubleAcc, plainToneName, enharmonicSpell } from "../theory/names.js?v=112.15";
+import { wrap12 } from "../theory/quality.js?v=112.15";
+import { kbFullMode, kbFullRange, kbWindowMode, kbKeyLayout, kidsTonic, kbChord, kbUpdate, kbScheduleReset } from "./keyboard.js?v=112.15";
+import { keyTapMidis, chipRootMidi, chipMidis, keyTapType } from "./kbmath.js?v=112.15";
+import { clearStripExt, clearSuggestPreview } from "./strip.js?v=112.15";
+import { sustainActive, poolFingerGroup } from "./sustain.js?v=112.15";
 
 // The touched key as plain data (from a key element's data-* and its playable state), so any view can sound it.
 export function keyOf(id, pc, midi, degree, borrow, playable) {
