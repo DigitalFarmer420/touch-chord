@@ -86,9 +86,23 @@ html.simple.lay-pad-land #xTog button[data-v="song"], html.simple.lay-pad-port #
 html.simple.lay-pad-land #xTog button[data-v="prog"], html.simple.lay-pad-port #xTog button[data-v="prog"] { flex: 1.2 1 0; }
 
 /* ---- Landscape: left column NOW 222 / slider 22 / key 84 / Major 56 / song picker 48 / play-next + Play 92 / Sustain 154 ---- */
+/* Two top rows, as in portrait (Uiux, 16 Nov): row 1 = brand | Song | Progressions centred | mode chip + ?, row 2 = STYLE
+   and the 8 pills edge to edge, so the toggle never shares a line with the pills. 10-px gaps between rows. The content
+   moves down by row 2's height: NOW absorbs it (never under 160 px; below that Sustain gives way, down to 100 px), the
+   lyric + grid card gets shorter by the same amount. */
 html.simple.lay-pad-land #app {
   grid-template-columns: calc(300 * var(--sw)) minmax(0, 1fr) auto;   /* left column 300 at 1180 wide */
-  grid-template-rows: auto minmax(0, 1fr) calc(154 * var(--sh)); row-gap: 10px; }   /* Sustain 154; NOW takes the rest */
+  /* Row 3's floor: NOW 160 + slider 22 + key + Major (+10) + picker + play-next / Play + four 10-px gaps (the same formulas
+     as .kid-key / .prog below), so NOW keeps 160 and the Sustain row gives way instead. */
+  --sp-left-min: calc(160px + 22px + 84 * var(--sh) + 10px + max(44px, 56 * var(--sh)) + max(44px, 48 * var(--sh)) + max(44px, 92 * var(--sh)) + 40px);
+  grid-template-rows: var(--sp-tap) var(--sp-tap) minmax(var(--sp-left-min), 1fr) minmax(100px, calc(154 * var(--sh))); row-gap: 10px;
+  grid-template-areas: "top top top" "sty sty sty" "now nxt nxt" "sus nxt nxt"; }
+html.simple.lay-pad-land .now-col > .now-card { min-height: 160px; }
+
+html.simple.lay-pad-land .brand { display: block; }
+html.simple.lay-pad-land header.topbar { position: relative; }
+html.simple.lay-pad-land header.topbar > #xTog { position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: calc(320 * var(--sw)); }
+html.simple.lay-pad-land #styles button { flex: 1 1 0; min-width: 0; padding: 0 4px; }   /* the 8 style pills share the row */
 html.simple.lay-pad-land .now-col { gap: 10px; }
 html.simple.lay-pad-land .kid-key { --kk-h: calc(84 * var(--sh)); --kk-mh: max(44px, calc(56 * var(--sh))); }
 html.simple.lay-pad-land .prog { --pg-h: max(44px, calc(48 * var(--sh))); }   /* song picker */

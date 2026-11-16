@@ -647,7 +647,10 @@ html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x
     height: var(--xl-row); min-height: 44px; align-self: stretch;
     box-sizing: border-box; font-size: 22px; border-radius: 16px;
   }
-  html.expert.lay-pad-land #xTop .mode-chip { flex: 0 1 clamp(110px, calc(132 * var(--xl-w)), 180px); min-width: 96px; padding: 0 12px; }
+  html.expert.lay-pad-land #xTop .mode-chip { flex: 0 1 clamp(110px, calc(132 * var(--xl-w)), 180px); min-width: max-content; padding: 0 12px; }   /* never narrower than "◆ Expert" (it clipped by 2 px at 1024 wide) */
+  /* The toggle's labels are centred, so a smaller side padding changes nothing where they fit (1180x820) and stops
+     "Progressions" clipping at 1024-1080 wide. */
+  html.expert.lay-pad-land #xTog button { padding: 0 6px; }
   /* Help circle follows the row: 56 in a 64 row (landscape), 44 in a 64 row (portrait); never under 44. */
   html.expert.lay-pad-land #xTop { --xl-help: max(44px, calc(var(--xl-row) * 56 / 64)); }
   html.expert.lay-pad-port #xTop { --xl-help: max(44px, calc(var(--xl-row) * 44 / 64)); }
