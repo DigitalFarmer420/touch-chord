@@ -61,3 +61,27 @@ There is no pause field: a second tap on Play calls `progStop()`, which hushes v
 ## Unit tests
 
 `tests/unit/notelog.test.js` checks that the hook is absent by default (`location.search` is empty in the node stub) and that `attachNoteLog` / detach record only while a sink is attached, without creating `window.__tcTest`.
+
+
+## Pause / resume
+
+`getTransportState()` now includes `state`: `"idle"` | `"playing"` | `"paused"`, plus `paused`, `offset`, `remaining`, `lyricLine`, and `bandBeat` when paused. The other snapshot fields from the note-log hook (`playing`, `si`, `cur`, `nextT`, …) are still there.
+
+A `window` `CustomEvent` `tc:transport` with `{ detail: { state } }` is dispatched on every transition (Play, Pause, Resume, Stop). Front-End owns button labels and icons; this branch only exposes the API.
+
+### Play button
+
+- Idle → Play starts from `progPlayStart()` (the Next walk position), as before.
+- Playing → **Pause** (a second Play tap). Future (not-yet-started) nodes are cancelled; already-sounding chords are left to ring out; the Band stops and remembers its beat. `cur`, step, lyric line, and offset into the bar are kept.
+- Paused → Resume, with the rules below.
+- Double-taps inside 280 ms are ignored.
+- `document.visibilitychange` to hidden pauses a playing song and does not auto-resume when the tab is shown again.
+
+### Resume rules
+
+- **(a)** Nothing changed (same song, key, style, mode, sound): re-strike the current chord with the same voicing for the remaining bar time; the Band resumes from the paused beat.
+- **(b)** Key, style, mode, or sound changed, same song: replay that step from its start in the new sound.
+- **(c)** Different song or progression: start at step 0.
+- **(d)** `progStop()` from playing or paused always returns to idle, cuts sounding notes, hushes the Band, and clears the pause snapshot.
+
+Policy helpers live in `js/songs/transport-policy.js` (`resumeRule`, `songIdentity`, `worldIdentity`, `barOffset`) so the rules can be unit-tested without Web Audio. Integration tests in `tests/unit/transport-pause.test.js` drive `progPlay` / `progStop` with a stubbed clock and assert each rule through the note-log hook (`attachNoteLog`).

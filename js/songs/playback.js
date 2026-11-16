@@ -20,9 +20,10 @@ import { paintProg } from "../ui/progbar.js?v=112.14";
 import { fxStepPulse } from "../ui/pulse.js?v=112.14";
 import { clearSuggestPreview, STRIP_EXT, PREVIEW_MS, stripKey, applySuggestion, prettyAcc, stripLabel, wireStripTap, paintSuggestions, fitStrip } from "../ui/strip.js?v=112.14";
 import { BADGE_SLOTS, badgeCenter, badgeInset } from "../ui/badgeslots.js?v=112.14";
+import { songIdentity, worldIdentity, resumeRule, barOffset } from "./transport-policy.js?v=112.14";
 
 export const prog = { style: null, mode: null, keySig: null, key: null, idx: 0, list: [], steps: [], targets: [], badges: [], badgeOverflow: [], badgeReport: null,
-  cur: -1, playing: false, timer: 0, si: 0, nextT: 0, groups: [], gid: 0, uiT: [], flashT: 0, log: [], tmp: 0, unplaced: 0, model: null,
+  cur: -1, playing: false, paused: false, pauseSnap: null, playTapAt: 0, timer: 0, si: 0, nextT: 0, groups: [], gid: 0, uiT: [], flashT: 0, log: [], tmp: 0, unplaced: 0, model: null,
   lock: false, lockPick: null };   // Expert progression lock (session only, not saved)
 // Test hooks only with ?test=1 (not in normal use).
 export var PROG_TEST;
@@ -58,7 +59,7 @@ export function progSync(key) {
   var sig = key.pc + key.mode + keyRootName(key);
   var styleChanged = prog.style !== null && prog.style !== state.style;
   var keyChanged = prog.keySig !== null && prog.keySig !== sig;
-  if (styleChanged || keyChanged) progStop();
+  if ((styleChanged || keyChanged) && prog.playing) progStop();   // paused: keep the snapshot so resume can replay the step in the new sound
   var oldName = prog.list[prog.idx] ? prog.list[prog.idx].name : null;
   var wasUp = !!(prog.list[prog.idx] && prog.list[prog.idx].up);   // Upload: a style change keeps the song
   var oldRow = prog.list[prog.idx];
@@ -323,46 +324,211 @@ function progJump(i) {
 
 // v111: where Play starts: the Next walk position, or step 0 when the walk is at / after the end
 export function progPlayStart() { var n = prog.steps.length, p = magic ? magic.pos | 0 : 0; return p > 0 && p < n ? p : 0; }
-// Snapshot of Play-song transport for ?test=1 headless checks (window.__tcTest.transport).
-// There is no pause state yet: a second tap on Play calls progStop, which clears groups
-// and sets cur to -1; si is left as the next-to-schedule index but the next Play ignores
-// it and starts from progPlayStart() (the Next walk position).
+
+export function transportLabel() {
+  if (prog.playing) return "playing";
+  if (prog.paused) return "paused";
+  return "idle";
+}
+
+function emitTransport() {
+  if (typeof window === "undefined" || !window.dispatchEvent) return;
+  try { window.dispatchEvent(new CustomEvent("tc:transport", { detail: { state: transportLabel() } })); } catch (err) {}
+}
+
+function currentLyricLine() {
+  try { if (shared && shared.lyrK != null) return shared.lyrK; } catch (err) {}
+  return prog.cur;
+}
+
 export function getTransportState() {
   var ctx = ChordAudio && ChordAudio.ctx;
+  var snap = prog.pauseSnap;
   return {
+    state: transportLabel(),
     playing: !!prog.playing,
+    paused: !!prog.paused,
     si: prog.si | 0,
     cur: prog.cur,
     nextT: prog.nextT || 0,
+    offset: snap ? snap.offset : 0,
+    remaining: snap ? snap.remaining : 0,
+    lyricLine: snap ? snap.lyricLine : currentLyricLine(),
     stepCount: prog.steps ? prog.steps.length : 0,
     ctxState: ctx ? ctx.state : null,
     currentTime: ctx ? ChordAudio.currentTime() : null,
     magicPos: magic ? magic.pos | 0 : 0,
-    groups: prog.groups ? prog.groups.length : 0
+    groups: prog.groups ? prog.groups.length : 0,
+    bandBeat: snap && snap.bandBeat != null ? snap.bandBeat : (ChordAudio && ChordAudio.band ? ChordAudio.band.beat : 0)
   };
 }
-// Loop: its own lookahead scheduler on the Web Audio clock (like the phrase loop's).
-export function progPlay() {
-  if (prog.playing) { progStop(); return; }
-  paHintHide();   // v112: never during Play
-  magicHintClear();   // v68: the loop player takes over from the Next walk
-  if (!prog.steps.length) return;
-  if (shared.suggestPreview) clearSuggestPreview();   // v84: a chip preview's timer must not clear Play's lit keys
+
+var PLAY_DEBOUNCE_MS = 280;
+function playDebounced() {
+  var now = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
+  if (prog.playTapAt && now - prog.playTapAt < PLAY_DEBOUNCE_MS) return true;
+  prog.playTapAt = now;
+  return false;
+}
+
+function soundingLog(now) {
+  var i, e, last = null;
+  for (i = 0; i < (prog.log || []).length; i++) {
+    e = prog.log[i];
+    if (e.t <= now + 0.001) last = e;
+  }
+  return last;
+}
+
+function beginPlay(from, opts) {
+  opts = opts || {};
+  paHintHide();
+  magicHintClear();
+  if (!prog.steps.length) return false;
+  if (shared.suggestPreview) clearSuggestPreview();
   else if (shared.suggestTimer) { clearTimeout(shared.suggestTimer); shared.suggestTimer = 0; }
   unlock();
-  if (loop.transport || loop.recording || loop.playing) stopPlayback();   // one loop at a time
+  if (loop.transport || loop.recording || loop.playing) stopPlayback();
   progLockKey();
   if (prog.flashT) { clearTimeout(prog.flashT); prog.flashT = 0; }
   shared.upNxOff = false;
-  shared.kbKeyStay = false;   // v102
+  shared.kbKeyStay = false;
+  prog.paused = false;
+  prog.pauseSnap = null;
   prog.playing = true;
-  prog.si = progPlayStart();   // v111: resume from the Next walk position (magic.pos); 0 at / after the end. magic.pos is not changed by Play.
-  prog.log = [];
+  prog.si = from;
+  prog.log = opts.keepLog ? prog.log : [];
   prog.nextT = ChordAudio.currentTime() + 0.06;
-  prog.bandSync = true;   // v75/v76: band beat 1 = the first scheduled step (set once the context runs)
+  prog.bandSync = opts.bandSync !== false;
+  if (prog.timer) clearInterval(prog.timer);
   prog.timer = setInterval(progTick, 25);
   progTick();
   paintProg();
+  emitTransport();
+  return true;
+}
+
+// A second Play tap pauses (does not Stop). Stop is a separate path (progStop).
+export function progPlay() {
+  if (playDebounced()) return;
+  if (prog.playing) { progPause(); return; }
+  if (prog.paused) { progResume(); return; }
+  beginPlay(progPlayStart());   // v111: cold start from the Next walk position (magic.pos); 0 at / after the end
+}
+
+export function onTransportVisibility() {
+  if (typeof document !== "undefined" && document.hidden && prog.playing) progPause();
+}
+
+export function progPause() {
+  if (!prog.playing) return;
+  var now = ChordAudio && ChordAudio.ctx ? ChordAudio.currentTime() : 0;
+  var log = soundingLog(now);
+  var cur = log && log.i != null ? log.i : (prog.cur >= 0 ? prog.cur : 0);
+  if (cur < 0) cur = 0;
+  var st = prog.steps[cur];
+  var barDur = ((st && st.bars) || 1) * progLoopBar();
+  var stepStart = log && log.t != null ? log.t : now;
+  var offset = barOffset(stepStart, now, barDur);
+  var remaining = Math.max(0.02, barDur - offset);
+  var song = songIdentity(prog);
+  var world = worldIdentity({ style: state.style, keyScale: state.keyScale, keyRoot: state.keyRoot, sound: state.sound }, prog);
+  var midis = (log && log.midis) ? log.midis.slice() : [];
+  var bass = log && log.bass != null ? log.bass : null;
+  var bandSnap = ChordAudio && ChordAudio.band && ChordAudio.band.snapshot ? ChordAudio.band.snapshot() : { beat: 0, remain: 0 };
+  prog.pauseSnap = {
+    cur: cur,
+    offset: offset,
+    remaining: remaining,
+    barDur: barDur,
+    stepStart: stepStart,
+    midis: midis,
+    bass: bass,
+    style: world.style,
+    mode: world.mode,
+    keySig: world.keySig,
+    sound: world.sound,
+    songIdx: song.idx,
+    songName: song.name,
+    up: song.up,
+    bandBeat: bandSnap.beat,
+    bandRemain: bandSnap.remain,
+    lyricLine: currentLyricLine()
+  };
+  prog.playing = false;
+  prog.paused = true;
+  prog.cur = cur;
+  clearInterval(prog.timer); prog.timer = 0;
+  // Drop UI timeouts for steps that have not sounded yet; keep the current line lit.
+  prog.uiT.forEach(clearTimeout); prog.uiT = [];
+  if (ChordAudio && ChordAudio.cancelFuture) ChordAudio.cancelFuture(now);
+  // Future (not-yet-started) groups leave the sounding set; tails of already-started chords ring.
+  if (prog.groups && prog.groups.length) {
+    prog.groups = prog.groups.filter(function (o) { return o.t <= now + 0.001; });
+  }
+  if (ChordAudio && ChordAudio.band && ChordAudio.band.pause) ChordAudio.band.pause();
+  else if (ChordAudio && ChordAudio.band) ChordAudio.band.hush();
+  paintProgActive();
+  paintProg();
+  emitTransport();
+}
+
+export function progResume() {
+  if (!prog.paused) return;
+  var snap = prog.pauseSnap;
+  var song = songIdentity(prog);
+  var world = worldIdentity({ style: state.style, keyScale: state.keyScale, keyRoot: state.keyRoot, sound: state.sound }, prog);
+  var rule = resumeRule(snap, world, song);
+  var n = prog.steps.length;
+  if (!n) { progStop(); return; }
+  if (rule === "from-zero") {
+    beginPlay(0);
+    return;
+  }
+  if (rule === "replay-step") {
+    var at = snap && snap.cur >= 0 ? snap.cur : 0;
+    if (at >= n) at = 0;
+    beginPlay(at);
+    return;
+  }
+  // (a) nothing changed: re-strike the current chord, same voicing, for the remaining time.
+  paHintHide();
+  magicHintClear();
+  if (shared.suggestPreview) clearSuggestPreview();
+  else if (shared.suggestTimer) { clearTimeout(shared.suggestTimer); shared.suggestTimer = 0; }
+  unlock();
+  if (loop.transport || loop.recording || loop.playing) stopPlayback();
+  progLockKey();
+  if (prog.flashT) { clearTimeout(prog.flashT); prog.flashT = 0; }
+  shared.upNxOff = false;
+  shared.kbKeyStay = false;
+  var now = ChordAudio.currentTime() + 0.06;
+  var cur = snap.cur >= 0 ? snap.cur : 0;
+  if (cur >= n) cur = 0;
+  var st = prog.steps[cur];
+  if (st) setItemState(st.item);
+  var midis = (snap.midis && snap.midis.length) ? snap.midis.slice() : (computeSpec().midis || []);
+  var bass = snap.bass;
+  var g = "P" + (++prog.gid);
+  ChordAudio.playChord(g, midis, { bass: bass, sound: snap.sound || state.sound, time: now, step: cur });
+  (prog.groups || []).forEach(function (o) { ChordAudio.stopChord(o.g, now); });
+  prog.groups = [{ g: g, t: now }];
+  prog.lastItem = st ? st.item : prog.lastItem;
+  prog.cur = cur;
+  prog.si = (cur + 1) % n;
+  prog.nextT = now + (snap.remaining > 0 ? snap.remaining : 0.02);
+  prog.playing = true;
+  prog.paused = false;
+  prog.pauseSnap = null;
+  prog.bandSync = false;
+  if (ChordAudio.band && ChordAudio.band.resumeFrom) {
+    ChordAudio.band.resumeFrom(now, { beat: snap.bandBeat, remain: snap.bandRemain });
+  }
+  if (prog.timer) clearInterval(prog.timer);
+  prog.timer = setInterval(progTick, 25);
+  paintProgActive();
+  paintProg();
+  emitTransport();
 }
 function progTick() {
   if (!prog.playing || !ChordAudio.ctx) return;
@@ -412,7 +578,7 @@ function progSchedule(i, t) {
     prog.groups = [{ g: g, t: t }];
   }
   prog.lastItem = st.item;
-  prog.log.push({ i: i, t: t, sym: spec.symbol, tied: tied, bars: st.bars, n: spec.midis.length, bass: spec.bassOut });
+  prog.log.push({ i: i, t: t, sym: spec.symbol, tied: tied, bars: st.bars, n: spec.midis.length, bass: spec.bassOut, midis: spec.midis.slice() });
   if (prog.log.length > 64) prog.log.shift();
   var tid = setTimeout(function () {
     prog.uiT = prog.uiT.filter(function (x) { return x !== tid; });
@@ -429,9 +595,11 @@ function progSchedule(i, t) {
   prog.uiT.push(tid);
 }
 export function progStop() {
-  if (!prog.playing) return;
+  if (!prog.playing && !prog.paused) return;
   // v111 (D2): Stop keeps an uploaded song's next-chord marks (no upNxOff here any more)
   prog.playing = false;
+  prog.paused = false;
+  prog.pauseSnap = null;
   clearInterval(prog.timer); prog.timer = 0;
   ChordAudio.band.hush();   // v104 (M4)
   prog.uiT.forEach(clearTimeout); prog.uiT = [];
@@ -450,6 +618,7 @@ export function progStop() {
   if (shared.suggestPreview) clearSuggestPreview();
   kbScheduleReset();   // kb-fix: Play song stopped: the window goes back to the tonic
   paintProg();
+  emitTransport();
 }
 // v71: song.key -> app key. Same shape as the song contract's key {tonic, mode}; a future
 // song Upload should call applySongKey(song.key.tonic, song.key.mode) too (not built yet).
@@ -474,7 +643,7 @@ export function progSet(i) {
   var n = prog.list.length;
   if (!n) return;
   shared.paMiss = 0;   // v112: a new song starts a new miss run
-  progStop();
+  if (!prog.paused) progStop();
   ChordAudio.band.hush();   // v104: a new song starts without the old Band tail
   prog.idx = ((i % n) + n) % n;
   prog.cur = -1;
@@ -507,5 +676,8 @@ magic = { pos: 0, last: null, since: 0, cycle: 4, item: null, lit: false, endAt:
     if (prog.playing) return prog.steps.length ? prog.steps[prog.si % prog.steps.length].item.rootPc : null;   // v111: Play loops
     return magic && magic.next && magic.next.step >= 0 && magic.next.item ? magic.next.item.rootPc : null;
   };
+  if (typeof document !== "undefined" && document.addEventListener) {
+    document.addEventListener("visibilitychange", onTransportVisibility);
+  }
 kidsKeyFixT = 0;
 }

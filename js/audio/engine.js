@@ -499,6 +499,16 @@ ChordAudio.prototype.fadeGroup = function (group) {
   }
 };
 
+ChordAudio.prototype.cancelFuture = function (when) {
+  if (!this.ctx) return;
+  var t = when == null ? this.ctx.currentTime : when;
+  for (var i = 0; i < this.voices.length; i++) {
+    var v = this.voices[i];
+    if (!v || v.released || v.short) continue;
+    if (v.startTime > t + 0.001 && v.cancel) v.cancel();
+  }
+};
+
 ChordAudio.prototype.stopChord = function (group, when, tau, force) {
   if (!this.ctx) return;
   var t = when == null ? this.ctx.currentTime : when;

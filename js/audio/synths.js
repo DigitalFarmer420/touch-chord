@@ -358,6 +358,22 @@ ChordAudio.prototype.makeVoice = function (spec) {
     released: false,
     born: time,
     startTime: time,
+    cancel: function () {
+      if (voice.released) return;
+      voice.released = true;
+      var t = ctx.currentTime;
+      if (!voice._noteOffLogged) {
+        voice._noteOffLogged = true;
+        recordEngineNote("off", { t: Math.min(t, voice.startTime), midi: spec.midi, step: spec.step, velocity: spec.velocity == null ? 1 : spec.velocity });
+      }
+      try {
+        gate.gain.cancelScheduledValues(0);
+        gate.gain.setValueAtTime(0, 0);
+      } catch (err) {}
+      var stopAt = voice.startTime > t ? voice.startTime : t;
+      oscs.forEach(function (o) { try { o.stop(stopAt); } catch (err2) {} });
+      voice.done = stopAt;
+    },
     done: expire,
     setLevel: function (v) {
       glide(level.gain, Math.max(0.001, v), ctx.currentTime, 0.03);
@@ -436,6 +452,22 @@ function voiceObject(ctx, spec, filter, env, level, gate, oscs, nodes, time, exp
     released: false,
     born: time,
     startTime: time,
+    cancel: function () {
+      if (voice.released) return;
+      voice.released = true;
+      var t = ctx.currentTime;
+      if (!voice._noteOffLogged) {
+        voice._noteOffLogged = true;
+        recordEngineNote("off", { t: Math.min(t, voice.startTime), midi: spec.midi, step: spec.step, velocity: spec.velocity == null ? 1 : spec.velocity });
+      }
+      try {
+        gate.gain.cancelScheduledValues(0);
+        gate.gain.setValueAtTime(0, 0);
+      } catch (err) {}
+      var stopAt = voice.startTime > t ? voice.startTime : t;
+      oscs.forEach(function (o) { try { o.stop(stopAt); } catch (err2) {} });
+      voice.done = stopAt;
+    },
     done: expire,
     setLevel: function (v) {
       glide(level.gain, Math.max(0.001, v), ctx.currentTime, 0.03);
