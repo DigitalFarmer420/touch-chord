@@ -1,0 +1,30 @@
+/* Self-hosted UI fonts, including Andika for Vietnamese diacritics in lyrics.
+   SIL Open Font License: fonts/OFL-Nunito.txt, OFL-Fredoka.txt, OFL-Andika.txt. */
+@font-face {
+  font-family: Nunito;
+  src: url("../fonts/nunito-variable.woff2") format("woff2");
+  font-weight: 200 1000;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: Fredoka;
+  src: url("../fonts/fredoka-variable.woff2") format("woff2");
+  font-weight: 200 1000;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: Andika;
+  src: url("../fonts/andika-400.woff2") format("woff2");
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: Andika;
+  src: url("../fonts/andika-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
