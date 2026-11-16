@@ -3,7 +3,7 @@ import { api as ChordAudio } from "../audio/index.js?v=112.14";
 import { unlock } from "../audio/unlock.js?v=112.14";
 import { modeKey, namePc, buildKeySel, setKeySpell } from "../keys.js?v=112.14";
 import { killLoopVoices, onRecord, onPlay, onClear, setBpm } from "../loop.js?v=112.14";
-import { magic, progStop, prog, progSet } from "../songs/playback.js?v=112.14";
+import { magic, progStop, progPause, prog, progSet } from "../songs/playback.js?v=112.14";
 import { upInList } from "../songs/song.js?v=112.14";
 import { VOICINGS, state, loop, padsEl, shared } from "../state.js?v=112.14";
 import { applyStylePreset, enforceYogaDeepPaletteGate, setWarmth } from "../styles.js?v=112.14";
@@ -147,7 +147,8 @@ export function wire() {
 
   document.addEventListener("visibilitychange", function () {
     if (document.hidden) {
-      progStop(); ChordAudio.band.hush();   // v104: hidden page = stopped, Band silent
+      if (prog.playing) progPause();   // N16: a hidden page pauses Play song (Play resumes; no auto-resume on show)
+      ChordAudio.band.hush();   // v104: Band silent
       killLoopVoices();
       releaseFingers(true);
       setSustain(false);

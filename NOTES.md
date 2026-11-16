@@ -67,15 +67,26 @@ There is no pause field: a second tap on Play calls `progStop()`, which hushes v
 
 `getTransportState()` now includes `state`: `"idle"` | `"playing"` | `"paused"`, plus `paused`, `offset`, `remaining`, `lyricLine`, and `bandBeat` when paused. The other snapshot fields from the note-log hook (`playing`, `si`, `cur`, `nextT`, …) are still there.
 
-A `window` `CustomEvent` `tc:transport` with `{ detail: { state } }` is dispatched on every transition (Play, Pause, Resume, Stop). Front-End owns button labels and icons; this branch only exposes the API.
+A `window` `CustomEvent` `tc:transport` with `{ detail: { state } }` is dispatched on every transition (Play, Pause, Resume, Stop). Play's `aria-label` (and `title` on `#prog .pg-song`) comes from `playButtonLabel()`: "Play song" idle, "Pause" playing, "Resume" paused, in Kids, Simple and Expert (phone and iPad). Icons and layout are unchanged.
 
 ### Play button
 
 - Idle → Play starts from `progPlayStart()` (the Next walk position), as before.
-- Playing → **Pause** (a second Play tap). Future (not-yet-started) nodes are cancelled; already-sounding chords are left to ring out; the Band stops and remembers its beat. `cur`, step, lyric line, and offset into the bar are kept.
+- Playing → **Pause** (a second Play tap). Future (not-yet-started) nodes are cancelled; the chord that is sounding gets the engine's normal release (`stopChord` with the default envelope, the same as a chord change; N14), so nothing is held through the pause; the Band stops and remembers its beat. `cur`, step, lyric line, and offset into the bar are kept.
 - Paused → Resume, with the rules below.
 - Double-taps inside 280 ms are ignored.
-- `document.visibilitychange` to hidden pauses a playing song and does not auto-resume when the tab is shown again.
+- `document.visibilitychange` to hidden pauses a playing song and does not auto-resume when the tab is shown again (playback.js and wire.js both pause now; N16).
+- `pagehide` with `persisted: true` (back/forward cache) pauses; `pagehide` without `persisted` (a real unload) still stops hard (gear.js `onPageHide`).
+
+### Next while playing or paused (N15)
+
+- While Play is playing or paused, the Next walk follows the play position: pausing sets `magic.pos` to the paused step + 1, so the next-chord hint and Next mean "the step after the paused one".
+- **Paused → Next** sounds the step after the paused one once, with the normal Next ring and release (it is never held), and moves the pause point there. The transport **stays paused**, Play still shows ▶ with the label "Resume", and a later Play resumes from the start of that step (one re-strike). Repeated Next keeps walking while paused.
+- On the last step, Next wraps to step 1 (index 0), as Next does when idle. `getTransportState()` reports `nextStep`, `fromTop` (the next Next goes back to the top) and `wrapped` (the last Next did) for the "↻ From the top" preview (N2, Front-End).
+- **Playing → Next** stops Play (as before) and plays the step after the sounding one.
+- **Idle → Next** is unchanged.
+- Stop (from playing or paused) puts the walk back where it was before Play, so Pause → Stop → Play still starts where Play first started.
+- The resume re-strike is written to `prog.log` (`resume: true`, `remaining`), so log-based timing is right and a second pause measures from the real bar start.
 
 ### Resume rules
 

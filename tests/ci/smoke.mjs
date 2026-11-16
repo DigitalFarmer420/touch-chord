@@ -477,6 +477,137 @@ try {
     }
   }
 
+  // PR #16 transport checks (Noff N14 / N15 / N16 and the Play label). Expert 390x844 and 1180x820,
+  // Simple 390x844, plus the label in Kids. Driven through the ?test=1 hooks (window.__prog,
+  // window.__progApi, window.__tcTest.transport(), window.ChordAudio.voices).
+  const tpSnap = page => page.evaluate(() => {
+    const A = window.ChordAudio, now = A && A.ctx ? A.currentTime() : 0;
+    const live = (A && A.voices || []).filter(v => !v.short && !v.released && !(v.done != null && v.done <= now));
+    const t = window.__tcTest ? window.__tcTest.transport() : {};
+    return { state: t.state, cur: window.__prog.cur, n: window.__prog.steps.length, pos: t.magicPos, fromTop: !!t.fromTop, wrapped: !!t.wrapped,
+      live: live.length, held: live.filter(v => v.done == null).length };
+  });
+  const tpPlay = async (page, sel) => { await page.locator(sel).click(); await page.waitForTimeout(320); };   // past the 280 ms Play debounce
+  const tpUntil = (page, k) => page.waitForFunction(k => window.__prog.playing && window.__prog.cur >= k, k, { timeout: 15000 });
+  const tpLabel = (page, sel) => page.evaluate(sel => { const b = document.querySelector(sel); return b ? b.getAttribute('aria-label') : null; }, sel);
+  async function tpCase(label, w, h, query, fn) {
+    const { ctx, page, bag } = await fresh(browser, w, h, label);
+    try {
+      await boot(page, query);
+      const notes = await fn(page);
+      if (bag.errors.length || bag.failed.length) notes.push('page: ' + bag.errors.concat(bag.failed).slice(0, 3).join('; '));
+      if (notes.length) await shot(page, label);
+      record(label, !notes.length, notes.join(' | '));
+    } catch (e) {
+      await shot(page, label);
+      record(label, false, (e && e.message || String(e)).split('\n')[0]);
+    } finally {
+      await ctx.close();
+    }
+  }
+  const TP = [[390, 844, 'expert', 'test=1&hour=12&expert=1', '#xPlay'], [1180, 820, 'expert', 'test=1&hour=12&expert=1', '#xPlay'], [390, 844, 'simple', 'test=1&hour=12', '#prog .pg-song']];
+  for (const [w, h, mode, query, sel] of TP) {
+    const pre = async page => { if (await landedMode(page) !== mode) await switchTo(page, mode); await prepare(page, mode); };
+    // N14: pause releases the sounding chord (no voice held through the pause).
+    await tpCase(`${w}x${h} ${mode} N14 pause releases the chord`, w, h, query, async page => {
+      await pre(page);
+      const notes = [];
+      await tpPlay(page, sel); await tpUntil(page, 1); await page.waitForTimeout(300);
+      const a = await tpSnap(page);
+      if (!a.live) notes.push('nothing sounding before pause ' + JSON.stringify(a));
+      await tpPlay(page, sel);
+      await page.waitForTimeout(1500);
+      const b = await tpSnap(page);
+      if (b.state !== 'paused') notes.push('state ' + b.state + ' (want paused)');
+      if (b.live || b.held) notes.push(`voices still live 1.5 s into pause: live=${b.live} held=${b.held}`);
+      return notes;
+    });
+    // N15: Next while paused plays the step after the paused one, stays paused (Resume label), releases, wraps.
+    await tpCase(`${w}x${h} ${mode} N15 Next while paused`, w, h, query, async page => {
+      await pre(page);
+      const notes = [];
+      await tpPlay(page, sel); await tpUntil(page, 2);
+      await tpPlay(page, sel);
+      const a = await tpSnap(page);
+      if (a.state !== 'paused') notes.push('pause: ' + JSON.stringify(a));
+      await page.evaluate(() => window.__progApi.next()); await page.waitForTimeout(200);
+      const b = await tpSnap(page);
+      const want = (a.cur + 1) % a.n;
+      if (b.state !== 'paused') notes.push('after Next state ' + b.state + ' (want paused)');
+      if (b.cur !== want) notes.push(`after Next cur ${b.cur} (want ${want}, paused on ${a.cur})`);
+      if (b.pos !== want + 1) notes.push(`walk pos ${b.pos} (want ${want + 1})`);
+      const lab = await tpLabel(page, sel);
+      if (lab !== 'Resume') notes.push('Play label "' + lab + '" (want Resume)');
+      if (!b.live) notes.push('Next sounded nothing');
+      const ring = await page.evaluate(() => (window.__magic && window.__magic.state ? window.__magic.state.endAt : 0) - window.ChordAudio.currentTime());
+      await page.waitForTimeout(Math.max(0, ring * 1000) + 700);
+      const c = await tpSnap(page);
+      if (c.live || c.held) notes.push(`Next chord not released after its ring: live=${c.live} held=${c.held}`);
+      // walk to the last step with Next (still paused), then Next wraps to step 1 "from the top"
+      for (let g = 0; g < 40 && (await tpSnap(page)).cur !== a.n - 1 && (await tpSnap(page)).state === 'paused'; g++) {
+        await page.evaluate(() => window.__progApi.next()); await page.waitForTimeout(60);
+      }
+      const d = await tpSnap(page);
+      if (d.cur !== a.n - 1 || d.state !== 'paused') notes.push('could not reach the last step while paused ' + JSON.stringify(d));
+      else {
+        if (!d.fromTop) notes.push('paused on the last step: next is not "from the top"');
+        await page.evaluate(() => window.__progApi.next()); await page.waitForTimeout(200);
+        const e = await tpSnap(page);
+        if (e.state !== 'paused' || e.cur !== 0 || !e.wrapped || e.pos !== 1) notes.push('Next on the last step: ' + JSON.stringify(e) + ' (want paused, cur 0, wrapped, pos 1)');
+      }
+      // Resume plays from the new step
+      await tpPlay(page, sel);
+      const f = await tpSnap(page);
+      if (f.state !== 'playing' || f.cur !== 0) notes.push('resume after Next: ' + JSON.stringify(f));
+      if (f.state === 'playing') await tpPlay(page, sel);
+      return notes;
+    });
+    // N16: hidden tab / bfcache pagehide pauses (no auto-resume); a real unload pagehide stops.
+    await tpCase(`${w}x${h} ${mode} N16 hide pauses`, w, h, query, async page => {
+      await pre(page);
+      const notes = [];
+      await tpPlay(page, sel); await tpUntil(page, 1);
+      const a = await tpSnap(page);
+      await page.evaluate(() => { Object.defineProperty(document, 'hidden', { configurable: true, get: () => true }); Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' }); document.dispatchEvent(new Event('visibilitychange')); });
+      await page.waitForTimeout(800);
+      const b = await tpSnap(page);
+      if (b.state !== 'paused') notes.push('hidden: state ' + b.state + ' (want paused)');
+      if (b.cur !== a.cur && b.cur !== a.cur + 1) notes.push(`hidden: cur ${b.cur} (was ${a.cur})`);
+      if (b.live || b.held) notes.push(`hidden: voices live=${b.live} held=${b.held}`);
+      await page.evaluate(() => { Object.defineProperty(document, 'hidden', { configurable: true, get: () => false }); Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'visible' }); document.dispatchEvent(new Event('visibilitychange')); });
+      await page.waitForTimeout(800);
+      const c = await tpSnap(page);
+      if (c.state !== 'paused') notes.push('shown again: state ' + c.state + ' (want paused, no auto-resume)');
+      const lab = await tpLabel(page, sel);
+      if (lab !== 'Resume') notes.push('shown again: Play label "' + lab + '" (want Resume)');
+      await tpPlay(page, sel);
+      await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true })));
+      await page.waitForTimeout(300);
+      const d = await tpSnap(page);
+      if (d.state !== 'paused') notes.push('pagehide (persisted): state ' + d.state + ' (want paused)');
+      await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: false })));
+      await page.waitForTimeout(300);
+      const e = await tpSnap(page);
+      if (e.state !== 'idle') notes.push('pagehide (unload): state ' + e.state + ' (want idle)');
+      return notes;
+    });
+  }
+  // Play label in each mode: "Play song" idle, "Pause" playing, "Resume" paused.
+  for (const [w, h, mode, query] of [[390, 844, 'simple', 'test=1&hour=12'], [390, 844, 'expert', 'test=1&hour=12&expert=1'], [390, 844, 'kids', 'test=1&hour=12&kv=1'],
+    [1180, 820, 'simple', 'test=1&hour=12'], [1180, 820, 'expert', 'test=1&hour=12&expert=1'], [1180, 820, 'kids', 'test=1&hour=12&kv=1']]) {
+    await tpCase(`${w}x${h} ${mode} Play label idle/playing/paused`, w, h, query, async page => {
+      if (mode !== 'kids' && await landedMode(page) !== mode) await switchTo(page, mode);
+      await prepare(page, mode);
+      const sel = playSel(mode), notes = [];
+      const want = async (w, when) => { const l = await tpLabel(page, sel); if (l !== w) notes.push(`${when}: "${l}" (want "${w}")`); };
+      await want('Play song', 'idle');
+      await tpPlay(page, sel); await page.waitForTimeout(150); await want('Pause', 'playing');
+      await tpPlay(page, sel); await page.waitForTimeout(150); await want('Resume', 'paused');
+      await page.evaluate(() => window.__progApi.stop()); await page.waitForTimeout(200); await want('Play song', 'after Stop');
+      return notes;
+    });
+  }
+
   for (const w of walks) {
     if (w.pageNotes.length) record('toggle ' + w.label, false, w.pageNotes.join(' | '));
   }

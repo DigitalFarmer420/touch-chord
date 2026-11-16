@@ -10,7 +10,7 @@ import { activeKey, keyDegrees } from "../keys.js?v=112.14";
 import { KIDS_SONG_KEY } from "../songs/kids-songs.js?v=112.14";
 import { KIDS_LYRICS } from "../songs/kids-songs.js?v=112.14";
 import { magicQueue, progNext } from "../songs/magic.js?v=112.14";
-import { magic, prog, progSet, progPlay, progStop, applySongKey, progWalkAt, progWalkTo } from "../songs/playback.js?v=112.14";
+import { magic, prog, progSet, progPlay, progStop, applySongKey, progWalkAt, progWalkTo, playButtonLabel } from "../songs/playback.js?v=112.14";
 import { progLoopBar } from "../songs/song.js?v=112.14";
 import { nextChange, cueSoon, cueClock, cueWord, cuePieces, placeCueTag, cueLetterClass } from "../ui/chordcue.js?v=112.14";
 import { state, fingers, shared, scheduleSave } from "../state.js?v=112.14";
@@ -473,9 +473,10 @@ export function paint(force) {
     k.classList.toggle("lit", !!lit[midi]);
   });
   els.play.classList.toggle("on", !!prog.playing);
-  // Play stays ▶ while a song plays (never ■ Stop), at every size. aria-label still says "Stop song".
+  // Play stays ▶ while a song plays (never ■ Stop), at every size. Label: Play song / Pause / Resume.
+  var kl = playButtonLabel();
   els.play.removeAttribute("aria-pressed");
-  els.play.setAttribute("aria-label", prog.playing ? "Stop song" : "Play song");
+  els.play.setAttribute("aria-label", kl.aria);
 }
 function startPaint() { if (!kv.timer) kv.timer = setInterval(function () { paint(false); }, 50); }
 function stopPaint() { if (kv.timer) { clearInterval(kv.timer); kv.timer = 0; } }

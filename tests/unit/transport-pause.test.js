@@ -72,8 +72,8 @@ function installAudioStub() {
     (rec.midis).forEach(m => E.recordEngineNote('on', { t, midi: m, step: opts.step, velocity: 1 }));
     if (opts.bass != null) E.recordEngineNote('on', { t, midi: opts.bass, step: opts.step, velocity: 1 });
   };
-  A.api.stopChord = function (g, when) {
-    strikes.push({ stop: true, g, t: when == null ? now : when });
+  A.api.stopChord = function (g, when, tau, force) {
+    strikes.push({ stop: true, g, t: when == null ? now : when, tau: tau == null ? null : tau, force: !!force });
   };
   A.api.cancelFuture = function (when) {
     const t = when == null ? now : when;
@@ -195,9 +195,10 @@ test('a second Play tap pauses: keeps cur and offset, Band stops, tails are not 
   assert.ok(st.remaining > 1.5, 'remaining time of the bar, got ' + st.remaining);
   assert.equal(typeof st.lyricLine, 'number');
   assert.ok(bandLog.some(x => x.type === 'pause' || x.type === 'hush'), 'Band stops');
-  // Pause must not have issued a Stop-style force cut of the already-started chord.
+  // Pause must not have issued a Stop-style force cut of the already-started chord (N14: it gets
+  // the normal release instead, checked in its own test below).
   const stops = strikes.filter(s => s.stop);
-  assert.equal(stops.length, 0);
+  stops.forEach(s => { assert.equal(s.force, false, 'no force cut'); assert.equal(s.tau, null, 'normal release envelope'); });
   const cancelled = strikes.filter(s => s.cancelled);
   // Only future (not-yet-started) events may be cancelled.
   cancelled.forEach(s => assert.ok(s.t > first.t + 0.9));
@@ -355,6 +356,246 @@ test('tab backgrounding pauses a playing song and does not auto-resume', () => {
   assert.equal(P.getTransportState().state, 'paused');
   tapGap();
   P.progStop();
+});
+
+// ---------- N14 / N15 / N16 / resume log / Play labels ----------
+const M = await import(`../../js/songs/magic.js?v=${V}`);
+(await import(`../../js/ui/strip.js?v=${V}`)).boot1();   // chip icons (Next repaints the key chip through kbSound)
+const Sh = S.shared;
+const sleep = ms => new Promise(r => _st(r, ms));
+// Play, then move the stub clock until step `k` is the sounding step.
+async function playTo(k) {
+  P.prog.keySig = null;   // test setup uses a dummy keySig; let the first progSync take the real one (no key-change Stop)
+  P.progPlay();
+  for (let guard = 0; guard < 200; guard++) {
+    const e = P.prog.log.find(x => x.i === k);
+    if (e && e.t <= now) { now = e.t + 0.5; await sleep(5); return e; }
+    now += 0.25;
+    await sleep(30);
+  }
+  throw new Error('never reached step ' + k + ' state=' + P.transportLabel() + ' log=' + JSON.stringify(P.prog.log.map(x => [x.i, x.t])) + ' now=' + now + ' timer=' + P.prog.timer);
+}
+function liveGroups() {
+  // groups that were struck and have no stop at or before `now`
+  const started = strikes.filter(s => !s.stop && !s.cancelled && s.t <= now + 0.001);
+  return started.filter(s => !strikes.some(x => x.stop && x.g === s.g && x.t <= now + 0.001)).map(s => s.g);
+}
+
+test('N14: pause gives the sounding chord its normal release (nothing held through the pause)', async () => {
+  setupSong();
+  await playTo(1);
+  const before = liveGroups();
+  assert.ok(before.length >= 1, 'a chord is sounding before pause');
+  tapGap();
+  P.progPlay();
+  assert.equal(P.getTransportState().state, 'paused');
+  const rel = strikes.filter(s => s.stop && before.includes(s.g));
+  assert.ok(rel.length >= 1, 'the sounding group got a stopChord on pause');
+  rel.forEach(s => {
+    assert.ok(Math.abs(s.t - now) < 0.002, 'released now, not later');
+    assert.equal(s.tau, null, 'engine default release envelope (REL_TAU), not a custom cut');
+    assert.equal(s.force, false, 'not a force (Stop) cut');
+  });
+  assert.deepEqual(liveGroups(), [], 'no group left held during the pause');
+  assert.equal(P.prog.groups.length, 0);
+  // Resume still re-strikes once, same step.
+  const ons = strikes.filter(s => !s.stop).length;
+  tapGap();
+  P.progPlay();
+  const added = strikes.filter(s => !s.stop).slice(ons);
+  assert.equal(added.length >= 1, true);
+  assert.equal(added[0].step, 1);
+  assert.equal(added.filter(s => s.t <= now + 0.07).length, 1, 'exactly one re-strike at resume');
+  tapGap(); P.progStop();
+});
+
+test('resume re-strike is written to prog.log; a second pause measures from the real bar start', async () => {
+  setupSong();
+  await playTo(1);
+  tapGap(); P.progPlay();
+  const snap1 = { ...P.prog.pauseSnap };
+  tapGap(); P.progPlay();
+  const e = P.prog.log.at(-1);
+  assert.equal(e.resume, true);
+  assert.equal(e.i, 1);
+  assert.ok(Math.abs(e.t - (now + 0.06)) < 0.002, 'log time = re-strike time');
+  assert.deepEqual(e.midis, snap1.midis);
+  assert.ok(Math.abs(e.remaining - snap1.remaining) < 1e-9);
+  // Pause again 0.3 s after the re-strike: offset = first offset + 0.3.
+  now = e.t + 0.3;
+  tapGap(); P.progPlay();
+  const st = P.getTransportState();
+  assert.equal(st.cur, 1);
+  assert.ok(Math.abs(st.offset - (snap1.offset + 0.3)) < 0.01, 'offset ' + st.offset + ' vs ' + (snap1.offset + 0.3));
+  tapGap(); P.progStop();
+});
+
+test('N15: Next while paused plays the step after the paused one, stays paused, walk in sync', async () => {
+  setupSong();
+  const n = P.prog.steps.length;
+  assert.ok(n >= 4);
+  await playTo(2);
+  tapGap(); P.progPlay();
+  assert.equal(P.getTransportState().state, 'paused');
+  assert.equal(P.getTransportState().cur, 2);
+  assert.equal(P.magic.pos, 3, 'walk follows the paused step');
+  assert.equal(P.getTransportState().nextStep, 3);
+  M.progNext();
+  const st = P.getTransportState();
+  assert.equal(st.state, 'paused', 'stays paused');
+  assert.equal(st.cur, 3, 'moved to the step after the paused one');
+  assert.equal(P.magic.pos, 4, 'walk in sync');
+  assert.deepEqual(P.magic.item, P.prog.steps[3].item, 'Next sounded step 3');
+  assert.equal(st.offset, 0);
+  assert.ok(Math.abs(st.remaining - (P.prog.steps[3].bars || 1) * P.prog.pauseSnap.barDur / (P.prog.steps[3].bars || 1)) < 1e-9);
+  // The Next chord ends with its normal ring + release (magicEnd timer armed on the audio clock).
+  assert.ok(Sh.suggestTimer, 'ring-end release timer armed');
+  assert.ok(P.magic.endAt > now, 'release scheduled after the ring');
+  // Resume plays from the new step: the Next chord gets the normal release, one re-strike of step 3.
+  const ons = strikes.length;
+  tapGap(); P.progPlay();
+  assert.equal(P.getTransportState().state, 'playing');
+  const added = strikes.slice(ons);
+  const sug = added.find(s => s.stop && s.g === 'suggest');
+  assert.ok(sug, 'Next chord released at resume');
+  assert.equal(sug.force, false); assert.equal(sug.tau, null);
+  const re = added.filter(s => !s.stop);
+  assert.equal(re[0].step, 3);
+  assert.deepEqual(re[0].midis, P.prog.log.at(-1).midis);
+  assert.equal(P.prog.log.at(-1).i, 3);
+  tapGap(); P.progStop();
+});
+
+test('N15: Next while paused on the last step wraps to step 1 (index 0), "from the top"', async () => {
+  setupSong();
+  const n = P.prog.steps.length;
+  await playTo(n - 1);
+  tapGap(); P.progPlay();
+  assert.equal(P.getTransportState().cur, n - 1);
+  assert.equal(P.getTransportState().fromTop, true, 'the next chord is from the top');
+  assert.equal(P.getTransportState().nextStep, 0);
+  M.progNext();
+  const st = P.getTransportState();
+  assert.equal(st.state, 'paused');
+  assert.equal(st.cur, 0);
+  assert.equal(st.wrapped, true);
+  assert.equal(P.magic.pos, 1);
+  assert.deepEqual(P.magic.item, P.prog.steps[0].item, 'Next sounded step 1');
+  tapGap(); P.progStop();
+});
+
+test('N15: Stop after Pause (and after Next while paused) puts the walk back: Play starts where it did', async () => {
+  setupSong();
+  await playTo(2);
+  tapGap(); P.progPlay();
+  M.progNext();
+  tapGap(); P.progStop();
+  assert.equal(P.getTransportState().state, 'idle');
+  assert.equal(P.magic.pos, 0, 'walk restored to before Play');
+  assert.equal(P.progPlayStart(), 0);
+});
+
+test('N15: idle Next is unchanged (walks from magic.pos, no transport change)', () => {
+  setupSong();
+  P.magic.next = null;   // no queued decision left over from an earlier test
+  M.progNext();
+  assert.equal(P.getTransportState().state, 'idle');
+  assert.deepEqual(P.magic.item, P.prog.steps[0].item);
+  assert.equal(P.magic.pos, 1);
+  M.progNext();
+  assert.deepEqual(P.magic.item, P.prog.steps[1].item);
+  assert.equal(P.magic.pos, 2);
+});
+
+test('N16: hidden tab pauses (not idle) and keeps the step; gear pagehide pauses when persisted, stops on unload', async () => {
+  const G = await import(`../../js/ui/gear.js?v=${V}`);
+  setupSong();
+  await playTo(2);
+  globalThis.__hidden = true;
+  P.onTransportVisibility();
+  assert.equal(P.getTransportState().state, 'paused');
+  assert.equal(P.getTransportState().cur, 2);
+  assert.deepEqual(liveGroups(), [], 'released, nothing held while hidden');
+  globalThis.__hidden = false;
+  P.onTransportVisibility();
+  assert.equal(P.getTransportState().state, 'paused', 'no auto-resume');
+  tapGap(); P.progStop();
+  setupSong();
+  await playTo(1);
+  G.onPageHide({ persisted: true });
+  assert.equal(P.getTransportState().state, 'paused');
+  G.onPageHide({ persisted: false });
+  assert.equal(P.getTransportState().state, 'idle', 'a real unload stops');
+  // wire.js visibility handler pauses rather than stops
+  const wire = readFileSync(new URL('js/ui/wire.js', R), 'utf8');
+  const vis = wire.slice(wire.indexOf('addEventListener("visibilitychange"'));
+  const body = vis.slice(0, vis.indexOf('} else'));
+  assert.ok(/progPause\(\)/.test(body) && !/progStop\(\)/.test(body), 'wire.js hidden handler pauses');
+});
+
+test('Play button label: "Play song" idle, "Pause" playing, "Resume" paused (Kids, Simple, Expert)', () => {
+  setupSong();
+  assert.deepEqual(P.playButtonLabel(), { aria: 'Play song', title: 'Play song: the whole song / progression, over and over' });
+  P.progPlay();
+  assert.deepEqual(P.playButtonLabel(), { aria: 'Pause', title: 'Pause' });
+  tapGap(); P.progPlay();
+  assert.deepEqual(P.playButtonLabel(), { aria: 'Resume', title: 'Resume' });
+  tapGap(); P.progStop();
+  assert.equal(P.playButtonLabel().aria, 'Play song');
+  for (const f of ['js/ui/progbar.js', 'js/expert/ui.js', 'js/kids/view.js']) {
+    const src = readFileSync(new URL(f, R), 'utf8');
+    assert.ok(src.includes('playButtonLabel('), f + ' uses playButtonLabel');
+    assert.ok(!src.includes('"Stop song"'), f + ' no longer says Stop song');
+  }
+});
+
+// Adapted from the Test Engineer's PR #16 regression drafts
+// (/workspace/tc-test/out/pr16/regression/n14-pause-releases-voices.test.js and n15-next-while-paused.test.js).
+test('TE N14: a pause releases every sounding voice within 50 ms (note-off per note-on)', async () => {
+  const RELEASE_WITHIN_S = 0.05;
+  setupSong();
+  const log = [];
+  E.attachNoteLog(log);
+  const origStop = A.api.stopChord;
+  A.api.stopChord = function (g, when, tau, force) {   // the stub records offs like the engine does
+    const t = when == null ? now : when;
+    strikes.filter(s => !s.stop && s.g === g).forEach(s => s.midis.forEach(m => log.push({ type: 'off', t, midi: m, step: s.step, velocity: 1 })));
+    return origStop.call(A.api, g, when, tau, force);
+  };
+  try {
+    await playTo(1);
+    tapGap();
+    P.progPlay();
+    assert.equal(P.getTransportState().state, 'paused');
+    const pauseAt = now;
+    const sounding = log.filter(e => e.type === 'on' && e.step === P.getTransportState().cur && e.t <= pauseAt + 0.001);
+    assert.ok(sounding.length >= 2, 'a voicing was sounding at pause, got ' + sounding.length);
+    const missing = sounding.filter(on => !log.some(e => e.type === 'off' && e.midi === on.midi && e.t >= on.t - 0.001 && e.t <= pauseAt + RELEASE_WITHIN_S + 0.001));
+    assert.equal(missing.length, 0, 'voices still held after 50 ms: ' + JSON.stringify(missing));
+  } finally {
+    A.api.stopChord = origStop;
+    E.attachNoteLog(null);
+    tapGap(); P.progStop();
+  }
+});
+
+test('TE N15: Next while paused plays the paused step + 1', async () => {
+  setupSong();
+  const n = P.prog.steps.length;
+  assert.ok(n >= 3, 'need a progression of 3+ steps');
+  await playTo(1);
+  tapGap();
+  P.progPlay();
+  assert.equal(P.getTransportState().state, 'paused');
+  const pausedCur = P.getTransportState().cur;
+  const magicPos = P.magic.pos;
+  M.progNext();
+  const st = P.getTransportState();
+  const expected = pausedCur + 1;
+  assert.equal(st.state, 'paused', 'stays paused');
+  assert.equal(st.cur, expected, 'Next while paused should play step ' + expected + ' (paused ' + pausedCur + ' + 1); got ' + st.cur + ' (transport ' + st.state + ', magic.pos was ' + magicPos + ')');
+  assert.deepEqual(P.magic.item, P.prog.steps[expected].item, 'the chord Next sounded is that step');
+  tapGap(); P.progStop();
 });
 
 test.after(() => { try { P.progStop(); } catch (e) {} clearLeftoverTimers(); });

@@ -20,10 +20,11 @@ import { paintProg } from "../ui/progbar.js?v=112.14";
 import { fxStepPulse } from "../ui/pulse.js?v=112.14";
 import { clearSuggestPreview, STRIP_EXT, PREVIEW_MS, stripKey, applySuggestion, prettyAcc, stripLabel, wireStripTap, paintSuggestions, fitStrip } from "../ui/strip.js?v=112.14";
 import { BADGE_SLOTS, badgeCenter, badgeInset } from "../ui/badgeslots.js?v=112.14";
+import { sustainPool } from "../ui/sustain.js?v=112.14";
 import { songIdentity, worldIdentity, resumeRule, barOffset } from "./transport-policy.js?v=112.14";
 
 export const prog = { style: null, mode: null, keySig: null, key: null, idx: 0, list: [], steps: [], targets: [], badges: [], badgeOverflow: [], badgeReport: null,
-  cur: -1, playing: false, paused: false, pauseSnap: null, playTapAt: 0, timer: 0, si: 0, nextT: 0, groups: [], gid: 0, uiT: [], flashT: 0, log: [], tmp: 0, unplaced: 0, model: null,
+  cur: -1, playing: false, paused: false, pauseSnap: null, walkHome: null, playTapAt: 0, timer: 0, si: 0, nextT: 0, groups: [], gid: 0, uiT: [], flashT: 0, log: [], tmp: 0, unplaced: 0, model: null,
   lock: false, lockPick: null };   // Expert progression lock (session only, not saved)
 // Test hooks only with ?test=1 (not in normal use).
 export var PROG_TEST;
@@ -331,6 +332,28 @@ export function transportLabel() {
   return "idle";
 }
 
+// Play button label and title for each transport state (Kids, Simple and Expert use the same words).
+export function playButtonLabel(st) {
+  st = st || transportLabel();
+  if (st === "playing") return { aria: "Pause", title: "Pause" };
+  if (st === "paused") return { aria: "Resume", title: "Resume" };
+  return { aria: "Play song", title: "Play song: the whole song / progression, over and over" };
+}
+
+// N15: while Play song is playing or paused, the Next walk follows the play position, so Next
+// (and the next-chord hint) means "the step after the one that is sounding / paused".
+// The walk from before Play (walkHome) comes back on Stop, so Pause, Stop, Play still starts
+// where it did before Play.
+function walkFollow(cur) {
+  if (!magic) return;
+  var n = prog.steps.length;
+  if (!n || cur == null || cur < 0) return;
+  magic.pos = Math.min(n, cur + 1);
+  magic.last = prog.steps[Math.min(cur, n - 1)].item;
+  magic.next = null;
+}
+export function progWalkFollow(cur) { walkFollow(cur); }
+
 function emitTransport() {
   if (typeof window === "undefined" || !window.dispatchEvent) return;
   try { window.dispatchEvent(new CustomEvent("tc:transport", { detail: { state: transportLabel() } })); } catch (err) {}
@@ -358,6 +381,10 @@ export function getTransportState() {
     ctxState: ctx ? ctx.state : null,
     currentTime: ctx ? ChordAudio.currentTime() : null,
     magicPos: magic ? magic.pos | 0 : 0,
+    // N15 / N2: the step the next Next tap plays while paused, and whether that is "from the top".
+    nextStep: prog.paused && magic && prog.steps.length ? (magic.pos < prog.steps.length ? magic.pos : 0) : -1,
+    fromTop: !!(prog.paused && magic && prog.steps.length && magic.pos >= prog.steps.length),
+    wrapped: !!(snap && snap.wrapped),
     groups: prog.groups ? prog.groups.length : 0,
     bandBeat: snap && snap.bandBeat != null ? snap.bandBeat : (ChordAudio && ChordAudio.band ? ChordAudio.band.beat : 0)
   };
@@ -393,6 +420,7 @@ function beginPlay(from, opts) {
   if (prog.flashT) { clearTimeout(prog.flashT); prog.flashT = 0; }
   shared.upNxOff = false;
   shared.kbKeyStay = false;
+  if (prog.walkHome == null && magic) prog.walkHome = magic.pos | 0;
   prog.paused = false;
   prog.pauseSnap = null;
   prog.playing = true;
@@ -429,6 +457,8 @@ export function progPause() {
   var st = prog.steps[cur];
   var barDur = ((st && st.bars) || 1) * progLoopBar();
   var stepStart = log && log.t != null ? log.t : now;
+  // A resume re-strike covers only the rest of its bar: count from where that bar really began.
+  if (log && log.resume && log.remaining != null) stepStart = log.t - Math.max(0, barDur - log.remaining);
   var offset = barOffset(stepStart, now, barDur);
   var remaining = Math.max(0.02, barDur - offset);
   var song = songIdentity(prog);
@@ -444,6 +474,7 @@ export function progPause() {
     stepStart: stepStart,
     midis: midis,
     bass: bass,
+    sym: log && log.sym ? log.sym : null,
     style: world.style,
     mode: world.mode,
     keySig: world.keySig,
@@ -462,13 +493,49 @@ export function progPause() {
   // Drop UI timeouts for steps that have not sounded yet; keep the current line lit.
   prog.uiT.forEach(clearTimeout); prog.uiT = [];
   if (ChordAudio && ChordAudio.cancelFuture) ChordAudio.cancelFuture(now);
-  // Future (not-yet-started) groups leave the sounding set; tails of already-started chords ring.
-  if (prog.groups && prog.groups.length) {
-    prog.groups = prog.groups.filter(function (o) { return o.t <= now + 0.001; });
-  }
+  // Future (not-yet-started) groups leave the sounding set. N14: the chord that is sounding gets
+  // the normal release (the same envelope as a chord change), so nothing is held through the pause.
+  // cancelFuture() dropped the stopChord that the next step would have sent.
+  var sounding = (prog.groups || []).concat(prog.prevG || []);
+  sounding.forEach(function (o) { if (o.t <= now + 0.001 && ChordAudio && ChordAudio.stopChord) ChordAudio.stopChord(o.g, now); });
+  prog.groups = [];
+  prog.prevG = [];
   if (ChordAudio && ChordAudio.band && ChordAudio.band.pause) ChordAudio.band.pause();
   else if (ChordAudio && ChordAudio.band) ChordAudio.band.hush();
+  walkFollow(cur);   // N15: Next while paused plays the step after the paused one
   paintProgActive();
+  paintProg();
+  paintNextHint();
+  if (typeof paintUpNext === "function") paintUpNext();
+  emitTransport();
+}
+
+// N15: Next while paused moved to step `step` (magic.js has sounded it once, with its normal
+// release). The pause point moves there: a later Play resumes from the start of that step.
+export function progPauseMoveTo(step) {
+  if (!prog.paused || !prog.pauseSnap) return;
+  var n = prog.steps.length, st = prog.steps[step];
+  if (!st) return;
+  var snap = prog.pauseSnap;
+  snap.wrapped = step < (snap.cur | 0);   // Next on the last step went back to the first chord
+  setItemState(st.item);
+  var spec = computeSpec();
+  if (state.style === "kids") spec = kidsSoloSpec(spec, st.item.rootPc, st.item.mel);
+  var barDur = (st.bars || 1) * progLoopBar();
+  snap.cur = step;
+  snap.offset = 0;
+  snap.remaining = barDur;
+  snap.barDur = barDur;
+  snap.stepStart = ChordAudio && ChordAudio.ctx ? ChordAudio.currentTime() : 0;
+  snap.midis = (spec.midis || []).slice();
+  snap.bass = spec.bassOut != null ? spec.bassOut : null;
+  snap.sym = spec.symbol;
+  snap.bandBeat = 0;
+  snap.bandRemain = 0;
+  snap.lyricLine = currentLyricLine();
+  snap.moved = true;
+  prog.cur = step;
+  prog.lastItem = st.item;
   paintProg();
   emitTransport();
 }
@@ -507,12 +574,18 @@ export function progResume() {
   if (cur >= n) cur = 0;
   var st = prog.steps[cur];
   if (st) setItemState(st.item);
-  var midis = (snap.midis && snap.midis.length) ? snap.midis.slice() : (computeSpec().midis || []);
+  var spec0 = (snap.midis && snap.midis.length) ? null : computeSpec();
+  var midis = spec0 ? (spec0.midis || []) : snap.midis.slice();
   var bass = snap.bass;
+  // A chord that Next sounded while paused gives way with the normal release (not held under the resume).
+  if (ChordAudio.ctx && !sustainPool["suggest"]) ChordAudio.stopChord("suggest", now);
   var g = "P" + (++prog.gid);
   ChordAudio.playChord(g, midis, { bass: bass, sound: snap.sound || state.sound, time: now, step: cur });
   (prog.groups || []).forEach(function (o) { ChordAudio.stopChord(o.g, now); });
   prog.groups = [{ g: g, t: now }];
+  // The resume re-strike goes into prog.log like any scheduled step (log-based timing stays right).
+  prog.log.push({ i: cur, t: now, sym: snap.sym || (spec0 ? spec0.symbol : (st ? stripLabel(st.item) : "")), tied: false, bars: st ? st.bars : 1, n: midis.length, bass: bass, midis: midis.slice(), resume: true, remaining: snap.remaining });
+  if (prog.log.length > 64) prog.log.shift();
   prog.lastItem = st ? st.item : prog.lastItem;
   prog.cur = cur;
   prog.si = (cur + 1) % n;
@@ -614,6 +687,11 @@ export function progStop() {
   prog.lastItem = null;
   prog.cur = -1;
   magic.lit = false;
+  if (prog.walkHome != null) {   // N15: Stop puts the Next walk back where it was before Play
+    magic.pos = prog.walkHome; magic.next = null;
+    magic.last = magic.pos > 0 && prog.steps[magic.pos - 1] ? prog.steps[magic.pos - 1].item : null;
+    prog.walkHome = null;
+  }
   paintProgActive();
   if (shared.suggestPreview) clearSuggestPreview();
   kbScheduleReset();   // kb-fix: Play song stopped: the window goes back to the tonic
@@ -649,6 +727,7 @@ export function progSet(i) {
   prog.cur = -1;
   shared.upNxOff = false;   // v73: a (re)selected song points at its first chord
   magicReset();   // v68
+  prog.walkHome = null;   // a new song: Stop goes back to its first chord
   if (state.style === "kids") {
     var sk = KIDS_SONG_KEY[prog.list[prog.idx].name];
     if (sk) applySongKey(sk[0], sk[1]);   // v71: a Kids song picks its own key
