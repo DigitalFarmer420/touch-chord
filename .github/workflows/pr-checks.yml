@@ -1,0 +1,65 @@
+name: pr-checks
+
+# Gate for every pull request into develop. Static site: no build.
+# The older tests.yml workflow (main / dev / modular) is left as it is.
+on:
+  pull_request:
+    branches: [develop]
+  workflow_dispatch:
+
+concurrency:
+  group: pr-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    name: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Unit tests
+        run: node --test tests/unit/*.test.js
+
+  version:
+    name: version
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Cache-tag check
+        run: python3 tools/check-version.py
+
+  smoke:
+    name: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm install --no-audit --no-fund
+      - name: Cache Playwright browsers
+        id: pwcache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-${{ runner.os }}-playwright-core-1.64.0
+      - name: Install Chromium
+        if: steps.pwcache.outputs.cache-hit != 'true'
+        run: npx playwright-core install --with-deps chromium
+      - name: Install Chromium system deps (cache hit)
+        if: steps.pwcache.outputs.cache-hit == 'true'
+        run: npx playwright-core install-deps chromium
+      # tests/ci/smoke.mjs serves the repo root itself (static, no build) and runs the checks.
+      - name: Smoke tests
+        run: node tests/ci/smoke.mjs
