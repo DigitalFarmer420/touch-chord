@@ -1,0 +1,145 @@
+/* Simple mode, large screens (iPad and desktop browser windows): Uiux's simple-v4 design (Vinh, 15 Nov 2026).
+   Built from the rev3 stack, in order: song-preview + next-icon (step glyph), div (divider), simple-lock (lock, gaps),
+   lock-landscape-left-column, simple-v2, simple-v3, simple-v4. Superseded values are folded in; the result renders
+   pixel-identical to Uiux's sandbox (minus its static preview Song | Progressions control, which is not part of this build).
+   Scope: the @media matches boot-early.js's "regular" size class (w >= 768 and h >= 600), which is what sets lay-pad-*.
+   Phones (lay-phone-*), Expert (html:not(.simple)) and Kids are not touched. */
+@media (min-width: 768px) and (min-height: 600px) {
+
+/* ---- Fluid sizing. One length unit per axis, 1px at the design's reference size, so every size below equals the
+   simple-v4 px at 1180x820 (landscape) and 820x1180 (portrait) and scales smoothly between and beyond:
+   --sh follows the visible height (dvh), --sw the width; both clamp to 0.75-1.4 (land width 0.85-1.4).
+   --sp-tap = a 44 px tap row that grows with the height; tap controls never go under 44 px. ---- */
+html.simple.lay-pad-land #app { --sh: clamp(0.75px, calc(100dvh / 820), 1.4px); --sw: clamp(0.85px, calc(100vw / 1180), 1.4px); }
+html.simple.lay-pad-port #app { --sh: clamp(0.75px, calc(100dvh / 1180), 1.4px); }
+html.simple.lay-pad-land #app, html.simple.lay-pad-port #app { --sp-tap: max(44px, calc(44 * var(--sh))); }
+/* Top bar and style pills: 44 at the references, taller on big screens. */
+html.simple.lay-pad-land #styles button, html.simple.lay-pad-port #styles button { height: var(--sp-tap); min-height: 44px; }
+html.simple.lay-pad-land header.topbar .mode-chip, html.simple.lay-pad-port header.topbar .mode-chip { height: var(--sp-tap); max-height: none; }   /* was 40 (under the tap floor) */
+html.simple.lay-pad-land header.topbar .top-btn.icon-btn, html.simple.lay-pad-port header.topbar .top-btn.icon-btn { width: var(--sp-tap); height: var(--sp-tap); }
+/* Key stepper + Major/minor (key name 50, arrows 56, Major word 24, face 32 at the references). */
+html.simple.lay-pad-land .kid-key, html.simple.lay-pad-port .kid-key {
+  --kk-fs: calc(50 * var(--sh)); --kk-arrow: max(44px, calc(56 * var(--sh))); --kk-mfs: calc(24 * var(--sh)); }
+html.simple.lay-pad-land .kk-face svg, html.simple.lay-pad-port .kk-face svg { width: calc(32 * var(--sh)); height: calc(32 * var(--sh)); }
+/* NOW chord name (150 land / 96 port; nowbox.js still shrinks a long name to fit), its notes (30 / 22), and the chord
+   grid's type and pad heights (pads 112 land / 92 port at most) follow the height too. */
+html.simple.lay-pad-land #app { --sym: calc(150 * var(--sh)); --ss-fs: calc(26 * var(--sh)); --ss-note: calc(38 * var(--sh)); }
+html.simple.lay-pad-port #app { --sym: calc(96 * var(--sh)); --ss-fs: calc(26 * var(--sh)); --ss-note: calc(38 * var(--sh)); }
+html.simple.lay-pad-land #tones { font-size: calc(30 * var(--sh) * var(--tx, 1)); }
+html.simple.lay-pad-port #tones { font-size: calc(22 * var(--sh) * var(--tx, 1)); }
+html.simple.lay-pad-land .ss .ss-chip { height: min(100%, calc(112 * var(--sh))); }
+html.simple.lay-pad-port .ss .ss-chip { height: min(100%, calc(92 * var(--sh))); }
+/* With the song words showing, the pads always fill their grid rows, so the gap between pads is exactly 10 px across and
+   down at every size (they used to stop at 92 / 112 px and leave 30+ px gaps on tall screens). */
+html.simple.up-slyr.lay-pad-land .ss .ss-chip, html.simple.up-slyr.lay-pad-port .ss .ss-chip { height: 100%; }
+
+/* ---- Both orientations ---- */
+/* One 10-px gap between grid pads, across and down; the note row is as tall as the others. */
+html.simple.lay-pad-land #app, html.simple.lay-pad-port #app { --ss-cgap: 10px; --ss-rg: 10px; --ss-mid: 1fr; }
+html.simple.lay-pad-land #kidKey, html.simple.lay-pad-port #kidKey { gap: 10px; }
+html.simple.lay-pad-land #prog, html.simple.lay-pad-port #prog { gap: 10px; }
+
+/* Lyrics and chord grid share one card. Between them a 1-px divider in the card's outline colour (var(--line)), spanning the
+   grid's pad columns (same column maths as .ss), with 20 px clear above (padding 21 = 20 + the 1-px line) and 20 below. */
+html.simple.up-slyr.lay-pad-land #songBar, html.simple.up-slyr.lay-pad-port #songBar {
+  position: relative; padding-bottom: 21px; margin-bottom: 20px; overflow: visible; }
+html.simple.up-slyr.lay-pad-land #songBar::after, html.simple.up-slyr.lay-pad-port #songBar::after {
+  content: ""; position: absolute; bottom: 0; height: 1px; background: var(--line); pointer-events: none;
+  left: calc(var(--ss-lbl) + (100% - 2 * var(--ss-lbl)) / 16 + var(--ss-cgap) / 2);
+  width: calc((100% - 2 * var(--ss-lbl)) * 14 / 16 - var(--ss-cgap)); }
+html.simple.up-slyr.lay-pad-land #suggest, html.simple.up-slyr.lay-pad-port #suggest { min-height: 0; flex: 1 1 0; height: auto; }   /* the grid takes what is left of the card */
+/* The play-next preview dot on the next chord pad: 9 px (phones keep 6). */
+html.simple.lay-pad-land #suggest .nxd, html.simple.lay-pad-port #suggest .nxd { width: 9px; height: 9px; margin-left: -4.5px; }
+
+/* The song-chord lock (#sbLock, hidden in Simple by dialogs.css) is shown at the top right of the lyrics, dressed as
+   Expert's Lock: white, 1.5-px #E2D6C4 border, 12-px radius, 72 x 78, padlock over "Lock". upPlaceLock() still places it. */
+html.simple.lay-pad-land #sbLock:not([hidden]), html.simple.lay-pad-port #sbLock:not([hidden]) {
+  display: flex !important; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+  width: 72px; height: 78px !important; margin-top: 3px; padding: 0; box-sizing: border-box;
+  background: #FFFFFF !important; border: 1.5px solid #E2D6C4 !important; color: #2B2118 !important; border-radius: 12px;
+  font: 700 13px Nunito, system-ui, sans-serif; box-shadow: none; }
+/* Lamp (PR #5, Uiux): the Day white tile stood out on the dark lyric card; Lamp uses Simple's dark card, line and ink. */
+html.simple:not(.s-day).lay-pad-land #sbLock:not([hidden]), html.simple:not(.s-day).lay-pad-port #sbLock:not([hidden]) {
+  background: var(--x-card) !important; border-color: var(--line) !important; color: var(--x-ink) !important; }
+html.simple.lay-pad-land #sbLock svg, html.simple.lay-pad-port #sbLock svg { display: none; }
+html.simple.lay-pad-land #sbLock::before, html.simple.lay-pad-port #sbLock::before { content: "\1F513"; font-size: 15px; line-height: 1.1; }
+html.simple.lay-pad-land #sbLock[aria-pressed="true"]::before, html.simple.lay-pad-port #sbLock[aria-pressed="true"]::before { content: "\1F512"; }
+
+/* ▶| play-next: Expert's skip-next glyph, teal fill (#2A8075, Expert's --x-next since #10), white icon. */
+html.simple.lay-pad-land #prog .pg-step, html.simple.lay-pad-port #prog .pg-step { background: #2A8075; border-color: #2A8075; color: #FFFFFF; }
+html.simple.lay-pad-land #prog .pg-step svg { width: calc(40 * var(--sh)); height: calc(40 * var(--sh)); margin: calc(-3.5 * var(--sh)); }
+html.simple.lay-pad-land #prog .pg-song svg { width: calc(33 * var(--sh)); height: calc(33 * var(--sh)); }
+/* Play stays white with a ▶ while the song plays (never the copper Stop square). The button still stops the song on a
+   second tap, and progbar.js still sets aria-pressed / aria-label "Stop song", so assistive tech hears the state. */
+html.simple.lay-pad-land #prog .pg-song.on, html.simple.lay-pad-port #prog .pg-song.on { background: var(--bg-2); color: var(--copper-t); border-color: var(--line); }
+html.s-day.simple.lay-pad-land #prog .pg-song.on, html.s-day.simple.lay-pad-port #prog .pg-song.on { border-color: var(--edge); }   /* as simpleday.css's idle buttons */
+html.simple.lay-pad-land #prog .pg-song.on svg rect, html.simple.lay-pad-port #prog .pg-song.on svg rect { display: none; }
+html.simple.lay-pad-land #prog .pg-song.on svg, html.simple.lay-pad-port #prog .pg-song.on svg {
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 4.5v15l12.5-7.5z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 4.5v15l12.5-7.5z'/%3E%3C/svg%3E") center / 100% 100% no-repeat; }
+
+/* Song | Progressions (#xTog, placed before the mode chip by simplesrc.js) as in the simple-v4 renders: 44 tall, 3-px
+   padding, 14-px radius track; 38-42-px buttons, Nunito 700 19 px; 320 wide in landscape, 380 in portrait; Song 0.8 : 1.2. */
+html.simple.lay-pad-land #xTog, html.simple.lay-pad-port #xTog { height: var(--sp-tap); max-width: none; margin: 0; align-self: center; }
+html.simple.lay-pad-land #xTog { flex: 0 0 calc(320 * var(--sw)); }   /* 320 at 1180 wide */
+html.simple.lay-pad-port #xTog { flex: 0 0 clamp(300px, calc(380 / 820 * 100vw), 520px); }   /* 380 at 820 wide */
+html.simple.lay-pad-land #xTog button, html.simple.lay-pad-port #xTog button { height: calc(var(--sp-tap) - 6px); min-height: var(--ctrl); font: 700 max(17px, calc(19 * var(--sh))) Nunito, system-ui, sans-serif; }   /* as rendered in simple-v4: the app's button floor (--ctrl: 42 portrait, 40 landscape) wins over 38, so portrait buttons overhang the track's bottom by 1 px */
+html.simple.lay-pad-land #xTog button[data-v="song"], html.simple.lay-pad-port #xTog button[data-v="song"] { flex: 0.8 1 0; }
+html.simple.lay-pad-land #xTog button[data-v="prog"], html.simple.lay-pad-port #xTog button[data-v="prog"] { flex: 1.2 1 0; }
+
+/* ---- Landscape: left column NOW 222 / slider 22 / key 84 / Major 56 / song picker 48 / play-next + Play 92 / Sustain 154 ---- */
+/* Two top rows, as in portrait (Uiux, 16 Nov): row 1 = brand | Song | Progressions centred | mode chip + ?, row 2 = STYLE
+   and the 8 pills edge to edge, so the toggle never shares a line with the pills. 10-px gaps between rows. The content
+   moves down by row 2's height: NOW absorbs it (never under 160 px; below that Sustain gives way, down to 100 px), the
+   lyric + grid card gets shorter by the same amount. */
+html.simple.lay-pad-land #app {
+  grid-template-columns: calc(300 * var(--sw)) minmax(0, 1fr) auto;   /* left column 300 at 1180 wide */
+  /* Row 3's floor: NOW 160 + slider 22 + key + Major (+10) + picker + play-next / Play + four 10-px gaps (the same formulas
+     as .kid-key / .prog below), so NOW keeps 160 and the Sustain row gives way instead. */
+  --sp-left-min: calc(160px + 22px + 84 * var(--sh) + 10px + max(44px, 56 * var(--sh)) + max(44px, 48 * var(--sh)) + max(44px, 92 * var(--sh)) + 40px);
+  grid-template-rows: var(--sp-tap) var(--sp-tap) minmax(var(--sp-left-min), 1fr) minmax(100px, calc(154 * var(--sh))); row-gap: 10px;
+  grid-template-areas: "top top top" "sty sty sty" "now nxt nxt" "sus nxt nxt"; }
+html.simple.lay-pad-land .now-col > .now-card { min-height: 160px; }
+
+html.simple.lay-pad-land .brand { display: block; }
+html.simple.lay-pad-land header.topbar { position: relative; }
+html.simple.lay-pad-land header.topbar > #xTog { position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: calc(320 * var(--sw)); }
+html.simple.lay-pad-land #styles button { flex: 1 1 0; min-width: 0; padding: 0 4px; }   /* the 8 style pills share the row */
+html.simple.lay-pad-land .now-col { gap: 10px; }
+html.simple.lay-pad-land .kid-key { --kk-h: calc(84 * var(--sh)); --kk-mh: max(44px, calc(56 * var(--sh))); }
+html.simple.lay-pad-land .prog { --pg-h: max(44px, calc(48 * var(--sh))); }   /* song picker */
+html.simple.lay-pad-land #prog .pg-btns > .pg-btn { height: max(44px, calc(92 * var(--sh))); }
+
+/* ---- Portrait: band y 122-558, every gap 10 px.
+   Left: key 96 / Major-minor 64 / Sustain 256.  Right: NOW 170 / slider 44 / song picker 58 / play-next + Play 134.
+   .now-col becomes display: contents so its children sit in #app's grid; #prog stays one box (its label code measures it). ---- */
+html.simple.lay-pad-port #app {
+  row-gap: 10px;
+  grid-template-rows: var(--sp-tap) var(--sp-tap) calc(170 * var(--sh)) var(--sp-tap) max(44px, calc(58 * var(--sh))) max(44px, calc(134 * var(--sh))) minmax(0, 1fr);
+  grid-template-areas: "top top" "sty sty" "key now" "sus sld" "sus prog" "sus prog" "nxt nxt"; }
+html.simple.lay-pad-port #styles button { flex: 1 1 0; min-width: 0; padding: 0 4px; }   /* the 8 style pills share the row */
+html.simple.lay-pad-port .now-col { display: contents; }
+html.simple.lay-pad-port .now-col > .now-card { grid-area: now; min-height: 0; }
+html.simple.lay-pad-port .now-col > #nowMix { grid-area: sld; align-self: center; }
+html.simple.lay-pad-port .now-col > #kidKey { grid-area: key; min-height: 0; }
+html.simple.lay-pad-port .kid-key { --kk-h: calc(96 * var(--sh)); --kk-mh: max(44px, calc(64 * var(--sh))); display: flex; flex-direction: column; gap: 10px; }
+html.simple.lay-pad-port .kid-key > .kk-root { flex: 0 0 auto; height: max(44px, min(calc((100% - 10px) * 96 / 160), calc(100% - 54px))); }   /* key + Major share NOW's height 96 : 64 */
+html.simple.lay-pad-port .kid-key > .kk-mode { flex: 1 1 0; height: auto; min-height: 44px; }
+html.simple.lay-pad-port .now-col > #prog { grid-area: prog; min-height: 0; display: flex; flex-direction: column; }
+html.simple.lay-pad-port #prog > :first-child { flex: 0 0 max(44px, calc(58 * var(--sh))); height: max(44px, calc(58 * var(--sh))); }
+html.simple.lay-pad-port #prog > :first-child > * { height: 100%; }
+html.simple.lay-pad-port #prog > .pg-btns { flex: 1 1 auto; height: auto; min-height: 0; }
+html.simple.lay-pad-port #prog > .pg-btns > .pg-btn { height: 100%; flex: 1 1 0; min-width: 0; }
+html.simple.lay-pad-port #prog .pg-step svg { width: calc(52 * var(--sh)); height: calc(52 * var(--sh)); margin: 0; }
+html.simple.lay-pad-port #prog .pg-song svg { width: calc(44 * var(--sh)); height: calc(44 * var(--sh)); }
+/* Portrait with the song words: the chord grid is sized by its pads (pad height follows the pad width, 85.25 x 81.4 at
+   820 wide, capped by the height so short-and-wide windows still fit), and the controls band takes whatever height is
+   left: NOW and play-next / Play share it 170 : 134 (as at 820x1180), key / Major follow NOW, Sustain spans to the
+   transport's bottom edge, so both columns stay level and every gap stays 10. */
+html.simple.up-slyr.lay-pad-port #app {
+  --sp-pad: min(calc(((100vw - 58px - 2 * var(--ss-lbl)) / 8 - var(--ss-cgap)) * 0.954839), calc(81.4 / 1180 * 100dvh));
+  grid-template-rows: var(--sp-tap) var(--sp-tap) minmax(100px, 170fr) var(--sp-tap) max(44px, calc(58 * var(--sh))) minmax(88px, 134fr) auto; }
+html.simple.up-slyr.lay-pad-port #suggest { flex: 0 0 auto; height: calc(5 * var(--sp-pad) + 4 * var(--ss-rg)); }
+
+}

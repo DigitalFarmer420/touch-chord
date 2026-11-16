@@ -10,6 +10,7 @@ import { upLyrMap, lyrState, paintLyr2, lyrPad } from "./lyrics.js?v=112.14";
 import { fitStrip, stripChips } from "./strip.js?v=112.14";
 import { nextChange, songCue, cueSoon, cueClock, cueWord, cuePieces, placeCueTag, cueChipClass } from "./chordcue.js?v=112.14";
 import { songCardRows } from "../expert/model.js?v=112.14";
+import { paintSimpleSrc } from "./simplesrc.js?v=112.14";
 import { progLoopBar, songTempo } from "../songs/song.js?v=112.14";
 // v3.2 test.5: the next-chord cue in the song bar. Full (classic) mode's rows print each chord name inline, right
 // before its word, so there the cue colours that chord name in its grid colour and underlines its word; it brightens one beat
@@ -142,18 +143,22 @@ if (typeof location !== "undefined" && /[?&]test=1\b/.test(location.search)) win
 if (typeof window !== "undefined" && window.addEventListener) window.addEventListener("resize", function () { var bar = document.getElementById("songBar"); if (bar && document.documentElement.classList.contains("up-slyr")) { bar._html = null; setTimeout(paintSongBar, 90); } });
 export function paintSongBar() {
   document.documentElement.classList.toggle("up-nonum", upSelected());   // v73: no sequence numbers on an uploaded song's grid
+  if (state.simple) paintSimpleSrc();   // sync Simple's Song | Progressions tab when a song is loaded or cleared
   var bar = document.getElementById("songBar");
   if (!bar) return;
   var el = document.getElementById("suggest");
   if (el) Array.prototype.forEach.call(el.querySelectorAll(".up-flag"), function (n) { n.classList.remove("up-flag"); });
   var on = upSelected();   // v73: Simple shows the song bar too (lyrics + chords); the Upload panel stays full-mode only
   ChordAudio.grooveBpm = upSelected() ? shared.U.bpm : null;   // v73: style grooves follow the song tempo
-  if (bar.hidden === on) {
-    bar.hidden = !on;
+  var showBar = on && !document.documentElement.classList.contains("s-src-prog");   // Simple Progressions view hides the lyric / chord bar
+  if (bar.hidden === showBar) {
+    bar.hidden = !showBar;
     document.documentElement.classList.toggle("up-on", on);   // CSS: the strip rows give the bar its room
     setTimeout(function () { fitStrip(); placeBadges(); }, 0);
+  } else {
+    document.documentElement.classList.toggle("up-on", on);
   }
-  var slyr = on && state.simple && upLyrMap().any;   // v3.2 test.5: Simple shows the words like Expert (phones and iPad)
+  var slyr = showBar && state.simple && upLyrMap().any;   // v3.2 test.5: Simple shows the words like Expert (phones and iPad)
   var two = on && !state.simple && upLyrMap().any;   // v95: full mode's two-row lyrics
   if (document.documentElement.classList.contains("up-lyr2") !== two || document.documentElement.classList.contains("up-slyr") !== slyr) {
     document.documentElement.classList.toggle("up-lyr2", two);
