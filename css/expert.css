@@ -112,7 +112,10 @@ html.expert.lay-pad-port #xTop .mode-chip { flex-basis: clamp(104px, calc(120 / 
 html.expert #xTop .x-slot #xTog { flex: 0 1 380px; }
 
 /* ---------- Song | Progressions (decision 8) ---------- */
-html.expert #xTog { height: 100%; box-sizing: border-box; }
+/* Above #xScrim (z-index 50) so Song | Progressions stays visible and tappable while
+   the Progressions list is open. Tapping Song then closes the sheet and switches back
+   in one tap; a tap on the scrim elsewhere still dismisses it. */
+html.expert #xTog { height: 100%; box-sizing: border-box; position: relative; z-index: 55; }
 html.expert #xTog button.on { background: var(--x-ink); color: var(--x-onink); }
 html.expert #xGo { display: flex; gap: var(--x-g); min-width: 0; }
 html.expert #xGo .x-next { background: var(--x-next); border-color: transparent; color: #fff; padding: 0 12px; font-family: Fredoka, Nunito, system-ui, sans-serif; }
@@ -580,6 +583,23 @@ html.expert .kb.piano .pad.black.nokey { background: var(--x-bkey-nokey); color:
 /* P4: Vietnamese stacked marks (ẫ, ố, Ổ) rise above a tight line box. Clip sideways as before, but leave a few px above and
    below so the marks are not cut (overflow: clip + overflow-clip-margin; older WebViews keep overflow: hidden). */
 html.expert .x-stitle, html.expert .x-lrows, html.expert .x-lrow { overflow: hidden; overflow: clip; overflow-clip-margin: 4px; }
+
+/* 744×1133 (iPad mini portrait) is under 768 px wide, so it uses the phone-portrait
+   layout. The title's stacked accents (the hook on Ổ) and the last lyric line were
+   clipped by .x-songc { overflow: hidden }, same as on develop. Borrow the song
+   card's 4 px padding and give the title 3 px on top so the glyphs stay inside the
+   card without changing the card's outer size. Phones at 360/390 and iPad / desktop
+   layouts are left unchanged. */
+@media (min-width: 700px) and (max-width: 767px) {
+  html.expert.lay-phone-port #xSrc.x-mode-song > .x-songc {
+    margin: -4px 0;
+    justify-content: flex-start;
+    overflow: hidden;
+    overflow: clip;
+    overflow-clip-margin: 4px;
+  }
+  html.expert.lay-phone-port .x-songc > .x-stitle { padding-top: 3px; }
+}
 
 /* v3.2 test.5: next-chord cue on the song card lyrics. The word where the next chord change lands gets a gold (--x-gold) underline
    (no layout change); the chord name sits above it in the same colour as that chord's grid chip (absolutely placed by ui.js,
