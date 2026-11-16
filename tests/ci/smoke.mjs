@@ -23,9 +23,10 @@
 // Expert / Kids at portrait (360x640, 390x664, 412x732, 412x780), landscape (640x360,
 // 732x412) and the 600-767 band (700x900, 712x1000, 744x1133), plus Simple iPad portrait
 // Sustain-left at 820x1180, 768x1024, 834x1194 and 1024x1366. PR-A Simple-portrait
-// acceptance (last grid row has ≥8px spare, min row ≥44.5px, Sustain in the left half,
-// style chips on one line with a 44px tap height) is fixme on develop until that PR
-// lands. Sustain-left is also fixme at 700x900, 712x1000 and 744x1133 (under 768 wide).
+// acceptance (last grid row has ≥8px spare, every grid row ≥44px (the spec A7 floor; the
+// actual spare and smallest row are logged), Sustain in the left half, style chips on one
+// line with a 44px tap height) is a real check since PR-A. Sustain-left is a real check at
+// 700x900, 712x1000 and 744x1133 (under 768 wide) too.
 // iPad portrait Sustain-left is a real check (already passes; simplepad.css overrides
 // modes.css). Cells that already pass otherwise are real checks. Set TOGGLE_FIXME=0 to
 // run known fails for real. Landscape Song/Progressions and volume under 44px are N21
@@ -494,6 +495,57 @@ try {
   if (REMOTE) console.log('skip offline update A->B: needs the local server (BASE_URL is set)');
   else await runUpdateCheck(browser, { root: ROOT, record, shot });
 
+  // N20 PR-A: Simple phone portrait fits the visible viewport. With the uploaded song (fixture anh-v13) in C# minor,
+  // the last chord row ends at least 8px above the bottom, every grid row is >= 44px, Sustain is on the left at the
+  // 10px page padding, the style chips are one line with the picked chip in view, the page does not scroll, and the
+  // control taps (Sustain, volume, key, Major / Minor, song picker, Next / Play) are >= 44px.
+  const N20_SONG = readFileSync(join(ROOT, 'tests/fixtures/upload/anh-v13.json'), 'utf8');
+  for (const [w, h] of [[360, 640], [390, 664], [412, 732], [412, 780], [700, 900]]) {
+    const label = `N20 PR-A ${w}x${h} simple: grid fits with 8px spare, Sustain at the left padding, picked chip in view`;
+    const { ctx, page, bag } = await fresh(browser, w, h, label);
+    try {
+      await boot(page, 'test=1&hour=12');
+      if (await landedMode(page) !== 'simple') await switchTo(page, 'simple');
+      await prepare(page, 'simple');
+      await page.evaluate(async t => { window.__upload.load(t); await new Promise(r => setTimeout(r, 700)); window.__setKey(1, 'minor'); await new Promise(r => setTimeout(r, 600)); }, N20_SONG);
+      const m = await page.evaluate(() => {
+        const R = e => e && e.getClientRects().length ? e.getBoundingClientRect() : null;
+        const vis = e => !!(R(e) && getComputedStyle(e).visibility !== 'hidden');
+        const cells = [...document.querySelectorAll('#suggest .ss-chip, #suggest .ss-note')].filter(vis);
+        const rows = {};
+        for (const e of cells) { const r = e.getBoundingClientRect(), k = Math.round(r.top); rows[k] = rows[k] || { b: r.bottom, h: r.height }; }
+        const bands = Object.values(rows);
+        const sus = R(document.getElementById('sustainBtn'));
+        const row = document.getElementById('styles'), on = row.querySelector('button.on'), or = R(on), rr = R(row);
+        const lines = new Set([...row.querySelectorAll('button')].filter(vis).map(e => Math.round(e.getBoundingClientRect().top))).size;
+        const taps = ['#sustainBtn', '#nowMix input', '#kidKey .kk-prev', '#kidKey .kk-next', '#kidKey .kk-mode, #kidKey [data-mode]', '#prog .pg-prev', '#prog .pg-next', '#prog .pg-step', '#prog .pg-song']
+          .map(s => [s, R(document.querySelector(s))]).filter(x => x[1]).map(x => [x[0], Math.round(x[1].height * 10) / 10]);
+        return { vh: innerHeight, scrollH: document.scrollingElement.scrollHeight, n: bands.length,
+          lastB: bands.length ? Math.max(...bands.map(b => b.b)) : null, minH: bands.length ? Math.min(...bands.map(b => b.h)) : null,
+          sus: sus && { l: Math.round(sus.left), cx: Math.round(sus.left + sus.width / 2), h: Math.round(sus.height) }, vw: innerWidth,
+          lines, onClear: !!(or && rr && or.left >= rr.left - 0.5 && or.right <= rr.right + 0.5), small: taps.filter(x => x[1] < 43.5) };
+      });
+      const notes = [];
+      const spare = m.lastB == null ? null : Math.round((m.vh - m.lastB) * 10) / 10;
+      if (m.n < 5) notes.push('only ' + m.n + ' grid rows visible');
+      if (spare == null || spare < 8) notes.push('last grid row ' + spare + 'px above the bottom (want >= 8)');
+      if (m.minH == null || m.minH < 43.9) notes.push('grid row ' + m.minH + 'px (want >= 44)');
+      if (!m.sus || m.sus.l > 11 || m.sus.cx >= m.vw / 2) notes.push('Sustain not on the left ' + JSON.stringify(m.sus));
+      if (m.lines !== 1) notes.push('style chips on ' + m.lines + ' lines');
+      if (!m.onClear) notes.push('picked style chip not in view');
+      if (m.scrollH > m.vh) notes.push('page scrolls ' + m.scrollH + ' > ' + m.vh);
+      if (m.small.length) notes.push('taps under 44: ' + JSON.stringify(m.small));
+      if (bag.errors.length || bag.failed.length) notes.push('page: ' + bag.errors.concat(bag.failed).slice(0, 3).join('; '));
+      if (notes.length) await shot(page, label);
+      record(label, !notes.length, notes.length ? notes.join(' | ') : spare + 'px spare, rows >= ' + Math.round(m.minH * 10) / 10 + ', Sustain x ' + m.sus.l);
+    } catch (e) {
+      await shot(page, label);
+      record(label, false, (e && e.message || String(e)).split('\n')[0]);
+    } finally {
+      await ctx.close();
+    }
+  }
+
   // N13: Expert iPad landscape. Pick the last progression (Pop Canon), reopen the list: the picked row is fully in view,
   // clear of the bottom fade, and the list still ends above the piano.
   {
@@ -623,14 +675,11 @@ try {
   // overflow still matched 96 / 73 / 15.4px), song "Anh Đã Ổn Hơn"; Kids after Go + first
   // card. Day only (Lamp matched Day on the 9a444df baseline and on PR-A).
   const N20_VPS = [[360, 640], [390, 664], [412, 732], [412, 780], [640, 360], [732, 412], [700, 900]];
-  const N20_BAND = [[712, 1000], [744, 1133]]; // 600-767, Simple only; Sustain-left is fixme
+  const N20_BAND = [[712, 1000], [744, 1133]]; // 600-767, Simple only; Sustain-left is real since PR-A
   const N20_IPAD = [[820, 1180], [768, 1024], [834, 1194], [1024, 1366]]; // Simple Sustain-left, real
   const N20_PRA = new Set(['360x640', '390x664', '412x732', '412x780', '700x900']);
-  const N20_FIXME_A = new Set(['360x640 simple', '390x664 simple', '412x732 simple', '360x640 expert']);
-  const N20_FIXME_B = new Set([
-    '360x640 simple', '390x664 simple', '412x732 simple', '412x780 simple',
-    '700x900 simple', '712x1000 simple', '744x1133 simple'
-  ]);
+  const N20_FIXME_A = new Set(['360x640 expert']);   // PR-B
+  const N20_FIXME_B = new Set([]);   // PR-A fixed every Simple Sustain-left cell
   const N20_N21 = new Set(['640x360 simple', '732x412 simple']);
   const N20_A_LABEL = { simple: 'last grid row', expert: 'piano', kids: 'pads' };
   function recordN20(name, ok, detail, knownFail) {
@@ -814,8 +863,8 @@ try {
       const pageNotes = bag.errors.concat(bag.failed).slice(0, 3);
       const size = w + 'x' + h;
       if (mode === 'simple' && N20_PRA.has(size)) {
-        // PR-A acceptance, fixme on develop until the Simple portrait PR lands.
-        const name = 'N20 PR-A ' + cell + ': last grid row has ≥8px spare, min row ≥44.5px, Sustain left, chips one 44px line';
+        // PR-A acceptance (real check since PR-A). Hard bar: the last grid row has at least 8px spare.
+        const name = 'N20 PR-A ' + cell + ': last grid row has ≥8px spare, min row ≥44px, Sustain left, chips one 44px line';
         const notes = [];
         if (!m.hasBox) notes.push('no last grid row to measure');
         else {
@@ -825,7 +874,7 @@ try {
           }
         }
         if (m.minRowH == null) notes.push('no grid rows to measure');
-        else if (m.minRowH + 0.05 < 44.5) notes.push('min grid row ' + m.minRowH + 'px (< 44.5)');
+        else if (m.minRowH + 0.05 < 44) notes.push('min grid row ' + m.minRowH + 'px (< 44)');
         if (!m.susOn) notes.push('Sustain is not visible');
         else if (!m.susLeft) notes.push('Sustain center x ' + m.susCx + ' is not left of the layout midline ' + m.midline + ' (delta ' + m.susDelta + 'px)');
         if (m.chipLines !== 1) notes.push('style chips are on ' + m.chipLines + ' lines (need 1, by offsetTop)');
@@ -834,7 +883,8 @@ try {
         if (pageNotes.length) notes.push('page: ' + pageNotes.join('; '));
         if (notes.length) await shot(page, name);
         const okDetail = 'spare ' + m.sparePx + 'px, min row ' + m.minRowH + 'px, Sustain cx ' + m.susCx + ' / mid ' + m.midline + ', chips ' + m.chipLines + ' line × ' + m.chipTapMin + 'px tap';
-        recordN20(name, !notes.length, notes.length ? notes.join(' | ') : okDetail, true);
+        console.log('N20 PR-A spare ' + cell + ': ' + m.sparePx + 'px below the last grid row, smallest row ' + m.minRowH + 'px');
+        recordN20(name, !notes.length, notes.length ? notes.join(' | ') : okDetail, false);
       } else {
         const aName = 'N20 ' + cell + ': ' + N20_A_LABEL[mode] + ' fully inside the visual viewport';
         const aNotes = [];
