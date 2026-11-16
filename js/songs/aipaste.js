@@ -2,7 +2,8 @@
 // No DOM, no app state, no imports. Runs before the existing upload checker.
 // Handles: ```json / ``` fences; prose around the JSON; curly quotes used as
 // delimiters (apostrophes and quotes inside strings survive); trailing commas;
-// BOM and non-breaking spaces; version / contractVersion aliases.
+// BOM and non-breaking spaces; version / contractVersion aliases; NFC on
+// decoded string values (lyric marks are remapped to NFC code units).
 // Validation stays strict after this step.
 
 export const CURRENT_CONTRACT = "1.3";
@@ -98,9 +99,67 @@ function normalizeLex(s) {
   return { text: out, changed: changed };
 }
 
+
+// NFC-normalize decoded string values only (not keys / structure). Lyric
+// charIndex values are remapped from the pre-NFC text so they still point at
+// the same place in the composed string: prefix.normalize("NFC").length.
+function remapCharIndex(before, index) {
+  var i = index;
+  if (typeof i !== "number" || !isFinite(i)) return i;
+  i = Math.floor(i);
+  if (i < 0) i = 0;
+  if (i > before.length) i = before.length;
+  return before.slice(0, i).normalize("NFC").length;
+}
+
+function walkNfc(value, state) {
+  if (typeof value === "string") {
+    var n = value.normalize("NFC");
+    if (n !== value) state.changed = true;
+    return n;
+  }
+  if (Array.isArray(value)) {
+    for (var i = 0; i < value.length; i++) value[i] = walkNfc(value[i], state);
+    return value;
+  }
+  if (!value || typeof value !== "object") return value;
+  if (typeof value.text === "string" && Array.isArray(value.markers)) {
+    var before = value.text;
+    var after = before.normalize("NFC");
+    if (after !== before) {
+      state.changed = true;
+      value.text = after;
+      for (var m = 0; m < value.markers.length; m++) {
+        var mk = value.markers[m];
+        if (mk && typeof mk === "object" && typeof mk.charIndex === "number") {
+          mk.charIndex = remapCharIndex(before, mk.charIndex);
+        }
+      }
+    }
+  }
+  var keys = Object.keys(value);
+  for (var k = 0; k < keys.length; k++) {
+    var key = keys[k];
+    if (key === "text" && Array.isArray(value.markers) && typeof value.text === "string") continue;
+    value[key] = walkNfc(value[key], state);
+  }
+  return value;
+}
+
+function normalizeNfcValues(jsonText) {
+  var obj;
+  try { obj = JSON.parse(jsonText); } catch (err) { return { text: jsonText, changed: false }; }
+  var state = { changed: false };
+  walkNfc(obj, state);
+  if (!state.changed) return { text: jsonText, changed: false };
+  return { text: JSON.stringify(obj), changed: true };
+}
+
 // text -> { text, warnings, error, repaired, fenced, extracted }
 // repaired is true only for lexical slips (quotes, commas, BOM, NBSP), not for
 // stripping fences or prose, so a fenced but otherwise valid paste is not flagged.
+export { remapCharIndex };
+
 export function normalizeAiPaste(text) {
   var raw = String(text == null ? "" : text);
   var warnings = [];
@@ -118,8 +177,11 @@ export function normalizeAiPaste(text) {
     return { text: ex.text, warnings: warnings, error: ex.error, repaired: !!lex.changed, fenced: fenced, extracted: false };
   }
   s = ex.text;
+  var nfc = normalizeNfcValues(s);
+  s = nfc.text;
   // repaired = lexical slips only (quotes, trailing commas, NBSP). A leading BOM or
   // fenced / prose wrapper is not flagged: the old parser already ignored those.
+  // NFC on string values is also not flagged as repaired.
   return { text: s, warnings: warnings, error: null, repaired: !!lex.changed, fenced: fenced, extracted: !!ex.extracted };
 }
 
