@@ -159,5 +159,6 @@ setSimpleSrcAfter(function () {
   placeProg();
   uiStrip.fitStrip();
   songsPlayback.placeBadges();
+  updateSymbol();
 });
 bootSimpleSrc();

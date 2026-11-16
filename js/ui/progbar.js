@@ -5,6 +5,7 @@ import { progNext } from "../songs/magic.js?v=112.13";
 import { progPlay, prog, progSet } from "../songs/playback.js?v=112.13";
 import { progFeel, progSteps, progNumerals } from "../songs/presets.js?v=112.13";
 import { state } from "../state.js?v=112.13";
+import { simpleProgStepIndex } from "./simplesrc.js?v=112.13";
 
 // The picker: Simple = friendly name in the left column under Major / Minor; full mode =
 // the numerals in a cycler by the style row (phone landscape: top of the Now column; other
@@ -191,7 +192,10 @@ export function wireProg() {
   var sel = el.querySelector(".pg-sel"), txt = el.querySelector(".pg-t");
   function step(d) {
     unlock();
-    progSet(prog.idx + d);
+    var next = document.documentElement.classList.contains("s-src-prog")
+      ? simpleProgStepIndex(prog.list, prog.idx, d)
+      : prog.idx + d;
+    progSet(next);
     txt.classList.remove("nudge-l", "nudge-r");
     void txt.offsetWidth;
     // v112.6: the nudge only moves the name as far as the free space beside it, so a name that fills the box

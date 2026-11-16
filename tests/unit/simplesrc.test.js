@@ -55,3 +55,49 @@ test('CSS: Simple #xTog uses --x-row / --x-fs on phones; lyrics hidden in Progre
   assert.match(css, /html\.simple\.s-src-prog #songBar \{ display: none !important; \}/);
   assert.match(css, /html\.simple\.s-src-song #prog \.pg-sel \{ display: none; \}/);
 });
+
+test('Simple source switch: Progressions picks a style progression, Song picks the uploaded song', () => {
+  const list = [
+    { name: 'I V vi IV', up: false },
+    { name: 'vi IV I V', up: false },
+    { name: 'Anh Đã Ổn Hơn', up: true },
+  ];
+  // From the song, Progressions lands on the first style row (or lastProg if remembered).
+  assert.equal(S.simpleSourceIndex('prog', list, 2, 0), 0);
+  assert.equal(S.simpleSourceIndex('prog', list, 2, 1), 1);
+  // Already on a style progression: stay there.
+  assert.equal(S.simpleSourceIndex('prog', list, 1, 0), 1);
+  // Song view always returns to the uploaded song.
+  assert.equal(S.simpleSourceIndex('song', list, 0, 1), 2);
+  assert.equal(S.simpleSourceIndex('song', list, 2, 0), 2);
+  // No song in the list: Song view leaves the current row alone.
+  const noSong = [{ name: 'I V vi IV' }, { name: 'vi IV I V' }];
+  assert.equal(S.simpleSourceIndex('song', noSong, 1, 0), 1);
+  assert.equal(S.simpleSourceIndex('prog', noSong, 1, 0), 1);
+  // lastProg pointing at the song is ignored.
+  assert.equal(S.simpleSourceIndex('prog', list, 2, 2), 0);
+});
+
+test('Simple Progressions stepping skips the uploaded song', () => {
+  const list = [
+    { name: 'I V vi IV' },
+    { name: 'vi IV I V' },
+    { name: 'Anh Đã Ổn Hơn', up: true },
+  ];
+  assert.equal(S.simpleProgStepIndex(list, 0, 1), 1);
+  assert.equal(S.simpleProgStepIndex(list, 1, 1), 0); // wraps past the song
+  assert.equal(S.simpleProgStepIndex(list, 0, -1), 1); // wraps back past the song
+  assert.equal(S.simpleProgStepIndex(list, 2, 1), 0);
+  assert.equal(S.simpleProgStepIndex(list, 2, -1), 1);
+});
+
+test('CSS: narrow Simple toggle tightens padding; phone Progressions grows the Now row', () => {
+  assert.match(css, /@media \(max-width: 370px\) \{\s*html\.simple \{ --x-fs: 13px; \}/);
+  assert.match(css, /html\.simple #xTog button\[data-v="song"\],\s*html\.simple #xTog button\[data-v="prog"\] \{ padding: 0 4px; \}/);
+  assert.match(css, /html\.simple\.lay-phone-port\.s-src-prog #app \{ grid-template-rows: auto auto 352px minmax\(0, 1fr\); \}/);
+  // Expert's 360px split is unchanged (no Expert rule inside the 370px query).
+  const narrow = css.match(/@media \(max-width: 370px\) \{([\s\S]*?)\n\}/);
+  assert.ok(narrow, 'expected a 370px query');
+  assert.doesNotMatch(narrow[1], /html\.expert/);
+});
+
