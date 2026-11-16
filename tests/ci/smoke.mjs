@@ -4,13 +4,21 @@
 //
 //   node tests/ci/smoke.mjs
 //   PORT=8090 node tests/ci/smoke.mjs
+//   BASE_URL=https://digitalfarmer420.github.io/touch-chord-dev/ node tests/ci/smoke.mjs
+//
+// BASE_URL, when set, is a deployed site root. The local server is not started. Every page
+// (index.html?test=1&hour=..., &expert=1, &kv=1) is resolved against that root so the path
+// prefix stays, and cb=<timestamp> is added so the browser does not reuse a cached document.
+// Unset, the script serves this directory on PORT (default 8091, free-port fallback).
+// Either way it prints the target before the checks.
 //
 // The Song | Progressions walk (Expert -> Simple -> Expert, and the reverse, with no resize)
 // fails on develop / PR #5. Measured at every viewport below: Expert's #xTog stays visible,
 // inside the viewport, and clear of the chord pads; Simple's #xTog is display:none and 0x0
 // (placeSimpleTog is not in this tree). When TOGGLE_FIXME is true that geometry check is
 // skipped and the reason is printed. A console error or a failed request during the walk
-// still fails the run. Every other check fails the process.
+// still fails the run. Every other check fails the process. Requests to the same host that
+// sit outside the site prefix are ignored and named; they are not checks.
 
 import { createServer } from 'node:http';
 import { mkdirSync, existsSync, statSync, createReadStream } from 'node:fs';
@@ -25,6 +33,29 @@ const PREFERRED_PORT = process.env.PORT ? +process.env.PORT : 8091;
 // reason is printed and written into the PR. Set TOGGLE_FIXME=0 to run it for real.
 const TOGGLE_FIXME = process.env.TOGGLE_FIXME !== '0';
 const TOGGLE_WHY = 'develop / PR #5: after Expert > Simple > Expert and Simple > Expert > Simple with no resize, Simple\'s #xTog is display:none and 0x0 at 375x667, 390x844, 844x390, 820x1180 and 1180x820. Expert\'s #xTog stayed visible and clear of the pads. placeSimpleTog() is not on develop.';
+
+// Site root when BASE_URL is set (directory, trailing slash). Empty means the local server.
+function deployedRoot() {
+  const raw = process.env.BASE_URL;
+  if (raw == null || String(raw).trim() === '') return '';
+  const text = String(raw).trim();
+  let url;
+  try { url = new URL(text); }
+  catch (err) {
+    console.error('BASE_URL is not a valid absolute URL: ' + text);
+    process.exit(1);
+  }
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    console.error('BASE_URL must be an http or https URL: ' + text);
+    process.exit(1);
+  }
+  if (!url.pathname.endsWith('/')) url.pathname += '/';
+  url.search = '';
+  url.hash = '';
+  return url.href;
+}
+const REMOTE = deployedRoot();
+const CACHE_BUST = String(Date.now());
 
 const VIEWPORTS = [[375, 667], [390, 844], [844, 390], [820, 1180], [1180, 820]];
 const MODES = [
@@ -73,30 +104,65 @@ async function serve() {
 }
 
 let port = PREFERRED_PORT;
-const base = () => `http://127.0.0.1:${port}/index.html`;
+// Local: http://127.0.0.1:<port>/index.html?<query>, same string as before.
+// Remote: <BASE_URL>index.html?<query>&cb=<timestamp>, path prefix kept.
+function pageUrl(query) {
+  if (!REMOTE) return `http://127.0.0.1:${port}/index.html?${query}`;
+  const url = new URL('index.html', REMOTE);
+  url.search = query + '&cb=' + CACHE_BUST;
+  return url.href;
+}
+// Same host, but not under the site prefix. On a project page the browser still asks the
+// origin root for /favicon.ico, which is not this app. Other hosts are left as real failures.
+function outsideSite(url) {
+  if (!REMOTE) return false;
+  let u;
+  try { u = new URL(url); } catch (err) { return false; }
+  if (u.protocol !== 'http:' && u.protocol !== 'https:') return false;
+  const root = new URL(REMOTE);
+  if (u.origin !== root.origin) return false;
+  return !u.pathname.startsWith(root.pathname);
+}
+function ignoredNote(urls) {
+  if (!urls.length) return '';
+  const fav = urls.some(u => /\/favicon\.ico(?:\?|$)/.test(u));
+  const other = [...new Set(urls.filter(u => !/\/favicon\.ico(?:\?|$)/.test(u)))];
+  if (!other.length) return 'ignored browser /favicon.ico';
+  const head = fav ? 'ignored browser /favicon.ico; ' : '';
+  return head + 'ignored request outside the site (' + other.slice(0, 3).join(', ') + ')';
+}
+function mentionsOutside(text) {
+  const found = String(text).match(/https?:\/\/[^\s)'"]+/g) || [];
+  return found.some(outsideSite);
+}
 
 function track(page) {
   const errors = [];
   const failed = [];
   const ignored = [];
   page.on('pageerror', e => errors.push(String(e)));
-  page.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text()); });
+  page.on('console', msg => {
+    if (msg.type() !== 'error') return;
+    const text = msg.text();
+    if (mentionsOutside(text)) { ignored.push(text); return; }
+    errors.push(text);
+  });
   page.on('requestfailed', req => {
     const url = req.url();
-    if (/\/favicon\.ico(?:\?|$)/.test(url)) { ignored.push(url); return; }
+    if (/\/favicon\.ico(?:\?|$)/.test(url) || outsideSite(url)) { ignored.push(url); return; }
     failed.push((req.failure() && req.failure().errorText || 'failed') + ' ' + url);
   });
   page.on('response', res => {
     if (res.status() < 400) return;
     const url = res.url();
-    if (/\/favicon\.ico(?:\?|$)/.test(url)) { ignored.push(url); return; }
+    if (/\/favicon\.ico(?:\?|$)/.test(url) || outsideSite(url)) { ignored.push(url); return; }
     failed.push(res.status() + ' ' + url);
   });
   return { errors, failed, ignored };
 }
 
 async function boot(page, query) {
-  await page.goto(base() + '?' + query, { waitUntil: 'load', timeout: 20000 });
+  await page.goto(pageUrl(query), { waitUntil: 'load', timeout: REMOTE ? 45000 : 20000 });
   await page.waitForFunction(() => {
     const de = document.documentElement;
     return !de.classList.contains('tc-boot') && document.querySelectorAll('#msMode button[data-mode]').length === 3;
@@ -266,8 +332,18 @@ function ghWarning(message) {
   console.log('::warning title=Song | Progressions toggle::' + text);
 }
 
-const { srv, port: bound } = await serve();
-port = bound;
+let srv = null;
+if (REMOTE) {
+  console.log('target: ' + REMOTE + ' (BASE_URL, cb=' + CACHE_BUST + ')');
+  console.log('page: ' + pageUrl('test=1&hour=12'));
+  console.log('page: ' + pageUrl('test=1&hour=12&expert=1'));
+  console.log('page: ' + pageUrl('test=1&hour=12&kv=1'));
+} else {
+  const served = await serve();
+  srv = served.srv;
+  port = served.port;
+  console.log('target: http://127.0.0.1:' + port + '/ (local)');
+}
 const browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
 const t0 = Date.now();
 try {
@@ -293,11 +369,12 @@ try {
         const problems = await checkPage(page, mode.name);
         const late = bag.errors.concat(bag.failed);
         const ok = !problems.length && !late.length;
+        const noise = ignoredNote(bag.ignored);
         const detail = []
           .concat(note)
           .concat(problems)
           .concat(late.slice(0, 4))
-          .concat(bag.ignored.length ? ['ignored browser /favicon.ico'] : [])
+          .concat(noise ? [noise] : [])
           .join('; ');
         if (!ok) await shot(page, name);
         record(name, ok, detail);
@@ -356,7 +433,7 @@ try {
   }
 } finally {
   await browser.close();
-  srv.close();
+  if (srv) srv.close();
 }
 
 const pass = results.filter(r => r.ok && !r.fixme).length;
