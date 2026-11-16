@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { posix as pathPosix } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { shouldApplyUpdate, makeApplyUpdate, isNativeWrapper } from '../../js/offline-update.js';
+import { shouldApplyUpdate, makeApplyUpdate, isNativeWrapper, serviceWorkerScriptUrl, cacheNameFor, obsoleteCaches } from '../../js/offline-update.js';
 
 const ROOT = new URL('../../', import.meta.url);
 const rootPath = fileURLToPath(ROOT);
@@ -144,9 +144,41 @@ test('?test=1 does not change service worker install or wait behaviour', () => {
   assert.match(sw, /self\.skipWaiting\(\)/);
 });
 
-test('cache name is touch-chord + path scope + APP_VERSION; activate deletes only this path\'s old caches', () => {
+test('the service worker is registered as sw.js?v=APP_VERSION', () => {
+  const off = read('js/offline.js');
+  assert.match(off, /import \{ APP_VERSION \} from "\.\/version\.js\?v=/);
+  assert.match(off, /new URL\("sw\.js\?v=" \+ APP_VERSION/);
+  assert.doesNotMatch(off, /new URL\("sw\.js"/);
+  const { sw } = loadPrecache();
+  assert.match(sw, /new URL\(self\.location\)\.searchParams\.get\("v"\)/);
+  assert.match(sw, /fetchVersionJs/);
+});
+
+test('a version bump changes the registered script URL and the cache name', () => {
+  assert.equal(serviceWorkerScriptUrl('112.13'), 'sw.js?v=112.13');
+  assert.equal(serviceWorkerScriptUrl('112.14'), 'sw.js?v=112.14');
+  assert.notEqual(serviceWorkerScriptUrl('112.13'), serviceWorkerScriptUrl('112.14'));
+  const scope = '/touch-chord-dev/';
+  assert.equal(cacheNameFor(scope, '112.13'), 'touch-chord/touch-chord-dev/112.13');
+  assert.equal(cacheNameFor(scope, '112.14'), 'touch-chord/touch-chord-dev/112.14');
+  assert.notEqual(cacheNameFor(scope, '112.13'), cacheNameFor(scope, '112.14'));
   const { sw } = loadPrecache();
   assert.match(sw, /"touch-chord" \+ scopePath\(\) \+ version/);
+});
+
+test('activate deletes only this scope\'s old cache after a version bump', () => {
+  const keys = [
+    'touch-chord/touch-chord-dev/112.13',
+    'touch-chord/touch-chord-dev/112.14',
+    'touch-chord/touch-chord/112.13',
+    'touch-chord/touch-chord/112.14',
+    'unrelated-cache'
+  ];
+  assert.deepEqual(obsoleteCaches(keys, '/touch-chord-dev/', '112.14'), ['touch-chord/touch-chord-dev/112.13']);
+  assert.deepEqual(obsoleteCaches(keys, '/touch-chord/', '112.14'), ['touch-chord/touch-chord/112.13']);
+  assert.deepEqual(obsoleteCaches(keys, '/touch-chord-dev/', '112.13'), ['touch-chord/touch-chord-dev/112.14']);
+  const { sw } = loadPrecache();
+  assert.match(sw, /obsoleteCaches\(keys, version\)/);
   assert.match(sw, /k\.indexOf\(prefix\) === 0 && k !== keep/);
 });
 

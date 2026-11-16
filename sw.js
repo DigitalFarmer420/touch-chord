@@ -1,5 +1,6 @@
-// Touch Chord service worker. Precache URLs get a cache-busting suffix from
-// js/version.js (APP_VERSION) at install time — do not hardcode a version here.
+// Touch Chord service worker. The script is registered as sw.js?v=APP_VERSION so a
+// version bump is part of the browser byte check. Precache URLs use that same v
+// (with a fetch of js/version.js only if the query is missing). Do not hardcode a version.
 // A new worker waits for the next cold launch (or window.tc.applyUpdate()).
 // Never skipWaiting on install. Query-string test flags must not change wait behaviour.
 
@@ -129,7 +130,18 @@ function needsVersionSuffix(path) {
   return /^(css|js|images|fonts)\//.test(path);
 }
 
-function readAppVersion() {
+// The registered script URL is sw.js?v=APP_VERSION. That query is part of the
+// browser's byte check, so a version bump installs a new worker. A fetch of
+// version.js is not, and is only a fallback when v is missing from the URL.
+function versionFromScriptUrl() {
+  try {
+    var v = new URL(self.location).searchParams.get("v");
+    if (v) return v;
+  } catch (err) {}
+  return "";
+}
+
+function fetchVersionJs() {
   return fetch(new URL("js/version.js", self.registration.scope), { cache: "no-store" }).then(function (res) {
     if (!res.ok) throw new Error("version.js " + res.status);
     return res.text();
@@ -137,6 +149,20 @@ function readAppVersion() {
     var m = /APP_VERSION\s*=\s*"([^"]+)"/.exec(text);
     if (!m) throw new Error("APP_VERSION missing from version.js");
     return m[1];
+  });
+}
+
+function readAppVersion() {
+  var v = versionFromScriptUrl();
+  if (v) return Promise.resolve(v);
+  return fetchVersionJs();
+}
+
+function obsoleteCaches(keys, version) {
+  var keep = cacheName(version);
+  var prefix = cachePrefix();
+  return keys.filter(function (k) {
+    return k.indexOf(prefix) === 0 && k !== keep;
   });
 }
 
@@ -165,11 +191,9 @@ self.addEventListener("install", function (event) {
 
 self.addEventListener("activate", function (event) {
   event.waitUntil(readAppVersion().then(function (version) {
-    var keep = cacheName(version);
-    var prefix = cachePrefix();
     return caches.keys().then(function (keys) {
-      return Promise.all(keys.map(function (k) {
-        if (k.indexOf(prefix) === 0 && k !== keep) return caches.delete(k);
+      return Promise.all(obsoleteCaches(keys, version).map(function (k) {
+        return caches.delete(k);
       }));
     });
   }));

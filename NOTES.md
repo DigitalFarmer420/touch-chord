@@ -4,7 +4,7 @@ The app can be opened after a first online visit with no network: every runtime 
 
 ## Registration
 
-`js/offline.js` `boot()` (called from `js/main.js`) registers `./sw.js` with `scope: "./"` and `updateViaCache: "none"`, only when:
+`js/offline.js` `boot()` (called from `js/main.js`) registers `sw.js?v=` + `APP_VERSION` (imported from `js/version.js`) with `scope: "./"` and `updateViaCache: "none"`, only when:
 
 - `navigator.serviceWorker` is available
 - the page is not inside the Capacitor / Cordova / Android wrapper (`window.Capacitor`, `window.cordova`, or a `capacitor:` / `ionic:` / `file:` protocol)
@@ -15,7 +15,7 @@ The app can be opened after a first online visit with no network: every runtime 
 
 Cache name: `"touch-chord" + <scope pathname> + APP_VERSION` (for example `touch-chord/touch-chord-dev/112.13` on the dev Pages site).
 
-`sw.js` does **not** hardcode a version or any `?v=112.x` URL. At install it fetches `js/version.js` with `cache: "no-store"`, reads `APP_VERSION`, and caches each precache path both bare and (for `css/`, `js/`, `images/`, `fonts/`) with `?v=` + that version. Rebasing over a Front-End version bump (for example PR #7, `?v=112.14`) needs no manual SW edits; `tools/check-version.py` still requires the `css/fonts.css?v=` link in `index.html` to match the then-current `APP_VERSION`.
+`sw.js` does **not** hardcode a version or any `?v=112.x` URL. The version is `new URL(self.location).searchParams.get("v")` from the registered script URL, which is part of the browser's service-worker byte check — so bumping `APP_VERSION` installs a new worker. A `fetch()` of `js/version.js` (`cache: "no-store"`) is only a fallback when that query is missing; a fetch alone would not trigger an update. Install then caches each precache path both bare and (for `css/`, `js/`, `images/`, `fonts/`) with `?v=` + that version. Rebasing over a Front-End version bump (for example PR #7, `?v=112.14`) needs no manual SW edits. `tools/check-version.py` requires the `css/fonts.css?v=` link in `index.html` to match the current `APP_VERSION`, and fails if `js/offline.js` registers a bare `sw.js` without `?v=APP_VERSION`.
 
 On activate, only caches whose name starts with `"touch-chord" + this path's scope` and whose version does not match the current `APP_VERSION` are deleted. Other paths' caches (production vs dev, or another app) are left alone. `localStorage` and IndexedDB are never touched.
 
@@ -53,4 +53,4 @@ Sources were the official Google Fonts / OFL TTF trees, converted to woff2. Lice
 
 ## Unit tests
 
-`tests/unit/offline-sw.test.js` fails if any asset referenced by `index.html`, JS imports, CSS `url()`, or the web manifest is missing from `PRECACHE`, or if a `PRECACHE` path does not exist. It also asserts `sw.js` has no hardcoded `112.x` / `?v=` number, that query-string test flags never appear as a wait shortcut, and that `applyUpdate` defers while playing and only switches when idle or paused.
+`tests/unit/offline-sw.test.js` fails if any asset referenced by `index.html`, JS imports, CSS `url()`, or the web manifest is missing from `PRECACHE`, or if a `PRECACHE` path does not exist. It also asserts `sw.js` has no hardcoded `112.x` / `?v=` number, that a simulated version bump changes both the registered script URL (`sw.js?v=…`) and the cache name, that activate deletes only this scope's old cache, that query-string test flags never appear as a wait shortcut, and that `applyUpdate` defers while playing and only switches when idle or paused.

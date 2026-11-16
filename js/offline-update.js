@@ -39,3 +39,21 @@ export function isNativeWrapper(win) {
   } catch (err) {}
   return false;
 }
+
+// Registration and cache-name helpers. A version bump must change both the
+// script URL (browser byte check) and the cache name (activate cleanup).
+export function serviceWorkerScriptUrl(version) {
+  return "sw.js?v=" + version;
+}
+
+export function cacheNameFor(scopePath, version) {
+  return "touch-chord" + scopePath + version;
+}
+
+export function obsoleteCaches(keys, scopePath, version) {
+  var prefix = "touch-chord" + scopePath;
+  var keep = prefix + version;
+  return keys.filter(function (k) {
+    return k.indexOf(prefix) === 0 && k !== keep;
+  });
+}
