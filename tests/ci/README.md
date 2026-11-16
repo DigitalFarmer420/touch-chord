@@ -32,3 +32,14 @@ The Song | Progressions walk is skipped (`FIXME`) while the toggle bug on develo
 The `simple toggle keeps song step` check (390x844 and 1180x820, always on) loads `tests/fixtures/upload/anh-v13.json`, switches to Simple, taps Next five times, then Progressions, Song and Next, and expects the 6th step. It also taps Progressions and Song during Play and expects Play to keep running. A build with no Simple toggle reports it as `FIXME` instead of failing.
 
 Not covered here: a real iPhone or Android device, audio you can hear, and loading the page with no network.
+
+## Offline update checks (PR #15)
+
+`tests/ci/update-ab.mjs` runs from `smoke.mjs` (local server only; skipped with `BASE_URL`) and alone with `node tests/ci/update-ab.mjs`. It serves the app under `/touch-chord/` on its own port and builds versions in memory (nothing is written to disk):
+
+- `offline update A->B (sw.js unchanged)`: A installs and controls; B (every `?v=` tag and `APP_VERSION` bumped, `sw.js` byte-identical, which the check asserts) is served on the same path. Within two reloads B's label, HTML and JS must all be B, `fetch('js/version.js?v=B')` must be B's file, and `sw.js?v=B` must install. A cold launch must be controlled by `sw.js?v=B`, A's cache for this scope must be gone, and a seeded `touch-chord/touch-chord-dev/...` cache (the other site) must be kept.
+- `offline reload after B is active`: offline reload boots B (label, HTML, JS, controller).
+- `offline asset-only change A->A2`: same version, only `index.html` and `js/boot-early.js` change. The online reload must show A2's HTML with A2's JS, and after the cache refill an offline reload must too.
+- `offline existing 971119a install picks up B`: A is served with `tests/fixtures/offline/sw-971119a.js` (the worker shipped at 971119a), then this tree's B. B's label, HTML and JS on the first cold launch, controller `sw.js?v=B` by the second.
+
+`AB_ROOT=<other tree> node tests/ci/update-ab.mjs` runs the same checks against another checkout (all four fail on 971119a).
