@@ -28,7 +28,11 @@
 // line with a 44px tap height) is a real check since PR-A. Sustain-left is a real check at
 // 700x900, 712x1000 and 744x1133 (under 768 wide) too.
 // iPad portrait Sustain-left is a real check (already passes; simplepad.css overrides
-// modes.css). Cells that already pass otherwise are real checks. Set TOGGLE_FIXME=0 to
+// modes.css). N20 PR-A2 (Simple pad-land height budget) adds real checks at 1280x600
+// and 1920x600: last grid row has ≥8px spare, Sustain is fully visible, smallest row
+// ≥43.9px, and the spare is logged. Names start with "N20 PR-A2 Simple" so they stay
+// distinct from later test-only fixmes for the same cells. Cells that already pass
+// otherwise are real checks. Set TOGGLE_FIXME=0 to
 // run known fails for real. Landscape Song/Progressions and volume under 44px are N21
 // (fixme). Other taps under 44px are logged as informational only. Requests to the same host that
 // sit outside the site prefix are ignored and named; they are not checks. A console error
@@ -678,6 +682,7 @@ try {
   const N20_BAND = [[712, 1000], [744, 1133]]; // 600-767, Simple only; Sustain-left is real since PR-A
   const N20_IPAD = [[820, 1180], [768, 1024], [834, 1194], [1024, 1366]]; // Simple Sustain-left, real
   const N20_PRA = new Set(['360x640', '390x664', '412x732', '412x780', '700x900']);
+  const N20_PRA2 = new Set(['1280x600', '1920x600']); // real checks; names start with "N20 PR-A2 Simple"
   const N20_FIXME_A = new Set(['360x640 expert']);   // PR-B
   const N20_FIXME_B = new Set([]);   // PR-A fixed every Simple Sustain-left cell
   const N20_N21 = new Set(['640x360 simple', '732x412 simple']);
@@ -840,6 +845,10 @@ try {
       const volH = volEl && vis(volEl) ? +volEl.getBoundingClientRect().height.toFixed(1) : null;
       const volWrap = document.querySelector('#nowMix, .now-vol');
       const volWrapH = volWrap && vis(volWrap) ? +volWrap.getBoundingClientRect().height.toFixed(1) : null;
+      const susBottom = susR ? +susR.bottom.toFixed(1) : null;
+      const susSpare = susR ? +(vvBottom - susR.bottom).toFixed(1) : null;
+      const susFullyIn = !!(susR && susR.bottom <= vvBottom + 0.5 && susR.top >= vvTop - 0.5);
+      const scrollOverflow = +Math.max(0, (se.scrollHeight || 0) - innerHeight).toFixed(1);
       return {
         kind, overflowVv, sparePx, minRowH, rowCount,
         bottom: box ? +box.bottom.toFixed(1) : null, vvBottom: +vvBottom.toFixed(1),
@@ -847,6 +856,7 @@ try {
         midline: +midline.toFixed(1),
         susLeft: susOn && susCx < midline - 0.5,
         susDelta: susOn ? +(susCx - midline).toFixed(1) : null,
+        susBottom, susSpare, susFullyIn, scrollOverflow,
         hOverflow, offenders,
         chipLines: chipTops.length, chipTapMin, togH, volH, volWrapH,
         lay: [...document.documentElement.classList].filter(c => c.startsWith('lay-') || c.startsWith('sz-')).join(' ')
@@ -862,7 +872,30 @@ try {
       const m = await n20Measure(page, mode);
       const pageNotes = bag.errors.concat(bag.failed).slice(0, 3);
       const size = w + 'x' + h;
-      if (mode === 'simple' && N20_PRA.has(size)) {
+      if (mode === 'simple' && N20_PRA2.has(size)) {
+        // PR-A2: Simple pad-land height budget. Real checks (not fixmes).
+        const name = 'N20 PR-A2 Simple ' + size + ': last grid row has ≥8px spare, Sustain fully visible, min row ≥43.9px';
+        const notes = [];
+        if (!m.hasBox) notes.push('no last grid row to measure');
+        else if (m.sparePx == null || m.sparePx < 8) {
+          if (m.overflowVv > 0) notes.push('last grid row overflows the visual viewport by ' + m.overflowVv + 'px (bottom ' + m.bottom + ' vs vv ' + m.vvBottom + ', spare ' + m.sparePx + 'px, need ≥8)');
+          else notes.push('last grid row spare ' + m.sparePx + 'px (bottom ' + m.bottom + ' vs vv ' + m.vvBottom + ', need ≥8)');
+        }
+        if (!m.susOn) notes.push('Sustain is not visible');
+        else {
+          if (!m.susFullyIn) notes.push('Sustain is clipped (bottom ' + m.susBottom + ' vs vv ' + m.vvBottom + ', spare ' + m.susSpare + 'px)');
+          else if (m.susSpare == null || m.susSpare < 8) notes.push('Sustain spare ' + m.susSpare + 'px (bottom ' + m.susBottom + ' vs vv ' + m.vvBottom + ', need ≥8)');
+          if (!m.susLeft) notes.push('Sustain center x ' + m.susCx + ' is not left of the layout midline ' + m.midline + ' (delta ' + m.susDelta + 'px)');
+        }
+        if (m.minRowH == null) notes.push('no grid rows to measure');
+        else if (m.minRowH < 43.9) notes.push('min grid row ' + m.minRowH + 'px (< 43.9)');
+        if (m.scrollOverflow > 1) notes.push('page scroll ' + m.scrollOverflow + 'px');
+        if (pageNotes.length) notes.push('page: ' + pageNotes.join('; '));
+        if (notes.length) await shot(page, name);
+        const okDetail = 'grid spare ' + m.sparePx + 'px, Sustain spare ' + m.susSpare + 'px, min row ' + m.minRowH + 'px, Sustain cx ' + m.susCx + ' / mid ' + m.midline + (m.lay ? ', ' + m.lay : '');
+        console.log('N20 PR-A2 spare ' + size + ' simple: grid ' + m.sparePx + 'px, Sustain ' + m.susSpare + 'px, min row ' + m.minRowH + 'px');
+        record(name, !notes.length, notes.length ? notes.join(' | ') : okDetail);
+      } else if (mode === 'simple' && N20_PRA.has(size)) {
         // PR-A acceptance (real check since PR-A). Hard bar: the last grid row has at least 8px spare.
         const name = 'N20 PR-A ' + cell + ': last grid row has ≥8px spare, min row ≥44px, Sustain left, chips one 44px line';
         const notes = [];
@@ -942,6 +975,7 @@ try {
   }
   for (const [w, h] of N20_BAND) await n20RunCell(w, h, 'simple');
   for (const [w, h] of N20_IPAD) await n20RunCell(w, h, 'simple');
+  for (const [w, h] of [[1280, 600], [1920, 600]]) await n20RunCell(w, h, 'simple');
 
   for (const w of walks) {
     if (w.pageNotes.length) record('toggle ' + w.label, false, w.pageNotes.join(' | '));

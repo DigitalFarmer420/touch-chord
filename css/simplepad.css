@@ -101,6 +101,18 @@ html.simple.lay-pad-land #app {
   grid-template-rows: var(--sp-tap) var(--sp-tap) minmax(var(--sp-left-min), 1fr) minmax(100px, calc(154 * var(--sh))); row-gap: 10px;
   grid-template-areas: "top top top" "sty sty sty" "now nxt nxt" "sus nxt nxt"; }
 html.simple.lay-pad-land .now-col > .now-card { min-height: 160px; }
+/* N20 C8 / PR-A2: short pad-land height budget. Only viewports under 720 tall
+   (the visible height, same as 100dvh on these windows) change. 720 itself
+   keeps today's 8.3px spare, and iPad landscape is unchanged. Shrink order
+   (Uiux): relax NOW's 160px minimum first, then --sp-left-min. Lyrics stay
+   at three lines — steps 1+2 already fit 1280×600 and 1920×600 with ≥8px spare
+   (measured 14px under Sustain, 27px under the last grid row). */
+@media (height < 720px) {
+  html.simple.lay-pad-land .now-col > .now-card { min-height: 54px; }
+  html.simple.lay-pad-land #app {
+    --sp-left-min: calc(54px + 22px + 84 * var(--sh) + 10px + max(44px, 56 * var(--sh)) + max(44px, 48 * var(--sh)) + max(44px, 92 * var(--sh)) + 40px);
+  }
+}
 
 html.simple.lay-pad-land .brand { display: block; }
 html.simple.lay-pad-land header.topbar { position: relative; }
