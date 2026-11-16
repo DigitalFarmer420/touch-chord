@@ -13,7 +13,7 @@ const walk = d => readdirSync(d).flatMap(f => statSync(join(d, f)).isDirectory()
 
 function site() {
   const dir = mkdtempSync(join(tmpdir(), 'tc-stamp-'));
-  for (const f of ['index.html', 'sw.js', 'css', 'js']) cpSync(join(ROOT, f), join(dir, f), { recursive: true });
+  for (const f of ['index.html', 'sw.js', 'css', 'js', 'manifest.webmanifest']) cpSync(join(ROOT, f), join(dir, f), { recursive: true });
   return dir;
 }
 const stamp = (dir, sha) => spawnSync('python3', [join(ROOT, 'tools/stamp-build.py'), dir, sha], { encoding: 'utf8' });
@@ -30,10 +30,12 @@ test('stamping sets BUILD_ID, the tc-build meta and every ?v= tag to APP_VERSION
     const html = readFileSync(join(dir, 'index.html'), 'utf8');
     assert.ok(html.includes('<meta name="tc-build" content="' + id + '">'));
     const tags = new Set();
-    for (const f of [join(dir, 'index.html'), ...walk(join(dir, 'js')), ...walk(join(dir, 'css'))]) {
+    for (const f of [join(dir, 'index.html'), join(dir, 'manifest.webmanifest'), ...walk(join(dir, 'js')), ...walk(join(dir, 'css'))]) {
       for (const m of readFileSync(f, 'utf8').matchAll(/\?v=([0-9A-Za-z.\-]+)["']/g)) tags.add(m[1]);
     }
     assert.deepEqual([...tags], [id]);
+    assert.ok(readFileSync(join(dir, 'manifest.webmanifest'), 'utf8').includes('?v=' + id));
+    assert.ok(!readFileSync(join(dir, 'manifest.webmanifest'), 'utf8').includes('?v=' + V + '"'));
     assert.equal(readFileSync(join(dir, 'sw.js'), 'utf8'), readFileSync(join(ROOT, 'sw.js'), 'utf8'), 'sw.js bytes are not stamped');
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });

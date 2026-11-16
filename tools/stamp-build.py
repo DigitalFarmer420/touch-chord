@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Stamp a DEPLOY COPY of the site with BUILD_ID = APP_VERSION-<short commit sha>. Never run this on the repo.
   python3 tools/stamp-build.py <site dir> <commit sha>
-- every ?v=APP_VERSION" (or ') in index.html, css/**/*.css and js/**/*.js becomes ?v=BUILD_ID,
+- every ?v=APP_VERSION" (or ') in index.html, css/**/*.css, js/**/*.js and manifest.webmanifest becomes ?v=BUILD_ID,
 - js/version.js gets BUILD_ID = "<BUILD_ID>" (js/offline.js registers sw.js?v=BUILD_ID),
 - index.html gets <meta name="tc-build" content="<BUILD_ID>">.
 So every deploy changes index.html, registers a new sw.js?v=BUILD_ID (sw.js reads its cache name from that
@@ -26,6 +26,9 @@ def stamp(site, sha):
         raise SystemExit('stamp-build: already stamped (BUILD_ID %s)' % b.group(1))
     build = v + '-' + sha[:7]
     files = [site / 'index.html', *site.glob('css/**/*.css'), *site.glob('js/**/*.js')]
+    mf = site / 'manifest.webmanifest'
+    if mf.is_file():
+        files.append(mf)
     changed = 0
     for f in files:
         s = f.read_text(encoding='utf-8')

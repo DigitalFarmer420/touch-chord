@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Fails if any local import / link / image ?v= differs from APP_VERSION, or a relative import has no ?v= (run from repo root)."""
+"""Fails if any local import / link / image ?v= differs from APP_VERSION, or a relative import has no ?v= (run from repo root).
+Also flags a stale or missing ?v= on icon URLs in manifest.webmanifest."""
 import re, pathlib, sys
 root = pathlib.Path('.'); v = re.search(r'APP_VERSION = "([^"]+)"', (root / 'js/version.js').read_text()).group(1); bad = []
 for f in [root / 'index.html', *root.glob('css/*.css'), *root.glob('js/**/*.js')]:
@@ -19,4 +20,10 @@ if not re.search(r'sw\.js\?v=(?:["\']\s*\+\s*(?:APP_VERSION|BUILD_ID)|\$\{(?:APP
 b = re.search(r'BUILD_ID = "([^"]+)"', (root / 'js/version.js').read_text())
 if not b or b.group(1) != v:
     bad.append(('js/version.js', 'BUILD_ID must equal APP_VERSION in the repo (deploys stamp it)'))
+# Icon URLs in the web manifest must use ?v=APP_VERSION too (they were left at 112.14 after 112.15).
+mf = root / 'manifest.webmanifest'
+if mf.exists():
+    for src in re.findall(r'"src"\s*:\s*"([^"]+)"', mf.read_text(encoding='utf-8')):
+        if not src.endswith('?v=' + v):
+            bad.append((str(mf), src))
 print('APP_VERSION', v, 'stale/missing ?v=:', bad or 'none'); sys.exit(1 if bad else 0)
