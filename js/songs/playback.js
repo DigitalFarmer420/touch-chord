@@ -104,6 +104,7 @@ export function progSync(key) {
       magicReset();
     }
   } else {
+    if (wasPaused) progStop();   // N22: paused, and the style change swapped the song: the paused step is gone (Play song, step 1)
     prog.cur = -1;
     magicReset();   // v68: key / mode / style change: the walk starts again
   }
@@ -735,7 +736,7 @@ export function progSet(i) {
   var n = prog.list.length;
   if (!n) return;
   shared.paMiss = 0;   // v112: a new song starts a new miss run
-  if (!prog.paused) progStop();
+  progStop();   // N22: picking a song while paused is a stop too (Play song, step 1), as in Kids
   ChordAudio.band.hush();   // v104: a new song starts without the old Band tail
   prog.idx = ((i % n) + n) % n;
   prog.cur = -1;

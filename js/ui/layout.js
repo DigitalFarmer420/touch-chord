@@ -2,7 +2,7 @@
 import { api as ChordAudio } from "../audio/index.js?v=112.15";
 import { activeKey } from "../keys.js?v=112.15";
 import { stopPlayback } from "../loop.js?v=112.15";
-import { progStop, progWalkAt, progWalkTo } from "../songs/playback.js?v=112.15";
+import { prog, progStop, progWalkAt, progWalkTo } from "../songs/playback.js?v=112.15";
 import { state, loop, fingers, scheduleSave, shared } from "../state.js?v=112.15";
 import { magicHintClear } from "./next.js?v=112.15";
 import { fitNowSymbol } from "./nowbox.js?v=112.15";
@@ -33,6 +33,9 @@ export function setSimple(on) {
   on = !!on;
   if (on === state.simple) return;
   var keep = progWalkAt();   // v111 (D5): the matching step after the switch
+  // N18: a switch while Play song is paused counts as a stop: Play reads "Play song" and starts at step 1
+  // (progWalkAt reads the Next walk, which is one past the paused step while paused). Playing / idle unchanged.
+  if (prog.paused && keep) keep = { name: keep.name, t: 0 };
   progStop(); ChordAudio.band.hush();   // v104: a mode switch stops Play song and silences the Band
   if (on) {
     if (loop.recording || loop.playing || loop.transport) stopPlayback();

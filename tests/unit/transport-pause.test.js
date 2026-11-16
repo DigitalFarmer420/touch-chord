@@ -307,7 +307,8 @@ test('resume (c) different song/progression: starts at step 0', () => {
   const other = 1;
   P.progSet(other);
   assert.equal(P.prog.idx, other);
-  assert.equal(P.getTransportState().state, 'paused', 'changing song while paused stays paused until Play');
+  // N22 (Uiux): picking another song while paused is a stop: the button goes back to "Play song".
+  assert.equal(P.getTransportState().state, 'idle', 'changing song while paused stops (Play song, not Resume)');
   tapGap();
   const onsBefore = log.filter(x => x.type === 'on').length;
   P.progPlay();
@@ -689,7 +690,7 @@ test('B2: style change while paused on a different built-in progression still re
   const st = P.getTransportState();
   const newName = P.prog.list[P.prog.idx] && P.prog.list[P.prog.idx].name;
   assert.notEqual(newName, firstName, 'style change picked a different progression');
-  assert.equal(st.state, 'paused');
+  assert.equal(st.state, 'idle', 'N22: a song-swapping style change while paused is a stop');
   assert.equal(st.cur, -1, 'a genuinely different song still resets the step');
   assert.equal(st.magicPos, 0);
   tapGap(); P.progStop();
@@ -715,4 +716,74 @@ test('Kids Home and song-select stop playback when paused; Simple/Expert mode sw
   const lab = P.playButtonLabel();
   assert.equal(lab.aria, 'Play song');
   assert.equal(lab.title, 'Play song: the whole song / progression, over and over');
+});
+
+// N22 (Noff; Uiux / PM acceptance): another progression while paused, or a style change that swaps the song,
+// drops the paused step. Play reads "Play song" with the idle title and starts at step 1.
+const IDLE_LAB = { aria: 'Play song', title: 'Play song: the whole song / progression, over and over' };
+test('N22: picking another progression while paused resets Play to "Play song" and starts at step 1', async () => {
+  setupSong();
+  await playTo(2);
+  tapGap(); P.progPlay();
+  let st = P.getTransportState();
+  assert.equal(st.state, 'paused');
+  assert.equal(st.cur, 2);
+  assert.deepEqual(P.playButtonLabel(), { aria: 'Resume', title: 'Resume' });
+  const events = [];
+  const onT = e => events.push(e.detail && e.detail.state);
+  globalThis.addEventListener('tc:transport', onT);
+  P.progSet(1);
+  globalThis.removeEventListener('tc:transport', onT);
+  st = P.getTransportState();
+  assert.equal(P.prog.idx, 1);
+  assert.equal(st.state, 'idle', 'not paused after another progression');
+  assert.equal(P.prog.pauseSnap, null, 'pause snapshot cleared');
+  assert.deepEqual(P.playButtonLabel(), IDLE_LAB, 'button label and title are the idle "Play song" ones');
+  assert.ok(events.includes('idle'), 'a tc:transport idle event repaints the button');
+  assert.equal(st.magicPos, 0, 'Next walk at the top');
+  const before = strikes.length;
+  tapGap(); P.progPlay();
+  assert.equal(P.getTransportState().state, 'playing');
+  const fresh = strikes.slice(before).filter(s => !s.stop && !s.cancelled);
+  assert.ok(fresh.length);
+  assert.equal(fresh[0].step, 0, 'Play starts the new progression at step 1');
+  tapGap(); P.progStop();
+});
+
+test('N22: a style change that swaps the song while paused resets Play to "Play song" and starts at step 1', async () => {
+  setupSong();
+  const firstName = P.prog.list[P.prog.idx].name;
+  await playTo(2);
+  tapGap(); P.progPlay();
+  assert.equal(P.getTransportState().state, 'paused');
+  state.style = 'jazz';
+  P.progSync({ pc: 0, mode: 'major' });
+  assert.notEqual(P.prog.list[P.prog.idx].name, firstName, 'jazz swapped the song');
+  const st = P.getTransportState();
+  assert.equal(st.state, 'idle');
+  assert.equal(P.prog.pauseSnap, null);
+  assert.deepEqual(P.playButtonLabel(), IDLE_LAB);
+  assert.equal(st.cur, -1);
+  assert.equal(st.magicPos, 0);
+  P.prog.steps = PR.progSteps({ pc: 0, mode: 'major' }, P.prog.list[P.prog.idx]);
+  const before = strikes.length;
+  tapGap(); P.progPlay();
+  const fresh = strikes.slice(before).filter(s => !s.stop && !s.cancelled);
+  assert.ok(fresh.length);
+  assert.equal(fresh[0].step, 0, 'Play starts the new song at step 1');
+  tapGap(); P.progStop();
+});
+
+test('N22 guard: a key change while paused (same song) still keeps the paused step and the Resume label', async () => {
+  setupSong();
+  await playTo(2);
+  tapGap(); P.progPlay();
+  state.keyRoot = 5;
+  P.progSync({ pc: 5, mode: 'major' });
+  const st = P.getTransportState();
+  assert.equal(st.state, 'paused');
+  assert.equal(st.cur, 2);
+  assert.deepEqual(P.playButtonLabel(), { aria: 'Resume', title: 'Resume' });
+  tapGap(); P.progStop();
+  state.keyRoot = 0;
 });

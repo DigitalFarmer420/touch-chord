@@ -747,6 +747,95 @@ try {
     });
   }
 
+  // N18 (Noff, Uiux acceptance): a Simple/Expert switch while paused is a stop, so Play then starts the song at step 1
+  // (not at the paused step + 1). A switch while playing still picks up at the sounding step (develop behaviour).
+  const tpIdleCheck = async (page, sel, what, notes) => {
+    const m = await tpSnap(page);
+    const lab = await tpLabel(page, sel);
+    if (m.state !== 'idle') notes.push(what + ': state ' + m.state + ' (want idle)');
+    if (!lab || lab.aria !== idleLab.aria || lab.title !== idleLab.title) notes.push(what + ' label: ' + JSON.stringify(lab) + ' (want ' + JSON.stringify(idleLab) + ')');
+    if (!(await glyphIsPlay(page, sel))) notes.push(what + ': Play is not ▶');
+    return m;
+  };
+  const tpStartsAtTop = async (page, sel, what, notes) => {
+    await tpPlay(page, sel);
+    const s = await tpSnap(page);
+    if (s.state !== 'playing' || s.cur !== 0) notes.push(what + ' then Play: ' + JSON.stringify(s) + ' (want playing cur 0 / step 1)');
+  };
+  for (const [from, to, query] of [['simple', 'expert', 'test=1&hour=12'], ['expert', 'simple', 'test=1&hour=12&expert=1']]) {
+    await tpCase(`390x844 N18 ${from}->${to} switch while paused, Play starts at step 1`, 390, 844, query, async page => {
+      const notes = [];
+      if (await landedMode(page) !== from) await switchTo(page, from);
+      await prepare(page, from);
+      await tpPlay(page, playSel(from)); await tpUntil(page, 1); await page.waitForTimeout(200);
+      await tpPlay(page, playSel(from));
+      const p = await tpSnap(page);
+      if (p.state !== 'paused' || p.cur < 1) notes.push('pause: ' + JSON.stringify(p) + ' (want paused at step 2+)');
+      await switchTo(page, to);
+      await page.waitForTimeout(300);
+      const m = await tpIdleCheck(page, playSel(to), 'after switch', notes);
+      if (m.pos !== 0) notes.push('walk after switch: pos=' + m.pos + ' (want 0, the top)');
+      await tpStartsAtTop(page, playSel(to), 'after switch', notes);
+      return notes;
+    });
+    await tpCase(`390x844 N18 ${from}->${to} switch while playing keeps the sounding step`, 390, 844, query, async page => {
+      const notes = [];
+      if (await landedMode(page) !== from) await switchTo(page, from);
+      await prepare(page, from);
+      await tpPlay(page, playSel(from)); await tpUntil(page, 1);
+      const at = await page.evaluate(() => window.__prog.cur);
+      await switchTo(page, to);
+      await page.waitForTimeout(300);
+      const m = await tpIdleCheck(page, playSel(to), 'after switch', notes);
+      if (m.pos < 1 || m.pos > at + 1) notes.push('walk after switch: pos=' + m.pos + ' (want the sounding step ' + at + ', not the top)');
+      return notes;
+    });
+  }
+
+  // N22 (Noff, Uiux acceptance): Expert, paused, then another progression from the list, or a style change that swaps
+  // the song: the paused step is gone, Play reads "Play song" ▶ with the idle title, and Play starts at step 1.
+  await tpCase('390x844 N22 expert pick another progression while paused', 390, 844, 'test=1&hour=12&expert=1', async page => {
+    const notes = [];
+    if (await landedMode(page) !== 'expert') await switchTo(page, 'expert');
+    await prepare(page, 'expert');
+    const sel = playSel('expert');
+    await tpPlay(page, sel); await tpUntil(page, 1); await page.waitForTimeout(200);
+    await tpPlay(page, sel);
+    const p = await tpSnap(page);
+    if (p.state !== 'paused' || p.cur < 1) notes.push('pause: ' + JSON.stringify(p));
+    const before = await page.evaluate(() => window.__prog.idx);
+    if (!(await page.locator('#xSrc .x-pbar').isVisible().catch(() => false))) { await page.locator('#xTog button[data-v="prog"]').click(); await page.waitForTimeout(200); }
+    if (await page.evaluate(() => document.getElementById('xPList').hidden)) await page.locator('#xSrc .x-pbar').click();
+    await page.waitForSelector('#xPList button[data-i]', { state: 'visible', timeout: 5000 }); await page.waitForTimeout(150);
+    const pick = before === 1 ? 2 : 1;
+    const row = page.locator(`#xPList button[data-i="${pick}"]`); await row.scrollIntoViewIfNeeded(); await row.click(); await page.waitForTimeout(350);
+    const idx = await page.evaluate(() => window.__prog.idx);
+    if (idx !== pick) notes.push('picked progression ' + idx + ', want ' + pick);
+    await page.evaluate(() => { const l = document.getElementById('xPList'); if (l) l.hidden = true; const s = document.getElementById('xScrim'); if (s) { s.hidden = true; s.classList.remove('on'); } });
+    await tpIdleCheck(page, sel, 'after progression pick', notes);
+    await tpStartsAtTop(page, sel, 'after progression pick', notes);
+    return notes;
+  });
+  await tpCase('390x844 N22 expert style change that swaps the song while paused', 390, 844, 'test=1&hour=12&expert=1', async page => {
+    const notes = [];
+    if (await landedMode(page) !== 'expert') await switchTo(page, 'expert');
+    await prepare(page, 'expert');
+    const sel = playSel('expert');
+    await tpPlay(page, sel); await tpUntil(page, 1); await page.waitForTimeout(200);
+    await tpPlay(page, sel);
+    const p = await tpSnap(page);
+    if (p.state !== 'paused' || p.cur < 1) notes.push('pause: ' + JSON.stringify(p));
+    const name0 = await page.evaluate(() => { const r = window.__prog.list[window.__prog.idx]; return r && r.name; });
+    const to = await page.evaluate(() => { const cur = [...document.querySelectorAll('#styles button[data-style].on, #styles button[data-style][aria-pressed="true"], #styles button[data-style][aria-checked="true"]')].map(b => b.dataset.style)[0]; return cur === 'jazz' ? 'pop' : 'jazz'; });
+    await page.evaluate(to => { const b = document.querySelector('#styles button[data-style="' + to + '"]'); if (b) b.click(); }, to);
+    await page.waitForTimeout(400);
+    const name1 = await page.evaluate(() => { const r = window.__prog.list[window.__prog.idx]; return r && r.name; });
+    if (name1 === name0) notes.push('style change to ' + to + ' kept the song ' + name0 + ' (test needs a song swap)');
+    await tpIdleCheck(page, sel, 'after style ' + to, notes);
+    await tpStartsAtTop(page, sel, 'after style ' + to, notes);
+    return notes;
+  });
+
   // (3) Kids: Home or picking another song while paused stops and resets Play to "Play song" / ▶.
   await tpCase('390x844 kids Home while paused stops', 390, 844, 'test=1&hour=12&kv=1', async page => {
     const notes = [];
