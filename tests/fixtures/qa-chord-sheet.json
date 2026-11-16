@@ -1,0 +1,346 @@
+{
+ "contractVersion": "1.3",
+ "songs": [
+  {
+   "song": {
+    "title": "QA Chord Sheet",
+    "artist": "Noff QA",
+    "key": {
+     "tonic": "G",
+     "mode": "major",
+     "display": "G major",
+     "confidence": 0.9,
+     "source": "qa"
+    },
+    "capo": 0,
+    "sources": [
+     {
+      "id": "qa",
+      "title": "hand-made test chart",
+      "kind": "chord-chart"
+     }
+    ]
+   },
+   "timing": {
+    "bpm": 90,
+    "timeSignature": "4/4",
+    "durationSeconds": 48,
+    "timingSource": "estimated"
+   },
+   "form": [
+    "verse",
+    "chorus",
+    "chorus",
+    "outro"
+   ],
+   "sections": [
+    {
+     "id": "verse",
+     "type": "verse",
+     "label": "Verse",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "G",
+         "confidence": 0.9,
+         "source": "qa"
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "D/F#",
+         "confidence": 0.9,
+         "source": "qa"
+        }
+       ]
+      },
+      {
+       "bar": 3,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Em",
+         "confidence": 0.9,
+         "source": "qa"
+        },
+        {
+         "beat": 3,
+         "chord": "C",
+         "confidence": 0.9,
+         "source": "qa"
+        }
+       ]
+      },
+      {
+       "bar": 4,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "C",
+         "confidence": 0.9,
+         "source": "qa"
+        }
+       ]
+      },
+      {
+       "bar": 5,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Am7",
+         "confidence": 0.9,
+         "source": "qa"
+        },
+        {
+         "beat": 3,
+         "chord": "D",
+         "confidence": 0.9,
+         "source": "qa"
+        }
+       ]
+      },
+      {
+       "bar": 6,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "G/B",
+         "confidence": 0.9,
+         "source": "qa"
+        }
+       ]
+      },
+      {
+       "bar": 7,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "C",
+         "confidence": 0.9,
+         "source": "qa"
+        },
+        {
+         "beat": 3,
+         "chord": "D",
+         "confidence": 0.9,
+         "source": "qa"
+        }
+       ]
+      },
+      {
+       "bar": 8,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "G",
+         "confidence": 0.9,
+         "source": "qa"
+        }
+       ]
+      }
+     ],
+     "lyrics": [
+      {
+       "text": "Morning comes around the bend",
+       "markers": [
+        {
+         "charIndex": 0,
+         "bar": 1,
+         "beat": 1
+        },
+        {
+         "charIndex": 15,
+         "bar": 2,
+         "beat": 1
+        },
+        {
+         "charIndex": 29,
+         "bar": 3,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "Walking slowly, slowly home",
+       "markers": [
+        {
+         "charIndex": 0,
+         "bar": 3,
+         "beat": 3
+        },
+        {
+         "charIndex": 8,
+         "bar": 4,
+         "beat": 1
+        },
+        {
+         "charIndex": 16,
+         "bar": 5,
+         "beat": 1
+        },
+        {
+         "charIndex": 23,
+         "bar": 5,
+         "beat": 3
+        }
+       ]
+      },
+      {
+       "text": "Under the beautiful sky",
+       "markers": [
+        {
+         "charIndex": 0,
+         "bar": 6,
+         "beat": 1
+        },
+        {
+         "charIndex": 14,
+         "bar": 7,
+         "beat": 1
+        },
+        {
+         "charIndex": 20,
+         "bar": 7,
+         "beat": 3
+        },
+        {
+         "charIndex": 23,
+         "bar": 8,
+         "beat": 1
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "chorus",
+     "type": "chorus",
+     "label": "Chorus",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "C",
+         "confidence": 0.9,
+         "source": "qa"
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "G/B",
+         "confidence": 0.9,
+         "source": "qa"
+        }
+       ]
+      },
+      {
+       "bar": 3,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Am",
+         "confidence": 0.9,
+         "source": "qa"
+        }
+       ]
+      },
+      {
+       "bar": 4,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "D",
+         "confidence": 0.9,
+         "source": "qa"
+        }
+       ]
+      }
+     ],
+     "lyrics": [
+      {
+       "text": "Sing it loud",
+       "markers": [
+        {
+         "charIndex": 0,
+         "bar": 1,
+         "beat": 1
+        },
+        {
+         "charIndex": 5,
+         "bar": 2,
+         "beat": 1
+        },
+        {
+         "charIndex": 8,
+         "bar": 3,
+         "beat": 1
+        }
+       ]
+      },
+      {
+       "text": "sing it again",
+       "markers": [
+        {
+         "charIndex": 4,
+         "bar": 4,
+         "beat": 1
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "outro",
+     "type": "outro",
+     "label": "Outro",
+     "startSeconds": null,
+     "endSeconds": null,
+     "timingSource": "unknown",
+     "bars": [
+      {
+       "bar": 1,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "Cmaj7",
+         "confidence": 0.9,
+         "source": "qa"
+        }
+       ]
+      },
+      {
+       "bar": 2,
+       "chords": [
+        {
+         "beat": 1,
+         "chord": "G",
+         "confidence": 0.9,
+         "source": "qa"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

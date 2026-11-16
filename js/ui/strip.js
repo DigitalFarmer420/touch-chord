@@ -11,7 +11,7 @@ import { wrap12, blankExt, mapQuality } from "../theory/quality.js?v=112.15";
 import { accSym } from "../theory/spelling.js?v=112.15";
 import { paHintMiss } from "./hints.js?v=112.15";
 import { kbSound, kidsSoloSpec, kbScheduleReset, kbCancelReset } from "./keyboard.js?v=112.15";
-import { paintNextHint, kidsGoldGo, kidsGoldPad } from "./next.js?v=112.15";
+import { paintNextHint, paintProgActive, kidsGoldGo, kidsGoldPad } from "./next.js?v=112.15";
 import { updateSymbol } from "./nowbox.js?v=112.15";
 import { computeSpec, highlightMidisFromSpec, refreshHeld } from "./pads.js?v=112.15";
 import { paintProg } from "./progbar.js?v=112.15";
@@ -527,6 +527,7 @@ export function paintSuggestions(spec) {
   });
   progDecorate(el, model);   // v55: progression badges + temporary chips
   paintKidChip();   // v70: Kids shows one big chip instead of the board
+  paintProgActive();   // B2: paused on the same song, keep the step highlight in the new key / style
   paintNextHint();   // v68: queued chord recomputed for the new key / style / progression
   fitStrip();
   paintProg();

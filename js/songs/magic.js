@@ -1,6 +1,6 @@
 // Magic Next (one chord per tap).
 import { api as ChordAudio } from "../audio/index.js?v=112.15";
-import { magic, progStop, prog, PROG_TEST, progLockKey } from "./playback.js?v=112.15";
+import { magic, progStop, prog, PROG_TEST, progLockKey, progPauseMoveTo, progWalkFollow } from "./playback.js?v=112.15";
 import { sameChord } from "./presets.js?v=112.15";
 import { progRingSec } from "./song.js?v=112.15";
 import { state, shared } from "../state.js?v=112.15";
@@ -94,7 +94,17 @@ export function magicQueue() {
 export function magicAdvance() {
   if (!prog.steps.length) return;
   paHintAdvanced();   // v112: an advance resets the miss run and lets every hint show again
-  progStop();
+  // N15: Next while Play song is paused plays the step after the paused one once (normal ring and
+  // release, like any Next) and moves the pause point there. It stays paused: Play resumes from it.
+  // On the last step it wraps to the first chord, as Next does when idle.
+  var paused = !!prog.paused;
+  if (!paused && prog.playing) {   // Next while playing: Stop (as before), then the step after the sounding one
+    var at = prog.cur;
+    progStop();
+    progWalkFollow(at);
+  } else if (!paused) {
+    progStop();
+  }
   shared.upNxOff = false;
   progLockKey();
   var d = magicQueue();
@@ -102,6 +112,7 @@ export function magicAdvance() {
   if (!d) return;
   magic.pos = d.pos; magic.since = d.since; magic.cycle = d.cycle; magic.wasHome = d.home;
   magicPlay(d.item, d.bars, d.step);
+  if (paused) progPauseMoveTo(d.step);
   magic.hint = true;
   magicQueue();
   paintNextHint();

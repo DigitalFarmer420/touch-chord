@@ -8,7 +8,7 @@ import { api as ChordAudio } from "../audio/index.js?v=112.15";
 import { stopPlayback } from "../loop.js?v=112.15";
 import { activeKey } from "../keys.js?v=112.15";
 import { setKidKey } from "../kids.js?v=112.15";
-import { prog, progSet, placeBadges, setBadgeAvoid, magic, progStop, progWalkAt, progWalkTo } from "../songs/playback.js?v=112.15";
+import { prog, progSet, placeBadges, setBadgeAvoid, magic, progStop, progWalkAt, progWalkTo, playButtonLabel } from "../songs/playback.js?v=112.15";
 import { magicQueue } from "../songs/magic.js?v=112.15";
 import { nextHintSpec } from "../ui/next.js?v=112.15";
 import { setHintAvoid } from "../ui/hints.js?v=112.15";
@@ -697,9 +697,9 @@ export function paint() {
   $("xFull").classList.toggle("on", !!state.allKeys);
   var fs = $("xFull").querySelector(".x-fsub"), ft = state.allKeys ? "all 12" : "in key only";
   if (fs.textContent !== ft) { fs.textContent = ft; $("xFull").setAttribute("aria-label", "All notes: " + ft); }
-  var ps = document.querySelector("#prog .pg-song"), pon = !!(ps && ps.classList.contains("on"));
-  // Play stays ▶ while a song plays (never ■ Stop), at every size. aria-label still says "Stop song".
-  $("xPlay").textContent = "\u25b6"; $("xPlay").removeAttribute("aria-pressed"); $("xPlay").setAttribute("aria-label", pon ? "Stop song" : "Play song");
+  // Play stays ▶ while a song plays (never ■ Stop), at every size. Label: Play song / Pause / Resume.
+  var xl = playButtonLabel();
+  $("xPlay").textContent = "\u25b6"; $("xPlay").removeAttribute("aria-pressed"); $("xPlay").setAttribute("aria-label", xl.aria); $("xPlay").title = xl.title;
   var v = $("volume"); if (v) { $("xVol").value = v.value; $("xVolVal").textContent = v.value; }
   paintType();
   paintSrc();
@@ -719,6 +719,7 @@ function wireAll() {
   $("xHelp").addEventListener("click", function (e) { closeAll(); toggleHelpMenu(e.currentTarget); });   // rd17: How to / Tour menu
   $("xNext").addEventListener("click", function () { click("#prog .pg-step"); schedule(); });
   $("xPlay").addEventListener("click", function () { click("#prog .pg-song"); schedule(); });
+  window.addEventListener("tc:transport", schedule);   // Play label follows pause / resume from any path (hidden tab, Next)
   $("xTog").addEventListener("click", function (e) {
     var b = e.target.closest("button[data-v]"); if (!b) return;
     if (state.simple) { tapSimpleSrc(b.dataset.v); return; }

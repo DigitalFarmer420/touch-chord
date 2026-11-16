@@ -1,7 +1,7 @@
 // Gear (Config) menu: volume, band, toggles, factory reset.
 import { api as ChordAudio } from "../audio/index.js?v=112.15";
 import { applySettings, showToast } from "../settings.js?v=112.15";
-import { progStop, progRedecorate } from "../songs/playback.js?v=112.15";
+import { progStop, progPause, prog, progRedecorate } from "../songs/playback.js?v=112.15";
 import { state, scheduleSave, factoryDefaults, storageClear, collectSettings, saveNow, shared } from "../state.js?v=112.15";
 import { paHintHide } from "./hints.js?v=112.15";
 import { updateSymbol } from "./nowbox.js?v=112.15";
@@ -160,6 +160,13 @@ export function wireConfig() {
     el.addEventListener("change", function () { scheduleSave(0); });
   });
   window.addEventListener("pagehide", saveNow);
-  window.addEventListener("pagehide", function () { progStop(); ChordAudio.band.hush(); });   // v104
+  window.addEventListener("pagehide", onPageHide);   // v104; N16: pause when the page may come back
   document.addEventListener("visibilitychange", function () { if (document.hidden) saveNow(); });
+}
+// N16: a page kept in the back/forward cache (persisted) pauses Play song so coming back offers
+// Resume; a real unload (not persisted) still stops it hard.
+export function onPageHide(e) {
+  if (e && e.persisted) { if (prog.playing) progPause(); }
+  else progStop();
+  ChordAudio.band.hush();
 }

@@ -74,6 +74,7 @@ var PRECACHE = [
   "js/songs/presets.js",
   "js/songs/proghold.js",
   "js/songs/song.js",
+  "js/songs/transport-policy.js",
   "js/songs/upload.js",
   "js/songs/validate.js",
   "js/state.js",

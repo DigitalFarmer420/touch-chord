@@ -2,7 +2,7 @@
 import { unlock } from "../audio/unlock.js?v=112.15";
 import { paintLoop } from "../loop.js?v=112.15";
 import { progNext } from "../songs/magic.js?v=112.15";
-import { progPlay, prog, progSet } from "../songs/playback.js?v=112.15";
+import { progPlay, prog, progSet, playButtonLabel, transportLabel } from "../songs/playback.js?v=112.15";
 import { progFeel, progSteps, progNumerals } from "../songs/presets.js?v=112.15";
 import { state } from "../state.js?v=112.15";
 import { noteSimpleSongWalk, simpleProgStepIndex } from "./simplesrc.js?v=112.15";
@@ -44,14 +44,15 @@ export function paintProg() {
   sel.setAttribute("aria-valuemax", String(Math.max(0, prog.list.length - 1)));
   sel.setAttribute("aria-valuetext", name + " (" + prog.steps.map(function (s) { return s.roman; }).join(" ") + ")");
   sel.title = name + ": " + prog.steps.map(function (s) { return s.roman; }).join(" ");
-  var ps = el.querySelector(".pg-song"), pon = !!prog.playing;   // Play stays ▶ while a song plays (never ■ Stop). aria-label still says "Stop song".
-  if (ps && PROG_PLAY_SVG && ps._on !== pon) {
-    ps._on = pon;
+  var ps = el.querySelector(".pg-song"), pon = !!prog.playing, tst = transportLabel();   // Play stays ▶ while a song plays (never ■ Stop). Label: Play song / Pause / Resume.
+  if (ps && PROG_PLAY_SVG && ps._on !== tst) {
+    ps._on = tst;
+    var lab = playButtonLabel(tst);
     if (!ps.querySelector("path") || ps.querySelector("rect")) ps.innerHTML = PROG_PLAY_SVG;
     ps.classList.toggle("on", pon);
     ps.removeAttribute("aria-pressed");
-    ps.setAttribute("aria-label", pon ? "Stop song" : "Play song");
-    ps.title = pon ? "Stop" : "Play song: the whole song / progression, over and over";
+    ps.setAttribute("aria-label", lab.aria);
+    ps.title = lab.title;
   } else if (ps && ps.hasAttribute("aria-pressed")) {
     ps.removeAttribute("aria-pressed");
   }
