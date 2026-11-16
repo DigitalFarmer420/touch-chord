@@ -1,9 +1,9 @@
 name: tests
 on:
   pull_request:
-    branches: [main, dev]
+    branches: [main, develop]
   push:
-    branches: [modular, dev]
+    branches: [modular, develop]
 concurrency:
   group: tests-${{ github.ref }}
   cancel-in-progress: true
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 75
     env:
-      RUN_SMOKE: ${{ github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref == 'dev' }}
+      RUN_SMOKE: ${{ github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref == 'develop' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

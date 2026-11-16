@@ -219,7 +219,7 @@ function build() {
   var tog = el("div", "x-seg x-tog", "<button type=\"button\" data-v=\"song\" role=\"tab\">\u266c Song</button><button type=\"button\" data-v=\"prog\" role=\"tab\">\u25a6 Progressions</button>", { id: "xTog", role: "tablist", "aria-label": "Song or progressions" });
   var go = el("div", "x-go", null, { id: "xGo" });
   go.appendChild(el("button", "x-b x-next", "Next \u279c", { id: "xNext", "aria-label": "Next chord" }));
-  go.appendChild(el("button", "x-b x-play", "\u25b6", { id: "xPlay", "aria-label": "Play song", "aria-pressed": "false" }));
+  go.appendChild(el("button", "x-b x-play", "\u25b6", { id: "xPlay", "aria-label": "Play song" }));
   var song = el("div", "x-src", null, { id: "xSrc" });
   var list = el("div", "x-plist", null, { id: "xPList", role: "listbox", "aria-label": "Progressions", hidden: "" });
   var ctl = el("div", "x-ctl", null, { id: "xCtl" });
@@ -670,7 +670,8 @@ export function paint() {
   var fs = $("xFull").querySelector(".x-fsub"), ft = state.allKeys ? "all 12" : "in key only";
   if (fs.textContent !== ft) { fs.textContent = ft; $("xFull").setAttribute("aria-label", "All notes: " + ft); }
   var ps = document.querySelector("#prog .pg-song"), pon = !!(ps && ps.classList.contains("on"));
-  $("xPlay").textContent = pon ? "\u25a0" : "\u25b6"; $("xPlay").setAttribute("aria-pressed", pon ? "true" : "false"); $("xPlay").setAttribute("aria-label", pon ? "Stop song" : "Play song");
+  // Play stays ▶ while a song plays (never ■ Stop), at every size. aria-label still says "Stop song".
+  $("xPlay").textContent = "\u25b6"; $("xPlay").removeAttribute("aria-pressed"); $("xPlay").setAttribute("aria-label", pon ? "Stop song" : "Play song");
   var v = $("volume"); if (v) { $("xVol").value = v.value; $("xVolVal").textContent = v.value; }
   paintType();
   paintSrc();
