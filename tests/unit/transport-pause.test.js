@@ -144,6 +144,23 @@ test('resumeRule: remain, replay-step, from-zero', () => {
   assert.equal(resumeRule(snap, { ...world, mode: 'minor' }, song), 'replay-step');
   assert.equal(resumeRule(snap, { ...world, sound: 'epiano' }, song), 'replay-step');
   assert.equal(resumeRule(snap, world, { idx: 1, name: 'Other', up: false }), 'from-zero');
+  // B1: the same loaded song can sit at a different list index after a style change (e.g. 11 in Pop, 10 in Jazz).
+  assert.equal(
+    resumeRule(
+      { ...snap, songIdx: 11, songName: 'QA Chord Sheet', up: true, style: 'pop' },
+      { ...world, style: 'jazz' },
+      { idx: 10, name: 'QA Chord Sheet', up: true }
+    ),
+    'replay-step'
+  );
+  assert.equal(
+    resumeRule(
+      { ...snap, songIdx: 11, songName: 'QA Chord Sheet', up: true },
+      world,
+      { idx: 10, name: 'Other Song', up: true }
+    ),
+    'from-zero'
+  );
   assert.equal(resumeRule(null, world, song), 'start');
   assert.equal(barOffset(10, 11, 3), 1);
   assert.equal(barOffset(10, 9, 3), 0);
@@ -601,3 +618,101 @@ test('TE N15: Next while paused plays the paused step + 1', async () => {
 });
 
 test.after(() => { try { P.progStop(); } catch (e) {} clearLeftoverTimers(); });
+
+
+test('B1: style change while paused, same song at a new list index, Resume replays the paused step', async () => {
+  setupSong();
+  await playTo(1);
+  tapGap(); P.progPlay();
+  assert.equal(P.getTransportState().state, 'paused');
+  assert.equal(P.getTransportState().cur, 1);
+  // The uploaded song moved from idx 11 (Pop) to idx 10 (Jazz); only the index changed.
+  P.prog.pauseSnap.songIdx = P.prog.idx + 11;
+  state.style = 'jazz';
+  tapGap();
+  const onsBefore = strikes.filter(s => !s.stop).length;
+  P.progPlay();
+  assert.equal(P.getTransportState().state, 'playing');
+  const added = strikes.filter(s => !s.stop).slice(onsBefore);
+  assert.ok(added.length, 'Resume scheduled a step');
+  assert.equal(added[0].step, 1, 'Resume must replay step 2 (index 1), not restart at step 1');
+  tapGap(); P.progStop();
+});
+
+test('B2: key change while paused keeps the step and Next walk; Next plays paused step+1; Resume replays the paused step', async () => {
+  setupSong();
+  await playTo(1);
+  tapGap(); P.progPlay();
+  let st = P.getTransportState();
+  assert.equal(st.state, 'paused');
+  assert.equal(st.cur, 1);
+  assert.equal(st.magicPos, 2);
+  assert.equal(st.nextStep, 2);
+  const pausedCur = st.cur;
+  const key = { pc: 2, mode: 'major' };
+  state.keyRoot = 2;
+  P.progSync(key);
+  st = P.getTransportState();
+  assert.equal(st.state, 'paused', 'stays paused after a key change');
+  assert.equal(st.cur, pausedCur, 'step highlight / cur kept');
+  assert.equal(st.magicPos, pausedCur + 1, 'Next walk kept');
+  assert.equal(st.nextStep, pausedCur + 1);
+  M.progNext();
+  st = P.getTransportState();
+  assert.equal(st.state, 'paused');
+  assert.equal(st.cur, pausedCur + 1, 'Next plays paused step+1 (step 3)');
+  tapGap(); P.progStop();
+
+  // Fresh run: key change then Resume (no Next) replays the paused step.
+  setupSong();
+  await playTo(1);
+  tapGap(); P.progPlay();
+  state.keyRoot = 2;
+  P.progSync({ pc: 2, mode: 'major' });
+  assert.equal(P.getTransportState().cur, 1);
+  const onsBefore = strikes.filter(s => !s.stop).length;
+  tapGap(); P.progPlay();
+  assert.equal(P.getTransportState().state, 'playing');
+  const added = strikes.filter(s => !s.stop).slice(onsBefore);
+  assert.ok(added.length);
+  assert.equal(added[0].step, 1, 'Resume after a key change replays step 2');
+  tapGap(); P.progStop();
+});
+
+test('B2: style change while paused on a different built-in progression still resets the walk', async () => {
+  setupSong();
+  const firstName = P.prog.list[P.prog.idx].name;
+  await playTo(1);
+  tapGap(); P.progPlay();
+  state.style = 'jazz';
+  P.progSync({ pc: 0, mode: 'major' });
+  const st = P.getTransportState();
+  const newName = P.prog.list[P.prog.idx] && P.prog.list[P.prog.idx].name;
+  assert.notEqual(newName, firstName, 'style change picked a different progression');
+  assert.equal(st.state, 'paused');
+  assert.equal(st.cur, -1, 'a genuinely different song still resets the step');
+  assert.equal(st.magicPos, 0);
+  tapGap(); P.progStop();
+});
+
+test('Kids Home and song-select stop playback when paused; Simple/Expert mode switch still stops', () => {
+  const kids = readFileSync(new URL('js/kids/view.js', R), 'utf8');
+  const home = kids.slice(kids.indexOf('kv-home'), kids.indexOf('kv-home') + 400);
+  assert.ok(/prog\.playing \|\| prog\.paused/.test(home) && home.includes('progStop()'), 'Kids Home stops when paused');
+  const pick = kids.slice(kids.indexOf('function pickSong'), kids.indexOf('function pickSong') + 500);
+  assert.ok(pick.includes('if (prog.playing || prog.paused) progStop()'), 'Kids pickSong stops when paused');
+  const layout = readFileSync(new URL('js/ui/layout.js', R), 'utf8');
+  const setS = layout.slice(layout.indexOf('export function setSimple'), layout.indexOf('export function setSimple') + 800);
+  assert.ok(setS.includes('progStop()'), 'setSimple still stops on a Simple/Expert switch');
+  const play = readFileSync(new URL('js/songs/playback.js', R), 'utf8');
+  assert.ok(/PLAY_DEBOUNCE_MS = 280/.test(play), '280 ms Play debounce is unchanged');
+  setupSong();
+  P.progPlay();
+  tapGap(); P.progPlay();
+  assert.equal(P.getTransportState().state, 'paused');
+  P.progStop();
+  assert.equal(P.getTransportState().state, 'idle');
+  const lab = P.playButtonLabel();
+  assert.equal(lab.aria, 'Play song');
+  assert.equal(lab.title, 'Play song: the whole song / progression, over and over');
+});

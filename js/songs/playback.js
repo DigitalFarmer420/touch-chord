@@ -21,7 +21,7 @@ import { fxStepPulse } from "../ui/pulse.js?v=112.14";
 import { clearSuggestPreview, STRIP_EXT, PREVIEW_MS, stripKey, applySuggestion, prettyAcc, stripLabel, wireStripTap, paintSuggestions, fitStrip } from "../ui/strip.js?v=112.14";
 import { BADGE_SLOTS, badgeCenter, badgeInset } from "../ui/badgeslots.js?v=112.14";
 import { sustainPool } from "../ui/sustain.js?v=112.14";
-import { songIdentity, worldIdentity, resumeRule, barOffset } from "./transport-policy.js?v=112.14";
+import { songIdentity, worldIdentity, resumeRule, barOffset, sameSong } from "./transport-policy.js?v=112.14";
 
 export const prog = { style: null, mode: null, keySig: null, key: null, idx: 0, list: [], steps: [], targets: [], badges: [], badgeOverflow: [], badgeReport: null,
   cur: -1, playing: false, paused: false, pauseSnap: null, walkHome: null, playTapAt: 0, timer: 0, si: 0, nextT: 0, groups: [], gid: 0, uiT: [], flashT: 0, log: [], tmp: 0, unplaced: 0, model: null,
@@ -61,6 +61,7 @@ export function progSync(key) {
   var styleChanged = prog.style !== null && prog.style !== state.style;
   var keyChanged = prog.keySig !== null && prog.keySig !== sig;
   if ((styleChanged || keyChanged) && prog.playing) progStop();   // paused: keep the snapshot so resume can replay the step in the new sound
+  var prevSong = songIdentity(prog), wasPaused = !!prog.paused, keepCur = prog.cur | 0;
   var oldName = prog.list[prog.idx] ? prog.list[prog.idx].name : null;
   var wasUp = !!(prog.list[prog.idx] && prog.list[prog.idx].up);   // Upload: a style change keeps the song
   var oldRow = prog.list[prog.idx];
@@ -91,8 +92,21 @@ export function progSync(key) {
     if (!lk0 || lk0.tonic !== nk.tonic || lk0.mode !== nk.mode) { shared.U.liveKey = nk; upSave(); }
   }
   prog.style = state.style; prog.mode = key.mode; prog.keySig = sig; prog.key = key;
-  prog.cur = -1;
-  magicReset();   // v68: key / mode / style change: the walk starts again
+  // B2: paused on the same song (stable name+source, not list index): keep the step, Next walk and highlight.
+  if (wasPaused && sameSong(prevSong, songIdentity(prog))) {
+    var keepRow = prog.list[prog.idx];
+    if (keepRow) prog.steps = progSteps(key, keepRow);
+    if (keepCur >= 0 && keepCur < prog.steps.length) {
+      prog.cur = keepCur;
+      walkFollow(prog.cur);
+    } else {
+      prog.cur = -1;
+      magicReset();
+    }
+  } else {
+    prog.cur = -1;
+    magicReset();   // v68: key / mode / style change: the walk starts again
+  }
   // v109: Kids has no minor songs: a minor key (Minor tap, an old saved minor Kids song) goes back to the
   // picked song's own key, or Twinkle's (C major) when the name is unknown.
   if (state.style === "kids" && key.mode === "minor" && !PROGRESSIONS.kids.minor.length && !kidsKeyFixT) {

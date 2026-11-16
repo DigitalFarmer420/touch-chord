@@ -30,6 +30,15 @@ import { chromium } from 'playwright-core';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const SHOTS = join(ROOT, 'tests/ci/out');
+function qaSongText() {
+  const cands = [
+    join(ROOT, 'tests/fixtures/qa-chord-sheet.json'),
+    join(ROOT, 'songs/qa-chord-sheet.json'),
+    '/workspace/chord-touch/test6-music-qa/songs/qa-chord-sheet.json'
+  ];
+  for (const p of cands) if (existsSync(p)) return readFileSync(p, 'utf8');
+  return null;
+}
 const PREFERRED_PORT = process.env.PORT ? +process.env.PORT : 8091;
 // Known open bug: develop / PR #5. The walk is skipped so this gate stays green; the
 // reason is printed and written into the PR. Set TOGGLE_FIXME=0 to run it for real.
@@ -247,6 +256,7 @@ async function prepare(page, mode) {
 }
 
 function playSel(mode) { return mode === 'expert' ? '#xPlay' : mode === 'kids' ? '.kv-playbtn' : '#prog .pg-song'; }
+function nextSel(mode) { return mode === 'expert' ? '#xNext' : mode === 'kids' ? '#kv .kv-next:not(.kv-rnext)' : '#prog .pg-step'; }
 function padSel(mode) { return mode === 'kids' ? '.kv-pad' : '#suggest .ss-chip'; }
 
 async function checkPage(page, mode) {
@@ -613,6 +623,166 @@ try {
       return notes;
     });
   }
+
+
+  // B1 / B2 and paused-stop rules (PM+Uiux): style/key while paused, Kids Home/song-pick, Simple↔Expert label.
+  const qaText = qaSongText();
+  const idleLab = { aria: 'Play song', title: 'Play song: the whole song / progression, over and over' };
+  const loadQa = async (page) => {
+    if (!qaText) return 'no QA fixture';
+    const r = await page.evaluate(t => window.__upload && window.__upload.load(t), qaText);
+    await page.waitForTimeout(400);
+    await page.evaluate(() => { const p = document.getElementById('uploadPick'); if (p) p.hidden = true; const s = document.getElementById('xScrim'); if (s) { s.hidden = true; s.classList.remove('on'); } const ms = document.getElementById('modeSheet'); if (ms) ms.hidden = true; });
+    if (!r || r.ok === false) return 'load failed ' + JSON.stringify(r);
+    return null;
+  };
+  const glyphIsPlay = async (page, sel) => page.evaluate(sel => {
+    const e = document.querySelector(sel); if (!e) return false;
+    const txt = (e.textContent || '').trim();
+    return !e.querySelector('rect') && !/[■⏸❚]/.test(txt);
+  }, sel);
+
+  // B1: Simple, loaded song, style change while paused, Resume stays on step 2.
+  await tpCase('390x844 simple B1 style change while paused then Resume', 390, 844, 'test=1&hour=12', async page => {
+    const notes = [];
+    if (await landedMode(page) !== 'simple') await switchTo(page, 'simple');
+    await prepare(page, 'simple');
+    const err = await loadQa(page);
+    if (err) { notes.push(err); return notes; }
+    const sel = playSel('simple');
+    await tpPlay(page, sel); await tpUntil(page, 1); await page.waitForTimeout(200);
+    await tpPlay(page, sel);
+    const a = await tpSnap(page);
+    if (a.state !== 'paused' || a.cur !== 1) notes.push('pause: ' + JSON.stringify(a) + ' (want paused cur 1)');
+    await page.evaluate(() => { const b = document.querySelector('#styles button[data-style="jazz"]'); if (b) b.click(); });
+    await page.waitForTimeout(400);
+    const mid = await tpSnap(page);
+    if (mid.state !== 'paused') notes.push('after Jazz: state ' + mid.state);
+    await tpPlay(page, sel);
+    const b = await tpSnap(page);
+    if (b.state !== 'playing' || b.cur !== 1) notes.push('Resume: ' + JSON.stringify(b) + ' (want playing cur 1 / step 2)');
+    return notes;
+  });
+
+  // B2: Expert, Pop Four-Chord, key change while paused: highlight kept, Next = step 3, Resume = step 2; style change on the QA song too.
+  await tpCase('390x844 expert B2 key change while paused, Next and Resume', 390, 844, 'test=1&hour=12&expert=1', async page => {
+    const notes = [];
+    if (await landedMode(page) !== 'expert') await switchTo(page, 'expert');
+    await prepare(page, 'expert');
+    const sel = playSel('expert');
+    await tpPlay(page, sel); await tpUntil(page, 1); await page.waitForTimeout(200);
+    await tpPlay(page, sel);
+    const a = await tpSnap(page);
+    if (a.state !== 'paused' || a.cur !== 1) notes.push('pause: ' + JSON.stringify(a));
+    await page.evaluate(() => window.__setKey(2, 'major'));
+    await page.waitForTimeout(400);
+    const mid = await tpSnap(page);
+    if (mid.state !== 'paused' || mid.cur !== 1) notes.push('after key D: ' + JSON.stringify(mid) + ' (want paused cur 1)');
+    if (mid.pos !== 2) notes.push('walk after key D: pos=' + mid.pos + ' (want 2)');
+    await page.locator(nextSel('expert')).click(); await page.waitForTimeout(300);
+    const nx = await tpSnap(page);
+    if (nx.state !== 'paused' || nx.cur !== 2) notes.push('Next after key change: ' + JSON.stringify(nx) + ' (want paused cur 2 / step 3)');
+    return notes;
+  });
+  await tpCase('390x844 expert B2 key change while paused then Resume', 390, 844, 'test=1&hour=12&expert=1', async page => {
+    const notes = [];
+    if (await landedMode(page) !== 'expert') await switchTo(page, 'expert');
+    await prepare(page, 'expert');
+    const sel = playSel('expert');
+    await tpPlay(page, sel); await tpUntil(page, 1); await page.waitForTimeout(200);
+    await tpPlay(page, sel);
+    await page.evaluate(() => window.__setKey(2, 'major'));
+    await page.waitForTimeout(400);
+    const mid = await tpSnap(page);
+    if (mid.state !== 'paused' || mid.cur !== 1) notes.push('after key D: ' + JSON.stringify(mid));
+    await tpPlay(page, sel);
+    const b = await tpSnap(page);
+    if (b.state !== 'playing' || b.cur !== 1) notes.push('Resume after key change: ' + JSON.stringify(b) + ' (want playing cur 1)');
+    return notes;
+  });
+  await tpCase('390x844 expert B2 style change on QA song while paused, Next and Resume', 390, 844, 'test=1&hour=12&expert=1', async page => {
+    const notes = [];
+    if (await landedMode(page) !== 'expert') await switchTo(page, 'expert');
+    await prepare(page, 'expert');
+    const err = await loadQa(page);
+    if (err) { notes.push(err); return notes; }
+    const sel = playSel('expert');
+    await tpPlay(page, sel); await tpUntil(page, 1); await page.waitForTimeout(200);
+    await tpPlay(page, sel);
+    const a = await tpSnap(page);
+    if (a.state !== 'paused' || a.cur !== 1) notes.push('pause: ' + JSON.stringify(a));
+    await page.evaluate(() => { const b = document.querySelector('#styles button[data-style="jazz"]'); if (b) b.click(); });
+    await page.waitForTimeout(400);
+    const mid = await tpSnap(page);
+    if (mid.state !== 'paused' || mid.cur !== 1) notes.push('after Jazz: ' + JSON.stringify(mid) + ' (want paused cur 1)');
+    if (mid.pos !== 2) notes.push('walk after Jazz: pos=' + mid.pos + ' (want 2)');
+    // Next = step 3
+    await page.locator(nextSel('expert')).click(); await page.waitForTimeout(300);
+    const nx = await tpSnap(page);
+    if (nx.state !== 'paused' || nx.cur !== 2) notes.push('Next after style change: ' + JSON.stringify(nx) + ' (want paused cur 2)');
+    return notes;
+  });
+
+  // (1) Simple↔Expert switch while paused stays a stop; Play reads "Play song" with ▶, never Resume.
+  for (const [from, to, query] of [['simple', 'expert', 'test=1&hour=12'], ['expert', 'simple', 'test=1&hour=12&expert=1']]) {
+    await tpCase(`390x844 ${from}->${to} switch while paused is stop, Play song`, 390, 844, query, async page => {
+      const notes = [];
+      if (await landedMode(page) !== from) await switchTo(page, from);
+      await prepare(page, from);
+      await tpPlay(page, playSel(from)); await tpUntil(page, 1);
+      await tpPlay(page, playSel(from));
+      const p = await tpSnap(page);
+      if (p.state !== 'paused') notes.push('pause: ' + p.state);
+      await switchTo(page, to);
+      await page.waitForTimeout(300);
+      const m = await tpSnap(page);
+      const lab = await tpLabel(page, playSel(to));
+      const playGlyph = await glyphIsPlay(page, playSel(to));
+      if (m.state !== 'idle') notes.push('after switch: state ' + m.state + ' (want idle)');
+      if (!lab || lab.aria !== idleLab.aria || lab.title !== idleLab.title) notes.push('after switch label: ' + JSON.stringify(lab) + ' (want ' + JSON.stringify(idleLab) + ')');
+      if (!playGlyph) notes.push('after switch: Play is not ▶');
+      if (lab && lab.aria === 'Resume') notes.push('after switch: label is Resume');
+      return notes;
+    });
+  }
+
+  // (3) Kids: Home or picking another song while paused stops and resets Play to "Play song" / ▶.
+  await tpCase('390x844 kids Home while paused stops', 390, 844, 'test=1&hour=12&kv=1', async page => {
+    const notes = [];
+    await prepare(page, 'kids');
+    const sel = playSel('kids');
+    await tpPlay(page, sel); await page.waitForTimeout(400);
+    await tpPlay(page, sel);
+    const p = await tpSnap(page);
+    if (p.state !== 'paused') notes.push('pause: ' + p.state);
+    await page.evaluate(() => document.querySelector('.kv-home').click());
+    await page.waitForTimeout(300);
+    const h = await tpSnap(page);
+    const lab = await tpLabel(page, sel);
+    const playGlyph = await glyphIsPlay(page, sel);
+    if (h.state !== 'idle') notes.push('after Home: state ' + h.state + ' (want idle)');
+    if (!lab || lab.aria !== idleLab.aria || lab.title !== idleLab.title) notes.push('after Home label: ' + JSON.stringify(lab));
+    if (!playGlyph) notes.push('after Home: Play is not ▶');
+    return notes;
+  });
+  await tpCase('390x844 kids pick another song while paused stops', 390, 844, 'test=1&hour=12&kv=1', async page => {
+    const notes = [];
+    await prepare(page, 'kids');
+    const sel = playSel('kids');
+    await tpPlay(page, sel); await page.waitForTimeout(400);
+    await tpPlay(page, sel);
+    const p = await tpSnap(page);
+    if (p.state !== 'paused') notes.push('pause: ' + p.state);
+    await page.evaluate(() => { const c = document.querySelectorAll('#kv .kv-card'); if (c[1]) c[1].click(); });
+    await page.waitForTimeout(400);
+    const o = await tpSnap(page);
+    const lab = await tpLabel(page, sel);
+    const playGlyph = await glyphIsPlay(page, sel);
+    if (o.state !== 'idle') notes.push('after other song: state ' + o.state + ' (want idle)');
+    if (!lab || lab.aria !== idleLab.aria || lab.title !== idleLab.title) notes.push('after other song label: ' + JSON.stringify(lab));
+    if (!playGlyph) notes.push('after other song: Play is not ▶');
+    return notes;
+  });
 
   for (const w of walks) {
     if (w.pageNotes.length) record('toggle ' + w.label, false, w.pageNotes.join(' | '));
