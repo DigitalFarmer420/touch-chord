@@ -1,31 +1,39 @@
 // window.__* helpers for the Playwright suites. Loaded only with ?test=1 (dynamic import from main.js).
-import { secLyrics } from "./songs/fullchart.js?v=112.13";
-import { api as ChordAudio } from "./audio/index.js?v=112.13";
-import { KIDS_LYRICS } from "./songs/kids-songs.js?v=112.13";
-import { upSave, libSaveErr, libOpen, libSetVer, libDelete } from "./songs/library.js?v=112.13";
-import { progNext, magicReset, magicHome, magicPool } from "./songs/magic.js?v=112.13";
-import { paLog } from "./songs/playalong.js?v=112.13";
-import { magic, progStop, progPlay, prog, PROG_TEST, progSet, applySongKey } from "./songs/playback.js?v=112.13";
-import { PROG_BAR, PROGRESSIONS, progSteps, progNumerals } from "./songs/presets.js?v=112.13";
-import { songTempo, upSelected, upNextStep, progRingSec, progLoopBar, upKeyApply, upSetLock, upPickAlt } from "./songs/song.js?v=112.13";
-import { UP_ARTIST_MAX, UP_SKIP_MAX, UP_LIST_MAX, upListSchemaText, upListSchema13Text, upParseChord, upParseAnswer, upCheck, upSym, upFlagList, upLoadAll, upRemove } from "./songs/upload.js?v=112.13";
-import { state, shared } from "./state.js?v=112.13";
-import { wrap12 } from "./theory/quality.js?v=112.13";
-import { paHintLog } from "./ui/hints.js?v=112.13";
-import { kbChord } from "./ui/keyboard.js?v=112.13";
-import { upLyrMap, lyrState, klState } from "./ui/lyrics.js?v=112.13";
-import { laTarget, paintLookahead, nxNow, nxKeyEl, nxSigLast, nxBursts, paintNxMark, nextHintSpec } from "./ui/next.js?v=112.13";
-import { hapLog, hapTest } from "./ui/pads.js?v=112.13";
-import { setKidKey } from "./kids.js?v=112.13";
-import { updateSymbol } from "./ui/nowbox.js?v=112.13";
-import { kidsTapLog, fxTapLog } from "./ui/pulse.js?v=112.13";
-import { stripLabel } from "./ui/strip.js?v=112.13";
-import { tourI, tourLog, tourDone, tourStart, tourSteps } from "./ui/tour.js?v=112.13";
-import { paintUpload, upMode, upPromptFor, upShowErrors, upCopyText, upSetPrompt } from "./ui/upload-dialog.js?v=112.13";
+import { secLyrics } from "./songs/fullchart.js?v=112.15";
+import { api as ChordAudio } from "./audio/index.js?v=112.15";
+import { attachNoteLog } from "./audio/engine.js?v=112.15";
+import { KIDS_LYRICS } from "./songs/kids-songs.js?v=112.15";
+import { upSave, libSaveErr, libOpen, libSetVer, libDelete } from "./songs/library.js?v=112.15";
+import { progNext, magicReset, magicHome, magicPool } from "./songs/magic.js?v=112.15";
+import { paLog } from "./songs/playalong.js?v=112.15";
+import { magic, progStop, progPlay, prog, PROG_TEST, progSet, applySongKey, getTransportState } from "./songs/playback.js?v=112.15";
+import { PROG_BAR, PROGRESSIONS, progSteps, progNumerals } from "./songs/presets.js?v=112.15";
+import { songTempo, upSelected, upNextStep, progRingSec, progLoopBar, upKeyApply, upSetLock, upPickAlt } from "./songs/song.js?v=112.15";
+import { UP_ARTIST_MAX, UP_SKIP_MAX, UP_LIST_MAX, upListSchemaText, upListSchema13Text, upParseChord, upParseAnswer, upCheck, upSym, upFlagList, upLoadAll, upRemove } from "./songs/upload.js?v=112.15";
+import { state, shared } from "./state.js?v=112.15";
+import { wrap12 } from "./theory/quality.js?v=112.15";
+import { paHintLog } from "./ui/hints.js?v=112.15";
+import { kbChord } from "./ui/keyboard.js?v=112.15";
+import { upLyrMap, lyrState, klState } from "./ui/lyrics.js?v=112.15";
+import { laTarget, paintLookahead, nxNow, nxKeyEl, nxSigLast, nxBursts, paintNxMark, nextHintSpec } from "./ui/next.js?v=112.15";
+import { hapLog, hapTest } from "./ui/pads.js?v=112.15";
+import { setKidKey } from "./kids.js?v=112.15";
+import { updateSymbol } from "./ui/nowbox.js?v=112.15";
+import { kidsTapLog, fxTapLog } from "./ui/pulse.js?v=112.15";
+import { stripLabel } from "./ui/strip.js?v=112.15";
+import { tourI, tourLog, tourDone, tourStart, tourSteps } from "./ui/tour.js?v=112.15";
+import { paintUpload, upMode, upPromptFor, upShowErrors, upCopyText, upSetPrompt } from "./ui/upload-dialog.js?v=112.15";
 
 
 // Test hooks (loaded only with ?test=1)
 export function install() {
+  var noteLog = [];
+  attachNoteLog(noteLog);
+  window.__tcTest = {
+    noteLog: noteLog,
+    clear: function () { noteLog.length = 0; },
+    transport: function () { return getTransportState(); }
+  };
   if (hapTest) window.__haptic = hapLog;
   if (PROG_TEST) window.__prog = prog;
   if (PROG_TEST) window.__band = ChordAudio.band;

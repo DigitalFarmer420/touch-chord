@@ -3,39 +3,40 @@
 // #sustainBtn, the Sound / FX / Layout / Loop panel #ctl, the keys #pads) with css/expert.css and adds the
 // Expert-only controls below. Every new control drives the existing code (same functions or the same
 // buttons), so sound, timing and music theory are exactly the 351c02c ones.
-import { unlock } from "../audio/unlock.js?v=112.13";
-import { api as ChordAudio } from "../audio/index.js?v=112.13";
-import { stopPlayback } from "../loop.js?v=112.13";
-import { activeKey } from "../keys.js?v=112.13";
-import { setKidKey } from "../kids.js?v=112.13";
-import { prog, progSet, placeBadges, setBadgeAvoid, magic, progStop, progWalkAt, progWalkTo } from "../songs/playback.js?v=112.13";
-import { magicQueue } from "../songs/magic.js?v=112.13";
-import { nextHintSpec } from "../ui/next.js?v=112.13";
-import { setHintAvoid } from "../ui/hints.js?v=112.13";
-import { progFeel, progSteps } from "../songs/presets.js?v=112.13";
-import { progLockPick } from "../songs/proghold.js?v=112.13";
-import { upSelected, upCurStep, upNextStep, upA, progLoopBar, songTempo } from "../songs/song.js?v=112.13";
-import { songCue, cueSoon, cueClock, cuePieces, placeCueTag, cueChipClass } from "../ui/chordcue.js?v=112.13";
-import { upSym, upSecName } from "../songs/upload.js?v=112.13";
-import { upLyrMap, lyrPad } from "../ui/lyrics.js?v=112.13";
-import { state, shared, fingers, loop, scheduleSave } from "../state.js?v=112.13";
-import { accSym } from "../theory/spelling.js?v=112.13";
-import { Theory } from "../theory/index.js?v=112.13";
-import { paintKeyChip, keyLabel } from "../ui/keychip.js?v=112.13";
-import { fitNowSymbol } from "../ui/nowbox.js?v=112.13";
-import { computeSpec, renderPads, refreshHeld, setWinKeys } from "../ui/pads.js?v=112.13";
-import { liftFinger } from "../ui/touch.js?v=112.13";
-import { stripRelease } from "../ui/strip.js?v=112.13";
-import { fitStrip, stripLabel, stripChips } from "../ui/strip.js?v=112.13";
-import { setExpert as setKidsViewOff, setModeHandler, kidsStartOver, setTheme as setKidsTheme } from "../kids/view.js?v=112.13";
-import { setSimple } from "../ui/layout.js?v=112.13";
-import { libSetVer } from "../songs/library.js?v=112.13";
-import { secLyrics } from "../songs/fullchart.js?v=112.13";
-import { KEYS_CHOICES, makeChip, configureSheet, openModeSheet, bootSheet, paintSheet, sheetOpen } from "../ui/modesheet.js?v=112.13";
-import { registerLook, lookApplyNow, lookShown } from "../ui/look.js?v=112.13";
-import { toggleHelpMenu } from "../ui/helpmenu.js?v=112.13";   // redesign-dev: the Kids view (kids-build) is the switch's Kids
+import { unlock } from "../audio/unlock.js?v=112.15";
+import { api as ChordAudio } from "../audio/index.js?v=112.15";
+import { stopPlayback } from "../loop.js?v=112.15";
+import { activeKey } from "../keys.js?v=112.15";
+import { setKidKey } from "../kids.js?v=112.15";
+import { prog, progSet, placeBadges, setBadgeAvoid, magic, progStop, progWalkAt, progWalkTo, playButtonLabel } from "../songs/playback.js?v=112.15";
+import { magicQueue } from "../songs/magic.js?v=112.15";
+import { nextHintSpec } from "../ui/next.js?v=112.15";
+import { setHintAvoid } from "../ui/hints.js?v=112.15";
+import { progFeel, progSteps } from "../songs/presets.js?v=112.15";
+import { progLockPick } from "../songs/proghold.js?v=112.15";
+import { upSelected, upCurStep, upNextStep, upA, progLoopBar, songTempo } from "../songs/song.js?v=112.15";
+import { songCue, cueSoon, cueClock, cuePieces, placeCueTag, cueChipClass } from "../ui/chordcue.js?v=112.15";
+import { upSym, upSecName } from "../songs/upload.js?v=112.15";
+import { upLyrMap, lyrPad } from "../ui/lyrics.js?v=112.15";
+import { state, shared, fingers, loop, scheduleSave } from "../state.js?v=112.15";
+import { tapSimpleSrc, paintSimpleSrc } from "../ui/simplesrc.js?v=112.15";
+import { accSym } from "../theory/spelling.js?v=112.15";
+import { Theory } from "../theory/index.js?v=112.15";
+import { paintKeyChip, keyLabel } from "../ui/keychip.js?v=112.15";
+import { fitNowSymbol } from "../ui/nowbox.js?v=112.15";
+import { computeSpec, renderPads, refreshHeld, setWinKeys } from "../ui/pads.js?v=112.15";
+import { liftFinger } from "../ui/touch.js?v=112.15";
+import { stripRelease } from "../ui/strip.js?v=112.15";
+import { fitStrip, stripLabel, stripChips } from "../ui/strip.js?v=112.15";
+import { setExpert as setKidsViewOff, setModeHandler, kidsStartOver, setTheme as setKidsTheme } from "../kids/view.js?v=112.15";
+import { setSimple } from "../ui/layout.js?v=112.15";
+import { libSetVer } from "../songs/library.js?v=112.15";
+import { secLyrics } from "../songs/fullchart.js?v=112.15";
+import { KEYS_CHOICES, makeChip, configureSheet, openModeSheet, bootSheet, paintSheet, sheetOpen } from "../ui/modesheet.js?v=112.15";
+import { registerLook, lookApplyNow, lookShown } from "../ui/look.js?v=112.15";
+import { toggleHelpMenu } from "../ui/helpmenu.js?v=112.15";   // redesign-dev: the Kids view (kids-build) is the switch's Kids
 import { EXPERT_STORE, parsePref, prefFromUrl, modeOf, modeTarget, typeBarInit, typeBarReduce, typeBarLabel, TYPEBAR_HOLD_MS,
-  sourceInit, sourceReduce, progDots, songCardRows, STYLE_MENU, styleName, expertWindowKeys, expertStyleFix, fullToExpert, chartFor } from "./model.js?v=112.13";
+  sourceInit, sourceReduce, progDots, songCardRows, STYLE_MENU, styleName, expertWindowKeys, expertStyleFix, fullToExpert, chartFor } from "./model.js?v=112.15";
 // rd6: ?test=1&classic=1 keeps the legacy classic screens (Full layout, Kids style chip in Simple) for the sound-equivalence
 // suites (audioeq / kvaudio replay the 351c02c taps). Users can no longer reach them.
 const CLASSIC = /[?&]test=1(&|$)/.test(location.search) && /[?&]classic=1(&|$)/.test(location.search);
@@ -169,6 +170,9 @@ function paintMode() {
     renderPads(); refreshHeld(); paintKeyChip(computeSpec());
     setTimeout(function () { fitStrip(); placeBadges(); fitNowSymbol(); }, 0);
   }
+  // PR #5 (Uiux): #xTog is shared with Simple's top bar, so every mode change puts it back in the active mode's slot
+  // (Expert: placeTog's top-bar slot or the column; Simple: header.topbar). Each mode keeps its own Song | Progressions view.
+  if (on) placeTog(); else paintSimpleSrc();
   paintModeSegs();
   paintSimpleLook();
   syncChart();
@@ -219,7 +223,7 @@ function build() {
   var tog = el("div", "x-seg x-tog", "<button type=\"button\" data-v=\"song\" role=\"tab\">\u266c Song</button><button type=\"button\" data-v=\"prog\" role=\"tab\">\u25a6 Progressions</button>", { id: "xTog", role: "tablist", "aria-label": "Song or progressions" });
   var go = el("div", "x-go", null, { id: "xGo" });
   go.appendChild(el("button", "x-b x-next", "Next \u279c", { id: "xNext", "aria-label": "Next chord" }));
-  go.appendChild(el("button", "x-b x-play", "\u25b6", { id: "xPlay", "aria-label": "Play song", "aria-pressed": "false" }));
+  go.appendChild(el("button", "x-b x-play", "\u25b6", { id: "xPlay", "aria-label": "Play song" }));
   var song = el("div", "x-src", null, { id: "xSrc" });
   var list = el("div", "x-plist", null, { id: "xPList", role: "listbox", "aria-label": "Progressions", hidden: "" });
   var ctl = el("div", "x-ctl", null, { id: "xCtl" });
@@ -295,6 +299,60 @@ function placeSheets() {
   var s = $("xSrc").getBoundingClientRect();
   $("xPList").style.top = Math.round(s.bottom + 6) + "px";
   document.documentElement.style.setProperty("--x-pl-top", Math.round(s.bottom + 6) + "px");
+  fitProgList();
+}
+// The open Progressions list stays above the piano. When it still scrolls, only complete rows are shown and the
+// bottom fades, so the scroll is obvious and no row is left sitting under the keys.
+function fitProgList() {
+  var L = $("xPList"); if (!L || L.hidden) return;
+  var kb = document.querySelector(".kb-wrap"); if (!kb) return;
+  var top = L.getBoundingClientRect().top;
+  var avail = Math.max(80, Math.floor(kb.getBoundingClientRect().top - top - 8));
+  L.style.maxHeight = avail + "px";
+  if (L.scrollHeight <= avail + 1) {
+    L.style.maxHeight = Math.min(L.scrollHeight, avail) + "px";
+    L.classList.remove("x-more");
+    return;
+  }
+  var de = document.documentElement;
+  if (de.classList.contains("lay-pad-land") || de.classList.contains("lay-pad-port")
+      || de.classList.contains("lay-phone-land") || de.classList.contains("sz-medium")) {
+    // N13: iPad keeps all the room above the piano. N17: phone landscape and sz-medium (744x1133) do the same.
+    // The faded part row shows it scrolls. Whole-row trim stays for compact phone portrait only (390x844).
+    paintProgMore();
+    return;
+  }
+  var cs = getComputedStyle(L);
+  var padBot = parseFloat(cs.paddingBottom) + parseFloat(cs.borderBottomWidth);
+  var rows = L.querySelectorAll(".x-prow");
+  var lastFit = 0, i, bottom, h;
+  for (i = 0; i < rows.length; i++) {
+    bottom = rows[i].offsetTop + rows[i].offsetHeight;
+    if (bottom + padBot <= avail) lastFit = bottom;
+    else break;
+  }
+  h = lastFit + padBot;
+  if (h < 80) h = avail;
+  L.style.maxHeight = Math.floor(h) + "px";
+  paintProgMore();
+}
+// N13: when the list opens, the picked row is fully in view and clear of the bottom fade (centred when it was not).
+function showProgPick() {
+  var L = $("xPList"); if (!L || L.hidden) return;
+  var on = L.querySelector(".x-prow.on"); if (!on) return;
+  var lr = L.getBoundingClientRect(), br = on.getBoundingClientRect(), cs = getComputedStyle(L);
+  var bt = parseFloat(cs.borderTopWidth) || 0;
+  var top = br.top - lr.top - bt + L.scrollTop, bot = top + br.height;
+  var fade = L.scrollHeight > L.clientHeight + 1 ? (parseFloat(cs.getPropertyValue("--x-pl-fade")) || 28) : 0;   // N17: fade height from --x-pl-fade (28 default, 16 in phone landscape)
+  if (top >= L.scrollTop && bot <= L.scrollTop + L.clientHeight - fade) return;
+  L.scrollTop = Math.max(0, Math.min(L.scrollHeight - L.clientHeight, top - (L.clientHeight - br.height) / 2));
+  paintProgMore();
+}
+function paintProgMore() {
+  var L = $("xPList"); if (!L) return;
+  var last = L.querySelectorAll(".x-prow")[L.querySelectorAll(".x-prow").length - 1], more = false;
+  if (last) more = last.getBoundingClientRect().bottom > L.getBoundingClientRect().bottom + 1;   // the footnote under the last row does not keep the fade on
+  L.classList.toggle("x-more", more);
 }
 // rd5 (Uiux, landscape phone): the open Style list grows into the space below (8px safe margin) so it shows every row that
 // fits; when it still scrolls, it stops half way through a row and fades at the bottom, so the scroll is obvious.
@@ -328,7 +386,9 @@ function paintStyleMore() {
   m.classList.toggle("x-more", m.scrollHeight - m.clientHeight - m.scrollTop > 4);
 }
 function placeTog() {   // landscape: the Song | Progressions toggle sits in the top bar's free middle (iPad landscape mockup)
+  if (state.simple && !active) return;   // Simple owns #xTog while that mode is on (header.topbar)
   var tog = $("xTog"), slot = document.querySelector("#xTop .x-slot");
+  if (!tog || !slot) return;
   if (isLand()) { if (tog.parentNode !== slot) slot.appendChild(tog); }
   else if (tog.parentNode !== $("app")) $("app").insertBefore(tog, $("xGo"));
 }
@@ -448,14 +508,18 @@ function watchMarks() {   // the classic code repaints the keys often (held / nx
 // ---------- Song | Progressions (decision 8) ----------
 function srcDo(a) {
   var r = sourceReduce(src, a, srcCtx());
+  var opened = r.s.listOpen && !src.listOpen;   // N13: this action opens the list
   src = r.s; lastSel = upSelected();
   xLog.src.push((typeof a === "string" ? a : a.type) + ":" + src.view + (src.listOpen ? "+list" : ""));
   if (r.fx === "openLibrary") { closeAll(); click("#uploadBtn"); }
   else if (r.fx === "selectSong") { for (var i = 0; i < prog.list.length; i++) if (prog.list[i].up) { progSet(i); break; } }
   else if (r.fx && r.fx.pick != null) progSet(r.fx.pick);
   $("xScrim").classList.toggle("x-clear", src.listOpen && !document.documentElement.classList.contains("x-sheet-on"));
-  if (src.listOpen) { $("xScrim").hidden = false; placeSheets(); } else if ($("xScrim") && !document.documentElement.classList.contains("x-sheet-on")) $("xScrim").hidden = true;
+  if (src.listOpen) $("xScrim").hidden = false;
+  else if ($("xScrim") && !document.documentElement.classList.contains("x-sheet-on")) $("xScrim").hidden = true;
   paintSrc();
+  if (src.listOpen) placeSheets();   // after paint: the bar height is final, then the list is sized to sit above the piano
+  if (opened) showProgPick();
 }
 export function sourceState() { return Object.assign({}, src); }
 function paintSrc() {
@@ -633,8 +697,9 @@ export function paint() {
   $("xFull").classList.toggle("on", !!state.allKeys);
   var fs = $("xFull").querySelector(".x-fsub"), ft = state.allKeys ? "all 12" : "in key only";
   if (fs.textContent !== ft) { fs.textContent = ft; $("xFull").setAttribute("aria-label", "All notes: " + ft); }
-  var ps = document.querySelector("#prog .pg-song"), pon = !!(ps && ps.classList.contains("on"));
-  $("xPlay").textContent = pon ? "\u25a0" : "\u25b6"; $("xPlay").setAttribute("aria-pressed", pon ? "true" : "false"); $("xPlay").setAttribute("aria-label", pon ? "Stop song" : "Play song");
+  // Play stays ▶ while a song plays (never ■ Stop), at every size. Label: Play song / Pause / Resume.
+  var xl = playButtonLabel();
+  $("xPlay").textContent = "\u25b6"; $("xPlay").removeAttribute("aria-pressed"); $("xPlay").setAttribute("aria-label", xl.aria); $("xPlay").title = xl.title;
   var v = $("volume"); if (v) { $("xVol").value = v.value; $("xVolVal").textContent = v.value; }
   paintType();
   paintSrc();
@@ -654,8 +719,10 @@ function wireAll() {
   $("xHelp").addEventListener("click", function (e) { closeAll(); toggleHelpMenu(e.currentTarget); });   // rd17: How to / Tour menu
   $("xNext").addEventListener("click", function () { click("#prog .pg-step"); schedule(); });
   $("xPlay").addEventListener("click", function () { click("#prog .pg-song"); schedule(); });
+  window.addEventListener("tc:transport", schedule);   // Play label follows pause / resume from any path (hidden tab, Next)
   $("xTog").addEventListener("click", function (e) {
     var b = e.target.closest("button[data-v]"); if (!b) return;
+    if (state.simple) { tapSimpleSrc(b.dataset.v); return; }
     srcDo(b.dataset.v === "song" ? "tapSong" : "tapProg");
   });
   $("xSrc").addEventListener("click", function (e) {
@@ -668,6 +735,7 @@ function wireAll() {
     var b = e.target.closest("button[data-i]"); if (!b) return;
     unlock(); srcDo({ type: "pick", i: +b.dataset.i });
   });
+  $("xPList").addEventListener("scroll", paintProgMore, { passive: true });
   $("xScrim").addEventListener("click", function () { closeAll(); });
   $("xFull").addEventListener("click", function () { click("#allKeys"); schedule(); });
   $("xKeysChip").addEventListener("click", function () { closeAll(); setKeys(nextKeys()); });
@@ -717,7 +785,7 @@ function wireAll() {
   setInterval(function () { if (!active || xCue.j < 0) return; if (upCurStep() !== xCue.pc) paintSrc(); else paintCue(); }, 60);   // v3.2 test.5: the cue moves on once its chord plays
   window.addEventListener("resize", function () { if (active && $("xSrc")) fitLyrRow($("xSrc")); });   // P4: re-fit the sung word after a rotation
   var rz = 0;
-  function onResize() { clearTimeout(rz); rz = setTimeout(function () { if (!active) return; placeTog(); placeSheets(); fitStrip(); placeBadges(); fitNowSymbol(); paintSrc(); }, 80); }   // test.5: the cue name is inline / above by layout
+  function onResize() { clearTimeout(rz); rz = setTimeout(function () { if (!active) return; placeTog(); placeSheets(); fitStrip(); placeBadges(); fitNowSymbol(); paintSrc(); if (src.listOpen) showProgPick(); }, 80); }   // test.5: the cue name is inline / above by layout
   window.addEventListener("resize", onResize); window.addEventListener("orientationchange", onResize);
 }
 

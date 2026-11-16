@@ -3,9 +3,11 @@
    Mockups: /workspace/touchchord-review/redesign/expert-v9-*.png (phone), expert-ipad-v2-*.png (iPad). */
 
 /* ---------- Expert-only elements: never shown outside Expert ---------- */
-html:not(.expert) #xTop, html:not(.expert) #xTog, html:not(.expert) #xGo, html:not(.expert) #xSrc, html:not(.expert) #xPList,
+/* #xTog is lifted for Simple (same Song | Progressions track). Kids and classic stay hidden. */
+html:not(.expert) #xTop, html:not(.expert) #xGo, html:not(.expert) #xSrc, html:not(.expert) #xPList,
 html:not(.expert) #xCtl, html:not(.expert) #xScrim, html:not(.expert) #xStyleMenu, html:not(.expert) #xKeySheet,
 html:not(.expert) #xSettings, html:not(.expert) .x-volrow { display: none !important; }
+html:not(.expert):not(.simple) #xTog, html.kv #xTog { display: none !important; }
 [hidden].x-scrim, [hidden].x-menu, [hidden].x-sheet, [hidden].x-plist { display: none !important; }
 /* Decision 11: the mode switch in the classic gear menu */
 .x-gearmode { display: flex; align-items: center; gap: 8px; padding: 6px 10px 8px; border-bottom: 1px solid var(--line); }
@@ -15,12 +17,26 @@ html:not(.expert) #xSettings, html:not(.expert) .x-volrow { display: none !impor
 
 /* ---------- Theme: Lamplight (decision 1, default) and Day ---------- */
 html.expert.x-lamp { --x-bg: #1E1914; --x-surface: #2A231C; --x-card: #2F271F; --x-ink: #F4EAD9; --x-muted: #B9A890; --x-line: #43382C;
-  --x-gold: #FFC21A; --x-gold-deep: #E39A00; --x-next: #2F8F83; --x-next-l: #4FB3A5; --x-danger: #E07A62; --x-onink: #1E1914;
+  --x-gold: #FFC21A; --x-gold-deep: #E39A00; --x-next: #2A8075; --x-next-l: #4FB3A5; --x-danger: #E07A62; --x-onink: #1E1914;
   --x-happy: #7FD3B5; --x-sad: #9AAAD6; --x-tension: #6E5C4C; --x-borrow: #F2B48A; --x-gridbg: rgba(0,0,0,.18); --x-sus: #3a3026; --x-susb: #6b5a46; }
 html.expert.x-day { --x-bg: #F6EFE3; --x-surface: #FFFFFF; --x-card: #FBF6EE; --x-ink: #2B2118; --x-muted: #7A6855; --x-line: #E2D6C4;
-  --x-gold: #FFC21A; --x-gold-deep: #E39A00; --x-next: #2F8F83; --x-next-l: #2F8F83; --x-danger: #C4553E; --x-onink: #FFFFFF;
+  --x-gold: #FFC21A; --x-gold-deep: #E39A00; --x-next: #2A8075; --x-next-l: #2A8075; --x-danger: #C4553E; --x-onink: #FFFFFF;
   --x-happy: #7FD3B5; --x-sad: #9AAAD6; --x-tension: #6E5C4C; --x-borrow: #A34B1C; --x-gridbg: rgba(0,0,0,.05); --x-sus: #EFE5D6; --x-susb: #B9A890; }
 html.expert, html.expert body { background: var(--x-bg); color: var(--x-ink); }
+
+/* Lamp contrast (Uiux LAMP-SPEC): piano key colours as tokens so the later .nokey rule
+   cannot overwrite the AA inks again. In-key colours are unchanged. Out-of-key bodies stay
+   the later P7 fills; inks are the earlier readable values. */
+html.expert {
+  --x-wkey: #F7F1E6;
+  --x-wkey-ink: #6B5A48;       /* in-key white, already 5.87:1 */
+  --x-wkey-nokey: #E0D8CE;
+  --x-wkey-nokey-ink: #6B543E; /* was #806F5D; restored earlier ink, 5.02:1 */
+  --x-bkey: #2A2119;
+  --x-bkey-ink: #A89680;       /* in-key black, already 5.52:1 */
+  --x-bkey-nokey: #4A4036;
+  --x-bkey-nokey-ink: #D7C4AE; /* was #A89884; restored earlier ink, 5.97:1 */
+}
 
 /* ---------- Hidden in Expert (replaced by the Expert controls; still in the DOM, still wired) ---------- */
 html.expert header.topbar, html.expert #styles, html.expert .now-col > :not(.now-card), html.expert #keyRow,
@@ -43,8 +59,10 @@ html.expert.x-types-open #app {
   grid-template-areas: "xtop xtop xtop xtop" "xtog xtog xtog xgo" "now xsrc xsrc xsrc" "grid grid grid grid" "sus sus xctl xctl" "sus sus pal pal" "kb kb kb kb" !important;
 }
 /* iPad portrait (820x1180) */
-html.expert.lay-pad-port #app { --x-g: 10px; --x-now-w: 150px; --x-row: 64px; --x-src-h: 88px; --x-ctl-h: 72px; --x-chip-r: 16px; --x-fs: 21px; --x-pal-h: 140px; --x-grid-h: 400px; padding: 16px 16px 12px !important; }
-html.expert.lay-pad-port.x-types-open #app { --x-grid-h: 380px; }
+/* Fluid (anchored at 820x1180: the values below equal 150 / 72 / 400 / 380 px there). Now column follows the width; the
+   Sustain/Sound/All notes row and the chord grid follow the height, and the keyboard keeps the rest (1fr). */
+html.expert.lay-pad-port #app { --x-g: 10px; --x-now-w: clamp(140px, calc(150 / 820 * 100vw), 220px); --x-row: 64px; --x-src-h: 88px; --x-ctl-h: clamp(56px, calc(72 / 1180 * 100dvh), 96px); --x-chip-r: 16px; --x-fs: 21px; --x-pal-h: 140px; --x-grid-h: clamp(340px, calc(400 / 1180 * 100dvh), 600px); padding: 16px 16px 12px !important; }
+html.expert.lay-pad-port.x-types-open #app { --x-grid-h: clamp(320px, calc(380 / 1180 * 100dvh), 570px); }
 /* Landscape, phone and tablet: the playable chord grid is on the right.
    Sustain and the control column keep their old width, on the left. Not the paused rd18 relayout. */
 html.expert.lay-pad-land #app, html.expert.lay-phone-land #app {
@@ -87,13 +105,17 @@ html.expert #xTop .mode-chip { flex: 0 0 auto; color: var(--x-gold); border-colo
 html.expert #xTop .x-help { flex: 0 0 44px; width: 44px; height: 44px; min-width: 44px; min-height: 44px; align-self: center; border-radius: 50%; padding: 0; display: inline-flex; align-items: center; justify-content: center; }   /* rd7: the same 44px circle as Simple's "?" */
 html.expert #xTop .x-help svg { display: block; }
 html.expert #xTop .x-style.open { border-color: var(--x-gold); color: var(--x-ink); }
-html.expert.lay-pad-port #xTop .x-key, html.expert.lay-pad-land #xTop .x-key { flex-basis: 190px; }
-html.expert.lay-pad-port #xTop .x-style, html.expert.lay-pad-land #xTop .x-style { flex-basis: 170px; }
-html.expert.lay-pad-port #xTop .mode-chip, html.expert.lay-pad-land #xTop .mode-chip { flex-basis: 120px; }
+/* iPad portrait top row, fluid with the width (190 / 170 / 120 px at 820 wide). Landscape sizes are in the large-screen layer. */
+html.expert.lay-pad-port #xTop .x-key { flex-basis: clamp(160px, calc(190 / 820 * 100vw), 260px); }
+html.expert.lay-pad-port #xTop .x-style { flex-basis: clamp(144px, calc(170 / 820 * 100vw), 232px); }
+html.expert.lay-pad-port #xTop .mode-chip { flex-basis: clamp(104px, calc(120 / 820 * 100vw), 164px); }
 html.expert #xTop .x-slot #xTog { flex: 0 1 380px; }
 
 /* ---------- Song | Progressions (decision 8) ---------- */
-html.expert #xTog { height: 100%; box-sizing: border-box; }
+/* Above #xScrim (z-index 50) so Song | Progressions stays visible and tappable while
+   the Progressions list is open. Tapping Song then closes the sheet and switches back
+   in one tap; a tap on the scrim elsewhere still dismisses it. */
+html.expert #xTog { height: 100%; box-sizing: border-box; position: relative; z-index: 55; }
 html.expert #xTog button.on { background: var(--x-ink); color: var(--x-onink); }
 html.expert #xGo { display: flex; gap: var(--x-g); min-width: 0; }
 html.expert #xGo .x-next { background: var(--x-next); border-color: transparent; color: #fff; padding: 0 12px; font-family: Fredoka, Nunito, system-ui, sans-serif; }
@@ -140,9 +162,11 @@ html.expert.lay-phone-land .x-plock .x-lki { font-size: 13px; line-height: 1; }
 html.expert.lay-phone-land .x-plock { z-index: 1; }
 html.expert.lay-phone-land .x-plock::after { top: -3.5px; bottom: -6.5px; height: auto; transform: translateX(-50%); }   /* the 32px row: the tap area grows into the free gaps only, never over the top bar or the strip chips */
 html.expert .x-pn small, html.expert .x-prow small { font: 700 11.5px Nunito, system-ui, sans-serif; color: var(--x-muted); margin-left: 4px; }
-/* the progression list opens over the grid, never over the keys */
-html.expert #xPList { position: fixed; z-index: 60; left: 12px; right: 12px; max-height: calc(var(--x-kb-top, 70vh) - var(--x-pl-top, 200px) - 6px); overflow: auto;
+/* the progression list opens over the grid, never over the keys (JS fitProgList ends 8px above the piano; iPad, phone landscape and sz-medium keep all of that room) */
+html.expert #xPList { --x-pl-fade: 28px; position: fixed; z-index: 60; left: 12px; right: 12px; max-height: calc(var(--x-kb-top, 70vh) - var(--x-pl-top, 200px) - 8px); overflow: auto;
   background: var(--x-surface); border: 1.5px solid var(--x-line); border-radius: 18px; padding: 10px; box-shadow: 0 14px 30px rgba(0,0,0,.5); box-sizing: border-box; }
+html.expert #xPList.x-more { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--x-pl-fade)), rgba(0,0,0,.35)); mask-image: linear-gradient(to bottom, #000 calc(100% - var(--x-pl-fade)), rgba(0,0,0,.35)); }
+html.expert.lay-phone-land #xPList { --x-pl-fade: 16px; }   /* N17: a peeking part row plus 16px fade is enough to show it scrolls on a short list */
 html.expert.lay-pad-port #xPList { left: 170px; right: 16px; } html.expert.lay-pad-land #xPList, html.expert.lay-phone-land #xPList { left: 25%; right: 25%; }
 html.expert .x-prow { display: block; width: 100%; height: auto; min-height: 58px; margin-top: 8px; padding: 6px 10px;
   border-radius: 14px; background: var(--x-card); border: 1.5px solid var(--x-line); color: var(--x-ink); text-align: left; box-sizing: border-box; overflow: visible; }
@@ -154,7 +178,9 @@ html.expert .x-pc { font-style: normal; min-width: 30px; height: 30px; padding: 
   font: 600 12.5px Fredoka, Nunito, system-ui, sans-serif; background: var(--x-happy); color: #22180f; }
 html.expert .x-pc.minor, html.expert .x-pc.dim { background: var(--x-sad); }
 html.expert .x-pnote { margin: 10px 2px 2px; font-size: 12px; color: var(--x-muted); }
-html.expert.lay-phone-land .x-prow { min-height: 44px; margin-top: 5px; }
+html.expert.lay-phone-land .x-prow { display: flex; align-items: center; gap: 8px; min-height: 44px; margin-top: 5px; padding: 6px 10px; }   /* N17: one-line rows in phone landscape; 7-chip rows may wrap */
+html.expert.lay-phone-land .x-prow > .x-pcol { flex: 0 0 96px; width: 96px; }
+html.expert.lay-phone-land .x-pchips { flex: 1 1 auto; width: auto; margin-top: 0; }
 
 /* ---------- NOW box ---------- */
 html.expert .now-col { display: flex !important; min-height: 0; }
@@ -241,8 +267,8 @@ html.expert #palette button.nofit { opacity: .4; }
 /* ---------- keys: docked C–B, 7 white keys (decision 10) ---------- */
 html.expert .kb-wrap { min-height: 0; background: #0f0d0b; border-radius: 16px; padding: 4px; box-sizing: border-box; }
 html.expert .phase-track { display: none; }
-html.expert .kb.piano .pad.white { background: #F7F1E6; color: #6b5a48; border-radius: 0 0 10px 10px; position: relative; }
-html.expert .kb.piano .pad.black { background: #2a2119; border: 1.5px solid #4a3c2e; border-top: 0; color: #a89680; }
+html.expert .kb.piano .pad.white { background: var(--x-wkey); color: var(--x-wkey-ink); border-radius: 0 0 10px 10px; position: relative; }
+html.expert .kb.piano .pad.black { background: var(--x-bkey); border: 1.5px solid #4a3c2e; border-top: 0; color: var(--x-bkey-ink); }
 
 /* ---------- sheets / menus ---------- */
 html.expert #xScrim { position: fixed; left: 0; right: 0; top: 0; height: var(--x-kb-top, 100%); background: rgba(0,0,0,.45); z-index: 50; }
@@ -312,8 +338,8 @@ html.expert:not(.pa-off) .kb.piano .pad.nx:not(.held):not(.x-pclit), html.expert
 html.expert.pa-off .kb.piano .pad.nx:not(.held) { outline: none !important; }
 /* Out-of-key keys stay quieter than in-key keys, but the note name stays readable and the warm outline stays visible.
    Opacity .45 had dropped the white-key name to about 2.5:1 and washed out the orange bar. */
-html.expert .kb.piano .pad.black.nokey { opacity: 1; background: #3a3129; color: #D7C4AE; border-color: #A34B1C; }
-html.expert .kb.piano .pad.white.nokey { opacity: 1; background: #EFE3D2; color: #6B543E; box-shadow: inset 0 0 0 2px #A34B1C, inset 0 -4px 0 #A34B1C; }
+html.expert .kb.piano .pad.black.nokey { opacity: 1; background: var(--x-bkey-nokey); color: var(--x-bkey-nokey-ink); border-color: #A34B1C; }
+html.expert .kb.piano .pad.white.nokey { opacity: 1; background: var(--x-wkey-nokey); color: var(--x-wkey-nokey-ink); box-shadow: inset 0 0 0 2px #A34B1C, inset 0 -4px 0 #A34B1C; }
 html.expert #xScrim.x-clear { background: transparent; }
 html.expert .x-mk.wk { height: 100%; box-sizing: border-box; }
 html.expert .x-mbk .x-mk.bk { height: 100%; }
@@ -506,6 +532,7 @@ html.expert.lay-phone-land #app { --x-side: 148px; --x-sus-h: 56px; --x-src-h: 4
    never slide under the keys (780x360: 96 css, as before). */
 html.expert.lay-phone-land #xCtl { grid-template-rows: minmax(48px, 1fr) minmax(48px, 1fr); }
 html.expert.lay-phone-land #xGo .x-play { width: 40px; }   /* P4 note: keep Play at its old width when the card grows to 46 */
+html.expert.lay-phone-land #xGo > .x-b { height: auto; min-height: 0; align-self: stretch; }   /* Next / Play fill the song-card row: 46 tall at 390+ (were 32), 40 on 330-tall screens */
 @media (max-height: 348px) {   /* 800x330: SUSTAIN stays 48 so two 48 rows still fit */
   html.expert.lay-phone-land #app { --x-sus-h: 48px; --x-src-h: 40px; --x-kb-h: 96px; }
   html.expert.lay-phone-land.x-types-open #app { --x-kb-h: 88px; }
@@ -547,9 +574,10 @@ html.expert.lay-phone-land .x-plock { width: 48px; }
 /* P6 borrowed chords: one solid warm edge on a soft tint (the 2px dashed edge broke up differently on every chip) */
 html.expert #suggest .ss-chip.borrowed { background: rgba(163, 75, 28, .07); border: 1.5px solid rgba(163, 75, 28, .55); color: var(--x-borrow); }
 html.expert.x-lamp #suggest .ss-chip.borrowed { background: rgba(242, 180, 138, .10); border-color: rgba(242, 180, 138, .55); }
-/* P7 out-of-key keys: the owner's "Soft fade". Labels fade by colour (3.4:1 / 3.6:1), not opacity; no teal minor tip. */
-html.expert .kb.piano .pad.white.nokey { background: #E0D8CE; color: #806F5D; box-shadow: inset 0 0 0 2px #A34B1C, inset 0 -4px 0 #A34B1C; }
-html.expert .kb.piano .pad.black.nokey { background: #4A4036; color: #A89884; border-color: #A34B1C; box-shadow: none !important; }
+/* P7 out-of-key keys: the owner's "Soft fade". Bodies stay the later fills; inks are the
+   earlier AA values (white 5.02:1, black 5.97:1) via tokens, so this rule cannot wash them out again. No teal minor tip. */
+html.expert .kb.piano .pad.white.nokey { background: var(--x-wkey-nokey); color: var(--x-wkey-nokey-ink); box-shadow: inset 0 0 0 2px #A34B1C, inset 0 -4px 0 #A34B1C; }
+html.expert .kb.piano .pad.black.nokey { background: var(--x-bkey-nokey); color: var(--x-bkey-nokey-ink); border-color: #A34B1C; box-shadow: none !important; }
 @media (max-height: 348px) {
   html.expert.lay-phone-land #app { --x-lh1: 14px; --x-lh2: 12px; }
   html.expert.lay-phone-land .x-stitle { line-height: 9px; font-size: 9px; }
@@ -558,6 +586,23 @@ html.expert .kb.piano .pad.black.nokey { background: #4A4036; color: #A89884; bo
 /* P4: Vietnamese stacked marks (ẫ, ố, Ổ) rise above a tight line box. Clip sideways as before, but leave a few px above and
    below so the marks are not cut (overflow: clip + overflow-clip-margin; older WebViews keep overflow: hidden). */
 html.expert .x-stitle, html.expert .x-lrows, html.expert .x-lrow { overflow: hidden; overflow: clip; overflow-clip-margin: 4px; }
+
+/* 744×1133 (iPad mini portrait) is under 768 px wide, so it uses the phone-portrait
+   layout. The title's stacked accents (the hook on Ổ) and the last lyric line were
+   clipped by .x-songc { overflow: hidden }, same as on develop. Borrow the song
+   card's 4 px padding and give the title 3 px on top so the glyphs stay inside the
+   card without changing the card's outer size. Phones at 360/390 and iPad / desktop
+   layouts are left unchanged. */
+@media (min-width: 700px) and (max-width: 767px) {
+  html.expert.lay-phone-port #xSrc.x-mode-song > .x-songc {
+    margin: -4px 0;
+    justify-content: flex-start;
+    overflow: hidden;
+    overflow: clip;
+    overflow-clip-margin: 4px;
+  }
+  html.expert.lay-phone-port .x-songc > .x-stitle { padding-top: 3px; }
+}
 
 /* v3.2 test.5: next-chord cue on the song card lyrics. The word where the next chord change lands gets a gold (--x-gold) underline
    (no layout change); the chord name sits above it in the same colour as that chord's grid chip (absolutely placed by ui.js,
@@ -594,3 +639,166 @@ html.expert.lay-phone-port .x-lrows { height: calc(var(--x-lh1) + var(--x-lh2) *
 html.expert.lay-phone-port .x-lroll.go { transform: translateY(calc(-1 * (var(--x-lh1) + var(--x-cb)))); }
 html.expert .x-cuetag.x-cuein { position: static; display: inline-block; margin-left: 3px; vertical-align: 1px; transform: none !important; }
 html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x-cuein { font-size: 11px; line-height: 12px; }   /* was 13/14; 11px floor, still inside the 17 px next-line box */
+
+/* Expert large-screen browser layer (test.6, Expert v5).
+   The existing size classifier includes desktop windows, not just touch devices.
+   Simple and medium/compact layouts deliberately cannot match this layer. */
+@media (min-width: 768px) and (min-height: 600px) {
+  /* Sizing knobs: approved vh heights / vw widths, with exact reference anchors.
+     Extra room beyond these caps remains available to the grid and keyboard. */
+  html.expert.lay-pad-land #app {
+    --xl-row-min: 56px; --xl-row-max: 80px;
+    --xl-go-min: 80px; --xl-go-max: 112px;
+    --xl-next-min: 120px; --xl-next-max: 168px;
+    --xl-row: clamp(var(--xl-row-min), calc(64 / 820 * 100vh), var(--xl-row-max));
+    --xl-go: clamp(var(--xl-go-min), calc(90 / 820 * 100vh), var(--xl-go-max));
+    --xl-next: clamp(var(--xl-next-min), calc(130 / 1180 * 100vw), var(--xl-next-max));
+    --xl-next-icon: calc(var(--xl-go) * 40 / 90);
+    --xl-play-icon: calc(var(--xl-go) * 36 / 90);
+    --xl-tog-width: clamp(280px, calc(360 / 1180 * 100vw), 410px);
+    --x-row: var(--xl-row); --x-src-h: var(--xl-go);
+    --xl-w: calc(100vw / 1180);   /* 1px at the 1180 reference width */
+    --xl-ctl-max: clamp(88px, calc(102.3 / 820 * 100dvh), 150px);   /* Sound / All notes: 102.3 at 820 tall (as approved), never the 306 they reached at 2560x1440 */
+    --x-side: clamp(168px, calc(184 * var(--xl-w)), 260px); --x-now-w: var(--x-side);
+    --x-sus-h: clamp(104px, 14vh, 160px);
+    --x-kb-h: clamp(264px, 33vh, 400px);
+    /* Lyric rows: 25 / 20 at 820 tall (approved). On shorter screens (1024x768, 1133x744) the card is shorter, so the rows and
+       their type shrink with it and the title + 6 px gap + 3 rows still fit inside the card: (card row - 25) * 25 / 65 and
+       * 20 / 65, where 25 = the title's 3 px accent room + 16 px line + 6 px gap (PR #5, Uiux: the last look-ahead line was cut). */
+    --x-lh1: min(25px, calc((var(--x-src-h) - 25px) * 25 / 65)); --x-lh2: min(20px, calc((var(--x-src-h) - 25px) * 20 / 65));
+  }
+  html.expert.lay-pad-port #app {
+    --xl-row-min: 56px; --xl-row-max: 80px;
+    --xl-next-min: 160px; --xl-next-max: 240px;
+    --xl-row: clamp(var(--xl-row-min), calc(64 / 1180 * 100vh), var(--xl-row-max));
+    --xl-go: var(--xl-row);
+    --xl-next: clamp(var(--xl-next-min), calc(180 / 820 * 100vw), var(--xl-next-max));
+    --xl-next-icon: calc(var(--xl-go) * 48 / 64);
+    --xl-play-icon: calc(var(--xl-go) * 36 / 64);
+    --x-row: var(--xl-row);
+  }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xTop { flex-wrap: nowrap; }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xTop .x-key,
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xTop .x-style {
+    height: var(--xl-row); min-height: 44px; align-self: stretch; box-sizing: border-box;
+  }
+  html.expert.lay-pad-land #xTop .x-key { flex: 1 1 200px; max-width: clamp(200px, calc(250 * var(--xl-w)), 340px); min-width: 90px; }
+  html.expert.lay-pad-land #xTop .x-style { flex: 1 1 170px; max-width: clamp(176px, calc(220 * var(--xl-w)), 300px); min-width: 80px; }
+  html.expert.lay-pad-land #xTop > .x-b,
+  html.expert.lay-pad-land #xTop .mode-chip {
+    height: var(--xl-row); min-height: 44px; align-self: stretch;
+    box-sizing: border-box; font-size: 22px; border-radius: 16px;
+  }
+  html.expert.lay-pad-land #xTop .mode-chip { flex: 0 1 clamp(110px, calc(132 * var(--xl-w)), 180px); min-width: max-content; padding: 0 12px; }   /* never narrower than "◆ Expert" (it clipped by 2 px at 1024 wide) */
+  /* The toggle's labels are centred, so a smaller side padding changes nothing where they fit (1180x820) and stops
+     "Progressions" clipping at 1024-1080 wide. */
+  html.expert.lay-pad-land #xTog button { padding: 0 6px; }
+  /* Help circle follows the row: 56 in a 64 row (landscape), 44 in a 64 row (portrait); never under 44. */
+  html.expert.lay-pad-land #xTop { --xl-help: max(44px, calc(var(--xl-row) * 56 / 64)); }
+  html.expert.lay-pad-port #xTop { --xl-help: max(44px, calc(var(--xl-row) * 44 / 64)); }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xTop .x-help {
+    flex: 0 0 var(--xl-help); width: var(--xl-help); height: var(--xl-help); min-width: var(--xl-help); min-height: var(--xl-help);
+    align-self: center; border-radius: 50%;
+  }
+  html.expert.lay-pad-land #xTop .x-help svg { width: calc(var(--xl-help) * 26 / 56); height: calc(var(--xl-help) * 26 / 56); }
+  html.expert.lay-pad-land #xTop .x-slot { flex: 1 1 0; min-width: 280px; }
+  html.expert.lay-pad-land #xTop .x-slot #xTog { flex: 0 1 var(--xl-tog-width); }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xTog {
+    height: var(--xl-row); align-self: stretch; align-items: stretch;
+    padding: 3px; box-sizing: border-box;
+  }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xTog button {
+    height: auto; min-height: 44px; align-self: stretch;
+  }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xGo {
+    height: var(--xl-go); align-items: stretch; flex-wrap: nowrap;
+  }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xGo > .x-b {
+    height: var(--xl-go); min-height: 44px; align-self: stretch;
+    flex: none; box-sizing: border-box;
+    /* JS retains the accessible name and playback state. Only its visual glyph
+       is replaced: the white button remains a triangle even while playing. */
+    font-size: 0; color: transparent;
+    background-position: center; background-repeat: no-repeat;
+  }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xGo .x-next {
+    width: var(--xl-next); background-color: #2A8075; border-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 5v14l10-7z' fill='%23FFFFFF'/%3E%3Crect x='16.5' y='5' width='2.6' height='14' rx='1' fill='%23FFFFFF'/%3E%3C/svg%3E");
+    background-size: var(--xl-next-icon) var(--xl-next-icon);
+  }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xGo .x-play {
+    width: var(--xl-go); background-color: #fff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 5v14l11-7z' fill='%232B2118'/%3E%3C/svg%3E");
+    background-size: var(--xl-play-icon) var(--xl-play-icon);
+  }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xCtl .x-sound { order: 1; }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xCtl .x-full { order: 2; }
+  html.expert.lay-pad-land #xCtl { flex-flow: column nowrap; align-content: stretch; }
+  /* Sustain takes the left column's spare height; the Sound / All notes row grows only to 2 x --xl-ctl-max
+     (fixed-limit tracks are filled before the 1fr track, so at 1180x820 the rows stay 115 / 214). */
+  html.expert.lay-pad-land #app { grid-template-rows: var(--x-row) var(--x-src-h) minmax(var(--x-sus-h), 1fr) minmax(0, calc(2 * var(--xl-ctl-max) + var(--x-g))) var(--x-kb-h) !important; }
+  html.expert.lay-pad-land #xCtl .x-full,
+  html.expert.lay-pad-land #xCtl .x-sound {
+    flex: 1 1 0; height: auto; min-height: 56px; width: 100%; font-size: 18px;
+  }
+  html.expert.lay-pad-land #xCtl .x-full small,
+  html.expert.lay-pad-land #xCtl .x-sound small { font-size: 12px; }
+  html.expert.lay-pad-land #symbol { font-size: 34px !important; }
+  html.expert.lay-pad-land .x-lrow.cur { font-size: calc(var(--x-lh1) * 23 / 25); }   /* 23 px at 820 tall */
+  html.expert.lay-pad-land .x-lrow.nxt { font-size: calc(var(--x-lh2) * 18 / 20); }   /* 18 px at 820 tall */
+  /* Song title vs the first lyric line: the stacked Vietnamese accents (Ừ, ổ) and the cue highlight rose into the title
+     line (0 px ink clearance). 6 px under the title keeps them >= 5 px apart. The text block also uses the card's 4-px
+     top/bottom padding and starts at the top, so the lines below keep their room inside the card (1024x768 is tightest).
+     PR #5 (Uiux): 3 px above the title keeps its own stacked accents (the hook on Ổ) inside the card's top edge. */
+  html.expert:is(.lay-pad-land, .lay-pad-port) .x-songc > .x-stitle { padding-top: 3px; margin-bottom: 6px; }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xSrc.x-mode-song > .x-songc { margin: -4px 0; justify-content: flex-start; }
+  html.expert.lay-pad-land #suggest.ss { --ss-fs: 26px; --ss-rg: 6px; }
+}
+
+
+/* ---------- Simple Song | Progressions: reuse Expert's #xTog / .x-tog in the top bar ----------
+   Sizes follow --x-row and --x-fs on phones (44 upright, 36 sideways, same as Expert). */
+html.simple {
+  --x-row: 44px; --x-fs: 15px;
+  --x-card: #2F271F; --x-ink: #F4EAD9; --x-muted: #B9A890; --x-onink: #1E1914;
+}
+html.simple.s-day {
+  --x-card: #FBF6EE; --x-ink: #2B2118; --x-muted: #7A6855; --x-onink: #FFFFFF;
+}
+html.simple.lay-phone-land { --x-row: 36px; --x-fs: 13px; }
+
+html.simple #xTog {
+  display: flex; background: var(--x-card); border-radius: 14px; padding: 3px; gap: 3px; min-width: 0;
+  height: var(--x-row); box-sizing: border-box; border: 0; align-self: center;
+  flex: 1 1 200px; max-width: 380px; margin: 0 8px 0 0;
+}
+html.simple #xTog button {
+  flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 11px;
+  background: transparent; color: var(--x-muted); font: 700 calc(var(--x-fs) - 1px) Nunito, system-ui, sans-serif;
+  white-space: nowrap; overflow: hidden; height: calc(var(--x-row) - 6px); min-height: 0;
+}
+html.simple #xTog button.on { background: var(--x-ink); color: var(--x-onink); }
+/* Same split as Expert phone portrait: "Progressions" takes the spare room so it is not clipped at 360px. */
+html.simple #xTog button[data-v="song"] { flex: 0.72 1 0; padding: 0 8px; }
+html.simple #xTog button[data-v="prog"] { flex: 1.38 1 0; padding: 0 8px; }
+/* Narrow phones: Simple's toggle shares the top bar with the mode chip, so "Progressions"
+   was clipped at 360px. Tighter padding and a slightly smaller label (via --x-fs). Expert is unchanged. */
+@media (max-width: 370px) {
+  html.simple { --x-fs: 13px; }
+  html.simple #xTog { margin-right: 4px; }
+  html.simple #xTog button[data-v="song"],
+  html.simple #xTog button[data-v="prog"] { padding: 0 4px; }
+}
+/* PR #5 (Test Engineer): at 371-389 px wide (375x667) the 8-px padding still clipped "Progressions" by 4 px and "Song" by 1 px;
+   sideways (844x390) "Progressions" lost 1 px. Toggle-only: tighter button padding upright, label-sized buttons sideways. */
+@media (max-width: 389px) {
+  html.simple #xTog button[data-v="song"],
+  html.simple #xTog button[data-v="prog"] { padding: 0 4px; }
+}
+html.simple.lay-phone-land #xTog { flex: 0 0 auto; } html.simple.lay-phone-land #xTog button[data-v] { flex: 0 0 auto; }   /* sized to the labels */
+/* Phone portrait: drop the brand so Song | Progressions fits the existing 44px top bar (no extra row). */
+html.simple.lay-phone-port header.topbar .brand { display: none; }
+
+html.simple.s-src-prog #songBar { display: none !important; }
+/* The song picker stays in view in both Song and Progressions (as before the toggle and as in Uiux simple-v4),
+   so #prog shows the song's full name in Song view and the Now card keeps its pre-toggle height in both views. */

@@ -1,15 +1,47 @@
 // Applies loaded settings to the UI (applySettings, markOn) and the toast.
-import { api as ChordAudio } from "./audio/index.js?v=112.13";
-import { syncKeySel } from "./keys.js?v=112.13";
-import { setBpm } from "./loop.js?v=112.13";
-import { VOICINGS, state, shared } from "./state.js?v=112.13";
-import { Theory } from "./theory/index.js?v=112.13";
-import { applyStylePreset, enforceYogaDeepPaletteGate, setWarmth, styleTrim } from "./styles.js?v=112.13";
-import { paintProgNumsBtn, paintPlayAlongBtn, setVolume, setBand } from "./ui/gear.js?v=112.13";
-import { paintSimple } from "./ui/layout.js?v=112.13";
-import { setKeyModeState } from "./ui/palette.js?v=112.13";
-import { dumpSustain, paintSustainBtn } from "./ui/sustain.js?v=112.13";
-import { lookApplyNow } from "./ui/look.js?v=112.13";
+import { api as ChordAudio } from "./audio/index.js?v=112.15";
+import { syncKeySel } from "./keys.js?v=112.15";
+import { setBpm } from "./loop.js?v=112.15";
+import { VOICINGS, state, shared } from "./state.js?v=112.15";
+import { Theory } from "./theory/index.js?v=112.15";
+import { applyStylePreset, enforceYogaDeepPaletteGate, setWarmth, styleTrim } from "./styles.js?v=112.15";
+import { paintProgNumsBtn, paintPlayAlongBtn, setVolume, setBand } from "./ui/gear.js?v=112.15";
+import { paintSimple } from "./ui/layout.js?v=112.15";
+import { setKeyModeState } from "./ui/palette.js?v=112.15";
+import { dumpSustain, paintSustainBtn } from "./ui/sustain.js?v=112.15";
+import { lookApplyNow } from "./ui/look.js?v=112.15";
+
+// N20 PR-A (Simple phone portrait): the style chips sit on one scrolling line. Scroll the picked chip fully into
+// view, clear of the 20 px right fade, after settings load, on a style pick, on resize / rotation and on entering
+// Simple. Other layouts are left alone. The fade class (.more) is kept by main.js on scroll / resize.
+function styleLineOn() {
+  var de = document.documentElement;
+  return de.classList.contains("simple") && de.classList.contains("lay-phone-port") && !de.classList.contains("expert") && !de.classList.contains("kv");
+}
+var styleViewWired = false;
+export function keepStyleInView() {
+  var row = typeof document !== "undefined" && document.getElementById("styles");
+  if (!row) return;
+  if (!styleViewWired) {
+    styleViewWired = true;
+    row.addEventListener("click", function () { keepStyleInView(); });
+    window.addEventListener("resize", function () { keepStyleInView(); });
+    window.addEventListener("orientationchange", function () { keepStyleInView(); });
+    var was = styleLineOn();
+    if (window.MutationObserver) new MutationObserver(function () { var now = styleLineOn(); if (now && !was) keepStyleInView(); was = now; })
+      .observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  }
+  var run = function () {
+    if (!styleLineOn()) return;
+    var on = row.querySelector("button.on");
+    if (!on || row.scrollWidth <= row.clientWidth + 1) return;
+    var r = on.getBoundingClientRect(), q = row.getBoundingClientRect(), fade = 20;
+    if (r.right > q.right - fade) row.scrollLeft += Math.ceil(r.right - (q.right - fade));
+    else if (r.left < q.left) row.scrollLeft -= Math.ceil(q.left - r.left);
+    row.classList.toggle("more", row.scrollWidth - row.clientWidth - row.scrollLeft > 2);
+  };
+  if (window.requestAnimationFrame) requestAnimationFrame(function () { requestAnimationFrame(run); }); else setTimeout(run, 0);
+}
 
 function markOn(groupSel, attr, value) {
   var all = document.querySelectorAll(groupSel + " button");
@@ -73,6 +105,7 @@ export function applySettings(s) {
   markOn("#layouts", "layout", s.layout);
   paintSustainBtn();
   markOn("#styles", "style", s.style);
+  keepStyleInView();
   state.keySpell = s.keySpell || {};
   syncKeySel();
   document.getElementById("voicing").value = String(Math.max(0, VOICINGS.indexOf(s.voicing)));

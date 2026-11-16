@@ -1,0 +1,88 @@
+name: pr-checks
+
+# Gate for pull requests into develop, and for a develop -> main release candidate.
+# Static site: no build.
+on:
+  pull_request:
+    branches: [develop, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    name: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Unit tests
+        run: node --test tests/unit/*.test.js
+
+  version:
+    name: version
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Cache-tag check
+        run: python3 tools/check-version.py
+      # Production Pages serves main as-is (no deploy step to stamp a BUILD_ID), so the offline worker only
+      # sees a release when APP_VERSION changes. A release candidate that changes app files must bump it.
+      - name: APP_VERSION bump for a release into main
+        if: github.base_ref == 'main'
+        run: |
+          git fetch --no-tags --depth=1 origin "+refs/heads/main:refs/remotes/origin/main"
+          python3 tools/check-bump.py origin/main
+
+  smoke:
+    name: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Cache Playwright browsers
+        id: pwcache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install Chromium
+        if: steps.pwcache.outputs.cache-hit != 'true'
+        run: npx playwright-core install --with-deps chromium
+      - name: Install Chromium system deps (cache hit)
+        if: steps.pwcache.outputs.cache-hit == 'true'
+        run: npx playwright-core install-deps chromium
+      # tests/ci/smoke.mjs serves the repo root itself (static, no build) and runs the checks.
+      # A failing check writes tests/ci/out/<name>.png before the process exits.
+      - name: Smoke tests
+        run: node tests/ci/smoke.mjs
+      - name: Upload smoke screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-screenshots
+          path: tests/ci/out/
+          if-no-files-found: ignore

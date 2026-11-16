@@ -130,7 +130,6 @@ html.simple .kid-key { display: flex; flex-direction: column; gap: 6px; flex: 0 
 .kk-mode.minor { background: var(--lk-8a7bc0); color: var(--lk-f7f3ff); }
 .kk-face svg { display: block; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 .kk-face svg .eye { fill: currentColor; stroke: none; }
-html.simple.lay-pad-land .kid-key, html.simple.lay-pad-port .kid-key { --kk-h: 96px; --kk-fs: 56px; --kk-arrow: 56px; --kk-mh: 64px; --kk-mfs: 24px; gap: 10px; }
 html.simple.lay-pad-land .kk-face svg, html.simple.lay-pad-port .kk-face svg { width: 32px; height: 32px; }
 @media (max-height: 400px) { html.simple.lay-phone-land .kid-key { --kk-h: 50px; --kk-fs: 30px; --kk-mh: 36px; --kk-mfs: 15px; gap: 5px; } }
 .app-version { padding: 8px 12px 4px; font-size: var(--fs-xs); color: var(--muted); opacity: .8; text-align: center; }
@@ -184,7 +183,7 @@ html.simple.lay-phone-port #app {
   grid-template-areas: "top top" "sty sty" "now sus" "nxt nxt";
 }
 html.simple.lay-phone-port #sustainBtn { font-size: var(--fs-l); }
-@media (max-height: 700px) { html.simple.lay-phone-port #app { --sym: 38px; grid-template-rows: auto auto 196px minmax(0, 1fr); --ss-rg: 5px; --ss-fs: 15px; --ss-note: 22px; }
+@media (max-height: 700px) { html.simple.lay-phone-port #app { --sym: 38px; --ss-rg: 5px; --ss-fs: 15px; --ss-note: 22px; }
   html.simple.lay-phone-port .kid-key { --kk-h: 50px; --kk-fs: 30px; --kk-mh: 38px; --kk-mfs: 15px; gap: 5px; }
   html.simple.lay-phone-port #tones { margin-top: 4px; } }
 /* iPad landscape: the phone-landscape mockup, scaled. */
@@ -203,7 +202,7 @@ html.simple.lay-pad-port #app {
   --sym: 96px; --ss-lbl: 56px; --ss-rg: 14px; --ss-cgap: 10px; --ss-pad: 12px; --ss-fs: 26px; --ss-note: 38px; --ss-strip: 72px;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: auto auto 380px minmax(0, 1fr);
-  grid-template-areas: "top top" "sty sty" "now sus" "nxt nxt";
+  grid-template-areas: "top top" "sty sty" "sus now" "nxt nxt";
 }
 
 /* ===== v53: strip rows by named lines (b = green bright-borrowed, h = happy, n = notes,
@@ -230,7 +229,7 @@ html.simple.lay-pad-land .ss .ss-chip, html.simple.lay-pad-port .ss .ss-chip { a
    notes and chips about one column wide (44 px+), chips 44-48 px tall, one-line names. */
 html.simple.lay-phone-port #app { --ss-lbl: 0px; --ss-cgap: 3px; --ss-rg: 8px; --ss-pad: 7px; --ss-fs: 16px; --ss-ch: minmax(44px, 48px); --ss-ico: 28px; --ss-arrow: 14px; --ss-fgap: 7px; }
 @media (max-width: 370px) { html.simple.lay-phone-port #app { --ss-cgap: 2px; --ss-pad: 6px; } }
-@media (max-height: 700px) { html.simple.lay-phone-port #app { --ss-rg: 6px; --sym: 34px; grid-template-rows: auto auto 176px minmax(0, 1fr); }
+@media (max-height: 700px) { html.simple.lay-phone-port #app { --ss-rg: 6px; --sym: 34px; }
   html.simple.lay-phone-port .now-card .card-label { display: none; }
   html.simple.lay-phone-port #tones { margin-top: 2px; font-size: calc(15px * var(--tx, 1)); } }
 html.simple.lay-phone-port .ss { padding: 5px 0; align-content: safe center;
@@ -384,14 +383,9 @@ html.simple.lay-phone-land .now-col, html.simple.lay-phone-port .now-col { gap: 
 html.simple.lay-phone-land .kid-key, html.simple.lay-phone-port .kid-key { --kk-h: 42px; --kk-fs: 28px; --kk-mh: 30px; --kk-mfs: 15px; gap: 4px; }
 html.simple.lay-phone-land .prog, html.simple.lay-phone-port .prog { --pg-h: 30px; --pg-arrow: 24px; --pg-afs: 24px; --pg-fs: 15px; --pg-nh: 26px; gap: 4px; }
 @media (max-width: 700px) { html.simple.lay-phone-land .prog { --pg-nh: 22px; } html.simple.lay-phone-land .kid-key { --kk-h: 40px; --kk-mh: 28px; } }
-@media (max-height: 700px) { html.simple.lay-phone-port #app { grid-template-rows: auto auto 194px minmax(0, 1fr); } }
 @media (max-height: 700px) { html.simple.lay-phone-port .kid-key { --kk-h: 40px; --kk-mh: 28px; } html.simple.lay-phone-port .prog { --pg-nh: 24px; } }
 html.simple.lay-pad-land .prog, html.simple.lay-pad-port .prog { --pg-h: 48px; --pg-arrow: 40px; --pg-afs: 32px; --pg-fs: 22px; --pg-ico: 22px; --pg-nh: 40px; gap: 6px; }
-/* v60 iPad: room for the picker with Now at or above v58: slimmer key control, Sustain 124 (land),
-   the Now/Sustain row 8 px taller (port). */
-html.simple.lay-pad-land .kid-key, html.simple.lay-pad-port .kid-key { --kk-h: 84px; --kk-fs: 50px; --kk-mh: 56px; gap: 8px; }
-html.simple.lay-pad-land #app { grid-template-rows: auto minmax(0, 1fr) 124px; }
-html.simple.lay-pad-port #app { grid-template-rows: auto auto 388px minmax(0, 1fr); }
+/* v60 iPad key control and rows: now in simplepad.css (Uiux simple-v4, fluid units). */
 /* Full mode, phone landscape: cycler on top of the Now column (two lines: name, then Play + Next).
    The column never makes its row taller than the strip (keyboard unchanged); the Now card gives. */
 html.lay-phone-land:not(.simple) .now-col { gap: 4px; }
@@ -628,7 +622,9 @@ html:not(.simple) .now-col > .now-mix { order: 1; }   /* full mode orders the co
 .now-mix > .now-vol .pg-vol svg { display: block; width: 15px; height: 15px; }
 html.lay-phone-land .now-mix > .now-vol, html.lay-phone-port:not(.simple) .now-mix > .now-vol { height: 16px; min-height: 16px; }
 html.lay-phone-land .now-mix > .now-vol .pg-vol svg, html.lay-phone-port:not(.simple) .now-mix > .now-vol .pg-vol svg { width: 12px; height: 12px; }
-.pg-btn.pg-song.on { background: var(--copper); color: var(--lk-1a1209); border-color: var(--copper-b); }
+/* Play stays its idle colours with a ▶ while a song plays (never the copper ■ Stop), at every size. */
+.pg-btn.pg-song.on { background: var(--bg-2); color: var(--copper-t); border-color: var(--line); }
+html.s-day .pg-btn.pg-song.on { border-color: var(--edge); }   /* as simpleday.css's idle buttons */
 
 /* v71 Kids next-note hint on the seven pads (both modes) */
 #suggest.kids1 .ss-kidpad { position: relative; overflow: visible; }

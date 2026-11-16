@@ -5,27 +5,27 @@
 // Nothing here makes sound itself: a pad press goes through strip.js stripPress (the Kids pad path, with its hidden twin
 // pad in #suggest), a piano key through touch.js soundFinger / liftFinger, a gold tap through next.js kidsGoldGo,
 // Next / Play song through magic.js progNext / playback.js progPlay. So sound and timing are those of the Kids style.
-import { unlock } from "../audio/unlock.js?v=112.13";
-import { activeKey, keyDegrees } from "../keys.js?v=112.13";
-import { KIDS_SONG_KEY } from "../songs/kids-songs.js?v=112.13";
-import { KIDS_LYRICS } from "../songs/kids-songs.js?v=112.13";
-import { magicQueue, progNext } from "../songs/magic.js?v=112.13";
-import { magic, prog, progSet, progPlay, progStop, applySongKey, progWalkAt, progWalkTo } from "../songs/playback.js?v=112.13";
-import { progLoopBar } from "../songs/song.js?v=112.13";
-import { nextChange, cueSoon, cueClock, cueWord, cuePieces, placeCueTag, cueLetterClass } from "../ui/chordcue.js?v=112.13";
-import { state, fingers, shared, scheduleSave } from "../state.js?v=112.13";
-import { wrap12 } from "../theory/quality.js?v=112.13";
-import { APP_VERSION } from "../version.js?v=112.13";
-import { playAlongKeyOk, paHintMiss, paHintHide } from "../ui/hints.js?v=112.13";
-import { kidsTonic, kidsKeyNow } from "../ui/keyboard.js?v=112.13";
-import { kidsHintItem, kidsGoldStep, kidsGoldGo, kidsGoldPad } from "../ui/next.js?v=112.13";
-import { renderPads, keyHaptic, padKey } from "../ui/pads.js?v=112.13";
-import { stripPress, stripRelease } from "../ui/strip.js?v=112.13";
-import { keyOf, soundFinger, liftFinger, resoundHeldFinger } from "../ui/touch.js?v=112.13";
-import { api as ChordAudio } from "../audio/index.js?v=112.13";
-import { makeChip, openModeSheet } from "../ui/modesheet.js?v=112.13";
-import { kidsRowPlan, KIDS_ROWS, kidsPadLabel } from "./grid.js?v=112.13";
-import { registerLook, lookApplyNow } from "../ui/look.js?v=112.13";
+import { unlock } from "../audio/unlock.js?v=112.15";
+import { activeKey, keyDegrees } from "../keys.js?v=112.15";
+import { KIDS_SONG_KEY } from "../songs/kids-songs.js?v=112.15";
+import { KIDS_LYRICS } from "../songs/kids-songs.js?v=112.15";
+import { magicQueue, progNext } from "../songs/magic.js?v=112.15";
+import { magic, prog, progSet, progPlay, progStop, applySongKey, progWalkAt, progWalkTo, playButtonLabel } from "../songs/playback.js?v=112.15";
+import { progLoopBar } from "../songs/song.js?v=112.15";
+import { nextChange, cueSoon, cueClock, cueWord, cuePieces, placeCueTag, cueLetterClass } from "../ui/chordcue.js?v=112.15";
+import { state, fingers, shared, scheduleSave } from "../state.js?v=112.15";
+import { wrap12 } from "../theory/quality.js?v=112.15";
+import { APP_VERSION } from "../version.js?v=112.15";
+import { playAlongKeyOk, paHintMiss, paHintHide } from "../ui/hints.js?v=112.15";
+import { kidsTonic, kidsKeyNow } from "../ui/keyboard.js?v=112.15";
+import { kidsHintItem, kidsGoldStep, kidsGoldGo, kidsGoldPad } from "../ui/next.js?v=112.15";
+import { renderPads, keyHaptic, padKey } from "../ui/pads.js?v=112.15";
+import { stripPress, stripRelease } from "../ui/strip.js?v=112.15";
+import { keyOf, soundFinger, liftFinger, resoundHeldFinger } from "../ui/touch.js?v=112.15";
+import { api as ChordAudio } from "../audio/index.js?v=112.15";
+import { makeChip, openModeSheet } from "../ui/modesheet.js?v=112.15";
+import { kidsRowPlan, KIDS_ROWS, kidsPadLabel } from "./grid.js?v=112.15";
+import { registerLook, lookApplyNow } from "../ui/look.js?v=112.15";
 
 // The six Kids songs (presets.js order): picture, title for parents, short chip name.
 export const KV_SONGS = {
@@ -71,7 +71,7 @@ function build() {
   // c. Play
   var play = h("section", "kv-scr kv-play"); play.setAttribute("aria-label", "Play");
   var top = h("div", "kv-top");
-  var home = btn("kv-home", emo("\uD83C\uDFE0"), "Songs"); home.addEventListener("click", function () { if (prog.playing) progStop(); hideReward(); show("songs"); });
+  var home = btn("kv-home", emo("\uD83C\uDFE0"), "Songs"); home.addEventListener("click", function () { if (prog.playing || prog.paused) progStop(); hideReward(); show("songs"); });
   els.chip = h("div", "kv-chip");
   els.lyr = h("div", "kv-lyr"); els.lyr.setAttribute("aria-live", "off");
   top.appendChild(home); top.appendChild(els.chip); top.appendChild(h("span", "kv-sp")); top.appendChild(chipBtn());
@@ -149,6 +149,7 @@ function bootResume() {
 }
 function pickSong(i, fresh) {
   hideReward();
+  if (prog.playing || prog.paused) progStop();
   if (!fresh && i === prog.idx) bootResume(); else kv.bootWalk = null;
   if (fresh || i !== prog.idx) progSet(i);
   state.kidsSong = songName(); scheduleSave();
@@ -452,6 +453,12 @@ export function paint(force) {
   if (!force && sig === kv.sig) return;
   kv.sig = sig;
   root.classList.toggle("pa-off", paOff);
+  // Keep Play's label current even after Home leaves the play screen (paused -> idle = "Play song").
+  els.play.classList.toggle("on", !!prog.playing);
+  var kl = playButtonLabel();
+  els.play.removeAttribute("aria-pressed");
+  els.play.setAttribute("aria-label", kl.aria);
+  els.play.title = kl.title;
   if (kv.screen !== "play") return;
   var m = meta(name);
   els.chip.innerHTML = "<span class=\"kv-pic\">" + m.pic + "</span><span class=\"kv-cn\">" + m.chip + "</span>";
@@ -472,8 +479,7 @@ export function paint(force) {
     k.querySelector(".kv-oct").textContent = dir === "up" ? "\u25B2" : dir === "down" ? "\u25BC" : "";
     k.classList.toggle("lit", !!lit[midi]);
   });
-  els.play.classList.toggle("on", !!prog.playing);
-  els.play.setAttribute("aria-label", prog.playing ? "Stop" : "Play song");
+  // Play stays ▶ while a song plays (never ■ Stop), at every size. Label already set above.
 }
 function startPaint() { if (!kv.timer) kv.timer = setInterval(function () { paint(false); }, 50); }
 function stopPaint() { if (kv.timer) { clearInterval(kv.timer); kv.timer = 0; } }

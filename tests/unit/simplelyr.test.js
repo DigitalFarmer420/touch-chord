@@ -31,9 +31,10 @@ test('later rows: muted text with the section when it changes; a chord-only part
     '<span class="sl-row cur" data-cue-row><span class="sl-lin"><span class="sl-ch">Am</span> <span class="sl-ch sl-now">F</span></span></span>');
 });
 test('Simple uses its own rows for a song with words (phones and iPad); full mode keeps its two-row bar', () => {
-  assert.match(src, /var slyr = on && state\.simple && upLyrMap\(\)\.any;/);
+  assert.match(src, /var slyr = showBar && state\.simple && upLyrMap\(\)\.any;/);
   assert.match(src, /var two = on && !state\.simple && upLyrMap\(\)\.any;/);
   assert.match(src, /if \(slyr\) \{\n    paintSimpleLyr\(bar, cur\);/);
+  assert.match(src, /s-src-prog/);
 });
 test('CSS: three lines (two on short phones and sideways), inline names, gold sung word and underline, grid-coloured name', () => {
   assert.match(dlg, /html\.simple\.up-slyr #app \{ --sl-n: 3; --sl-cb: 0px; --sl-l1: 22px; --sl-l2: 19px;/);

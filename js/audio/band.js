@@ -1,6 +1,6 @@
 // Band: drums and groove per style, the beat scheduler.
-import { bandBassMidi, bandIv } from "./bass.js?v=112.13";
-import { ChordAudio } from "./engine.js?v=112.13";
+import { bandBassMidi, bandIv } from "./bass.js?v=112.15";
+import { ChordAudio } from "./engine.js?v=112.15";
 
 // ===== v75 Band, STEP ONE: a separate groove layer (bass + drums, Jazz adds soft comping) =====
 // Spec: v69/GROOVE-STEP1-SPEC.md (+ amendments). Own gain bus -> limiter -> master Volume (vol), so
@@ -117,6 +117,24 @@ Band.prototype.hush = function () {
   if (bus) setTimeout(function () { try { bus.disconnect(); lim.disconnect(); } catch (e) {} }, 120);
 };
 Band.prototype.stop = function (tau) { if (this.running) this.release(tau, Math.max(80, tau * 6000)); };
+// Pause: stop further beats, let already-started band notes fade with hush, remember the beat
+// so Play can resume from the same place.
+Band.prototype.snapshot = function () {
+  if (!this.running || !this.audio) return { beat: this.beat || 0, remain: 0 };
+  var now = this.audio.currentTime ? this.audio.currentTime() : (this.audio.ctx ? this.audio.ctx.currentTime : 0);
+  return { beat: this.beat || 0, remain: Math.max(0, (this.nextBeat || now) - now) };
+};
+Band.prototype.pause = function () {
+  this._pauseSnap = this.snapshot();
+  this.hush();
+};
+Band.prototype.resumeFrom = function (t, snap) {
+  snap = snap || this._pauseSnap || { beat: 0, remain: 0 };
+  this.start(t);
+  this.beat = snap.beat || 0;
+  this.nextBeat = t + (snap.remain || 0);
+};
+
 Band.prototype.harmAt = function (t) {
   var h = this.harm[0] || null;
   for (var i = 0; i < this.harm.length; i++) if (this.harm[i].t <= t + 0.03) h = this.harm[i];

@@ -1,5 +1,5 @@
 // ChordAudio: AudioContext, master chain, mix / cutoff / reverb / delay / warmth, play / morph / stop chords, voice limit.
-import { makeWarmCurve, makeSoftClip, makeImpulse, makePulse, clamp01 } from "./effects.js?v=112.13";
+import { makeWarmCurve, makeSoftClip, makeImpulse, makePulse, clamp01 } from "./effects.js?v=112.15";
 var VOICE_CAP = 28;
 var VOICE_HARD_CAP = 72;
 
@@ -11,6 +11,26 @@ export { REL_TAU_BASS };
 var REL_TAU_STEAL = 0.015; // voice stealing
 var TAIL_TAUS = 9;         // stop oscillators only once gate is < -78 dB
 export { TAIL_TAUS };
+
+// Test-only note log. Stays null in production (one pointer check per note, then return).
+// test-hooks.js attaches an array when the page is loaded with ?test=1. Nothing is
+// written to window from this module.
+var noteLogSink = null;
+export function attachNoteLog(log) { noteLogSink = log || null; }
+export function noteLogAttached() { return noteLogSink != null; }
+export function recordEngineNote(type, rec) {
+  if (!noteLogSink) return;
+  var wall = (typeof performance !== "undefined" && performance.now) ? performance.now() : 0;
+  noteLogSink.push({
+    t: rec.t,
+    wallMs: wall,
+    type: type,
+    midi: rec.midi,
+    step: rec.step == null ? null : rec.step,
+    velocity: rec.velocity == null ? null : rec.velocity
+  });
+}
+
 
 export function ChordAudio() {
   this.ctx = null;
@@ -409,13 +429,13 @@ ChordAudio.prototype.playChord = function (group, midis, opts) {
   for (var i = 0; i < midis.length; i++) {
     this.voices.push(this.makeVoice({
       midi: midis[i], engine: engine, short: false, group: group,
-      time: time, velocity: vel, bass: false
+      time: time, velocity: vel, bass: false, step: opts.step
     }));
   }
   if (opts.bass != null && !this.bandOwnsBass()) {   // v75: with Band on, the band plays the bass line
     this.voices.push(this.makeVoice({
       midi: opts.bass, engine: engine, short: false, group: group,
-      time: time, velocity: 1, bass: true
+      time: time, velocity: 1, bass: true, step: opts.step
     }));
   }
   this.enforceLimit();
@@ -458,13 +478,13 @@ ChordAudio.prototype.morphChord = function (group, midis, opts) {
     want[m] -= 1;
     this.voices.push(this.makeVoice({
       midi: m, engine: engine, short: false, group: group,
-      time: now, velocity: vel, bass: false
+      time: now, velocity: vel, bass: false, step: opts.step
     }));
   }
   if (wantBass != null) {
     this.voices.push(this.makeVoice({
       midi: wantBass, engine: engine, short: false, group: group,
-      time: now, velocity: 1, bass: true
+      time: now, velocity: 1, bass: true, step: opts.step
     }));
   }
   this.enforceLimit();
@@ -476,6 +496,16 @@ ChordAudio.prototype.fadeGroup = function (group) {
   for (var i = 0; i < this.voices.length; i++) {
     var v = this.voices[i];
     if (v.group === group && !v.short && !v.released && v.fade) v.fade(FADE_TAU[v.srcEngine] || 1.2);
+  }
+};
+
+ChordAudio.prototype.cancelFuture = function (when) {
+  if (!this.ctx) return;
+  var t = when == null ? this.ctx.currentTime : when;
+  for (var i = 0; i < this.voices.length; i++) {
+    var v = this.voices[i];
+    if (!v || v.released || v.short) continue;
+    if (v.startTime > t + 0.001 && v.cancel) v.cancel();
   }
 };
 
@@ -499,7 +529,8 @@ ChordAudio.prototype.pluck = function (midi, opts) {
     group: opts.group || "pluck",
     time: time,
     velocity: opts.bass ? 1 : 0.85,
-    bass: !!opts.bass
+    bass: !!opts.bass,
+    step: opts.step
   }));
   this.enforceLimit();
 };

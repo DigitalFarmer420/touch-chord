@@ -1,16 +1,18 @@
 // Simple mode, controls drawer / tabs, size-class changes.
-import { api as ChordAudio } from "../audio/index.js?v=112.13";
-import { activeKey } from "../keys.js?v=112.13";
-import { stopPlayback } from "../loop.js?v=112.13";
-import { progStop, progWalkAt, progWalkTo } from "../songs/playback.js?v=112.13";
-import { state, loop, fingers, scheduleSave, shared } from "../state.js?v=112.13";
-import { magicHintClear } from "./next.js?v=112.13";
-import { fitNowSymbol } from "./nowbox.js?v=112.13";
-import { computeSpec, padSpan, octaveSpan, effectiveLayout, renderPads, liftFinger, refreshHeld } from "./pads.js?v=112.13";
-import { syncPalette, setKeyModeState } from "./palette.js?v=112.13";
-import { placeProg } from "./progbar.js?v=112.13";
-import { paintSuggestions } from "./strip.js?v=112.13";
-import { paintSustainBtn, setSustain } from "./sustain.js?v=112.13";
+import { api as ChordAudio } from "../audio/index.js?v=112.15";
+import { activeKey } from "../keys.js?v=112.15";
+import { stopPlayback } from "../loop.js?v=112.15";
+import { prog, progStop, progWalkAt, progWalkTo } from "../songs/playback.js?v=112.15";
+import { state, loop, fingers, scheduleSave, shared } from "../state.js?v=112.15";
+import { magicHintClear } from "./next.js?v=112.15";
+import { fitNowSymbol } from "./nowbox.js?v=112.15";
+import { computeSpec, padSpan, octaveSpan, effectiveLayout, renderPads, liftFinger, refreshHeld } from "./pads.js?v=112.15";
+import { syncPalette, setKeyModeState } from "./palette.js?v=112.15";
+import { placeProg } from "./progbar.js?v=112.15";
+import { paintSimpleSrc } from "./simplesrc.js?v=112.15";
+import { paintSuggestions } from "./strip.js?v=112.15";
+import { paintSustainBtn, setSustain } from "./sustain.js?v=112.15";
+import { upPlaceLock } from "../songs/song.js?v=112.15";
 
 // ---- Simple mode + responsive controls (v20) ----
 export function paintSimple() {
@@ -20,6 +22,7 @@ export function paintSimple() {
   if (btn) btn.setAttribute("aria-checked", state.simple ? "true" : "false");
   if (state.simple) setDrawer(false);
   placeProg();
+  paintSimpleSrc();
 }
 
 // rd6: no Simple toggle any more; the Kids / Simple / Expert switch (expert/ui.js setMode) calls this.
@@ -30,6 +33,9 @@ export function setSimple(on) {
   on = !!on;
   if (on === state.simple) return;
   var keep = progWalkAt();   // v111 (D5): the matching step after the switch
+  // N18: a switch while Play song is paused counts as a stop: Play reads "Play song" and starts at step 1
+  // (progWalkAt reads the Next walk, which is one past the paused step while paused). Playing / idle unchanged.
+  if (prog.paused && keep) keep = { name: keep.name, t: 0 };
   progStop(); ChordAudio.band.hush();   // v104: a mode switch stops Play song and silences the Band
   if (on) {
     if (loop.recording || loop.playing || loop.transport) stopPlayback();
@@ -115,6 +121,7 @@ function onSizeChange() {
   paintCtl();
   placeProg();
   fitNowSymbol();
+  upPlaceLock();   // the song lock follows the lyrics once the new size class is on (the resize listener runs before it)
 }
 
 export function wireLayoutUi() {
