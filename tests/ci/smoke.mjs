@@ -533,6 +533,91 @@ try {
     }
   }
 
+  // N17: Expert phone landscape. Pick the last progression (Pop Canon), reopen: the list fills down to
+  // 8px above the piano, at least two rows sit clear of the fade, and the picked row is fully above the fade line.
+  {
+    const label = '844x390 expert picked row clear of the fade on reopen';
+    const { ctx, page, bag } = await fresh(browser, 844, 390, label);
+    try {
+      await boot(page, 'test=1&hour=12&expert=1');
+      const open = async () => {
+        if (!(await page.locator('#xSrc .x-pbar').isVisible().catch(() => false))) { await page.locator('#xTog button[data-v="prog"]').click(); await page.waitForTimeout(200); }
+        if (await page.evaluate(() => document.getElementById('xPList').hidden)) await page.locator('#xSrc .x-pbar').click();
+        await page.waitForSelector('#xPList button[data-i]', { state: 'visible', timeout: 5000 }); await page.waitForTimeout(150);
+      };
+      await open();
+      const n = await page.evaluate(() => document.querySelectorAll('#xPList .x-prow').length);
+      const row = page.locator(`#xPList button[data-i="${n - 1}"]`); await row.scrollIntoViewIfNeeded(); await row.click(); await page.waitForTimeout(250);
+      await open();
+      const m = await page.evaluate(() => {
+        const L = document.getElementById('xPList'), on = L.querySelector('.x-prow.on'), kb = document.querySelector('.kb-wrap');
+        const lr = L.getBoundingClientRect(), or = on && on.getBoundingClientRect(), kr = kb.getBoundingClientRect();
+        const fade = L.scrollHeight - L.clientHeight - L.scrollTop > 1 ? (parseFloat(getComputedStyle(L).getPropertyValue('--x-pl-fade')) || 28) : 0;
+        const fadeTop = lr.bottom - fade;
+        const rows = [...L.querySelectorAll('.x-prow')].map(r => r.getBoundingClientRect());
+        const clear = rows.filter(r => r.top >= lr.top - 0.5 && r.bottom <= fadeTop + 0.5).length;
+        return { land: document.documentElement.classList.contains('lay-phone-land'), on: on ? +on.dataset.i : null, h: Math.round(lr.height),
+          visible: !!(or && or.top >= lr.top - 1 && or.bottom <= fadeTop + 1), gap: +(kr.top - lr.bottom).toFixed(1), fade, clear };
+      });
+      const notes = [];
+      if (!m.land) notes.push('not the phone landscape layout');
+      if (m.on !== n - 1) notes.push('picked row ' + m.on + ', want ' + (n - 1));
+      if (m.h < 159) notes.push('list too short ' + JSON.stringify(m));
+      if (Math.abs(m.gap - 8) > 1) notes.push('gap to piano not 8px ' + JSON.stringify(m));
+      if (m.clear < 2) notes.push('fewer than 2 rows clear of the fade ' + JSON.stringify(m));
+      if (!m.visible) notes.push('picked row not clear of the fade ' + JSON.stringify(m));
+      if (bag.errors.length || bag.failed.length) notes.push('page: ' + bag.errors.concat(bag.failed).slice(0, 3).join('; '));
+      if (notes.length) await shot(page, label);
+      record(label, !notes.length, notes.length ? notes.join(' | ') : 'list ' + m.h + 'px, ' + m.gap + 'px above the piano, ' + m.clear + ' rows clear');
+    } catch (e) {
+      await shot(page, label);
+      record(label, false, (e && e.message || String(e)).split('\n')[0]);
+    } finally {
+      await ctx.close();
+    }
+  }
+
+  // N17: Expert iPad mini portrait (sz-medium, still phone-port). Same reopen: the list uses all the room
+  // above the piano (>= 640 px) and the picked row is clear of the fade.
+  {
+    const label = '744x1133 expert picked row clear on reopen';
+    const { ctx, page, bag } = await fresh(browser, 744, 1133, label);
+    try {
+      await boot(page, 'test=1&hour=12&expert=1');
+      const open = async () => {
+        if (!(await page.locator('#xSrc .x-pbar').isVisible().catch(() => false))) { await page.locator('#xTog button[data-v="prog"]').click(); await page.waitForTimeout(200); }
+        if (await page.evaluate(() => document.getElementById('xPList').hidden)) await page.locator('#xSrc .x-pbar').click();
+        await page.waitForSelector('#xPList button[data-i]', { state: 'visible', timeout: 5000 }); await page.waitForTimeout(150);
+      };
+      await open();
+      const n = await page.evaluate(() => document.querySelectorAll('#xPList .x-prow').length);
+      const row = page.locator(`#xPList button[data-i="${n - 1}"]`); await row.scrollIntoViewIfNeeded(); await row.click(); await page.waitForTimeout(250);
+      await open();
+      const m = await page.evaluate(() => {
+        const L = document.getElementById('xPList'), on = L.querySelector('.x-prow.on'), kb = document.querySelector('.kb-wrap');
+        const lr = L.getBoundingClientRect(), or = on && on.getBoundingClientRect(), kr = kb.getBoundingClientRect();
+        const fade = L.scrollHeight - L.clientHeight - L.scrollTop > 1 ? (parseFloat(getComputedStyle(L).getPropertyValue('--x-pl-fade')) || 28) : 0;
+        const fadeTop = lr.bottom - fade;
+        return { medium: document.documentElement.classList.contains('sz-medium'), on: on ? +on.dataset.i : null, h: Math.round(lr.height),
+          visible: !!(or && or.top >= lr.top - 1 && or.bottom <= fadeTop + 1), gap: +(kr.top - lr.bottom).toFixed(1), fade };
+      });
+      const notes = [];
+      if (!m.medium) notes.push('not the sz-medium layout');
+      if (m.on !== n - 1) notes.push('picked row ' + m.on + ', want ' + (n - 1));
+      if (m.h < 640) notes.push('list too short ' + JSON.stringify(m));
+      if (Math.abs(m.gap - 8) > 1) notes.push('gap to piano not 8px ' + JSON.stringify(m));
+      if (!m.visible) notes.push('picked row not clear of the fade ' + JSON.stringify(m));
+      if (bag.errors.length || bag.failed.length) notes.push('page: ' + bag.errors.concat(bag.failed).slice(0, 3).join('; '));
+      if (notes.length) await shot(page, label);
+      record(label, !notes.length, notes.length ? notes.join(' | ') : 'list ' + m.h + 'px, ' + m.gap + 'px above the piano');
+    } catch (e) {
+      await shot(page, label);
+      record(label, false, (e && e.message || String(e)).split('\n')[0]);
+    } finally {
+      await ctx.close();
+    }
+  }
+
   // N20: phone-browser fluid UI, rebased onto develop fd01bfc (112.15). Setup: Simple/Expert
   // at Jazz, key pc=1 (shown as D♭ in Simple major; Uiux's PR-A used C♯ minor — last-row
   // overflow still matched 96 / 73 / 15.4px), song "Anh Đã Ổn Hơn"; Kids after Go + first

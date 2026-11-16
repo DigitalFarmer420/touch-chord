@@ -162,10 +162,11 @@ html.expert.lay-phone-land .x-plock .x-lki { font-size: 13px; line-height: 1; }
 html.expert.lay-phone-land .x-plock { z-index: 1; }
 html.expert.lay-phone-land .x-plock::after { top: -3.5px; bottom: -6.5px; height: auto; transform: translateX(-50%); }   /* the 32px row: the tap area grows into the free gaps only, never over the top bar or the strip chips */
 html.expert .x-pn small, html.expert .x-prow small { font: 700 11.5px Nunito, system-ui, sans-serif; color: var(--x-muted); margin-left: 4px; }
-/* the progression list opens over the grid, never over the keys (JS fitProgList keeps a full last row above the piano) */
-html.expert #xPList { position: fixed; z-index: 60; left: 12px; right: 12px; max-height: calc(var(--x-kb-top, 70vh) - var(--x-pl-top, 200px) - 8px); overflow: auto;
+/* the progression list opens over the grid, never over the keys (JS fitProgList ends 8px above the piano; iPad, phone landscape and sz-medium keep all of that room) */
+html.expert #xPList { --x-pl-fade: 28px; position: fixed; z-index: 60; left: 12px; right: 12px; max-height: calc(var(--x-kb-top, 70vh) - var(--x-pl-top, 200px) - 8px); overflow: auto;
   background: var(--x-surface); border: 1.5px solid var(--x-line); border-radius: 18px; padding: 10px; box-shadow: 0 14px 30px rgba(0,0,0,.5); box-sizing: border-box; }
-html.expert #xPList.x-more { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), rgba(0,0,0,.35)); mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), rgba(0,0,0,.35)); }
+html.expert #xPList.x-more { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--x-pl-fade)), rgba(0,0,0,.35)); mask-image: linear-gradient(to bottom, #000 calc(100% - var(--x-pl-fade)), rgba(0,0,0,.35)); }
+html.expert.lay-phone-land #xPList { --x-pl-fade: 16px; }   /* N17: a peeking part row plus 16px fade is enough to show it scrolls on a short list */
 html.expert.lay-pad-port #xPList { left: 170px; right: 16px; } html.expert.lay-pad-land #xPList, html.expert.lay-phone-land #xPList { left: 25%; right: 25%; }
 html.expert .x-prow { display: block; width: 100%; height: auto; min-height: 58px; margin-top: 8px; padding: 6px 10px;
   border-radius: 14px; background: var(--x-card); border: 1.5px solid var(--x-line); color: var(--x-ink); text-align: left; box-sizing: border-box; overflow: visible; }
@@ -177,7 +178,9 @@ html.expert .x-pc { font-style: normal; min-width: 30px; height: 30px; padding: 
   font: 600 12.5px Fredoka, Nunito, system-ui, sans-serif; background: var(--x-happy); color: #22180f; }
 html.expert .x-pc.minor, html.expert .x-pc.dim { background: var(--x-sad); }
 html.expert .x-pnote { margin: 10px 2px 2px; font-size: 12px; color: var(--x-muted); }
-html.expert.lay-phone-land .x-prow { min-height: 44px; margin-top: 5px; }
+html.expert.lay-phone-land .x-prow { display: flex; align-items: center; gap: 8px; min-height: 44px; margin-top: 5px; padding: 6px 10px; }   /* N17: one-line rows in phone landscape; 7-chip rows may wrap */
+html.expert.lay-phone-land .x-prow > .x-pcol { flex: 0 0 96px; width: 96px; }
+html.expert.lay-phone-land .x-pchips { flex: 1 1 auto; width: auto; margin-top: 0; }
 
 /* ---------- NOW box ---------- */
 html.expert .now-col { display: flex !important; min-height: 0; }
