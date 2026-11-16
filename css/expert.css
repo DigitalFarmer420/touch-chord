@@ -750,6 +750,13 @@ html.simple #xTog button[data-v="prog"] { flex: 1.38 1 0; padding: 0 8px; }
   html.simple #xTog button[data-v="song"],
   html.simple #xTog button[data-v="prog"] { padding: 0 4px; }
 }
+/* PR #5 (Test Engineer): at 371-389 px wide (375x667) the 8-px padding still clipped "Progressions" by 4 px and "Song" by 1 px;
+   sideways (844x390) "Progressions" lost 1 px. Toggle-only: tighter button padding upright, label-sized buttons sideways. */
+@media (max-width: 389px) {
+  html.simple #xTog button[data-v="song"],
+  html.simple #xTog button[data-v="prog"] { padding: 0 4px; }
+}
+html.simple.lay-phone-land #xTog { flex: 0 0 auto; } html.simple.lay-phone-land #xTog button[data-v] { flex: 0 0 auto; }   /* sized to the labels */
 /* Phone portrait: drop the brand so Song | Progressions fits the existing 44px top bar (no extra row). */
 html.simple.lay-phone-port header.topbar .brand { display: none; }
 
