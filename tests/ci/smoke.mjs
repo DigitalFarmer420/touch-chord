@@ -477,6 +477,45 @@ try {
     }
   }
 
+  // N13: Expert iPad landscape. Pick the last progression (Pop Canon), reopen the list: the picked row is fully in view,
+  // clear of the bottom fade, and the list still ends above the piano.
+  {
+    const label = '1180x820 expert picked row visible on reopen';
+    const { ctx, page, bag } = await fresh(browser, 1180, 820, label);
+    try {
+      await boot(page, 'test=1&hour=12&expert=1');
+      const open = async () => {
+        if (!(await page.locator('#xSrc .x-pbar').isVisible().catch(() => false))) { await page.locator('#xTog button[data-v="prog"]').click(); await page.waitForTimeout(200); }
+        if (await page.evaluate(() => document.getElementById('xPList').hidden)) await page.locator('#xSrc .x-pbar').click();
+        await page.waitForSelector('#xPList button[data-i]', { state: 'visible', timeout: 5000 }); await page.waitForTimeout(150);
+      };
+      await open();
+      const n = await page.evaluate(() => document.querySelectorAll('#xPList .x-prow').length);
+      const row = page.locator(`#xPList button[data-i="${n - 1}"]`); await row.scrollIntoViewIfNeeded(); await row.click(); await page.waitForTimeout(250);
+      await open();
+      const m = await page.evaluate(() => {
+        const L = document.getElementById('xPList'), on = L.querySelector('.x-prow.on'), kb = document.querySelector('.kb-wrap');
+        const lr = L.getBoundingClientRect(), or = on && on.getBoundingClientRect(), kr = kb.getBoundingClientRect();
+        const fade = L.scrollHeight - L.clientHeight - L.scrollTop > 1 ? 28 : 0;
+        return { pad: document.documentElement.classList.contains('lay-pad-land'), on: on ? +on.dataset.i : null, h: Math.round(lr.height),
+          visible: !!(or && or.top >= lr.top - 1 && or.bottom <= lr.bottom - fade + 1), gap: Math.round(kr.top - lr.bottom) };
+      });
+      const notes = [];
+      if (!m.pad) notes.push('not the iPad landscape layout');
+      if (m.on !== n - 1) notes.push('picked row ' + m.on + ', want ' + (n - 1));
+      if (!m.visible) notes.push('picked row not fully in view ' + JSON.stringify(m));
+      if (m.gap < 0) notes.push('list covers the piano ' + JSON.stringify(m));
+      if (bag.errors.length || bag.failed.length) notes.push('page: ' + bag.errors.concat(bag.failed).slice(0, 3).join('; '));
+      if (notes.length) await shot(page, label);
+      record(label, !notes.length, notes.length ? notes.join(' | ') : 'list ' + m.h + 'px, ' + m.gap + 'px above the piano');
+    } catch (e) {
+      await shot(page, label);
+      record(label, false, (e && e.message || String(e)).split('\n')[0]);
+    } finally {
+      await ctx.close();
+    }
+  }
+
   for (const w of walks) {
     if (w.pageNotes.length) record('toggle ' + w.label, false, w.pageNotes.join(' | '));
   }
