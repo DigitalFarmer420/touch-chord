@@ -316,7 +316,7 @@ html.sz-medium.simple:not(.tc-classic) #songBar { height: 26px; font-size: 16px;
 /* v3.2 test.5: next-chord cue in Simple's song bar. The chord name is already inline before its word, so the cue turns
    that name to its grid colour and underlines its word (no size change); brighter one beat before the change. */
 /* v112.14 (Uiux): AA 4.5:1 for the cue as text and as the .soon fill. Lamp keeps the #4FB3A5 fill with dark ink
-   (--copper-ink 6.55:1; white was 2.52:1); Day #22695F: 4.97:1 on the chip, 6.45:1 under white (was #2F8F83, 3.0 / 3.9). */
+   (--copper-ink 6.55:1; white was 2.52:1); Day #22695F: 5.48:1 on the rendered #EFECE7 chip, 6.45:1 under white (was #2F8F83: 3.31 / 3.91). */
 #songBar { --sb-cue: #4FB3A5; --sb-cue-ink: var(--copper-ink); }   /* the dark looks */
 html.s-day #songBar { --sb-cue: #22695F; --sb-cue-ink: #fff; }
 #songBar .sb-ch.sb-cue:not(.on) { color: var(--sb-cue); box-shadow: inset 0 0 0 1.5px var(--sb-cue); }
