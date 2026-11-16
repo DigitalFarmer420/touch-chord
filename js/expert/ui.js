@@ -315,7 +315,10 @@ function fitProgList() {
     return;
   }
   var de = document.documentElement;
-  if (de.classList.contains("lay-pad-land") || de.classList.contains("lay-pad-port")) {   // N13: iPad keeps all the room above the piano (test.6: 326 px at 1180x820); the faded part row shows it scrolls
+  if (de.classList.contains("lay-pad-land") || de.classList.contains("lay-pad-port")
+      || de.classList.contains("lay-phone-land") || de.classList.contains("sz-medium")) {
+    // N13: iPad keeps all the room above the piano. N17: phone landscape and sz-medium (744x1133) do the same.
+    // The faded part row shows it scrolls. Whole-row trim stays for compact phone portrait only (390x844).
     paintProgMore();
     return;
   }
@@ -335,12 +338,12 @@ function fitProgList() {
 }
 // N13: when the list opens, the picked row is fully in view and clear of the bottom fade (centred when it was not).
 function showProgPick() {
-  var L = $("xPList"), de = document.documentElement; if (!L || L.hidden) return;
-  if (!de.classList.contains("lay-pad-land") && !de.classList.contains("lay-pad-port")) return;   // phones unchanged
+  var L = $("xPList"); if (!L || L.hidden) return;
   var on = L.querySelector(".x-prow.on"); if (!on) return;
-  var lr = L.getBoundingClientRect(), br = on.getBoundingClientRect(), bt = parseFloat(getComputedStyle(L).borderTopWidth) || 0;
+  var lr = L.getBoundingClientRect(), br = on.getBoundingClientRect(), cs = getComputedStyle(L);
+  var bt = parseFloat(cs.borderTopWidth) || 0;
   var top = br.top - lr.top - bt + L.scrollTop, bot = top + br.height;
-  var fade = L.scrollHeight > L.clientHeight + 1 ? 28 : 0;   // the x-more mask is the last 28 px
+  var fade = L.scrollHeight > L.clientHeight + 1 ? (parseFloat(cs.getPropertyValue("--x-pl-fade")) || 28) : 0;   // N17: fade height from --x-pl-fade (28 default, 16 in phone landscape)
   if (top >= L.scrollTop && bot <= L.scrollTop + L.clientHeight - fade) return;
   L.scrollTop = Math.max(0, Math.min(L.scrollHeight - L.clientHeight, top - (L.clientHeight - br.height) / 2));
   paintProgMore();
@@ -782,7 +785,7 @@ function wireAll() {
   setInterval(function () { if (!active || xCue.j < 0) return; if (upCurStep() !== xCue.pc) paintSrc(); else paintCue(); }, 60);   // v3.2 test.5: the cue moves on once its chord plays
   window.addEventListener("resize", function () { if (active && $("xSrc")) fitLyrRow($("xSrc")); });   // P4: re-fit the sung word after a rotation
   var rz = 0;
-  function onResize() { clearTimeout(rz); rz = setTimeout(function () { if (!active) return; placeTog(); placeSheets(); fitStrip(); placeBadges(); fitNowSymbol(); paintSrc(); }, 80); }   // test.5: the cue name is inline / above by layout
+  function onResize() { clearTimeout(rz); rz = setTimeout(function () { if (!active) return; placeTog(); placeSheets(); fitStrip(); placeBadges(); fitNowSymbol(); paintSrc(); if (src.listOpen) showProgPick(); }, 80); }   // test.5: the cue name is inline / above by layout
   window.addEventListener("resize", onResize); window.addEventListener("orientationchange", onResize);
 }
 
