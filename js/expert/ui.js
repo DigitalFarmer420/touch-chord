@@ -19,6 +19,7 @@ import { songCue, cueSoon, cueClock, cuePieces, placeCueTag, cueChipClass } from
 import { upSym, upSecName } from "../songs/upload.js?v=112.14";
 import { upLyrMap, lyrPad } from "../ui/lyrics.js?v=112.14";
 import { state, shared, fingers, loop, scheduleSave } from "../state.js?v=112.14";
+import { tapSimpleSrc, paintSimpleSrc } from "../ui/simplesrc.js?v=112.14";
 import { accSym } from "../theory/spelling.js?v=112.14";
 import { Theory } from "../theory/index.js?v=112.14";
 import { paintKeyChip, keyLabel } from "../ui/keychip.js?v=112.14";
@@ -169,6 +170,9 @@ function paintMode() {
     renderPads(); refreshHeld(); paintKeyChip(computeSpec());
     setTimeout(function () { fitStrip(); placeBadges(); fitNowSymbol(); }, 0);
   }
+  // PR #5 (Uiux): #xTog is shared with Simple's top bar, so every mode change puts it back in the active mode's slot
+  // (Expert: placeTog's top-bar slot or the column; Simple: header.topbar). Each mode keeps its own Song | Progressions view.
+  if (on) placeTog(); else paintSimpleSrc();
   paintModeSegs();
   paintSimpleLook();
   syncChart();
@@ -362,7 +366,9 @@ function paintStyleMore() {
   m.classList.toggle("x-more", m.scrollHeight - m.clientHeight - m.scrollTop > 4);
 }
 function placeTog() {   // landscape: the Song | Progressions toggle sits in the top bar's free middle (iPad landscape mockup)
+  if (state.simple && !active) return;   // Simple owns #xTog while that mode is on (header.topbar)
   var tog = $("xTog"), slot = document.querySelector("#xTop .x-slot");
+  if (!tog || !slot) return;
   if (isLand()) { if (tog.parentNode !== slot) slot.appendChild(tog); }
   else if (tog.parentNode !== $("app")) $("app").insertBefore(tog, $("xGo"));
 }
@@ -693,6 +699,7 @@ function wireAll() {
   $("xPlay").addEventListener("click", function () { click("#prog .pg-song"); schedule(); });
   $("xTog").addEventListener("click", function (e) {
     var b = e.target.closest("button[data-v]"); if (!b) return;
+    if (state.simple) { tapSimpleSrc(b.dataset.v); return; }
     srcDo(b.dataset.v === "song" ? "tapSong" : "tapProg");
   });
   $("xSrc").addEventListener("click", function (e) {
