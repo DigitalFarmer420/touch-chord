@@ -295,6 +295,40 @@ function placeSheets() {
   var s = $("xSrc").getBoundingClientRect();
   $("xPList").style.top = Math.round(s.bottom + 6) + "px";
   document.documentElement.style.setProperty("--x-pl-top", Math.round(s.bottom + 6) + "px");
+  fitProgList();
+}
+// The open Progressions list stays above the piano. When it still scrolls, only complete rows are shown and the
+// bottom fades, so the scroll is obvious and no row is left sitting under the keys.
+function fitProgList() {
+  var L = $("xPList"); if (!L || L.hidden) return;
+  var kb = document.querySelector(".kb-wrap"); if (!kb) return;
+  var top = L.getBoundingClientRect().top;
+  var avail = Math.max(80, Math.floor(kb.getBoundingClientRect().top - top - 8));
+  L.style.maxHeight = avail + "px";
+  if (L.scrollHeight <= avail + 1) {
+    L.style.maxHeight = Math.min(L.scrollHeight, avail) + "px";
+    L.classList.remove("x-more");
+    return;
+  }
+  var cs = getComputedStyle(L);
+  var padBot = parseFloat(cs.paddingBottom) + parseFloat(cs.borderBottomWidth);
+  var rows = L.querySelectorAll(".x-prow");
+  var lastFit = 0, i, bottom, h;
+  for (i = 0; i < rows.length; i++) {
+    bottom = rows[i].offsetTop + rows[i].offsetHeight;
+    if (bottom + padBot <= avail) lastFit = bottom;
+    else break;
+  }
+  h = lastFit + padBot;
+  if (h < 80) h = avail;
+  L.style.maxHeight = Math.floor(h) + "px";
+  paintProgMore();
+}
+function paintProgMore() {
+  var L = $("xPList"); if (!L) return;
+  var last = L.querySelectorAll(".x-prow")[L.querySelectorAll(".x-prow").length - 1], more = false;
+  if (last) more = last.getBoundingClientRect().bottom > L.getBoundingClientRect().bottom + 1;   // the footnote under the last row does not keep the fade on
+  L.classList.toggle("x-more", more);
 }
 // rd5 (Uiux, landscape phone): the open Style list grows into the space below (8px safe margin) so it shows every row that
 // fits; when it still scrolls, it stops half way through a row and fades at the bottom, so the scroll is obvious.
@@ -454,8 +488,10 @@ function srcDo(a) {
   else if (r.fx === "selectSong") { for (var i = 0; i < prog.list.length; i++) if (prog.list[i].up) { progSet(i); break; } }
   else if (r.fx && r.fx.pick != null) progSet(r.fx.pick);
   $("xScrim").classList.toggle("x-clear", src.listOpen && !document.documentElement.classList.contains("x-sheet-on"));
-  if (src.listOpen) { $("xScrim").hidden = false; placeSheets(); } else if ($("xScrim") && !document.documentElement.classList.contains("x-sheet-on")) $("xScrim").hidden = true;
+  if (src.listOpen) $("xScrim").hidden = false;
+  else if ($("xScrim") && !document.documentElement.classList.contains("x-sheet-on")) $("xScrim").hidden = true;
   paintSrc();
+  if (src.listOpen) placeSheets();   // after paint: the bar height is final, then the list is sized to sit above the piano
 }
 export function sourceState() { return Object.assign({}, src); }
 function paintSrc() {
@@ -668,6 +704,7 @@ function wireAll() {
     var b = e.target.closest("button[data-i]"); if (!b) return;
     unlock(); srcDo({ type: "pick", i: +b.dataset.i });
   });
+  $("xPList").addEventListener("scroll", paintProgMore, { passive: true });
   $("xScrim").addEventListener("click", function () { closeAll(); });
   $("xFull").addEventListener("click", function () { click("#allKeys"); schedule(); });
   $("xKeysChip").addEventListener("click", function () { closeAll(); setKeys(nextKeys()); });
