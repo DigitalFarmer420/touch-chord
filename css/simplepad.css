@@ -76,6 +76,15 @@ html.simple.lay-pad-land #prog .pg-song.on svg, html.simple.lay-pad-port #prog .
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 4.5v15l12.5-7.5z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 4.5v15l12.5-7.5z'/%3E%3C/svg%3E") center / 100% 100% no-repeat; }
 
+/* Song | Progressions (#xTog, placed before the mode chip by simplesrc.js) as in the simple-v4 renders: 44 tall, 3-px
+   padding, 14-px radius track; 38-42-px buttons, Nunito 700 19 px; 320 wide in landscape, 380 in portrait; Song 0.8 : 1.2. */
+html.simple.lay-pad-land #xTog, html.simple.lay-pad-port #xTog { height: 44px; max-width: none; margin: 0; align-self: center; }
+html.simple.lay-pad-land #xTog { flex: 0 0 320px; }
+html.simple.lay-pad-port #xTog { flex: 0 0 380px; }
+html.simple.lay-pad-land #xTog button, html.simple.lay-pad-port #xTog button { height: 38px; min-height: var(--ctrl); font: 700 19px Nunito, system-ui, sans-serif; }   /* as rendered in simple-v4: the app's button floor (--ctrl: 42 portrait, 40 landscape) wins over 38, so portrait buttons overhang the track's bottom by 1 px */
+html.simple.lay-pad-land #xTog button[data-v="song"], html.simple.lay-pad-port #xTog button[data-v="song"] { flex: 0.8 1 0; }
+html.simple.lay-pad-land #xTog button[data-v="prog"], html.simple.lay-pad-port #xTog button[data-v="prog"] { flex: 1.2 1 0; }
+
 /* ---- Landscape: left column NOW 222 / slider 22 / key 84 / Major 56 / song picker 48 / play-next + Play 92 / Sustain 154 ---- */
 html.simple.lay-pad-land #app {
   grid-template-columns: calc(300 * var(--sw)) minmax(0, 1fr) auto;   /* left column 300 at 1180 wide */

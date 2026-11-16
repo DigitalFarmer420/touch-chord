@@ -742,10 +742,5 @@ html.simple #xTog button[data-v="prog"] { flex: 1.38 1 0; padding: 0 8px; }
 html.simple.lay-phone-port header.topbar .brand { display: none; }
 
 html.simple.s-src-prog #songBar { display: none !important; }
-html.simple.s-src-song #prog .pg-sel { display: none; }
-/* Progressions shows the picker under Major, which stole ~51px from the Now card and
-   clipped the NOW label and chord notes. Lyrics are hidden in this view, so the now/sus
-   row can grow by that amount and keep the Now card the same height as in Song. */
-@media (min-height: 701px) {
-  html.simple.lay-phone-port.s-src-prog #app { grid-template-rows: auto auto 352px minmax(0, 1fr); }
-}
+/* The song picker stays in view in both Song and Progressions (as before the toggle and as in Uiux simple-v4),
+   so #prog shows the song's full name in Song view and the Now card keeps its pre-toggle height in both views. */

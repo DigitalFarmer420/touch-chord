@@ -53,7 +53,7 @@ test('CSS: Simple #xTog uses --x-row / --x-fs on phones; lyrics hidden in Progre
   assert.match(css, /html\.expert\.lay-phone-port #xTog button\[data-v="song"\] \{ flex: 0\.72 1 0;/);
   assert.doesNotMatch(css, /html\.simple\.lay-pad-land #xTog/);
   assert.match(css, /html\.simple\.s-src-prog #songBar \{ display: none !important; \}/);
-  assert.match(css, /html\.simple\.s-src-song #prog \.pg-sel \{ display: none; \}/);
+  assert.doesNotMatch(css, /s-src-song #prog \.pg-sel/);   // the picker (with the song name) stays in Song view
 });
 
 test('Simple source switch: Progressions picks a style progression, Song picks the uploaded song', () => {
@@ -91,10 +91,10 @@ test('Simple Progressions stepping skips the uploaded song', () => {
   assert.equal(S.simpleProgStepIndex(list, 2, -1), 1);
 });
 
-test('CSS: narrow Simple toggle tightens padding; phone Progressions grows the Now row', () => {
+test('CSS: narrow Simple toggle tightens padding; the Now row is the same in both views', () => {
   assert.match(css, /@media \(max-width: 370px\) \{\s*html\.simple \{ --x-fs: 13px; \}/);
   assert.match(css, /html\.simple #xTog button\[data-v="song"\],\s*html\.simple #xTog button\[data-v="prog"\] \{ padding: 0 4px; \}/);
-  assert.match(css, /html\.simple\.lay-phone-port\.s-src-prog #app \{ grid-template-rows: auto auto 352px minmax\(0, 1fr\); \}/);
+  assert.doesNotMatch(css, /s-src-prog #app \{ grid-template-rows/);
   // Expert's 360px split is unchanged (no Expert rule inside the 370px query).
   const narrow = css.match(/@media \(max-width: 370px\) \{([\s\S]*?)\n\}/);
   assert.ok(narrow, 'expected a 370px query');
