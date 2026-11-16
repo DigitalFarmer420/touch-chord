@@ -17,7 +17,16 @@
 // inside the viewport, and clear of the chord pads; Simple's #xTog is display:none and 0x0
 // (placeSimpleTog is not in this tree). When TOGGLE_FIXME is true that geometry check is
 // skipped and the reason is printed. A console error or a failed request during the walk
-// still fails the run. Every other check fails the process. Requests to the same host that
+// still fails the run. Every other check fails the process.
+//
+// N20 (phone-browser fluid UI) measures Simple / Expert / Kids at portrait (360x640,
+// 390x664, 412x732, 412x780), landscape (640x360, 732x412) and medium (700x900). Checks:
+// the last Simple grid row, the Expert piano (#pads) and the Kids pads (.kv-pads) sit
+// fully inside window.visualViewport; Sustain's center x is in the left half of #app
+// (modes that show it); and the layout does not overflow sideways. Cells that fail on
+// develop 9a444df are fixme when TOGGLE_FIXME is true — set TOGGLE_FIXME=0 to run them
+// for real. Cells that already pass are real checks either way. Tap targets under 44px
+// are logged as informational only (piano black keys, 36px style chips, and similar). Requests to the same host that
 // sit outside the site prefix are ignored and named; they are not checks. A console error
 // that mentions such a URL is ignored the same way. Each one is printed in full as
 // "ignored (outside prefix): <check>: <text>" and counted on the summary line.
@@ -518,6 +527,197 @@ try {
       record(label, false, (e && e.message || String(e)).split('\n')[0]);
     } finally {
       await ctx.close();
+    }
+  }
+
+  // N20: phone-browser fluid UI. Setup matches the Test Engineer baseline on develop 9a444df:
+  // Simple/Expert at Jazz, key pc=1 (shown as D♭ in Simple; the owner reported it as C♯),
+  // song "Anh Đã Ổn Hơn"; Kids after the home Go + first card. Day (hour=12); Lamp matched
+  // Day on every cell in that baseline, so these checks run Day only.
+  const N20_VPS = [[360, 640], [390, 664], [412, 732], [412, 780], [640, 360], [732, 412], [700, 900]];
+  const N20_FIXME_A = new Set(['360x640 simple', '390x664 simple', '412x732 simple', '360x640 expert']);
+  const N20_FIXME_B = new Set(['360x640 simple', '390x664 simple', '412x732 simple', '412x780 simple', '700x900 simple']);
+  const N20_A_LABEL = { simple: 'last grid row', expert: 'piano', kids: 'pads' };
+  function recordN20(name, ok, detail, knownFail) {
+    if (knownFail && TOGGLE_FIXME) {
+      results.push({ name, ok: true, fixme: true, detail });
+      console.log('FIXME ' + name + (detail ? '  ' + detail : ''));
+    } else {
+      record(name, ok, detail);
+    }
+  }
+  async function n20Fresh(w, h, where) {
+    const ctx = await browser.newContext({ viewport: { width: w, height: h }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 });
+    await ctx.addInitScript(() => {
+      try { localStorage.clear(); localStorage.setItem('touchChord.tour.v1', 'done'); } catch (e) {}
+    });
+    const page = await ctx.newPage();
+    return { ctx, page, bag: track(page, where) };
+  }
+  async function n20Prepare(page, mode) {
+    if (mode === 'kids') {
+      await boot(page, 'test=1&hour=12&kv=1');
+      await page.waitForSelector('#kv .kv-go', { timeout: 8000 });
+      await page.locator('#kv .kv-go').click();
+      await page.waitForSelector('#kv .kv-card', { timeout: 8000 });
+      await page.locator('#kv .kv-card').first().click();
+      await page.waitForSelector('.kv-pad, .kv-playbtn', { timeout: 8000 });
+    } else {
+      await boot(page, mode === 'expert' ? 'test=1&hour=12&expert=1' : 'test=1&hour=12');
+      if (mode === 'simple') {
+        const landed = await landedMode(page);
+        if (landed !== 'simple') await switchTo(page, 'simple');
+      }
+      await page.evaluate(() => { const b = document.querySelector('#styles button[data-style="jazz"]'); if (b) b.click(); });
+      await page.waitForTimeout(80);
+      await page.evaluate(t => { if (window.__upload && typeof window.__upload.load === 'function') window.__upload.load(t); }, N11_SONG);
+      await page.waitForTimeout(450);
+      await page.keyboard.press('Escape').catch(() => {});
+      await page.evaluate(() => {
+        document.querySelectorAll('.up-x, .kp-x').forEach(x => { if (x.offsetParent) x.click(); });
+        const up = document.getElementById('uploadPick'); if (up) up.hidden = true;
+        if (typeof window.__setKey === 'function') window.__setKey(1, 'major');
+      });
+      await page.waitForTimeout(200);
+    }
+    await page.evaluate(() => document.fonts && document.fonts.ready);
+    await page.waitForTimeout(100);
+  }
+
+  for (const [w, h] of N20_VPS) {
+    for (const mode of ['simple', 'expert', 'kids']) {
+      const cell = w + 'x' + h + ' ' + mode;
+      const where = 'N20 ' + cell;
+      const { ctx, page, bag } = await n20Fresh(w, h, where);
+      try {
+        await n20Prepare(page, mode);
+        const m = await page.evaluate((modeName) => {
+          const vis = el => {
+            if (!el) return false;
+            const s = getComputedStyle(el);
+            const r = el.getBoundingClientRect();
+            return s.display !== 'none' && s.visibility !== 'hidden' && r.width > 0 && r.height > 0;
+          };
+          const vv = window.visualViewport;
+          const se = document.scrollingElement || document.documentElement;
+          const vvTop = vv ? vv.offsetTop : 0;
+          const vvH = vv ? vv.height : innerHeight;
+          const vvW = vv ? vv.width : innerWidth;
+          const vvLeft = vv ? vv.offsetLeft : 0;
+          const vvBottom = vvTop + vvH;
+          const vvRight = vvLeft + vvW;
+          let box = null, kind = modeName;
+          if (modeName === 'simple') {
+            const suggest = document.getElementById('suggest');
+            const cells = suggest ? [...suggest.querySelectorAll('.ss-chip, .ss-note')].filter(vis) : [];
+            const rowMap = new Map();
+            for (const el of cells) {
+              const top = Math.round(el.getBoundingClientRect().top);
+              let key = top;
+              for (const k of rowMap.keys()) if (Math.abs(k - top) <= 4) { key = k; break; }
+              if (!rowMap.has(key)) rowMap.set(key, []);
+              rowMap.get(key).push(el);
+            }
+            const rows = [...rowMap.entries()].sort((a, b) => a[0] - b[0]);
+            const last = rows.length ? rows[rows.length - 1][1] : [];
+            if (last.length) {
+              const rs = last.map(el => el.getBoundingClientRect());
+              box = { top: Math.min(...rs.map(r => r.top)), bottom: Math.max(...rs.map(r => r.bottom)), left: Math.min(...rs.map(r => r.left)), right: Math.max(...rs.map(r => r.right)) };
+            }
+            kind = 'last grid row';
+          } else if (modeName === 'expert') {
+            const pads = document.getElementById('pads');
+            const wrap = document.querySelector('.kb-wrap');
+            const el = pads && vis(pads) ? pads : (wrap && vis(wrap) ? wrap : null);
+            if (el) box = el.getBoundingClientRect();
+            kind = 'piano';
+          } else {
+            const wrap = document.querySelector('.kv-pads');
+            const pads = [...document.querySelectorAll('.kv-pad')].filter(vis);
+            if (wrap && vis(wrap)) box = wrap.getBoundingClientRect();
+            else if (pads.length) {
+              const rs = pads.map(el => el.getBoundingClientRect());
+              box = { top: Math.min(...rs.map(r => r.top)), bottom: Math.max(...rs.map(r => r.bottom)), left: Math.min(...rs.map(r => r.left)), right: Math.max(...rs.map(r => r.right)) };
+            }
+            kind = 'pads';
+          }
+          const overflowVv = box ? +(box.bottom - vvBottom).toFixed(1) : null;
+          const app = document.getElementById('app');
+          const appBox = app && vis(app) ? app.getBoundingClientRect() : null;
+          const midline = appBox ? appBox.left + appBox.width / 2 : innerWidth / 2;
+          const sus = document.getElementById('sustainBtn');
+          const susOn = vis(sus);
+          const susR = susOn ? sus.getBoundingClientRect() : null;
+          const susCx = susR ? susR.left + susR.width / 2 : null;
+          const rights = [];
+          for (const root of [app, document.getElementById('kv'), document.body].filter(Boolean)) {
+            rights.push(root.getBoundingClientRect().right);
+            for (const el of root.children) if (vis(el)) rights.push(el.getBoundingClientRect().right);
+          }
+          if (box) rights.push(box.right);
+          const maxRight = rights.length ? Math.max(...rights) : 0;
+          const hOverflow = Math.max(0, +(maxRight - vvRight).toFixed(1), +((se.scrollWidth || 0) - innerWidth).toFixed(1));
+          const tapSel = 'button, [role="button"], a[href], input, select, textarea, .ss-chip, .ss-note, .pad, .kv-pad, .kv-playbtn, .kv-next, .kv-card, .kv-go, .mode-chip, .pg-btn';
+          const seen = new Set();
+          const offenders = [];
+          for (const el of document.querySelectorAll(tapSel)) {
+            if (seen.has(el) || !vis(el) || getComputedStyle(el).pointerEvents === 'none') continue;
+            seen.add(el);
+            const r = el.getBoundingClientRect();
+            const min = Math.min(r.width, r.height);
+            if (min + 0.5 < 44) {
+              offenders.push({
+                id: el.id || '',
+                text: (el.getAttribute('aria-label') || el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 40),
+                w: +r.width.toFixed(1), h: +r.height.toFixed(1), min: +min.toFixed(1)
+              });
+            }
+          }
+          return {
+            kind, overflowVv, bottom: box ? +box.bottom.toFixed(1) : null, vvBottom: +vvBottom.toFixed(1),
+            hasBox: !!box, susOn, susCx: susCx == null ? null : +susCx.toFixed(1),
+            midline: +midline.toFixed(1),
+            susLeft: susOn && susCx < midline - 0.5,
+            susDelta: susOn ? +(susCx - midline).toFixed(1) : null,
+            hOverflow, offenders
+          };
+        }, mode);
+        const pageNotes = bag.errors.concat(bag.failed).slice(0, 3);
+        const aName = 'N20 ' + cell + ': ' + N20_A_LABEL[mode] + ' fully inside the visual viewport';
+        const aNotes = [];
+        if (!m.hasBox) aNotes.push('no ' + N20_A_LABEL[mode] + ' to measure');
+        else if (m.overflowVv > 1) aNotes.push(m.kind + ' overflows the visual viewport by ' + m.overflowVv + 'px (bottom ' + m.bottom + ' vs vv ' + m.vvBottom + ')');
+        if (pageNotes.length) aNotes.push('page: ' + pageNotes.join('; '));
+        if (aNotes.length) await shot(page, aName);
+        recordN20(aName, !aNotes.length, aNotes.length ? aNotes.join(' | ') : (m.kind + ' ' + m.overflowVv + 'px vs the visual viewport'), N20_FIXME_A.has(cell));
+
+        if (mode !== 'kids') {
+          const bName = 'N20 ' + cell + ': Sustain center is in the left half';
+          const bNotes = [];
+          if (!m.susOn) bNotes.push('Sustain is not visible');
+          else if (!m.susLeft) bNotes.push('Sustain center x ' + m.susCx + ' is not left of the layout midline ' + m.midline + ' (delta ' + m.susDelta + 'px)');
+          if (pageNotes.length) bNotes.push('page: ' + pageNotes.join('; '));
+          if (bNotes.length) await shot(page, bName);
+          recordN20(bName, !bNotes.length, bNotes.length ? bNotes.join(' | ') : ('Sustain cx ' + m.susCx + ', midline ' + m.midline), N20_FIXME_B.has(cell));
+        }
+
+        const dName = 'N20 ' + cell + ': no horizontal overflow';
+        const dNotes = [];
+        if (m.hOverflow > 1) dNotes.push('horizontal overflow ' + m.hOverflow + 'px');
+        if (pageNotes.length) dNotes.push('page: ' + pageNotes.join('; '));
+        if (dNotes.length) await shot(page, dName);
+        record(dName, !dNotes.length, dNotes.length ? dNotes.join(' | ') : '0px');
+
+        if (m.offenders && m.offenders.length) {
+          const head = m.offenders.slice(0, 8).map(o => (o.id ? '#' + o.id : o.text || 'target') + ' ' + o.w + 'x' + o.h).join('; ');
+          console.log('N20 tap targets (informational) ' + cell + ': ' + m.offenders.length + ' under 44px: ' + head);
+        }
+      } catch (e) {
+        await shot(page, where);
+        record(where, false, (e && e.message || String(e)).split('\n')[0]);
+      } finally {
+        await ctx.close();
+      }
     }
   }
 
