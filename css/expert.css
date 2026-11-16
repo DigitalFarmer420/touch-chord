@@ -594,3 +594,98 @@ html.expert.lay-phone-port .x-lrows { height: calc(var(--x-lh1) + var(--x-lh2) *
 html.expert.lay-phone-port .x-lroll.go { transform: translateY(calc(-1 * (var(--x-lh1) + var(--x-cb)))); }
 html.expert .x-cuetag.x-cuein { position: static; display: inline-block; margin-left: 3px; vertical-align: 1px; transform: none !important; }
 html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x-cuein { font-size: 11px; line-height: 12px; }   /* was 13/14; 11px floor, still inside the 17 px next-line box */
+
+/* Expert large-screen browser layer (test.6, Expert v5).
+   The existing size classifier includes desktop windows, not just touch devices.
+   Simple and medium/compact layouts deliberately cannot match this layer. */
+@media (min-width: 768px) and (min-height: 600px) {
+  /* Sizing knobs: approved vh heights / vw widths, with exact reference anchors.
+     Extra room beyond these caps remains available to the grid and keyboard. */
+  html.expert.lay-pad-land #app {
+    --xl-row-min: 56px; --xl-row-max: 80px;
+    --xl-go-min: 80px; --xl-go-max: 112px;
+    --xl-next-min: 120px; --xl-next-max: 168px;
+    --xl-row: clamp(var(--xl-row-min), calc(64 / 820 * 100vh), var(--xl-row-max));
+    --xl-go: clamp(var(--xl-go-min), calc(90 / 820 * 100vh), var(--xl-go-max));
+    --xl-next: clamp(var(--xl-next-min), calc(130 / 1180 * 100vw), var(--xl-next-max));
+    --xl-next-icon: calc(var(--xl-go) * 40 / 90);
+    --xl-play-icon: calc(var(--xl-go) * 36 / 90);
+    --xl-tog-width: clamp(280px, calc(360 / 1180 * 100vw), 410px);
+    --x-row: var(--xl-row); --x-src-h: var(--xl-go);
+    --x-side: 184px; --x-now-w: var(--x-side);
+    --x-sus-h: clamp(104px, 14vh, 160px);
+    --x-kb-h: clamp(264px, 33vh, 400px);
+    --x-lh1: 25px; --x-lh2: 20px;
+  }
+  html.expert.lay-pad-port #app {
+    --xl-row-min: 56px; --xl-row-max: 80px;
+    --xl-next-min: 160px; --xl-next-max: 240px;
+    --xl-row: clamp(var(--xl-row-min), calc(64 / 1180 * 100vh), var(--xl-row-max));
+    --xl-go: var(--xl-row);
+    --xl-next: clamp(var(--xl-next-min), calc(180 / 820 * 100vw), var(--xl-next-max));
+    --xl-next-icon: calc(var(--xl-go) * 48 / 64);
+    --xl-play-icon: calc(var(--xl-go) * 36 / 64);
+    --x-row: var(--xl-row);
+  }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xTop { flex-wrap: nowrap; }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xTop .x-key,
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xTop .x-style {
+    height: var(--xl-row); min-height: 44px; align-self: stretch; box-sizing: border-box;
+  }
+  html.expert.lay-pad-land #xTop .x-key { flex: 1 1 200px; max-width: 250px; min-width: 90px; }
+  html.expert.lay-pad-land #xTop .x-style { flex: 1 1 170px; max-width: 220px; min-width: 80px; }
+  html.expert.lay-pad-land #xTop > .x-b,
+  html.expert.lay-pad-land #xTop .mode-chip {
+    height: var(--xl-row); min-height: 44px; align-self: stretch;
+    box-sizing: border-box; font-size: 22px; border-radius: 16px;
+  }
+  html.expert.lay-pad-land #xTop .mode-chip { flex: 0 1 132px; min-width: 96px; padding: 0 12px; }
+  html.expert.lay-pad-land #xTop .x-help {
+    flex: 0 0 56px; width: 56px; height: 56px; min-width: 56px; min-height: 56px;
+    align-self: center; border-radius: 50%;
+  }
+  html.expert.lay-pad-land #xTop .x-help svg { width: 26px; height: 26px; }
+  html.expert.lay-pad-land #xTop .x-slot { flex: 1 1 0; min-width: 280px; }
+  html.expert.lay-pad-land #xTop .x-slot #xTog { flex: 0 1 var(--xl-tog-width); }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xTog {
+    height: var(--xl-row); align-self: stretch; align-items: stretch;
+    padding: 3px; box-sizing: border-box;
+  }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xTog button {
+    height: auto; min-height: 44px; align-self: stretch;
+  }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xGo {
+    height: var(--xl-go); align-items: stretch; flex-wrap: nowrap;
+  }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xGo > .x-b {
+    height: var(--xl-go); min-height: 44px; align-self: stretch;
+    flex: none; box-sizing: border-box;
+    /* JS retains the accessible name and playback state. Only its visual glyph
+       is replaced: the white button remains a triangle even while playing. */
+    font-size: 0; color: transparent;
+    background-position: center; background-repeat: no-repeat;
+  }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xGo .x-next {
+    width: var(--xl-next); background-color: #2F8F83; border-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 5v14l10-7z' fill='%23FFFFFF'/%3E%3Crect x='16.5' y='5' width='2.6' height='14' rx='1' fill='%23FFFFFF'/%3E%3C/svg%3E");
+    background-size: var(--xl-next-icon) var(--xl-next-icon);
+  }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xGo .x-play {
+    width: var(--xl-go); background-color: #fff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 5v14l11-7z' fill='%232B2118'/%3E%3C/svg%3E");
+    background-size: var(--xl-play-icon) var(--xl-play-icon);
+  }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xCtl .x-sound { order: 1; }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xCtl .x-full { order: 2; }
+  html.expert.lay-pad-land #xCtl { flex-flow: column nowrap; align-content: stretch; }
+  html.expert.lay-pad-land #xCtl .x-full,
+  html.expert.lay-pad-land #xCtl .x-sound {
+    flex: 1 1 0; height: auto; min-height: 56px; width: 100%; font-size: 18px;
+  }
+  html.expert.lay-pad-land #xCtl .x-full small,
+  html.expert.lay-pad-land #xCtl .x-sound small { font-size: 12px; }
+  html.expert.lay-pad-land #symbol { font-size: 34px !important; }
+  html.expert.lay-pad-land .x-lrow.cur { font-size: 23px; }
+  html.expert.lay-pad-land .x-lrow.nxt { font-size: 18px; }
+  html.expert.lay-pad-land #suggest.ss { --ss-fs: 26px; --ss-rg: 6px; }
+}
