@@ -108,8 +108,10 @@ function paintSimpleLyr(bar, cur) {
   var alts = ci >= 0 && !U.locked && (upEv(e0.si, ci).alternates || []).length;
   var rows = card.rows.map(function (r, k) { return slRowHtml(r, k === 0 ? "cur" : "nxt", cue && cue.k === k ? cue : null, inl); }).join("");
   var tag = cue && !inl ? "<span class=\"sl-cuetag" + (cue.cls ? " " + cue.cls : "") + "\" aria-hidden=\"true\" hidden>" + upEsc(cue.chord) + "</span>" : "";
-  var head = "<span class=\"sb-sec\">" + upEsc(upSecName(ent.si)) + "</span>", tail = alts ? "<span class=\"sb-alt\">alt \u25be</span>" : "";
-  var key = head + "<span class=\"sl-lyr\" data-n=\"" + n + "\"><span class=\"sl-roll\">" + rows + "</span>" + tag + "</span>" + tail;
+  // Vinh 2026-11-17: no section chip ("Verse 1 (Second Half)") in Simple's lyric box; the lines get its width. The
+  // section name stays in the bar's aria-label and in the later rows' "Chorus ·" prefix when a new section starts.
+  var tail = alts ? "<span class=\"sb-alt\">alt \u25be</span>" : "";
+  var key = "<span class=\"sl-lyr\" data-n=\"" + n + "\"><span class=\"sl-roll\">" + rows + "</span>" + tag + "</span>" + tail;
   var same = slState.ev === U.events;
   if (slState.anim && same) return;   // finish the roll first; its timer repaints
   var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;

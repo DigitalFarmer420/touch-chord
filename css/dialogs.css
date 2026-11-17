@@ -339,7 +339,6 @@ html.simple.up-slyr #app { --sl-n: 3; --sl-cb: 0px; --sl-l1: 22px; --sl-l2: 19px
 html.simple.up-slyr.lay-phone-land #app { --sl-n: 2; --sl-cb: 0px; --sl-l1: 19px; --sl-l2: 16px; --sl-f1: 15px; --sl-f2: 13px; }
 html.simple.up-slyr.lay-pad-port #app, html.simple.up-slyr.lay-pad-land #app { --sl-cb: 0px; --sl-l1: 32px; --sl-l2: 26px; --sl-f1: 24px; --sl-f2: 19px; }
 html.simple.up-slyr.up-on #songBar { height: auto; align-items: flex-start; margin-bottom: 4px; }
-html.simple.up-slyr #songBar .sb-sec { margin-top: calc(var(--sl-cb) + (var(--sl-l1) - 1.6em) / 2); }
 #songBar .sl-lyr { display: block; flex: 1 1 auto; min-width: 0; position: relative; overflow: hidden;
   height: calc(var(--sl-l1) + var(--sl-cb) + (var(--sl-l2) + var(--sl-cb)) * (var(--sl-n, 3) - 1)); }
 #songBar .sl-roll { display: block; will-change: transform; }
