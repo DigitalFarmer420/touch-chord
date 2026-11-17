@@ -548,7 +548,6 @@ html.expert .x-lrow { display: block; white-space: nowrap; overflow: hidden; tex
 html.expert .x-lrow.cur { font: 700 16px/var(--x-lh1) Andika, Nunito, system-ui, sans-serif; height: var(--x-lh1); color: var(--x-ink); text-overflow: clip; }
 html.expert .x-lrow.nxt { font: 600 14px/var(--x-lh2) Andika, Nunito, system-ui, sans-serif; height: var(--x-lh2); color: var(--x-muted); }
 html.expert .x-lrow .x-now { background: var(--x-gold); color: #3B2600; border-radius: 6px; padding: 0 4px; }
-html.expert .x-lrow .x-lsec { font-family: Fredoka, Nunito, system-ui, sans-serif; font-weight: 600; margin-right: 4px; }
 html.expert .x-lrow.cur .x-lin { display: inline-block; transition: transform .2s ease-out; }
 html.expert .x-lrow.cur.x-shift { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px); mask-image: linear-gradient(90deg, transparent 0, #000 16px); }
 html.expert .x-lrow.cur.x-ovr { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 16px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 16px), transparent); }
@@ -811,4 +810,24 @@ html.simple.s-src-prog #songBar { display: none !important; }
 @media (max-width: 599.98px), (max-height: 599.98px) {
   html.expert:is(.lay-phone-port, .lay-phone-land) .x-songc:not(.x-empty) > .x-stitle {
     position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+}
+
+/* N20 2026-11-17 (Vinh): a later line's section name is a caption line of its own just above it (no " ·", not a pill or
+   control): small muted text, one line with an ellipsis (ui.js capLayout). It takes one line slot, so the card never grows;
+   on phones (title hidden above) it uses the title's freed line instead (.x-hascap: the rows box gains exactly that line,
+   inside the same card). No name = no caption line. */
+html.expert #app { --x-capf: 11px; --x-capl: 13px; }
+html.expert.lay-phone-land #app { --x-capf: 10px; --x-capl: 11px; }
+html.expert.lay-pad-port #app { --x-capf: 14px; --x-capl: 17px; } html.expert.lay-pad-land #app { --x-capf: 12px; --x-capl: 15px; }
+@media (max-height: 348px) { html.expert.lay-phone-land #app { --x-capf: 9px; --x-capl: 9px; } }
+html.expert .x-lcap { display: block; box-sizing: border-box; height: calc(var(--x-lh2) + var(--x-cb, 0px)); padding-top: calc(var(--x-lh2) + var(--x-cb, 0px) - var(--x-capl));
+  font: 600 var(--x-capf)/var(--x-capl) Fredoka, Nunito, system-ui, sans-serif; color: var(--x-muted); text-transform: capitalize;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+@media (max-width: 599.98px), (max-height: 599.98px) {
+  html.expert:is(.lay-phone-port, .lay-phone-land) .x-lrows.x-hascap .x-lcap { height: var(--x-capl); padding-top: 0; }
+  html.expert.lay-phone-port .x-lrows.x-hascap { height: calc(var(--x-lh1) + var(--x-lh2) * var(--x-lrn, 1) + var(--x-cb) * (1 + var(--x-lrn, 1)) + var(--x-capl)); }
+  html.expert.lay-phone-land .x-lrows.x-hascap { height: calc(var(--x-lh1) + var(--x-lh2) * var(--x-lrn, 1) + var(--x-capl)); }
+  /* phone portrait: the line under the caption has no cue name (ui.js x-lcap-b), so its 15 px band goes above the caption */
+  html.expert.lay-phone-port .x-lrows.x-hascap .x-lcap.x-lcap-b { height: calc(var(--x-capl) + var(--x-cb)); padding-top: var(--x-cb); }
+  html.expert.lay-phone-port .x-lrows.x-hascap .x-lcap.x-lcap-b + .x-lrow { padding-top: 0; height: var(--x-lh2); }
 }

@@ -9,7 +9,7 @@ import { secLyrics } from "../songs/fullchart.js?v=112.16";
 import { upLyrMap, lyrState, paintLyr2, lyrPad } from "./lyrics.js?v=112.16";
 import { fitStrip, stripChips } from "./strip.js?v=112.16";
 import { nextChange, songCue, cueSoon, cueClock, cueWord, cuePieces, placeCueTag, cueChipClass } from "./chordcue.js?v=112.16";
-import { songCardRows } from "../expert/model.js?v=112.16";
+import { songCardRows, capLayout } from "../expert/model.js?v=112.16";
 import { paintSimpleSrc } from "./simplesrc.js?v=112.16";
 import { progLoopBar, songTempo } from "../songs/song.js?v=112.16";
 // v3.2 test.5: the next-chord cue in the song bar. Full (classic) mode's rows print each chord name inline, right
@@ -60,9 +60,9 @@ function slVar(n) {   // the CSS numbers (dialogs.css): rows shown (--sl-n), ban
 }
 export function slRowCount() { var v = slVar("--sl-n"); return v >= 2 ? v : document.documentElement.classList.contains("lay-phone-land") ? 2 : 3; }
 function slInline() { var cb = slVar("--sl-cb"); return isNaN(cb) ? !document.documentElement.classList.contains("lay-phone-port") : cb < 1; }
+export function slCapHtml(name) { return "<span class=\"sl-cap\">" + upEsc(name) + "</span>"; }   // N20: the section caption line
 export function slRowHtml(r, cls, cue, inl) {
   var h = "";
-  if (r.sec) h += "<span class=\"sl-sec\">" + upEsc(r.sec) + " \u00b7</span> ";
   if (r.kind === "lyric" || r.kind === "text") {
     var text = r.kind === "lyric" ? r.before + r.word + r.after : r.text, rg = [];
     if (r.kind === "lyric" && r.word) rg.push({ a: r.before.length, b: r.before.length + r.word.length, cls: "sl-now" });
@@ -103,10 +103,12 @@ function paintSimpleLyr(bar, cur) {
     var na = r0.before.length, nb = na + r0.word.length;
     if (cue.a < nb && cue.b > na) cue = null;
   }
+  var lay = capLayout(card.rows, false);   // N20: section name on its own caption line, taking one row slot
+  if (cue && !lay.some(function (it) { return it.row && it.k === cue.k; })) cue = null;   // its row dropped for a caption
   sbCue.j = cue ? cue.j : -1;
   var ent = M.seq[card.idx] || { si: e0 ? e0.si : 0 };
   var alts = ci >= 0 && !U.locked && (upEv(e0.si, ci).alternates || []).length;
-  var rows = card.rows.map(function (r, k) { return slRowHtml(r, k === 0 ? "cur" : "nxt", cue && cue.k === k ? cue : null, inl); }).join("");
+  var rows = lay.map(function (it) { return it.cap != null ? slCapHtml(it.cap) : slRowHtml(it.row, it.k === 0 ? "cur" : "nxt", cue && cue.k === it.k ? cue : null, inl); }).join("");
   var tag = cue && !inl ? "<span class=\"sl-cuetag" + (cue.cls ? " " + cue.cls : "") + "\" aria-hidden=\"true\" hidden>" + upEsc(cue.chord) + "</span>" : "";
   // Vinh 2026-11-17: no section chip ("Verse 1 (Second Half)") in Simple's lyric box; the lines get its width. The
   // section name stays in the bar's aria-label and in the later rows' "Chorus ·" prefix when a new section starts.

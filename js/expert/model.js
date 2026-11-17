@@ -175,6 +175,17 @@ export function songCardRows(M, cur, n, ci, lines, chords, name) {
   }
   return { idx: idx, rows: rows };
 }
+// N20 2026-11-17 (Vinh): a later row's section name is a caption line of its own just above that row ("Chorus", no
+// " ·"), never inline. capLayout(rows, free) -> the items to draw in order: {cap: name} before a row that starts a new
+// section, and {row, k} (k = index in rows, for "cur" / the cue). The card never grows: a caption takes one row slot
+// (the last rows drop), except that `free` (Expert phones, where the hidden title's line is free) holds one caption.
+// No name (empty) = no caption line.
+export function capLayout(rows, free) {
+  var out = [], caps = 0, n = 0;
+  rows.forEach(function (r, k) { if (r.sec) { out.push({ cap: String(r.sec) }); caps++; } out.push({ row: r, k: k }); n++; });
+  while (out.length && n + Math.max(0, caps - (free ? 1 : 0)) > rows.length) { if (out.pop().cap != null) caps--; else n--; }
+  return out;
+}
 // Style drop-down (decision 6): the nine styles with the mockup's short sound hints.
 // rd4: no Kids here - the Kids / Simple / Expert switch is the only way into Kids (the classic style chips keep Kids)
 export const STYLE_MENU = [
