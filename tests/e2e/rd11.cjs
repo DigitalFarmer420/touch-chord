@@ -1,7 +1,6 @@
 // rd11 (Uiux Lows on Simple Day): (1) the Look helper line, same wording and style in the Kids, Simple and Expert sheets;
 // (2) the tension chip (Bbsus4, m7b5, 7b9) is a mid plum in Day, darker than and distinct from minor, white text AA; Lamp keeps navy;
-// (3) lyric rows (PR #26 / N20 2026-11-17): no section chip; the lyric block starts at the bar's left padding (iPad: 3-row block,
-//     360x780: 2 rows); a later line's section name is its own caption line above it (no " ·", smaller, one line), bar height kept;
+// (3) iPad lyric rows: the section chip is top-aligned with the first lyric line (Day and Lamp), phone unchanged;
 // (4) contrast at 820x1180 and 1180x820 in Day; (5) Simple Lamp = rd10 pixel for pixel outside the song bar (RD10=<e8cf905 server>).
 // node -r ./emulate.cjs rd11.cjs   env BASE, RD10, OUT, CMP
 const { chromium } = require('playwright-core'); const fs = require('fs'); const path = require('path');
@@ -113,17 +112,8 @@ const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) +
 const hue = ([r, g, b]) => { r /= 255; g /= 255; b /= 255; const M = Math.max(r, g, b), m = Math.min(r, g, b), d = M - m; if (!d) return 0; let h = M === r ? ((g - b) / d) % 6 : M === g ? (b - r) / d + 2 : (r - g) / d + 4; h *= 60; return h < 0 ? h + 360 : h; };
 const song = async p => { await p.evaluate(t => __upload.load(t), V13); await p.waitForTimeout(600); await p.evaluate(() => { for (let i = 0; i < 9; i++) document.querySelector('#prog .pg-step').click(); }); await p.waitForTimeout(600); };
 const geo = p => p.evaluate(() => { const q = s => { const e = document.querySelector(s); return e && e.getClientRects().length ? e.getBoundingClientRect() : null; };
-  const bar = document.getElementById('songBar'), bs = bar && getComputedStyle(bar), b = q('#songBar');
-  const s = q('#songBar .sb-sec'), r = q('#songBar .sl-roll > .sl-row'), l = q('#songBar .sl-lyr');
-  return { sec: s && { x: s.left, y: s.top, w: s.width, h: s.height }, row: r && { x: r.left, y: r.top, h: r.height }, lyr: l && { x: l.left, y: l.top, h: l.height },
-    bar: b && { x: b.left + parseFloat(bs.borderLeftWidth) + parseFloat(bs.paddingLeft), h: b.height } }; });
-// step on until a later line starts a new section: its caption (.sl-cap) and the line under it
-const capGeo = async p => { let first = null; for (let i = 0; i < 40; i++) {   // prefer a caption with its line under it (2-row bars drop that line)
-    const g = await p.evaluate(() => { const c = document.querySelector('#songBar .sl-cap'); if (!c) return null; const n = c.nextElementSibling, cr = c.getBoundingClientRect(), nr = n && n.getBoundingClientRect();
-      const lr = document.querySelector('#songBar .sl-lyr').getBoundingClientRect(), row = document.querySelector('#songBar .sl-roll > .sl-row');
-      return { text: c.textContent, x: cr.left, b: cr.bottom, h: cr.height, fs: parseFloat(getComputedStyle(c).fontSize), rowFs: parseFloat(getComputedStyle(row).fontSize), lines: Math.round(c.scrollHeight / parseFloat(getComputedStyle(c).lineHeight || 1)),
-        ws: getComputedStyle(c).whiteSpace, to: getComputedStyle(c).textOverflow, pe: getComputedStyle(c).pointerEvents, next: nr && { x: nr.left, y: nr.top, cls: n.className }, lyrB: lr.bottom, barH: document.getElementById('songBar').getBoundingClientRect().height }; });
-    if (g && g.next) return g; if (g && !first) first = g; await p.evaluate(() => document.querySelector('#prog .pg-step').click()); await p.waitForTimeout(350); } return first; };
+  const s = q('#songBar .sb-sec'), r = q('#songBar .sb-lyr .sb-row'), l = q('#songBar .sb-lyr');
+  return { sec: s && { x: s.left, y: s.top, w: s.width, h: s.height }, row: r && { x: r.left, y: r.top, h: r.height }, lyr: l && { y: l.top, h: l.height } }; });
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--autoplay-policy=no-user-gesture-required'] });
   // 1. the helper line in all three sheets (Look = Auto)
@@ -170,22 +160,12 @@ const capGeo = async p => { let first = null; for (let i = 0; i < 40; i++) {   /
     for (const look of ['day', 'lamp']) {
       const p = await open(b, w, h, SET.simple, null, LK(look)); const a = pad && SIZES.some(s => s[0] === w && s[1] === h) ? await contrast(p) : null;
       await song(p); const g = await geo(p); D[look] = { geo: g };
-      F(!g.sec, `${T} ${look}: section chip still in the lyric box ${JSON.stringify(g.sec)}`);
-      F(g.row && g.lyr && g.bar, `${T} ${look}: no lyric rows ${JSON.stringify(g)}`);
-      if (g.row && g.lyr && g.bar) {
-        F(Math.abs(g.lyr.x - g.bar.x) <= 1 && Math.abs(g.row.x - g.lyr.x) <= 1, `${T} ${look}: lyric block not at the left padding (bar ${g.bar.x}, block ${g.lyr.x}, row ${g.row.x})`);
-        if (pad) F(g.lyr.h >= 2.5 * g.row.h, `${T} ${look}: expected the 3-row block (${g.lyr.h})`);
-        else F(g.lyr.h >= 1.5 * g.row.h && g.lyr.h < 2.5 * g.row.h, `${T} ${look}: expected 2 rows on the short phone (${g.lyr.h})`);
-      }
-      { const c = await capGeo(p); D[look].cap = c;
-        F(c, `${T} ${look}: no section caption line found`);
-        if (c) { F(!/\u00b7/.test(c.text) && c.text.trim().length > 0, `${T} ${look}: caption text "${c.text}"`);
-          F(c.fs < c.rowFs, `${T} ${look}: caption ${c.fs}px not smaller than the lyric ${c.rowFs}px`);
-          F(c.ws === 'nowrap' && c.to === 'ellipsis' && c.pe === 'none', `${T} ${look}: caption not one line with an ellipsis / has a hit target (${c.ws} ${c.to} ${c.pe})`);
-          F(g.lyr && Math.abs(c.x - g.lyr.x) <= 1, `${T} ${look}: caption not left-aligned with the lyric (${c.x} vs ${g.lyr && g.lyr.x})`);
-          F(!c.next || (/sl-row/.test(c.next.cls) && Math.abs(c.next.y - c.b) <= 0.5 && Math.abs(c.next.x - c.x) <= 1), `${T} ${look}: caption not right above its line ${JSON.stringify(c)}`);
-          F(c.b <= c.lyrB + 0.5, `${T} ${look}: caption outside the lyric block`);
-          F(g.bar && Math.abs(c.barH - g.bar.h) <= 0.5, `${T} ${look}: bar height changed with the caption (${g.bar && g.bar.h} -> ${c.barH})`); } }
+      if (pad) { F(g.sec && g.row, `${T} ${look}: no chip / lyric row ${JSON.stringify(g)}`);
+        if (g.sec && g.row) { const dc = (g.sec.y + g.sec.h / 2) - (g.row.y + g.row.h / 2); D[look].dc = +dc.toFixed(1);
+          F(Math.abs(dc) <= 1 && Math.abs(g.sec.y - g.row.y) <= 2, `${T} ${look}: chip not on the first lyric line (centre off ${dc.toFixed(1)}, top ${g.sec.y} vs ${g.row.y})`);
+          F(g.sec.x + g.sec.w <= g.row.x, `${T} ${look}: chip overlaps the lines`);
+          F(g.lyr.h >= 2.5 * g.row.h, `${T} ${look}: expected the 3-row block (${g.lyr.h})`); }
+      } else F(g.sec && !g.lyr, `${T} ${look}: phone song bar changed ${JSON.stringify(g)}`);
       if (a) { const s1 = await contrast(p); await openSheet(p, 'simple'); await p.waitForTimeout(400); const sh = await sheetContrast(p);
         const bad = [...a.text, ...a.ctrl, ...s1.text, ...s1.ctrl, ...sh.text, ...sh.ctrl]; const n = a.n.text + a.n.ctrl + s1.n.text + s1.n.ctrl + sh.n.text + sh.n.ctrl;
         D[look].contrast = { checked: n, below: bad.length, worst: bad.slice(0, 4).map(x => `${x.g} "${x.t}" ${x.r}`) };
