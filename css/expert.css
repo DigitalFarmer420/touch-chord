@@ -803,9 +803,12 @@ html.simple.s-src-prog #songBar { display: none !important; }
 /* The song picker stays in view in both Song and Progressions (as before the toggle and as in Uiux simple-v4),
    so #prog shows the song's full name in Song view and the Now card keeps its pre-toggle height in both views. */
 
-/* Vinh 2026-11-17: on phones (lay-phone-port / lay-phone-land: every compact and medium size) the song title line at the
-   top of the song card takes room the lyrics need, so it is hidden visually; the lyric rows (unchanged) are centred in the
-   same card height. Screen readers still read the title (visually-hidden, not display:none). iPad and desktop
-   (lay-pad-*) keep it. "No song loaded" (.x-empty) keeps its line. */
-html.expert:not(.lay-pad-port):not(.lay-pad-land) .x-songc:not(.x-empty) > .x-stitle {
-  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+/* Vinh 2026-11-17: on phones the song title line at the top of Expert's song card takes room the lyrics need, so it is
+   hidden visually; the lyric rows (unchanged) are centred in the same card height. Screen readers still read the title
+   (visually-hidden, not display:none). Phones only = the phone layouts (lay-phone-port / lay-phone-land) whose short side
+   is under 600 px (360x780, 390x844, 844x390, 932x430). iPad mini portrait 744x1133 (lay-phone-port, short side 744) and
+   everything larger keep it, as do iPad / desktop (lay-pad-*). "No song loaded" (.x-empty) keeps its line. */
+@media (max-width: 599.98px), (max-height: 599.98px) {
+  html.expert:is(.lay-phone-port, .lay-phone-land) .x-songc:not(.x-empty) > .x-stitle {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+}
