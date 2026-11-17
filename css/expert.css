@@ -750,6 +750,15 @@ html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x
      top/bottom padding and starts at the top, so the lines below keep their room inside the card (1024x768 is tightest).
      PR #5 (Uiux): 3 px above the title keeps its own stacked accents (the hook on Ổ) inside the card's top edge. */
   html.expert:is(.lay-pad-land, .lay-pad-port) .x-songc > .x-stitle { padding-top: 3px; margin-bottom: 6px; }
+  /* PR #26 (Test Engineer): at 1180x820, 1024x768, 1280x720, 1280x600 and 1024x600 (iPad landscape layer) the title (3 + 16)
+     + 6 px gap + the three lyric lines came to 2 px more than the card, so the last line's box ran 2 px past it. The 6 px
+     gap is now part of the title box (fixed height, no margin) and only that gap may shrink, down to 2 px, when the card is
+     short; the lyric block never shrinks. Where the card has room (1180x860 and up, 1920x1080, iPad portrait) nothing moves.
+     Card heights are unchanged. */
+  html.expert:is(.lay-pad-land, .lay-pad-port) .x-songc > .x-stitle { margin-bottom: 0; flex: 0 1 auto; }
+  html.expert.lay-pad-land .x-songc > .x-stitle { height: 25px; min-height: 21px; }
+  html.expert.lay-pad-port .x-songc > .x-stitle { height: 28px; min-height: 24px; }
+  html.expert:is(.lay-pad-land, .lay-pad-port) .x-songc > .x-lrows { flex-shrink: 0; }
   html.expert:is(.lay-pad-land, .lay-pad-port) #xSrc.x-mode-song > .x-songc { margin: -4px 0; justify-content: flex-start; }
   html.expert.lay-pad-land #suggest.ss { --ss-fs: 26px; --ss-rg: 6px; }
 }
