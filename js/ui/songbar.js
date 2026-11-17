@@ -9,7 +9,7 @@ import { secLyrics } from "../songs/fullchart.js?v=112.16";
 import { upLyrMap, lyrState, paintLyr2, lyrPad } from "./lyrics.js?v=112.16";
 import { fitStrip, stripChips } from "./strip.js?v=112.16";
 import { nextChange, songCue, cueSoon, cueClock, cueWord, cuePieces, placeCueTag, cueChipClass } from "./chordcue.js?v=112.16";
-import { songCardRows, capLayout } from "../expert/model.js?v=112.16";
+import { songCardRows, capLayout, cardHead } from "../expert/model.js?v=112.16";
 import { paintSimpleSrc } from "./simplesrc.js?v=112.16";
 import { progLoopBar, songTempo } from "../songs/song.js?v=112.16";
 // v3.2 test.5: the next-chord cue in the song bar. Full (classic) mode's rows print each chord name inline, right
@@ -103,7 +103,7 @@ function paintSimpleLyr(bar, cur) {
     var na = r0.before.length, nb = na + r0.word.length;
     if (cue.a < nb && cue.b > na) cue = null;
   }
-  var lay = capLayout(card.rows, false);   // N20: section name on its own caption line, taking one row slot
+  var lay = capLayout(card.rows, false, cardHead(M, card.idx, upSecName));   // N20: section name on its own caption line, taking one row slot (2 rows: never alone in the last row)
   if (cue && !lay.some(function (it) { return it.row && it.k === cue.k; })) cue = null;   // its row dropped for a caption
   sbCue.j = cue ? cue.j : -1;
   var ent = M.seq[card.idx] || { si: e0 ? e0.si : 0 };

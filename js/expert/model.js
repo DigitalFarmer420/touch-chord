@@ -180,11 +180,25 @@ export function songCardRows(M, cur, n, ci, lines, chords, name) {
 // section, and {row, k} (k = index in rows, for "cur" / the cue). The card never grows: a caption takes one row slot
 // (the last rows drop), except that `free` (Expert phones, where the hidden title's line is free) holds one caption.
 // No name (empty) = no caption line.
-export function capLayout(rows, free) {
+//
+// 2-row boxes (Vinh 2026-11-17 1:19 PM, N20-SPEC): the caption never sits alone in the last row, so a new section's
+// first line always stays on screen. `head` = the section name when row 0 (the current line) starts a new section
+// (cardHead). Unless `free` holds a caption: before the switch [current, the new section's first line] (no caption
+// yet); on that first line [caption, current] (the look-ahead line waits one step); otherwise [current, next].
+// Priority is in that order, so a one-line section (it starts and ends a section) keeps the look-ahead and shows no caption.
+// The current line is never dropped. 3+ rows and `free` keep the layout below.
+export function capLayout(rows, free, head) {
+  if (rows.length === 2 && !free) return head && !rows[1].sec ? [{ cap: String(head) }, { row: rows[0], k: 0 }] : [{ row: rows[0], k: 0 }, { row: rows[1], k: 1 }];
   var out = [], caps = 0, n = 0;
   rows.forEach(function (r, k) { if (r.sec) { out.push({ cap: String(r.sec) }); caps++; } out.push({ row: r, k: k }); n++; });
   while (out.length && n + Math.max(0, caps - (free ? 1 : 0)) > rows.length) { if (out.pop().cap != null) caps--; else n--; }
   return out;
+}
+// The section name when the line at card index idx starts a new section (the line before it is another section), else
+// null. Pure: M = the line map (upLyrMap), name(si) -> the section name. The song's very first line isn't a "switch".
+export function cardHead(M, idx, name) {
+  var ent = M && M.seq ? M.seq[idx] : null, prev = M && M.seq && idx > 0 ? M.seq[idx - 1] : null;
+  return ent && prev && prev.si !== ent.si ? (name(ent.si) || null) : null;
 }
 // Style drop-down (decision 6): the nine styles with the mockup's short sound hints.
 // rd4: no Kids here - the Kids / Simple / Expert switch is the only way into Kids (the classic style chips keep Kids)

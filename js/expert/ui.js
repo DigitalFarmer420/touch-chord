@@ -36,7 +36,7 @@ import { KEYS_CHOICES, makeChip, configureSheet, openModeSheet, bootSheet, paint
 import { registerLook, lookApplyNow, lookShown } from "../ui/look.js?v=112.16";
 import { toggleHelpMenu } from "../ui/helpmenu.js?v=112.16";   // redesign-dev: the Kids view (kids-build) is the switch's Kids
 import { EXPERT_STORE, parsePref, prefFromUrl, modeOf, modeTarget, typeBarInit, typeBarReduce, typeBarLabel, TYPEBAR_HOLD_MS,
-  sourceInit, sourceReduce, progDots, songCardRows, capLayout, STYLE_MENU, styleName, expertWindowKeys, expertStyleFix, fullToExpert, chartFor } from "./model.js?v=112.16";
+  sourceInit, sourceReduce, progDots, songCardRows, capLayout, cardHead, STYLE_MENU, styleName, expertWindowKeys, expertStyleFix, fullToExpert, chartFor } from "./model.js?v=112.16";
 // rd6: ?test=1&classic=1 keeps the legacy classic screens (Full layout, Kids style chip in Simple) for the sound-equivalence
 // suites (audioeq / kvaudio replay the 351c02c taps). Users can no longer reach them.
 const CLASSIC = /[?&]test=1(&|$)/.test(location.search) && /[?&]classic=1(&|$)/.test(location.search);
@@ -546,7 +546,7 @@ function paintSrc() {
         if (cue.a < nb && cue.b > na) cue = null;
       }
       // N20 (Vinh 2026-11-17): section name on its own caption line; on phones it uses the hidden title's line (xCapFree)
-      var capFree = xCapFree(), lay = capLayout(card.rows, capFree), hasCap = lay.some(function (it) { return it.cap != null; });
+      var capFree = xCapFree(), lay = capLayout(card.rows, capFree, cardHead(upLyrMap(), card.idx, upSecName)), hasCap = lay.some(function (it) { return it.cap != null; });
       if (cue && !lay.some(function (it) { return it.row && it.k === cue.k; })) cue = null;   // its row dropped for a caption
       xCue.j = cue ? cue.j : -1; xCue.pc = cur;
       // v3.2 test.5 crowding fix: phone portrait reserves a band above each line for the name (CSS --x-cb); phone
