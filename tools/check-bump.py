@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Fails if app files differ from <base ref> but APP_VERSION does not (run from the repo root).
   python3 tools/check-bump.py origin/main
-Production Pages serves main without a deploy step, so BUILD_ID there is APP_VERSION. The offline worker only
-installs a new build when that changes, so a release into main that changes app files must bump APP_VERSION."""
+A release into main that changes app files must bump APP_VERSION (the version shown in the app).
+The deploy copy is stamped with its own BUILD_ID; that stamp does not replace this bump."""
 import re, subprocess, sys
 
 RUNTIME = ['index.html', 'sw.js', 'manifest.webmanifest', 'css', 'js', 'fonts', 'images']

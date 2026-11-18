@@ -1,0 +1,204 @@
+# Web deploy. No APK signing and no store upload.
+#
+# Push to develop: unit tests, check-version, and tests/ci/smoke.mjs. If they pass, publish
+# https://digitalfarmer420.github.io/touch-chord-dev/ (separate Pages repo).
+# Push to main: the same gate, then tools/check-bump.py against the previous main commit.
+# If that passes, publish https://digitalfarmer420.github.io/touch-chord/ through Pages.
+#
+# A job-level `if` replaces the default success() check. Every deploy `if` names the gate
+# results it requires, so a failed gate skips the publish and the failed job stays red.
+name: Deploy web
+
+on:
+  push:
+    branches: [develop, main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-web-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    name: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Unit tests
+        run: node --test tests/unit/*.test.js
+
+  version:
+    name: version
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Cache-tag check
+        run: python3 tools/check-version.py
+
+  bump:
+    name: version bump
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: APP_VERSION bump against the previous main
+        env:
+          VERSION_BASE: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          case "$VERSION_BASE" in
+            ''|0000000000000000000000000000000000000000)
+              echo "No previous main commit to compare. Refusing to deploy."
+              exit 1
+              ;;
+          esac
+          printf '%s' "$VERSION_BASE" | grep -Eq '^[0-9a-f]{40}$'
+          git fetch --no-tags --depth=1 origin "$VERSION_BASE"
+          python3 tools/check-bump.py "$VERSION_BASE"
+
+  smoke:
+    name: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Cache Playwright browsers
+        id: pwcache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install Chromium
+        if: steps.pwcache.outputs.cache-hit != 'true'
+        run: npx playwright-core install --with-deps chromium
+      - name: Install Chromium system deps (cache hit)
+        if: steps.pwcache.outputs.cache-hit == 'true'
+        run: npx playwright-core install-deps chromium
+      - name: Smoke tests
+        run: node tests/ci/smoke.mjs
+      - name: Upload smoke screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-screenshots
+          path: tests/ci/out/
+          if-no-files-found: ignore
+
+  deploy-dev:
+    name: Deploy dev
+    needs: [unit, version, smoke]
+    if: ${{ github.ref == 'refs/heads/develop' && needs.unit.result == 'success' && needs.version.result == 'success' && needs.smoke.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout the commit that passed the gate
+        uses: actions/checkout@v4
+        with:
+          path: src
+          persist-credentials: false
+      - name: Clone touch-chord-dev with deploy key
+        env:
+          DEV_DEPLOY_KEY: ${{ secrets.DEV_DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEV_DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null
+          git clone git@github.com:DigitalFarmer420/touch-chord-dev.git site || (mkdir site && cd site && git init -b main && git remote add origin git@github.com:DigitalFarmer420/touch-chord-dev.git)
+      - name: Build site (copy tree + DEV badge)
+        run: |
+          cd site
+          git rm -rq --ignore-unmatch . >/dev/null 2>&1 || true
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cd ..
+          rsync -a --exclude .git --exclude .github src/ site/
+          touch site/.nojekyll
+          python3 src/.github/dev/inject-dev-badge.py site/index.html
+          # Stamp BUILD_ID = APP_VERSION-<short sha> into index.html, js/version.js and every ?v= tag, so a
+          # JS- or CSS-only deploy still registers a new sw.js?v=BUILD_ID and installed users get it.
+          python3 src/tools/stamp-build.py site "$(git -C src rev-parse HEAD)"
+      - name: Commit and push (normal push, no force)
+        run: |
+          cd site
+          git config user.name "DigitalFarmer420"
+          git config user.email "vinteedle@gmail.com"
+          git add -A
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
+          git commit -q -m "Deploy touch-chord develop@${GITHUB_SHA::7}"
+          git push origin HEAD:main
+          echo "Deployed $(git rev-parse HEAD) from develop@${GITHUB_SHA}"
+
+  stage-prod:
+    name: Stage production
+    needs: [unit, version, smoke, bump]
+    if: ${{ github.ref == 'refs/heads/main' && needs.unit.result == 'success' && needs.version.result == 'success' && needs.smoke.result == 'success' && (needs.bump.result == 'success' || needs.bump.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout the commit that passed the gate
+        uses: actions/checkout@v4
+        with:
+          path: src
+          persist-credentials: false
+      - name: Build site (copy tree, no DEV badge)
+        run: |
+          mkdir site
+          rsync -a --exclude .git --exclude .github src/ site/
+          touch site/.nojekyll
+          python3 src/tools/stamp-build.py site "$(git -C src rev-parse HEAD)"
+          if grep -q 'id="dev-badge"' site/index.html; then
+            echo "production site must not include the DEV badge"
+            exit 1
+          fi
+          grep -q 'name="tc-build"' site/index.html
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy-prod:
+    name: Deploy production
+    needs: [unit, version, smoke, bump, stage-prod]
+    if: ${{ github.ref == 'refs/heads/main' && needs.unit.result == 'success' && needs.version.result == 'success' && needs.smoke.result == 'success' && (needs.bump.result == 'success' || needs.bump.result == 'skipped') && needs.stage-prod.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

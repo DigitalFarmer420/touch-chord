@@ -16,18 +16,18 @@
 //   2. offline after B is active: an offline reload boots B (label, HTML and JS).
 //   3. asset-only change A->A2: the online reload shows A2's HTML with A2's JS, and once the
 //      cache is refilled an offline reload shows A2's HTML with A2's JS (never mixed).
-//   5. code-only deploy (BUG-1): deploy copies are made on disk the way deploy-dev.yml makes them
+//   5. code-only deploy (BUG-1): deploy copies are made on disk the way deploy-web.yml makes them
 //      (copy, then tools/stamp-build.py <dir> <sha> when the tree has it). D1 = this tree, D2 = only
 //      js/ui/next.js changed, same APP_VERSION, another sha. Served with max-age=600 like Pages.
 //      Three reloads and two cold launches: no load mixes builds (HTML ?v= tags, every loaded js/css
 //      ?v= and the next.js marker agree), and D2's code is live and in control by the first cold launch.
 //   6. CSS-only deploy: the same with only css/base.css changed.
-//   7. same-version HTML+JS change, deployed like deploy-dev.yml (stamped), max-age=600 (BUG-2): the
+//   7. same-version HTML+JS change, deployed like deploy-web.yml (stamped), max-age=600 (BUG-2): the
 //      first online reload must not pair the new HTML with an old same-URL JS file. Note: in Chromium a
 //      reload reuses the renderer's memory cache for same-URL subresources without asking the worker
 //      (workerStart 0, transferSize 0), so only a new ?v= per deploy fixes this; sw.js's
-//      cache: "no-cache" covers the HTTP-cache half. Unstamped (production main) relies on
-//      tools/check-bump.py making every release into main bump APP_VERSION.
+//      cache: "no-cache" covers the HTTP-cache half. tools/check-bump.py still makes every
+//      release into main bump APP_VERSION; the deploy stamp is what changes ?v= for a same-version copy.
 //   4. existing install from 971119a: A is served with tests/fixtures/offline/sw-971119a.js
 //      (the worker PR #15 shipped at 971119a), then this tree's B. B's label, HTML and JS on
 //      the first cold launch, and the controller is sw.js?v=B by the second cold launch.
@@ -138,7 +138,7 @@ async function coldLaunch(ctx, page, url) {
 
 const brief = s => JSON.stringify({ label: s.label, html: s.html, js: s.js, controller: s.controller, waiting: s.waiting });
 
-// Deploy copies, made like deploy-dev.yml: copy the app files, change some, then stamp with the tree's own
+// Deploy copies, made like deploy-web.yml: copy the app files, change some, then stamp with the tree's own
 // tools/stamp-build.py (a tree without it, like 14fc21e, deploys its files as they are).
 const APP_FILES = ['index.html', 'sw.js', 'manifest.webmanifest', 'css', 'js', 'fonts', 'images'];
 function makeDeploy(root, work, name, sha, change, stamp = true) {
@@ -304,7 +304,7 @@ export async function runUpdateCheck(browser, opts = {}) {
       });
     }
 
-    // 7. Same-version HTML + JS change, deployed (stamped) like deploy-dev.yml, max-age=600.
+    // 7. Same-version HTML + JS change, deployed (stamped) like deploy-web.yml, max-age=600.
     const U1 = makeDeploy(root, work, 'u1', 'aaaaaaa1');
     const U2 = makeDeploy(root, work, 'u2', 'ddddddd4', d => {
       const f = join(d, 'index.html');
