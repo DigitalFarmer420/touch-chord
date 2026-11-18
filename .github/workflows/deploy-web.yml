@@ -11,7 +11,7 @@ name: Deploy web
 
 on:
   push:
-    branches: [develop, main, cursor/auto-deploy-web-2825]
+    branches: [develop, main]
   workflow_dispatch:
 
 concurrency:
@@ -202,58 +202,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-  # Removed after the evidence run. Publishes nothing. Proves the gate and both site copies on this branch.
-  dry-run:
-    name: Dry run stage (no publish)
-    needs: [unit, version, smoke]
-    if: ${{ github.ref == 'refs/heads/cursor/auto-deploy-web-2825' && needs.unit.result == 'success' && needs.version.result == 'success' && needs.smoke.result == 'success' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          path: src
-          persist-credentials: false
-      - name: Stage dev and production copies
-        run: |
-          set -euo pipefail
-          mkdir dev-site prod-site
-          rsync -a --exclude .git --exclude .github src/ dev-site/
-          rsync -a --exclude .git --exclude .github src/ prod-site/
-          touch dev-site/.nojekyll prod-site/.nojekyll
-          python3 src/.github/dev/inject-dev-badge.py dev-site/index.html
-          python3 src/tools/stamp-build.py dev-site "$(git -C src rev-parse HEAD)"
-          python3 src/tools/stamp-build.py prod-site "$(git -C src rev-parse HEAD)"
-          grep -q 'id="dev-badge"' dev-site/index.html
-          grep -q 'name="tc-build"' dev-site/index.html
-          if grep -q 'id="dev-badge"' prod-site/index.html; then
-            echo "production copy has the DEV badge"
-            exit 1
-          fi
-          grep -q 'name="tc-build"' prod-site/index.html
-          echo "Dry run staged both sites. Publish steps were not executed."
-          python3 - <<'PY'
-          import pathlib, re
-          for name in ("dev-site", "prod-site"):
-              t = pathlib.Path(name, "js/version.js").read_text()
-              b = re.search(r'BUILD_ID = "([^"]+)"', t).group(1)
-              a = re.search(r'APP_VERSION = "([^"]+)"', t).group(1)
-              print(name, "APP_VERSION", a, "BUILD_ID", b)
-              assert b != a and b.startswith(a + "-"), (name, a, b)
-          dev = pathlib.Path("dev-site/index.html").read_text()
-          prod = pathlib.Path("prod-site/index.html").read_text()
-          assert 'id="dev-badge"' in dev
-          assert 'id="dev-badge"' not in prod
-          print("badge: dev yes, production no")
-          PY
-      - name: Upload staged copies
-        uses: actions/upload-artifact@v4
-        with:
-          name: staged-sites
-          path: |
-            dev-site/index.html
-            dev-site/js/version.js
-            prod-site/index.html
-            prod-site/js/version.js
-          if-no-files-found: error
