@@ -1,13 +1,13 @@
 // Now box: chord symbol and its fitting.
-import { modeKey, syncKeySel } from "../keys.js?v=112.15";
-import { paintLoop } from "../loop.js?v=112.15";
-import { VOICINGS, state, scheduleSave, shared } from "../state.js?v=112.15";
-import { accSym } from "../theory/spelling.js?v=112.15";
-import { kbUpdate } from "./keyboard.js?v=112.15";
-import { paintKeyChip, fitKeyRow, keyLabel } from "./keychip.js?v=112.15";
-import { computeSpec, paintPads } from "./pads.js?v=112.15";
-import { typeHeld, extStillHeld } from "./palette.js?v=112.15";
-import { paintSuggestions } from "./strip.js?v=112.15";
+import { modeKey, syncKeySel } from "../keys.js?v=112.16";
+import { paintLoop } from "../loop.js?v=112.16";
+import { VOICINGS, state, scheduleSave, shared } from "../state.js?v=112.16";
+import { accSym } from "../theory/spelling.js?v=112.16";
+import { kbUpdate } from "./keyboard.js?v=112.16";
+import { paintKeyChip, fitKeyRow, keyLabel } from "./keychip.js?v=112.16";
+import { computeSpec, paintPads } from "./pads.js?v=112.16";
+import { typeHeld, extStillHeld } from "./palette.js?v=112.16";
+import { paintSuggestions } from "./strip.js?v=112.16";
 
 // Shrink the Now symbol only when a long name (e.g. F#6sus4(add9)) would
 // overflow its card; short ones like Cmaj7 keep the full display size.

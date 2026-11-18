@@ -339,7 +339,6 @@ html.simple.up-slyr #app { --sl-n: 3; --sl-cb: 0px; --sl-l1: 22px; --sl-l2: 19px
 html.simple.up-slyr.lay-phone-land #app { --sl-n: 2; --sl-cb: 0px; --sl-l1: 19px; --sl-l2: 16px; --sl-f1: 15px; --sl-f2: 13px; }
 html.simple.up-slyr.lay-pad-port #app, html.simple.up-slyr.lay-pad-land #app { --sl-cb: 0px; --sl-l1: 32px; --sl-l2: 26px; --sl-f1: 24px; --sl-f2: 19px; }
 html.simple.up-slyr.up-on #songBar { height: auto; align-items: flex-start; margin-bottom: 4px; }
-html.simple.up-slyr #songBar .sb-sec { margin-top: calc(var(--sl-cb) + (var(--sl-l1) - 1.6em) / 2); }
 #songBar .sl-lyr { display: block; flex: 1 1 auto; min-width: 0; position: relative; overflow: hidden;
   height: calc(var(--sl-l1) + var(--sl-cb) + (var(--sl-l2) + var(--sl-cb)) * (var(--sl-n, 3) - 1)); }
 #songBar .sl-roll { display: block; will-change: transform; }
@@ -351,7 +350,13 @@ html.simple.up-slyr #songBar .sb-sec { margin-top: calc(var(--sl-cb) + (var(--sl
 #songBar .sl-row.nxt.sl-slide { text-overflow: clip; }
 #songBar .sl-row.sl-shift { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px); mask-image: linear-gradient(90deg, transparent 0, #000 16px); }
 #songBar .sl-now { background: var(--sb-gold); color: #3B2600; border-radius: 6px; padding: 0 4px; }
-#songBar .sl-sec { font-family: Fredoka, Nunito, system-ui, sans-serif; font-weight: 600; color: var(--copper-t); text-transform: capitalize; }
+/* N20 2026-11-17 (Vinh): a later line's section name is a caption line of its own just above it (no " ·", not a pill or
+   control): small muted text, one line with an ellipsis. It takes one line slot (songbar.js capLayout), so the box
+   never grows; its text sits at the bottom of the slot, next to its lyric. No name = no caption line. */
+#songBar .sl-cap { display: block; box-sizing: border-box; height: calc(var(--sl-l2) + var(--sl-cb));
+  padding-top: calc(var(--sl-l2) + var(--sl-cb) - var(--sl-fc) * 1.25); font: 600 var(--sl-fc)/1.25 Fredoka, Nunito, system-ui, sans-serif;
+  color: var(--muted); text-transform: capitalize; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; pointer-events: none; }
+html.simple.up-slyr #app { --sl-fc: calc(var(--sl-f2) * .74); }
 #songBar .sl-cue { text-decoration: underline 2px var(--sb-gold); text-underline-offset: 2px; text-decoration-skip-ink: none; }
 #songBar .sl-cue.soon { text-decoration-thickness: 3px; }
 #songBar .sl-cuetag { position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; padding: 0 3px; border-radius: 4px;

@@ -85,6 +85,25 @@ test('P4: with a real uploaded song (anh-v13), every step\'s card row 1 is the c
   });
   assert.ok(lyricRows > 0 && sungWords > 0, `lyric rows ${lyricRows}, sung words ${sungWords}, chord rows ${chordRows}`);
 });
+test('N20 2-row boxes, real song (anh-v13): a new section\'s first line is always on screen, the caption never last', { skip: !LY && 'lyrics.js needs a DOM here' }, () => {
+  const b = U.upLoadBegin(readFileSync(new URL('tests/fixtures/upload/anh-v13.json', R), 'utf8'), { defer: true });
+  const song = b.pending ? b.pending.song : (U.upLoadCheck(b.list, 0), b.list.rows[0].song);
+  const { shared } = S; shared.U = U.upBuild(song, {}, {}); shared.U.locked = true; shared.U.liveKey = null;
+  const Uo = shared.U, Mp = LY.upLyrMap();
+  let before = 0, onFirst = 0;
+  Uo.events.forEach((e, step) => {
+    const card = M.songCardRows(Mp, step, 2, e.ci, (si, rep) => FC.secLyrics(Uo.secs[si], rep), si => Uo.secs[si].chords.map((c, k) => SG.upA(U.upSym(si, k))), U.upSecName);
+    const head = M.cardHead(Mp, card.idx, U.upSecName), L = M.capLayout(card.rows, false, head);
+    const tag = 'step ' + step + ' ' + JSON.stringify(L.map(x => x.cap != null ? 'cap:' + x.cap : 'r' + x.k));
+    assert.equal(L.length, 2, '2 slots, never more: ' + tag);
+    assert.ok(L.some(x => x.row && x.k === 0), 'the current line stays: ' + tag);
+    assert.ok(L[L.length - 1].cap == null, 'no caption alone in the last row: ' + tag);
+    if (card.rows[1].sec) { before++; assert.ok(L.some(x => x.row && x.k === 1), 'the next section\'s first line is shown before the switch: ' + tag); }
+    const cur = Mp.seq[card.idx], prev = Mp.seq[card.idx - 1];
+    if (prev && prev.si !== cur.si && !card.rows[1].sec) { onFirst++; assert.deepEqual(L.map(x => x.cap != null ? 'cap' : 'r' + x.k), ['cap', 'r0'], 'on the first line: [caption, current]: ' + tag); assert.equal(L[0].cap, U.upSecName(cur.si)); }
+  });
+  assert.ok(before > 0 && onFirst > 0, `switch steps ${before}, first-line steps ${onFirst}`);
+});
 test('P4: ui.js builds the card from upLyrMap + songCardRows, with chord names through upA(upSym())', () => {
   const ui = readFileSync(new URL('js/expert/ui.js', R), 'utf8');
   assert.match(ui, /songCardRows\(upLyrMap\(\), cur, nRows, ci,/);
