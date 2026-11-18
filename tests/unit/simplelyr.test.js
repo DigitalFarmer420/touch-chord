@@ -24,9 +24,10 @@ test('row 1: the sung word on gold, the cue word underlined, the name inline onl
   assert.doesNotMatch(above, /sl-cuetag/);
   assert.match(inl, /<span class="sl-cue">empty<\/span><span class="sl-cuetag sl-cuein" aria-hidden="true">C\/G<\/span> street/);
 });
-test('later rows: muted text with the section when it changes; a chord-only part lists its chords, the sounding one on gold', () => {
+test('later rows: muted text, the section name never inline (N20: its own caption line); a chord-only part lists its chords, the sounding one on gold', () => {
   assert.equal(S.slRowHtml({ kind: 'text', text: 'Every window', sec: 'Chorus' }, 'nxt', null, false),
-    '<span class="sl-row nxt" data-cue-row><span class="sl-sec">Chorus \u00b7</span> Every window</span>');
+    '<span class="sl-row nxt" data-cue-row>Every window</span>');
+  assert.equal(S.slCapHtml('Chorus <1>'), '<span class="sl-cap">Chorus &lt;1&gt;</span>');
   assert.equal(S.slRowHtml({ kind: 'chords', chords: [{ t: 'Am', on: false }, { t: 'F', on: true }] }, 'cur', null, false),
     '<span class="sl-row cur" data-cue-row><span class="sl-lin"><span class="sl-ch">Am</span> <span class="sl-ch sl-now">F</span></span></span>');
 });
