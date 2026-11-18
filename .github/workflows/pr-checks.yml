@@ -42,8 +42,8 @@ jobs:
           python-version: "3.x"
       - name: Cache-tag check
         run: python3 tools/check-version.py
-      # Production Pages serves main as-is (no deploy step to stamp a BUILD_ID), so the offline worker only
-      # sees a release when APP_VERSION changes. A release candidate that changes app files must bump it.
+      # A release into main that changes app files must bump APP_VERSION (the version label).
+      # The production deploy also stamps BUILD_ID; this check still guards the bump.
       - name: APP_VERSION bump for a release into main
         if: github.base_ref == 'main'
         run: |
