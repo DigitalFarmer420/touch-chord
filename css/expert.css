@@ -157,6 +157,20 @@ html.expert .x-plock .x-lki { font-size: 15px; line-height: 1.1; }
 html.expert .x-plock[aria-pressed="true"] { background: var(--x-gold); color: #3B2600; border-color: var(--x-gold-deep); }
 html.expert .x-plock::after { content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, 44px); height: max(100%, 44px); transform: translate(-50%, -50%); }
 html.expert.lay-pad-port .x-plock, html.expert.lay-pad-land .x-plock { width: 72px; font-size: 13px; }
+/* iPad / desktop (lay-pad-*): #xSrc already matches the source-row height (Next / Play
+   in landscape; the Now card in portrait), but the progression picker and Lock are
+   <button>s, so the global button { height: var(--ctrl) } rule (40px landscape, 42px
+   portrait) keeps them short and they sit at the top of the row. Same height override
+   Next / Play already have. Song-mode Lock (.x-lock) is unchanged: it already fills
+   the padded song card. */
+html.expert:is(.lay-pad-land, .lay-pad-port) #xSrc.x-mode-prog { align-items: stretch; }
+html.expert:is(.lay-pad-land, .lay-pad-port) #xSrc .x-pbar,
+html.expert:is(.lay-pad-land, .lay-pad-port) #xSrc .x-plock {
+  height: auto;
+  min-height: 0;
+  align-self: stretch;
+  box-sizing: border-box;
+}
 html.expert.lay-phone-land .x-plock { width: 44px; font-size: 9.5px; border-radius: 12px; }
 html.expert.lay-phone-land .x-plock .x-lki { font-size: 13px; line-height: 1; }
 html.expert.lay-phone-land .x-plock { z-index: 1; }
