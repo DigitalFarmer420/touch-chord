@@ -62,11 +62,58 @@ test('stamping refuses a bad sha and an already stamped copy', () => {
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
+function workflowJob(wf, id) {
+  const marker = `\n  ${id}:\n`;
+  const start = wf.indexOf(marker);
+  assert.ok(start >= 0, id);
+  const rest = wf.slice(start + 1);
+  const next = rest.slice(1).search(/\n  [a-z0-9-]+:\n/);
+  return next === -1 ? rest : rest.slice(0, next + 1);
+}
+
 test('the dev deploy workflow stamps the site copy with the deployed commit', () => {
-  const wf = readFileSync(join(ROOT, '.github/workflows/deploy-dev.yml'), 'utf8');
-  assert.match(wf, /python3 src\/tools\/stamp-build\.py site "\$\(git -C src rev-parse HEAD\)"/);
-  assert.ok(wf.indexOf('stamp-build.py') > wf.indexOf('rsync -a'), 'stamps after copying the tree');
-  assert.ok(wf.indexOf('stamp-build.py') < wf.indexOf('git add -A'), 'stamps before committing the site');
+  const wf = readFileSync(join(ROOT, '.github/workflows/deploy-web.yml'), 'utf8');
+  const dev = workflowJob(wf, 'deploy-dev');
+  assert.match(dev, /python3 src\/tools\/stamp-build\.py site "\$\(git -C src rev-parse HEAD\)"/);
+  assert.ok(dev.indexOf('stamp-build.py') > dev.indexOf('rsync -a'), 'stamps after copying the tree');
+  assert.ok(dev.indexOf('stamp-build.py') < dev.indexOf('git add -A'), 'stamps before committing the site');
+  assert.match(dev, /inject-dev-badge\.py/);
+});
+
+test('a failed gate skips both publishes, and production has no DEV badge', () => {
+  const wf = readFileSync(join(ROOT, '.github/workflows/deploy-web.yml'), 'utf8');
+  for (const id of ['unit', 'version', 'smoke']) assert.ok(workflowJob(wf, id).length > 0);
+  const dev = workflowJob(wf, 'deploy-dev');
+  const stage = workflowJob(wf, 'stage-prod');
+  const prod = workflowJob(wf, 'deploy-prod');
+  const bump = workflowJob(wf, 'bump');
+  assert.match(dev, /needs: \[unit, version, smoke\]/);
+  assert.match(dev, /needs\.unit\.result == 'success'/);
+  assert.match(dev, /needs\.version\.result == 'success'/);
+  assert.match(dev, /needs\.smoke\.result == 'success'/);
+  assert.match(dev, /refs\/heads\/develop/);
+  assert.equal(dev.includes('needs.bump'), false, 'develop may publish a same-version app change');
+  assert.match(dev, /git push origin HEAD:main/);
+  assert.match(stage, /needs: \[unit, version, smoke, bump\]/);
+  assert.match(stage, /needs\.smoke\.result == 'success'/);
+  assert.match(stage, /needs\.bump\.result == 'success'/);
+  assert.match(stage, /refs\/heads\/main/);
+  assert.match(stage, /python3 src\/tools\/stamp-build\.py site "\$\(git -C src rev-parse HEAD\)"/);
+  assert.equal(stage.includes('inject-dev-badge'), false);
+  assert.equal(stage.includes('git push'), false);
+  assert.match(prod, /needs: \[unit, version, smoke, bump, stage-prod\]/);
+  assert.match(prod, /needs\.stage-prod\.result == 'success'/);
+  assert.match(prod, /actions\/deploy-pages@v4/);
+  assert.match(prod, /environment:\n\s+name: github-pages/);
+  assert.equal(prod.includes('inject-dev-badge'), false);
+  assert.equal(prod.includes('git push'), false);
+  assert.match(bump, /tools\/check-bump\.py/);
+  assert.match(bump, /refs\/heads\/main/);
+  for (const job of [dev, stage, prod]) {
+    assert.equal(job.includes('if: always()'), false);
+    assert.equal(job.includes('if: failure()'), false);
+  }
+  assert.match(wf, /branches: \[develop, main/);
 });
 
 test('the repo itself is unstamped (BUILD_ID === APP_VERSION) so local runs and the APK use APP_VERSION', () => {
