@@ -150,7 +150,11 @@ const tail = CSS.slice(CSS.indexOf('v3.2 UI polish'));
 const tailRules = tail.replace(/\/\*[\s\S]*?\*\//g, '');
 test('P1-P7: the spec\'s CSS values', () => {
   assert.match(tail, /lay-phone-port #app \{\s*--x-ctl-h: 48px; --x-src-h: 64px; --x-kb-h: clamp\(200px, 30dvh, 260px\);/);
-  assert.match(tail, /minmax\(200px, 1fr\) var\(--x-ctl-h\) var\(--x-kb-h\) !important/);
+  // The chord grid yields when the fixed rows and the piano do not fit (360x640). The piano clamp is unchanged.
+  assert.match(tail, /minmax\(0, 1fr\) var\(--x-ctl-h\) var\(--x-kb-h\) !important/);
+  assert.match(tail, /minmax\(0, 1fr\) var\(--x-ctl-h\) var\(--x-pal-h\) var\(--x-kb-h\) !important/);
+  assert.doesNotMatch(tail, /minmax\(200px, 1fr\) var\(--x-ctl-h\) var\(--x-kb-h\)/);
+  assert.match(tail, /html\.expert\.lay-phone-port:not\(\.simple\) #app > \.next-card \{ min-height: 0; \}/);
   assert.match(tail, /lay-phone-land #app \{ --x-side: 148px; --x-sus-h: 56px; --x-src-h: 46px; --x-kb-h: clamp\(96px, calc\(100dvh - 270px\), 126px\); \}/);
   assert.match(tail, /lay-phone-land #xCtl \{ grid-template-rows: minmax\(48px, 1fr\) minmax\(48px, 1fr\); \}/);
   assert.match(tail, /\.x-lock::after \{[^}]*width: max\(100%, 48px\); height: max\(100%, 48px\)/);

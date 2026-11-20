@@ -1080,7 +1080,7 @@ try {
   const N20_IPAD = [[820, 1180], [768, 1024], [834, 1194], [1024, 1366]]; // Simple Sustain-left, real
   const N20_PRA = new Set(['360x640', '390x664', '412x732', '412x780', '700x900']);
   const N20_PRA2 = new Set(['1280x600', '1920x600']); // real checks; names start with "N20 PR-A2 Simple"
-  const N20_FIXME_A = new Set(['360x640 expert']);   // PR-B
+  const N20_FIXME_A = new Set([]);   // 360x640 expert used to clip the piano (PR-B). The chord grid now yields, so that check is real.
   const N20_FIXME_B = new Set([]);   // PR-A fixed every Simple Sustain-left cell
   const N20_N21 = new Set(['640x360 simple', '732x412 simple']);
   const N20_A_LABEL = { simple: 'last grid row', expert: 'piano', kids: 'pads' };

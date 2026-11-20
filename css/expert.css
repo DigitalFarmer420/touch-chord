@@ -529,14 +529,21 @@ html.expert.x-ctl-on #ctl .band-wrap.off .band-row b { color: var(--x-muted); }
 html.expert #xPList { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 
 /* ===== v3.2 UI polish (Uiux, Nov 14: ux-expert-layout-fixes.md P1-P7). Same look; only sizes and edges change. ===== */
-/* P1 phone portrait: the piano is 30% of the screen (200..260 css) and the chord grid takes the rest. */
+/* P1 phone portrait: the piano is 30% of the screen (200..260 css) and the chord grid takes the rest.
+   The grid track used to refuse to go under 200px. On a short phone the fixed rows, that floor and the
+   piano add up to more than the screen, so the keys are clipped (360x640). The grid now takes whatever
+   height is left. Where that leftover is already at least 200px (390x844 and the usual phone heights),
+   the row is the same size as before. Colours, type and which controls exist are unchanged. */
 html.expert.lay-phone-port #app {
   --x-ctl-h: 48px; --x-src-h: 64px; --x-kb-h: clamp(200px, 30dvh, 260px);
-  grid-template-rows: var(--x-row) var(--x-row) var(--x-src-h) minmax(200px, 1fr) var(--x-ctl-h) var(--x-kb-h) !important;
+  grid-template-rows: var(--x-row) var(--x-row) var(--x-src-h) minmax(0, 1fr) var(--x-ctl-h) var(--x-kb-h) !important;
 }
 html.expert.lay-phone-port.x-types-open #app {
-  grid-template-rows: var(--x-row) var(--x-row) var(--x-src-h) minmax(180px, 1fr) var(--x-ctl-h) var(--x-pal-h) var(--x-kb-h) !important;
+  grid-template-rows: var(--x-row) var(--x-row) var(--x-src-h) minmax(0, 1fr) var(--x-ctl-h) var(--x-pal-h) var(--x-kb-h) !important;
 }
+/* fit.css sets min-height: min-content on the phone-portrait chord card, and that rule is more specific
+   than Expert's min-height: 0, so the card would keep the old floor. Let it follow the track. */
+html.expert.lay-phone-port:not(.simple) #app > .next-card { min-height: 0; }
 /* P2 + P3 phone landscape. The status bar is hidden natively (MainActivity), so its height goes to the song card (+14)
    and the piano (+14). The side column is 148 css; SUSTAIN 56 tall; the two button rows are at least 48 each.
    Insets: native padding is the only source; env(safe-area-inset-*) is 0 in the app, so nothing is added here. */
