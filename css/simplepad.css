@@ -2,9 +2,9 @@
    Built from the rev3 stack, in order: song-preview + next-icon (step glyph), div (divider), simple-lock (lock, gaps),
    lock-landscape-left-column, simple-v2, simple-v3, simple-v4. Superseded values are folded in; the result renders
    pixel-identical to Uiux's sandbox (minus its static preview Song | Progressions control, which is not part of this build).
-   Scope: the @media matches boot-early.js's "regular" size class (w >= 768 and h >= 600), which is what sets lay-pad-*.
+   Scope: the @media matches boot-early.js's "regular" size class (w >= 744 and h >= 600), which is what sets lay-pad-*.
    Phones (lay-phone-*), Expert (html:not(.simple)) and Kids are not touched. */
-@media (min-width: 768px) and (min-height: 600px) {
+@media (min-width: 744px) and (min-height: 600px) {
 
 /* ---- Fluid sizing. One length unit per axis, 1px at the design's reference size, so every size below equals the
    simple-v4 px at 1180x820 (landscape) and 820x1180 (portrait) and scales smoothly between and beyond:

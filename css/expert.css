@@ -529,21 +529,19 @@ html.expert.x-ctl-on #ctl .band-wrap.off .band-row b { color: var(--x-muted); }
 html.expert #xPList { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 
 /* ===== v3.2 UI polish (Uiux, Nov 14: ux-expert-layout-fixes.md P1-P7). Same look; only sizes and edges change. ===== */
-/* P1 phone portrait: the piano is 30% of the screen (200..260 css) and the chord grid takes the rest.
-   The grid track used to refuse to go under 200px. On a short phone the fixed rows, that floor and the
-   piano add up to more than the screen, so the keys are clipped (360x640). The grid now takes whatever
-   height is left. Where that leftover is already at least 200px (390x844 and the usual phone heights),
-   the row is the same size as before. Colours, type and which controls exist are unchanged. */
+/* P1 phone portrait: the piano prefers 30% of the screen, and never more than 260px. It used to
+   stop at 200px. On a short phone that floor plus the fixed rows plus the 200px chord grid ran
+   past the screen and the keys were clipped (360x640). The piano gives up height first: no 200px
+   floor, and its row may shrink below 30% so the keys stay on screen. The chord grid stays at
+   least 200px, so the chip rows do not get shorter. Where 30% already fits (390x844 and the usual
+   phone heights), the piano and the grid stay the same size. Colours, type and controls are unchanged. */
 html.expert.lay-phone-port #app {
-  --x-ctl-h: 48px; --x-src-h: 64px; --x-kb-h: clamp(200px, 30dvh, 260px);
-  grid-template-rows: var(--x-row) var(--x-row) var(--x-src-h) minmax(0, 1fr) var(--x-ctl-h) var(--x-kb-h) !important;
+  --x-ctl-h: 48px; --x-src-h: 64px; --x-kb-h: min(260px, 30dvh);
+  grid-template-rows: var(--x-row) var(--x-row) var(--x-src-h) minmax(200px, 1fr) var(--x-ctl-h) minmax(0, var(--x-kb-h)) !important;
 }
 html.expert.lay-phone-port.x-types-open #app {
-  grid-template-rows: var(--x-row) var(--x-row) var(--x-src-h) minmax(0, 1fr) var(--x-ctl-h) var(--x-pal-h) var(--x-kb-h) !important;
+  grid-template-rows: var(--x-row) var(--x-row) var(--x-src-h) minmax(180px, 1fr) var(--x-ctl-h) var(--x-pal-h) minmax(0, var(--x-kb-h)) !important;
 }
-/* fit.css sets min-height: min-content on the phone-portrait chord card, and that rule is more specific
-   than Expert's min-height: 0, so the card would keep the old floor. Let it follow the track. */
-html.expert.lay-phone-port:not(.simple) #app > .next-card { min-height: 0; }
 /* P2 + P3 phone landscape. The status bar is hidden natively (MainActivity), so its height goes to the song card (+14)
    and the piano (+14). The side column is 148 css; SUSTAIN 56 tall; the two button rows are at least 48 each.
    Insets: native padding is the only source; env(safe-area-inset-*) is 0 in the app, so nothing is added here. */
@@ -607,13 +605,12 @@ html.expert .kb.piano .pad.black.nokey { background: var(--x-bkey-nokey); color:
    below so the marks are not cut (overflow: clip + overflow-clip-margin; older WebViews keep overflow: hidden). */
 html.expert .x-stitle, html.expert .x-lrows, html.expert .x-lrow { overflow: hidden; overflow: clip; overflow-clip-margin: 4px; }
 
-/* 744×1133 (iPad mini portrait) is under 768 px wide, so it uses the phone-portrait
-   layout. The title's stacked accents (the hook on Ổ) and the last lyric line were
-   clipped by .x-songc { overflow: hidden }, same as on develop. Borrow the song
-   card's 4 px padding and give the title 3 px on top so the glyphs stay inside the
-   card without changing the card's outer size. Phones at 360/390 and iPad / desktop
-   layouts are left unchanged. */
-@media (min-width: 700px) and (max-width: 767px) {
+/* 700–743 px wide portrait is still the phone layout (744, iPad mini, is pad-port).
+   The title's stacked accents and the last lyric line were clipped by .x-songc
+   { overflow: hidden }. Borrow the song card's 4 px padding and give the title 3 px
+   on top so the glyphs stay inside the card without changing the card's outer size.
+   Phones at 360/390 are left unchanged. */
+@media (min-width: 700px) and (max-width: 743.98px) {
   html.expert.lay-phone-port #xSrc.x-mode-song > .x-songc {
     margin: -4px 0;
     justify-content: flex-start;
@@ -663,7 +660,7 @@ html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x
 /* Expert large-screen browser layer (test.6, Expert v5).
    The existing size classifier includes desktop windows, not just touch devices.
    Simple and medium/compact layouts deliberately cannot match this layer. */
-@media (min-width: 768px) and (min-height: 600px) {
+@media (min-width: 744px) and (min-height: 600px) {
   /* Sizing knobs: approved vh heights / vw widths, with exact reference anchors.
      Extra room beyond these caps remains available to the grid and keyboard. */
   html.expert.lay-pad-land #app {

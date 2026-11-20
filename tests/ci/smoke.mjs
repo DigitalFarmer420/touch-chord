@@ -1030,8 +1030,8 @@ try {
     }
   }
 
-  // N17: Expert iPad mini portrait (sz-medium, still phone-port). Same reopen: the list uses all the room
-  // above the piano (>= 640 px) and the picked row is clear of the fade.
+  // N17: Expert iPad mini portrait is the iPad layout (sz-regular, lay-pad-port). Same reopen:
+  // the list ends 8px above the piano and the picked row is clear of the fade.
   {
     const label = '744x1133 expert picked row clear on reopen';
     const { ctx, page, bag } = await fresh(browser, 744, 1133, label);
@@ -1051,13 +1051,15 @@ try {
         const lr = L.getBoundingClientRect(), or = on && on.getBoundingClientRect(), kr = kb.getBoundingClientRect();
         const fade = L.scrollHeight - L.clientHeight - L.scrollTop > 1 ? (parseFloat(getComputedStyle(L).getPropertyValue('--x-pl-fade')) || 28) : 0;
         const fadeTop = lr.bottom - fade;
-        return { medium: document.documentElement.classList.contains('sz-medium'), on: on ? +on.dataset.i : null, h: Math.round(lr.height),
-          visible: !!(or && or.top >= lr.top - 1 && or.bottom <= fadeTop + 1), gap: +(kr.top - lr.bottom).toFixed(1), fade };
+        const c = document.documentElement.classList;
+        return { pad: c.contains('lay-pad-port') && c.contains('sz-regular'), on: on ? +on.dataset.i : null, h: Math.round(lr.height),
+          visible: !!(or && or.top >= lr.top - 1 && or.bottom <= fadeTop + 1), gap: +(kr.top - lr.bottom).toFixed(1), fade,
+          lay: [...c].filter(x => x.startsWith('lay-') || x.startsWith('sz-')).join(' ') };
       });
       const notes = [];
-      if (!m.medium) notes.push('not the sz-medium layout');
+      if (!m.pad) notes.push('not the iPad portrait layout ' + m.lay);
       if (m.on !== n - 1) notes.push('picked row ' + m.on + ', want ' + (n - 1));
-      if (m.h < 640) notes.push('list too short ' + JSON.stringify(m));
+      if (m.h < 400) notes.push('list too short ' + JSON.stringify(m));
       if (Math.abs(m.gap - 8) > 1) notes.push('gap to piano not 8px ' + JSON.stringify(m));
       if (!m.visible) notes.push('picked row not clear of the fade ' + JSON.stringify(m));
       if (bag.errors.length || bag.failed.length) notes.push('page: ' + bag.errors.concat(bag.failed).slice(0, 3).join('; '));

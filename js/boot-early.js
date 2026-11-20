@@ -20,14 +20,15 @@ setTimeout(function () { document.documentElement.classList.remove("tc-boot"); }
    Set before any AudioContext exists; re-applied in unlock(). */
 try { if ("audioSession" in navigator) navigator.audioSession.type = "playback"; } catch (err) { /* ignore */ }
 /* Size class for the v20 responsive layout. Runs before first paint and again on resize.
-   compact = w < 600 or (landscape and h < 500); regular = w >= 768 and h >= 600; else medium.
+   compact = w < 600 or (landscape and h < 500); regular = w >= 744 and h >= 600; else medium.
+   744 is iPad mini portrait (744x1133), so that size uses the iPad layout. 700x900 stays medium.
    Layout: regular -> pad-port / pad-land; otherwise phone-port / phone-land. */
 window.tcApplySizeClass = function () {
   var de = document.documentElement;
   var w = window.innerWidth || de.clientWidth;
   var h = window.innerHeight || de.clientHeight;
   var land = w > h;
-  var sz = (w < 600 || (land && h < 500)) ? "compact" : (w >= 768 && h >= 600 ? "regular" : "medium");
+  var sz = (w < 600 || (land && h < 500)) ? "compact" : (w >= 744 && h >= 600 ? "regular" : "medium");
   var lay = sz === "regular" ? (land ? "pad-land" : "pad-port") : (land ? "phone-land" : "phone-port");
   var want = { "sz-compact": sz === "compact", "sz-medium": sz === "medium", "sz-regular": sz === "regular",
     "lay-phone-port": lay === "phone-port", "lay-phone-land": lay === "phone-land",

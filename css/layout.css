@@ -7,7 +7,7 @@
      lay-pad-port    regular portrait          persistent controls panel, 1x8 types
      lay-pad-land    regular landscape         two-hand: left rail + right stage
    compact = width < 600 or (landscape and height < 500)
-   regular = width >= 768 and height >= 600; anything else = medium. */
+   regular = width >= 744 and height >= 600 (744 = iPad mini portrait); anything else = medium. */
 #app {
   --gap: 8px;
   --chip: 34px;
