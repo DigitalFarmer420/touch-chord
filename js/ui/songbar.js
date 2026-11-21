@@ -1,17 +1,17 @@
 // Song bar (uploaded song sections) and the upload active state.
-import { api as ChordAudio } from "../audio/index.js?v=2026.11.21.1";
-import { prog, placeBadges } from "../songs/playback.js?v=2026.11.21.1";
-import { paintUpNext, upSelected, upT, upA, upPlaceLock, upEsc, upCurStep } from "../songs/song.js?v=2026.11.21.1";
-import { upProgObj, upEv, upSym, upFlagged, upSecName } from "../songs/upload.js?v=2026.11.21.1";
-import { state, shared } from "../state.js?v=2026.11.21.1";
-import { activeKey } from "../keys.js?v=2026.11.21.1";
-import { secLyrics } from "../songs/fullchart.js?v=2026.11.21.1";
-import { upLyrMap, lyrState, paintLyr2, lyrPad } from "./lyrics.js?v=2026.11.21.1";
-import { fitStrip, stripChips } from "./strip.js?v=2026.11.21.1";
-import { nextChange, songCue, cueSoon, cueClock, cueWord, cuePieces, placeCueTag, cueChipClass } from "./chordcue.js?v=2026.11.21.1";
-import { songCardRows, capLayout, cardHead } from "../expert/model.js?v=2026.11.21.1";
-import { paintSimpleSrc } from "./simplesrc.js?v=2026.11.21.1";
-import { progLoopBar, songTempo } from "../songs/song.js?v=2026.11.21.1";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.21.2";
+import { prog, placeBadges } from "../songs/playback.js?v=2026.11.21.2";
+import { paintUpNext, upSelected, upT, upA, upPlaceLock, upEsc, upCurStep } from "../songs/song.js?v=2026.11.21.2";
+import { upProgObj, upEv, upSym, upFlagged, upSecName } from "../songs/upload.js?v=2026.11.21.2";
+import { state, shared } from "../state.js?v=2026.11.21.2";
+import { activeKey } from "../keys.js?v=2026.11.21.2";
+import { secLyrics } from "../songs/fullchart.js?v=2026.11.21.2";
+import { upLyrMap, lyrState, paintLyr2, lyrPad } from "./lyrics.js?v=2026.11.21.2";
+import { fitStrip, stripChips } from "./strip.js?v=2026.11.21.2";
+import { nextChange, songCue, cueSoon, cueClock, cueWord, cuePieces, placeCueTag, cueChipClass } from "./chordcue.js?v=2026.11.21.2";
+import { songCardRows, capLayout, cardHead } from "../expert/model.js?v=2026.11.21.2";
+import { paintSimpleSrc } from "./simplesrc.js?v=2026.11.21.2";
+import { progLoopBar, songTempo } from "../songs/song.js?v=2026.11.21.2";
 // v3.2 test.5: the next-chord cue in the song bar. Full (classic) mode's rows print each chord name inline, right
 // before its word, so there the cue colours that chord name in its grid colour and underlines its word; it brightens one beat
 // before the change (Play) or when the change is the next tap. Simple (Vinh, test.5) shows the words like Expert's
@@ -52,8 +52,7 @@ var sbCueT = 0;   // started by the first song bar paint (not at import: unit te
 // Up to three lines (phone landscape: two; no room for a third at a readable size): the line being sung on top, in
 // ink, with its sung word on gold (a chord-only part: its chords, the sounding one on gold), then the next lines,
 // muted. The next-chord cue is Expert's: a gold underline on the word where the next chord change lands and the
-// chord's name in small teal text, inline right of its word (Simple's grid leaves no height for a band above each
-// line; dialogs.css --sl-cb). Rows (--sl-n: 3, short phones 2) come from the same line map as playback (songCardRows).
+// chord's name in small grid-coloured text, inline right of its word, as tall as that lyric line (Vinh, 2026-11-21). Rows (--sl-n: 3, short phones 2) come from the same line map as playback (songCardRows).
 export const slState = { k: -1, ev: null, anim: 0, log: [] };
 function slVar(n) {   // the CSS numbers (dialogs.css): rows shown (--sl-n), band above each line (--sl-cb)
   try { var a = document.getElementById("app"), v = a && window.getComputedStyle ? getComputedStyle(a).getPropertyValue(n) : ""; return v ? parseFloat(v) : NaN; } catch (e) { return NaN; }

@@ -154,7 +154,7 @@ test('P1-P7: the spec\'s CSS values', () => {
   assert.match(tail, /minmax\(200px, 1fr\) var\(--x-ctl-h\) minmax\(0, var\(--x-kb-h\)\) !important/);
   assert.match(tail, /minmax\(180px, 1fr\) var\(--x-ctl-h\) var\(--x-pal-h\) minmax\(0, var\(--x-kb-h\)\) !important/);
   assert.doesNotMatch(tail, /minmax\(0, 1fr\) var\(--x-ctl-h\) var\(--x-kb-h\)/);
-  assert.match(tail, /lay-phone-land #app \{ --x-side: 148px; --x-sus-h: 56px; --x-src-h: 46px; --x-kb-h: clamp\(96px, calc\(calc\(100 \* var\(--tc-dvh\)\) - 270px\), 126px\); \}/);
+  assert.match(tail, /lay-phone-land #app \{ --x-side: 148px; --x-sus-h: 56px; --x-src-h: 46px; --x-kb-h: clamp\(72px, max\(min\(96px, calc\(calc\(100 \* var\(--tc-dvh\)\) - 257px\)\), min\(126px, calc\(calc\(100 \* var\(--tc-dvh\)\) - 270px\)\)\), 126px\); \}/);   // Nov 21: the piano also gives way below 367px tall (grid over piano fix)
   assert.match(tail, /lay-phone-land #xCtl \{ grid-template-rows: minmax\(48px, 1fr\) minmax\(48px, 1fr\); \}/);
   assert.match(tail, /\.x-lock::after \{[^}]*width: max\(100%, 48px\); height: max\(100%, 48px\)/);
   assert.match(tail, /html\.expert \.x-lock \{ width: 52px;/); assert.match(tail, /lay-phone-land \.x-lock \{ width: 48px;/);
