@@ -2,16 +2,16 @@
    Built from the rev3 stack, in order: song-preview + next-icon (step glyph), div (divider), simple-lock (lock, gaps),
    lock-landscape-left-column, simple-v2, simple-v3, simple-v4. Superseded values are folded in; the result renders
    pixel-identical to Uiux's sandbox (minus its static preview Song | Progressions control, which is not part of this build).
-   Scope: the @media matches boot-early.js's "regular" size class (w >= 768 and h >= 600), which is what sets lay-pad-*.
+   Scope: the @media matches boot-early.js's "regular" size class (w >= 744 and h >= 600), which is what sets lay-pad-*.
    Phones (lay-phone-*), Expert (html:not(.simple)) and Kids are not touched. */
-@media (min-width: 768px) and (min-height: 600px) {
+@media (min-width: 744px) and (min-height: 600px) {
 
 /* ---- Fluid sizing. One length unit per axis, 1px at the design's reference size, so every size below equals the
    simple-v4 px at 1180x820 (landscape) and 820x1180 (portrait) and scales smoothly between and beyond:
-   --sh follows the visible height (dvh), --sw the width; both clamp to 0.75-1.4 (land width 0.85-1.4).
+   --sh follows the visible height (dvh), --sw the width; floors 0.75 (land width 0.85), no upper cap (Vinh, 20 Nov: big windows keep growing).
    --sp-tap = a 44 px tap row that grows with the height; tap controls never go under 44 px. ---- */
-html.simple.lay-pad-land #app { --sh: clamp(0.75px, calc(100dvh / 820), 1.4px); --sw: clamp(0.85px, calc(100vw / 1180), 1.4px); }
-html.simple.lay-pad-port #app { --sh: clamp(0.75px, calc(100dvh / 1180), 1.4px); }
+html.simple.lay-pad-land #app { --sh: max(0.75px, calc(calc(100 * var(--tc-dvh)) / 820)); --sw: max(0.85px, calc(calc(100 * var(--tc-vw)) / 1180)); }
+html.simple.lay-pad-port #app { --sh: max(0.75px, calc(calc(100 * var(--tc-dvh)) / 1180)); }
 html.simple.lay-pad-land #app, html.simple.lay-pad-port #app { --sp-tap: max(44px, calc(44 * var(--sh))); }
 /* Top bar and style pills: 44 at the references, taller on big screens. */
 html.simple.lay-pad-land #styles button, html.simple.lay-pad-port #styles button { height: var(--sp-tap); min-height: 44px; }
@@ -83,7 +83,7 @@ html.simple.lay-pad-land #prog .pg-song.on svg, html.simple.lay-pad-port #prog .
    padding, 14-px radius track; 38-42-px buttons, Nunito 700 19 px; 320 wide in landscape, 380 in portrait; Song 0.8 : 1.2. */
 html.simple.lay-pad-land #xTog, html.simple.lay-pad-port #xTog { height: var(--sp-tap); max-width: none; margin: 0; align-self: center; }
 html.simple.lay-pad-land #xTog { flex: 0 0 calc(320 * var(--sw)); }   /* 320 at 1180 wide */
-html.simple.lay-pad-port #xTog { flex: 0 0 clamp(300px, calc(380 / 820 * 100vw), 520px); }   /* 380 at 820 wide */
+html.simple.lay-pad-port #xTog { flex: 0 0 max(300px, calc(380 / 820 * calc(100 * var(--tc-vw)))); }   /* 380 at 820 wide */
 html.simple.lay-pad-land #xTog button, html.simple.lay-pad-port #xTog button { height: calc(var(--sp-tap) - 6px); min-height: var(--ctrl); font: 700 max(17px, calc(19 * var(--sh))) Nunito, system-ui, sans-serif; }   /* as rendered in simple-v4: the app's button floor (--ctrl: 42 portrait, 40 landscape) wins over 38, so portrait buttons overhang the track's bottom by 1 px */
 html.simple.lay-pad-land #xTog button[data-v="song"], html.simple.lay-pad-port #xTog button[data-v="song"] { flex: 0.8 1 0; }
 html.simple.lay-pad-land #xTog button[data-v="prog"], html.simple.lay-pad-port #xTog button[data-v="prog"] { flex: 1.2 1 0; }
@@ -102,7 +102,7 @@ html.simple.lay-pad-land #app {
   grid-template-areas: "top top top" "sty sty sty" "now nxt nxt" "sus nxt nxt"; }
 html.simple.lay-pad-land .now-col > .now-card { min-height: 160px; }
 /* N20 C8 / PR-A2: short pad-land height budget. Only viewports under 720 tall
-   (the visible height, same as 100dvh on these windows) change. 720 itself
+   (the visible height, same as calc(100 * var(--tc-dvh)) on these windows) change. 720 itself
    keeps today's 8.3px spare, and iPad landscape is unchanged. Shrink order
    (Uiux): relax NOW's 160px minimum first, then --sp-left-min. Lyrics stay
    at three lines — steps 1+2 already fit 1280×600 and 1920×600 with ≥8px spare
@@ -150,8 +150,16 @@ html.simple.lay-pad-port #prog .pg-song svg { width: calc(44 * var(--sh)); heigh
    left: NOW and play-next / Play share it 170 : 134 (as at 820x1180), key / Major follow NOW, Sustain spans to the
    transport's bottom edge, so both columns stay level and every gap stays 10. */
 html.simple.up-slyr.lay-pad-port #app {
-  --sp-pad: min(calc(((100vw - 58px - 2 * var(--ss-lbl)) / 8 - var(--ss-cgap)) * 0.954839), calc(81.4 / 1180 * 100dvh));
+  --sp-pad: min(calc(((calc(100 * var(--tc-vw)) - 58px - 2 * var(--ss-lbl)) / 8 - var(--ss-cgap)) * 0.954839), calc(81.4 / 1180 * calc(100 * var(--tc-dvh))));
   grid-template-rows: var(--sp-tap) var(--sp-tap) minmax(100px, 170fr) var(--sp-tap) max(44px, calc(58 * var(--sh))) minmax(88px, 134fr) auto; }
 html.simple.up-slyr.lay-pad-port #suggest { flex: 0 0 auto; height: calc(5 * var(--sp-pad) + 4 * var(--ss-rg)); }
 
+}
+
+/* Simple has no volume slider (Vinh, 20 Nov). Only the slider is hidden; Expert keeps it, and the saved volume still applies.
+   The rows it used go to its neighbours. */
+html.simple #nowMix { display: none !important; }
+@media (min-width: 744px) and (min-height: 600px) {
+  /* iPad portrait: the slider's row joins the song picker + Next / Play block below it (Next / Play grow; nothing else moves). */
+  html.simple.lay-pad-port #app { grid-template-areas: "top top" "sty sty" "key now" "sus prog" "sus prog" "sus prog" "nxt nxt"; }
 }

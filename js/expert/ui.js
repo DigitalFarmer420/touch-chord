@@ -3,40 +3,40 @@
 // #sustainBtn, the Sound / FX / Layout / Loop panel #ctl, the keys #pads) with css/expert.css and adds the
 // Expert-only controls below. Every new control drives the existing code (same functions or the same
 // buttons), so sound, timing and music theory are exactly the 351c02c ones.
-import { unlock } from "../audio/unlock.js?v=112.16";
-import { api as ChordAudio } from "../audio/index.js?v=112.16";
-import { stopPlayback } from "../loop.js?v=112.16";
-import { activeKey } from "../keys.js?v=112.16";
-import { setKidKey } from "../kids.js?v=112.16";
-import { prog, progSet, placeBadges, setBadgeAvoid, magic, progStop, progWalkAt, progWalkTo, playButtonLabel } from "../songs/playback.js?v=112.16";
-import { magicQueue } from "../songs/magic.js?v=112.16";
-import { nextHintSpec } from "../ui/next.js?v=112.16";
-import { setHintAvoid } from "../ui/hints.js?v=112.16";
-import { progFeel, progSteps } from "../songs/presets.js?v=112.16";
-import { progLockPick } from "../songs/proghold.js?v=112.16";
-import { upSelected, upCurStep, upNextStep, upA, progLoopBar, songTempo } from "../songs/song.js?v=112.16";
-import { songCue, cueSoon, cueClock, cuePieces, placeCueTag, cueChipClass } from "../ui/chordcue.js?v=112.16";
-import { upSym, upSecName } from "../songs/upload.js?v=112.16";
-import { upLyrMap, lyrPad } from "../ui/lyrics.js?v=112.16";
-import { state, shared, fingers, loop, scheduleSave } from "../state.js?v=112.16";
-import { tapSimpleSrc, paintSimpleSrc } from "../ui/simplesrc.js?v=112.16";
-import { accSym } from "../theory/spelling.js?v=112.16";
-import { Theory } from "../theory/index.js?v=112.16";
-import { paintKeyChip, keyLabel } from "../ui/keychip.js?v=112.16";
-import { fitNowSymbol } from "../ui/nowbox.js?v=112.16";
-import { computeSpec, renderPads, refreshHeld, setWinKeys } from "../ui/pads.js?v=112.16";
-import { liftFinger } from "../ui/touch.js?v=112.16";
-import { stripRelease } from "../ui/strip.js?v=112.16";
-import { fitStrip, stripLabel, stripChips } from "../ui/strip.js?v=112.16";
-import { setExpert as setKidsViewOff, setModeHandler, kidsStartOver, setTheme as setKidsTheme } from "../kids/view.js?v=112.16";
-import { setSimple } from "../ui/layout.js?v=112.16";
-import { libSetVer } from "../songs/library.js?v=112.16";
-import { secLyrics } from "../songs/fullchart.js?v=112.16";
-import { KEYS_CHOICES, makeChip, configureSheet, openModeSheet, bootSheet, paintSheet, sheetOpen } from "../ui/modesheet.js?v=112.16";
-import { registerLook, lookApplyNow, lookShown } from "../ui/look.js?v=112.16";
-import { toggleHelpMenu } from "../ui/helpmenu.js?v=112.16";   // redesign-dev: the Kids view (kids-build) is the switch's Kids
+import { unlock } from "../audio/unlock.js?v=2026.11.21.1";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.21.1";
+import { stopPlayback } from "../loop.js?v=2026.11.21.1";
+import { activeKey } from "../keys.js?v=2026.11.21.1";
+import { setKidKey } from "../kids.js?v=2026.11.21.1";
+import { prog, progSet, placeBadges, setBadgeAvoid, magic, progStop, progWalkAt, progWalkTo, playButtonLabel } from "../songs/playback.js?v=2026.11.21.1";
+import { magicQueue } from "../songs/magic.js?v=2026.11.21.1";
+import { nextHintSpec } from "../ui/next.js?v=2026.11.21.1";
+import { setHintAvoid } from "../ui/hints.js?v=2026.11.21.1";
+import { progFeel, progSteps } from "../songs/presets.js?v=2026.11.21.1";
+import { progLockPick } from "../songs/proghold.js?v=2026.11.21.1";
+import { upSelected, upCurStep, upNextStep, upA, progLoopBar, songTempo } from "../songs/song.js?v=2026.11.21.1";
+import { songCue, cueSoon, cueClock, cuePieces, placeCueTag, cueChipClass } from "../ui/chordcue.js?v=2026.11.21.1";
+import { upSym, upSecName } from "../songs/upload.js?v=2026.11.21.1";
+import { upLyrMap, lyrPad } from "../ui/lyrics.js?v=2026.11.21.1";
+import { state, shared, fingers, loop, scheduleSave } from "../state.js?v=2026.11.21.1";
+import { tapSimpleSrc, paintSimpleSrc } from "../ui/simplesrc.js?v=2026.11.21.1";
+import { accSym } from "../theory/spelling.js?v=2026.11.21.1";
+import { Theory } from "../theory/index.js?v=2026.11.21.1";
+import { paintKeyChip, keyLabel } from "../ui/keychip.js?v=2026.11.21.1";
+import { fitNowSymbol } from "../ui/nowbox.js?v=2026.11.21.1";
+import { computeSpec, renderPads, refreshHeld, setWinKeys } from "../ui/pads.js?v=2026.11.21.1";
+import { liftFinger } from "../ui/touch.js?v=2026.11.21.1";
+import { stripRelease } from "../ui/strip.js?v=2026.11.21.1";
+import { fitStrip, stripLabel, stripChips } from "../ui/strip.js?v=2026.11.21.1";
+import { setExpert as setKidsViewOff, setModeHandler, kidsStartOver, setTheme as setKidsTheme } from "../kids/view.js?v=2026.11.21.1";
+import { setSimple } from "../ui/layout.js?v=2026.11.21.1";
+import { libSetVer } from "../songs/library.js?v=2026.11.21.1";
+import { secLyrics } from "../songs/fullchart.js?v=2026.11.21.1";
+import { KEYS_CHOICES, makeChip, configureSheet, openModeSheet, bootSheet, paintSheet, sheetOpen } from "../ui/modesheet.js?v=2026.11.21.1";
+import { registerLook, lookApplyNow, lookShown } from "../ui/look.js?v=2026.11.21.1";
+import { toggleHelpMenu } from "../ui/helpmenu.js?v=2026.11.21.1";   // redesign-dev: the Kids view (kids-build) is the switch's Kids
 import { EXPERT_STORE, parsePref, prefFromUrl, modeOf, modeTarget, typeBarInit, typeBarReduce, typeBarLabel, TYPEBAR_HOLD_MS,
-  sourceInit, sourceReduce, progDots, songCardRows, capLayout, cardHead, STYLE_MENU, styleName, expertWindowKeys, expertStyleFix, fullToExpert, chartFor } from "./model.js?v=112.16";
+  sourceInit, sourceReduce, progDots, songCardRows, capLayout, cardHead, STYLE_MENU, styleName, expertWindowKeys, expertStyleFix, fullToExpert, chartFor } from "./model.js?v=2026.11.21.1";
 // rd6: ?test=1&classic=1 keeps the legacy classic screens (Full layout, Kids style chip in Simple) for the sound-equivalence
 // suites (audioeq / kvaudio replay the 351c02c taps). Users can no longer reach them.
 const CLASSIC = /[?&]test=1(&|$)/.test(location.search) && /[?&]classic=1(&|$)/.test(location.search);
@@ -363,7 +363,7 @@ function fitStyleMenu(top) {
   var rows = m.querySelectorAll(".x-mi"), cs = getComputedStyle(m);
   var pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
   var rowH = rows.length ? (rows[0].offsetHeight || 46) : 46, full = pad + rowH * rows.length;
-  var avail = Math.floor(window.innerHeight - top - 8);
+  var avail = Math.floor((window.tcVH ? window.tcVH() : window.innerHeight) - top - 8);
   if (full <= avail) { m.style.maxHeight = Math.ceil(full) + "px"; m.classList.remove("x-more"); return; }
   var head = parseFloat(cs.paddingTop) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);   // the cut row reaches the bottom edge
   var n = Math.max(1, Math.floor((avail - head - rowH / 2) / rowH));
@@ -833,7 +833,7 @@ export const NOTE_TEXT = "Dense layout is here now";
 function placeDenseNote() {
   var n = $("xDenseNote"), c = document.querySelector(".next-card"); if (!n || !c) return;
   var r = c.getBoundingClientRect(); if (!r.width) return;
-  var slim = window.innerHeight < 400, H = slim ? 28 : 30, top = Math.round(r.top + 4), left = Math.round(r.left + 6), right = Math.round(r.right - 6);
+  var slim = (window.tcVH ? window.tcVH() : window.innerHeight) < 400, H = slim ? 28 : 30, top = Math.round(r.top + 4), left = Math.round(r.left + 6), right = Math.round(r.right - 6);
   Array.prototype.forEach.call(document.querySelectorAll("#suggest .ss-chip, #suggest .ss-note"), function (e) {
     if (!e.getClientRects().length || getComputedStyle(e).visibility === "hidden") return;
     var q = e.getBoundingClientRect();

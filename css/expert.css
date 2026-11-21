@@ -51,7 +51,7 @@ html.expert #app {
   grid-template-columns: var(--x-now-w) calc(var(--x-sus-w) - var(--x-now-w) - var(--x-g)) minmax(0, 1fr) auto !important;
   grid-template-rows: var(--x-row) var(--x-row) var(--x-src-h) var(--x-grid-h) var(--x-ctl-h) minmax(0, 1fr) !important;
   grid-template-areas: "xtop xtop xtop xtop" "xtog xtog xtog xgo" "now xsrc xsrc xsrc" "grid grid grid grid" "sus sus xctl xctl" "kb kb kb kb" !important;
-  height: 100dvh !important; max-height: 100dvh; box-sizing: border-box; background: var(--x-bg); color: var(--x-ink); font-family: Nunito, "Segoe UI", system-ui, sans-serif;
+  height: calc(100 * var(--tc-dvh)) !important; max-height: calc(100 * var(--tc-dvh)); box-sizing: border-box; background: var(--x-bg); color: var(--x-ink); font-family: Nunito, "Segoe UI", system-ui, sans-serif;
 }
 html.expert.x-types-open #app {
   --x-grid-h: 216px;
@@ -61,8 +61,8 @@ html.expert.x-types-open #app {
 /* iPad portrait (820x1180) */
 /* Fluid (anchored at 820x1180: the values below equal 150 / 72 / 400 / 380 px there). Now column follows the width; the
    Sustain/Sound/All notes row and the chord grid follow the height, and the keyboard keeps the rest (1fr). */
-html.expert.lay-pad-port #app { --x-g: 10px; --x-now-w: clamp(140px, calc(150 / 820 * 100vw), 220px); --x-row: 64px; --x-src-h: 88px; --x-ctl-h: clamp(56px, calc(72 / 1180 * 100dvh), 96px); --x-chip-r: 16px; --x-fs: 21px; --x-pal-h: 140px; --x-grid-h: clamp(340px, calc(400 / 1180 * 100dvh), 600px); padding: 16px 16px 12px !important; }
-html.expert.lay-pad-port.x-types-open #app { --x-grid-h: clamp(320px, calc(380 / 1180 * 100dvh), 570px); }
+html.expert.lay-pad-port #app { --x-g: 10px; --x-now-w: max(140px, calc(150 / 820 * calc(100 * var(--tc-vw)))); --x-row: 64px; --x-src-h: 88px; --x-ctl-h: max(56px, calc(72 / 1180 * calc(100 * var(--tc-dvh)))); --x-chip-r: 16px; --x-fs: 21px; --x-pal-h: 140px; --x-grid-h: max(340px, calc(400 / 1180 * calc(100 * var(--tc-dvh)))); padding: 16px 16px 12px !important; }
+html.expert.lay-pad-port.x-types-open #app { --x-grid-h: max(320px, calc(380 / 1180 * calc(100 * var(--tc-dvh)))); }
 /* Landscape, phone and tablet: the playable chord grid is on the right.
    Sustain and the control column keep their old width, on the left. Not the paused rd18 relayout. */
 html.expert.lay-pad-land #app, html.expert.lay-phone-land #app {
@@ -106,9 +106,9 @@ html.expert #xTop .x-help { flex: 0 0 44px; width: 44px; height: 44px; min-width
 html.expert #xTop .x-help svg { display: block; }
 html.expert #xTop .x-style.open { border-color: var(--x-gold); color: var(--x-ink); }
 /* iPad portrait top row, fluid with the width (190 / 170 / 120 px at 820 wide). Landscape sizes are in the large-screen layer. */
-html.expert.lay-pad-port #xTop .x-key { flex-basis: clamp(160px, calc(190 / 820 * 100vw), 260px); }
-html.expert.lay-pad-port #xTop .x-style { flex-basis: clamp(144px, calc(170 / 820 * 100vw), 232px); }
-html.expert.lay-pad-port #xTop .mode-chip { flex-basis: clamp(104px, calc(120 / 820 * 100vw), 164px); }
+html.expert.lay-pad-port #xTop .x-key { flex-basis: max(160px, calc(190 / 820 * calc(100 * var(--tc-vw)))); }
+html.expert.lay-pad-port #xTop .x-style { flex-basis: max(144px, calc(170 / 820 * calc(100 * var(--tc-vw)))); }
+html.expert.lay-pad-port #xTop .mode-chip { flex-basis: max(104px, calc(120 / 820 * calc(100 * var(--tc-vw)))); }
 html.expert #xTop .x-slot #xTog { flex: 0 1 380px; }
 
 /* ---------- Song | Progressions (decision 8) ---------- */
@@ -157,13 +157,27 @@ html.expert .x-plock .x-lki { font-size: 15px; line-height: 1.1; }
 html.expert .x-plock[aria-pressed="true"] { background: var(--x-gold); color: #3B2600; border-color: var(--x-gold-deep); }
 html.expert .x-plock::after { content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, 44px); height: max(100%, 44px); transform: translate(-50%, -50%); }
 html.expert.lay-pad-port .x-plock, html.expert.lay-pad-land .x-plock { width: 72px; font-size: 13px; }
+/* iPad / desktop (lay-pad-*): #xSrc already matches the source-row height (Next / Play
+   in landscape; the Now card in portrait), but the progression picker and Lock are
+   <button>s, so the global button { height: var(--ctrl) } rule (40px landscape, 42px
+   portrait) keeps them short and they sit at the top of the row. Same height override
+   Next / Play already have. Song-mode Lock (.x-lock) is unchanged: it already fills
+   the padded song card. */
+html.expert:is(.lay-pad-land, .lay-pad-port) #xSrc.x-mode-prog { align-items: stretch; }
+html.expert:is(.lay-pad-land, .lay-pad-port) #xSrc .x-pbar,
+html.expert:is(.lay-pad-land, .lay-pad-port) #xSrc .x-plock {
+  height: auto;
+  min-height: 0;
+  align-self: stretch;
+  box-sizing: border-box;
+}
 html.expert.lay-phone-land .x-plock { width: 44px; font-size: 9.5px; border-radius: 12px; }
 html.expert.lay-phone-land .x-plock .x-lki { font-size: 13px; line-height: 1; }
 html.expert.lay-phone-land .x-plock { z-index: 1; }
 html.expert.lay-phone-land .x-plock::after { top: -3.5px; bottom: -6.5px; height: auto; transform: translateX(-50%); }   /* the 32px row: the tap area grows into the free gaps only, never over the top bar or the strip chips */
 html.expert .x-pn small, html.expert .x-prow small { font: 700 11.5px Nunito, system-ui, sans-serif; color: var(--x-muted); margin-left: 4px; }
 /* the progression list opens over the grid, never over the keys (JS fitProgList ends 8px above the piano; iPad, phone landscape and sz-medium keep all of that room) */
-html.expert #xPList { --x-pl-fade: 28px; position: fixed; z-index: 60; left: 12px; right: 12px; max-height: calc(var(--x-kb-top, 70vh) - var(--x-pl-top, 200px) - 8px); overflow: auto;
+html.expert #xPList { --x-pl-fade: 28px; position: fixed; z-index: 60; left: 12px; right: 12px; max-height: calc(var(--x-kb-top, calc(70 * var(--tc-vh))) - var(--x-pl-top, 200px) - 8px); overflow: auto;
   background: var(--x-surface); border: 1.5px solid var(--x-line); border-radius: 18px; padding: 10px; box-shadow: 0 14px 30px rgba(0,0,0,.5); box-sizing: border-box; }
 html.expert #xPList.x-more { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--x-pl-fade)), rgba(0,0,0,.35)); mask-image: linear-gradient(to bottom, #000 calc(100% - var(--x-pl-fade)), rgba(0,0,0,.35)); }
 html.expert.lay-phone-land #xPList { --x-pl-fade: 16px; }   /* N17: a peeking part row plus 16px fade is enough to show it scrolls on a short list */
@@ -273,7 +287,7 @@ html.expert .kb.piano .pad.black { background: var(--x-bkey); border: 1.5px soli
 /* ---------- sheets / menus ---------- */
 html.expert #xScrim { position: fixed; left: 0; right: 0; top: 0; height: var(--x-kb-top, 100%); background: rgba(0,0,0,.45); z-index: 50; }
 html.expert .x-menu { position: fixed; z-index: 61; width: 172px; background: var(--x-surface); color: var(--x-ink); border: 1.5px solid var(--x-line); border-radius: 18px; padding: 6px; box-shadow: 0 14px 30px rgba(0,0,0,.5);
-  max-height: calc(var(--x-kb-top, 80vh) - 70px); overflow: auto; box-sizing: border-box; }
+  max-height: calc(var(--x-kb-top, calc(80 * var(--tc-vh))) - 70px); overflow: auto; box-sizing: border-box; }
 html.expert .x-mi { display: flex; width: 100%; align-items: center; justify-content: space-between; height: 46px; padding: 0 10px; border: 0; border-radius: 12px; background: transparent; color: var(--x-ink); box-sizing: border-box; }
 html.expert .x-mi b { font: 600 15px Fredoka, Nunito, system-ui, sans-serif; } html.expert .x-mi span { font-size: 10.5px; color: var(--x-muted); font-weight: 700; }
 html.expert .x-mi.on { background: var(--x-gold); color: #3B2600; } html.expert .x-mi.on span { color: #3B2600; } html.expert .x-mi.on span::before { content: "\2713 "; }
@@ -306,7 +320,7 @@ html.expert .x-ver { margin-top: 10px; font-size: 12px; color: var(--x-muted); t
 /* Sound / FX / Layout / Loop: the existing #ctl panel as a sheet that stops above the keys */
 html.expert #ctl { display: none !important; }
 html.expert.x-ctl-on #ctl { display: block !important; position: fixed !important; z-index: 61; left: 8px !important; right: 8px !important; width: auto !important;
-  top: calc(var(--x-top-b, 54px) + 50px) !important; bottom: auto !important; max-height: calc(var(--x-kb-top, 80vh) - var(--x-top-b, 54px) - 58px); overflow: auto;
+  top: calc(var(--x-top-b, 54px) + 50px) !important; bottom: auto !important; max-height: calc(var(--x-kb-top, calc(80 * var(--tc-vh))) - var(--x-top-b, 54px) - 58px); overflow: auto;
   background: var(--x-surface) !important; border: 1.5px solid var(--x-line) !important; border-radius: 26px !important; padding: 12px 14px !important; box-shadow: 0 14px 30px rgba(0,0,0,.5); transform: none !important; }
 html.expert.x-ctl-on #ctl .pane { display: none; }
 html.expert.x-ctl-on #ctl[data-open="sound"] #paneSound, html.expert.x-ctl-on #ctl[data-open="fx"] #paneFx,
@@ -515,18 +529,23 @@ html.expert.x-ctl-on #ctl .band-wrap.off .band-row b { color: var(--x-muted); }
 html.expert #xPList { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 
 /* ===== v3.2 UI polish (Uiux, Nov 14: ux-expert-layout-fixes.md P1-P7). Same look; only sizes and edges change. ===== */
-/* P1 phone portrait: the piano is 30% of the screen (200..260 css) and the chord grid takes the rest. */
+/* P1 phone portrait: the piano prefers 30% of the screen, and never more than 260px. It used to
+   stop at 200px. On a short phone that floor plus the fixed rows plus the 200px chord grid ran
+   past the screen and the keys were clipped (360x640). The piano gives up height first: no 200px
+   floor, and its row may shrink below 30% so the keys stay on screen. The chord grid stays at
+   least 200px, so the chip rows do not get shorter. Where 30% already fits (390x844 and the usual
+   phone heights), the piano and the grid stay the same size. Colours, type and controls are unchanged. */
 html.expert.lay-phone-port #app {
-  --x-ctl-h: 48px; --x-src-h: 64px; --x-kb-h: clamp(200px, 30dvh, 260px);
-  grid-template-rows: var(--x-row) var(--x-row) var(--x-src-h) minmax(200px, 1fr) var(--x-ctl-h) var(--x-kb-h) !important;
+  --x-ctl-h: 48px; --x-src-h: 64px; --x-kb-h: min(260px, calc(30 * var(--tc-dvh)));
+  grid-template-rows: var(--x-row) var(--x-row) var(--x-src-h) minmax(200px, 1fr) var(--x-ctl-h) minmax(0, var(--x-kb-h)) !important;
 }
 html.expert.lay-phone-port.x-types-open #app {
-  grid-template-rows: var(--x-row) var(--x-row) var(--x-src-h) minmax(180px, 1fr) var(--x-ctl-h) var(--x-pal-h) var(--x-kb-h) !important;
+  grid-template-rows: var(--x-row) var(--x-row) var(--x-src-h) minmax(180px, 1fr) var(--x-ctl-h) var(--x-pal-h) minmax(0, var(--x-kb-h)) !important;
 }
 /* P2 + P3 phone landscape. The status bar is hidden natively (MainActivity), so its height goes to the song card (+14)
    and the piano (+14). The side column is 148 css; SUSTAIN 56 tall; the two button rows are at least 48 each.
    Insets: native padding is the only source; env(safe-area-inset-*) is 0 in the app, so nothing is added here. */
-html.expert.lay-phone-land #app { --x-side: 148px; --x-sus-h: 56px; --x-src-h: 46px; --x-kb-h: clamp(96px, calc(100dvh - 270px), 126px); }
+html.expert.lay-phone-land #app { --x-side: 148px; --x-sus-h: 56px; --x-src-h: 46px; --x-kb-h: clamp(96px, calc(calc(100 * var(--tc-dvh)) - 270px), 126px); }
 /* kb-h: 126 css once the screen is 396+ css tall (411 on Vinh's phone with the status bar hidden). On shorter screens
    (status bar showing, or a small phone) the piano gives way first, so the five grid rows keep their 32 css floor and
    never slide under the keys (780x360: 96 css, as before). */
@@ -586,13 +605,12 @@ html.expert .kb.piano .pad.black.nokey { background: var(--x-bkey-nokey); color:
    below so the marks are not cut (overflow: clip + overflow-clip-margin; older WebViews keep overflow: hidden). */
 html.expert .x-stitle, html.expert .x-lrows, html.expert .x-lrow { overflow: hidden; overflow: clip; overflow-clip-margin: 4px; }
 
-/* 744×1133 (iPad mini portrait) is under 768 px wide, so it uses the phone-portrait
-   layout. The title's stacked accents (the hook on Ổ) and the last lyric line were
-   clipped by .x-songc { overflow: hidden }, same as on develop. Borrow the song
-   card's 4 px padding and give the title 3 px on top so the glyphs stay inside the
-   card without changing the card's outer size. Phones at 360/390 and iPad / desktop
-   layouts are left unchanged. */
-@media (min-width: 700px) and (max-width: 767px) {
+/* 700–743 px wide portrait is still the phone layout (744, iPad mini, is pad-port).
+   The title's stacked accents and the last lyric line were clipped by .x-songc
+   { overflow: hidden }. Borrow the song card's 4 px padding and give the title 3 px
+   on top so the glyphs stay inside the card without changing the card's outer size.
+   Phones at 360/390 are left unchanged. */
+@media (min-width: 700px) and (max-width: 743.98px) {
   html.expert.lay-phone-port #xSrc.x-mode-song > .x-songc {
     margin: -4px 0;
     justify-content: flex-start;
@@ -642,36 +660,33 @@ html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x
 /* Expert large-screen browser layer (test.6, Expert v5).
    The existing size classifier includes desktop windows, not just touch devices.
    Simple and medium/compact layouts deliberately cannot match this layer. */
-@media (min-width: 768px) and (min-height: 600px) {
-  /* Sizing knobs: approved vh heights / vw widths, with exact reference anchors.
-     Extra room beyond these caps remains available to the grid and keyboard. */
+@media (min-width: 744px) and (min-height: 600px) {
+  /* Sizing knobs: approved vh heights / vw widths, with exact reference anchors. Floors only: no upper caps, so
+     bigger windows keep growing the controls (Vinh, 20 Nov). Past 1180x820 / 820x1180 the page zoom does the rest. */
   html.expert.lay-pad-land #app {
-    --xl-row-min: 56px; --xl-row-max: 80px;
-    --xl-go-min: 80px; --xl-go-max: 112px;
-    --xl-next-min: 120px; --xl-next-max: 168px;
-    --xl-row: clamp(var(--xl-row-min), calc(64 / 820 * 100vh), var(--xl-row-max));
-    --xl-go: clamp(var(--xl-go-min), calc(90 / 820 * 100vh), var(--xl-go-max));
-    --xl-next: clamp(var(--xl-next-min), calc(130 / 1180 * 100vw), var(--xl-next-max));
+    --xl-row-min: 56px; --xl-go-min: 80px; --xl-next-min: 120px;
+    --xl-row: max(var(--xl-row-min), calc(64 / 820 * calc(100 * var(--tc-vh))));
+    --xl-go: max(var(--xl-go-min), calc(90 / 820 * calc(100 * var(--tc-vh))));
+    --xl-next: max(var(--xl-next-min), calc(130 / 1180 * calc(100 * var(--tc-vw))));
     --xl-next-icon: calc(var(--xl-go) * 40 / 90);
     --xl-play-icon: calc(var(--xl-go) * 36 / 90);
-    --xl-tog-width: clamp(280px, calc(360 / 1180 * 100vw), 410px);
+    --xl-tog-width: max(280px, calc(360 / 1180 * calc(100 * var(--tc-vw))));
     --x-row: var(--xl-row); --x-src-h: var(--xl-go);
-    --xl-w: calc(100vw / 1180);   /* 1px at the 1180 reference width */
-    --xl-ctl-max: clamp(88px, calc(102.3 / 820 * 100dvh), 150px);   /* Sound / All notes: 102.3 at 820 tall (as approved), never the 306 they reached at 2560x1440 */
-    --x-side: clamp(168px, calc(184 * var(--xl-w)), 260px); --x-now-w: var(--x-side);
-    --x-sus-h: clamp(104px, 14vh, 160px);
-    --x-kb-h: clamp(264px, 33vh, 400px);
+    --xl-w: calc(calc(100 * var(--tc-vw)) / 1180);   /* 1px at the 1180 reference width */
+    --xl-ctl-max: max(88px, calc(102.3 / 820 * calc(100 * var(--tc-dvh))));   /* Sound / All notes: 102.3 at 820 tall (as approved); no upper cap (Vinh, 20 Nov) */
+    --x-side: max(168px, calc(184 * var(--xl-w))); --x-now-w: var(--x-side);
+    --x-sus-h: max(104px, calc(14 * var(--tc-vh)));
+    --x-kb-h: max(264px, calc(33 * var(--tc-vh)));
     /* Lyric rows: 25 / 20 at 820 tall (approved). On shorter screens (1024x768, 1133x744) the card is shorter, so the rows and
        their type shrink with it and the title + 6 px gap + 3 rows still fit inside the card: (card row - 25) * 25 / 65 and
        * 20 / 65, where 25 = the title's 3 px accent room + 16 px line + 6 px gap (PR #5, Uiux: the last look-ahead line was cut). */
     --x-lh1: min(25px, calc((var(--x-src-h) - 25px) * 25 / 65)); --x-lh2: min(20px, calc((var(--x-src-h) - 25px) * 20 / 65));
   }
   html.expert.lay-pad-port #app {
-    --xl-row-min: 56px; --xl-row-max: 80px;
-    --xl-next-min: 160px; --xl-next-max: 240px;
-    --xl-row: clamp(var(--xl-row-min), calc(64 / 1180 * 100vh), var(--xl-row-max));
+    --xl-row-min: 56px; --xl-next-min: 160px;
+    --xl-row: max(var(--xl-row-min), calc(64 / 1180 * calc(100 * var(--tc-vh))));
     --xl-go: var(--xl-row);
-    --xl-next: clamp(var(--xl-next-min), calc(180 / 820 * 100vw), var(--xl-next-max));
+    --xl-next: max(var(--xl-next-min), calc(180 / 820 * calc(100 * var(--tc-vw))));
     --xl-next-icon: calc(var(--xl-go) * 48 / 64);
     --xl-play-icon: calc(var(--xl-go) * 36 / 64);
     --x-row: var(--xl-row);
@@ -681,14 +696,14 @@ html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x
   html.expert:is(.lay-pad-land, .lay-pad-port) #xTop .x-style {
     height: var(--xl-row); min-height: 44px; align-self: stretch; box-sizing: border-box;
   }
-  html.expert.lay-pad-land #xTop .x-key { flex: 1 1 200px; max-width: clamp(200px, calc(250 * var(--xl-w)), 340px); min-width: 90px; }
-  html.expert.lay-pad-land #xTop .x-style { flex: 1 1 170px; max-width: clamp(176px, calc(220 * var(--xl-w)), 300px); min-width: 80px; }
+  html.expert.lay-pad-land #xTop .x-key { flex: 1 1 200px; max-width: max(200px, calc(250 * var(--xl-w))); min-width: 90px; }
+  html.expert.lay-pad-land #xTop .x-style { flex: 1 1 170px; max-width: max(176px, calc(220 * var(--xl-w))); min-width: 80px; }
   html.expert.lay-pad-land #xTop > .x-b,
   html.expert.lay-pad-land #xTop .mode-chip {
     height: var(--xl-row); min-height: 44px; align-self: stretch;
     box-sizing: border-box; font-size: 22px; border-radius: 16px;
   }
-  html.expert.lay-pad-land #xTop .mode-chip { flex: 0 1 clamp(110px, calc(132 * var(--xl-w)), 180px); min-width: max-content; padding: 0 12px; }   /* never narrower than "◆ Expert" (it clipped by 2 px at 1024 wide) */
+  html.expert.lay-pad-land #xTop .mode-chip { flex: 0 1 max(110px, calc(132 * var(--xl-w))); min-width: max-content; padding: 0 12px; }   /* never narrower than "◆ Expert" (it clipped by 2 px at 1024 wide) */
   /* The toggle's labels are centred, so a smaller side padding changes nothing where they fit (1180x820) and stops
      "Progressions" clipping at 1024-1080 wide. */
   html.expert.lay-pad-land #xTog button { padding: 0 6px; }

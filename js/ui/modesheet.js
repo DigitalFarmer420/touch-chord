@@ -7,10 +7,10 @@
 //     Start over. Rows drive the app's own controls (#playAlongBtn, #paHintsBtn, #progNumsBtn, #tourBtn; How to opens
 //     the How to dialog), so nothing behaves differently from before.
 // The Expert view (js/expert/ui.js) configures it: the current mode, the switch, Start over and the looks.
-import { state } from "../state.js?v=112.16";
-import { APP_VERSION, APP_BUILD } from "../version.js?v=112.16";
-import { LOOK_CHOICES, LOOK_LABELS } from "./lookmath.js?v=112.16";
-import { openHowto } from "./helpmenu.js?v=112.16";
+import { state } from "../state.js?v=2026.11.21.1";
+import { APP_VERSION, APP_BUILD } from "../version.js?v=2026.11.21.1";
+import { LOOK_CHOICES, LOOK_LABELS } from "./lookmath.js?v=2026.11.21.1";
+import { openHowto } from "./helpmenu.js?v=2026.11.21.1";
 
 export const MODES = [["kids", "Kids", "big & easy", "\u2605"], ["simple", "Simple", "chords + key", "\u25D0"], ["expert", "Expert", "everything", "\u25C6"]];
 // rd17 (Uiux, one home per control): no Keys row (the keyboard bar cycles it), no Upload row (the Song tab is its home),
@@ -79,7 +79,7 @@ function showTip(b) {
   var r = b.getBoundingClientRect();
   tipEl.hidden = false;
   tipEl.style.top = Math.round(r.bottom + 8) + "px";
-  tipEl.style.right = Math.max(6, Math.round(window.innerWidth - r.right)) + "px";
+  tipEl.style.right = Math.max(6, Math.round((window.tcVW ? window.tcVW() : window.innerWidth) - r.right)) + "px";
   clearTimeout(tipT); tipT = setTimeout(hideTip, 1600);
 }
 function hideTip() { clearTimeout(tipT); if (tipEl) tipEl.hidden = true; }

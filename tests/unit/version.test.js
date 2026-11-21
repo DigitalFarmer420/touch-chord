@@ -4,7 +4,7 @@ const root = new URL('../../', import.meta.url).pathname;
 const V = readFileSync(root + 'js/version.js', 'utf8').match(/APP_VERSION = "([^"]+)"/)[1];
 const walk = d => readdirSync(d).flatMap(f => statSync(d + '/' + f).isDirectory() ? walk(d + '/' + f) : [d + '/' + f]);
 test('tools/check-version.py passes', () => { execFileSync('python3', ['tools/check-version.py'], { cwd: root }); });
-test('APP_VERSION is a version number', () => assert.match(V, /^\d+(\.\d+)*$/));
+test('APP_VERSION is the release date plus a counter (YYYY.MM.DD.N)', () => assert.match(V, /^\d{4}\.\d{2}\.\d{2}\.[1-9]\d*$/));
 test('every relative import, link, script and image carries ?v=APP_VERSION', () => {
   const bad = [];
   for (const f of [root + 'index.html', ...walk(root + 'js'), ...walk(root + 'css')]) {

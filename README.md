@@ -30,7 +30,15 @@ A push to `main` runs the same gate, then `tools/check-bump.py` against the comm
 
 When the gate passes, the workflow stamps a copy with no DEV badge and publishes it with the Pages deploy action.
 
-A pull request into `main` still has to pass `tools/check-bump.py` in pr-checks. `tools/bump-version.py` is unchanged.
+A pull request into `main` still has to pass `tools/check-bump.py` in pr-checks.
+
+## Version numbers
+
+From 21 Nov 2026, `APP_VERSION` is the release date plus a counter: `YYYY.MM.DD.N`. The first release on a day is `2026.11.21.1`; a second release that day is `2026.11.21.2`. The counter starts at 1, and the date must be a real date. Releases up to `112.16` used the old `<major>.<minor>` numbers; those sort before every date version.
+
+- `python3 tools/bump-version.py --today` sets today's next version everywhere (`js/version.js` and every `?v=` tag). `python3 tools/bump-version.py 2026.11.21.2` sets an explicit one. Either way the new version must sort after the current one.
+- `tools/check-version.py` fails an `APP_VERSION` that is not `YYYY.MM.DD.N`. `tools/check-bump.py` fails a release into `main` whose version does not go up.
+- The rules live in `tools/tcversion.py`. Run `python3 tools/tcversion.py next` to print the next version without changing anything.
 
 ### Pages setting for production
 

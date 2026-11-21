@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """Fails if any local import / link / image ?v= differs from APP_VERSION, or a relative import has no ?v= (run from repo root).
-Also flags a stale or missing ?v= on icon URLs in manifest.webmanifest."""
+Also flags a stale or missing ?v= on icon URLs in manifest.webmanifest, and an APP_VERSION that is not YYYY.MM.DD.N
+(the release date plus a counter, see tools/tcversion.py)."""
 import re, pathlib, sys
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent)); import tcversion
 root = pathlib.Path('.'); v = re.search(r'APP_VERSION = "([^"]+)"', (root / 'js/version.js').read_text()).group(1); bad = []
+if not tcversion.is_valid(v):
+    bad.append(('js/version.js', 'APP_VERSION %s is not YYYY.MM.DD.N (release date + counter from 1)' % v))
 for f in [root / 'index.html', *root.glob('css/*.css'), *root.glob('js/**/*.js')]:
     s = f.read_text(encoding='utf-8')
     for m in re.findall(r'(?:from|import)\s*\(?\s*"(\.[^"]+)"', s) + re.findall(r'(?:src|href)="((?:js|css|images)/[^"]+)"', s):

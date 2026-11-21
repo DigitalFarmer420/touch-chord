@@ -20,21 +20,54 @@ setTimeout(function () { document.documentElement.classList.remove("tc-boot"); }
    Set before any AudioContext exists; re-applied in unlock(). */
 try { if ("audioSession" in navigator) navigator.audioSession.type = "playback"; } catch (err) { /* ignore */ }
 /* Size class for the v20 responsive layout. Runs before first paint and again on resize.
-   compact = w < 600 or (landscape and h < 500); regular = w >= 768 and h >= 600; else medium.
+   compact = w < 600 or (landscape and h < 500); regular = w >= 744 and h >= 600; else medium.
+   744 is iPad mini portrait (744x1133), so that size uses the iPad layout. 700x900 stays medium.
    Layout: regular -> pad-port / pad-land; otherwise phone-port / phone-land. */
 window.tcApplySizeClass = function () {
   var de = document.documentElement;
   var w = window.innerWidth || de.clientWidth;
   var h = window.innerHeight || de.clientHeight;
   var land = w > h;
-  var sz = (w < 600 || (land && h < 500)) ? "compact" : (w >= 768 && h >= 600 ? "regular" : "medium");
+  var sz = (w < 600 || (land && h < 500)) ? "compact" : (w >= 744 && h >= 600 ? "regular" : "medium");
   var lay = sz === "regular" ? (land ? "pad-land" : "pad-port") : (land ? "phone-land" : "phone-port");
   var want = { "sz-compact": sz === "compact", "sz-medium": sz === "medium", "sz-regular": sz === "regular",
     "lay-phone-port": lay === "phone-port", "lay-phone-land": lay === "phone-land",
     "lay-pad-port": lay === "pad-port", "lay-pad-land": lay === "pad-land" };
   for (var k in want) { if (de.classList.contains(k) !== want[k]) de.classList.toggle(k, want[k]); }
-  return { size: sz, layout: lay };
+  /* Big windows (Vinh, 20 Nov: option B). Past the iPad reference size (1180x820 landscape, 820x1180 portrait) the whole
+     page scales up with CSS zoom, text included, so a 1920x1080 window looks like the 1180x820 layout at 1.32x instead of
+     the same small controls in more space. Phones, iPads up to the reference size and short wide windows keep zoom 1. */
+  var z = 1;
+  if (lay === "pad-land") z = Math.min(w / 1180, h / 820);
+  else if (lay === "pad-port") z = Math.min(w / 820, h / 1180);
+  z = z > 1 ? Math.round(z * 1000) / 1000 : 1;
+  if (window.tcZoom !== z) {
+    window.tcZoom = z;
+    de.style.zoom = z === 1 ? "" : String(z);
+    de.style.setProperty("--tcz", String(z));
+  }
+  return { size: sz, layout: lay, zoom: z };
 };
+window.tcZoom = 1;
+/* Under zoom, CSS lengths are in page px but getBoundingClientRect / getClientRects / innerWidth are in screen px.
+   The layout code mixes rects with offsetWidth, scrollTop and inline px styles, so while zoom is on the rect
+   functions report page px (rect / zoom) and tcVW / tcVH give the viewport in page px. Pointer clientX / clientY stay
+   in screen px; code that compares them with a rect divides by tcZoom. At zoom 1 the native functions run unchanged. */
+window.tcVW = function () { return window.innerWidth / window.tcZoom; };
+window.tcVH = function () { return window.innerHeight / window.tcZoom; };
+(function () {
+  function scaled(r) { var z = window.tcZoom; return new DOMRect(r.x / z, r.y / z, r.width / z, r.height / z); }
+  [window.Element, window.Range].forEach(function (C) {
+    if (!C || !C.prototype.getBoundingClientRect || typeof DOMRect !== "function") return;
+    var gb = C.prototype.getBoundingClientRect, gl = C.prototype.getClientRects;
+    C.prototype.getBoundingClientRect = function () { var r = gb.call(this); return window.tcZoom === 1 ? r : scaled(r); };
+    C.prototype.getClientRects = function () {
+      var l = gl.call(this); if (window.tcZoom === 1) return l;
+      var out = []; for (var i = 0; i < l.length; i++) out.push(scaled(l[i]));
+      out.item = function (i) { return out[i] || null; }; return out;
+    };
+  });
+})();
 window.tcApplySizeClass();
 /* Simple mode before first paint (the app re-applies it from saved settings). */
 try {

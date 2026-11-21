@@ -2,8 +2,11 @@
 """Fails if app files differ from <base ref> but APP_VERSION does not (run from the repo root).
   python3 tools/check-bump.py origin/main
 A release into main that changes app files must bump APP_VERSION (the version shown in the app).
+The new APP_VERSION must also sort after the base one (tools/tcversion.py: YYYY.MM.DD.N, and the
+legacy 112.x versions sort before any date version), so a release can never go backwards.
 The deploy copy is stamped with its own BUILD_ID; that stamp does not replace this bump."""
-import re, subprocess, sys
+import os, re, subprocess, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import tcversion
 
 RUNTIME = ['index.html', 'sw.js', 'manifest.webmanifest', 'css', 'js', 'fonts', 'images']
 
@@ -22,6 +25,14 @@ def main(base):
     if changed and old == new:
         print('App files changed without an APP_VERSION bump (python3 tools/bump-version.py <new>):', changed[:20])
         return 1
+    if old != new:
+        try:
+            if tcversion.key(new) <= tcversion.key(old):
+                print('APP_VERSION must go up: %s is not after %s' % (new, old))
+                return 1
+        except ValueError as e:
+            print(e)
+            return 1
     return 0
 
 

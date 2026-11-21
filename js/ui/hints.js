@@ -1,8 +1,8 @@
 // Play along hint pill (placement, misses, timers).
-import { playAlongKey, playAlongNow } from "../songs/playalong.js?v=112.16";
-import { prog } from "../songs/playback.js?v=112.16";
-import { state, loop, shared } from "../state.js?v=112.16";
-import { nxKeyEl, nxBurst, kidsGoldStep } from "./next.js?v=112.16";
+import { playAlongKey, playAlongNow } from "../songs/playalong.js?v=2026.11.21.1";
+import { prog } from "../songs/playback.js?v=2026.11.21.1";
+import { state, loop, shared } from "../state.js?v=2026.11.21.1";
+import { nxKeyEl, nxBurst, kidsGoldStep } from "./next.js?v=2026.11.21.1";
 // v112 Play along hints (Config > Show hints, on by default). A tap that does not advance while a next chord is
 // marked gets one small pill above the keyboard for 2 s: at most one every 4 s, the same hint not again until an
 // advance, never during Play (song or loop) or with Play along off. The tap itself still sounds as before.
@@ -72,7 +72,7 @@ const PA_HINT_AVOID = "#pads .pad, #suggest button, #suggest .ss-chip, #suggest 
 var hintAvoid = null;   // rd4 (Uiux rd3): extra boxes the hint must not cover (Expert's blocks); set by js/expert/ui.js, none in the classic app
 export function setHintAvoid(fn) { hintAvoid = fn; }
 function paHintPlace(el) {   // v112.3: as high as possible (top area or empty space), every style, Simple and Full
-  var vw = window.innerWidth, vh = window.innerHeight, av = [];
+  var vw = (window.tcVW ? window.tcVW() : window.innerWidth), vh = (window.tcVH ? window.tcVH() : window.innerHeight), av = [];
   function add(r) { if (r && r.width > 0 && r.height > 0) av.push(r); }
   Array.prototype.forEach.call(document.querySelectorAll(PA_HINT_AVOID + ", #styles, .now-card, #symbol, #tones, #nowMix"), function (b) {
     if (b.closest("#paHint, #tour") || b.matches("#kidsLyr .sb-row")) return;

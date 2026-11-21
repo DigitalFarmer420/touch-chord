@@ -1,6 +1,6 @@
 // The tour (Help > Tour): one short tour per mode, in the v110 spotlight look.
-import { progStop, prog } from "../songs/playback.js?v=112.16";
-import { paHintHide } from "./hints.js?v=112.16";
+import { progStop, prog } from "../songs/playback.js?v=2026.11.21.1";
+import { paHintHide } from "./hints.js?v=2026.11.21.1";
 
 // v112 first-launch tour, saved as done on Skip / Done (its own storage key: Factory reset keeps it); the "?" menu
 // (Simple / Expert) or Settings > How to & tour (Kids) replays it.
@@ -55,7 +55,7 @@ export function tourMode() {
 function shown(el) {
   if (!el || el.closest("[hidden]")) return false;
   var r = el.getBoundingClientRect(), cs = getComputedStyle(el);
-  return r.width > 0 && r.height > 0 && cs.visibility !== "hidden" && cs.display !== "none" && r.right > 0 && r.bottom > 0 && r.left < window.innerWidth && r.top < window.innerHeight;
+  return r.width > 0 && r.height > 0 && cs.visibility !== "hidden" && cs.display !== "none" && r.right > 0 && r.bottom > 0 && r.left < (window.tcVW ? window.tcVW() : window.innerWidth) && r.top < (window.tcVH ? window.tcVH() : window.innerHeight);
 }
 export function tourTarget(st) {
   if (!st || !st.sel) return null;
@@ -120,7 +120,7 @@ function tourPlace() {
   if (!box || tourI < 0 || !steps.length) return;
   var st = steps[tourI], el = tourTarget(st), r = el ? el.getBoundingClientRect() : null;
   var hole = box.querySelector(".tour-hole"), num = box.querySelector(".tour-num"), dim = box.querySelector(".tour-dim"), card = box.querySelector(".tour-card");
-  var W = window.innerWidth, H = window.innerHeight, P = 6, M = 12, gap = 14;
+  var W = (window.tcVW ? window.tcVW() : window.innerWidth), H = (window.tcVH ? window.tcVH() : window.innerHeight), P = 6, M = 12, gap = 14;
   card.classList.remove("tight"); card.style.width = "";
   var cw = card.offsetWidth, ch = card.offsetHeight, top, left;
   if (r && r.width > 0 && r.height > 0) {
