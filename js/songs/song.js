@@ -1,20 +1,20 @@
 // The loaded uploaded song: steps, key, lock, next step.
-import { unlock } from "../audio/unlock.js?v=112.16";
-import { keyDegrees, SPELL_LI, namePc, keyRootName } from "../keys.js?v=112.16";
-import { upSave, LIB_MAX, libFind, libId } from "./library.js?v=112.16";
-import { progBadge } from "./magic.js?v=112.16";
-import { magic, progStop, prog, progSet, applySongKey, progRedecorate } from "./playback.js?v=112.16";
-import { PROG_BAR } from "./presets.js?v=112.16";
-import { upStep, upCheck, upBuild, upEv, upSym, upParseChord } from "./upload.js?v=112.16";
-import { state, shared } from "../state.js?v=112.16";
-import { wrap12 } from "../theory/quality.js?v=112.16";
-import { accSym } from "../theory/spelling.js?v=112.16";
-import { nxMarkSoon } from "../ui/next.js?v=112.16";
-import { computeSpec } from "../ui/pads.js?v=112.16";
-import { paintProg } from "../ui/progbar.js?v=112.16";
-import { paintSongBar } from "../ui/songbar.js?v=112.16";
-import { paintSuggestions } from "../ui/strip.js?v=112.16";
-import { paintUpload } from "../ui/upload-dialog.js?v=112.16";
+import { unlock } from "../audio/unlock.js?v=112.17";
+import { keyDegrees, SPELL_LI, namePc, keyRootName } from "../keys.js?v=112.17";
+import { upSave, LIB_MAX, libFind, libId } from "./library.js?v=112.17";
+import { progBadge } from "./magic.js?v=112.17";
+import { magic, progStop, prog, progSet, applySongKey, progRedecorate } from "./playback.js?v=112.17";
+import { PROG_BAR } from "./presets.js?v=112.17";
+import { upStep, upCheck, upBuild, upEv, upSym, upParseChord } from "./upload.js?v=112.17";
+import { state, shared } from "../state.js?v=112.17";
+import { wrap12 } from "../theory/quality.js?v=112.17";
+import { accSym } from "../theory/spelling.js?v=112.17";
+import { nxMarkSoon } from "../ui/next.js?v=112.17";
+import { computeSpec } from "../ui/pads.js?v=112.17";
+import { paintProg } from "../ui/progbar.js?v=112.17";
+import { paintSongBar } from "../ui/songbar.js?v=112.17";
+import { paintSuggestions } from "../ui/strip.js?v=112.17";
+import { paintUpload } from "../ui/upload-dialog.js?v=112.17";
 // Shown in full mode only, never for Kids (Kids plays its own songs).
 // v73: a LOCKED song also stays in Simple (Next / Play keep walking it; the song bar / Upload stay hidden there).
 export function upInList() { return !!shared.U && state.style !== "kids" && (!state.simple || !!shared.U.locked); }
