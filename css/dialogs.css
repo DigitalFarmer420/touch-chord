@@ -43,7 +43,7 @@ html.lay-pad-port #songBar, html.lay-pad-land #songBar { height: 28px; font-size
 .up-review b { color: var(--lk-f08a24); }
 .up-review .ur-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 4px; }
 .up-review button, .up-alts button { min-height: 30px; height: 30px; padding: 0 8px; font-size: var(--fs-m); border-radius: 8px; }
-.up-secs { max-height: 44vh; overflow: auto; border: 1px solid var(--line); border-radius: 10px; padding: 4px 6px; overscroll-behavior: contain; }
+.up-secs { max-height: calc(44 * var(--tc-vh)); overflow: auto; border: 1px solid var(--line); border-radius: 10px; padding: 4px 6px; overscroll-behavior: contain; }
 .up-secs .up-empty { padding: 10px 4px; font-size: var(--fs-m); color: var(--muted); }
 .up-sec { padding: 6px 0; border-bottom: 1px solid var(--line); }
 .up-sec:last-child { border-bottom: 0; }
@@ -66,7 +66,7 @@ html.lay-pad-port #songBar, html.lay-pad-land #songBar { height: 28px; font-size
 .up-lib { display: flex; flex-direction: column; gap: 4px; }
 .up-lib .ul-h { font-size: var(--fs-s); font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
 .up-lib .ul-h small { font-weight: 600; letter-spacing: 0; text-transform: none; }
-.up-lib .ul-list { list-style: none; margin: 0; padding: 3px; max-height: min(30vh, 210px); overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--line); border-radius: 10px; display: flex; flex-direction: column; gap: 3px; }
+.up-lib .ul-list { list-style: none; margin: 0; padding: 3px; max-height: min(calc(30 * var(--tc-vh)), 210px); overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--line); border-radius: 10px; display: flex; flex-direction: column; gap: 3px; }
 .up-lib .ul-row { display: flex; align-items: stretch; gap: 4px; min-width: 0; flex: 0 0 auto; }
 .up-lib .ul-open { flex: 1 1 auto; min-width: 0; height: auto; min-height: 40px; padding: 4px 10px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; text-align: left; border-radius: 9px; background: var(--lk-ffffff-04); border: 1px solid transparent; color: var(--ink); }
 .up-lib .ul-open b { font-size: var(--fs-m); font-weight: 700; line-height: 1.15; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -75,7 +75,7 @@ html.lay-pad-port #songBar, html.lay-pad-land #songBar { height: 28px; font-size
 .up-lib .ul-row.on .ul-open b { color: var(--copper-t); }
 .up-lib .ul-del { flex: 0 0 40px; width: 40px; min-height: 40px; height: auto; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 9px; color: var(--muted); background: transparent; border: 1px solid var(--line); }
 .up-lib .ul-del svg { width: 17px; height: 17px; }
-html.lay-phone-land .up-lib .ul-list { max-height: 34vh; }
+html.lay-phone-land .up-lib .ul-list { max-height: calc(34 * var(--tc-vh)); }
 html.lay-phone-land .up-lib .ul-open, html.lay-phone-land .up-lib .ul-del { min-height: 34px; }
 .up-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .up-row button { min-height: 36px; height: 36px; padding: 0 12px; font-size: var(--fs-m); border-radius: 10px; }
@@ -126,7 +126,7 @@ html.up-nonum .ss .pg-badge, html.up-nonum .prog .pg-num { display: none !import
    letter sat high and, in short landscape rows, rode over the button's top border. Now the label centres. */
 html.up-nonum .ss .ss-chip .rn, html.up-nonum .ss .ss-note small { display: none !important; }
 .up-warn { font-size: var(--fs-s); color: var(--muted); }
-html.lay-phone-land .up-pick .kp-box { max-height: 96vh; padding: 10px; }
+html.lay-phone-land .up-pick .kp-box { max-height: calc(96 * var(--tc-vh)); padding: 10px; }
 html.lay-phone-land .up-key .uk-k { font-size: var(--fs-xl); }
 /* The song bar sits above the strip inside the same card: the strip gives it the room
    (it fills what is left instead of the whole card). */

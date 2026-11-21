@@ -29,7 +29,7 @@ function build() {
 function place() {
   var r = anchor.getBoundingClientRect();
   menu.style.top = Math.round(r.bottom + 6) + "px";
-  menu.style.right = Math.max(6, Math.round(window.innerWidth - r.right)) + "px";
+  menu.style.right = Math.max(6, Math.round((window.tcVW ? window.tcVW() : window.innerWidth) - r.right)) + "px";
 }
 export function helpMenuOpen() { return !!menu && !menu.hidden; }
 export function closeHelpMenu() {

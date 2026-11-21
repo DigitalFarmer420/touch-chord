@@ -1,5 +1,10 @@
 /* Touch Chord: base. Files load in this order: base, layout, topbar, strip, panels, keyboard, modes, dialogs (the cascade order of v112.3). */
 /* v112.5 (#8): one small type scale. Static font sizes use these 6 steps; the auto-fit texts (chord symbol, song name, key row) and the --tx text-size setting scale from them. No text under 11 px. */
+/* Big-window zoom (boot-early.js sets --tcz and html { zoom } past the iPad reference size). Under zoom, plain viewport units
+   would be multiplied by the zoom too, so every viewport length in the CSS goes through these: one viewport unit in
+   page px. With --tcz: 1 (phones, iPads up to 1180x820 / 820x1180) they equal the plain units. */
+:root { --tcz: 1; --tc-vw: calc(1vw / var(--tcz)); --tc-vh: calc(1vh / var(--tcz)); --tc-dvh: calc(1dvh / var(--tcz));
+  --tc-svh: calc(1svh / var(--tcz)); --tc-lvh: calc(1lvh / var(--tcz)); --tc-vmin: calc(1vmin / var(--tcz)); --tc-vmax: calc(1vmax / var(--tcz)); }
 :root { --fs-xs: 11px; --fs-s: 12px; --fs-m: 14px; --fs-l: 17px; --fs-xl: 24px; --fs-2xl: 34px; }
 :root {
   color-scheme: dark;

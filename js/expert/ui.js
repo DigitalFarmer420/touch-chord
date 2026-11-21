@@ -363,7 +363,7 @@ function fitStyleMenu(top) {
   var rows = m.querySelectorAll(".x-mi"), cs = getComputedStyle(m);
   var pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
   var rowH = rows.length ? (rows[0].offsetHeight || 46) : 46, full = pad + rowH * rows.length;
-  var avail = Math.floor(window.innerHeight - top - 8);
+  var avail = Math.floor((window.tcVH ? window.tcVH() : window.innerHeight) - top - 8);
   if (full <= avail) { m.style.maxHeight = Math.ceil(full) + "px"; m.classList.remove("x-more"); return; }
   var head = parseFloat(cs.paddingTop) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);   // the cut row reaches the bottom edge
   var n = Math.max(1, Math.floor((avail - head - rowH / 2) / rowH));
@@ -833,7 +833,7 @@ export const NOTE_TEXT = "Dense layout is here now";
 function placeDenseNote() {
   var n = $("xDenseNote"), c = document.querySelector(".next-card"); if (!n || !c) return;
   var r = c.getBoundingClientRect(); if (!r.width) return;
-  var slim = window.innerHeight < 400, H = slim ? 28 : 30, top = Math.round(r.top + 4), left = Math.round(r.left + 6), right = Math.round(r.right - 6);
+  var slim = (window.tcVH ? window.tcVH() : window.innerHeight) < 400, H = slim ? 28 : 30, top = Math.round(r.top + 4), left = Math.round(r.left + 6), right = Math.round(r.right - 6);
   Array.prototype.forEach.call(document.querySelectorAll("#suggest .ss-chip, #suggest .ss-note"), function (e) {
     if (!e.getClientRects().length || getComputedStyle(e).visibility === "hidden") return;
     var q = e.getBoundingClientRect();

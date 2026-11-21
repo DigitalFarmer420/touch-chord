@@ -143,7 +143,7 @@ html.simple.lay-phone-land .kk-root .kk-next::after,
 html.simple.lay-phone-land .pg-sel .pg-prev::after,
 html.simple.lay-phone-land .pg-sel .pg-next::after { top: 50%; bottom: auto; height: max(100%, 44px); transform: translateY(-50%); }
 
-/* N20 PR-A (Uiux spec, Simple phone portrait): a fluid height budget against the visible viewport (100dvh).
+/* N20 PR-A (Uiux spec, Simple phone portrait): a fluid height budget against the visible viewport (calc(100 * var(--tc-dvh))).
    Tokens (PR-B / PR-C reuse them; no new breakpoints): --fl-hit tap floor, --fl-gap row / column gap,
    --fl-now the only fluid control row (NOW card; Sustain spans it and the volume row). 572 = every fixed
    block plus the 297 px minimum Next card. Shrink order as the screen gets shorter: grid rows (61 -> 44),
@@ -151,8 +151,8 @@ html.simple.lay-phone-land .pg-sel .pg-next::after { top: 50%; bottom: auto; hei
    padding), song picker + Next / Play under it; NOW, volume, key + Major / Minor on the right. */
 html.simple.lay-phone-port:not(.expert):not(.kv) #app {
   --fl-hit: 44px;
-  --fl-gap: clamp(6px, 1dvh, 8px);
-  --fl-now: clamp(54px, calc(100dvh - 572px), 120px);
+  --fl-gap: clamp(6px, calc(1 * var(--tc-dvh)), 8px);
+  --fl-now: clamp(54px, calc(calc(100 * var(--tc-dvh)) - 572px), 120px);
   --gap: var(--fl-gap);
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: auto auto var(--fl-now) var(--fl-hit) 95px minmax(0, 1fr);
@@ -169,3 +169,7 @@ html.simple.lay-phone-port:not(.expert):not(.kv) .style-row { flex-wrap: nowrap;
 html.simple.lay-phone-port:not(.expert):not(.kv) .style-row.more {
   -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 20px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 20px), transparent); }
 html.simple.lay-phone-port:not(.expert):not(.kv) .style-row button { flex: 0 0 auto; }
+
+/* Simple has no volume slider (Vinh, 20 Nov; css/simplepad.css hides #nowMix). Phone portrait: NOW takes the slider's row,
+   so it ends level with Sustain. */
+html.simple.lay-phone-port:not(.expert):not(.kv) #app { grid-template-areas: "top top" "sty sty" "sus now" "sus now" "prg key" "nxt nxt"; }

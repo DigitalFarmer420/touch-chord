@@ -222,16 +222,16 @@ export function wireProg() {
     // Tap zones: each arrow plus its half of the row (v112.5: was the outer 30%; the middle did nothing on a tap).
     var arrow = e.target.closest ? e.target.closest(".pg-arrow") : null, r = sel.getBoundingClientRect();
     var side = arrow ? (arrow.classList.contains("pg-prev") ? -1 : 1)
-      : e.clientX < r.left + r.width * 0.5 ? -1 : 1;
-    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: false, done: false,
+      : e.clientX / (window.tcZoom || 1) < r.left + r.width * 0.5 ? -1 : 1;   // pointer px are screen px; rects are page px under big-window zoom
+    drag = { id: e.pointerId, x: e.clientX / (window.tcZoom || 1), y: e.clientY / (window.tcZoom || 1), moved: false, done: false,
       arrow: side, unit: Math.max(24, Math.min(40, sel.clientWidth / 6)) };
     try { sel.setPointerCapture(e.pointerId); } catch (err) {}
   });
   sel.addEventListener("pointermove", function (e) {
     if (!drag || e.pointerId !== drag.id) return;
     e.preventDefault();
-    var dx = e.clientX - drag.x;
-    if (Math.abs(dx) > 8 || Math.abs(e.clientY - drag.y) > 8) drag.moved = true;
+    var dx = e.clientX / (window.tcZoom || 1) - drag.x;
+    if (Math.abs(dx) > 8 || Math.abs(e.clientY / (window.tcZoom || 1) - drag.y) > 8) drag.moved = true;
     if (!drag.done && Math.abs(dx) >= drag.unit) { drag.done = true; step(dx > 0 ? 1 : -1); }
   });
   function end(e) {

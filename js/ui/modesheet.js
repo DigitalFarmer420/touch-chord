@@ -79,7 +79,7 @@ function showTip(b) {
   var r = b.getBoundingClientRect();
   tipEl.hidden = false;
   tipEl.style.top = Math.round(r.bottom + 8) + "px";
-  tipEl.style.right = Math.max(6, Math.round(window.innerWidth - r.right)) + "px";
+  tipEl.style.right = Math.max(6, Math.round((window.tcVW ? window.tcVW() : window.innerWidth) - r.right)) + "px";
   clearTimeout(tipT); tipT = setTimeout(hideTip, 1600);
 }
 function hideTip() { clearTimeout(tipT); if (tipEl) tipEl.hidden = true; }

@@ -38,6 +38,10 @@
 // sit outside the site prefix are ignored and named; they are not checks. A console error
 // that mentions such a URL is ignored the same way. Each one is printed in full as
 // "ignored (outside prefix): <check>: <text>" and counted on the summary line.
+//
+// FLOW rev2 (flow layout, Vinh 20 Nov 2026) is a real check at 390x844, 844x390, 744x1133, 820x1180, 1180x820 and
+// 1920x1080: Kids chord pads exactly as tall as the piano, Simple without the volume slider, the big-window zoom
+// (1 up to 1180x820 / 820x1180, 1.317 at 1920x1080) with no page scroll, and a real tap that still hits under zoom.
 
 import { createServer } from 'node:http';
 import { mkdirSync, existsSync, statSync, createReadStream, readFileSync } from 'node:fs';
@@ -1375,6 +1379,90 @@ try {
   for (const [w, h] of N20_BAND) await n20RunCell(w, h, 'simple');
   for (const [w, h] of N20_IPAD) await n20RunCell(w, h, 'simple');
   for (const [w, h] of [[1280, 600], [1920, 600]]) await n20RunCell(w, h, 'simple');
+
+  // Flow layout rev2 (Vinh, 20 Nov 2026). Real checks.
+  //  - Kids: every chord pad is exactly as tall as the piano (±1px), both at least 44px, nothing below the screen.
+  //  - Simple: no volume slider; Next / Play at least 44px and on screen.
+  //  - Big windows (option B): past 1180x820 / 820x1180 the page zooms (1920x1080 = 1.317) and nothing scrolls; a real
+  //    tap at a chord chip's screen position still plays that chip. Up to the reference sizes the zoom is 1.
+  // Rects come back in page px (boot-early.js), so they are compared with tcVW / tcVH, never with innerWidth.
+  const FLOW_VPS = [[390, 844], [844, 390], [744, 1133], [820, 1180], [1180, 820], [1920, 1080]];
+  const flowZoom = (w, h) => { const z = w > h ? Math.min(w / 1180, h / 820) : Math.min(w / 820, h / 1180); return z > 1 ? Math.round(z * 1000) / 1000 : 1; };
+  async function flowCell(w, h, mode) {
+    const size = w + 'x' + h, where = 'FLOW ' + size + ' ' + mode;
+    const { ctx, page, bag } = await n20Fresh(w, h, where);
+    try {
+      await n20Prepare(page, mode);
+      await page.waitForTimeout(250);
+      const m = await page.evaluate(() => {
+        const vis = e => !!(e && e.getClientRects().length && getComputedStyle(e).display !== 'none' && getComputedStyle(e).visibility !== 'hidden');
+        const box = e => { const r = e.getBoundingClientRect(); return { t: r.top, b: r.bottom, l: r.left, r: r.right, w: r.width, h: r.height }; };
+        const de = document.documentElement;
+        const out = { z: window.tcZoom, zoomStyle: de.style.zoom || '', vw: window.tcVW(), vh: window.tcVH(),
+          scrollX: de.scrollWidth - de.clientWidth, scrollY: de.scrollHeight - de.clientHeight };
+        out.pads = [...document.querySelectorAll('.kv-pad')].filter(vis).map(box);
+        const pn = document.querySelector('.kv-piano'); out.piano = vis(pn) ? box(pn) : null;
+        out.volVisible = vis(document.getElementById('nowMix')) || vis(document.getElementById('volume'));
+        out.transport = ['#prog .pg-step', '#prog .pg-song'].map(s => document.querySelector(s)).filter(vis).map(box);
+        return out;
+      });
+      const notes = [], want = flowZoom(w, h);
+      if (Math.abs((m.z || 0) - want) > 0.001) notes.push('zoom ' + m.z + ', want ' + want);
+      if (want === 1 && m.zoomStyle) notes.push('html zoom "' + m.zoomStyle + '" at a reference size or smaller');
+      if (m.scrollX > 1 || m.scrollY > 1) notes.push('page scrolls ' + m.scrollX + 'x' + m.scrollY + 'px');
+      let detail = 'zoom ' + m.z;
+      if (mode === 'kids') {
+        if (!m.piano) notes.push('no piano');
+        else if (!m.pads.length) notes.push('no chord pads');
+        else {
+          const ph = m.piano.h, hs = m.pads.map(p => p.h);
+          const off = hs.filter(x => Math.abs(x - ph) > 1);
+          if (off.length) notes.push('pad heights ' + [...new Set(hs.map(x => x.toFixed(1)))].join('/') + ' vs piano ' + ph.toFixed(1));
+          if (ph < 44 || Math.min(...hs) < 44) notes.push('under 44px: piano ' + ph.toFixed(1) + ', smallest pad ' + Math.min(...hs).toFixed(1));
+          if (m.piano.b > m.vh + 1) notes.push('piano bottom ' + m.piano.b.toFixed(1) + ' below the screen ' + m.vh.toFixed(1));
+          detail += ', pad ' + m.pads[0].w.toFixed(0) + 'x' + hs[0].toFixed(0) + ', piano ' + m.piano.w.toFixed(0) + 'x' + ph.toFixed(0);
+        }
+      } else if (mode === 'simple') {
+        if (m.volVisible) notes.push('the volume slider is visible in Simple');
+        if (m.transport.length !== 2) notes.push('Next / Play visible: ' + m.transport.length);
+        for (const t of m.transport) {
+          if (t.h < 44 || t.w < 44) notes.push('Next / Play ' + t.w.toFixed(1) + 'x' + t.h.toFixed(1) + ' under 44px');
+          if (t.b > m.vh + 1) notes.push('Next / Play bottom ' + t.b.toFixed(1) + ' below the screen ' + m.vh.toFixed(1));
+        }
+        if (m.transport[0]) detail += ', Next ' + m.transport[0].w.toFixed(0) + 'x' + m.transport[0].h.toFixed(0);
+      } else if (want > 1) {
+        // Expert under zoom: a real tap at the chip's screen position (page px x zoom) plays it.
+        // NOW (#symbol) shows the chord name; a chip's text carries its roman numeral too ("D♭maj7I").
+        const NOW_JS = "(() => { const n = document.getElementById('symbol'); return n ? n.textContent.trim() : ''; })()";
+        const tgt = await page.evaluate(nowJs => {
+          const now = (0, eval)(nowJs);
+          const c = [...document.querySelectorAll('#suggest .ss-chip')].find(e => e.getClientRects().length && e.textContent.trim() && !(now && e.textContent.trim().startsWith(now)));
+          if (!c) return null; const r = c.getBoundingClientRect(), z = window.tcZoom;
+          return { x: (r.left + r.width / 2) * z, y: (r.top + r.height / 2) * z, name: c.textContent.trim().split(/\s+/)[0] };
+        }, NOW_JS);
+        if (!tgt) notes.push('no chord chip to tap');
+        else {
+          await page.mouse.click(tgt.x, tgt.y);
+          await page.waitForTimeout(250);
+          const now = await page.evaluate(NOW_JS);
+          if (!now || !tgt.name.startsWith(now)) notes.push('tap on ' + tgt.name + ' at screen ' + Math.round(tgt.x) + ',' + Math.round(tgt.y) + ' left NOW = "' + now.slice(0, 30) + '"');
+          detail += ', tap ' + tgt.name + ' -> NOW ok';
+        }
+      }
+      const pageNotes = bag.errors.concat(bag.failed).slice(0, 3);
+      if (pageNotes.length) notes.push('page: ' + pageNotes.join('; '));
+      const name = 'FLOW rev2 ' + size + ' ' + mode + ': ' + (mode === 'kids' ? 'chord pads = piano height' : mode === 'simple' ? 'no volume slider, Next / Play fit' : 'zoom ' + want + (want > 1 ? ', tap hits' : '')) + ', no scroll';
+      if (notes.length) await shot(page, name);
+      record(name, !notes.length, notes.length ? notes.join(' | ') : detail);
+    } catch (err) {
+      record('FLOW rev2 ' + size + ' ' + mode, false, String(err && err.message || err));
+    } finally {
+      await ctx.close();
+    }
+  }
+  for (const [w, h] of FLOW_VPS) {
+    for (const mode of ['kids', 'simple', 'expert']) await flowCell(w, h, mode);
+  }
 
   for (const w of walks) {
     if (w.pageNotes.length) record('toggle ' + w.label, false, w.pageNotes.join(' | '));

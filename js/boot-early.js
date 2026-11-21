@@ -34,8 +34,40 @@ window.tcApplySizeClass = function () {
     "lay-phone-port": lay === "phone-port", "lay-phone-land": lay === "phone-land",
     "lay-pad-port": lay === "pad-port", "lay-pad-land": lay === "pad-land" };
   for (var k in want) { if (de.classList.contains(k) !== want[k]) de.classList.toggle(k, want[k]); }
-  return { size: sz, layout: lay };
+  /* Big windows (Vinh, 20 Nov: option B). Past the iPad reference size (1180x820 landscape, 820x1180 portrait) the whole
+     page scales up with CSS zoom, text included, so a 1920x1080 window looks like the 1180x820 layout at 1.32x instead of
+     the same small controls in more space. Phones, iPads up to the reference size and short wide windows keep zoom 1. */
+  var z = 1;
+  if (lay === "pad-land") z = Math.min(w / 1180, h / 820);
+  else if (lay === "pad-port") z = Math.min(w / 820, h / 1180);
+  z = z > 1 ? Math.round(z * 1000) / 1000 : 1;
+  if (window.tcZoom !== z) {
+    window.tcZoom = z;
+    de.style.zoom = z === 1 ? "" : String(z);
+    de.style.setProperty("--tcz", String(z));
+  }
+  return { size: sz, layout: lay, zoom: z };
 };
+window.tcZoom = 1;
+/* Under zoom, CSS lengths are in page px but getBoundingClientRect / getClientRects / innerWidth are in screen px.
+   The layout code mixes rects with offsetWidth, scrollTop and inline px styles, so while zoom is on the rect
+   functions report page px (rect / zoom) and tcVW / tcVH give the viewport in page px. Pointer clientX / clientY stay
+   in screen px; code that compares them with a rect divides by tcZoom. At zoom 1 the native functions run unchanged. */
+window.tcVW = function () { return window.innerWidth / window.tcZoom; };
+window.tcVH = function () { return window.innerHeight / window.tcZoom; };
+(function () {
+  function scaled(r) { var z = window.tcZoom; return new DOMRect(r.x / z, r.y / z, r.width / z, r.height / z); }
+  [window.Element, window.Range].forEach(function (C) {
+    if (!C || !C.prototype.getBoundingClientRect || typeof DOMRect !== "function") return;
+    var gb = C.prototype.getBoundingClientRect, gl = C.prototype.getClientRects;
+    C.prototype.getBoundingClientRect = function () { var r = gb.call(this); return window.tcZoom === 1 ? r : scaled(r); };
+    C.prototype.getClientRects = function () {
+      var l = gl.call(this); if (window.tcZoom === 1) return l;
+      var out = []; for (var i = 0; i < l.length; i++) out.push(scaled(l[i]));
+      out.item = function (i) { return out[i] || null; }; return out;
+    };
+  });
+})();
 window.tcApplySizeClass();
 /* Simple mode before first paint (the app re-applies it from saved settings). */
 try {

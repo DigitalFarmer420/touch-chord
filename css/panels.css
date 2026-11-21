@@ -152,7 +152,7 @@ html.lay-phone-land #ctl {
   top: var(--topbar-h, 0px);
   right: 0;
   bottom: 0;
-  width: min(360px, 72vw);
+  width: min(360px, calc(72 * var(--tc-vw)));
   z-index: 80;
   border-radius: 14px 0 0 14px;
   background: var(--lk-1c1915);
@@ -188,7 +188,7 @@ html.lay-pad-port #ctl .pane, html.lay-pad-land #ctl .pane { display: flex; padd
 html.lay-pad-port .pane-h, html.lay-pad-land .pane-h { display: block; }
 html.lay-pad-port .layouts .lbl, html.lay-pad-land .layouts .lbl { display: none; }
 @media (max-width: 1099px) {
-  html.lay-pad-land #app { --rail-w: clamp(200px, 21vw, 290px); }
+  html.lay-pad-land #app { --rail-w: clamp(200px, calc(21 * var(--tc-vw)), 290px); }
   html.lay-pad-land #ctl button, html.lay-pad-land #ctl select { font-size: var(--fs-m); }
 }
 html.lay-pad-port .layouts button, html.lay-pad-land .layouts button { flex: 1 1 auto; }

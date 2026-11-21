@@ -261,7 +261,7 @@ export function paintNextHint() {
 function nextHintArrow(els) {
   var a = document.getElementById("nxArrow");
   if (!a) return;
-  var vw = window.innerWidth, vh = window.innerHeight, wrap = padsEl.getBoundingClientRect();
+  var vw = (window.tcVW ? window.tcVW() : window.innerWidth), vh = (window.tcVH ? window.tcVH() : window.innerHeight), wrap = padsEl.getBoundingClientRect();
   var L = Math.max(0, wrap.left), R = Math.min(vw, wrap.right), T = Math.max(0, wrap.top), B = Math.min(vh, wrap.bottom);
   var dir = null, at = 0;
   els.forEach(function (e) {
