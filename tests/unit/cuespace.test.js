@@ -13,7 +13,8 @@ function fake({ band, inline }) {
   const host = { getBoundingClientRect: () => rect(100, 100, 300, 100), clientLeft: 1, clientTop: 1, clientWidth: 298 };
   const row = { getBoundingClientRect: () => rect(110, 130, 280, 20 + band) };
   const word = { getBoundingClientRect: () => rect(200, 130 + band - 1, 40, 22), closest: () => row };
-  const tag = { hidden: true, offsetWidth: 24, offsetHeight: 11, style: {}, closest: s => (inline && s === '[data-cue-row]' ? row : null) };
+  const tag = { hidden: true, offsetWidth: 24, offsetHeight: 11, style: {}, closest: s => (inline && s === '[data-cue-row]' ? row : null),
+    getBoundingClientRect: () => rect(200, 130 + band, 24, parseFloat(tag.style.height) || 11) };
   styles.set(row, { paddingTop: band + 'px', fontSize: '16px' }); styles.set(word, { fontSize: '16px', paddingTop: '0px' });
   globalThis.getComputedStyle = e => styles.get(e) || { paddingTop: '0px', fontSize: '16px' };
   return { host, row, word, tag };
@@ -32,14 +33,34 @@ test('placeCueTag: an inline name (inside its row) is only shown, not moved', ()
   C.placeCueTag(host, word, tag, null);
   assert.equal(tag.hidden, false); assert.equal(tag.style.transform, undefined);
 });
-test('CSS: phone portrait reserves the band on every Expert line and Kids line; landscape Expert names are inline', () => {
-  assert.match(ex, /html\.expert\.lay-phone-port #app \{ --x-cb: 15px; --x-src-h: 92px; \}/);
-  assert.match(ex, /html\.expert\.lay-phone-port \.x-lrow \{ padding-top: var\(--x-cb\); \}/);
-  assert.match(ex, /\.x-lrows \{ height: calc\(var\(--x-lh1\) \+ var\(--x-lh2\) \* var\(--x-lrn, 1\) \+ var\(--x-cb\) \* \(1 \+ var\(--x-lrn, 1\)\)\); \}/);
-  assert.match(ex, /\.x-lroll\.go \{ transform: translateY\(calc\(-1 \* \(var\(--x-lh1\) \+ var\(--x-cb\)\)\)\); \}/);
-  assert.match(ex, /html\.expert \.x-cuetag\.x-cuein \{ position: static;/);
-  assert.match(kids, /html\.lay-phone-port \.kv-lyr \.kv-l1, html\.lay-phone-port \.kv-lyr \.kv-l2 \{ padding-top: 19px; \}/);
-  assert.match(kids, /html\.lay-phone-land \.kv-top \.kv-lyr \.kv-l1 \{ padding-top: 14px; \}/);
+test('CSS and renderers: the name is always inline, right of its word; no reserved band above the line', () => {
+  assert.match(ex, /html\.expert\.lay-phone-port #app \{ --x-cb: 0px; --x-src-h: 92px; \}/);
+  assert.doesNotMatch(ex, /html\.expert\.lay-phone-port \.x-lrow \{ padding-top: var\(--x-cb\); \}/);
+  assert.match(ex, /html\.expert \.x-cuetag\.x-cuein \{[^}]*position: static;/);
+  assert.match(ex, /html\.expert \.x-cuetag\.x-cuein \{[^}]*margin-left: 6px;/);
+  assert.match(ex, /html\.expert \.x-cuetag\.x-cuein \{[^}]*height: 100%;/);
+  assert.doesNotMatch(kids, /padding-top: 19px;/);
+  assert.doesNotMatch(kids, /html\.lay-phone-land \.kv-top \.kv-lyr \.kv-l1 \{ padding-top: 14px; \}/);
+  assert.match(kids, /\.kv-cuetag\.kv-cuein \{[^}]*margin-left: 6px;/);
   const ui = readFileSync(new URL('js/expert/ui.js', R), 'utf8');
-  assert.match(ui, /var inl = !document\.documentElement\.classList\.contains\("lay-phone-port"\);/);
+  const kv = readFileSync(new URL('js/kids/view.js', R), 'utf8');
+  assert.match(ui, /var inl = true;/);
+  assert.match(kv, /var inl = true;/);
+});
+
+test('fitNoteBox: the name box matches the lyric line height and top edge', () => {
+  const row = { getBoundingClientRect: () => rect(10, 40, 200, 22) };
+  const tag = { style: {}, closest: () => row, getBoundingClientRect: () => {
+    const h = parseFloat(tag.style.height) || 11;
+    const top = 45 + (tag.style.top ? parseFloat(tag.style.top) : 0);
+    return rect(50, top, 24, h);
+  } };
+  globalThis.getComputedStyle = () => ({ paddingTop: '0px', paddingBottom: '0px' });
+  C.fitNoteBox(tag);
+  assert.equal(tag.style.height, '22px');
+  assert.equal(tag.style.position, 'relative');
+  assert.equal(tag.style.top, '-5px');
+  const tr = tag.getBoundingClientRect();
+  assert.equal(tr.top, 40);
+  assert.equal(tr.height, 22);
 });
