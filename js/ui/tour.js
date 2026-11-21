@@ -55,7 +55,7 @@ export function tourMode() {
 function shown(el) {
   if (!el || el.closest("[hidden]")) return false;
   var r = el.getBoundingClientRect(), cs = getComputedStyle(el);
-  return r.width > 0 && r.height > 0 && cs.visibility !== "hidden" && cs.display !== "none" && r.right > 0 && r.bottom > 0 && r.left < window.innerWidth && r.top < window.innerHeight;
+  return r.width > 0 && r.height > 0 && cs.visibility !== "hidden" && cs.display !== "none" && r.right > 0 && r.bottom > 0 && r.left < (window.tcVW ? window.tcVW() : window.innerWidth) && r.top < (window.tcVH ? window.tcVH() : window.innerHeight);
 }
 export function tourTarget(st) {
   if (!st || !st.sel) return null;
@@ -120,7 +120,7 @@ function tourPlace() {
   if (!box || tourI < 0 || !steps.length) return;
   var st = steps[tourI], el = tourTarget(st), r = el ? el.getBoundingClientRect() : null;
   var hole = box.querySelector(".tour-hole"), num = box.querySelector(".tour-num"), dim = box.querySelector(".tour-dim"), card = box.querySelector(".tour-card");
-  var W = window.innerWidth, H = window.innerHeight, P = 6, M = 12, gap = 14;
+  var W = (window.tcVW ? window.tcVW() : window.innerWidth), H = (window.tcVH ? window.tcVH() : window.innerHeight), P = 6, M = 12, gap = 14;
   card.classList.remove("tight"); card.style.width = "";
   var cw = card.offsetWidth, ch = card.offsetHeight, top, left;
   if (r && r.width > 0 && r.height > 0) {

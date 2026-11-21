@@ -15,7 +15,7 @@ html.lay-pad-port .key-row span, html.lay-pad-land .key-row span { font-size: va
 html.lay-phone-land .key-row { display: none; }
 .key-pick, .howto { position: fixed; inset: 0; z-index: 60; background: var(--lk-000000-82); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .key-pick[hidden], .howto[hidden] { display: none; }
-.kp-box, .ht-box { background: var(--lk-1a1612); box-shadow: 0 10px 40px var(--lk-000000-6); border: 1px solid var(--line); border-radius: 14px; padding: 14px; color: var(--ink); max-width: 560px; width: 100%; max-height: 90vh; overflow: auto; position: relative; }
+.kp-box, .ht-box { background: var(--lk-1a1612); box-shadow: 0 10px 40px var(--lk-000000-6); border: 1px solid var(--line); border-radius: 14px; padding: 14px; color: var(--ink); max-width: 560px; width: 100%; max-height: calc(90 * var(--tc-vh)); overflow: auto; position: relative; }
 .kp-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 700; }
 .kp-roots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 8px; }
 .kp-alts { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin: -2px 0 8px; }
@@ -31,11 +31,11 @@ html.lay-phone-land .key-row { display: none; }
 .ht-box h3 { margin: 14px 0 4px; color: var(--copper-t); font-size: var(--fs-m); }
 /* v42: picture-first How to, full width, scrollable */
 .howto { align-items: flex-start; padding: 8px; overflow: hidden; }
-.ht-box { max-width: 1000px; max-height: calc(100vh - 16px); max-height: calc(100dvh - 16px); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+.ht-box { max-width: 1000px; max-height: calc(calc(100 * var(--tc-vh)) - 16px); max-height: calc(calc(100 * var(--tc-dvh)) - 16px); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
 .ht-box img { display: block; max-width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--line); margin: 6px 0; background: var(--lk-0f0d0b); }
 .ht-box .cap { margin: 2px 0 6px; color: var(--ink); }
 /* v110: one phone screenshot per section (360x780, spotlight style), centred, about half the screen tall at most */
-.ht-box img.ht-shot { width: min(100%, 560px, 140vh); width: min(100%, 560px, 140dvh); aspect-ratio: 1170 / 540; height: auto; margin: 8px auto; border-radius: 14px; }
+.ht-box img.ht-shot { width: min(100%, 560px, calc(140 * var(--tc-vh))); width: min(100%, 560px, calc(140 * var(--tc-dvh))); aspect-ratio: 1170 / 540; height: auto; margin: 8px auto; border-radius: 14px; }
 /* v58: one list. Intro (picture, two short lines), then steps 1-6; full-mode steps carry a pill. */
 .ht-box .ht-why { margin: 4px 0 0; }
 .ht-box ol.ht-steps { list-style: none; margin: 0; padding: 0; }
@@ -582,17 +582,17 @@ html.simple .ss .nx { outline: none; animation: none; }
 #suggest.kids1 .ss-kidwrap { position: absolute; inset: 6px; z-index: 5; display: flex; flex-direction: column; gap: 6px; min-height: 0; }
 #suggest.kids1 .ss-kidnow { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
 #suggest.kids1 .ss-kid { width: min(62%, 240px); height: min(100%, 150px); min-height: 0; border-radius: 22px; border-width: 2px;
-  font-size: clamp(26px, 9vmin, 60px); font-weight: 800; letter-spacing: 0; padding: 0 8px; }
+  font-size: clamp(26px, calc(9 * var(--tc-vmin)), 60px); font-weight: 800; letter-spacing: 0; padding: 0 8px; }
 html.simple #suggest.kids1 .ss-kid { border-radius: 26px; }
-#suggest.kids1 .ss-kidpads { flex: 0 0 auto; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; height: clamp(36px, 7vmin, 56px); }
-#suggest.kids1 .ss-kidpad { grid-row: auto; grid-column: auto; min-width: 0; height: 100%; border-radius: 10px; border-width: 1px; padding: 0 1px; font-size: clamp(12px, 3.4vmin, 18px); font-weight: 800; letter-spacing: -0.02em; }
+#suggest.kids1 .ss-kidpads { flex: 0 0 auto; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; height: clamp(36px, calc(7 * var(--tc-vmin)), 56px); }
+#suggest.kids1 .ss-kidpad { grid-row: auto; grid-column: auto; min-width: 0; height: 100%; border-radius: 10px; border-width: 1px; padding: 0 1px; font-size: clamp(12px, calc(3.4 * var(--tc-vmin)), 18px); font-weight: 800; letter-spacing: -0.02em; }
 /* narrow strips (phone portrait, full mode): 2 rows (4 + 3) */
 html.lay-phone-port:not(.simple) #suggest.kids1 .ss-kidpads { grid-template-columns: repeat(4, minmax(0, 1fr)); height: auto; grid-auto-rows: 38px; }
 /* v73 Kids: no big Now chip; the seven pads fill the strip */
 #suggest.kids1 .ss-kidnow { display: none; }
 #suggest.kids1 .ss-kidwrap { justify-content: center; }
 #suggest.kids1 .ss-kidpads { flex: 1 1 auto; height: auto; max-height: 132px; min-height: 44px; }
-#suggest.kids1 .ss-kidpad { font-size: clamp(15px, 4.6vmin, 26px); border-width: 2px; border-radius: 14px; }
+#suggest.kids1 .ss-kidpad { font-size: clamp(15px, calc(4.6 * var(--tc-vmin)), 26px); border-width: 2px; border-radius: 14px; }
 html.lay-phone-port:not(.simple) #suggest.kids1 .ss-kidpads { grid-auto-rows: minmax(44px, 1fr); max-height: 150px; }
 
 
@@ -634,7 +634,7 @@ html.s-day .pg-btn.pg-song.on { border-color: var(--edge); }   /* as simpleday.c
 @media (prefers-reduced-motion: reduce) { #suggest.kids1 .ss-kidpad.nx { animation: none; } }
 
 /* v112 Play along hint: one small pill just above the keyboard (or near the bottom without one); 2 s; never takes a tap */
-.pa-hint { position: fixed; z-index: 60; left: 50%; top: 0; transform: translateX(-50%); width: max-content; max-width: calc(100vw - 24px); box-sizing: border-box;
+.pa-hint { position: fixed; z-index: 60; left: 50%; top: 0; transform: translateX(-50%); width: max-content; max-width: calc(calc(100 * var(--tc-vw)) - 24px); box-sizing: border-box;
   padding: 7px 14px; border-radius: 999px; background: var(--lk-2a1f14); color: var(--lk-f3e6cf); border: 1.5px solid var(--lk-c4853f); font-size: var(--fs-m); font-weight: 600;
   line-height: 1.25; text-align: center; box-shadow: 0 4px 14px var(--lk-000000-45); pointer-events: none; opacity: 0; transition: opacity .18s; }
 .pa-hint.on { opacity: 1; }
@@ -645,11 +645,11 @@ html.s-day .pg-btn.pg-song.on { border-color: var(--edge); }   /* as simpleday.c
 .tour { position: fixed; inset: 0; z-index: 80; }
 .tour[hidden] { display: none; }
 .tour-dim { position: absolute; inset: 0; background: var(--lk-000000-6); }
-.tour-hole { position: absolute; border-radius: 12px; box-shadow: 0 0 0 200vmax var(--lk-000000-6), 0 0 14px 4px var(--lk-000000-35) inset;
+.tour-hole { position: absolute; border-radius: 12px; box-shadow: 0 0 0 calc(200 * var(--tc-vmax)) var(--lk-000000-6), 0 0 14px 4px var(--lk-000000-35) inset;
   outline: 2px dashed var(--lk-c4853f); outline-offset: 3px; pointer-events: none; }
 .tour-num { position: absolute; width: 24px; height: 24px; border-radius: 50%; background: var(--lk-c4853f); color: var(--lk-1d140b); font-weight: 800; font-size: var(--fs-m);
   display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px var(--lk-140c04-6); pointer-events: none; }
-.tour-card { position: absolute; box-sizing: border-box; width: min(336px, calc(100vw - 24px)); background: var(--lk-241a11); color: var(--lk-f3e6cf);
+.tour-card { position: absolute; box-sizing: border-box; width: min(336px, calc(calc(100 * var(--tc-vw)) - 24px)); background: var(--lk-241a11); color: var(--lk-f3e6cf);
   border: 1.5px solid var(--lk-c4853f); border-radius: 14px; padding: 14px 14px 10px; box-shadow: 0 8px 28px var(--lk-000000-5); }
 .tour-text { font-size: var(--fs-l); line-height: 1.35; margin: 0 0 12px; }
 .tour-foot { display: flex; align-items: center; gap: 8px; }
@@ -661,7 +661,7 @@ html.s-day .pg-btn.pg-song.on { border-color: var(--edge); }   /* as simpleday.c
 .tour-card.tight .tour-text { flex: 1 1 auto; font-size: var(--fs-m); line-height: 1.3; margin: 0; }
 .tour-card.tight .tour-foot { flex: 0 0 auto; }
 /* v112: two more rows (Show hints, Help > Tour): keep the gear menu on screen in landscape; it scrolls when taller */
-.config-menu { max-height: calc(100vh - 72px); max-height: calc(100dvh - 72px); overflow-y: auto; overscroll-behavior: contain; }
+.config-menu { max-height: calc(calc(100 * var(--tc-vh)) - 72px); max-height: calc(calc(100 * var(--tc-dvh)) - 72px); overflow-y: auto; overscroll-behavior: contain; }
 .config-menu > * { flex-shrink: 0; }
 .config-menu .cfg-sub { padding-left: 22px; }
 .config-menu .cfg-help { display: flex; align-items: center; gap: 8px; }

@@ -233,8 +233,8 @@ html.lay-pad-port .kv-piano { flex: 1 1 auto; height: auto; min-height: 300px; m
 html.lay-pad-land .kv-whites, html.lay-pad-port .kv-whites { gap: 3px; }
 html.lay-pad-land .kv-kl, html.lay-pad-port .kv-kl { font-size: 18px; }
 html.lay-pad-land .kv-wk.gold::before, html.lay-pad-port .kv-wk.gold::before { font-size: 30px; }
-html.lay-pad-land .kv-title, html.lay-pad-port .kv-title { margin-top: 18vh; font-size: 56px; }
-html.lay-pad-land .kv-title { margin-top: 10vh; }
+html.lay-pad-land .kv-title, html.lay-pad-port .kv-title { margin-top: calc(18 * var(--tc-vh)); font-size: 56px; }
+html.lay-pad-land .kv-title { margin-top: calc(10 * var(--tc-vh)); }
 html.lay-pad-land .kv-cards, html.lay-pad-port .kv-cards { grid-template-columns: repeat(3, 1fr); grid-auto-rows: 260px; gap: 20px; margin: 24px 0 0; }
 html.lay-pad-land .kv-cards { grid-auto-rows: 290px; }
 html.lay-pad-land .kv-pic, html.lay-pad-port .kv-pic { font-size: 110px; }
@@ -270,3 +270,18 @@ html.lay-phone-port .kv-lyr .kv-l1, html.lay-phone-port .kv-lyr .kv-l2 { padding
 html.lay-phone-port .kv-lyr .kv-l2 { margin-top: 0; }
 html.lay-phone-land .kv-top .kv-lyr .kv-l1 { padding-top: 14px; }
 .kv-cuetag.kv-cuein { position: static; display: inline-block; margin-left: 4px; vertical-align: .15em; transform: none !important; font-size: 14px; line-height: 16px; }   /* was 18/22 */
+
+/* Chord pads at least as tall as the piano (Vinh, 20 Nov). The pads and the piano share the free height, so each pad row is
+   exactly the piano's height and the piano gives up the rest. Same pads, colours, fonts and radii; only heights and flow change.
+   Portrait and iPad: .kv-mid steps aside (display: contents) so pads, Play / Next and piano sit in one column; the pad grid
+   gets R shares (R = pad rows, plus the gaps between them) and the piano 1. Every pad and the piano stay at least 44 px. */
+html:not(.lay-phone-land) .kv-mid { display: contents; }
+html:not(.lay-phone-land) .kv-pads { --kr: 1; flex: var(--kr) 1 calc((var(--kr) - 1) * var(--kgap, 12px)); min-height: 0; grid-auto-rows: 1fr; margin-top: 16px; }
+html.lay-phone-port .kv-pads { --kr: 2; --kgap: 8px; margin-top: 12px; }
+html:not(.lay-phone-land) .kv-piano { flex: 1 1 0; min-height: 44px; height: auto; }
+html:not(.lay-phone-land) .kv-pads .kv-pad { min-height: 44px; }
+/* Phone landscape: the pads stay beside Play / Next; that row and the piano split the free height 50 / 50. */
+html.lay-phone-land .kv-mid { flex: 1 1 0; min-height: 0; align-items: stretch; }
+html.lay-phone-land .kv-pads { height: 100%; grid-auto-rows: 1fr; }
+html.lay-phone-land .kv-ctl { align-self: center; }
+html.lay-phone-land .kv-piano { flex: 1 1 0; min-height: 44px; --bkh: .45; }   /* black keys .56 -> .45 of the shorter piano so the gold star stays clear of the key stripe */

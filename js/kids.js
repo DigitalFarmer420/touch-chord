@@ -127,21 +127,21 @@ export function wireKidKey() {
     if (!onArrow) e.preventDefault();
     unlock();
     // One step per ~quarter of the box (at least 36 px) so a small wobble does nothing.
-    drag = { id: e.pointerId, x: e.clientX, unit: Math.max(36, root.clientWidth / 4), cap: false };
+    drag = { id: e.pointerId, x: e.clientX / (window.tcZoom || 1), unit: Math.max(36, root.clientWidth / 4), cap: false };
     // On an arrow the capture waits for real movement, so a plain tap still clicks the arrow.
     if (!onArrow) { drag.cap = true; try { root.setPointerCapture(e.pointerId); } catch (err) {} }
   });
   root.addEventListener("pointermove", function (e) {
     if (!drag || e.pointerId !== drag.id) return;
     e.preventDefault();
-    var dx = e.clientX - drag.x;
+    var dx = e.clientX / (window.tcZoom || 1) - drag.x;
     if (!drag.cap && Math.abs(dx) > 8) { drag.cap = true; try { root.setPointerCapture(e.pointerId); } catch (err) {} }
     while (Math.abs(dx) >= drag.unit) {
       var d = dx > 0 ? 1 : -1;
       swiped = true;
       step(d);
       drag.x += d * drag.unit;
-      dx = e.clientX - drag.x;
+      dx = e.clientX / (window.tcZoom || 1) - drag.x;
     }
   });
   function end(e) { if (drag && e.pointerId === drag.id) drag = null; }

@@ -72,7 +72,7 @@ const PA_HINT_AVOID = "#pads .pad, #suggest button, #suggest .ss-chip, #suggest 
 var hintAvoid = null;   // rd4 (Uiux rd3): extra boxes the hint must not cover (Expert's blocks); set by js/expert/ui.js, none in the classic app
 export function setHintAvoid(fn) { hintAvoid = fn; }
 function paHintPlace(el) {   // v112.3: as high as possible (top area or empty space), every style, Simple and Full
-  var vw = window.innerWidth, vh = window.innerHeight, av = [];
+  var vw = (window.tcVW ? window.tcVW() : window.innerWidth), vh = (window.tcVH ? window.tcVH() : window.innerHeight), av = [];
   function add(r) { if (r && r.width > 0 && r.height > 0) av.push(r); }
   Array.prototype.forEach.call(document.querySelectorAll(PA_HINT_AVOID + ", #styles, .now-card, #symbol, #tones, #nowMix"), function (b) {
     if (b.closest("#paHint, #tour") || b.matches("#kidsLyr .sb-row")) return;

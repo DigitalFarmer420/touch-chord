@@ -149,9 +149,12 @@ const CSS = readFileSync(new URL('css/expert.css', R), 'utf8');
 const tail = CSS.slice(CSS.indexOf('v3.2 UI polish'));
 const tailRules = tail.replace(/\/\*[\s\S]*?\*\//g, '');
 test('P1-P7: the spec\'s CSS values', () => {
-  assert.match(tail, /lay-phone-port #app \{\s*--x-ctl-h: 48px; --x-src-h: 64px; --x-kb-h: clamp\(200px, 30dvh, 260px\);/);
-  assert.match(tail, /minmax\(200px, 1fr\) var\(--x-ctl-h\) var\(--x-kb-h\) !important/);
-  assert.match(tail, /lay-phone-land #app \{ --x-side: 148px; --x-sus-h: 56px; --x-src-h: 46px; --x-kb-h: clamp\(96px, calc\(100dvh - 270px\), 126px\); \}/);
+  assert.match(tail, /lay-phone-port #app \{\s*--x-ctl-h: 48px; --x-src-h: 64px; --x-kb-h: min\(260px, calc\(30 \* var\(--tc-dvh\)\)\);/);   // viewport units go through --tc-* (big-window zoom)
+  // Short phones: the piano row may shrink below 30dvh. The chord grid keeps its 200px floor.
+  assert.match(tail, /minmax\(200px, 1fr\) var\(--x-ctl-h\) minmax\(0, var\(--x-kb-h\)\) !important/);
+  assert.match(tail, /minmax\(180px, 1fr\) var\(--x-ctl-h\) var\(--x-pal-h\) minmax\(0, var\(--x-kb-h\)\) !important/);
+  assert.doesNotMatch(tail, /minmax\(0, 1fr\) var\(--x-ctl-h\) var\(--x-kb-h\)/);
+  assert.match(tail, /lay-phone-land #app \{ --x-side: 148px; --x-sus-h: 56px; --x-src-h: 46px; --x-kb-h: clamp\(96px, calc\(calc\(100 \* var\(--tc-dvh\)\) - 270px\), 126px\); \}/);
   assert.match(tail, /lay-phone-land #xCtl \{ grid-template-rows: minmax\(48px, 1fr\) minmax\(48px, 1fr\); \}/);
   assert.match(tail, /\.x-lock::after \{[^}]*width: max\(100%, 48px\); height: max\(100%, 48px\)/);
   assert.match(tail, /html\.expert \.x-lock \{ width: 52px;/); assert.match(tail, /lay-phone-land \.x-lock \{ width: 48px;/);

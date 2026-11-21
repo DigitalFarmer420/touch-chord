@@ -7,16 +7,16 @@
      lay-pad-port    regular portrait          persistent controls panel, 1x8 types
      lay-pad-land    regular landscape         two-hand: left rail + right stage
    compact = width < 600 or (landscape and height < 500)
-   regular = width >= 768 and height >= 600; anything else = medium. */
+   regular = width >= 744 and height >= 600 (744 = iPad mini portrait); anything else = medium. */
 #app {
   --gap: 8px;
   --chip: 34px;
   --next-vgap: 4px;
   --sym: 34px;
   --now-w: 104px;
-  height: 100vh;
-  height: 100dvh;
-  max-height: 100dvh;
+  height: calc(100 * var(--tc-vh));
+  height: calc(100 * var(--tc-dvh));
+  max-height: calc(100 * var(--tc-dvh));
   display: grid;
   gap: var(--gap);
   grid-template-columns: minmax(0, 1fr);
@@ -136,7 +136,7 @@ html.lay-pad-land #app {
   --next-vgap: 6px;
   --sym: 76px;
   --now-w: auto;
-  --rail-w: clamp(220px, 23vw, 290px);
+  --rail-w: clamp(220px, calc(23 * var(--tc-vw)), 290px);
   --sus-h: 132px;
   --ctrl: 40px;
   padding: calc(14px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
