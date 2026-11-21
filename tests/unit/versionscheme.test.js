@@ -89,3 +89,66 @@ test('check-version.py fails a non YYYY.MM.DD.N APP_VERSION', () => {
     const c = r.run('check-version.py'); assert.equal(c.status, 1); assert.match(c.stdout, /not YYYY\.MM\.DD\.N/);
   } finally { rmSync(r.dir, { recursive: true, force: true }); }
 });
+
+// Every dev build gets its own number (Vinh, 21 Nov): pr-checks runs check-bump against develop as well as main.
+test('pr-checks runs check-bump against the base branch for pull requests into develop and main', () => {
+  const y = readFileSync(join(ROOT, '.github/workflows/pr-checks.yml'), 'utf8');
+  assert.match(y, /if: github\.base_ref == 'main' \|\| github\.base_ref == 'develop'/);
+  assert.match(y, /BASE_REF: \$\{\{ github\.base_ref \}\}/);
+  assert.match(y, /python3 tools\/check-bump\.py "origin\/\$BASE_REF"/);
+  assert.doesNotMatch(y, /if: github\.base_ref == 'main'\n/, 'not main-only any more');
+});
+
+const today = () => out('print(d.date.today().strftime("%Y.%m.%d"))');
+const commit = (r, m) => r.git('-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '-qam', m);
+
+test('a dev build (PR into develop): an app change needs a bump; a test-only change does not', () => {
+  const r = repo();
+  try {
+    // Base = develop. An app change with the same version fails, the next counter passes.
+    const css = join(r.dir, 'css/base.css');
+    writeFileSync(css, readFileSync(css, 'utf8') + '\n/* dev change */\n'); commit(r, 'css change');
+    const same = r.run('check-bump.py', 'HEAD~1'); assert.equal(same.status, 1, same.stdout); assert.match(same.stdout, /without an APP_VERSION bump/);
+    const b = r.run('bump-version.py', '--today'); assert.equal(b.status, 0, b.stdout + b.stderr); commit(r, 'bump');
+    const ok = r.run('check-bump.py', 'HEAD~2'); assert.equal(ok.status, 0, ok.stdout);
+    // A test-only change on top needs no bump.
+    r.git('checkout', '-q', '-b', 'tests-only');
+    writeFileSync(join(r.dir, 'NOTE.md'), 'docs only\n'); r.git('add', 'NOTE.md'); commit(r, 'docs');
+    const docs = r.run('check-bump.py', 'HEAD~1'); assert.equal(docs.status, 0, docs.stdout); assert.match(docs.stdout, /0 app files changed/);
+  } finally { rmSync(r.dir, { recursive: true, force: true }); }
+});
+
+test('bump-version --today: next free counter after this checkout, origin/develop and origin/main', () => {
+  const r = repo();
+  try {
+    const t = today(), n = V.startsWith(t + '.') ? +V.split('.')[3] : 0, at = k => t + '.' + (n + k);
+    const bump = v => { const b = r.run('bump-version.py', v); assert.equal(b.status, 0, b.stdout + b.stderr); };
+    // origin/main at today.n+1, origin/develop at today.n+4, this branch cut from main (still today.n+1).
+    bump(at(1)); commit(r, 'main'); r.git('update-ref', 'refs/remotes/origin/main', 'HEAD');
+    bump(at(4)); commit(r, 'develop moved on'); r.git('update-ref', 'refs/remotes/origin/develop', 'HEAD');
+    r.git('checkout', '-q', '-b', 'feature', 'HEAD~1');
+    assert.equal(ver(r.dir), at(1));
+    bump('--today');
+    assert.equal(ver(r.dir), at(5), 'skips the numbers develop already used');
+    assert.equal(r.run('check-version.py').status, 0);
+    // Without remote refs it is simply the next counter after this checkout.
+    r.git('checkout', '-q', '--', '.'); r.git('update-ref', '-d', 'refs/remotes/origin/develop'); r.git('update-ref', '-d', 'refs/remotes/origin/main');
+    bump('--today'); assert.equal(ver(r.dir), at(2));
+  } finally { rmSync(r.dir, { recursive: true, force: true }); }
+});
+
+test('a new date starts again at .1 (bump-version --today uses tcversion.next_version)', () => {
+  assert.equal(out('print(t.next_version("2026.11.21.3", d.date(2026, 11, 22)))'), '2026.11.22.1');
+  assert.equal(out('print(t.next_version("2026.11.21.3", d.date(2026, 11, 21)))'), '2026.11.21.4');
+});
+
+test('a develop -> main release needs no second bump: develop is already above main', () => {
+  const r = repo();
+  try {
+    r.git('branch', 'main-tip');   // main = the repo's version V
+    const css = join(r.dir, 'css/base.css');
+    writeFileSync(css, readFileSync(css, 'utf8') + '\n/* feature A */\n'); assert.equal(r.run('bump-version.py', '--today').status, 0); commit(r, 'dev build A');
+    writeFileSync(css, readFileSync(css, 'utf8') + '\n/* feature B */\n'); assert.equal(r.run('bump-version.py', '--today').status, 0); commit(r, 'dev build B');
+    const c = r.run('check-bump.py', 'main-tip'); assert.equal(c.status, 0, c.stdout); assert.match(c.stdout, new RegExp(V.replace(/\./g, '\\.') + ' -> ' + ver(r.dir).replace(/\./g, '\\.')));
+  } finally { rmSync(r.dir, { recursive: true, force: true }); }
+});
