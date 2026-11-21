@@ -52,8 +52,7 @@ var sbCueT = 0;   // started by the first song bar paint (not at import: unit te
 // Up to three lines (phone landscape: two; no room for a third at a readable size): the line being sung on top, in
 // ink, with its sung word on gold (a chord-only part: its chords, the sounding one on gold), then the next lines,
 // muted. The next-chord cue is Expert's: a gold underline on the word where the next chord change lands and the
-// chord's name in small teal text, inline right of its word (Simple's grid leaves no height for a band above each
-// line; dialogs.css --sl-cb). Rows (--sl-n: 3, short phones 2) come from the same line map as playback (songCardRows).
+// chord's name in small grid-coloured text, inline right of its word, as tall as that lyric line (Vinh, 2026-11-21). Rows (--sl-n: 3, short phones 2) come from the same line map as playback (songCardRows).
 export const slState = { k: -1, ev: null, anim: 0, log: [] };
 function slVar(n) {   // the CSS numbers (dialogs.css): rows shown (--sl-n), band above each line (--sl-cb)
   try { var a = document.getElementById("app"), v = a && window.getComputedStyle ? getComputedStyle(a).getPropertyValue(n) : ""; return v ? parseFloat(v) : NaN; } catch (e) { return NaN; }

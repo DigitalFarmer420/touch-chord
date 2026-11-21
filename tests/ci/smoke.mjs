@@ -1541,6 +1541,95 @@ try {
     for (const mode of ['expert', 'simple', 'kids']) await gridCell(w, h, mode);
   }
 
+  // NOTE label beside the lyric (Vinh, 21 Nov 2026). The next-chord / pad-letter name sits inline,
+  // immediately right of its lyric word (~6 px), and the name box is the same height as that lyric
+  // line (top and bottom edges aligned, within 1 px). Real checks at 390x844, 780x360 and 1180x820
+  // in Simple, Expert and Kids, with the uploaded song (Kids: Twinkle).
+  const NOTE_VPS = [[390, 844], [780, 360], [1180, 820]];
+  async function noteStepUntilTag(page, mode) {
+    const sel = mode === 'kids' ? '.kv-cuetag' : mode === 'expert' ? '.x-cuetag' : '.sl-cuetag';
+    const next = nextSel(mode);
+    for (let i = 0; i < 20; i++) {
+      const ok = await page.evaluate(s => {
+        const t = document.querySelector(s);
+        return !!(t && !t.hidden && t.getClientRects().length);
+      }, sel);
+      if (ok) return true;
+      if (mode === 'kids') {
+        const n = page.locator('.kv-next');
+        if (await n.count()) { try { await n.first().click({ timeout: 400 }); } catch (e) {} }
+      } else {
+        await page.evaluate(s => { const n = document.querySelector(s); if (n) n.click(); }, next);
+      }
+      await page.waitForTimeout(80);
+    }
+    return false;
+  }
+  async function noteMeasure(page, mode) {
+    return page.evaluate(modeName => {
+      const tagSel = modeName === 'kids' ? '.kv-cuetag' : modeName === 'expert' ? '.x-cuetag' : '.sl-cuetag';
+      const wordSel = modeName === 'kids' ? '.kv-lyr .cue' : modeName === 'expert' ? '.x-cue' : '.sl-cue';
+      const boxSel = modeName === 'kids' ? '.kv-lyr' : modeName === 'expert' ? '#xSrc .x-songc, #xSrc .x-lrows' : '#songBar .sl-lyr, #songBar';
+      const tag = document.querySelector(tagSel);
+      const word = document.querySelector(wordSel);
+      const row = tag && tag.closest('[data-cue-row]');
+      const box = document.querySelector(boxSel);
+      const R = e => { if (!e) return null; const b = e.getBoundingClientRect(); return { t: b.top, l: b.left, r: b.right, b: b.bottom, w: b.width, h: b.height }; };
+      const vis = e => !!(e && e.getClientRects().length && getComputedStyle(e).display !== 'none' && !e.hidden);
+      const cs = tag ? getComputedStyle(tag) : null;
+      return {
+        shown: vis(tag), inline: !!(tag && tag.className.indexOf('cuein') >= 0 && cs && cs.position !== 'absolute'),
+        gap: (tag && word) ? tag.getBoundingClientRect().left - word.getBoundingClientRect().right : null,
+        tag: R(tag), word: R(word), row: R(row), box: R(box),
+        styleH: tag ? tag.style.height : null,
+        lay: (document.documentElement.className.match(/lay-\S+/) || [''])[0]
+      };
+    }, mode);
+  }
+  async function noteCell(w, h, mode) {
+    const size = w + 'x' + h, where = 'NOTE ' + size + ' ' + mode;
+    const { ctx, page, bag } = await n20Fresh(w, h, where);
+    try {
+      await n20Prepare(page, mode);
+      const found = await noteStepUntilTag(page, mode);
+      if (found) await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
+      if (found) await page.waitForTimeout(200);
+      const m = found ? await noteMeasure(page, mode) : null;
+      const notes = [];
+      if (!found || !m || !m.shown) notes.push('no name tag beside the lyric');
+      else {
+        if (!m.inline) notes.push('name is not inline in the lyric (position ' + (m.tag && 'ok') + ')');
+        if (!m.word) notes.push('no cued lyric word');
+        if (!m.row) notes.push('name is not inside a lyric line');
+        if (m.word && m.tag) {
+          const midT = m.tag.t + m.tag.h / 2, midW = m.word.t + m.word.h / 2;
+          if (Math.abs(midT - midW) > Math.max(m.tag.h, m.word.h) / 2 + 2) notes.push('name is not on the same line as its word');
+          if (m.tag.l < m.word.r - 0.5) notes.push('name overlaps the lyric word (gap ' + m.gap.toFixed(1) + 'px)');
+          if (m.gap < 0 || m.gap > 12) notes.push('gap from word to name is ' + m.gap.toFixed(1) + 'px, want about 6px');
+        }
+        if (m.row && m.tag) {
+          const dH = Math.abs(m.tag.h - m.row.h), dT = Math.abs(m.tag.t - m.row.t), dB = Math.abs(m.tag.b - m.row.b);
+          if (dH > 1 || dT > 1 || dB > 1) notes.push('name box ' + m.tag.h.toFixed(1) + 'px @' + m.tag.t.toFixed(1) + '-' + m.tag.b.toFixed(1) + ' does not match the lyric line ' + m.row.h.toFixed(1) + 'px @' + m.row.t.toFixed(1) + '-' + m.row.b.toFixed(1));
+        }
+        if (m.box && m.tag) {
+          if (m.tag.l < m.box.l - 4 || m.tag.r > m.box.r + 4 || m.tag.t < m.box.t - 4 || m.tag.b > m.box.b + 4) notes.push('name clips or sits outside the lyric box');
+        }
+      }
+      const pageNotes = bag.errors.concat(bag.failed).slice(0, 3);
+      if (pageNotes.length) notes.push('page: ' + pageNotes.join('; '));
+      const name = 'NOTE ' + size + ' ' + mode + ': name sits next to the lyric, same height, no overlap';
+      if (notes.length) await shot(page, name);
+      record(name, !notes.length, notes.length ? notes.join(' | ') : (m ? 'gap ' + (m.gap == null ? '-' : m.gap.toFixed(1)) + 'px, name ' + m.tag.h.toFixed(1) + 'px, line ' + m.row.h.toFixed(1) + 'px, style ' + (m.styleH || '-') + ', ' + m.lay : ''));
+    } catch (err) {
+      record(where, false, String(err && err.message || err).split('\n')[0]);
+    } finally {
+      await ctx.close();
+    }
+  }
+  for (const [w, h] of NOTE_VPS) {
+    for (const mode of ['expert', 'simple', 'kids']) await noteCell(w, h, mode);
+  }
+
   for (const w of walks) {
     if (w.pageNotes.length) record('toggle ' + w.label, false, w.pageNotes.join(' | '));
   }

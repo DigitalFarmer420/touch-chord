@@ -346,7 +346,7 @@ html.simple.up-slyr.up-on #songBar { height: auto; align-items: flex-start; marg
 #songBar .sl-row { display: block; box-sizing: border-box; padding-top: var(--sl-cb); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
 #songBar .sl-row.cur { height: calc(var(--sl-l1) + var(--sl-cb)); font: 700 var(--sl-f1)/var(--sl-l1) Andika, Nunito, system-ui, sans-serif; color: var(--ink); text-overflow: clip; }
 #songBar .sl-row.nxt { height: calc(var(--sl-l2) + var(--sl-cb)); font: 600 var(--sl-f2)/var(--sl-l2) Andika, Nunito, system-ui, sans-serif; color: var(--muted); }
-#songBar .sl-lin { display: inline-block; transition: transform .2s ease-out; }
+#songBar .sl-lin { display: inline-block; height: 100%; vertical-align: top; transition: transform .2s ease-out; }
 #songBar .sl-row.nxt.sl-slide { text-overflow: clip; }
 #songBar .sl-row.sl-shift { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px); mask-image: linear-gradient(90deg, transparent 0, #000 16px); }
 #songBar .sl-now { background: var(--sb-gold); color: #3B2600; border-radius: 6px; padding: 0 4px; }
@@ -372,7 +372,8 @@ html.s-day #songBar .sl-cuetag.color:not(.soon) { color: color-mix(in srgb, var(
 html:not(.s-day) #songBar .sl-cuetag.minor:not(.soon) { color: color-mix(in srgb, var(--lk-7d6ea8) 70%, var(--ink)); }
 html:not(.s-day) #songBar .sl-cuetag.tension:not(.soon) { color: color-mix(in srgb, var(--lk-2a1f45) 45%, var(--ink)); }
 #songBar .sl-cuetag.soon { color: var(--cue-ink, var(--sb-cue-ink)); background: var(--cue-fill, var(--sb-cue)); animation: slCuePulse .5s ease-in-out infinite alternate; }
-#songBar .sl-cuetag.sl-cuein { position: static; display: inline-block; margin-left: 3px; vertical-align: 1px; transform: none !important; }
+#songBar .sl-cuetag.sl-cuein { position: static; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
+  margin-left: 6px; vertical-align: top; height: 100%; transform: none !important; }
 html.lay-pad-port #songBar .sl-cuetag, html.lay-pad-land #songBar .sl-cuetag { font-size: 12px; line-height: 14px; }   /* was 15/17; ~80% */
 @keyframes slCuePulse { from { filter: brightness(1); } to { filter: brightness(1.2); } }
 @media (prefers-reduced-motion: reduce) { #songBar .sl-roll.go, #songBar .sl-lin { transition: none; } #songBar .sl-cuetag.soon { animation: none; } }

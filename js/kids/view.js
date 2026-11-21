@@ -382,9 +382,8 @@ function lyrHtml() {
   var land = document.documentElement.classList.contains("lay-phone-land");   // sideways: the next line is hidden
   var cue = kidsCue(L, cur, li, land ? 1 : 2);
   if (cue) cue.cls = cueLetterClass(cue.chord);
-  // test.5 crowding fix: phones keep a band above each line for the letter (kids.css); an iPad's big lines leave no
-  // room for one, so there the letter is inline, right of its word.
-  var inl = document.documentElement.classList.contains("lay-pad-port") || document.documentElement.classList.contains("lay-pad-land");
+  // Vinh 2026-11-21: the pad letter always sits inline, immediately right of its word (same height as that lyric line).
+  var inl = true;
   function paintRange(segs, R) {   // segs [{a, b, cls}] covering the line; the cue word gets "cue" on top
     var out = "";
     segs.forEach(function (sg) {

@@ -549,9 +549,9 @@ function paintSrc() {
       var capFree = xCapFree(), lay = capLayout(card.rows, capFree, cardHead(upLyrMap(), card.idx, upSecName)), hasCap = lay.some(function (it) { return it.cap != null; });
       if (cue && !lay.some(function (it) { return it.row && it.k === cue.k; })) cue = null;   // its row dropped for a caption
       xCue.j = cue ? cue.j : -1; xCue.pc = cur;
-      // v3.2 test.5 crowding fix: phone portrait reserves a band above each line for the name (CSS --x-cb); phone
-      // landscape and iPad have no height to spare but plenty of width, so the name sits inline, right of its word.
-      var inl = !document.documentElement.classList.contains("lay-phone-port");
+      // Vinh 2026-11-21: the chord name always sits inline, immediately right of its word (same height as that lyric
+      // line). The old phone-portrait band above the line is no longer used.
+      var inl = true;
       rowsHtml = lay.map(function (it, i) {
         // x-lcap-b: the line under the caption holds no cue name, so (phone portrait) its band moves above the caption and
         // the caption sits right on its line; with the cue there, the band stays between them for the chord name.

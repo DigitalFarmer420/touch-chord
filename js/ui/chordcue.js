@@ -84,10 +84,34 @@ export function cueClock(c, cur, nowMs) {
 // always there, so the rows never move), the tag sits in that band, 0.5 px below the row's top edge: it can't reach the
 // line above or the song title. A tag inside the row itself (inline, right of the word: phone landscape, iPad) is
 // already placed by the text flow.
+// Stretch an inline name box to the lyric line's box (top and bottom edges aligned, within 1 px).
+export function fitNoteBox(tag) {
+  if (!tag) return;
+  var row = tag.closest("[data-cue-row]");
+  if (!row) return;
+  var rr = row.getBoundingClientRect(), cs = getComputedStyle(row);
+  var pt = parseFloat(cs.paddingTop) || 0, pb = parseFloat(cs.paddingBottom) || 0;
+  var h = rr.height - pt - pb;
+  if (!(h > 0)) return;
+  var hx = (Math.round(h * 2) / 2) + "px";
+  if (tag.style.setProperty) { tag.style.setProperty("max-height", "none", "important"); tag.style.setProperty("height", hx, "important"); }
+  else { tag.style.maxHeight = "none"; tag.style.height = hx; }
+  var tr = tag.getBoundingClientRect(), want = rr.top + pt, dy = want - tr.top;
+  if (Math.abs(dy) > 0.25) {
+    tag.style.position = "relative";
+    tag.style.top = (Math.round(dy * 2) / 2) + "px";
+  }
+}
 export function placeCueTag(host, word, tag, avoid) {
   if (!host || !tag) return;
   if (!word) { tag.hidden = true; return; }
-  if (tag.closest("[data-cue-row]")) { tag.hidden = false; return; }   // inline
+  if (tag.closest("[data-cue-row]")) {
+    tag.hidden = false;
+    fitNoteBox(tag);
+    if (typeof requestAnimationFrame === "function") requestAnimationFrame(function () { fitNoteBox(tag); });
+    if (typeof document !== "undefined" && document.body && typeof setTimeout === "function") setTimeout(function () { fitNoteBox(tag); }, 120);
+    return;
+  }   // inline
   var hb = host.getBoundingClientRect(), wr = word.getBoundingClientRect(), row = word.closest("[data-cue-row]");
   var hr = { left: hb.left + (host.clientLeft || 0), top: hb.top + (host.clientTop || 0), width: host.clientWidth || hb.width };   // the tag's containing block: inside the border
   var vis = row ? row.getBoundingClientRect() : wr;
