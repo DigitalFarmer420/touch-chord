@@ -1,12 +1,21 @@
 #!/usr/bin/env python3
-"""Set the app version everywhere in one go (run from the repo root): python3 tools/bump-version.py 112.4
+"""Set the app version everywhere in one go (run from the repo root):
+  python3 tools/bump-version.py 2026.11.21.1   # an explicit YYYY.MM.DD.N version
+  python3 tools/bump-version.py --today        # today's date, counter 1 (or the next counter if today already has a release)
+Version scheme (see tools/tcversion.py): the release date plus a counter, YYYY.MM.DD.N. The first release on a day is .1,
+a second release that day is .2. The new version must sort after the current one (112.16 and older sort before any date).
 - js/version.js: APP_VERSION = "<new>", BUILD_ID = "<new>", APP_BUILD = "<new>-web" (if it was "<old>-web")
 - every ?v=<old> in index.html (CSS links, boot-early.js, main.js, How to images), css/*.css, js/**/*.js (all import specifiers), and manifest.webmanifest (icon URLs)
 Then checks that no other ?v= value is left (a module imported under two different ?v= values would load twice)."""
-import sys, re, pathlib
-root = pathlib.Path('.'); new = sys.argv[1]
+import sys, re, pathlib, datetime
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent)); import tcversion
+if len(sys.argv) != 2: sys.exit(__doc__)
+root = pathlib.Path('.')
 vf = root / 'js/version.js'; t = vf.read_text(encoding='utf-8')
 old = re.search(r'APP_VERSION = "([^"]+)"', t).group(1)
+new = tcversion.next_version(old, datetime.date.today()) if sys.argv[1] == '--today' else sys.argv[1]
+if not tcversion.is_valid(new): sys.exit('not a YYYY.MM.DD.N version (a real date, counter from 1): %r' % new)
+if tcversion.key(new) <= tcversion.key(old): sys.exit('new version %s must sort after the current %s' % (new, old))
 files = [root / 'index.html', *root.glob('css/*.css'), *root.glob('js/**/*.js'), root / 'manifest.webmanifest']
 for f in files:
     s = f.read_text(encoding='utf-8')
