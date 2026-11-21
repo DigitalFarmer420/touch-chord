@@ -330,7 +330,7 @@ html.expert .x-volrow { display: flex; align-items: center; gap: 12px; margin-to
 html.expert .x-volrow input { flex: 1; } html.expert .x-volrow b { width: 34px; color: var(--x-ink); }
 html.expert #howto, html.expert #uploadPick, html.expert #keyPick, html.expert #tour { z-index: 80; }
 html.expert.lay-pad-port #suggest.ss, html.expert.lay-pad-land #suggest.ss { --ss-fs: 24px; --ss-note: 24px; --ss-small: 13px; --ss-cgap: 8px; --ss-rg: 8px; }
-html.expert.lay-phone-land #suggest.ss { --ss-fs: 14px; --ss-note: 14px; --ss-small: 9px; --ss-rg: 0px; grid-template-rows: [b-start g-start] minmax(32px, 1fr) [b-end h-start] minmax(32px, 1fr) [h-end n-start] minmax(32px, 1fr) [n-end s-start] minmax(32px, 1fr) [s-end t-start] minmax(32px, 1fr) [t-end g-end] !important; }
+html.expert.lay-phone-land #suggest.ss { --ss-fs: 14px; --ss-note: 14px; --ss-small: 9px; --ss-rg: 0px; grid-template-rows: [b-start g-start] minmax(0, 1fr) [b-end h-start] minmax(0, 1fr) [h-end n-start] minmax(0, 1fr) [n-end s-start] minmax(0, 1fr) [s-end t-start] minmax(0, 1fr) [t-end g-end] !important; }   /* Nov 21: rows share the panel and never spill past it (a 32px floor pushed the Tension row over the piano on 300-350 tall screens); --x-kb-h below keeps them at 32+ wherever the piano can give way */
 html.expert.lay-phone-land .next-card { padding: 2px !important; }
 /* key marks in the Expert colours: sounding = gold, next chord = dashed teal (Play along marks keep their classes) */
 html.expert .kb.piano .white.held { background: #FFE7A6 !important; color: #5a3a00 !important; }
@@ -491,8 +491,8 @@ html.expert.lay-phone-land.x-types-open #app { --x-ctl-h: 72px; }
 /* 800x330 and other very short landscape windows: give the column two readable rows by shortening the keys a little
    (the overall short-landscape frame stays; this is not the deferred rd18 relayout). */
 @media (max-height: 348px) {
-  html.expert.lay-phone-land #app { --x-kb-h: 96px; --x-g: 0px; padding-top: 2px !important; padding-bottom: 0 !important; }
-  html.expert.lay-phone-land.x-types-open #app { --x-ctl-h: 76px; --x-kb-h: 88px; }
+  html.expert.lay-phone-land #app { --x-g: 0px; padding-top: 2px !important; padding-bottom: 0 !important; }   /* --x-kb-h: see the P2 + P3 block below */
+  html.expert.lay-phone-land.x-types-open #app { --x-ctl-h: 76px; }
 }
 html.expert.lay-phone-land #xCtl > .x-full { grid-area: 1 / 1; } html.expert.lay-phone-land #xCtl > .x-sound { grid-area: 1 / 2; }
 html.expert.lay-phone-land #xCtl > #xKeysChip { grid-area: 2 / 1 / 3 / -1; }
@@ -545,7 +545,10 @@ html.expert.lay-phone-port.x-types-open #app {
 /* P2 + P3 phone landscape. The status bar is hidden natively (MainActivity), so its height goes to the song card (+14)
    and the piano (+14). The side column is 148 css; SUSTAIN 56 tall; the two button rows are at least 48 each.
    Insets: native padding is the only source; env(safe-area-inset-*) is 0 in the app, so nothing is added here. */
-html.expert.lay-phone-land #app { --x-side: 148px; --x-sus-h: 56px; --x-src-h: 46px; --x-kb-h: clamp(96px, calc(calc(100 * var(--tc-dvh)) - 270px), 126px); }
+html.expert.lay-phone-land #app { --x-side: 148px; --x-sus-h: 56px; --x-src-h: 46px; --x-kb-h: clamp(72px, max(min(96px, calc(calc(100 * var(--tc-dvh)) - 257px)), min(126px, calc(calc(100 * var(--tc-dvh)) - 270px))), 126px); }
+/* Nov 21 (S25 in Brave, 780 wide and ~300-350 tall): the piano gives way before the five chord-grid rows go under 32 css.
+   257 = padding 6 + four 3px gaps + top bar 36 + song card 46 + 5 x 32 rows - SUSTAIN 56 - 3px gap. Where the piano used to fit
+   (360+ tall) it is the same size as before (96 up to 366 tall, then height - 270 up to 126); it never goes under 72. */
 /* kb-h: 126 css once the screen is 396+ css tall (411 on Vinh's phone with the status bar hidden). On shorter screens
    (status bar showing, or a small phone) the piano gives way first, so the five grid rows keep their 32 css floor and
    never slide under the keys (780x360: 96 css, as before). */
@@ -553,8 +556,9 @@ html.expert.lay-phone-land #xCtl { grid-template-rows: minmax(48px, 1fr) minmax(
 html.expert.lay-phone-land #xGo .x-play { width: 40px; }   /* P4 note: keep Play at its old width when the card grows to 46 */
 html.expert.lay-phone-land #xGo > .x-b { height: auto; min-height: 0; align-self: stretch; }   /* Next / Play fill the song-card row: 46 tall at 390+ (were 32), 40 on 330-tall screens */
 @media (max-height: 348px) {   /* 800x330: SUSTAIN stays 48 so two 48 rows still fit */
-  html.expert.lay-phone-land #app { --x-sus-h: 48px; --x-src-h: 40px; --x-kb-h: 96px; }
-  html.expert.lay-phone-land.x-types-open #app { --x-kb-h: 88px; }
+  html.expert.lay-phone-land #app { --x-sus-h: 48px; --x-src-h: 40px; --x-kb-h: clamp(72px, calc(calc(100 * var(--tc-dvh)) - 251px), 96px); }   /* 251: as 257 above with a 40 card and 48 SUSTAIN (the 0 gaps here leave a few px spare) */
+  html.expert.lay-phone-land.x-types-open #app { --x-kb-h: clamp(72px, calc(calc(100 * var(--tc-dvh)) - 251px), 88px); }
+  html.expert.lay-phone-land #xCtl { grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }   /* under ~323 tall the two button rows share what is left (46 at 310) instead of running into the piano */
 }
 /* P4 song card: title, the line being sung (sung word on the gold pill) and the next line (iPad: next two). */
 html.expert.lay-pad-port #app { --x-src-h: 112px; } html.expert.lay-pad-land #app { --x-src-h: 84px; }
