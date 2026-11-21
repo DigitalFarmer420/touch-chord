@@ -47,6 +47,15 @@ test('big-window zoom: 1 up to the reference sizes, then min(w/1180, h/820) land
   assert.equal(p.style.zoom, ''); assert.equal(p.props['--tcz'], undefined, 'nothing is written at zoom 1');
 });
 
+test('--tc-ih is the visible height (innerHeight) in page px, before first paint, also under zoom', () => {
+  assert.equal(boot(915, 330).props['--tc-ih'], '330px');
+  assert.equal(boot(780, 310).props['--tc-ih'], '310px');
+  assert.equal(boot(390, 844).props['--tc-ih'], '844px');
+  assert.equal(boot(1920, 1080).props['--tc-ih'], (1080 / 1.317) + 'px');
+  assert.match(BOOT, /addEventListener\("resize", function \(\) \{ window\.tcApplySizeClass\(\); \}\)/, 'kept current when the address bar shows / hides');
+  assert.match(BOOT, /visualViewport\.addEventListener\("resize"/);
+});
+
 test('while zoomed, rects and tcVW / tcVH are in page px; at zoom 1 they are untouched', () => {
   const b = boot(1920, 1080), z = 1.317;
   const r = new b.Element().getBoundingClientRect();
@@ -69,7 +78,10 @@ test('CSS: every viewport length goes through --tc-* (zoom would otherwise doubl
     });
   }
   const base = read('css/base.css');
-  for (const u of ['vw', 'vh', 'dvh', 'svh', 'lvh', 'vmin', 'vmax']) assert.match(base, new RegExp(`--tc-${u}: calc\\(1${u} / var\\(--tcz\\)\\)`));
+  for (const u of ['vw', 'vh', 'svh', 'lvh', 'vmin', 'vmax']) assert.match(base, new RegExp(`--tc-${u}: calc\\(1${u} / var\\(--tcz\\)\\)`));
+  // Nov 21: --tc-dvh is the smaller of 1dvh and 1% of the measured visible height (--tc-ih, boot-early.js).
+  assert.match(base, /--tc-dvh0: calc\(1dvh \/ var\(--tcz\)\)/);
+  assert.match(base, /--tc-dvh: min\(var\(--tc-dvh0\), calc\(var\(--tc-ih, calc\(100 \* var\(--tc-dvh0\)\)\) \/ 100\)\);/);
   assert.match(base, /:root \{ --tcz: 1;/);
 });
 

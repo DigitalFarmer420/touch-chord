@@ -44,8 +44,10 @@
 // (1 up to 1180x820 / 820x1180, 1.317 at 1920x1080) with no page scroll, and a real tap that still hits under zoom.
 //
 // GRID (Vinh, 21 Nov 2026) is a real check at phone landscape 780x310 / 330 / 360, 640x360, 667x375, 844x390, 915x412
-// and 932x430: in Expert, Simple and Kids the chord grid (real rows, and Expert / Simple chips forced into 4 and 6 rows)
-// ends at or above the piano top (Simple: inside its panel and on screen), and Expert keeps 32px rows while the piano can give way.
+// 932x430 and 915x330 / 345 / 360 (S25 in Brave): in Expert, Simple and Kids the chord grid (real rows, and Expert / Simple chips forced into 4 and 6 rows)
+// ends at or above the piano top (Simple: inside its panel and on screen), the piano ends within innerHeight with no page
+// scroll (also when 1dvh is 56px taller than innerHeight, as Brave reports it), and Expert keeps 32px rows while the piano can give way.
+// NOW (same day) checks that Expert's Now box is as tall as the song card beside it (within 1px) at those sizes, phone portrait and iPad.
 
 import { createServer } from 'node:http';
 import { mkdirSync, existsSync, statSync, createReadStream, readFileSync } from 'node:fs';
@@ -1477,7 +1479,11 @@ try {
   //    landscape, so its grid must stay inside its panel and on screen). SUSTAIN and the button column must too.
   //  - Expert, real 5 rows: while the piano is taller than its 72px floor, no chord row is under 32px (the piano gives way first).
   //  - Kids: every chord pad ends at or above the piano top.
-  const GRID_VPS = [[780, 310], [780, 330], [780, 360], [640, 360], [667, 375], [844, 390], [915, 412], [932, 430]];
+  //  - Every mode, every size: the piano (Simple: the grid) ends within innerHeight and the page does not scroll, also
+  //    with "dvh +56" (Vinh, 21 Nov 12:53 PM: Brave on the S25 at ~915x330-360 still cut the piano off): 1dvh is made
+  //    56px (an address bar) taller than innerHeight, as that browser reports it; the layout must follow innerHeight.
+  const GRID_VPS = [[780, 310], [780, 330], [780, 360], [640, 360], [667, 375], [844, 390], [915, 330], [915, 345], [915, 360], [915, 412], [932, 430]];
+  const GRID_SIM = 56;
   const GRID_ROWN = { b: 1, h: 2, n: 3, s: 4, t: 5 };
   async function gridMeasure(page, mode, rows) {
     return page.evaluate(({ mode, rows, ROWN }) => {
@@ -1498,7 +1504,8 @@ try {
       const side = mode === 'expert' ? [document.getElementById('sustainBtn'), ...document.querySelectorAll('#xCtl > *')].filter(vis).map(e => e.getBoundingClientRect().bottom) : [];
       const out = { n: cells.length, rows: new Set(rs.map(r => Math.round(r.top))).size, bottom: rs.length ? Math.max(...rs.map(r => r.bottom)) : null,
         minH: rs.length ? Math.min(...rs.map(r => r.height)) : null, piano: vis(pn) ? pn.getBoundingClientRect() : null, side: side.length ? Math.max(...side) : null,
-        panel: g ? g.getBoundingClientRect().bottom : null, vh: window.tcVH() };
+        panel: g ? g.getBoundingClientRect().bottom : null, vh: window.tcVH(), inner: window.innerHeight / window.tcZoom,
+        pageScroll: document.documentElement.scrollHeight - document.documentElement.clientHeight };
       if (g && rows) { g.style.removeProperty('grid-template-rows'); for (const c of g.children) { c.style.gridRow = c.dataset.tcRow; delete c.dataset.tcRow; } }
       return JSON.parse(JSON.stringify(out, (k, v) => v instanceof DOMRect ? { top: v.top, bottom: v.bottom, height: v.height } : v));
     }, { mode, rows, ROWN: GRID_ROWN });
@@ -1512,18 +1519,24 @@ try {
         await page.evaluate(() => { const b = document.querySelector('#styles button[data-style="reggae"]'); if (b) b.click(); if (typeof window.__setKey === 'function') window.__setKey(5, 'major'); });
         await page.waitForTimeout(350);
       }
-      for (const rows of mode === 'kids' ? [0] : [0, 4, 6]) {
+      for (const run of (mode === 'kids' ? [0] : [0, 4, 6]).map(r => ({ rows: r })).concat([{ rows: 0, sim: GRID_SIM }])) {
+        const rows = run.rows;
+        if (run.sim) {
+          await page.evaluate(sim => document.documentElement.style.setProperty('--tc-dvh0', ((innerHeight + sim) / 100) + 'px'), run.sim);
+          await page.waitForTimeout(150);
+        }
         const m = await gridMeasure(page, mode, rows);
-        const notes = [], label = rows ? rows + ' rows (forced)' : 'real grid (' + m.rows + ' rows)';
+        const notes = [], label = (rows ? rows + ' rows (forced)' : 'real grid (' + m.rows + ' rows)') + (run.sim ? ', dvh +' + run.sim : '');
+        if (m.pageScroll > 1) notes.push('page scrolls ' + m.pageScroll + 'px');
         if (!m.n) notes.push('no chord cells');
         if (m.piano) {
           if (m.bottom > m.piano.top + 0.5) notes.push('grid bottom ' + m.bottom.toFixed(1) + ' is below the piano top ' + m.piano.top.toFixed(1));
           if (m.side != null && m.side > m.piano.top + 0.5) notes.push('SUSTAIN / buttons bottom ' + m.side.toFixed(1) + ' is below the piano top ' + m.piano.top.toFixed(1));
-          if (m.piano.bottom > m.vh + 1) notes.push('piano bottom ' + m.piano.bottom.toFixed(1) + ' below the screen ' + m.vh.toFixed(1));
+          if (m.piano.bottom > m.inner + 0.5) notes.push('piano bottom ' + m.piano.bottom.toFixed(1) + ' below innerHeight ' + m.inner.toFixed(1));
           if (mode === 'expert' && !rows && m.piano.height > 72.5 && m.minH < 31.5) notes.push('a chord row is ' + m.minH.toFixed(1) + 'px while the piano (' + m.piano.height.toFixed(1) + 'px) could still give way');
         } else if (mode === 'simple') {
           if (m.bottom > m.panel + 0.5) notes.push('grid bottom ' + m.bottom.toFixed(1) + ' past its panel ' + m.panel.toFixed(1));
-          if (m.bottom > m.vh + 0.5) notes.push('grid bottom ' + m.bottom.toFixed(1) + ' below the screen ' + m.vh.toFixed(1));
+          if (m.bottom > m.inner + 0.5) notes.push('grid bottom ' + m.bottom.toFixed(1) + ' below innerHeight ' + m.inner.toFixed(1));
         } else notes.push('no piano');
         const pageNotes = bag.errors.concat(bag.failed).slice(0, 3);
         if (pageNotes.length) notes.push('page: ' + pageNotes.join('; '));
@@ -1540,6 +1553,42 @@ try {
   for (const [w, h] of GRID_VPS) {
     for (const mode of ['expert', 'simple', 'kids']) await gridCell(w, h, mode);
   }
+
+  // NOW = song card (Vinh, 21 Nov 1:06 PM): in Expert the Now box (chord badge + its notes) sits beside the song / lyric
+  // card and must be exactly as tall, top and bottom aligned (within 1px). In phone landscape it was 32px beside a
+  // 40-46px card. Checked with the uploaded song at the S25-like sizes, a phone portrait and both iPad orientations.
+  // (Simple has no Now box beside its song line.)
+  const NOW_VPS = [[915, 330], [915, 345], [915, 360], [780, 310], [844, 390], [390, 844], [820, 1180], [1180, 820]];
+  async function nowCell(w, h) {
+    const size = w + 'x' + h, where = 'NOW ' + size + ' expert';
+    const { ctx, page, bag } = await n20Fresh(w, h, where);
+    try {
+      await n20Prepare(page, 'expert');
+      await page.evaluate(() => { const b = document.querySelector('#styles button[data-style="reggae"]'); if (b) b.click(); if (typeof window.__setKey === 'function') window.__setKey(5, 'major'); });
+      await page.waitForTimeout(350);
+      const m = await page.evaluate(() => {
+        const vis = e => !!(e && e.getClientRects().length && getComputedStyle(e).display !== 'none' && getComputedStyle(e).visibility !== 'hidden');
+        const box = q => { const e = [...document.querySelectorAll(q)].find(vis); if (!e) return null; const r = e.getBoundingClientRect(); return { t: r.top, b: r.bottom, h: r.height }; };
+        return { now: box('.now-card'), src: box('#xSrc') };
+      });
+      const notes = [];
+      if (!m.now || !m.src) notes.push('missing ' + (!m.now ? 'Now box' : 'song card'));
+      else {
+        if (Math.abs(m.now.h - m.src.h) > 1) notes.push('Now box ' + m.now.h.toFixed(1) + 'px vs song card ' + m.src.h.toFixed(1) + 'px');
+        if (Math.abs(m.now.t - m.src.t) > 1 || Math.abs(m.now.b - m.src.b) > 1) notes.push('edges: Now ' + m.now.t.toFixed(1) + '-' + m.now.b.toFixed(1) + ', song card ' + m.src.t.toFixed(1) + '-' + m.src.b.toFixed(1));
+      }
+      const pageNotes = bag.errors.concat(bag.failed).slice(0, 3);
+      if (pageNotes.length) notes.push('page: ' + pageNotes.join('; '));
+      const name = 'NOW ' + size + ' expert: Now box as tall as the song card, edges aligned';
+      if (notes.length) await shot(page, name);
+      record(name, !notes.length, notes.length ? notes.join(' | ') : 'both ' + m.src.h.toFixed(1) + 'px');
+    } catch (err) {
+      record(where, false, String(err && err.message || err).split('\n')[0]);
+    } finally {
+      await ctx.close();
+    }
+  }
+  for (const [w, h] of NOW_VPS) await nowCell(w, h);
 
   // NOTE label beside the lyric (Vinh, 21 Nov 2026). The next-chord / pad-letter name sits inline,
   // immediately right of its lyric word (~6 px), and the name box is the same height as that lyric

@@ -445,8 +445,9 @@ html.expert.lay-phone-land #xTop { align-items: center; }
 html.expert.lay-phone-land #xTop > .x-b, html.expert.lay-phone-land #xTop .mode-chip, html.expert.lay-phone-land #xTog { height: 36px; min-height: 0; align-self: center; box-sizing: border-box; }
 html.expert.lay-phone-land #xTop .x-help { flex: 0 0 36px; width: 36px; height: 36px; min-width: 36px; min-height: 0; position: relative; overflow: visible; margin: 0 4px 0 4px; }
 html.expert.lay-phone-land #xTop .x-help::after { content: ""; position: absolute; left: -5px; top: -5px; right: -5px; bottom: -5px; border-radius: 50%; }
-/* rd15: the Now card is the same height as the song bar, Next and Play beside it (32px; was 30). */
-html.expert.lay-phone-land .now-col > .now-card { flex: 0 0 32px !important; min-height: 32px; height: 32px; }
+/* rd15: the Now card is the same height as the song bar, Next and Play beside it. Nov 21 (Vinh): it was still 32px after
+   the song card grew to --x-src-h (46, or 40 under 349px tall), so it sat shorter than the lyric card; it now follows that height. */
+html.expert.lay-phone-land .now-col > .now-card { flex: 0 0 var(--x-src-h) !important; min-height: 0; height: var(--x-src-h); }
 /* rd15: SUSTAIN is drawn 40px tall in short landscape but keeps a 44px tap area (2px above and below; the 5px gaps to the
    rows around it stay clear, so no neighbour's tap area is reached). */
 html.expert.lay-phone-land #sustainBtn { position: relative; overflow: visible; }
