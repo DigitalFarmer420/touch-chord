@@ -11,7 +11,7 @@ js/boot-early.js    classic script in <head>, runs before first paint (text scal
 js/main.js          <script type="module">: the entry point
 js/**               ES modules (see the map below)
 images/             How to pictures
-tools/              bump-version.py, check-version.py
+tools/              bump-version.py, check-version.py, tcversion.py (version scheme YYYY.MM.DD.N)
 ```
 
 ## Module map

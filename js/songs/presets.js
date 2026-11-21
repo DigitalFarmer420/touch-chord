@@ -1,12 +1,12 @@
 // Built-in progressions (PROGRESSIONS: every style + Kids songs) and their parsing.
-import { keyDegrees } from "../keys.js?v=112.17";
-import { upInList, upSteps } from "./song.js?v=112.17";
-import { upProgObj } from "./upload.js?v=112.17";
-import { state, shared } from "../state.js?v=112.17";
-import { Theory } from "../theory/index.js?v=112.17";
-import { wrap12, blankExt } from "../theory/quality.js?v=112.17";
-import { accSym } from "../theory/spelling.js?v=112.17";
-import { STRIP_QUAL, plainRootSpell } from "../ui/strip.js?v=112.17";
+import { keyDegrees } from "../keys.js?v=2026.11.21.1";
+import { upInList, upSteps } from "./song.js?v=2026.11.21.1";
+import { upProgObj } from "./upload.js?v=2026.11.21.1";
+import { state, shared } from "../state.js?v=2026.11.21.1";
+import { Theory } from "../theory/index.js?v=2026.11.21.1";
+import { wrap12, blankExt } from "../theory/quality.js?v=2026.11.21.1";
+import { accSym } from "../theory/spelling.js?v=2026.11.21.1";
+import { STRIP_QUAL, plainRootSpell } from "../ui/strip.js?v=2026.11.21.1";
 const PROG_BPM = 80;
 export var PROG_BAR;
 function P(name, s) { return { name: name, steps: s.split("|") }; }

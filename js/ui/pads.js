@@ -1,21 +1,21 @@
 // The chord keyboard: layout spec, pads / keys, pointer input, haptics, drawing. The touch-to-sound path (chord spec,
 // sounding fingers, release / lift, held refresh) lives in touch.js (no DOM); this file draws the keys and feeds it.
-import { api as ChordAudio } from "../audio/index.js?v=112.17";
-import { unlock } from "../audio/unlock.js?v=112.17";
-import { modeKey, keyDegrees } from "../keys.js?v=112.17";
-import { paTwin, playAlongKey, playAlongGo } from "../songs/playalong.js?v=112.17";
-import { magic } from "../songs/playback.js?v=112.17";
-import { state, fingers, padsEl, shared } from "../state.js?v=112.17";
-import { Theory } from "../theory/index.js?v=112.17";
-import { accSym } from "../theory/spelling.js?v=112.17";
-import { playAlongKeyOk, paHintMiss } from "./hints.js?v=112.17";
-import { kbFullRange, kbWindowMode, kbKeyLayout, kbBorrowKey, kbChord, kbWantLow } from "./keyboard.js?v=112.17";
-import { paintNextHint, kidsGoldKey, kidsGoldGo } from "./next.js?v=112.17";
-import { updateSymbol } from "./nowbox.js?v=112.17";
-import { padPlayable } from "./sustain.js?v=112.17";
-import { keyOf, setTouchView, soundFinger, resoundHeldFinger, releaseFinger, liftFinger, kbKidsPtr, kbKidsUp } from "./touch.js?v=112.17";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.21.1";
+import { unlock } from "../audio/unlock.js?v=2026.11.21.1";
+import { modeKey, keyDegrees } from "../keys.js?v=2026.11.21.1";
+import { paTwin, playAlongKey, playAlongGo } from "../songs/playalong.js?v=2026.11.21.1";
+import { magic } from "../songs/playback.js?v=2026.11.21.1";
+import { state, fingers, padsEl, shared } from "../state.js?v=2026.11.21.1";
+import { Theory } from "../theory/index.js?v=2026.11.21.1";
+import { accSym } from "../theory/spelling.js?v=2026.11.21.1";
+import { playAlongKeyOk, paHintMiss } from "./hints.js?v=2026.11.21.1";
+import { kbFullRange, kbWindowMode, kbKeyLayout, kbBorrowKey, kbChord, kbWantLow } from "./keyboard.js?v=2026.11.21.1";
+import { paintNextHint, kidsGoldKey, kidsGoldGo } from "./next.js?v=2026.11.21.1";
+import { updateSymbol } from "./nowbox.js?v=2026.11.21.1";
+import { padPlayable } from "./sustain.js?v=2026.11.21.1";
+import { keyOf, setTouchView, soundFinger, resoundHeldFinger, releaseFinger, liftFinger, kbKidsPtr, kbKidsUp } from "./touch.js?v=2026.11.21.1";
 // Moved to touch.js in the split; re-exported so every importer of pads.js is unchanged.
-export { computeSpec, specFromFinger, paletteHeld, keyTapQuality, restoreKeyQuality, liftFinger, kbKidsPtr, PERCUSSIVE_SOUNDS, refreshHeld } from "./touch.js?v=112.17";
+export { computeSpec, specFromFinger, paletteHeld, keyTapQuality, restoreKeyQuality, liftFinger, kbKidsPtr, PERCUSSIVE_SOUNDS, refreshHeld } from "./touch.js?v=2026.11.21.1";
 
 export function eatMove(el) {
   el.addEventListener("touchmove", function (e) { e.preventDefault(); }, { passive: false });
