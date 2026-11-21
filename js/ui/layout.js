@@ -1,18 +1,18 @@
 // Simple mode, controls drawer / tabs, size-class changes.
-import { api as ChordAudio } from "../audio/index.js?v=112.16";
-import { activeKey } from "../keys.js?v=112.16";
-import { stopPlayback } from "../loop.js?v=112.16";
-import { prog, progStop, progWalkAt, progWalkTo } from "../songs/playback.js?v=112.16";
-import { state, loop, fingers, scheduleSave, shared } from "../state.js?v=112.16";
-import { magicHintClear } from "./next.js?v=112.16";
-import { fitNowSymbol } from "./nowbox.js?v=112.16";
-import { computeSpec, padSpan, octaveSpan, effectiveLayout, renderPads, liftFinger, refreshHeld } from "./pads.js?v=112.16";
-import { syncPalette, setKeyModeState } from "./palette.js?v=112.16";
-import { placeProg } from "./progbar.js?v=112.16";
-import { paintSimpleSrc } from "./simplesrc.js?v=112.16";
-import { paintSuggestions } from "./strip.js?v=112.16";
-import { paintSustainBtn, setSustain } from "./sustain.js?v=112.16";
-import { upPlaceLock } from "../songs/song.js?v=112.16";
+import { api as ChordAudio } from "../audio/index.js?v=112.17";
+import { activeKey } from "../keys.js?v=112.17";
+import { stopPlayback } from "../loop.js?v=112.17";
+import { prog, progStop, progWalkAt, progWalkTo } from "../songs/playback.js?v=112.17";
+import { state, loop, fingers, scheduleSave, shared } from "../state.js?v=112.17";
+import { magicHintClear } from "./next.js?v=112.17";
+import { fitNowSymbol } from "./nowbox.js?v=112.17";
+import { computeSpec, padSpan, octaveSpan, effectiveLayout, renderPads, liftFinger, refreshHeld } from "./pads.js?v=112.17";
+import { syncPalette, setKeyModeState } from "./palette.js?v=112.17";
+import { placeProg } from "./progbar.js?v=112.17";
+import { paintSimpleSrc } from "./simplesrc.js?v=112.17";
+import { paintSuggestions } from "./strip.js?v=112.17";
+import { paintSustainBtn, setSustain } from "./sustain.js?v=112.17";
+import { upPlaceLock } from "../songs/song.js?v=112.17";
 
 // ---- Simple mode + responsive controls (v20) ----
 export function paintSimple() {
