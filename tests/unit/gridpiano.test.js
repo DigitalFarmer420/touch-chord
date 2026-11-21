@@ -18,3 +18,10 @@ test('phone-landscape piano gives way (down to 72px) before the grid rows drop u
   assert.ok(all.some(v => /clamp\(72px, calc\(calc\(100 \* var\(--tc-dvh\)\) - 251px\), 96px\)/.test(v)), 'kb-h at 348px tall and under: ' + all.join(' | '));
   assert.ok(!all.some(v => /^\s*96px\s*$/.test(v)), 'no fixed 96px piano in short landscape');
 });
+
+test('phone-landscape Now box follows the song card height (--x-src-h), not a fixed 32px', () => {
+  const r = rule('html.expert.lay-phone-land .now-col > .now-card');
+  assert.match(r, /flex: 0 0 var\(--x-src-h\) !important;/);
+  assert.match(r, /height: var\(--x-src-h\);/);
+  assert.doesNotMatch(r, /32px/);
+});

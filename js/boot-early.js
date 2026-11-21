@@ -46,6 +46,9 @@ window.tcApplySizeClass = function () {
     de.style.zoom = z === 1 ? "" : String(z);
     de.style.setProperty("--tcz", String(z));
   }
+  /* The visible height for --tc-dvh (base.css): some Android browsers (Brave on a Galaxy S25, landscape) report the dynamic viewport
+     height taller than the area under the address bar. innerHeight is what is really on screen. */
+  if (h > 0) de.style.setProperty("--tc-ih", (h / z) + "px");
   return { size: sz, layout: lay, zoom: z };
 };
 window.tcZoom = 1;
@@ -69,6 +72,9 @@ window.tcVH = function () { return window.innerHeight / window.tcZoom; };
   });
 })();
 window.tcApplySizeClass();
+/* Keep --tc-ih current as the address bar shows / hides or the phone rotates (layout.js also re-runs this, later). */
+window.addEventListener("resize", function () { window.tcApplySizeClass(); });
+if (window.visualViewport) window.visualViewport.addEventListener("resize", function () { window.tcApplySizeClass(); });
 /* Simple mode before first paint (the app re-applies it from saved settings). */
 try {
   var tcRaw = window.localStorage && window.localStorage.getItem("touchChord.settings.v1");
