@@ -42,6 +42,10 @@
 // FLOW rev2 (flow layout, Vinh 20 Nov 2026) is a real check at 390x844, 844x390, 744x1133, 820x1180, 1180x820 and
 // 1920x1080: Kids chord pads exactly as tall as the piano, Simple without the volume slider, the big-window zoom
 // (1 up to 1180x820 / 820x1180, 1.317 at 1920x1080) with no page scroll, and a real tap that still hits under zoom.
+//
+// GRID (Vinh, 21 Nov 2026) is a real check at phone landscape 780x310 / 330 / 360, 640x360, 667x375, 844x390, 915x412
+// and 932x430: in Expert, Simple and Kids the chord grid (real rows, and Expert / Simple chips forced into 4 and 6 rows)
+// ends at or above the piano top (Simple: inside its panel and on screen), and Expert keeps 32px rows while the piano can give way.
 
 import { createServer } from 'node:http';
 import { mkdirSync, existsSync, statSync, createReadStream, readFileSync } from 'node:fs';
@@ -1462,6 +1466,79 @@ try {
   }
   for (const [w, h] of FLOW_VPS) {
     for (const mode of ['kids', 'simple', 'expert']) await flowCell(w, h, mode);
+  }
+
+  // GRID over piano (Vinh, 21 Nov 2026: Galaxy S25 in Brave, landscape, ~780x310-360 usable). Real checks.
+  // Expert's chord grid (5 rows: bright / happy / scale / sad / tension) used to keep a 32px row floor, so on screens
+  // under ~350 css tall the tension row (Csus4, E♭7, ...) slid over the piano. At each phone-landscape size, with the
+  // uploaded song in F major / Reggae:
+  //  - Expert and Simple: the real grid, then the same chips forced into 4 and 6 equal rows (test-only inline style;
+  //    the app itself always draws Expert in 5 rows), must end at or above the piano top (Simple has no piano in phone
+  //    landscape, so its grid must stay inside its panel and on screen). SUSTAIN and the button column must too.
+  //  - Expert, real 5 rows: while the piano is taller than its 72px floor, no chord row is under 32px (the piano gives way first).
+  //  - Kids: every chord pad ends at or above the piano top.
+  const GRID_VPS = [[780, 310], [780, 330], [780, 360], [640, 360], [667, 375], [844, 390], [915, 412], [932, 430]];
+  const GRID_ROWN = { b: 1, h: 2, n: 3, s: 4, t: 5 };
+  async function gridMeasure(page, mode, rows) {
+    return page.evaluate(({ mode, rows, ROWN }) => {
+      const vis = e => !!(e && e.getClientRects().length && getComputedStyle(e).display !== 'none' && getComputedStyle(e).visibility !== 'hidden');
+      const g = mode === 'kids' ? null : document.getElementById('suggest');
+      if (g && rows) {
+        g.style.setProperty('grid-template-rows', 'repeat(' + rows + ', minmax(0, 1fr))', 'important');
+        let k = 0;
+        for (const c of g.children) {
+          if (!c.dataset.tcRow) c.dataset.tcRow = c.style.gridRow || '';
+          const r = ROWN[(c.dataset.tcRow.trim().match(/^[a-z]+/) || [''])[0]] || 3;
+          c.style.gridRow = String(rows === 4 ? Math.min(r, 4) : rows === 6 && r === 5 && (k++ % 2) ? 6 : r);
+        }
+      }
+      const cells = mode === 'kids' ? [...document.querySelectorAll('.kv-pad')].filter(vis) : [...g.children].filter(e => vis(e) && e.getBoundingClientRect().height > 0);
+      const pn = mode === 'kids' ? document.querySelector('.kv-piano') : document.querySelector('.kb-wrap');
+      const rs = cells.map(e => e.getBoundingClientRect());
+      const side = mode === 'expert' ? [document.getElementById('sustainBtn'), ...document.querySelectorAll('#xCtl > *')].filter(vis).map(e => e.getBoundingClientRect().bottom) : [];
+      const out = { n: cells.length, rows: new Set(rs.map(r => Math.round(r.top))).size, bottom: rs.length ? Math.max(...rs.map(r => r.bottom)) : null,
+        minH: rs.length ? Math.min(...rs.map(r => r.height)) : null, piano: vis(pn) ? pn.getBoundingClientRect() : null, side: side.length ? Math.max(...side) : null,
+        panel: g ? g.getBoundingClientRect().bottom : null, vh: window.tcVH() };
+      if (g && rows) { g.style.removeProperty('grid-template-rows'); for (const c of g.children) { c.style.gridRow = c.dataset.tcRow; delete c.dataset.tcRow; } }
+      return JSON.parse(JSON.stringify(out, (k, v) => v instanceof DOMRect ? { top: v.top, bottom: v.bottom, height: v.height } : v));
+    }, { mode, rows, ROWN: GRID_ROWN });
+  }
+  async function gridCell(w, h, mode) {
+    const size = w + 'x' + h, where = 'GRID ' + size + ' ' + mode;
+    const { ctx, page, bag } = await n20Fresh(w, h, where);
+    try {
+      await n20Prepare(page, mode);
+      if (mode !== 'kids') {
+        await page.evaluate(() => { const b = document.querySelector('#styles button[data-style="reggae"]'); if (b) b.click(); if (typeof window.__setKey === 'function') window.__setKey(5, 'major'); });
+        await page.waitForTimeout(350);
+      }
+      for (const rows of mode === 'kids' ? [0] : [0, 4, 6]) {
+        const m = await gridMeasure(page, mode, rows);
+        const notes = [], label = rows ? rows + ' rows (forced)' : 'real grid (' + m.rows + ' rows)';
+        if (!m.n) notes.push('no chord cells');
+        if (m.piano) {
+          if (m.bottom > m.piano.top + 0.5) notes.push('grid bottom ' + m.bottom.toFixed(1) + ' is below the piano top ' + m.piano.top.toFixed(1));
+          if (m.side != null && m.side > m.piano.top + 0.5) notes.push('SUSTAIN / buttons bottom ' + m.side.toFixed(1) + ' is below the piano top ' + m.piano.top.toFixed(1));
+          if (m.piano.bottom > m.vh + 1) notes.push('piano bottom ' + m.piano.bottom.toFixed(1) + ' below the screen ' + m.vh.toFixed(1));
+          if (mode === 'expert' && !rows && m.piano.height > 72.5 && m.minH < 31.5) notes.push('a chord row is ' + m.minH.toFixed(1) + 'px while the piano (' + m.piano.height.toFixed(1) + 'px) could still give way');
+        } else if (mode === 'simple') {
+          if (m.bottom > m.panel + 0.5) notes.push('grid bottom ' + m.bottom.toFixed(1) + ' past its panel ' + m.panel.toFixed(1));
+          if (m.bottom > m.vh + 0.5) notes.push('grid bottom ' + m.bottom.toFixed(1) + ' below the screen ' + m.vh.toFixed(1));
+        } else notes.push('no piano');
+        const pageNotes = bag.errors.concat(bag.failed).slice(0, 3);
+        if (pageNotes.length) notes.push('page: ' + pageNotes.join('; '));
+        const name = 'GRID ' + size + ' ' + mode + ' ' + label + ': chord grid at or above the piano';
+        if (notes.length) await shot(page, name);
+        record(name, !notes.length, notes.length ? notes.join(' | ') : 'grid ' + (m.bottom == null ? '-' : m.bottom.toFixed(1)) + (m.piano ? ' / piano ' + m.piano.top.toFixed(1) + ' (' + m.piano.height.toFixed(0) + 'px)' : ' / panel ' + (m.panel == null ? '-' : m.panel.toFixed(1))) + ', smallest ' + (m.minH == null ? '-' : m.minH.toFixed(1)) + 'px');
+      }
+    } catch (err) {
+      record(where, false, String(err && err.message || err).split('\n')[0]);
+    } finally {
+      await ctx.close();
+    }
+  }
+  for (const [w, h] of GRID_VPS) {
+    for (const mode of ['expert', 'simple', 'kids']) await gridCell(w, h, mode);
   }
 
   for (const w of walks) {
