@@ -41,7 +41,8 @@ test("full catalog stays underneath the menu", () => {
   assert.equal(n, 137);
   assert.deepEqual(data.kids.major.map((p) => p.name), [
     "Kids Twinkle", "Kids Old MacDonald", "Kids Itsy Bitsy Spider", "Kids Row Your Boat",
-    "Kids Head Shoulders Knees and Toes", "Kids Mary's Lamb"
+    "Kids Head Shoulders Knees and Toes", "Kids Mary's Lamb",
+    "Kids Happy Birthday", "Kids Jingle Bells", "Kids London Bridge", "Kids This Old Man"
   ]);
   assert.equal(data.kids.minor.length, 0);
   for (const it of REV.items) {

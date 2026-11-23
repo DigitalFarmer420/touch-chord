@@ -7,7 +7,7 @@ const SRC = readFileSync(new URL('../../js/songs/presets.js', import.meta.url), 
 const KIDS = [...SRC.matchAll(/P\("(Kids [^"]+)", "([^"]+)"\)/g)].map(m => m[1]);
 const at = h => new Date(2026, 9, 31, h, 30);
 test('rd6: every Kids song has lyrics (no empty lyrics box possible)', () => {
-  assert.equal(KIDS.length, 6);
+  assert.equal(KIDS.length, 10);
   assert.deepEqual(kidsSongProblems(KIDS), []);
   for (const n of KIDS) assert.ok(KIDS_LYRICS[n].map(l => l.text).join('').trim().length > 10, n);
 });

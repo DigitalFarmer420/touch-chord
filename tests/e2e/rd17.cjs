@@ -234,7 +234,7 @@ async function extent(p, sel) {
     await p.keyboard.press('Escape'); await p.waitForTimeout(200);
     await done(p, 'kids settings');
   }
-  // Kids song grid: six songs, then a 20-card fixture (clones of the real cards, not new songs).
+  // Kids song grid: the current catalog, then a 20-card fixture (clones of the real cards, not new songs).
   const KIDS = [[360, 780], [384, 832], [412, 915], [780, 360], [820, 1180], [1180, 820]];
   for (const [w, h] of KIDS) {
     const T = `kids ${w}x${h}`; const p = await open(b, w, h, { s: { expert: false, playAlong: true } });
@@ -242,7 +242,9 @@ async function extent(p, sel) {
     await p.click('#kv .kv-go'); await p.waitForTimeout(500);
     const six = await p.evaluate(() => window.__kv.fitCards());
     const g6 = await p.evaluate(() => gridProbe());
-    F(g6.n === 6 && g6.real === 6 && g6.picIn && g6.hit && g6.peek === 0 && g6.full === 6, `${T}: six ${JSON.stringify(g6)} plan ${JSON.stringify(six)}`);
+    F(g6.n === 10 && g6.real === 10 && g6.picIn && g6.hit, `${T}: catalog ${JSON.stringify(g6)} plan ${JSON.stringify(six)}`);
+    if (g6.peek === 0) F(g6.full === 10, `${T}: all-fit should show 10 rows-worth, got full ${g6.full}`);
+    else F(g6.peek > 0 && g6.scroll, `${T}: catalog should peek/scroll when it does not all fit ${JSON.stringify(g6)}`);
     F(g6.cols === (g6.lay === 'phone-port' ? 2 : 3), `${T}: columns ${g6.cols} (${g6.lay})`);
     F(g6.fill >= 0.9 || (g6.sideL > 8 && Math.abs(g6.sideL - g6.sideR) < 12), `${T}: grid neither fills nor centers (fill ${g6.fill} gaps ${g6.sideL}/${g6.sideR})`);
     const pic0 = g6.pic, title0 = g6.title;
