@@ -138,8 +138,8 @@ export function tidyChord(raw) {
 // ----- Contract v1.3 -----
 var SONG13 = ["song", "timing", "form", "sections", "sectionsFull", "notes", "contractVersion"];
 var TIM13 = ["bpm", "bpmConfidence", "tempoFeel", "tempoNote", "bpmSource", "timeSignature", "firstDownbeatSeconds", "firstDownbeatSource", "durationSeconds", "durationSource", "timingSource", "unknown", "barSumCheck"];
-var SEC13 = ["id", "type", "label", "startSeconds", "endSeconds", "timingSource", "occurrences", "bars", "lyrics", "notes"];
-var BAR13 = ["bar", "chords"], CH13 = ["beat", "chord", "bass", "roman", "confidence", "source", "alternates"];
+var SEC13 = ["id", "type", "label", "startSeconds", "endSeconds", "timingSource", "occurrences", "bars", "lyrics", "notes", "key"];
+var BAR13 = ["bar", "chords"], CH13 = ["beat", "chord", "bass", "roman", "confidence", "source", "alternates", "borrowed"];
 var ALT13 = ["chord", "bass", "reason", "confidence", "source"], LYR13 = ["text", "markers"], MK13 = ["charIndex", "bar", "beat", "beforeLine"];
 function extra(o, keys, path, W) {
   if (o && typeof o === "object" && !Array.isArray(o)) Object.keys(o).forEach(function (k) { if (keys.indexOf(k) < 0) W.push(path + k + " is not a field of the song form (ignored)"); });
@@ -276,6 +276,7 @@ export function from13(S) {
           confidence: unk ? 0 : (c.confidence === null || c.confidence === undefined ? (c.hold ? 1 : null) : c.confidence) };
         if (o.confidence === null) delete o.confidence;
         if (typeof c.roman === "string") o.roman = c.roman;
+        if (c.borrowed === true) o.borrowed = true;
         if (Array.isArray(c.alternates)) o.alternates = c.alternates.filter(function (a) { return a && typeof a === "object" && typeof a.chord === "string"; }).map(function (a, ai) {
           if (first) extra(a, ALT13, x.P + ".alternates[" + ai + "].", W);
           var r = { chord: a.bass ? withBass(a.chord, a.bass, [], "") : a.chord };
@@ -289,6 +290,13 @@ export function from13(S) {
       var pos = ch.map(function (o) { return [o.position.bar - gbar + 1, o.position.beat]; });
       var r = { id: seen[id] > 1 ? id + "-" + seen[id] : id, type: s.type, chords: ch };
       if (typeof s.label === "string" && s.label) r.label = s.label;
+      if (typeof s.notes === "string" && s.notes) r.notes = s.notes;
+      if (s.key && typeof s.key === "object" && !Array.isArray(s.key)) {
+        var sk = { tonic: s.key.tonic, mode: s.key.mode === "minor" ? "minor" : "major" };
+        if (typeof s.key.display === "string") sk.display = s.key.display;
+        if (typeof s.key.confidence === "number") sk.confidence = s.key.confidence;
+        r.key = sk;
+      }
       if (Array.isArray(s.lyrics)) r.lyrics = s.lyrics.filter(function (L) { return L && typeof L === "object"; }).map(function (L, li) {
         if (first) extra(L, LYR13, P + ".lyrics[" + li + "].", W);
         var mk = (Array.isArray(L.markers) ? L.markers : []).filter(function (q) { return q && typeof q === "object"; }).map(function (q, qi) {
