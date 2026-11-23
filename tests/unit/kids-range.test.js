@@ -23,17 +23,17 @@ const INNER = 344; // measured 360-wide portrait piano inner width
 const WANT = {
   'Kids Twinkle': { lo: 60, hi: 71, whites: 7, label: 'C4–B4' },
   'Kids Old MacDonald': { lo: 60, hi: 71, whites: 7, label: 'C4–B4' },
-  'Kids Itsy Bitsy Spider': { lo: 55, hi: 71, whites: 10, label: 'G3–B4' },
+  'Kids Itsy Bitsy Spider': { lo: 55, hi: 67, whites: 8, label: 'G3–G4' },
   'Kids Row Your Boat': { lo: 60, hi: 71, whites: 7, label: 'C4–B4' },
   "Kids Mary's Lamb": { lo: 60, hi: 71, whites: 7, label: 'C4–B4' },
   'Kids Head Shoulders Knees and Toes': { lo: 60, hi: 74, whites: 9, label: 'C4–D5' },
-  'Kids Happy Birthday': { lo: 55, hi: 71, whites: 10, label: 'G3–B4' },
+  'Kids Happy Birthday': { lo: 55, hi: 67, whites: 8, label: 'G3–G4' },
   'Kids Jingle Bells': { lo: 60, hi: 71, whites: 7, label: 'C4–B4' },
   'Kids London Bridge': { lo: 60, hi: 71, whites: 7, label: 'C4–B4' },
   'Kids This Old Man': { lo: 60, hi: 71, whites: 7, label: 'C4–B4' }
 };
 
-test('ten Kids songs: range is melody min/max union C4–B4, snapped to white keys', () => {
+test('ten Kids songs: range is the melody, padded to C4–B4 only when narrower than an octave', () => {
   assert.deepEqual(Object.keys(STEPS), TEN);
   for (const name of TEN) {
     const midis = kidsNeededMidis(STEPS[name], 60);
@@ -43,7 +43,22 @@ test('ten Kids songs: range is melody min/max union C4–B4, snapped to white ke
     assert.equal(R.hi, want.hi, `${name}: hi ${nameOf(R.hi)} want ${want.label}`);
     assert.equal(R.whites, want.whites, `${name}: whites ${R.whites}`);
     assert.ok(midis.every(m => m >= R.lo && m <= R.hi), `${name}: a melody pitch sits outside the range`);
-    assert.ok(R.lo <= KIDS_HOME_LO && R.hi >= KIDS_HOME_HI, `${name}: must include C4–B4`);
+    const span = Math.max(...midis) - Math.min(...midis);
+    if (span < 12) assert.ok(R.lo <= KIDS_HOME_LO && R.hi >= KIDS_HOME_HI, `${name}: must include C4–B4`);
+    else assert.equal(R.lo, want.lo, `${name}: octave-spanning melody should not be padded`);
+  }
+});
+
+test('Itsy Bitsy and Happy Birthday keep their own G3–G4 range (not padded to B4)', () => {
+  for (const name of ['Kids Itsy Bitsy Spider', 'Kids Happy Birthday']) {
+    const midis = kidsNeededMidis(STEPS[name], 60);
+    assert.equal(Math.min(...midis), 55, name);
+    assert.equal(Math.max(...midis), 67, name);
+    const R = kidsPianoRange(midis);
+    assert.equal(R.lo, 55, name);
+    assert.equal(R.hi, 67, name);
+    assert.equal(R.whites, 8, name);
+    assert.equal(R.count, 13, name);
   }
 });
 

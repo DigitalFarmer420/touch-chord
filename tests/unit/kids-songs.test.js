@@ -55,7 +55,7 @@ test('four new Kids songs: step counts match one note per syllable, and written 
   assert.equal(q(OM[6]), '4 maj'); assert.equal(q(OM[12]), '5 7');
   assert.equal(q(OM[24]), '5 7'); assert.equal(q(OM[25]), '5 7'); assert.equal(q(OM[31]), '1 maj');
 });
-test('four new Kids songs: melody range under current Kids piano rules (union C4–B4)', async () => {
+test('four new Kids songs: Happy Birthday keeps G3–G4; the others still get C4–B4', async () => {
   const { kidsNeededMidis, kidsPianoRange } = await import('../../js/kids/range.js');
   const toSteps = name => KIDS[name].map(s => {
     const off = +s.match(STEP)[3];
@@ -63,9 +63,9 @@ test('four new Kids songs: melody range under current Kids piano rules (union C4
     return { item: { mel: off, rootPc: [0, 2, 4, 5, 7, 9, 11][deg - 1] } };
   });
   const rangeOf = name => kidsPianoRange(kidsNeededMidis(toSteps(name), 60));
-  // Happy Birthday's melody is G3–G4; today's floor still pads it to G3–B4, like Itsy Bitsy.
+  // Happy Birthday already spans an octave (G3–G4), so it is not padded to B4.
   const hb = rangeOf('Kids Happy Birthday');
-  assert.equal(hb.lo, 55); assert.equal(hb.hi, 71); assert.equal(hb.whites, 10);
+  assert.equal(hb.lo, 55); assert.equal(hb.hi, 67); assert.equal(hb.whites, 8);
   for (const n of ['Kids Jingle Bells', 'Kids London Bridge', 'Kids This Old Man']) {
     const R = rangeOf(n);
     assert.equal(R.lo, 60, n); assert.equal(R.hi, 71, n); assert.equal(R.whites, 7, n);

@@ -1,7 +1,7 @@
 // Kids redesign: the Kids view (Simple). At each size (default 360x780, 780x360, 768x1024, 1024x768; phone emulation
 // via -r emulate.cjs): a real first visit (?test=1&kv=1) opens Hello with the full app hidden; Hello -> the ten songs in
 // order (Twinkle first, the default); the play screen has 7 root-position pads C..B rising in reading order and one
-// piano covering the song's melody plus C4..B4 (edges on white keys) rising left to right; every step of a song: the
+// piano covering the song's melody (padded to C4..B4 only when narrower than an octave; edges on white keys) rising left to right; every step of a song: the
 // keyboard does not move (same keys, same rects, same pitches), exactly one gold key and it is on screen at the real
 // melody pitch (no shift arrow when the range covers the note), and a tap on it sounds 60 + the preset's @note; C4 has
 // a home dot; the reward shows
@@ -23,7 +23,9 @@ const WHITE = new Set([0, 2, 4, 5, 7, 9, 11]);
 const snapLo = m => { while (!WHITE.has(((m % 12) + 12) % 12)) m--; return m; };
 const snapHi = m => { while (!WHITE.has(((m % 12) + 12) % 12)) m++; return m; };
 function songRange(mel) {
-  const xs = mel.map(o => 60 + o).concat([60, 71]);
+  const midis = mel.map(o => 60 + o);
+  const span = midis.length ? Math.max(...midis) - Math.min(...midis) : 0;
+  const xs = span >= 12 ? midis.slice() : midis.concat([60, 71]);
   const lo = snapLo(Math.min(...xs)), hi = snapHi(Math.max(...xs));
   const wk = [], bk = [];
   for (let m = lo; m <= hi; m++) (WHITE.has(((m % 12) + 12) % 12) ? wk : bk).push(m);
