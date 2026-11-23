@@ -1,5 +1,5 @@
 const APPV=require('fs').readFileSync(require('path').resolve(__dirname,'../../js/version.js'),'utf8').match(/APP_VERSION = "([^"]+)"/)[1];   // CI: version from js/version.js
-// v111: Kids = 10 songs, London Bridge + Hey Diddle Diddle replace Wheels on the Bus + If You're Happy (saved state -> Twinkle).
+// Kids list: ten public-domain songs (the six kept in the redesign, plus Happy Birthday, Jingle Bells, London Bridge and This Old Man).
 // v109 final: Kids = 10 songs (4 kept + 6 new); per tap: step, lyric syllable, gold key/pad = sounded note.
 // v109: Ballad = 3 presets (All I Ask removed); Kids = 4 songs (Sunny Day, Lullaby, Silly Walk, Spooky, Rainy Day removed),
 // each plays with Play song and tap-along through every note with its lyrics; Minor in Kids falls back to the song key;
@@ -7,7 +7,7 @@ const APPV=require('fs').readFileSync(require('path').resolve(__dirname,'../../j
 const { chromium } = require('playwright-core');const fs=require('fs');
 const URL=process.env.URL||(process.env.BASE||'http://localhost:8080/index.html');const SH=(process.env.SHOTS||'/tmp/tc-shots')+'/s111/';
 const R={fails:[],info:{}};const F=(c,m)=>{if(!c)R.fails.push(m)};
-const KIDS=["Kids Twinkle","Kids Old MacDonald","Kids Itsy Bitsy Spider","Kids Row Your Boat","Kids Head Shoulders Knees and Toes","Kids Mary's Lamb"],BAL=['Ballad Classic','Ballad Hymn','Ballad Big Finish'];
+const KIDS=["Kids Twinkle","Kids Old MacDonald","Kids Itsy Bitsy Spider","Kids Row Your Boat","Kids Head Shoulders Knees and Toes","Kids Mary's Lamb","Kids Happy Birthday","Kids Jingle Bells","Kids London Bridge","Kids This Old Man"],BAL=['Ballad Classic','Ballad Hymn','Ballad Big Finish'];
 (async()=>{const b=await chromium.launch({executablePath:process.env.CHROME||undefined,args:['--autoplay-policy=no-user-gesture-required']});
 for(const [w,h] of [[360,780],[780,360]]){const tag=`${w}x${h}`;
  const mk=async(init)=>{const ctx=await b.newContext({viewport:{width:w,height:h},hasTouch:true,isMobile:true,deviceScaleFactor:2});if(init)await ctx.addInitScript(init);const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(''+e));p.on('console',m=>{if(m.type()==='error')errs.push(m.text())});await p.goto(URL+'?test=1');await p.waitForTimeout(900);const cdp=await ctx.newCDPSession(p);return {ctx,p,errs,cdp};};

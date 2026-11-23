@@ -1,5 +1,5 @@
 // Kids redesign: the Kids view (Simple). At each size (default 360x780, 780x360, 768x1024, 1024x768; phone emulation
-// via -r emulate.cjs): a real first visit (?test=1&kv=1) opens Hello with the full app hidden; Hello -> the six songs in
+// via -r emulate.cjs): a real first visit (?test=1&kv=1) opens Hello with the full app hidden; Hello -> the ten songs in
 // order (Twinkle first, the default); the play screen has 7 root-position pads C..B rising in reading order and one
 // piano covering the song's melody plus C4..B4 (edges on white keys) rising left to right; every step of a song: the
 // keyboard does not move (same keys, same rects, same pitches), exactly one gold key and it is on screen at the real
@@ -15,7 +15,7 @@ const OUT = process.env.OUT || path.join(__dirname, 'out'); fs.mkdirSync(OUT, { 
 const SHOTS = process.env.KV_SHOTS || ''; if (SHOTS) fs.mkdirSync(SHOTS, { recursive: true });
 const SIZES = process.argv[2] ? [process.argv[2].split('x').map(Number)] : [[360, 780], [780, 360], [768, 1024], [1024, 768], [820, 1180]];
 const w12 = n => ((n % 12) + 12) % 12;
-const SIX = ['Kids Twinkle', 'Kids Old MacDonald', 'Kids Itsy Bitsy Spider', 'Kids Row Your Boat', 'Kids Head Shoulders Knees and Toes', "Kids Mary's Lamb"];
+const TEN = ['Kids Twinkle', 'Kids Old MacDonald', 'Kids Itsy Bitsy Spider', 'Kids Row Your Boat', 'Kids Head Shoulders Knees and Toes', "Kids Mary's Lamb", 'Kids Happy Birthday', 'Kids Jingle Bells', 'Kids London Bridge', 'Kids This Old Man'];
 const SRC = fs.readFileSync(path.join(__dirname, '../../js/songs/presets.js'), 'utf8');
 const MEL = {}; for (const m of SRC.matchAll(/P\("(Kids [^"]+)", "([^"]+)"\)/g)) MEL[m[1]] = m[2].split('|').map(s => +s.match(/@(-?\d+)$/)[1]);
 
@@ -65,11 +65,13 @@ const st = p => p.evaluate(() => { const rc = e => { const r = e.getBoundingClie
     // 1. first visit: Hello over a hidden full app
     let s = await st(p); F(s.on && s.app === 'none' && s.screen === 'hello', `${tag}: first visit is not the Kids Hello (on ${s.on}, #app ${s.app}, screen ${s.screen})`); await shot('hello');
     F(s.song === 'Kids Twinkle', `${tag}: default song ${s.song}`);
-    // 2. song picker: six, in order, Twinkle marked
+    // 2. song picker: ten, in order, Twinkle marked
     await tapEl('#kv .kv-go'); await p.waitForTimeout(250);
     const cards = await p.evaluate(() => [...document.querySelectorAll('#kv .kv-card')].map(c => { const r = c.getBoundingClientRect(); return { s: c.dataset.song, last: c.classList.contains('last'), x: r.x, y: r.y, w: r.width, h: r.height }; }));
-    F(same(cards.map(c => c.s), SIX), `${tag}: song cards ${cards.map(c => c.s)}`); F(cards[0] && cards[0].last && cards.filter(c => c.last).length === 1, `${tag}: Twinkle not the marked default`);
-    F(cards.every(c => vis(c, w, h)), `${tag}: a song card is off screen`); F(same(await p.evaluate(() => __kv.songs()), SIX), `${tag}: prog.list is not the six`);
+    F(same(cards.map(c => c.s), TEN), `${tag}: song cards ${cards.map(c => c.s)}`); F(cards[0] && cards[0].last && cards.filter(c => c.last).length === 1, `${tag}: Twinkle not the marked default`);
+    F(same(await p.evaluate(() => __kv.songs()), TEN), `${tag}: prog.list is not the ten`);
+    const onScreen = cards.filter(c => vis(c, w, h)); F(onScreen.length >= 2, `${tag}: no song cards on screen (${onScreen.length})`);
+    if (onScreen.length < cards.length) { const lastOn = await p.evaluate(() => { const sc = document.querySelector('#kv .kv-songs'); sc.scrollTop = sc.scrollHeight; const r = document.querySelector('#kv .kv-card:last-child').getBoundingClientRect(), v = sc.getBoundingClientRect(); return { in: r.bottom <= v.bottom + 2 && r.top < v.bottom }; }); F(lastOn.in, `${tag}: last song card does not scroll into view`); await p.evaluate(() => { document.querySelector('#kv .kv-songs').scrollTop = 0; }); }
     for (let i = 1; i < cards.length; i++) F(cards[i].y > cards[i - 1].y + 1 || (Math.abs(cards[i].y - cards[i - 1].y) <= 1 && cards[i].x > cards[i - 1].x), `${tag}: card ${i} out of reading order`);
     await shot('songs');
     // 3. play screen geometry
@@ -159,7 +161,7 @@ const st = p => p.evaluate(() => { const rc = e => { const r = e.getBoundingClie
     }
     // 5. reload Twinkle fresh, then every song: gold walk
     D.songs = {};
-    for (const name of SIX) {
+    for (const name of TEN) {
       if ((await st(p)).reward) await tapEl('#kv .kv-again');
       await p.evaluate(n => { const i = __prog.list.findIndex(q => q.name === n); __progApi.set(i); __kv.show('play'); }, name); await p.waitForTimeout(350); await take(p);
       const mel = MEL[name], wantR = songRange(mel), E = D.songs[name] = { steps: mel.length, arrows: [], soundFails: 0 };

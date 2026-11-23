@@ -16,7 +16,7 @@ for (const m of SRC.matchAll(/P\("(Kids [^"]+)", "([^"]+)"\)/g)) {
     return { item: { mel: off, rootPc: [0, 2, 4, 5, 7, 9, 11][deg - 1], type: 'major' }, bars: 1 };
   });
 }
-const SIX = ['Kids Twinkle', 'Kids Old MacDonald', 'Kids Itsy Bitsy Spider', 'Kids Row Your Boat', 'Kids Head Shoulders Knees and Toes', "Kids Mary's Lamb"];
+const TEN = ['Kids Twinkle', 'Kids Old MacDonald', 'Kids Itsy Bitsy Spider', 'Kids Row Your Boat', 'Kids Head Shoulders Knees and Toes', "Kids Mary's Lamb", 'Kids Happy Birthday', 'Kids Jingle Bells', 'Kids London Bridge', 'Kids This Old Man'];
 const nameOf = m => ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'][((m % 12) + 12) % 12] + (Math.floor(m / 12) - 1);
 const INNER = 344; // measured 360-wide portrait piano inner width
 
@@ -26,12 +26,16 @@ const WANT = {
   'Kids Itsy Bitsy Spider': { lo: 55, hi: 71, whites: 10, label: 'G3–B4' },
   'Kids Row Your Boat': { lo: 60, hi: 71, whites: 7, label: 'C4–B4' },
   "Kids Mary's Lamb": { lo: 60, hi: 71, whites: 7, label: 'C4–B4' },
-  'Kids Head Shoulders Knees and Toes': { lo: 60, hi: 74, whites: 9, label: 'C4–D5' }
+  'Kids Head Shoulders Knees and Toes': { lo: 60, hi: 74, whites: 9, label: 'C4–D5' },
+  'Kids Happy Birthday': { lo: 55, hi: 71, whites: 10, label: 'G3–B4' },
+  'Kids Jingle Bells': { lo: 60, hi: 71, whites: 7, label: 'C4–B4' },
+  'Kids London Bridge': { lo: 60, hi: 71, whites: 7, label: 'C4–B4' },
+  'Kids This Old Man': { lo: 60, hi: 71, whites: 7, label: 'C4–B4' }
 };
 
-test('six Kids songs: range is melody min/max union C4–B4, snapped to white keys', () => {
-  assert.deepEqual(Object.keys(STEPS), SIX);
-  for (const name of SIX) {
+test('ten Kids songs: range is melody min/max union C4–B4, snapped to white keys', () => {
+  assert.deepEqual(Object.keys(STEPS), TEN);
+  for (const name of TEN) {
     const midis = kidsNeededMidis(STEPS[name], 60);
     const R = kidsPianoRange(midis);
     const want = WANT[name];
@@ -106,7 +110,7 @@ test('uploaded song wider than 9 whites: clamp keeps keys >= 34px and auto-scrol
 });
 
 test('home dot is C4 (MIDI 60) in every song, and the CSS mark uses theme colors', () => {
-  for (const name of SIX) {
+  for (const name of TEN) {
     const R = kidsPianoRange(kidsNeededMidis(STEPS[name], 60));
     assert.ok(R.lo <= KIDS_HOME_MIDI && R.hi >= KIDS_HOME_MIDI, `${name} does not include C4`);
   }
