@@ -62,3 +62,18 @@ test('Copy for AI prompt states the tightened song-request rules', () => {
   assert.match(p, /Bar-sum check/);
   assert.match(p, /exactly that one song/);
 });
+
+test('All I Ask without chorus3 notes suggests F once, instead of a flag per chord', () => {
+  const r = load(fx);
+  assert.ok(r.ok && r.song);
+  const chorus3 = r.song.sections.find(s => /chorus3/.test(s.id) || (s.type === 'chorus' && /3/.test(s.id || '')));
+  const outro = r.song.sections.find(s => s.id === 'outro' || s.type === 'outro');
+  assert.ok(chorus3, 'chorus3 missing');
+  delete chorus3.notes; delete chorus3.key;
+  if (outro) { delete outro.notes; delete outro.key; }
+  const flags = validateSong(r.song).flags.filter(f => f.layer === 'key');
+  const about = flags.filter(f => /chorus 3|outro/i.test(f.where.sectionName || f.message));
+  assert.equal(about.length, 1, about.map(f => f.message).join('\n'));
+  assert.match(about[0].message, /looks like F from bar /);
+  assert.ok(!about.some(f => /outro/i.test(f.message)), about.map(f => f.message).join('\n'));
+});

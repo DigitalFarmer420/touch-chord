@@ -1,5 +1,5 @@
 // Voices: piano, e-piano, strings, pad, reed, bell, and the per-style voices (makeVoice, makeStyleVoice).
-import { REL_TAU, REL_TAU_BASS, TAIL_TAUS, ChordAudio, glide, BASS_PEAK, recordEngineNote } from "./engine.js?v=2026.11.23.1";
+import { REL_TAU, REL_TAU_BASS, TAIL_TAUS, ChordAudio, glide, BASS_PEAK, recordEngineNote } from "./engine.js?v=2026.11.23.2";
 
 // Signal path per voice:
 //   oscs -> filter -> env (attack/decay shape) -> level (velocity) -> gate (release) -> bus
