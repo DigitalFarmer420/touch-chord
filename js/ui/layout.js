@@ -1,18 +1,18 @@
 // Simple mode, controls drawer / tabs, size-class changes.
-import { api as ChordAudio } from "../audio/index.js?v=2026.11.23.1";
-import { activeKey } from "../keys.js?v=2026.11.23.1";
-import { stopPlayback } from "../loop.js?v=2026.11.23.1";
-import { prog, progStop, progWalkAt, progWalkTo } from "../songs/playback.js?v=2026.11.23.1";
-import { state, loop, fingers, scheduleSave, shared } from "../state.js?v=2026.11.23.1";
-import { magicHintClear } from "./next.js?v=2026.11.23.1";
-import { fitNowSymbol } from "./nowbox.js?v=2026.11.23.1";
-import { computeSpec, padSpan, octaveSpan, effectiveLayout, renderPads, liftFinger, refreshHeld } from "./pads.js?v=2026.11.23.1";
-import { syncPalette, setKeyModeState } from "./palette.js?v=2026.11.23.1";
-import { placeProg } from "./progbar.js?v=2026.11.23.1";
-import { paintSimpleSrc } from "./simplesrc.js?v=2026.11.23.1";
-import { paintSuggestions } from "./strip.js?v=2026.11.23.1";
-import { paintSustainBtn, setSustain } from "./sustain.js?v=2026.11.23.1";
-import { upPlaceLock } from "../songs/song.js?v=2026.11.23.1";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.23.2";
+import { activeKey } from "../keys.js?v=2026.11.23.2";
+import { stopPlayback } from "../loop.js?v=2026.11.23.2";
+import { prog, progStop, progWalkAt, progWalkTo } from "../songs/playback.js?v=2026.11.23.2";
+import { state, loop, fingers, scheduleSave, shared } from "../state.js?v=2026.11.23.2";
+import { magicHintClear } from "./next.js?v=2026.11.23.2";
+import { fitNowSymbol } from "./nowbox.js?v=2026.11.23.2";
+import { computeSpec, padSpan, octaveSpan, effectiveLayout, renderPads, liftFinger, refreshHeld } from "./pads.js?v=2026.11.23.2";
+import { syncPalette, setKeyModeState } from "./palette.js?v=2026.11.23.2";
+import { placeProg } from "./progbar.js?v=2026.11.23.2";
+import { paintSimpleSrc } from "./simplesrc.js?v=2026.11.23.2";
+import { paintSuggestions } from "./strip.js?v=2026.11.23.2";
+import { paintSustainBtn, setSustain } from "./sustain.js?v=2026.11.23.2";
+import { upPlaceLock } from "../songs/song.js?v=2026.11.23.2";
 
 // ---- Simple mode + responsive controls (v20) ----
 export function paintSimple() {

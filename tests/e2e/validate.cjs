@@ -1,5 +1,5 @@
 // Pre-save validation in the Upload dialog (js/songs/validate.js), 360x780 + 780x360:
-// bad AI data (out-of-key Bb, a short bar, 200 BPM) -> #upVal lists flags grouped by layer and nothing is saved;
+// bad AI data (out-of-key F#m, a short bar, 200 BPM) -> #upVal lists flags grouped by layer and nothing is saved;
 // Go back and fix -> panel gone, dialog open, paste kept, still nothing saved; Save anyway -> saved and loaded;
 // clean data -> no panel, saved straight away. No console errors, no horizontal overflow.
 const { chromium } = require('playwright-core'); const fs = require('fs'); const path = require('path');
@@ -9,7 +9,7 @@ const R = { fails: [], info: {} }; const F = (c, m) => { if (!c) R.fails.push(m)
 const ch = (chord, bar, beat, d, i) => ({ index: i, chord, position: { bar, beat }, durationBeats: d, confidence: 0.9 });
 const mk = (title, bpm, chords) => JSON.stringify({ contractVersion: '1.2', song: { title, artist: 'Validate Test', key: { tonic: 'C', mode: 'major' } }, timing: { bpm, timeSignature: '4/4' },
   sections: [{ id: 'verse1', type: 'verse', chords: chords.map((c, i) => ch(...c, i)) }] });
-const BAD = mk('Bad Data Song', 200, [['C', 1, 1, 4], ['Bb', 2, 1, 4], ['F', 3, 1, 3]]);
+const BAD = mk('Bad Data Song', 200, [['C', 1, 1, 4], ['F#m', 2, 1, 4], ['F', 3, 1, 3]]);
 const GOOD = mk('Good Data Song', 96, [['C', 1, 1, 4], ['F', 2, 1, 2], ['G7', 2, 3, 2], ['Am', 3, 1, 4]]);
 (async () => { const b = await chromium.launch({ executablePath: process.env.CHROME || undefined });
   for (const [w, h] of [[360, 780], [780, 360]]) { const tag = `${w}x${h}`;
@@ -29,7 +29,7 @@ const GOOD = mk('Good Data Song', 96, [['C', 1, 1, 4], ['F', 2, 1, 2], ['G7', 2,
         inView: r.left >= 0 && r.right <= innerWidth, msg: !document.getElementById('upMsg').hidden }; });
     R.info[tag] = v;
     F(v.shown, tag + ' flags panel not shown'); F(JSON.stringify(v.layers) === '["key","timing","bpm"]', tag + ' layers ' + v.layers);
-    F(/Bb is not in C major/.test(v.text), tag + ' key message'); F(/bar 3: 1 beat missing/.test(v.text), tag + ' timing message'); F(/200 BPM/.test(v.text), tag + ' bpm message');
+    F(/F#m is not in C major/.test(v.text), tag + ' key message'); F(/bar 3: 1 beat missing/.test(v.text), tag + ' timing message'); F(/200 BPM/.test(v.text), tag + ' bpm message');
     F(JSON.stringify(v.btns) === '["Go back and fix","Save anyway"]', tag + ' buttons ' + v.btns);
     F(v.over <= 0 && v.docOver <= 0, tag + ' overflow ' + v.over + '/' + v.docOver); F(v.inView, tag + ' panel off screen'); F(!v.msg, tag + ' loaded message shown before choice');
     F(await libN() === n0, tag + ' saved before the choice');
