@@ -58,6 +58,7 @@ var PRECACHE = [
   "js/expert/ui.js",
   "js/keys.js",
   "js/kids/grid.js",
+  "js/kids/range.js",
   "js/kids/view.js",
   "js/kids.js",
   "js/loop.js",
