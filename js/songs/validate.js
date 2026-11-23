@@ -4,8 +4,12 @@
 //   validateSong(song) -> { flags: [{ layer: "key"|"timing"|"bpm", severity: "warn"|"error", message, where }] }
 //   where = { version: "sections"|"sectionsFull", section: index, sectionName, bar, chord: index } (fields as known)
 // Layers:
-//   key    every chord ROOT must be a scale degree of song.key (major, or natural minor; the harmonic-minor V
-//          shares the natural v root, so V and V7 in minor pass). Quality and slash bass are not judged.
+//   key    every chord ROOT is checked against that section's key (section.key if present, else a key
+//          named in the section notes, else a key inferred when most roots fit another key, else the
+//          song key, carried forward after a modulation). Quality and slash bass are not judged, except
+//          that a marked borrowed / secondary-dominant chord (borrowed: true) is not flagged. A section
+//          with several out-of-key chords is reported as one grouped warning.
+//          In minor, the harmonic-minor V shares the natural v root, so V and V7 pass.
 //   timing per section, chords are laid end to end from their position (bar/beat count from the song start);
 //          gaps and overlaps between chords, and a last bar that is not full, are flagged in beats.
 //          Beats per bar = the time-signature top number (default 4/4), same as the app's bpb.
@@ -13,6 +17,7 @@
 export const BPM_MIN = 50, BPM_MAX = 180;
 const LETTER = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
 const MAJOR = [0, 2, 4, 5, 7, 9, 11], MINOR = [0, 2, 3, 5, 7, 8, 10];
+const TONICS = ["C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B"];
 function pcOf(name) {
   var m = /^([A-G])(#|b)?/.exec(String(name || ""));
   if (!m) return null;
@@ -36,21 +41,119 @@ export function beatsPerBar(ts) {
   var n = parseInt(ts, 10);
   return n > 0 ? n : 4;
 }
+function isMinorChord(sym) {
+  var m = /^[A-G](?:#|b)?(.*)$/.exec(String(sym || "").split("/")[0]);
+  if (!m) return false;
+  var q = m[1] || "";
+  if (/^maj/.test(q) || /^M(?!in)/.test(q)) return false;
+  return /^(m|min|mM)/.test(q);
+}
+function readKey(k) {
+  if (!k || typeof k !== "object") return null;
+  if (!keyScale(k)) return null;
+  return { tonic: k.tonic, mode: k.mode === "minor" ? "minor" : "major" };
+}
+// "Key change up a half step to F major", "modulates to F major in final chorus"
+export function parseKeyMention(text) {
+  var s = String(text || "");
+  var m = /(?:modulat(?:es|ed|ing|ion)?|key\s*change|changes?\s*(?:the\s+)?key)\s+(?:(?:up|down)[^.]{0,40}?)?(?:to\s+)?([A-G](?:#|b)?)(?:\s+|-)?(major|minor)/i.exec(s);
+  if (!m) m = /(?:to|in)\s+([A-G](?:#|b)?)\s+(major|minor)/i.exec(s);
+  if (!m) return null;
+  return { tonic: m[1], mode: m[2].toLowerCase() };
+}
+function judgedChords(chords) {
+  var out = [];
+  (chords || []).forEach(function (c, ci) {
+    if (c && c.borrowed === true) return;
+    var pc = pcOf(c && c.chord);
+    if (pc == null) return;
+    out.push({ c: c, ci: ci, pc: pc, sym: c.chord, minor: isMinorChord(c.chord) });
+  });
+  return out;
+}
+function fitOf(judged, sc) {
+  var ok = 0;
+  judged.forEach(function (j) { if (sc.pcs.indexOf(j.pc) >= 0) ok++; });
+  return { n: judged.length, ok: ok, ratio: judged.length ? ok / judged.length : 1 };
+}
+export function inferKeyFromChords(chords) {
+  var judged = judgedChords(chords);
+  if (!judged.length) return null;
+  var firstPc = judged[0].pc, best = null;
+  ["major", "minor"].forEach(function (mode) {
+    TONICS.forEach(function (t) {
+      var key = { tonic: t, mode: mode }, sc = keyScale(key);
+      var fit = fitOf(judged, sc), tonicHits = 0, modeAgree = 0;
+      judged.forEach(function (j) {
+        if (j.pc !== sc.tonic) return;
+        tonicHits++;
+        if ((mode === "minor") === j.minor) modeAgree++;
+      });
+      var row = { key: key, ratio: fit.ratio, ok: fit.ok, n: fit.n, tonicHits: tonicHits, modeAgree: modeAgree, first: firstPc === sc.tonic };
+      if (!best
+          || row.ratio > best.ratio
+          || (row.ratio === best.ratio && row.tonicHits > best.tonicHits)
+          || (row.ratio === best.ratio && row.tonicHits === best.tonicHits && row.modeAgree > best.modeAgree)
+          || (row.ratio === best.ratio && row.tonicHits === best.tonicHits && row.modeAgree === best.modeAgree && row.first && !best.first)) {
+        best = row;
+      }
+    });
+  });
+  return best;
+}
+// Resolve the key a section should be checked against, and whether it becomes the new "current" key
+// (an explicit field, a mention in the notes, or a confidently inferred modulation).
+export function resolveSectionKey(sec, current) {
+  var explicit = readKey(sec && sec.key);
+  if (explicit) return { key: explicit, source: "field", adopt: true };
+  var mentioned = parseKeyMention(((sec && sec.notes) || "") + " " + ((sec && sec.label) || ""));
+  if (mentioned && keyScale(mentioned)) return { key: mentioned, source: "notes", adopt: true };
+  var sc = keyScale(current);
+  var judged = judgedChords(sec && sec.chords);
+  var fit = sc ? fitOf(judged, sc) : { n: 0, ok: 0, ratio: 0 };
+  if (judged.length && fit.ratio < 0.5) {
+    var best = inferKeyFromChords(sec.chords);
+    if (best && best.ratio >= 0.8 && best.ratio > fit.ratio + 0.25) {
+      return { key: best.key, source: "infer", adopt: true };
+    }
+  }
+  return { key: current, source: "carry", adopt: false };
+}
+function keyName(key) { return rootName(key.tonic) + " " + (key.mode === "minor" ? "minor" : "major"); }
 function keyLayer(song, flags) {
-  var key = song && song.song && song.song.key, sc = keyScale(key);
-  if (!sc) { flags.push({ layer: "key", severity: "error", message: "The song has no key the app can read, so its chords cannot be checked.", where: {} }); return; }
-  var kn = rootName(key.tonic) + " " + (sc.minor ? "minor" : "major");
-  // v112.6: with both a Simple and a Full version, the section name says which one (as the timing flags do).
+  var songKey = readKey(song && song.song && song.song.key), sc0 = keyScale(songKey);
+  if (!sc0) { flags.push({ layer: "key", severity: "error", message: "The song has no key the app can read, so its chords cannot be checked.", where: {} }); return; }
   var full = !!(song && song.sectionsFull && song.sectionsFull.length);
-  eachSection(song, function (sec, si, ver) {
-    var nm = secName(sec, si) + (full ? (ver === "sectionsFull" ? " (Full)" : " (Simple)") : "");
-    (sec.chords || []).forEach(function (c, ci) {
-      var pc = pcOf(c && c.chord);
-      if (pc == null || sc.pcs.indexOf(pc) >= 0) return;
-      var bar = c.position && c.position.bar;
+  [["sections", song && song.sections], ["sectionsFull", song && song.sectionsFull]].forEach(function (L) {
+    if (!Array.isArray(L[1])) return;
+    var current = songKey;
+    L[1].forEach(function (sec, si) {
+      var ver = L[0], nm = secName(sec, si) + (full ? (ver === "sectionsFull" ? " (Full)" : " (Simple)") : "");
+      var resolved = resolveSectionKey(sec, current);
+      if (resolved.adopt) current = resolved.key;
+      var kn = keyName(resolved.key), sc = keyScale(resolved.key);
+      var bad = [];
+      (sec.chords || []).forEach(function (c, ci) {
+        if (c && c.borrowed === true) return;
+        var pc = pcOf(c && c.chord);
+        if (pc == null || sc.pcs.indexOf(pc) >= 0) return;
+        var bar = c.position && c.position.bar;
+        bad.push({ ci: ci, bar: bar || null, chord: c.chord });
+      });
+      if (!bad.length) return;
+      var where0 = { version: ver, section: si, sectionName: nm, bar: bad[0].bar, chord: bad[0].ci, chordName: bad[0].chord, count: bad.length };
+      if (bad.length === 1) {
+        flags.push({ layer: "key", severity: "warn",
+          message: nm + ", chord " + (bad[0].ci + 1) + (bad[0].bar ? " (bar " + bad[0].bar + ")" : "") + ": " + bad[0].chord + " is not in " + kn + ".",
+          where: where0 });
+        return;
+      }
+      var names = [], seen = {};
+      bad.forEach(function (b) { if (!seen[b.chord]) { seen[b.chord] = true; names.push(b.chord); } });
+      var shown = names.slice(0, 6);
       flags.push({ layer: "key", severity: "warn",
-        message: nm + ", chord " + (ci + 1) + (bar ? " (bar " + bar + ")" : "") + ": " + c.chord + " is not in " + kn + ".",
-        where: { version: ver, section: si, sectionName: nm, bar: bar || null, chord: ci, chordName: c.chord } });
+        message: nm + ": " + bad.length + " chords not in " + kn + " (" + shown.join(", ") + (names.length > 6 ? ", \u2026" : "") + ").",
+        where: where0 });
     });
   });
 }

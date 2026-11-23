@@ -17,11 +17,15 @@ test('in-key song in C major passes every layer (G is V, in key)', () => {
   assert.deepEqual(validateSong(song({ chords: I_IV_V })).flags, []);
 });
 test('out-of-key roots are flagged with chord name and position', () => {
+  const one = validateSong(song({ chords: [['C', 1, 1, 4], ['Bb', 2, 1, 4], ['G', 3, 1, 4]] }));
+  const k1 = of(one, 'key');
+  assert.equal(k1.length, 1);
+  assert.match(k1[0].message, /Bb is not in C major/); assert.equal(k1[0].where.chord, 1); assert.equal(k1[0].where.bar, 2); assert.equal(k1[0].where.section, 0);
   const r = validateSong(song({ chords: [['C', 1, 1, 4], ['Bb', 2, 1, 4], ['F#m', 3, 1, 4], ['G', 4, 1, 4]] }));
   const k = of(r, 'key');
-  assert.equal(k.length, 2);
-  assert.match(k[0].message, /Bb is not in C major/); assert.equal(k[0].where.chord, 1); assert.equal(k[0].where.bar, 2); assert.equal(k[0].where.section, 0);
-  assert.match(k[1].message, /F#m/); assert.equal(k[1].where.chord, 2);
+  assert.equal(k.length, 1); // several out-of-key chords in one section are one grouped warning
+  assert.match(k[0].message, /Verse 1: 2 chords not in C major \(Bb, F#m\)\./);
+  assert.equal(k[0].where.chord, 1); assert.equal(k[0].where.bar, 2);
   assert.equal(of(r, 'timing').length, 0);
 });
 test('minor key: natural minor roots pass, harmonic-minor V (E, E7) passes, out-of-key flagged', () => {
@@ -71,4 +75,39 @@ test('v112.6: key flags name the version (Simple)/(Full) when both exist, so lin
   assert.notEqual(k[0].message, k[1].message);
   // a Simple-only song keeps the plain section name
   assert.match(of(validateSong(song({ chords: [['C', 1, 1, 4], ['Bb', 2, 1, 4]] })), 'key')[0].message, /^Verse 1, chord 2/);
+});
+
+test('section.key is used instead of the song key (a modulation)', () => {
+  const s = song({ tonic: 'E', mode: 'major', chords: [['F', 1, 1, 4], ['D7', 2, 1, 4], ['Gm', 3, 1, 4], ['C', 4, 1, 4]] });
+  s.sections[0].key = { tonic: 'F', mode: 'major' };
+  s.sections[0].type = 'chorus'; s.sections[0].id = 'chorus3';
+  assert.deepEqual(of(validateSong(s), 'key'), []);
+});
+test('a key named in section notes is honored when section.key is missing', () => {
+  const s = song({ tonic: 'E', mode: 'major', chords: [['F', 1, 1, 4], ['D7', 2, 1, 4], ['Gm', 3, 1, 4], ['Bb/C', 4, 1, 4]] });
+  s.sections[0].notes = 'Key change up a half step to F major';
+  s.sections[0].type = 'chorus'; s.sections[0].id = 'chorus3';
+  assert.deepEqual(of(validateSong(s), 'key'), []);
+});
+test('a later section keeps the modulated key (carry forward)', () => {
+  const s = song({ tonic: 'E', mode: 'major', chords: [['F', 1, 1, 4], ['C', 2, 1, 4], ['Bb', 3, 1, 4], ['Gm', 4, 1, 4]] });
+  s.sections[0].notes = 'modulates to F major';
+  s.sections[0].type = 'chorus'; s.sections[0].id = 'chorus3';
+  s.sections.push({ id: 'outro', type: 'outro', chords: ['F', 'F'].map((chord, i) => ({ index: i, chord, position: { bar: 5 + i, beat: 1 }, durationBeats: 4, confidence: 0.9 })) });
+  assert.deepEqual(of(validateSong(s), 'key'), []);
+});
+test('when most chords fit another key, that key is inferred (old answers with no section key)', () => {
+  const s = song({ tonic: 'E', mode: 'major', chords: [['F', 1, 1, 4], ['D7', 2, 1, 4], ['Gm', 3, 1, 4], ['C', 4, 1, 4], ['F', 5, 1, 4], ['Bb', 6, 1, 4]] });
+  assert.deepEqual(of(validateSong(s), 'key'), []);
+});
+test('borrowed: true is not flagged; an unmarked chromatic chord still is', () => {
+  const s = song({ chords: [['C', 1, 1, 4], ['Bb', 2, 1, 4], ['G', 3, 1, 4]] });
+  s.sections[0].chords[1].borrowed = true;
+  assert.deepEqual(of(validateSong(s), 'key'), []);
+  const unmarked = song({ chords: [['C', 1, 1, 4], ['Bb', 2, 1, 4], ['G', 3, 1, 4]] });
+  assert.equal(of(validateSong(unmarked), 'key').length, 1);
+});
+test('secondary dominants C#7 and G#7 in E major are not flagged', () => {
+  const s = song({ tonic: 'E', mode: 'major', chords: [['E', 1, 1, 4], ['C#7', 2, 1, 4], ['F#m', 3, 1, 4], ['A', 4, 1, 4], ['B', 5, 1, 4], ['G#7', 6, 1, 4], ['C#m', 7, 1, 4], ['G#', 8, 1, 4]] });
+  assert.deepEqual(of(validateSong(s), 'key'), []);
 });
