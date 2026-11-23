@@ -1,9 +1,10 @@
 // Kids redesign: the Kids view (Simple). At each size (default 360x780, 780x360, 768x1024, 1024x768; phone emulation
 // via -r emulate.cjs): a real first visit (?test=1&kv=1) opens Hello with the full app hidden; Hello -> the six songs in
 // order (Twinkle first, the default); the play screen has 7 root-position pads C..B rising in reading order and one
-// 7-white-key piano C4..B4 rising left to right; every step of every song: the octave never moves (same keys, same
-// rects, same pitches), exactly one gold key and it is on screen, the gold key is the melody note's letter with an up /
-// down arrow for notes outside C..B, and a tap on it sounds the real pitch (60 + the preset's @note); the reward shows
+// piano covering the song's melody plus C4..B4 (edges on white keys) rising left to right; every step of a song: the
+// keyboard does not move (same keys, same rects, same pitches), exactly one gold key and it is on screen at the real
+// melody pitch (no shift arrow when the range covers the note), and a tap on it sounds 60 + the preset's @note; C4 has
+// a home dot; the reward shows
 // after the last gold tap, after Next on the last step and after Play song's last step (Play stops); every free pad is a major triad (no Happy / Sad);
 // Kids -> Expert -> Kids keeps the song and the step; Play along off hides the gold marks while Next and Play song
 // still move the song on; Daylight / Lamplight and Simple / Expert survive a reload. No page errors.
@@ -17,6 +18,17 @@ const w12 = n => ((n % 12) + 12) % 12;
 const SIX = ['Kids Twinkle', 'Kids Old MacDonald', 'Kids Itsy Bitsy Spider', 'Kids Row Your Boat', 'Kids Head Shoulders Knees and Toes', "Kids Mary's Lamb"];
 const SRC = fs.readFileSync(path.join(__dirname, '../../js/songs/presets.js'), 'utf8');
 const MEL = {}; for (const m of SRC.matchAll(/P\("(Kids [^"]+)", "([^"]+)"\)/g)) MEL[m[1]] = m[2].split('|').map(s => +s.match(/@(-?\d+)$/)[1]);
+
+const WHITE = new Set([0, 2, 4, 5, 7, 9, 11]);
+const snapLo = m => { while (!WHITE.has(((m % 12) + 12) % 12)) m--; return m; };
+const snapHi = m => { while (!WHITE.has(((m % 12) + 12) % 12)) m++; return m; };
+function songRange(mel) {
+  const xs = mel.map(o => 60 + o).concat([60, 71]);
+  const lo = snapLo(Math.min(...xs)), hi = snapHi(Math.max(...xs));
+  const wk = [], bk = [];
+  for (let m = lo; m <= hi; m++) (WHITE.has(((m % 12) + 12) % 12) ? wk : bk).push(m);
+  return { lo, hi, wk, bk };
+}
 const R = { fails: [], data: {} }; const F = (c, m) => { if (!c) R.fails.push(m); };
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 async function open(b, w, h, fresh) {
@@ -36,7 +48,7 @@ const st = p => p.evaluate(() => { const rc = e => { const r = e.getBoundingClie
   const gold = keys.filter(k => k.classList.contains('gold'));
   return { on: document.documentElement.classList.contains('kv'), app: getComputedStyle(document.getElementById('app')).display, screen: kv.dataset.screen,
     song: __prog.list[__prog.idx] && __prog.list[__prog.idx].name, cur: __prog.cur, pos: __magic.state.pos, playing: !!__prog.playing, n: __prog.steps.length,
-    wk: wk.map(k => ({ pc: +k.dataset.pc, m: +k.dataset.midi, r: rc(k) })), bk: bk.map(k => ({ pc: +k.dataset.pc, m: +k.dataset.midi, r: rc(k) })),
+    wk: wk.map(k => ({ pc: +k.dataset.pc, m: +k.dataset.midi, home: k.classList.contains('home'), r: rc(k) })), bk: bk.map(k => ({ pc: +k.dataset.pc, m: +k.dataset.midi, r: rc(k) })),
     gold: gold.map(k => ({ pc: +k.dataset.pc, m: +k.dataset.midi, up: k.classList.contains('oct-up'), down: k.classList.contains('oct-down'), arrow: k.querySelector('.kv-oct').textContent,
       star: getComputedStyle(k, '::before').display !== 'none' && getComputedStyle(k, '::before').content !== 'none', arrowShown: getComputedStyle(k.querySelector('.kv-oct')).display !== 'none', r: rc(k) })),
     pads: [...kv.querySelectorAll('.kv-pad')].map(e => ({ pc: +e.dataset.pc, l: e.dataset.letter, gold: e.classList.contains('gold'), r: rc(e) })),
@@ -68,6 +80,7 @@ const st = p => p.evaluate(() => { const rc = e => { const r = e.getBoundingClie
     F(s.pads.every(q => vis(q.r, w, h)), `${tag}: a pad is off screen`);
     F(s.wk.length === 7 && s.bk.length === 5, `${tag}: piano has ${s.wk.length} white / ${s.bk.length} black keys`);
     F(same(s.wk.map(k => k.m), [60, 62, 64, 65, 67, 69, 71]) && same(s.bk.map(k => k.m), [61, 63, 66, 68, 70]), `${tag}: key pitches ${s.wk.map(k => k.m)} / ${s.bk.map(k => k.m)}`);
+    F(s.wk.some(k => k.m === 60 && k.home) && s.wk.filter(k => k.home).length === 1, `${tag}: C4 should be the one home-dot key`);
     for (let i = 1; i < 7; i++) F(s.wk[i].r.x > s.wk[i - 1].r.x, `${tag}: white keys not rising left to right`);
     for (const k of s.bk) { const L = s.wk.filter(q => q.m < k.m).pop(), Rr = s.wk.find(q => q.m > k.m); F(k.r.x > L.r.x && k.r.x + k.r.w < Rr.r.x + Rr.r.w, `${tag}: black ${k.m} not between its whites`); }
     F(s.wk.concat(s.bk).every(k => vis(k.r, w, h)), `${tag}: a key is off screen`);
@@ -149,19 +162,21 @@ const st = p => p.evaluate(() => { const rc = e => { const r = e.getBoundingClie
     for (const name of SIX) {
       if ((await st(p)).reward) await tapEl('#kv .kv-again');
       await p.evaluate(n => { const i = __prog.list.findIndex(q => q.name === n); __progApi.set(i); __kv.show('play'); }, name); await p.waitForTimeout(350); await take(p);
-      const mel = MEL[name], E = D.songs[name] = { steps: mel.length, arrows: [], soundFails: 0 };
+      const mel = MEL[name], wantR = songRange(mel), E = D.songs[name] = { steps: mel.length, arrows: [], soundFails: 0 };
+      s = await st(p);
+      const songRects = JSON.stringify(s.wk.concat(s.bk).map(k => k.r));
+      F(same(s.wk.map(k => k.m), wantR.wk) && same(s.bk.map(k => k.m), wantR.bk), `${tag} ${name}: key pitches ${s.wk.map(k => k.m)} / ${s.bk.map(k => k.m)}, want ${wantR.wk} / ${wantR.bk}`);
+      F(s.wk.some(k => k.m === 60 && k.home), `${tag} ${name}: no home dot on C4`);
       for (let i = 0; i < mel.length; i++) {
         s = await st(p);
-        F(JSON.stringify(s.wk.concat(s.bk).map(k => k.r)) === keyRects, `${tag} ${name} step ${i}: the piano moved`);
-        F(same(s.wk.map(k => k.m), [60, 62, 64, 65, 67, 69, 71]), `${tag} ${name} step ${i}: key pitches changed`);
+        F(JSON.stringify(s.wk.concat(s.bk).map(k => k.r)) === songRects, `${tag} ${name} step ${i}: the piano moved`);
+        F(same(s.wk.map(k => k.m), wantR.wk), `${tag} ${name} step ${i}: key pitches changed`);
         F(s.kbWin === kbWin0, `${tag} ${name} step ${i}: hidden keyboard window moved ${kbWin0} -> ${s.kbWin}`);
         F(s.gold.length === 1, `${tag} ${name} step ${i}: ${s.gold.length} gold keys`);
         const g = s.gold[0]; if (!g) continue;
         F(vis(g.r, w, h) && g.star, `${tag} ${name} step ${i}: gold key not visible`);
-        F(g.pc === w12(mel[i]), `${tag} ${name} step ${i}: gold key pc ${g.pc}, melody @${mel[i]}`);
-        const want = mel[i] > 11 ? 'up' : mel[i] < 0 ? 'down' : '';
-        F((g.up ? 'up' : g.down ? 'down' : '') === want && (!want || (g.arrowShown && g.arrow === (want === 'up' ? '▲' : '▼'))), `${tag} ${name} step ${i}: arrow ${g.up ? 'up' : g.down ? 'down' : '-'} (${g.arrow}), want ${want || '-'} for @${mel[i]}`);
-        if (want) { E.arrows.push([i, mel[i], want]); if (SHOTS && E.arrows.length === 1) await shot('arrow-' + name.replace(/\W+/g, '')); }
+        F(g.m === 60 + mel[i] && g.pc === w12(mel[i]), `${tag} ${name} step ${i}: gold key ${g.m} pc ${g.pc}, melody @${mel[i]}`);
+        F(!g.up && !g.down && !g.arrowShown, `${tag} ${name} step ${i}: unexpected shift arrow for @${mel[i]}`);
         await touch(g.r.x + g.r.w / 2, g.r.y + g.r.h * (s.wk.some(k => k.m === g.m) ? 0.85 : 0.5), 120); await p.waitForTimeout(140);
         const L = await take(p), hit = L.some(x => x.m.includes(60 + mel[i]));
         if (!hit) { E.soundFails++; R.fails.push(`${tag} ${name} step ${i}: gold tap did not sound ${60 + mel[i]} (heard ${JSON.stringify(L.map(x => x.m))})`); }
@@ -169,8 +184,7 @@ const st = p => p.evaluate(() => { const rc = e => { const r = e.getBoundingClie
       }
       await p.waitForTimeout(1100); s = await st(p); F(s.reward, `${tag} ${name}: no reward after the last gold tap`);
       if (name === 'Kids Twinkle') await shot('reward');
-      if (/Itsy|Head/.test(name)) F(E.arrows.length > 0, `${tag} ${name}: no out-of-octave arrow seen`);
-      else F(!E.arrows.length, `${tag} ${name}: unexpected arrows ${JSON.stringify(E.arrows)}`);
+      F(!E.arrows.length, `${tag} ${name}: unexpected shift arrows ${JSON.stringify(E.arrows)}`);
     }
     // 6. reward after Next on the last step, and after Play song's last step
     if ((await st(p)).reward) await tapEl('#kv .kv-again');
