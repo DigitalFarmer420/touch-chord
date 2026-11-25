@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Fails if app files differ from <base ref> but APP_VERSION does not (run from the repo root).
-  python3 tools/check-bump.py origin/main
-A release into main that changes app files must bump APP_VERSION (the version shown in the app).
+  python3 tools/check-bump.py origin/main      # a release into main
+  python3 tools/check-bump.py origin/develop   # a pull request into develop (every dev build gets its own number)
+A change to app files must bump APP_VERSION (the version shown in the app) against the base branch.
 The new APP_VERSION must also sort after the base one (tools/tcversion.py: YYYY.MM.DD.N, and the
 legacy 112.x versions sort before any date version), so a release can never go backwards.
 The deploy copy is stamped with its own BUILD_ID; that stamp does not replace this bump."""

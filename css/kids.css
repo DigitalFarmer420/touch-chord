@@ -99,15 +99,20 @@ html.kv-lamp .kv { --upc: #CDBFA8; }
 .kv-arrow { line-height: 1; }
 
 /* the Kids piano: one octave C..B, 7 white keys, short black keys */
-.kv-piano { --kpad: 4px; --bkh: .38; --bkw: calc((100% - 2 * var(--kpad)) / 7 * .56); position: relative; flex: 1 1 auto; min-height: 120px; margin: 12px -8px 0; background: var(--kbody); border-radius: 18px; }
-.kv-whites { position: absolute; inset: var(--kpad); display: flex; gap: 2px; }
+.kv-piano { --kpad: 4px; --nwhite: 7; --bkh: .38; --bkw: calc((100% - 2 * var(--kpad)) / var(--nwhite) * .56); position: relative; flex: 1 1 auto; min-height: 120px; margin: 12px -8px 0; background: var(--kbody); border-radius: 18px; overflow: hidden; }
+.kv-scroll { position: absolute; inset: var(--kpad); overflow: hidden; scrollbar-width: none; }
+.kv-scroll::-webkit-scrollbar { display: none; }
+.kv-keys { position: relative; height: 100%; width: 100%; }
+.kv-whites { position: absolute; inset: 0; display: flex; gap: 2px; }
 .kv-wk { position: relative; flex: 1; min-width: 0; border: none; background: var(--wkey); border-radius: 0 0 12px 12px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; color: #6b5a48; padding: 0; }
 .kv-wk i { display: block; width: 70%; height: 8px; border-radius: 4px; margin-bottom: 8px; }
 .kv-wk.kv-cC i { background: var(--C); } .kv-wk.kv-cD i { background: var(--D); } .kv-wk.kv-cE i { background: var(--E); } .kv-wk.kv-cF i { background: var(--F); }
 .kv-wk.kv-cG i { background: var(--G); } .kv-wk.kv-cA i { background: var(--A); } .kv-wk.kv-cB i { background: var(--B); }
 .kv-wk.kv-cC, .kv-wk.kv-cD, .kv-wk.kv-cE, .kv-wk.kv-cF, .kv-wk.kv-cG, .kv-wk.kv-cA, .kv-wk.kv-cB { background: var(--wkey); }
 .kv-kl { margin-bottom: 6px; font-size: 16px; font-weight: 600; }
-.kv-bk { position: absolute; z-index: 2; top: var(--kpad); width: var(--bkw); height: calc((100% - 2 * var(--kpad)) * var(--bkh)); background: var(--kbk); border: 2px solid var(--kbk-edge); border-top: none; border-radius: 0 0 8px 8px; padding: 0; }
+.kv-wk.home::after { content: ""; position: absolute; left: 50%; bottom: 34px; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: var(--ink); opacity: .4; pointer-events: none; z-index: 1; }
+.kv-wk.home.gold::after { opacity: .5; background: var(--gold-deep); }
+.kv-bk { position: absolute; z-index: 2; top: 0; width: var(--bkw); height: calc(100% * var(--bkh)); background: var(--kbk); border: 2px solid var(--kbk-edge); border-top: none; border-radius: 0 0 8px 8px; padding: 0; }
 .kv-wk.lit { background: var(--lit); }
 .kv-bk.lit { background: #5D8078; }
 .kv-wk.gold { background: var(--gold); box-shadow: inset 0 0 0 4px var(--gold-deep); color: #6B4300; }
@@ -232,6 +237,7 @@ html.lay-pad-land .kv-piano, html.lay-pad-port .kv-piano { margin: 16px 0 0; --k
 html.lay-pad-port .kv-piano { flex: 1 1 auto; height: auto; min-height: 300px; margin-top: 16px; }   /* rd2 (Uiux #1): fills down from Play / Next (no gap) */
 html.lay-pad-land .kv-whites, html.lay-pad-port .kv-whites { gap: 3px; }
 html.lay-pad-land .kv-kl, html.lay-pad-port .kv-kl { font-size: 18px; }
+html.lay-pad-land .kv-wk.home::after, html.lay-pad-port .kv-wk.home::after { width: 7px; height: 7px; margin-left: -3.5px; bottom: 38px; }
 html.lay-pad-land .kv-wk.gold::before, html.lay-pad-port .kv-wk.gold::before { font-size: 30px; }
 html.lay-pad-land .kv-title, html.lay-pad-port .kv-title { margin-top: calc(18 * var(--tc-vh)); font-size: 56px; }
 html.lay-pad-land .kv-title { margin-top: calc(10 * var(--tc-vh)); }

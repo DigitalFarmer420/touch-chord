@@ -1,44 +1,50 @@
 // Kids view (the Kids redesign, "Simple" mode): its own screens on top of the shared logic.
-//   Hello (its tap unlocks audio) -> Song picker (6 picture cards) -> Play (lyrics, 7 major chord pads, Play song,
-//   Next, a fixed one-octave C..B piano) -> Reward when a song is finished. Settings sheet (no grown-up gate: the
+//   Hello (its tap unlocks audio) -> Song picker (10 picture cards) -> Play (lyrics, 7 major chord pads, Play song,
+//   Next, a piano covering the song's melody plus C4..B4, edges on white keys) -> Reward when a song is finished. Settings sheet (no grown-up gate: the
 //   Simple / Expert switch is in it), Daylight / Lamplight looks.
 // Nothing here makes sound itself: a pad press goes through strip.js stripPress (the Kids pad path, with its hidden twin
 // pad in #suggest), a piano key through touch.js soundFinger / liftFinger, a gold tap through next.js kidsGoldGo,
 // Next / Play song through magic.js progNext / playback.js progPlay. So sound and timing are those of the Kids style.
-import { unlock } from "../audio/unlock.js?v=2026.11.21.2";
-import { activeKey, keyDegrees } from "../keys.js?v=2026.11.21.2";
-import { KIDS_SONG_KEY } from "../songs/kids-songs.js?v=2026.11.21.2";
-import { KIDS_LYRICS } from "../songs/kids-songs.js?v=2026.11.21.2";
-import { magicQueue, progNext } from "../songs/magic.js?v=2026.11.21.2";
-import { magic, prog, progSet, progPlay, progStop, applySongKey, progWalkAt, progWalkTo, playButtonLabel } from "../songs/playback.js?v=2026.11.21.2";
-import { progLoopBar } from "../songs/song.js?v=2026.11.21.2";
-import { nextChange, cueSoon, cueClock, cueWord, cuePieces, placeCueTag, cueLetterClass } from "../ui/chordcue.js?v=2026.11.21.2";
-import { state, fingers, shared, scheduleSave } from "../state.js?v=2026.11.21.2";
-import { wrap12 } from "../theory/quality.js?v=2026.11.21.2";
-import { APP_VERSION } from "../version.js?v=2026.11.21.2";
-import { playAlongKeyOk, paHintMiss, paHintHide } from "../ui/hints.js?v=2026.11.21.2";
-import { kidsTonic, kidsKeyNow } from "../ui/keyboard.js?v=2026.11.21.2";
-import { kidsHintItem, kidsGoldStep, kidsGoldGo, kidsGoldPad } from "../ui/next.js?v=2026.11.21.2";
-import { renderPads, keyHaptic, padKey } from "../ui/pads.js?v=2026.11.21.2";
-import { stripPress, stripRelease } from "../ui/strip.js?v=2026.11.21.2";
-import { keyOf, soundFinger, liftFinger, resoundHeldFinger } from "../ui/touch.js?v=2026.11.21.2";
-import { api as ChordAudio } from "../audio/index.js?v=2026.11.21.2";
-import { makeChip, openModeSheet } from "../ui/modesheet.js?v=2026.11.21.2";
-import { kidsRowPlan, KIDS_ROWS, kidsPadLabel } from "./grid.js?v=2026.11.21.2";
-import { registerLook, lookApplyNow } from "../ui/look.js?v=2026.11.21.2";
+import { unlock } from "../audio/unlock.js?v=2026.11.23.4";
+import { activeKey, keyDegrees } from "../keys.js?v=2026.11.23.4";
+import { KIDS_SONG_KEY } from "../songs/kids-songs.js?v=2026.11.23.4";
+import { KIDS_LYRICS } from "../songs/kids-songs.js?v=2026.11.23.4";
+import { magicQueue, progNext } from "../songs/magic.js?v=2026.11.23.4";
+import { magic, prog, progSet, progPlay, progStop, applySongKey, progWalkAt, progWalkTo, playButtonLabel } from "../songs/playback.js?v=2026.11.23.4";
+import { progLoopBar } from "../songs/song.js?v=2026.11.23.4";
+import { nextChange, cueSoon, cueClock, cueWord, cuePieces, placeCueTag, cueLetterClass } from "../ui/chordcue.js?v=2026.11.23.4";
+import { state, fingers, shared, scheduleSave } from "../state.js?v=2026.11.23.4";
+import { wrap12 } from "../theory/quality.js?v=2026.11.23.4";
+import { APP_VERSION } from "../version.js?v=2026.11.23.4";
+import { playAlongKeyOk, paHintMiss, paHintHide } from "../ui/hints.js?v=2026.11.23.4";
+import { kidsTonic, kidsKeyNow } from "../ui/keyboard.js?v=2026.11.23.4";
+import { kidsHintItem, kidsGoldStep, kidsGoldGo, kidsGoldPad } from "../ui/next.js?v=2026.11.23.4";
+import { renderPads, keyHaptic, padKey } from "../ui/pads.js?v=2026.11.23.4";
+import { stripPress, stripRelease } from "../ui/strip.js?v=2026.11.23.4";
+import { keyOf, soundFinger, liftFinger, resoundHeldFinger } from "../ui/touch.js?v=2026.11.23.4";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.23.4";
+import { makeChip, openModeSheet } from "../ui/modesheet.js?v=2026.11.23.4";
+import { kidsRowPlan, KIDS_ROWS, kidsPadLabel } from "./grid.js?v=2026.11.23.4";
+import { kidsNeededMidis, kidsPianoRange, kidsPianoLayout, isKidsHomeKey, isWhiteMidi, KIDS_HOME_MIDI } from "./range.js?v=2026.11.23.4";
+import { registerLook, lookApplyNow } from "../ui/look.js?v=2026.11.23.4";
 
-// The six Kids songs (presets.js order): picture, title for parents, short chip name.
+// The ten Kids songs (presets.js order): picture, title for parents, short chip name.
 export const KV_SONGS = {
   "Kids Twinkle": { pic: "\u2B50", title: "Twinkle Twinkle Little Star", chip: "Twinkle" },
   "Kids Old MacDonald": { pic: "\uD83D\uDC04", title: "Old MacDonald", chip: "Old MacDonald" },
   "Kids Itsy Bitsy Spider": { pic: "\uD83D\uDD77\uFE0F", title: "Itsy Bitsy Spider", chip: "Itsy Bitsy" },
   "Kids Row Your Boat": { pic: "\uD83D\uDEA3", title: "Row Your Boat", chip: "Row Your Boat" },
   "Kids Head Shoulders Knees and Toes": { pic: "\uD83D\uDE46", title: "Head, Shoulders, Knees & Toes", chip: "Head Shoulders" },
-  "Kids Mary's Lamb": { pic: "\uD83D\uDC11", title: "Mary's Lamb", chip: "Mary's Lamb" }
+  "Kids Mary's Lamb": { pic: "\uD83D\uDC11", title: "Mary's Lamb", chip: "Mary's Lamb" },
+  "Kids Happy Birthday": { pic: "\uD83C\uDF82", title: "Happy Birthday", chip: "Happy Birthday" },
+  "Kids Jingle Bells": { pic: "\uD83D\uDD14", title: "Jingle Bells", chip: "Jingle Bells" },
+  "Kids London Bridge": { pic: "\uD83C\uDF09", title: "London Bridge", chip: "London Bridge" },
+  "Kids This Old Man": { pic: "\uD83D\uDC74", title: "This Old Man", chip: "This Old Man" }
 };
 const LETTERS = ["C", "D", "E", "F", "G", "A", "B"];
 const WHITE_PC = [0, 2, 4, 5, 7, 9, 11];
 const BLACKS = [{ pc: 1, after: 1 }, { pc: 3, after: 2 }, { pc: 6, after: 4 }, { pc: 8, after: 5 }, { pc: 10, after: 6 }];   // after = white keys to its left
+const SHARP_NAME = { 1: "C sharp", 3: "D sharp", 6: "F sharp", 8: "G sharp", 10: "A sharp" };
 const TEST = /[?&]test=1(&|$)/.test(location.search);
 
 export const kv = { on: false, screen: "hello", reward: false, endT: 0, rewardT: 0, sig: "", timer: 0, resume: null, log: [], tip: null };
@@ -91,18 +97,8 @@ function build() {
   els.next.addEventListener("click", onNext);
   ctl.appendChild(els.play); ctl.appendChild(els.next);
   els.ctl = ctl; mid.appendChild(els.pads); mid.appendChild(ctl); play.appendChild(mid);
-  els.piano = h("div", "kv-piano"); els.piano.setAttribute("aria-label", "Piano, C to B");
-  var whites = h("div", "kv-whites");
-  WHITE_PC.forEach(function (pc, i) {
-    var k = btn("kv-wk kv-c" + LETTERS[i], "<i aria-hidden=\"true\"></i><span class=\"kv-kl\">" + LETTERS[i] + "</span><b class=\"kv-oct\" aria-hidden=\"true\"></b>", LETTERS[i]);
-    k.dataset.pc = String(pc); k.dataset.ix = String(i); wireKey(k); whites.appendChild(k);
-  });
-  els.piano.appendChild(whites);
-  BLACKS.forEach(function (bk) {
-    var k = btn("kv-bk", "<b class=\"kv-oct\" aria-hidden=\"true\"></b>", ["C sharp", "D sharp", "F sharp", "G sharp", "A sharp"][BLACKS.indexOf(bk)]);
-    k.dataset.pc = String(bk.pc); k.style.left = "calc(var(--kpad) + (100% - 2 * var(--kpad)) * " + (bk.after / 7) + " - var(--bkw) / 2)";
-    wireKey(k); els.piano.appendChild(k);
-  });
+  els.piano = h("div", "kv-piano");
+  rebuildPiano(60, 71);
   play.appendChild(els.piano);
   // f. Reward
   els.reward = h("div", "kv-reward"); els.reward.hidden = true;
@@ -232,7 +228,7 @@ function saveWalk(w) {
   scheduleSave();
 }
 export function show(scr) {
-  if (scr === "play" && !KV_SONGS[songName()]) scr = "songs";   // rd5.1 guard: no Kids song loaded = the song list, never a blank play screen
+  if (scr === "play" && !KV_SONGS[songName()] && !(prog.steps && prog.steps.length)) scr = "songs";   // rd5.1: no song loaded = the list; an uploaded song with steps can open Play
   kv.screen = scr; kv.sig = "";
   root.dataset.screen = scr;
   [["hello", els.hello], ["songs", els.songs], ["play", els.playScr]].forEach(function (x) { x[1].hidden = x[0] !== scr; });
@@ -268,13 +264,83 @@ function wirePad(p) {
   p.addEventListener("pointerup", up); p.addEventListener("pointercancel", up);
   p.addEventListener("contextmenu", function (e) { e.preventDefault(); });
 }
+function isUploadedSong() { var p = prog.list[prog.idx]; return !!(p && p.up); }
+function rebuildPiano(lo, hi) {
+  if (!els.piano) return;
+  if (els.piano._lo === lo && els.piano._hi === hi && els.piano.querySelector(".kv-wk")) return;
+  els.piano._lo = lo; els.piano._hi = hi;
+  els.piano.innerHTML = "";
+  var nWhite = 0, m, wix = 0;
+  for (m = lo; m <= hi; m++) if (isWhiteMidi(m)) nWhite++;
+  els.piano.style.setProperty("--nwhite", String(nWhite));
+  var loPc = ((lo % 12) + 12) % 12, hiPc = ((hi % 12) + 12) % 12;
+  var loL = LETTERS[WHITE_PC.indexOf(loPc)] || "C", hiL = LETTERS[WHITE_PC.indexOf(hiPc)] || "B";
+  els.piano.setAttribute("aria-label", "Piano, " + loL + " to " + hiL);
+  var scroller = h("div", "kv-scroll"); els.scroll = scroller;
+  var keys = h("div", "kv-keys");
+  var whites = h("div", "kv-whites");
+  for (m = lo; m <= hi; m++) {
+    if (!isWhiteMidi(m)) continue;
+    var pc = ((m % 12) + 12) % 12, letter = LETTERS[WHITE_PC.indexOf(pc)];
+    var home = isKidsHomeKey(m);
+    var k = btn("kv-wk kv-c" + letter + (home ? " home" : ""), "<i aria-hidden=\"true\"></i><span class=\"kv-kl\">" + letter + "</span><b class=\"kv-oct\" aria-hidden=\"true\"></b>", home ? letter + ", home" : letter);
+    k.dataset.pc = String(pc); k.dataset.midi = String(m); k.dataset.ix = String(wix++);
+    if (home) k.dataset.home = "1";
+    wireKey(k); whites.appendChild(k);
+  }
+  keys.appendChild(whites);
+  for (m = lo; m <= hi; m++) {
+    if (isWhiteMidi(m)) continue;
+    var pc = ((m % 12) + 12) % 12, after = 0, x;
+    for (x = lo; x < m; x++) if (isWhiteMidi(x)) after++;
+    var k = btn("kv-bk", "<b class=\"kv-oct\" aria-hidden=\"true\"></b>", SHARP_NAME[pc]);
+    k.dataset.pc = String(pc); k.dataset.midi = String(m); k.dataset.after = String(after);
+    wireKey(k); keys.appendChild(k);
+  }
+  scroller.appendChild(keys); els.piano.appendChild(scroller); els.keys = keys;
+}
+function pianoInnerWidth() {
+  if (!els.piano) return 344;
+  var pad = parseFloat(getComputedStyle(els.piano).getPropertyValue("--kpad")) || 4;
+  return Math.max(1, els.piano.clientWidth - 2 * pad);
+}
+function layoutPiano(g) {
+  if (!els.piano || els.piano._lo == null || els.piano.clientWidth < 20) return null;
+  var R = { lo: els.piano._lo, hi: els.piano._hi, whites: 0, blacks: 0, count: els.piano._hi - els.piano._lo + 1 };
+  var m; for (m = R.lo; m <= R.hi; m++) { if (isWhiteMidi(m)) R.whites++; else R.blacks++; }
+  var L = kidsPianoLayout(R, { innerWidth: pianoInnerWidth(), goldMidi: g, clamp: isUploadedSong() });
+  els.piano.classList.toggle("kv-wide", !!L.scroll);
+  if (els.keys) {
+    els.keys.style.width = L.scroll ? L.content + "px" : "";
+    els.keys.style.setProperty("--bkw", (L.whiteW * 0.56) + "px");
+    var whites = els.keys.querySelector(".kv-whites");
+    if (whites) {
+      if (L.scroll) { whites.style.gap = "2px"; Array.prototype.forEach.call(whites.children, function (k) { k.style.flex = "0 0 " + L.whiteW + "px"; k.style.width = L.whiteW + "px"; }); }
+      else { whites.style.gap = ""; Array.prototype.forEach.call(whites.children, function (k) { k.style.flex = ""; k.style.width = ""; }); }
+    }
+    Array.prototype.forEach.call(els.keys.querySelectorAll(".kv-bk"), function (k) {
+      var after = +k.dataset.after, slot = L.whiteW + 2;
+      k.style.left = (after * slot - (L.whiteW * 0.56) / 2) + "px";
+    });
+  }
+  if (els.scroll) els.scroll.scrollLeft = L.scroll ? L.scrollLeft : 0;
+  return L;
+}
+function syncPiano(g) {
+  var R = kidsPianoRange(kidsNeededMidis(prog.steps, kidsTonic()));
+  rebuildPiano(R.lo, R.hi);
+  return layoutPiano(g);
+}
 function goldMidi() {
   var it = kidsHintItem();
   if (!it) return null;
   var ak = activeKey(), k = ak ? ak.pc : 0;
   return kidsTonic() + (it.mel != null ? it.mel : wrap12(it.rootPc - k));   // the song pitch (keyboard.js kidsNatural; Octave kidsPlace = itself)
 }
-function keyMidi(pc) { return kidsTonic() + wrap12(pc - wrap12(kidsTonic())); }   // C..B on the Kids tonic octave (C major: C4..B4)
+function keyMidi(k) {
+  if (k && k.dataset && k.dataset.midi != null && k.dataset.midi !== "") return +k.dataset.midi;
+  return kidsTonic() + wrap12(Number(k) - wrap12(kidsTonic()));
+}
 // rd3 (Noff rd2 Low 3): an out-of-key key is silent in the Kids view (Full Range off), the same rule paintKeyChip paints as
 // "nokey" and padPlayable reads. Root cause of the first-tap chord: enter() rebuilds the hidden twin pads with renderPads(),
 // which (unlike kbRebuild) does not run paintKeyChip, so the twins have no "nokey" until the first tap repaints them and the
@@ -286,15 +352,15 @@ function keyOutOfKey(twin, pc) {
   return !keyDegrees(k).some(function (d) { return wrap12(d.pc) === wrap12(pc); });
 }
 function wireKey(k) {
-  k.dataset.midi = String(keyMidi(Number(k.dataset.pc)));
-  k.dataset.id = "kv" + k.dataset.pc;
+  if (k.dataset.midi == null) k.dataset.midi = String(keyMidi(Number(k.dataset.pc)));
+  k.dataset.id = "kv" + k.dataset.midi;
   k.addEventListener("pointerdown", function (e) {
     if (e.button != null && e.button !== 0) return;
     e.preventDefault();
     keyHaptic();
-    k.dataset.midi = String(keyMidi(Number(k.dataset.pc)));
+    if (k.dataset.midi == null) k.dataset.midi = String(keyMidi(Number(k.dataset.pc)));
     var g = kidsGoldStep() ? goldMidi() : null;
-    if (g != null && wrap12(g) === wrap12(Number(k.dataset.pc))) {   // the gold note's key (any octave: the arrow shows where it really is)
+    if (g != null && Number(k.dataset.midi) === g) {   // the gold key at its real pitch (no octave shift)
       var fin = lastStepNext();
       shared.kbKeyGo = true; shared.kbKeyStay = true;   // as a gold key tap on the grown-up keyboard
       try { kidsGoldGo(k, "key"); } finally { shared.kbKeyGo = false; }
@@ -374,11 +440,11 @@ function kidsCue(L, cur, li, rows) {
 function lyrHtml() {
   var L = KIDS_LYRICS[songName()];
   kvCue.j = -1; kvCue.chord = null;
-  if (!L || !L.length) return "";
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+  if (!L || !L.length) { var title = meta(songName()).title || songName() || ""; return title ? "<span class=\"w\">" + esc(title) + "</span>" : ""; }
   var cur = prog.cur >= 0 ? prog.cur : (magic ? magic.pos - 1 : -1), li = 0;
   if (cur >= prog.steps.length) cur = prog.steps.length - 1;
   if (cur >= 0) L.forEach(function (ln, i) { if (ln.markers.some(function (m) { return m.chordIndex <= cur; })) li = i; });
-  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
   var land = document.documentElement.classList.contains("lay-phone-land");   // sideways: the next line is hidden
   var cue = kidsCue(L, cur, li, land ? 1 : 2);
   if (cue) cue.cls = cueLetterClass(cue.chord);
@@ -439,11 +505,17 @@ export function paint(force) {
     var st = prog.steps[prog.cur];
     kv.endT = setTimeout(function () { kv.endT = 0; if (prog.playing) progStop(); showReward(); }, Math.max(0, st.bars * progLoopBar() * 1000 - 30));
   } else if (!prog.playing && kv.endT) { clearTimeout(kv.endT); kv.endT = 0; }
-  var g = goldMidi(), lo = keyMidi(0), paOff = state.playAlong === false;
+  var g = goldMidi();
+  if (kv.screen === "play") syncPiano(g);
+  var lo = els.piano && els.piano._lo != null ? els.piano._lo : 60, hi = els.piano && els.piano._hi != null ? els.piano._hi : 71, paOff = state.playAlong === false;
   var gi = kidsHintItem(), goldPad = gi ? wrap12(gi.rootPc) : null;
   var lit = {};
   Object.keys(fingers).forEach(function (id) { (fingers[id].midis || []).forEach(function (m) { lit[m] = 1; }); });
-  if (shared.suggestPreview && shared.suggestPreview.midis) Object.keys(shared.suggestPreview.midis).forEach(function (m) { lit[m] = 1; });
+  if (shared.suggestPreview) {
+    var src = shared.suggestPreview.raw || shared.suggestPreview.midis;
+    if (Array.isArray(src)) src.forEach(function (m) { lit[m] = 1; });
+    else if (src) Object.keys(src).forEach(function (m) { lit[m] = 1; });
+  }
   var name = songName();
   if (kv.screen === "play" && name && KV_SONGS[name] && state.kidsSong !== name) { state.kidsSong = name; scheduleSave(); }   // Hello opens the last song played
   if (kv.screen === "play" && name && KV_SONGS[name]) saveWalk(progWalkAt());   // rd6: the step is saved with the song
@@ -470,14 +542,14 @@ export function paint(force) {
     p.setAttribute("aria-label", kidsPadLabel(p.dataset.letter, gold && !paOff && goldNote));
   });
   Array.prototype.forEach.call(els.piano.querySelectorAll(".kv-wk, .kv-bk"), function (k) {
-    var midi = keyMidi(Number(k.dataset.pc)), gold = g != null && wrap12(g) === wrap12(midi);
-    k.dataset.midi = String(midi);
+    var midi = +k.dataset.midi, gold = g != null && midi === g;
     k.classList.toggle("gold", gold);
-    var dir = gold ? (g > lo + 11 ? "up" : g < lo ? "down" : "") : "";
+    var dir = gold ? (g > hi ? "up" : g < lo ? "down" : "") : "";
     k.classList.toggle("oct-up", dir === "up"); k.classList.toggle("oct-down", dir === "down");
     k.querySelector(".kv-oct").textContent = dir === "up" ? "\u25B2" : dir === "down" ? "\u25BC" : "";
     k.classList.toggle("lit", !!lit[midi]);
   });
+  layoutPiano(g);   // keep gold in view on a clamped uploaded span (no manual scroll)
   // Play stays ▶ while a song plays (never ■ Stop), at every size. Label already set above.
 }
 function startPaint() { if (!kv.timer) kv.timer = setInterval(function () { paint(false); }, 50); }
@@ -489,5 +561,5 @@ export function boot() {
   registerLook("kids", function () { return state.theme; }, function (l) { document.documentElement.classList.toggle("kv-lamp", l === "lamp"); });
   window.addEventListener("resize", function () { paint(true); if (kv.on && kv.screen === "songs") fitCards(); });
   if (!state.expert) enter(true);
-  if (TEST) window.__kv = { kv: kv, show: show, setExpert: setExpert, setTheme: setTheme, paint: paint, reward: showReward, gold: goldMidi, songs: function () { return prog.list.map(function (p) { return p.name; }); }, fitCards: fitCards, cue: function () { var w = els.lyr.querySelector('.cue'), t = els.lyr.querySelector('.kv-cuetag'); return { j: kvCue.j, chord: kvCue.chord, word: w ? w.textContent : null, row: w ? (w.closest('.kv-l1') ? 0 : 1) : -1, soon: !!(w && w.classList.contains('soon')), tagShown: !!(t && !t.hidden), log: kvCue.log.slice(-40) }; } };
+  if (TEST) window.__kv = { kv: kv, show: show, setExpert: setExpert, setTheme: setTheme, paint: paint, reward: showReward, gold: goldMidi, songs: function () { return prog.list.map(function (p) { return p.name; }); }, fitCards: fitCards, range: function () { return kidsPianoRange(kidsNeededMidis(prog.steps, kidsTonic())); }, needed: function () { return kidsNeededMidis(prog.steps, kidsTonic()); }, layout: function () { return layoutPiano(goldMidi()); }, cue: function () { var w = els.lyr.querySelector('.cue'), t = els.lyr.querySelector('.kv-cuetag'); return { j: kvCue.j, chord: kvCue.chord, word: w ? w.textContent : null, row: w ? (w.closest('.kv-l1') ? 0 : 1) : -1, soon: !!(w && w.classList.contains('soon')), tagShown: !!(t && !t.hidden), log: kvCue.log.slice(-40) }; } };
 }

@@ -1,0 +1,1578 @@
+{
+  "contractVersion": "1.3",
+  "songs": [
+    {
+      "song": {
+        "title": "All I Ask",
+        "artist": "Adele",
+        "year": 2015,
+        "key": {
+          "tonic": "E",
+          "mode": "major",
+          "display": "E major (modulates to F major in final chorus)",
+          "confidence": 0.95,
+          "source": "wiki"
+        },
+        "capo": 0,
+        "sources": [
+          {
+            "id": "wiki",
+            "url": "https://en.wikipedia.org/wiki/All_I_Ask",
+            "title": "All I Ask - Wikipedia",
+            "kind": "other",
+            "note": "Key E major, tempo 71 BPM, duration 4:31"
+          },
+          {
+            "id": "akor",
+            "url": "https://akorculuk.com/en/chords/20745/adele/all-i-ask-chord",
+            "title": "Adele - All I Ask chords · Akorculuk",
+            "kind": "chord-chart",
+            "note": "Concert pitch chord chart in E major"
+          },
+          {
+            "id": "ug",
+            "url": "https://tabs.ultimate-guitar.com/tab/adele/all-i-ask-chords-1782459",
+            "title": "ALL I ASK CHORDS by Adele @ Ultimate-Guitar",
+            "kind": "chord-chart",
+            "note": "Capo 4 chart transposed to concert pitch"
+          },
+          {
+            "id": "songbpm",
+            "url": "https://songbpm.com/@adele/all-i-ask",
+            "title": "BPM for All I Ask by Adele",
+            "kind": "tempo-db",
+            "note": "Lists 142 BPM (half-time 71)"
+          },
+          {
+            "id": "genius",
+            "url": "https://genius.com/Adele-all-i-ask-lyrics",
+            "title": "Adele – All I Ask Lyrics",
+            "kind": "lyrics"
+          }
+        ]
+      },
+      "timing": {
+        "bpm": 71,
+        "bpmConfidence": 0.85,
+        "tempoFeel": "half-time",
+        "tempoNote": "SongBPM and Tunebat list 142; Wikipedia, Hooktheory and Wikidata list 71; counted in half-time at 71",
+        "bpmSource": "wiki",
+        "timeSignature": "4/4",
+        "firstDownbeatSeconds": null,
+        "durationSeconds": 271,
+        "timingSource": "from-source",
+        "unknown": [
+          "firstDownbeatSeconds",
+          "sectionTimes"
+        ],
+        "durationSource": "wiki",
+        "barSumCheck": {
+          "totalBars": 80,
+          "expectedSeconds": 270.42,
+          "durationSeconds": 271,
+          "errorPercent": 0.21,
+          "pass": true
+        }
+      },
+      "form": [
+        "intro",
+        "verse1",
+        "prechorus1",
+        "chorus1",
+        "interlude",
+        "verse2",
+        "prechorus2",
+        "chorus2",
+        "bridge",
+        "chorus3",
+        "outro"
+      ],
+      "sections": [
+        {
+          "id": "intro",
+          "type": "intro",
+          "startSeconds": null,
+          "endSeconds": null,
+          "timingSource": "unknown",
+          "bars": [
+            {
+              "bar": 1,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "E",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 2,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "G#m",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 3,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "A",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 4,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "B",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            }
+          ],
+          "notes": "Simple piano pattern intro"
+        },
+        {
+          "id": "verse1",
+          "type": "verse",
+          "startSeconds": null,
+          "endSeconds": null,
+          "timingSource": "unknown",
+          "bars": [
+            {
+              "bar": 1,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "E",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 2,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "G#m",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 3,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "A",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 4,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "B",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 5,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "E",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 6,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "G#m",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 7,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "A",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 8,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "B",
+                  "confidence": 0.8,
+                  "source": "akor"
+                },
+                {
+                  "beat": 3,
+                  "chord": "G#",
+                  "confidence": 0.7,
+                  "source": "akor"
+                }
+              ]
+            }
+          ],
+          "lyrics": [
+            {
+              "text": "I will leave my heart at the door",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 1,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "I won't say a word",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 3,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "They've all been said before, you know",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 4,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "So why don't we just play pretend",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 5,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "Like we're not scared of what is coming next",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 7,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "Or scared of having nothing left",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 8,
+                  "beat": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "prechorus1",
+          "type": "prechorus",
+          "startSeconds": null,
+          "endSeconds": null,
+          "timingSource": "unknown",
+          "bars": [
+            {
+              "bar": 1,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "C#m",
+                  "confidence": 0.85,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 2,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "E",
+                  "confidence": 0.8,
+                  "source": "akor",
+                  "bass": "B"
+                }
+              ]
+            },
+            {
+              "bar": 3,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "F#m",
+                  "confidence": 0.85,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 4,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "A",
+                  "confidence": 0.8,
+                  "source": "akor",
+                  "bass": "B"
+                }
+              ]
+            }
+          ],
+          "lyrics": [
+            {
+              "text": "Look, don't get me wrong",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 1,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "I know there is no tomorrow",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 2,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "All I ask is",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 4,
+                  "beat": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "chorus1",
+          "type": "chorus",
+          "startSeconds": null,
+          "endSeconds": null,
+          "timingSource": "unknown",
+          "bars": [
+            {
+              "bar": 1,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "E",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 2,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "C#7",
+                  "confidence": 0.85,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 3,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "F#m",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 4,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "A",
+                  "confidence": 0.8,
+                  "source": "akor",
+                  "bass": "B"
+                }
+              ]
+            },
+            {
+              "bar": 5,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "B",
+                  "confidence": 0.85,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 6,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "E",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 7,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "C#7",
+                  "confidence": 0.85,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 8,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "F#m",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 9,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "A",
+                  "confidence": 0.8,
+                  "source": "akor",
+                  "bass": "B"
+                }
+              ]
+            },
+            {
+              "bar": 10,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "B",
+                  "confidence": 0.85,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 11,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "E",
+                  "confidence": 0.85,
+                  "source": "akor"
+                },
+                {
+                  "beat": 3,
+                  "chord": "C#m",
+                  "confidence": 0.7,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 12,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "F#m",
+                  "confidence": 0.8,
+                  "source": "akor"
+                },
+                {
+                  "beat": 3,
+                  "chord": "A",
+                  "confidence": 0.75,
+                  "source": "akor",
+                  "bass": "B"
+                }
+              ]
+            }
+          ],
+          "lyrics": [
+            {
+              "text": "If this is my last night with you",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 1,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "Hold me like I'm more than just a friend",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 4,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "Give me a memory I can use",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 7,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "Take me by the hand while we do what lovers do",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 9,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "It matters how this ends",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 12,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "'Cause what if I never love again?",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 12,
+                  "beat": 3
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "interlude",
+          "type": "interlude",
+          "startSeconds": null,
+          "endSeconds": null,
+          "timingSource": "unknown",
+          "bars": [
+            {
+              "bar": 1,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "E",
+                  "confidence": 0.8,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 2,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "G#m",
+                  "confidence": 0.8,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 3,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "A",
+                  "confidence": 0.8,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 4,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "B",
+                  "confidence": 0.8,
+                  "source": "akor"
+                }
+              ]
+            }
+          ],
+          "notes": "Short instrumental return to verse progression"
+        },
+        {
+          "id": "verse2",
+          "type": "verse",
+          "startSeconds": null,
+          "endSeconds": null,
+          "timingSource": "unknown",
+          "bars": [
+            {
+              "bar": 1,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "E",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 2,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "G#m",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 3,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "A",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 4,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "B",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 5,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "E",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 6,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "G#m",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 7,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "A",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 8,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "B",
+                  "confidence": 0.8,
+                  "source": "akor"
+                },
+                {
+                  "beat": 3,
+                  "chord": "G#",
+                  "confidence": 0.7,
+                  "source": "akor"
+                }
+              ]
+            }
+          ],
+          "lyrics": [
+            {
+              "text": "I don't need your honesty",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 1,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "It's already in your eyes",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 3,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "And I'm sure my eyes, they speak for me",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 4,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "No one knows me like you do",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 5,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "And since you're the only one that mattered",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 7,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "Tell me, who do I run to?",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 8,
+                  "beat": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "prechorus2",
+          "type": "prechorus",
+          "startSeconds": null,
+          "endSeconds": null,
+          "timingSource": "unknown",
+          "bars": [
+            {
+              "bar": 1,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "C#m",
+                  "confidence": 0.85,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 2,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "E",
+                  "confidence": 0.8,
+                  "source": "akor",
+                  "bass": "B"
+                }
+              ]
+            },
+            {
+              "bar": 3,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "F#m",
+                  "confidence": 0.85,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 4,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "A",
+                  "confidence": 0.8,
+                  "source": "akor",
+                  "bass": "B"
+                }
+              ]
+            }
+          ],
+          "lyrics": [
+            {
+              "text": "Look, don't get me wrong",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 1,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "I know there is no tomorrow",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 2,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "All I ask is",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 4,
+                  "beat": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "chorus2",
+          "type": "chorus",
+          "startSeconds": null,
+          "endSeconds": null,
+          "timingSource": "unknown",
+          "bars": [
+            {
+              "bar": 1,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "E",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 2,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "C#7",
+                  "confidence": 0.85,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 3,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "F#m",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 4,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "A",
+                  "confidence": 0.8,
+                  "source": "akor",
+                  "bass": "B"
+                }
+              ]
+            },
+            {
+              "bar": 5,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "B",
+                  "confidence": 0.85,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 6,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "E",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 7,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "C#7",
+                  "confidence": 0.85,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 8,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "F#m",
+                  "confidence": 0.9,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 9,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "A",
+                  "confidence": 0.8,
+                  "source": "akor",
+                  "bass": "B"
+                }
+              ]
+            },
+            {
+              "bar": 10,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "B",
+                  "confidence": 0.85,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 11,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "E",
+                  "confidence": 0.85,
+                  "source": "akor"
+                },
+                {
+                  "beat": 3,
+                  "chord": "C#m",
+                  "confidence": 0.7,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 12,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "F#m",
+                  "confidence": 0.8,
+                  "source": "akor"
+                },
+                {
+                  "beat": 3,
+                  "chord": "A",
+                  "confidence": 0.75,
+                  "source": "akor",
+                  "bass": "B"
+                }
+              ]
+            }
+          ],
+          "lyrics": [
+            {
+              "text": "If this is my last night with you",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 1,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "Hold me like I'm more than just a friend",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 4,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "Give me a memory I can use",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 7,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "Take me by the hand while we do what lovers do",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 9,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "It matters how this ends",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 12,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "'Cause what if I never love again?",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 12,
+                  "beat": 3
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "bridge",
+          "type": "bridge",
+          "startSeconds": null,
+          "endSeconds": null,
+          "timingSource": "unknown",
+          "bars": [
+            {
+              "bar": 1,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "A",
+                  "confidence": 0.8,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 2,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "G#",
+                  "confidence": 0.75,
+                  "source": "akor"
+                },
+                {
+                  "beat": 3,
+                  "chord": "F#m",
+                  "confidence": 0.7,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 3,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "A",
+                  "confidence": 0.8,
+                  "source": "akor",
+                  "bass": "B"
+                }
+              ]
+            },
+            {
+              "bar": 4,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "B",
+                  "confidence": 0.8,
+                  "source": "akor"
+                },
+                {
+                  "beat": 3,
+                  "chord": "G#m",
+                  "confidence": 0.7,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 5,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "G#7",
+                  "confidence": 0.75,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 6,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "C#m",
+                  "confidence": 0.8,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 7,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "F#m",
+                  "confidence": 0.8,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 8,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "A",
+                  "confidence": 0.75,
+                  "source": "akor",
+                  "bass": "B"
+                }
+              ]
+            }
+          ],
+          "lyrics": [
+            {
+              "text": "Let this be our lesson in love",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 1,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "Let this be the way we remember us",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 3,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "I don't wanna be cruel or vicious",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 5,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "And I ain't asking for forgiveness",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 7,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "All I ask is",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 8,
+                  "beat": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "chorus3",
+          "type": "chorus",
+          "startSeconds": null,
+          "endSeconds": null,
+          "timingSource": "unknown",
+          "bars": [
+            {
+              "bar": 1,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "F",
+                  "confidence": 0.85,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 2,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "D7",
+                  "confidence": 0.8,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 3,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "Gm",
+                  "confidence": 0.85,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 4,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "Bb",
+                  "confidence": 0.75,
+                  "source": "akor",
+                  "bass": "C"
+                }
+              ]
+            },
+            {
+              "bar": 5,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "C",
+                  "confidence": 0.8,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 6,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "F",
+                  "confidence": 0.85,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 7,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "D7",
+                  "confidence": 0.8,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 8,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "Gm",
+                  "confidence": 0.85,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 9,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "Bb",
+                  "confidence": 0.75,
+                  "source": "akor",
+                  "bass": "C"
+                }
+              ]
+            },
+            {
+              "bar": 10,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "C",
+                  "confidence": 0.8,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 11,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "F",
+                  "confidence": 0.8,
+                  "source": "akor"
+                },
+                {
+                  "beat": 3,
+                  "chord": "Dm",
+                  "confidence": 0.7,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 12,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "Gm",
+                  "confidence": 0.75,
+                  "source": "akor"
+                },
+                {
+                  "beat": 3,
+                  "chord": "Bb",
+                  "confidence": 0.7,
+                  "source": "akor",
+                  "bass": "C"
+                }
+              ]
+            }
+          ],
+          "lyrics": [
+            {
+              "text": "If this is my last night with you",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 1,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "Hold me like I'm more than just a friend",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 4,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "Give me a memory I can use",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 7,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "Take me by the hand while we do what lovers do",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 9,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "It matters how this ends",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 12,
+                  "beat": 1
+                }
+              ]
+            },
+            {
+              "text": "What if I never love again?",
+              "markers": [
+                {
+                  "charIndex": 0,
+                  "bar": 12,
+                  "beat": 3
+                }
+              ]
+            }
+          ],
+          "notes": "Key change up a half step to F major"
+        },
+        {
+          "id": "outro",
+          "type": "outro",
+          "startSeconds": null,
+          "endSeconds": null,
+          "timingSource": "unknown",
+          "bars": [
+            {
+              "bar": 1,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "F",
+                  "confidence": 0.7,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 2,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "F",
+                  "confidence": 0.7,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 3,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "F",
+                  "confidence": 0.6,
+                  "source": "akor"
+                }
+              ]
+            },
+            {
+              "bar": 4,
+              "chords": [
+                {
+                  "beat": 1,
+                  "chord": "F",
+                  "confidence": 0.6,
+                  "source": "akor"
+                }
+              ]
+            }
+          ],
+          "notes": "Sustained final chord / fade"
+        }
+      ]
+    }
+  ]
+}

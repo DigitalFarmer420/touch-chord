@@ -42,13 +42,19 @@ jobs:
           python-version: "3.x"
       - name: Cache-tag check
         run: python3 tools/check-version.py
-      # A release into main that changes app files must bump APP_VERSION (the version label).
-      # The production deploy also stamps BUILD_ID; this check still guards the bump.
-      - name: APP_VERSION bump for a release into main
-        if: github.base_ref == 'main'
+      # Every pull request that changes app files must bump APP_VERSION against its base branch (YYYY.MM.DD.N, the
+      # next counter for the day; see tools/tcversion.py). Into develop: each dev build gets its own number (Vinh,
+      # 21 Nov). Into main: a develop -> main release carries develop's bump, which is already above main.
+      # The deploys also stamp BUILD_ID; this check still guards the bump.
+      - name: APP_VERSION bump against the base branch
+        if: github.base_ref == 'main' || github.base_ref == 'develop'
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          git fetch --no-tags --depth=1 origin "+refs/heads/main:refs/remotes/origin/main"
-          python3 tools/check-bump.py origin/main
+          set -euo pipefail
+          case "$BASE_REF" in main|develop) ;; *) echo "unexpected base $BASE_REF"; exit 1 ;; esac
+          git fetch --no-tags --depth=1 origin "+refs/heads/$BASE_REF:refs/remotes/origin/$BASE_REF"
+          python3 tools/check-bump.py "origin/$BASE_REF"
 
   smoke:
     name: smoke

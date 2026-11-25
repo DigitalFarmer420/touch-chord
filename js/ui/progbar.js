@@ -1,11 +1,11 @@
 // Progression picker (#prog): placement, name fitting, Play / Next wiring.
-import { unlock } from "../audio/unlock.js?v=2026.11.21.2";
-import { paintLoop } from "../loop.js?v=2026.11.21.2";
-import { progNext } from "../songs/magic.js?v=2026.11.21.2";
-import { progPlay, prog, progSet, playButtonLabel, transportLabel } from "../songs/playback.js?v=2026.11.21.2";
-import { progFeel, progSteps, progNumerals } from "../songs/presets.js?v=2026.11.21.2";
-import { state } from "../state.js?v=2026.11.21.2";
-import { noteSimpleSongWalk, simpleProgStepIndex } from "./simplesrc.js?v=2026.11.21.2";
+import { unlock } from "../audio/unlock.js?v=2026.11.23.4";
+import { paintLoop } from "../loop.js?v=2026.11.23.4";
+import { progNext } from "../songs/magic.js?v=2026.11.23.4";
+import { progPlay, prog, progSet, playButtonLabel, transportLabel } from "../songs/playback.js?v=2026.11.23.4";
+import { progFeel, progSteps, progNumerals } from "../songs/presets.js?v=2026.11.23.4";
+import { state } from "../state.js?v=2026.11.23.4";
+import { noteSimpleSongWalk, simpleProgStepIndex } from "./simplesrc.js?v=2026.11.23.4";
 
 // The picker: Simple = friendly name in the left column under Major / Minor; full mode =
 // the numerals in a cycler by the style row (phone landscape: top of the Now column; other
@@ -73,7 +73,7 @@ function splitWord() {
 }
 // v112.5 (#6): short names for the narrow phone picker, used only when the full name won't fit one line at 11 px.
 const SHORT_NAMES = { "Old MacDonald": "MacDonald", "Row Your Boat": "Row Boat", "Itsy Bitsy Spider": "Itsy Bitsy",
-  "London Bridge": "London", "Hey Diddle Diddle": "Hey Diddle", "Head Shoulders Knees and Toes": "Shoulders", "Mary's Lamb": "Mary", "Island Skank": "Skank", "Minor Riddim": "Riddim",
+  "Happy Birthday": "Birthday", "Jingle Bells": "Jingle", "This Old Man": "Old Man", "London Bridge": "London", "Hey Diddle Diddle": "Hey Diddle", "Head Shoulders Knees and Toes": "Shoulders", "Mary's Lamb": "Mary", "Island Skank": "Skank", "Minor Riddim": "Riddim",
   "Baa Baa Black Sheep": "Baa Baa", "Hickory Dickory Dock": "Hickory", "Hot Cross Buns": "Hot Buns", "Rhythm Changes": "Rhythm" };
 function fitProgName() {
   var el = document.getElementById("prog");
