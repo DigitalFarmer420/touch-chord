@@ -1,0 +1,256 @@
+/* Touch Chord look v4 (Uiux mockups approved by Vinh, 24 Nov 2026): Simple, Expert, Settings and the Sound panel.
+   Source of the design: /workspace/uiux-audit (REPORT.md, mockups/v4.css and the per-screen CSS, compare-*.png).
+
+   KIDS DOES NOT CHANGE. Every rule in this file is scoped to html:not(.kv), written :where(html:not(.kv)) or html.<mode>:where(:not(.kv)) (Kids sets html.kv while it is on screen, and
+   its grown-up Settings sheet opens with html.kv still set), so nothing here can match a Kids screen.
+   The :where() keeps the guard at zero specificity, so each rule weighs exactly what it did in the approved mockups.
+   tests/unit/look-v4.test.js fails if a selector here lacks the guard.
+
+   Loaded last, after every other stylesheet. The !important flags are needed where the live rules are themselves
+   !important (expert.css, panels.css, modesheet.css) or where the layout code writes inline sizes.
+
+   Lamp-only surfaces (the dark gradients and card fills) are also guarded with :not(.s-day) / :not(.x-day) (inside the same :where), so the
+   Day look keeps its own cream palette; the type, hint yellow, flat chips and layout apply in both looks. */
+
+/* ===== 1. Tokens ===== */
+:where(html:not(.kv)) {
+  --tc-font-display: Fredoka, Nunito, system-ui, sans-serif;
+  --tc-font-ui: Nunito, system-ui, sans-serif;
+  --tc-gold: #FFC23D;      /* hint yellow: every now / next-step hint */
+  --tc-teal: #2FA08F;      /* primary action */
+  --tc-major: #7ED9BF;     /* major chords: mint (same in Simple and Expert) */
+  --tc-major-ink: #10372E;
+  --tc-minor: #A3B4F2;     /* minor chords: periwinkle */
+  --tc-minor-ink: #1C2552;
+  --tc-tension: #6E5D52;   /* tension: warm taupe */
+  --tc-borrow: #F2A48A;    /* borrowed chord: dashed coral outline */
+  --tc-surface: #2A231C; --tc-surface-2: #342B22; --tc-line: #4A3E31; --tc-ink: #F7EEDF; --tc-muted: #C9B8A0;
+  --tc-r-card: 18px; --tc-r-ctl: 14px; --tc-r-chip: 12px;
+}
+/* One hint colour: the live gold/copper "next" variables become the hint yellow (Lamp and Day). */
+html:root:where(:not(.kv)), html.simple:where(:not(.kv)), html.expert:where(:not(.kv)), html.x-day:where(:not(.kv)), html.expert.x-lamp:where(:not(.kv)), html.expert.x-day:where(:not(.kv)) {
+  --lk-c4853f: #FFC23D !important; --lk-c4853f-1: rgba(255,194,61,1) !important; --lk-c4853f-95: rgba(255,194,61,.95) !important;
+  --lk-c4853f-8: rgba(255,194,61,.8) !important; --lk-c4853f-5: rgba(255,194,61,.5) !important; --lk-c4853f-45: rgba(255,194,61,.45) !important;
+  --x-gold: #FFC23D !important;
+}
+:where(html:not(.kv)) #songBar { --sb-gold: #FFC23D !important; }
+
+/* ===== 2. Type: Fredoka for display, Nunito for everything else (bundled in fonts/, see css/fonts.css) ===== */
+html.simple:where(:not(.kv)) body, html.expert:where(:not(.kv)) body, :where(html:not(.kv)) .ms-wrap, :where(html:not(.kv)) #ctl { font-family: var(--tc-font-ui) !important; }
+html.simple:where(:not(.kv)) button, html.expert:where(:not(.kv)) button, html.simple:where(:not(.kv)) input, html.expert:where(:not(.kv)) input,
+html.simple:where(:not(.kv)) select, html.expert:where(:not(.kv)) select, :where(html:not(.kv)) .ms-wrap button { font-family: inherit; }
+html.simple:where(:not(.kv)) button { font-family: var(--tc-font-ui) !important; }
+html.simple:where(:not(.kv)) .kk-name, html.simple:where(:not(.kv)) .pg-t, html.simple:where(:not(.kv)) #symbol, html.simple:where(:not(.kv)) #sustainBtn,
+html.simple:where(:not(.kv)) .ss-chip, html.simple:where(:not(.kv)) .ss-note .nn, html.simple:where(:not(.kv)) .mc-t, html.simple:where(:not(.kv)) #styles button,
+html.simple:where(:not(.kv)) .pg-arrow, html.simple:where(:not(.kv)) .kk-arrow { font-family: var(--tc-font-display) !important; letter-spacing: 0; }
+/* The Now chord: Fredoka in the hint yellow */
+html.simple:where(:not(.kv)) #symbol { color: var(--tc-gold); font-weight: 600; }
+html.expert:where(:not(.kv)) .now-card #symbol { font-family: var(--tc-font-display) !important; font-size: 38px !important; font-weight: 600 !important; color: var(--tc-gold) !important; line-height: 1 !important; }
+html.expert:where(:not(.kv)) .now-card #tones { letter-spacing: .25em; font-size: 12px !important; }
+html.expert:where(:not(.kv)) .x-pbar .x-pn { font-family: var(--tc-font-display) !important; font-size: 20px !important; font-weight: 600 !important; }
+
+/* ===== 3. Simple ===== */
+html.simple:where(:not(.kv)) .kk-name { color: var(--tc-ink); font-weight: 600; }
+html.simple.s-day:where(:not(.kv)) .kk-name { color: var(--ink); }
+html.simple:where(:not(.kv)) .pg-t { font-weight: 600; font-size: 17px; }
+html.simple:where(:not(.kv)) #tones { letter-spacing: .25em; color: var(--tc-muted); }
+html.simple.s-day:where(:not(.kv)) #tones { color: var(--muted); }
+/* Chord names: the mockup sizes, times the strip fitter's --ss-k (js/ui/strip.js), so a crowded grid (a song, Jazz) still shrinks
+   its names instead of stacking them and growing the rows. --ss-k is 1 on the mockup screens. */
+/* chord colours match Expert: mint = major, periwinkle = minor, taupe = tension, dashed coral = borrowed. Flat: no bottom edge. */
+html.simple:where(:not(.kv)) .ss .ss-chip { border-radius: var(--tc-r-chip) !important; font-weight: 600 !important; box-shadow: none !important; }
+html.simple:where(:not(.kv)) .ss .ss-chip.major { background: var(--tc-major) !important; border-color: transparent !important; color: var(--tc-major-ink) !important; }
+html.simple:where(:not(.kv)) .ss .ss-chip.minor { background: var(--tc-minor) !important; border-color: transparent !important; color: var(--tc-minor-ink) !important; }
+html.simple:where(:not(.kv)) .ss .ss-chip.tension { background: var(--tc-tension) !important; border-color: transparent !important; color: #FFF3E6 !important; }
+html.simple:where(:not(.kv)) .ss .ss-chip.color { background: transparent !important; border: 2px dashed var(--tc-borrow) !important; color: var(--tc-borrow) !important; }
+html.simple.lay-phone-port:where(:not(.kv)) .ss .ss-chip, html.simple.lay-phone-land:where(:not(.kv)) .ss .ss-chip { font-size: calc(17px * var(--ss-k, 1)) !important; }
+html.simple.lay-pad-port:where(:not(.kv)) .ss .ss-chip, html.simple.lay-pad-land:where(:not(.kv)) .ss .ss-chip { font-size: calc(26px * var(--ss-k, 1)) !important; }
+html.simple.lay-phone-port:where(:not(.kv)) .ss .ss-chip.tension, html.simple.lay-phone-land:where(:not(.kv)) .ss .ss-chip.tension { font-size: calc(14px * var(--ss-k, 1)) !important; }
+html.simple.lay-pad-port:where(:not(.kv)) .ss .ss-chip.tension, html.simple.lay-pad-land:where(:not(.kv)) .ss .ss-chip.tension { font-size: calc(20px * var(--ss-k, 1)) !important; }
+html.simple:where(:not(.kv)) .ss .ss-note { border-radius: 10px !important; box-shadow: none !important; }
+html.simple:where(:not(.kv)) .ss .ss-note .nn { font-weight: 500; }
+html.simple:where(:not(.kv)) .ss .ss-chip:active { transform: scale(.94); transition: transform .08s; }
+/* step badges: hint yellow, readable */
+html.simple:where(:not(.kv)) .pg-badge { background: var(--tc-gold) !important; color: #2A1C0C !important; border: 2px solid #1E1914 !important; font: 700 12px/1 var(--tc-font-display) !important; width: 22px !important; height: 22px !important; display: grid !important; place-items: center; }
+/* style chips: pills with a fade that says "scroll for more" */
+html.simple:where(:not(.kv)) #styles { -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); }
+html.simple:where(:not(.kv)) #styles button { min-height: 40px; border-radius: 999px !important; font-weight: 500; font-size: 16px; }
+html.simple:where(:not(.kv)) #styles button.on { background: var(--tc-gold) !important; color: #2A1C0C !important; border-color: var(--tc-gold) !important; }
+/* controls: one shape language, flat solid colours */
+html.simple:where(:not(.kv)) .pg-sel, html.simple:where(:not(.kv)) .kk-root { border-radius: var(--tc-r-ctl) !important; border-width: 2px !important; }
+html.simple:where(:not(.kv)) .pg-arrow { min-width: 44px !important; }
+html.simple:where(:not(.kv)) .pg-arrow, html.simple:where(:not(.kv)) .kk-arrow { font-size: 30px !important; font-weight: 600 !important; --pg-arrow: 40px; color: #E2A15A; }
+html.simple:where(:not(.kv)) .pg-btn.pg-song { background: var(--tc-surface-2) !important; }
+html.simple.s-day:where(:not(.kv)) .pg-btn.pg-song { background: var(--bg-2) !important; }
+html.simple:where(:not(.kv)) #prog .pg-step { background: var(--tc-teal) !important; border-color: var(--tc-teal) !important; }
+html.simple:where(:not(.kv)) #prog .pg-step, html.simple:where(:not(.kv)) #prog .pg-btn, html.simple:where(:not(.kv)) .pg-step { box-shadow: none !important; }
+html.simple:where(:not(.kv)) .kk-mode { border-radius: var(--tc-r-ctl) !important; }
+html.simple:where(:not(.kv)) #sustainBtn, html.simple:where(:not(.kv)) .now-card, html.simple:where(:not(.kv)) .next-card { border-radius: var(--tc-r-card) !important; }
+html.simple:where(:not(.kv):not(.s-day)) #sustainBtn { background: linear-gradient(180deg, #2E261E, #241E18) !important; }
+html.simple:where(:not(.kv):not(.s-day)) .next-card { background: radial-gradient(120% 80% at 50% 0%, #2B241D 0%, #1C1813 70%) !important; }
+
+/* Simple sideways on a phone: a wider two-column control panel (was 160-196px), every control at least 40px tall */
+html.simple.lay-phone-land:where(:not(.kv)) #app { grid-template-columns: 296px minmax(0, 1fr) auto !important; grid-template-rows: 48px minmax(0, 1fr) 60px !important; }
+html.simple.lay-phone-land:where(:not(.kv)) .now-col { display: grid !important; grid-template-columns: 96px minmax(0, 1fr); grid-template-rows: auto auto auto; gap: 8px !important; align-content: start; }
+html.simple.lay-phone-land:where(:not(.kv)) .now-card { grid-column: 1; grid-row: 1; height: auto !important; min-height: 0 !important; justify-content: center; border-radius: 16px !important; }
+html.simple.lay-phone-land:where(:not(.kv)) #kidKey { grid-column: 2; grid-row: 1; height: auto !important; gap: 6px !important; }
+html.simple.lay-phone-land:where(:not(.kv)) .kk-root { height: 44px !important; flex: 0 0 44px !important; }
+html.simple.lay-phone-land:where(:not(.kv)) .kk-mode { height: 40px !important; min-height: 40px !important; flex: 0 0 40px !important; font-size: 15px; }
+html.simple.lay-phone-land:where(:not(.kv)) #prog { grid-column: 1 / span 2; grid-row: 2; height: auto !important; }
+html.simple.lay-phone-land:where(:not(.kv)) #prog .pg-btns { gap: 8px !important; }
+html.simple.lay-phone-land:where(:not(.kv)) #prog .pg-btn { height: 48px !important; max-height: 48px !important; min-height: 48px !important; }
+html.simple.lay-phone-land:where(:not(.kv)) #symbol { font-size: 40px !important; }
+html.simple.lay-phone-land:where(:not(.kv)) #styles { align-items: center; flex-wrap: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important; height: 48px !important; max-height: 48px !important; }
+html.simple.lay-phone-land:where(:not(.kv)) #styles button { min-height: 40px !important; height: 40px !important; padding: 0 14px !important; font-size: 15px !important; }
+html.simple.lay-phone-land:where(:not(.kv)) #sustainBtn { font-size: 20px !important; }
+html.simple.lay-phone-land:where(:not(.kv)) .ss .ss-chip { font-size: calc(18px * var(--ss-k, 1)) !important; }
+html.simple.lay-phone-land:where(:not(.kv)) .ss .ss-note .nn { font-size: 20px !important; }
+
+/* ===== 4. Expert ===== */
+html.expert:where(:not(.kv):not(.x-day)) body { background: radial-gradient(140% 60% at 50% 0%, #2A221A 0%, #18140F 70%) !important; }
+html.expert:where(:not(.kv)) .x-kchip { height: 30px !important; min-height: 30px !important; border-radius: 999px !important; font-size: 13px !important; padding: 0 12px !important; align-self: center; }   /* Octave: a pill that stays in the strip above the keys */
+html.expert:where(:not(.kv)) .x-dots i { width: 11px !important; height: 11px !important; }
+html.expert:where(:not(.kv)) .x-dots i.next, html.expert:where(:not(.kv)) .x-dots i.cur { background: var(--tc-gold) !important; border-color: var(--tc-gold) !important; }
+html.expert:where(:not(.kv)) .x-pbar.open { border-color: var(--tc-gold) !important; }
+html.expert:where(:not(.kv)) .x-b, html.expert:where(:not(.kv)) .x-pbar, html.expert:where(:not(.kv)) .now-card, html.expert:where(:not(.kv)) #sustainBtn { border-radius: 16px !important; }
+html.expert:where(:not(.kv)) .next-card { border-radius: 20px !important; }
+html.expert:where(:not(.kv):not(.x-day)) .next-card { border-color: #3A3027 !important; background: #1B1712 !important; }
+/* chord grid: flat mint / periwinkle, dashed coral borrowed, hint-yellow next outline */
+html.expert:where(:not(.kv)) #suggest .ss-chip { border-radius: 12px !important; }
+html.expert.lay-phone-port:where(:not(.kv)) #suggest .ss-chip, html.expert.lay-phone-land:where(:not(.kv)) #suggest .ss-chip { font-size: 16px !important; }
+html.expert:where(:not(.kv)) #suggest .ss-chip.major { background: var(--tc-major) !important; color: var(--tc-major-ink) !important; border-color: transparent !important; }
+html.expert:where(:not(.kv)) #suggest .ss-chip.minor { background: var(--tc-minor) !important; color: var(--tc-minor-ink) !important; border-color: transparent !important; }
+html.expert:where(:not(.kv)) #suggest .ss-chip.color { background: transparent !important; border: 2px dashed var(--tc-borrow) !important; color: var(--tc-borrow) !important; }
+html.expert:where(:not(.kv)) #suggest .ss-chip, html.expert:where(:not(.kv)) #suggest .ss-note,
+html.expert:where(:not(.kv)) #suggest .ss-chip.pg-on, html.expert:where(:not(.kv)) #suggest .ss-note.pg-on { box-shadow: none !important; }
+html.expert:where(:not(.kv)) .pg-badge { background: var(--tc-gold) !important; color: #2A1C0C !important; border: 2px solid #1B1712 !important; width: 20px !important; height: 20px !important; font: 700 11px/16px var(--tc-font-display) !important; text-align: center; border-radius: 50% !important; }
+/* Next: flat solid teal */
+html.expert:where(:not(.kv)) #xNext { background-color: var(--tc-teal) !important; }
+html.expert:where(:not(.kv)) #xNext, html.expert:where(:not(.kv)) #xNext:active { box-shadow: none !important; }
+/* piano */
+html.expert:where(:not(.kv)) .pad.white { border-radius: 0 0 10px 10px !important; }
+html.expert:where(:not(.kv)) .pad.black { border-radius: 0 0 8px 8px !important; }
+html.expert:where(:not(.kv):not(.x-day)) .pad.white { background: linear-gradient(180deg, #FFF8EC 0%, #F1E6D2 100%) !important; }
+html.expert:where(:not(.kv):not(.x-day)) .pad.black { background: linear-gradient(180deg, #3B3129, #241D17) !important; }
+html.expert:where(:not(.kv):not(.x-day)) #sustainBtn { background: linear-gradient(180deg, #3A3026, #2A231C) !important; }
+
+/* Next-chord hints (Simple and Expert): outline, dot and piano dot in the hint yellow */
+:where(html:not(.kv)) #suggest .nxd, :where(html:not(.kv)) .kb .pad.nx-root::before { background: var(--tc-gold) !important; }
+html.simple:where(:not(.kv)) .ss .ss-chip.nxdot, html.expert:where(:not(.kv)) #suggest .ss-chip.nxdot { outline: 3px solid var(--tc-gold); outline-offset: 2px; }
+html.simple:where(:not(.kv)) #app #suggest .nxdot.nxdot, html.simple:where(:not(.kv)) .ss .ss-chip.nx, html.simple:where(:not(.kv)) .ss .ss-note.nx { outline-color: var(--tc-gold) !important; animation: none !important; }
+
+/* Lock, docked inside the progression selector and the song selector: an icon at the right end past a divider,
+   centred in its slot. Gray when off, hint yellow when locked. Same button, same behaviour (js/expert/ui.js). */
+html.expert:where(:not(.kv)) #xSrc { position: relative !important; }
+html.expert:where(:not(.kv)) #xSrc .x-pbar { flex: 1 1 auto !important; width: 100% !important; max-width: none !important; padding-right: 62px !important; }
+html.expert:where(:not(.kv)) #xSrc.x-mode-song { padding-right: 0 !important; }
+html.expert:where(:not(.kv)) #xSrc.x-mode-song .x-songc { margin-right: 54px !important; min-width: 0 !important; }
+html.expert:where(:not(.kv)) #xSrc :is(.x-plock, .x-lock) {
+  position: absolute !important; right: 1.5px !important; top: 1.5px !important; bottom: 1.5px !important; transform: none !important; z-index: 2 !important;
+  width: 52px !important; min-width: 52px !important; height: auto !important; min-height: 0 !important; max-height: none !important;
+  margin: 0 !important; padding: 0 !important; border: 0 !important; border-radius: 0 14px 14px 0 !important; box-shadow: none !important;
+  background: linear-gradient(var(--tc-line), var(--tc-line)) left center / 1.5px 62% no-repeat transparent !important;
+  display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: center !important; gap: 0 !important; }
+html.expert:where(:not(.kv)) #xSrc.x-mode-song .x-lock { border-radius: 0 16.5px 16.5px 0 !important; }   /* the song box has 18px corners */
+html.expert:where(:not(.kv)) #xSrc :is(.x-plock, .x-lock) .x-lkt { display: none !important; }   /* the visible "Lock" word; the aria-label still names the button */
+html.expert:where(:not(.kv)) #xSrc :is(.x-plock, .x-lock)::before, html.expert:where(:not(.kv)) #xSrc :is(.x-plock, .x-lock)::after { display: none !important; }
+html.expert:where(:not(.kv)) #xSrc :is(.x-plock, .x-lock) .x-lki { display: block !important; margin: 0 !important; font-size: 18px !important; line-height: 1 !important; color: #F7EEDF !important; filter: grayscale(1) brightness(1.7); }
+html.expert:where(:not(.kv)) #xSrc :is(.x-plock, .x-lock)[aria-pressed="true"] { background-color: var(--tc-gold) !important; }
+html.expert:where(:not(.kv)) #xSrc :is(.x-plock, .x-lock)[aria-pressed="true"] .x-lki { filter: grayscale(1) brightness(.25); }
+/* Day look: a light divider and a mid-gray icon, so the docked lock reads on the cream box */
+html.expert.x-day:where(:not(.kv)) #xSrc :is(.x-plock, .x-lock) { background-image: linear-gradient(#CDBEA8, #CDBEA8) !important; }
+html.expert.x-day:where(:not(.kv)) #xSrc :is(.x-plock, .x-lock):not([aria-pressed="true"]) .x-lki { filter: grayscale(1) brightness(.75); }
+html.expert:is(.lay-pad-port, .lay-pad-land):where(:not(.kv)) #xSrc .x-pbar { padding-right: 84px !important; }
+html.expert:is(.lay-pad-port, .lay-pad-land):where(:not(.kv)) #xSrc.x-mode-song .x-songc { margin-right: 76px !important; }
+html.expert:is(.lay-pad-port, .lay-pad-land):where(:not(.kv)) #xSrc :is(.x-plock, .x-lock) { width: 72px !important; min-width: 72px !important; border-radius: 0 16px 16px 0 !important; }
+html.expert:is(.lay-pad-port, .lay-pad-land):where(:not(.kv)) #xSrc :is(.x-plock, .x-lock) .x-lki { font-size: 24px !important; }
+
+/* Expert sideways on a phone: the chord grid gets the height, every row is one even height */
+/* The top row is 40 (was 36), so the piano gives 4px back. Same formula as css/expert.css (P2 + P3, Nov 21) minus 4:
+   92 at 780x360 (the mockup), up to 122 on taller screens, and on short screens it still gives way first (never under 72). */
+html.expert.lay-phone-land:where(:not(.kv)) #app { --x-row: 40px !important; --x-kb-h: clamp(72px, max(min(92px, calc(calc(100 * var(--tc-dvh)) - 261px)), min(122px, calc(calc(100 * var(--tc-dvh)) - 274px))), 122px) !important; }
+@media (max-height: 348px) {
+  html.expert.lay-phone-land:where(:not(.kv)) #app { --x-kb-h: clamp(72px, calc(calc(100 * var(--tc-dvh)) - 255px), 92px) !important; }
+  html.expert.lay-phone-land.x-types-open:where(:not(.kv)) #app { --x-kb-h: clamp(72px, calc(calc(100 * var(--tc-dvh)) - 255px), 84px) !important; }
+}
+html.expert.lay-phone-land:where(:not(.kv)):has(#xSrc.x-mode-prog) #suggest.ss { grid-template-rows: [b-start g-start] 0px [b-end h-start] minmax(0, 1fr) [h-end n-start] minmax(0, 1fr) [n-end s-start] minmax(0, 1fr) [s-end t-start] minmax(0, 1fr) [t-end g-end] !important; --ss-fs: 16px; --ss-note: 16px; }
+html.expert.lay-phone-land:where(:not(.kv)):has(#xSrc.x-mode-prog) #suggest .ss-chip.color { grid-row: h-start / h-end !important; }   /* the borrowed chord joins the major row: frees a whole row */
+html.expert.lay-phone-land:where(:not(.kv)) .x-b, html.expert.lay-phone-land:where(:not(.kv)) .x-pbar { min-height: 40px; }
+html.expert.lay-phone-land:where(:not(.kv)) .now-card #symbol { font-size: 30px !important; }
+html.expert.lay-phone-land:where(:not(.kv)) .now-card { align-items: center !important; gap: 6px; }
+html.expert.lay-phone-land:where(:not(.kv)) .x-pbar .x-pn { font-size: 18px !important; }
+html.expert.lay-phone-land:where(:not(.kv)) .x-kchip { border-radius: 16px !important; height: auto !important; align-self: stretch; }
+html.expert.lay-phone-land:where(:not(.kv)) #xTop { align-items: stretch !important; height: 40px !important; }
+html.expert.lay-phone-land:where(:not(.kv)) #xTop > .x-b, html.expert.lay-phone-land:where(:not(.kv)) #xTop > .x-slot { height: 40px !important; min-height: 40px !important; margin: 0 !important; align-self: stretch !important; }
+html.expert.lay-phone-land:where(:not(.kv)) #xTop > #xHelp.x-help { width: 40px !important; min-width: 40px !important; max-width: 40px !important; flex: 0 0 40px !important; aspect-ratio: auto !important; }
+html.expert.lay-phone-land:where(:not(.kv)) #xTog { height: 40px !important; min-height: 40px !important; padding: 3px !important; margin: 0 !important; box-sizing: border-box !important; }
+html.expert.lay-phone-land:where(:not(.kv)) #xTog button { height: 100% !important; min-height: 0 !important; }
+html.expert.lay-phone-land:where(:not(.kv)) #xSrc .x-pbar { height: var(--x-src-h) !important; min-height: var(--x-src-h) !important; align-self: stretch !important; box-sizing: border-box !important; }
+html.expert.lay-phone-land:where(:not(.kv)) #xSrc.x-mode-song { height: var(--x-src-h) !important; box-sizing: border-box !important; }
+/* iPad sideways: the same even rows */
+html.expert.lay-pad-land:where(:not(.kv)) #xTop { align-items: stretch !important; }
+html.expert.lay-pad-land:where(:not(.kv)) #xTop > .x-b, html.expert.lay-pad-land:where(:not(.kv)) #xTog { height: 64px !important; min-height: 64px !important; margin: 0 !important; box-sizing: border-box !important; align-self: stretch !important; }
+html.expert.lay-pad-land:where(:not(.kv)) #xTop > #xHelp.x-help { width: 64px !important; min-width: 64px !important; max-width: 64px !important; flex: 0 0 64px !important; aspect-ratio: auto !important; }
+html.expert.lay-pad-land:where(:not(.kv)) #xTog button { height: 100% !important; min-height: 0 !important; }
+html.expert.lay-pad-land:where(:not(.kv)) #xSrc .x-pbar { height: 90px !important; min-height: 90px !important; box-sizing: border-box !important; }
+
+/* ===== 5. Settings sheet (Simple and Expert; the Kids grown-up sheet is untouched) ===== */
+:where(html:not(.kv)) .ms-sheet { border-radius: 24px 24px 0 0 !important; }
+:where(html:not(.kv)) .ms-wrap:where(:not(.ms-day)) .ms-sheet { background: linear-gradient(180deg, #2E261E, #221C16) !important; }
+:where(html:not(.kv)) .ms-head h2 { font-family: var(--tc-font-display) !important; font-weight: 600 !important; font-size: 26px !important; }
+:where(html:not(.kv)) .ms-body { display: flex !important; flex-direction: column; }
+:where(html:not(.kv)) .ms-body > #msVer { order: 99; opacity: .7; margin-top: 10px; transform: scale(.92); transform-origin: left; }   /* version / build: a footer, not the first thing */
+:where(html:not(.kv)) .ms-lbl { color: var(--tc-gold) !important; letter-spacing: .12em; font-weight: 800 !important; }
+:where(html:not(.kv)) #msMode { border-radius: 18px !important; padding: 4px !important; }
+:where(html:not(.kv)) .ms-wrap:where(:not(.ms-day)) #msMode { background: #1A1510 !important; }
+:where(html:not(.kv)) #msMode button { border-radius: 14px !important; }
+:where(html:not(.kv)) #msMode button b { font-family: var(--tc-font-display) !important; font-weight: 600 !important; font-size: 19px !important; }
+:where(html:not(.kv)) #msMode button b::before { margin-right: 6px; font-size: 15px; }
+:where(html:not(.kv)) #msMode button:nth-child(1) b::before { content: "\2605"; color: #7ED9BF; }
+:where(html:not(.kv)) #msMode button:nth-child(2) b::before { content: "\25D0"; color: #FFC23D; }
+:where(html:not(.kv)) #msMode button:nth-child(3) b::before { content: "\25C6"; color: #F2A48A; }
+:where(html:not(.kv)) #msMode button.on { background: #F7EEDF !important; box-shadow: none !important; }
+:where(html:not(.kv)) #msMode button.on b::before { color: #2A1C0C; }
+:where(html:not(.kv)) .ms-row { border-radius: 14px; }
+:where(html:not(.kv)) .ms-row .ms-t > b, :where(html:not(.kv)) .ms-row .ms-t { font-weight: 700; }
+:where(html:not(.kv)) .ms-tg { accent-color: var(--tc-teal); }
+:where(html:not(.kv)) .ms-seg, :where(html:not(.kv)) .ms-seg button { border-radius: 999px !important; }
+/* sideways on a phone: two columns so everything fits without scrolling */
+html.lay-phone-land:where(:not(.kv)) .ms-sheet { left: 50% !important; right: auto !important; width: min(740px, calc(96 * var(--tc-vw))) !important; transform: translateX(-50%) !important; top: 6px !important; max-height: none !important; height: auto !important; bottom: 0 !important; }
+html.lay-phone-land:where(:not(.kv)) .ms-head { margin-bottom: 0 !important; }
+html.lay-phone-land:where(:not(.kv)) .ms-grab { display: none; }
+html.lay-phone-land:where(:not(.kv)) .ms-body { display: grid !important; grid-template-columns: 1fr 1fr; column-gap: 22px; align-content: start; overflow: visible !important; }
+html.lay-phone-land:where(:not(.kv)) .ms-body > * { grid-column: 1; }
+html.lay-phone-land:where(:not(.kv)) .ms-body > .ms-lbl:nth-child(2) { grid-row: 1; }
+html.lay-phone-land:where(:not(.kv)) #msMode { grid-row: 2; align-self: start; }
+html.lay-phone-land:where(:not(.kv)) .ms-body > .ms-look { grid-row: 3; }
+html.lay-phone-land:where(:not(.kv)) .ms-body > #msReset { grid-row: 4; }
+html.lay-phone-land:where(:not(.kv)) .ms-body > .ms-lbl:nth-child(4) { grid-column: 2; grid-row: 1; }
+html.lay-phone-land:where(:not(.kv)) .ms-body > #msPlayAlong { grid-column: 2; grid-row: 2; }
+html.lay-phone-land:where(:not(.kv)) .ms-body > #msHints { grid-column: 2; grid-row: 3; }
+html.lay-phone-land:where(:not(.kv)) .ms-body > #msNums { grid-column: 2; grid-row: 4; }
+html.lay-phone-land:where(:not(.kv)) .ms-body > #msVer { grid-column: 2; grid-row: 5; margin-top: 0; }
+
+/* ===== 6. Sound panel ===== */
+:where(html:not(.kv)) #ctl { border-radius: 22px !important; }
+:where(html:not(.kv):not(.x-day):not(.s-day)) #ctl { background: linear-gradient(180deg, #2E261E, #241E18) !important; box-shadow: 0 18px 40px rgba(0,0,0,.55) !important; }
+:where(html:not(.kv)) #ctl .ctl-tabs { border-radius: 999px !important; padding: 3px !important; }
+:where(html:not(.kv)) #ctl .ctl-tabs button { border-radius: 999px !important; font-family: var(--tc-font-display) !important; font-weight: 600 !important; }
+:where(html:not(.kv)) #engines button { border-radius: 14px !important; }
+:where(html:not(.kv)) #engines button.on { background: var(--tc-gold) !important; color: #2A1C0C !important; box-shadow: none !important; }
+:where(html:not(.kv)) #engines button b { font-family: var(--tc-font-display) !important; font-weight: 600 !important; font-size: 16px !important; }
+:where(html:not(.kv)) #bass.toggle.on { background: var(--tc-major) !important; color: var(--tc-major-ink) !important; border-radius: 12px !important; }
+:where(html:not(.kv)) #ctl input[type=range] { accent-color: var(--tc-gold); }
+/* Band: the "wow" control gets a highlighted row at the top */
+:where(html:not(.kv)) #bandWrap { order: -1; background: rgba(47,160,143,.14); border: 1.5px solid rgba(47,160,143,.6); border-radius: 14px; padding: 4px 10px; }
+:where(html:not(.kv)) #bandWrap .band-row span { font-family: var(--tc-font-display) !important; font-weight: 600 !important; color: #7ED9BF; }
+html.x-day:where(:not(.kv)) #bandWrap .band-row span, html.s-day:where(:not(.kv)) #bandWrap .band-row span { color: #1F6F63; }
+:where(html:not(.kv)) #bandWrap .band-row span::before { content: "\1F941  "; }
+/* sideways on a phone: the panel grows to fit so Band and Vol are visible */
+html.lay-phone-land:where(:not(.kv)) #ctl { height: auto !important; max-height: 312px !important; overflow: visible !important; }
+html.lay-phone-land:where(:not(.kv)) #paneSound { display: flex !important; flex-direction: column; gap: 6px; height: auto !important; }
+html.lay-phone-land:where(:not(.kv)) #engines button { height: 40px !important; min-height: 40px !important; }
+html.lay-phone-land:where(:not(.kv)) #paneSound .sound-layer { height: 52px !important; }
+
+/* ===== 7. Upload: neutral hints ("Song title" / "Artist" in index.html) that read as hints, not as filled-in values ===== */
+:where(html:not(.kv)) #uploadPick input::placeholder { color: var(--muted); opacity: .7; font-style: italic; }
