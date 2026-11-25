@@ -3,40 +3,40 @@
 // #sustainBtn, the Sound / FX / Layout / Loop panel #ctl, the keys #pads) with css/expert.css and adds the
 // Expert-only controls below. Every new control drives the existing code (same functions or the same
 // buttons), so sound, timing and music theory are exactly the 351c02c ones.
-import { unlock } from "../audio/unlock.js?v=2026.11.23.4";
-import { api as ChordAudio } from "../audio/index.js?v=2026.11.23.4";
-import { stopPlayback } from "../loop.js?v=2026.11.23.4";
-import { activeKey } from "../keys.js?v=2026.11.23.4";
-import { setKidKey } from "../kids.js?v=2026.11.23.4";
-import { prog, progSet, placeBadges, setBadgeAvoid, magic, progStop, progWalkAt, progWalkTo, playButtonLabel } from "../songs/playback.js?v=2026.11.23.4";
-import { magicQueue } from "../songs/magic.js?v=2026.11.23.4";
-import { nextHintSpec } from "../ui/next.js?v=2026.11.23.4";
-import { setHintAvoid } from "../ui/hints.js?v=2026.11.23.4";
-import { progFeel, progSteps } from "../songs/presets.js?v=2026.11.23.4";
-import { progLockPick } from "../songs/proghold.js?v=2026.11.23.4";
-import { upSelected, upCurStep, upNextStep, upA, progLoopBar, songTempo } from "../songs/song.js?v=2026.11.23.4";
-import { songCue, cueSoon, cueClock, cuePieces, placeCueTag, cueChipClass } from "../ui/chordcue.js?v=2026.11.23.4";
-import { upSym, upSecName } from "../songs/upload.js?v=2026.11.23.4";
-import { upLyrMap, lyrPad } from "../ui/lyrics.js?v=2026.11.23.4";
-import { state, shared, fingers, loop, scheduleSave } from "../state.js?v=2026.11.23.4";
-import { tapSimpleSrc, paintSimpleSrc } from "../ui/simplesrc.js?v=2026.11.23.4";
-import { accSym } from "../theory/spelling.js?v=2026.11.23.4";
-import { Theory } from "../theory/index.js?v=2026.11.23.4";
-import { paintKeyChip, keyLabel } from "../ui/keychip.js?v=2026.11.23.4";
-import { fitNowSymbol } from "../ui/nowbox.js?v=2026.11.23.4";
-import { computeSpec, renderPads, refreshHeld, setWinKeys } from "../ui/pads.js?v=2026.11.23.4";
-import { liftFinger } from "../ui/touch.js?v=2026.11.23.4";
-import { stripRelease } from "../ui/strip.js?v=2026.11.23.4";
-import { fitStrip, stripLabel, stripChips } from "../ui/strip.js?v=2026.11.23.4";
-import { setExpert as setKidsViewOff, setModeHandler, kidsStartOver, setTheme as setKidsTheme } from "../kids/view.js?v=2026.11.23.4";
-import { setSimple } from "../ui/layout.js?v=2026.11.23.4";
-import { libSetVer } from "../songs/library.js?v=2026.11.23.4";
-import { secLyrics } from "../songs/fullchart.js?v=2026.11.23.4";
-import { KEYS_CHOICES, makeChip, configureSheet, openModeSheet, bootSheet, paintSheet, sheetOpen } from "../ui/modesheet.js?v=2026.11.23.4";
-import { registerLook, lookApplyNow, lookShown } from "../ui/look.js?v=2026.11.23.4";
-import { toggleHelpMenu } from "../ui/helpmenu.js?v=2026.11.23.4";   // redesign-dev: the Kids view (kids-build) is the switch's Kids
+import { unlock } from "../audio/unlock.js?v=2026.11.24.1";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.24.1";
+import { stopPlayback } from "../loop.js?v=2026.11.24.1";
+import { activeKey } from "../keys.js?v=2026.11.24.1";
+import { setKidKey } from "../kids.js?v=2026.11.24.1";
+import { prog, progSet, placeBadges, setBadgeAvoid, magic, progStop, progWalkAt, progWalkTo, playButtonLabel } from "../songs/playback.js?v=2026.11.24.1";
+import { magicQueue } from "../songs/magic.js?v=2026.11.24.1";
+import { nextHintSpec } from "../ui/next.js?v=2026.11.24.1";
+import { setHintAvoid } from "../ui/hints.js?v=2026.11.24.1";
+import { progFeel, progSteps } from "../songs/presets.js?v=2026.11.24.1";
+import { progLockPick } from "../songs/proghold.js?v=2026.11.24.1";
+import { upSelected, upCurStep, upNextStep, upA, progLoopBar, songTempo } from "../songs/song.js?v=2026.11.24.1";
+import { songCue, cueSoon, cueClock, cuePieces, placeCueTag, cueChipClass } from "../ui/chordcue.js?v=2026.11.24.1";
+import { upSym, upSecName } from "../songs/upload.js?v=2026.11.24.1";
+import { upLyrMap, lyrPad } from "../ui/lyrics.js?v=2026.11.24.1";
+import { state, shared, fingers, loop, scheduleSave } from "../state.js?v=2026.11.24.1";
+import { tapSimpleSrc, paintSimpleSrc } from "../ui/simplesrc.js?v=2026.11.24.1";
+import { accSym } from "../theory/spelling.js?v=2026.11.24.1";
+import { Theory } from "../theory/index.js?v=2026.11.24.1";
+import { paintKeyChip, keyLabel } from "../ui/keychip.js?v=2026.11.24.1";
+import { fitNowSymbol } from "../ui/nowbox.js?v=2026.11.24.1";
+import { computeSpec, renderPads, refreshHeld, setWinKeys } from "../ui/pads.js?v=2026.11.24.1";
+import { liftFinger } from "../ui/touch.js?v=2026.11.24.1";
+import { stripRelease } from "../ui/strip.js?v=2026.11.24.1";
+import { fitStrip, stripLabel, stripChips } from "../ui/strip.js?v=2026.11.24.1";
+import { setExpert as setKidsViewOff, setModeHandler, kidsStartOver, setTheme as setKidsTheme } from "../kids/view.js?v=2026.11.24.1";
+import { setSimple } from "../ui/layout.js?v=2026.11.24.1";
+import { libSetVer } from "../songs/library.js?v=2026.11.24.1";
+import { secLyrics } from "../songs/fullchart.js?v=2026.11.24.1";
+import { KEYS_CHOICES, makeChip, configureSheet, openModeSheet, bootSheet, paintSheet, sheetOpen } from "../ui/modesheet.js?v=2026.11.24.1";
+import { registerLook, lookApplyNow, lookShown } from "../ui/look.js?v=2026.11.24.1";
+import { toggleHelpMenu } from "../ui/helpmenu.js?v=2026.11.24.1";   // redesign-dev: the Kids view (kids-build) is the switch's Kids
 import { EXPERT_STORE, parsePref, prefFromUrl, modeOf, modeTarget, typeBarInit, typeBarReduce, typeBarLabel, TYPEBAR_HOLD_MS,
-  sourceInit, sourceReduce, progDots, songCardRows, capLayout, cardHead, STYLE_MENU, styleName, expertWindowKeys, expertStyleFix, fullToExpert, chartFor } from "./model.js?v=2026.11.23.4";
+  sourceInit, sourceReduce, progDots, songCardRows, capLayout, cardHead, STYLE_MENU, styleName, expertWindowKeys, expertStyleFix, fullToExpert, chartFor } from "./model.js?v=2026.11.24.1";
 // rd6: ?test=1&classic=1 keeps the legacy classic screens (Full layout, Kids style chip in Simple) for the sound-equivalence
 // suites (audioeq / kvaudio replay the 351c02c taps). Users can no longer reach them.
 const CLASSIC = /[?&]test=1(&|$)/.test(location.search) && /[?&]classic=1(&|$)/.test(location.search);
@@ -560,7 +560,7 @@ function paintSrc() {
       var locked = !!U.locked;
       html = "<div class=\"x-songc\"><div class=\"x-stitle\">" + esc(U.title) + (U.artist ? " \u00b7 " + esc(U.artist) : "") + "</div><div class=\"x-lrows" + (capFree && hasCap ? " x-hascap" : "") + "\"><span class=\"x-lroll\">" + rowsHtml + "</span></div></div>"
         + (cue && !inl ? "<span class=\"x-cuetag" + (cue.cls ? " " + cue.cls : "") + "\" aria-hidden=\"true\" hidden>" + esc(cue.chord) + "</span>" : "")
-        + "<button type=\"button\" class=\"x-b x-lock\" aria-pressed=\"" + locked + "\" aria-label=\"Lock the song chords\"><span class=\"x-lki\">" + (locked ? "\ud83d\udd12" : "\ud83d\udd13") + "</span>Lock</button>";
+        + "<button type=\"button\" class=\"x-b x-lock\" aria-pressed=\"" + locked + "\" aria-label=\"Lock the song chords\"><span class=\"x-lki\">" + (locked ? "\ud83d\udd12" : "\ud83d\udd13") + "</span><span class=\"x-lkt\">Lock</span></button>";
     } else {
       html = "<div class=\"x-songc x-empty\"><div class=\"x-stitle\">No song loaded</div><div class=\"x-sline\">Tap Song to open My songs and Upload</div></div>";
     }
@@ -574,7 +574,7 @@ function paintSrc() {
     var plk = !!prog.lock;
     html = "<button type=\"button\" class=\"x-pbar" + (src.listOpen ? " open" : "") + "\" aria-expanded=\"" + src.listOpen + "\" aria-controls=\"xPList\"><span class=\"x-pcol\"><span class=\"x-pn\">" + esc(p ? progFeel(p.name) : "") + heldTag(p) + "</span><span class=\"x-dots\">" + dots + "</span></span><span class=\"x-car\">" + (src.listOpen ? "\u25b4" : "\u25be") + "</span></button>"
       // Progression lock (not the song Lock): keep this sequence when the style changes.
-      + "<button type=\"button\" class=\"x-b x-plock\" aria-pressed=\"" + plk + "\" aria-label=\"Keep this progression when the style changes\"><span class=\"x-lki\">" + (plk ? "\ud83d\udd12" : "\ud83d\udd13") + "</span>Lock</button>";
+      + "<button type=\"button\" class=\"x-b x-plock\" aria-pressed=\"" + plk + "\" aria-label=\"Keep this progression when the style changes\"><span class=\"x-lki\">" + (plk ? "\ud83d\udd12" : "\ud83d\udd13") + "</span><span class=\"x-lkt\">Lock</span></button>";
     box.className = "x-src x-mode-prog";
   }
   sig = src.view + "|" + html;

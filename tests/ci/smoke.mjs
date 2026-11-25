@@ -1679,6 +1679,108 @@ try {
     for (const mode of ['expert', 'simple', 'kids']) await noteCell(w, h, mode);
   }
 
+  // LOOK v4 (Uiux mockups, Vinh 24 Nov 2026): css/look.css restyles Simple, Expert, Settings and Sound; Kids must not change.
+  // Real checks at the compare sizes (S25 360x780 / 780x360, iPad 820x1180 / 1180x820):
+  //   Kids: not one rule of look.css matches any element (html.kv guard), at Hello, the song picker and a song.
+  //   Expert: Fredoka and Nunito are loaded from fonts/, the Now chord is Fredoka in #FFC23D, the Lock sits inside the
+  //   progression selector (right end, vertically centred), Next has no bottom edge.
+  //   Simple sideways on a phone: the control panel is about 296px, Major/Minor, style chips and progression buttons >= 40px.
+  async function lookMatches(page) {
+    return page.evaluate(() => {
+      const sh = [...document.styleSheets].find(x => /css\/look\.css/.test(x.href || ''));
+      if (!sh) return { missing: true };
+      const hits = [];
+      for (const r of sh.cssRules) {
+        if (!r.selectorText) continue;
+        const sel = r.selectorText.replace(/::?(before|after|placeholder|active)\b/g, '');
+        let n = 0; try { n = document.querySelectorAll(sel).length; } catch (e) { hits.push('bad selector ' + sel); continue; }
+        if (n) hits.push(n + 'x ' + r.selectorText.slice(0, 80));
+      }
+      return { rules: sh.cssRules.length, hits };
+    });
+  }
+  for (const [w, h] of [[360, 780], [780, 360], [820, 1180], [1180, 820]]) {
+    const size = w + 'x' + h;
+    // Kids
+    {
+      const { ctx, page, bag } = await fresh(browser, w, h, 'LOOK kids ' + size);
+      const notes = [];
+      try {
+        await boot(page, 'test=1&hour=12&kv=1');
+        const steps = [['hello', async () => {}], ['picker', async () => { await page.locator('#kv .kv-go').click(); await page.waitForTimeout(400); }],
+          ['song', async () => { await page.locator('#kv .kv-card[data-song="Kids Jingle Bells"]').click(); await page.waitForTimeout(600); }]];
+        let rules = 0;
+        for (const [label, act] of steps) {
+          await act();
+          const m = await lookMatches(page);
+          if (m.missing) { notes.push('look.css not loaded'); break; }
+          rules = m.rules;
+          if (m.hits.length) notes.push(label + ': ' + m.hits.slice(0, 3).join(' | '));
+        }
+        if (bag.errors.length) notes.push('page: ' + bag.errors.slice(0, 2).join('; '));
+        const name = 'LOOK ' + size + ' kids: no look.css rule matches anything in Kids';
+        if (notes.length) await shot(page, name);
+        record(name, !notes.length, notes.length ? notes.join(' | ') : rules + ' rules, 0 matches');
+      } catch (err) { record('LOOK ' + size + ' kids', false, String(err && err.message || err).split('\n')[0]); }
+      finally { await ctx.close(); }
+    }
+    // Expert
+    {
+      const { ctx, page, bag } = await fresh(browser, w, h, 'LOOK expert ' + size);
+      const notes = [];
+      try {
+        await boot(page, 'test=1&hour=21&expert=1');
+        await page.evaluate(() => document.fonts.ready);
+        const m = await page.evaluate(async () => {
+          await Promise.all([document.fonts.load('600 20px Fredoka'), document.fonts.load('16px Nunito')]);
+          const loaded = [...document.fonts].filter(f => f.status === 'loaded').map(f => f.family.replace(/"/g, ''));
+          const rc = s => { const e = document.querySelector(s); if (!e) return null; const r = e.getBoundingClientRect(); return { l: r.left, r: r.right, t: r.top, b: r.bottom, w: r.width, h: r.height }; };
+          const sym = document.querySelector('.now-card #symbol'), pn = document.querySelector('.x-pbar .x-pn'), nx = document.getElementById('xNext');
+          return { loaded, sym: sym && [getComputedStyle(sym).fontFamily, getComputedStyle(sym).color], pn: pn && getComputedStyle(pn).fontFamily,
+            body: getComputedStyle(document.body).fontFamily, lock: rc('#xSrc .x-plock'), bar: rc('#xSrc .x-pbar'), nextShadow: nx && getComputedStyle(nx).boxShadow };
+        });
+        for (const f of ['Fredoka', 'Nunito']) if (!m.loaded.includes(f)) notes.push(f + ' not loaded');
+        if (!m.sym || !/^"?Fredoka/.test(m.sym[0]) || m.sym[1] !== 'rgb(255, 194, 61)') notes.push('Now chord ' + JSON.stringify(m.sym));
+        if (!/^"?Fredoka/.test(m.pn || '')) notes.push('progression name font ' + m.pn);
+        if (!/^"?Nunito/.test(m.body)) notes.push('body font ' + m.body);
+        if (!m.lock || !m.bar) notes.push('no lock / selector');
+        else {
+          if (m.lock.l < m.bar.l - 0.5 || m.lock.r > m.bar.r + 0.5 || m.lock.t < m.bar.t - 0.5 || m.lock.b > m.bar.b + 0.5) notes.push('lock is not inside the selector');
+          if (Math.abs(m.bar.r - m.lock.r) > 3) notes.push('lock is not at the right end');
+          if (Math.abs((m.lock.t + m.lock.b) / 2 - (m.bar.t + m.bar.b) / 2) > 1) notes.push('lock is not vertically centred');
+          if (m.lock.w < 44 || m.lock.h < 40) notes.push('lock slot ' + m.lock.w.toFixed(0) + 'x' + m.lock.h.toFixed(0));
+        }
+        if (m.nextShadow && m.nextShadow !== 'none') notes.push('Next has a shadow ' + m.nextShadow);
+        if (bag.errors.length) notes.push('page: ' + bag.errors.slice(0, 2).join('; '));
+        const name = 'LOOK ' + size + ' expert: Fredoka/Nunito, yellow Now, docked Lock, flat Next';
+        if (notes.length) await shot(page, name);
+        record(name, !notes.length, notes.join(' | '));
+      } catch (err) { record('LOOK ' + size + ' expert', false, String(err && err.message || err).split('\n')[0]); }
+      finally { await ctx.close(); }
+    }
+  }
+  {
+    const { ctx, page, bag } = await fresh(browser, 780, 360, 'LOOK simple 780x360');
+    const notes = [];
+    try {
+      await boot(page, 'test=1&hour=21');
+      if ((await landedMode(page)) !== 'simple') await switchTo(page, 'simple');
+      const m = await page.evaluate(() => {
+        const hs = s => [...document.querySelectorAll(s)].filter(e => e.getClientRects().length).map(e => Math.round(e.getBoundingClientRect().height));
+        const col = document.querySelector('.now-col'); const r = col && col.getBoundingClientRect();
+        return { col: r && Math.round(r.width), mode: hs('.kk-mode'), styles: hs('#styles button'), prog: hs('#prog .pg-btn'), lay: document.documentElement.className };
+      });
+      if (!/lay-phone-land/.test(m.lay)) notes.push('not phone-land');
+      if (!(m.col >= 280)) notes.push('control panel ' + m.col + 'px');
+      for (const k of ['mode', 'styles', 'prog']) if (!m[k].length || Math.min(...m[k]) < 40) notes.push(k + ' ' + m[k].join(','));
+      if (bag.errors.length) notes.push('page: ' + bag.errors.slice(0, 2).join('; '));
+      const name = 'LOOK 780x360 simple: ~296px two-column panel, controls >= 40px';
+      if (notes.length) await shot(page, name);
+      record(name, !notes.length, notes.length ? notes.join(' | ') : 'panel ' + m.col + 'px');
+    } catch (err) { record('LOOK 780x360 simple', false, String(err && err.message || err).split('\n')[0]); }
+    finally { await ctx.close(); }
+  }
+
   for (const w of walks) {
     if (w.pageNotes.length) record('toggle ' + w.label, false, w.pageNotes.join(' | '));
   }

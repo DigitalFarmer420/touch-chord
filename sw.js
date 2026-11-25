@@ -17,6 +17,7 @@ var PRECACHE = [
   "css/keyboard.css",
   "css/kids.css",
   "css/layout.css",
+  "css/look.css",
   "css/modes.css",
   "css/modesheet.css",
   "css/panels.css",
