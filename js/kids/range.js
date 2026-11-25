@@ -1,5 +1,5 @@
 // Kids piano range (pure: no DOM). The visible keyboard covers every melody pitch
-// the gold guide asks the child to play, always including today's C4..B4 octave so
+// the gold guide asks the child to play, including today's C4..B4 octave when the melody is narrower than an octave, so
 // the seven pad-chord tones can light, with edges snapped out to white keys.
 export const KIDS_HOME_LO = 60;   // C4
 export const KIDS_HOME_HI = 71;   // B4
@@ -41,10 +41,14 @@ export function kidsNeededMidis(steps, tonic) {
   return out.sort(function (a, b) { return a - b; });
 }
 
-// min/max of melody pitches, union with C4..B4, edges snapped to white keys.
+// min/max of melody pitches, edges snapped to white keys. If the melody already
+// spans at least an octave (>= 12 semitones), keep that range (do not pad Itsy
+// Bitsy or Happy Birthday from G3–G4 out to B4). A narrower melody still unions
+// with C4..B4 so one-octave songs keep a full octave of keys.
 export function kidsPianoRange(midis) {
   var xs = (midis && midis.length) ? midis.slice() : [];
-  xs.push(KIDS_HOME_LO, KIDS_HOME_HI);
+  var span = xs.length ? Math.max.apply(null, xs) - Math.min.apply(null, xs) : 0;
+  if (!xs.length || span < 12) xs.push(KIDS_HOME_LO, KIDS_HOME_HI);
   var lo = snapLo(Math.min.apply(null, xs)), hi = snapHi(Math.max.apply(null, xs));
   return rangeInfo(lo, hi);
 }

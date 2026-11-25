@@ -1,5 +1,5 @@
 // Chord quality mapping (type + extensions) and pitch-class helpers.
-import { shared } from "../state.js?v=2026.11.23.4";
+import { shared } from "../state.js?v=2026.11.23.5";
 
 
 
