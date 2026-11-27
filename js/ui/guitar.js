@@ -1,19 +1,19 @@
 // Expert Guitar tab. Draws the resolver's grips in the keyboard area and strums
 // them through ChordAudio. Kids, Simple, and the Piano tab do not use this panel.
-import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.16";
-import { unlock } from "../audio/unlock.js?v=2026.11.27.16";
-import { activeKey } from "../keys.js?v=2026.11.27.16";
-import { prog, magic } from "../songs/playback.js?v=2026.11.27.16";
-import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.16";
-import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.16";
-import { state } from "../state.js?v=2026.11.27.16";
-import { Theory } from "../theory/index.js?v=2026.11.27.16";
-import { accSym } from "../theory/spelling.js?v=2026.11.27.16";
-import { computeSpec } from "./touch.js?v=2026.11.27.16";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.17";
+import { unlock } from "../audio/unlock.js?v=2026.11.27.17";
+import { activeKey } from "../keys.js?v=2026.11.27.17";
+import { prog, magic } from "../songs/playback.js?v=2026.11.27.17";
+import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.17";
+import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.17";
+import { state } from "../state.js?v=2026.11.27.17";
+import { Theory } from "../theory/index.js?v=2026.11.27.17";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.17";
+import { computeSpec } from "./touch.js?v=2026.11.27.17";
 import {
   GTR_TAB_KEY, readGtrTab, gtrTabReduce, cardSlots, layoutOf,
-  chordSig, chordDisplayName, voicingLabel, voicingFret, nextVoicingSize, cycleIndex, fretSlide, diagramModel, diagramFrame, fretRows, barreFinger
-} from "./gtrmath.js?v=2026.11.27.16";
+  chordSig, chordDisplayName, voicingLabel, voicingFret, nextVoicingSize, cycleIndex, fretSlide, diagramModel, diagramFrame, fretRows, barreFinger, barreBox
+} from "./gtrmath.js?v=2026.11.27.17";
 
 var TAB_LABEL = { now: "NOW", next: "NEXT", third: "3RD", fourth: "4TH" };
 var pick = {};
@@ -107,9 +107,16 @@ function diagramSvg(voicing, chord, o) {
   var gutter = model.base > 1 ? (o.gutter != null ? o.gutter : 10) : 0;
   var H = f.H;
   var ink = o.ink, line = o.line, dot = o.dot, dotT = o.dotT, mute = o.mute;
-  var Y = "#FFC23D", YT = "#2a231c";
-  var g = '<svg class="gtr-diagram" width="100%" viewBox="0 0 ' + o.w + " " + H + '" role="img" aria-label="' + escapeAttr(o.label || "") + '">';
-  if (model.nut) g += '<rect x="' + (left - 1) + '" y="' + (top - f.nutAbove) + '" width="' + (gw + 2) + '" height="5" rx="1.5" fill="' + ink + '"/>';
+  // Day's cream card washes out the brand gold (1.3:1). A darker amber still reads
+  // as the root and clears 3:1 on the card; the finger number flips to cream so
+  // it stays above 4.5:1 on that amber. Lamp keeps the original gold.
+  var dayInk = de().classList.contains("x-day");
+  var Y = dayInk ? "#8C620C" : "#FFC23D";
+  var YT = dayInk ? "#F3EAD8" : "#2a231c";
+  var fretted = 0;
+  for (var fi0 = 0; fi0 < model.marks.length; fi0++) if (model.marks[fi0].fret > 0) fretted++;
+  var g = '<svg class="gtr-diagram" data-gtr-fretted="' + fretted + '" width="100%" viewBox="0 0 ' + o.w + " " + H + '" role="img" aria-label="' + escapeAttr(o.label || "") + '">';
+  if (model.nut) g += '<rect class="gtr-nut" x="' + (left - 1) + '" y="' + (top - f.nutAbove) + '" width="' + (gw + 2) + '" height="' + f.nutAbove + '" rx="1.5" fill="' + ink + '"/>';
   else g += '<line x1="' + left + '" x2="' + (left + gw) + '" y1="' + top + '" y2="' + top + '" stroke="' + line + '" stroke-width="1.5"/>' +
     fretText(model.frLabel, left, top, fh, gutter, ink);
   for (var fi = 1; fi <= F; fi++) g += '<line x1="' + left + '" x2="' + (left + gw) + '" y1="' + (top + fi * fh) + '" y2="' + (top + fi * fh) + '" stroke="' + line + '" stroke-width="1.5"/>';
@@ -117,16 +124,15 @@ function diagramSvg(voicing, chord, o) {
     var sw = (1 + (S - 1 - si) * 0.25).toFixed(2);
     g += '<line x1="' + (left + si * sg) + '" x2="' + (left + si * sg) + '" y1="' + top + '" y2="' + (top + F * fh) + '" stroke="' + line + '" stroke-width="' + sw + '"/>';
   }
+  var fingerNotes = [];
   for (var bi = 0; bi < model.barres.length; bi++) {
     var b = model.barres[bi];
     var yb = top + (b.fret - base + 0.5) * fh;
     var x0 = left + b.fromString * sg;
     var x1 = left + b.toString * sg;
-    g += '<rect class="gtr-barre" x="' + (x0 - r) + '" y="' + (yb - r) + '" width="' + (x1 - x0 + 2 * r) + '" height="' + (2 * r) + '" rx="' + r + '" fill="' + dot + '"/>';
-    if (o.fing) {
-      var finger = barreFinger(b.toString, S, x0, x1, r);
-      g += '<text class="gtr-finger" x="' + finger.x + '" y="' + (yb + r * 0.42) + '" text-anchor="' + finger.anchor + '" font-size="' + (r * 1.15) + '" fill="' + (finger.anchor === "middle" ? dotT : mute) + '" font-family="Nunito, system-ui, sans-serif" font-weight="800">' + b.finger + "</text>";
-    }
+    var box = barreBox(x0, x1, yb, r);
+    if (box.width > 0.5) g += '<rect class="gtr-barre" x="' + box.x + '" y="' + box.y + '" width="' + box.width + '" height="' + box.height + '" rx="' + Math.min(2.2, r * 0.35) + '" fill="' + dot + '"/>';
+    if (o.fing) fingerNotes.push(barreFinger(b.toString, S, x0, x1, r).x + "|" + yb + "|" + b.finger);
   }
   for (var mi = 0; mi < model.marks.length; mi++) {
     var m = model.marks[mi];
@@ -136,15 +142,17 @@ function diagramSvg(voicing, chord, o) {
     } else if (m.kind === "open" || m.kind === "open-root") {
       if (m.kind === "open-root") g += '<circle class="gtr-mark" cx="' + x + '" cy="' + f.openCy + '" r="' + f.openR + '" fill="' + Y + '"/>';
       else g += '<circle class="gtr-mark" cx="' + x + '" cy="' + f.openCy + '" r="' + (mk * 0.32) + '" fill="none" stroke="' + ink + '" stroke-width="1.6"/>';
-    } else if (m.kind === "barre-root") {
-      var ybr = top + (m.fret - base + 0.5) * fh;
-      g += '<circle class="gtr-dot" cx="' + x + '" cy="' + ybr + '" r="' + (r * 0.92) + '" fill="' + Y + '"/>';
-    } else if (m.kind === "dot" || m.kind === "root") {
+    } else if (m.kind === "barre" || m.kind === "barre-root" || m.kind === "dot" || m.kind === "root") {
       var y = top + (m.fret - base + 0.5) * fh;
-      var rootDot = m.kind === "root";
-      g += '<circle class="gtr-dot" cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + (rootDot ? Y : dot) + '"/>';
-      if (o.fing && m.finger) g += '<text x="' + x + '" y="' + (y + r * 0.42) + '" font-size="' + (r * 1.15) + '" text-anchor="middle" fill="' + (rootDot ? YT : dotT) + '" font-family="Nunito, system-ui, sans-serif" font-weight="800">' + m.finger + "</text>";
+      var rootDot = m.kind === "root" || m.kind === "barre-root";
+      var onBarre = m.kind === "barre" || m.kind === "barre-root";
+      g += '<circle class="gtr-dot" cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + (rootDot ? Y : dot) + '"' + (onBarre ? ' stroke="' + (rootDot ? YT : dotT) + '" stroke-width="1.5"' : "") + "/>";
+      if (o.fing && m.finger && !onBarre) g += '<text class="gtr-finger" x="' + x + '" y="' + (y + r * 0.42) + '" font-size="' + (r * 1.15) + '" text-anchor="middle" fill="' + (rootDot ? YT : dotT) + '" font-family="Nunito, system-ui, sans-serif" font-weight="800">' + m.finger + "</text>";
     }
+  }
+  for (var fn = 0; fn < fingerNotes.length; fn++) {
+    var parts = fingerNotes[fn].split("|");
+    g += '<text class="gtr-finger" x="' + parts[0] + '" y="' + (parseFloat(parts[1]) + r * 0.42) + '" font-size="' + (r * 1.15) + '" text-anchor="middle" fill="' + dotT + '" font-family="Nunito, system-ui, sans-serif" font-weight="800">' + parts[2] + "</text>";
   }
   if (o.strings) {
     var names = guitarProfile.stringNames;
@@ -200,8 +208,44 @@ function measurePort() {
   var nextPx = Math.min(innerW, ph - 52, nowPx * 0.84);
   nowPx = Math.max(28, Math.floor(nowPx));
   nextPx = Math.max(24, Math.floor(nextPx));
+  if (nextPx > nowPx * 0.9) nextPx = Math.floor(nowPx * 0.9);
   if (nextPx > nowPx - 2) nextPx = Math.max(24, nowPx - 2);
   return { now: portInk(nowPx, true), next: portInk(nextPx, false) };
+}
+// The first guess above is the panel height minus a chrome allowance. Once the
+// cards exist, the diagram grows into the hole that is actually left, so Next
+// is about 85% of Now and, when a square that wide fits, at least 60% of the
+// card's content width.
+function growPort() {
+  var host = document.getElementById("gtrPanel");
+  var now = document.querySelector("#gtrCards .gtr-card.now");
+  var next = document.querySelector("#gtrCards .gtr-card.next");
+  if (!host || !now || !next) return;
+  function hole(card) {
+    var cs = getComputedStyle(card);
+    var padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+    var padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+    var used = padY;
+    var kids = card.children;
+    for (var i = 0; i < kids.length; i++) {
+      if (kids[i].classList.contains("gtr-diagram")) continue;
+      var rh = kids[i].getBoundingClientRect().height;
+      if (rh > 0) used += rh;
+    }
+    return { innerW: card.clientWidth - padX, innerH: card.clientHeight - used - 2 };
+  }
+  var nb = hole(now);
+  if (!(nb.innerW > 40) || !(nb.innerH > 24)) return;
+  var nowPx = Math.floor(Math.min(nb.innerW * 0.96, nb.innerH));
+  if (nowPx < 28) nowPx = 28;
+  var cap = Math.floor(nowPx * 0.9);
+  var floor = Math.min(Math.round(nb.innerW * 0.6), cap);
+  var nextPx = Math.round(nowPx * 0.85);
+  if (nextPx < floor) nextPx = floor;
+  if (nextPx > cap) nextPx = cap;
+  if (nextPx > nowPx - 2) nextPx = Math.max(24, nowPx - 2);
+  host.style.setProperty("--gtr-now", nowPx + "px");
+  host.style.setProperty("--gtr-next", nextPx + "px");
 }
 function tightenPort() {
   var panel = document.getElementById("gtrPanel");
@@ -225,7 +269,8 @@ function tightenPort() {
   var next = parseFloat(panel.style.getPropertyValue("--gtr-next")) || 52;
   var cut = Math.ceil(excess);
   now = Math.max(28, now - cut);
-  next = Math.max(24, Math.min(next - cut, now - 2));
+  next = Math.round(now * 0.85);
+  if (next > now - 2) next = Math.max(24, now - 2);
   panel.style.setProperty("--gtr-now", now + "px");
   panel.style.setProperty("--gtr-next", next + "px");
 }
@@ -234,7 +279,9 @@ function diaOpts(lay, slot, name) {
   var now = slot === "now";
   var land = lay === "phone-land" || lay === "pad-land";
   var pad = lay === "pad-port" || lay === "pad-land";
-  var lite = now;
+  // Day look paints the Next card white. The dark-card cream ink disappears on it,
+  // so a Day Next diagram uses the same dark ink as Now. Lamp keeps the cream ink.
+  var lite = now || de().classList.contains("x-day");
   var theme = lite
     ? { ink: "#2a231c", line: "#7a6c58", dot: "#2a231c", dotT: "#F3EAD8", mute: "#7a6c58" }
     : { ink: "#F3EAD8", line: "#8a7d69", dot: "#F3EAD8", dotT: "#2a231c", mute: "#9d917e" };
@@ -364,7 +411,7 @@ export function paintGuitar(spec) {
   var html = "";
   for (var i = 0; i < slots.length; i++) html += cardHtml(slots[i], chords[slots[i]], lay, keyChanged);
   panel.innerHTML = html;
-  if (portFit) tightenPort();
+  if (portFit) { growPort(); tightenPort(); }
   fitVoicingLines();
 }
 // The fret number stays whole. The line shrinks to the measured width, and only then

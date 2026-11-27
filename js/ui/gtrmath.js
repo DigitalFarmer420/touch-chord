@@ -1,7 +1,7 @@
 // Guitar-tab decisions with no DOM: which tab is selected, where the tabs sit,
 // which cards a layout shows, the diagram marks, and whether a key change is a
 // fret slide. The screen (js/ui/guitar.js) only draws what this returns.
-import { accSym } from "../theory/spelling.js?v=2026.11.27.16";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.17";
 
 export var GTR_TAB_KEY = "touchChord.gtrTab.v1";
 export var ROOT_COLOR = "#FFC23D";
@@ -105,12 +105,20 @@ export function fretRows(frets) {
   return span > 4 ? span : 4;
 }
 
-// A barre that ends on the last string has no room to the right of its cap.
-// The finger number sits in the barre. A shorter barre keeps the number just
-// past its right end, where there is still string left.
+// The finger number sits in the middle of the bar, in a color that reads on the
+// bar, for a full barre and a partial one. A number past the last string is
+// what made the full-barre "1" fall off the right edge.
 export function barreFinger(toString, stringCount, x0, x1, r) {
-  if (toString >= stringCount - 1) return { x: (x0 + x1) / 2, anchor: "middle" };
-  return { x: x1 + r + 2, anchor: "start" };
+  return { x: (Math.min(x0, x1) + Math.max(x0, x1)) / 2, anchor: "middle", r: r };
+}
+
+// A barre is a bar from the first barred string to the last, as thick as a dot
+// and centered on that fret space. The dots sit on the strings; the bar only
+// joins them, so a two-string barre is not a floating pill.
+export function barreBox(x0, x1, y, r) {
+  var left = Math.min(x0, x1);
+  var right = Math.max(x0, x1);
+  return { x: left, y: y - r, width: Math.max(0, right - left), height: r * 2 };
 }
 
 // Padding for one diagram, in the same user units the SVG draws. The dot radius is
@@ -187,6 +195,9 @@ export function diagramFrame(o) {
     r = Math.min(sg, fh) * 0.36;
     H = top + rows * fh + bot;
   }
+  // A fret-1 dot has to clear the nut (the nut extends 1 unit below `top`).
+  var nutClear = fh * 0.5 - 1.2;
+  if (r > nutClear && nutClear > 1) r = nutClear;
   return {
     side: side, top: top, bot: bot, left: left, gw: gw, sg: sg, fh: fh, r: r, rows: rows,
     H: H, mk: mk, gap: gap, nutAbove: nutAbove, openR: openR, stroke: stroke,
