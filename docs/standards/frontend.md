@@ -99,8 +99,8 @@ What is measured today:
 
 - The chord grid (`#suggest`, `js/ui/strip.js` `fitStrip`) measures chip overflow and sets a shared scale. Five functional rows (borrowed, happy, scale, sad, tension). The grid tests also force 4 and 6 rows and require the grid to end at or above the piano.
 - The Now symbol (`fitNowSymbol` in `nowbox.js`) shrinks to the card's measured box.
-- Guitar fret spacing in landscape (`landFret` in `guitar.js`) is `(panel height − chrome) / 4`. Diagram widths in `diaOpts` are still fixed (86 phone landscape, 150 iPad landscape, 118/84 phone portrait Now/Next, 190/120 iPad portrait Now/Next). Portrait fret heights are fixed too (21/17 and 49/30). On iPad landscape only, `capPadLand` then stops the fret height at 1.3 times the string spacing.
-- Phone-portrait CSS sets the Now diagram to 100×100 (`aspect-ratio: 1 / 1`) and the Next diagram to 84×72 (`css/guitar.css`). The Guitar smoke check accepts a portrait Now ratio from 0.8 to 1.25.
+- Guitar fret spacing in landscape (`landFret` in `guitar.js`) is `(panel height − chrome) / 4`. Landscape and iPad diagram widths in `diaOpts` are still fixed (86 phone landscape, 150 iPad landscape, 190/120 iPad portrait Now/Next) and iPad portrait fret heights are still 49 and 30. On iPad landscape only, `capPadLand` stops the fret height at 1.3 times the string spacing.
+- Phone portrait measures the guitar panel (`measurePort`). Now and Next are squares from the smaller of the free height and half the width. Next is capped at 0.84 of Now and is at least 2px shorter. CSS uses `--gtr-now` and `--gtr-next` with `aspect-ratio: 1 / 1`. The fret height stays between 0.9 and 1.18 times the string spacing (`portInk`). The Guitar smoke check accepts a portrait Now ratio from 0.8 to 1.25.
 
 **Rule.** Every panel fits the space it is given, at any screen size, with any number of chord rows, with a song or without one, with lyrics or without them. The panels are the chord grid, the piano, the guitar cards, the lyrics, and the controls.
 
@@ -138,11 +138,9 @@ Check Expert, Simple, and Kids. Kids must look the same as before the change (se
 
 The check ignores a line an ancestor already clips, the 1px visually-hidden Expert song title on phones, piano-key overlaps (including the key sheet's mini keyboard), and the Lock docked inside the progression bar or the song bar. A label may be 4px over `clientWidth` before it counts as clipped (the border). Step badges may cross the grid edge by up to 12px; they still have to stay on screen.
 
-Still open, and listed in the known file rather than edited here:
+Verified after #62 and #63: Guitar cards stay inside the panel, and Song mode no longer shows Jam. Still listed in the known file, and not edited here:
 
-- Guitar Now/Next cards past the card at 360×640 and 384×700. Another branch owns that layout.
 - Kids pads, `scrollWidth` 8px over `clientWidth` at every size. Kids does not change without Vinh's OK.
-- The Jam glyph and the Jam toggle. Another branch is removing Jam from song mode.
 - The ? button 5px over its box at 780×360, and the How to menu, style menu, and key-sheet close overlapping the control under them.
 
 ## Real devices
