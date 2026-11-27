@@ -97,7 +97,7 @@ html.expert:not(.kv).gtr.lay-pad-land .gtr-panel { left: 96px; }
 .gtr-card.now { background: #F3EAD8; border-color: #F3EAD8; color: #2a231c; }
 .gtr-card.now .gtr-name { color: #2a231c; }
 .gtr-card.now .gtr-lb { color: #7a6c58; }
-.gtr-card.nx { border: 2px solid #FFC23D; }
+.gtr-card.next { border: 2px solid #FFC23D; }
 .gtr-card .gtr-diagram { width: 100%; height: auto; display: block; max-height: none; pointer-events: none; flex: 0 0 auto; }
 .gtr-card .gtr-head { display: flex; flex-direction: column; align-items: center; flex: 0 0 auto; max-width: 100%; }
 .gtr-card .gtr-foot { display: flex; flex-direction: column; align-items: center; flex: 0 0 auto; max-width: 100%; }
@@ -122,22 +122,22 @@ html.expert:not(.kv).lay-phone-port .gtr-card[data-slot="fourth"] { display: non
    measured --gtr-now / --gtr-next squares, never wider than the card. */
 html.expert:not(.kv).lay-phone-port .gtr-cards { align-items: flex-start; height: 100%; min-height: 0; }
 html.expert:not(.kv).lay-phone-port .gtr-card.now,
-html.expert:not(.kv).lay-phone-port .gtr-card.nx {
+html.expert:not(.kv).lay-phone-port .gtr-card.next {
   flex: 1 1 0; width: 0; min-width: 0; max-height: 100%;
 }
 html.expert:not(.kv).lay-phone-port .gtr-card.now { align-self: stretch; }
-html.expert:not(.kv).lay-phone-port .gtr-card.nx { align-self: flex-start; height: auto; }
+html.expert:not(.kv).lay-phone-port .gtr-card.next { align-self: flex-start; height: auto; }
 html.expert:not(.kv).lay-phone-port .gtr-card.now .gtr-diagram {
   width: var(--gtr-now, 72px); height: var(--gtr-now, 72px); max-width: 100%; max-height: 100%;
   aspect-ratio: 1 / 1; align-self: center; flex: 0 0 auto;
 }
-html.expert:not(.kv).lay-phone-port .gtr-card.nx .gtr-diagram {
+html.expert:not(.kv).lay-phone-port .gtr-card.next .gtr-diagram {
   width: var(--gtr-next, 56px); height: var(--gtr-next, 56px); max-width: 100%; max-height: 100%;
   aspect-ratio: 1 / 1; flex: 0 0 auto;
 }
-html.expert:not(.kv).lay-phone-port .gtr-vo { flex-wrap: wrap; justify-content: center; max-width: 100%; }
-html.expert:not(.kv).lay-phone-port .gtr-vo button { width: 24px; height: 24px; min-height: 24px; }
-html.expert:not(.kv).lay-phone-port .gtr-vo span { white-space: normal; text-align: center; }
+html.expert:not(.kv).lay-phone-port .gtr-vo { flex-wrap: nowrap; justify-content: center; max-width: 100%; }
+html.expert:not(.kv).lay-phone-port .gtr-vo button { width: 24px; height: 24px; min-height: 24px; flex: none; }
+html.expert:not(.kv).lay-phone-port .gtr-vo span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; text-align: center; }
 html.expert:not(.kv).lay-phone-port .gtr-meta { white-space: normal; text-align: center; line-height: 1.15; max-width: 100%; }
 
 /* iPad portrait: cards fill the panel, so the band under the row goes away.
@@ -222,7 +222,7 @@ html.expert:not(.kv).lay-phone-land:not(.gtr) .gtr-tabs { width: 132px; }
 html.expert:not(.kv).x-day .gtr-card { background: #fff; border-color: #e2d6c4; color: #2b2118; }
 html.expert:not(.kv).x-day .gtr-card .gtr-name { color: #2b2118; }
 html.expert:not(.kv).x-day .gtr-card.now { background: #F3EAD8; border-color: #F3EAD8; }
-html.expert:not(.kv).x-day .gtr-card.nx { border-color: #FFC23D; }
+html.expert:not(.kv).x-day .gtr-card.next { border-color: #FFC23D; }
 html.expert:not(.kv).x-day.lay-pad-land .gtr-card:not(.now) .gtr-head,
 html.expert:not(.kv).x-day.lay-pad-land .gtr-card:not(.now) .gtr-foot { background: #fff; }
 

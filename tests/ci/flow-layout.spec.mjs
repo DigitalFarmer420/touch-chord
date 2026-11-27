@@ -204,6 +204,58 @@ const MEASURE = () => {
   return issues;
 };
 
+// N29: after Next, the guitar Now and Next cards stay square, Next is not bigger than Now,
+// and the chord name stays inside its card. Phone portrait used to key those sizes off the
+// hint class "nx", which the Next highlight removes.
+const GUITAR_NEXT = () => {
+  const issues = [];
+  const now = document.querySelector('#gtrCards .gtr-card[data-slot="now"]');
+  const next = document.querySelector('#gtrCards .gtr-card[data-slot="next"]');
+  if (!now || !next || now.getBoundingClientRect().width < 2 || next.getBoundingClientRect().width < 2) {
+    issues.push({ kind: 'guitar', el: 'gtr-card', detail: 'Now or Next card is missing' });
+    return issues;
+  }
+  function square(card, name) {
+    const d = card.querySelector('.gtr-diagram');
+    if (!d) { issues.push({ kind: 'guitar', el: name, detail: 'diagram missing' }); return null; }
+    const r = d.getBoundingClientRect();
+    const ratio = r.height > 1 ? r.width / r.height : 0;
+    if (ratio < 0.8 || ratio > 1.25) issues.push({ kind: 'guitar', el: name + ' diagram', detail: 'ratio ' + ratio.toFixed(2) + ' (' + Math.round(r.width) + '×' + Math.round(r.height) + ')' });
+    return r;
+  }
+  square(now, 'now');
+  square(next, 'next');
+  const nb = now.getBoundingClientRect();
+  const xb = next.getBoundingClientRect();
+  if (xb.width > nb.width + 4 || xb.height > nb.height + 2) {
+    issues.push({ kind: 'guitar', el: 'next card', detail: Math.round(xb.width) + '×' + Math.round(xb.height) + ' bigger than Now ' + Math.round(nb.width) + '×' + Math.round(nb.height) });
+  }
+  const panel = document.getElementById('gtrPanel');
+  const pb = panel ? panel.getBoundingClientRect() : null;
+  for (const card of [now, next]) {
+    const name = card.querySelector('.gtr-name');
+    const cb = card.getBoundingClientRect();
+    if (name) {
+      if (name.clientWidth > 2 && name.scrollWidth > name.clientWidth + 4) {
+        issues.push({ kind: 'clip', el: '.gtr-name "' + (name.textContent || '').trim() + '"', detail: 'scrollWidth ' + name.scrollWidth + ' > clientWidth ' + name.clientWidth });
+      }
+      const range = document.createRange();
+      range.selectNodeContents(name);
+      const t = range.getBoundingClientRect();
+      if (t.width > 1 && (t.left < cb.left - 1 || t.right > cb.right + 1 || t.top < cb.top - 1 || t.bottom > cb.bottom + 1)) {
+        issues.push({ kind: 'clip', el: '.gtr-name "' + (name.textContent || '').trim() + '"', detail: 'name paints outside the ' + card.dataset.slot + ' card' });
+      }
+    }
+    if (pb && (cb.bottom > pb.bottom + 1 || cb.top < pb.top - 1 || cb.right > pb.right + 1 || cb.left < pb.left - 1)) {
+      issues.push({ kind: 'panel', el: card.dataset.slot, detail: 'card leaves the guitar panel' });
+    }
+    if (cb.bottom > innerHeight + 1 || cb.right > innerWidth + 1 || cb.top < -1 || cb.left < -1) {
+      issues.push({ kind: 'viewport', el: card.dataset.slot, detail: 'card leaves the screen' });
+    }
+  }
+  return issues;
+};
+
 function listen(port) {
   const srv = createServer((q, res) => {
     const path = decodeURIComponent((q.url || '/').split('?')[0]);
@@ -309,9 +361,57 @@ async function guard(page, vp, state, fn) {
   }
 }
 
+async function wishingWell(page) {
+  const onProg = await page.evaluate(() => {
+    const b = document.querySelector('#xTog button[data-v="prog"]');
+    return !!(b && (b.classList.contains('on') || b.getAttribute('aria-selected') === 'true'));
+  });
+  if (!onProg) await clickIf(page, '#xTog button[data-v="prog"]');
+  const closed = await page.evaluate(() => { const l = document.getElementById('xPList'); return !l || l.hidden; });
+  if (closed) await clickIf(page, '#xSrc .x-pbar');
+  await page.waitForSelector('#xPList:not([hidden]) .x-prow', { timeout: 5000 });
+  const picked = await page.evaluate(() => {
+    const row = [...document.querySelectorAll('#xPList .x-prow')].find(r => /Wishing Well/.test(r.textContent || ''));
+    if (!row) return false;
+    row.scrollIntoView();
+    row.click();
+    return true;
+  });
+  await closeSheets(page);
+  return picked;
+}
+
 async function expertPass(page, vp) {
   await boot(page, 'test=1&hour=12&expert=1');
   await measure(page, vp, 'expert-prog-piano');
+  await guard(page, vp, 'guitar tab after Next (1 and 3 taps)', async () => {
+    const state = 'guitar tab after Next (1 and 3 taps)';
+    if (!(await wishingWell(page))) {
+      add(vp, state, [{ kind: 'load', el: 'Wishing Well', detail: 'progression not in the Pop list' }]);
+      return;
+    }
+    if (!(await clickIf(page, '#gtrTabs [data-gtr="guitar"]'))) {
+      add(vp, state, [{ kind: 'guitar', el: 'gtrTabs', detail: 'guitar tab did not open' }]);
+      return;
+    }
+    async function after(taps) {
+      const extra = await page.evaluate(GUITAR_NEXT);
+      const layout = await page.evaluate(MEASURE);
+      const tagged = extra.concat(layout).map(issue => ({ ...issue, detail: taps + ' tap' + (taps === 1 ? '' : 's') + ': ' + issue.detail }));
+      add(vp, state, tagged);
+      if (tagged.length) await shot(page, vp + ' ' + state + ' ' + taps);
+    }
+    await clickIf(page, '#xNext');
+    await page.waitForTimeout(200);
+    await after(1);
+    await clickIf(page, '#xNext');
+    await clickIf(page, '#xNext');
+    await page.waitForTimeout(200);
+    await after(3);
+    await clickIf(page, '#gtrTabs [data-gtr="piano"]');
+    await closeSheets(page);
+    await boot(page, 'test=1&hour=12&expert=1');
+  });
   await guard(page, vp, 'expert-upload', async () => {
     await clickIf(page, '#xTog button[data-v="song"]');
     await measure(page, vp, 'expert-upload-empty');

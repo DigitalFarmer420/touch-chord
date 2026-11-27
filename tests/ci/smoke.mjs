@@ -1862,7 +1862,7 @@ try {
           };
         }
         const now = document.querySelector('#gtrCards .gtr-card.now');
-        const next = document.querySelector('#gtrCards .gtr-card.nx');
+        const next = document.querySelector('#gtrCards .gtr-card.next');
         const nh = now ? now.getBoundingClientRect().height : 0;
         const xh = next ? next.getBoundingClientRect().height : 0;
         return { portrait, phonePort, now: stack(now), next: stack(next), nextShorter: phonePort ? xh < nh - 1 : null };

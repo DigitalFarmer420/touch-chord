@@ -320,7 +320,9 @@ function cardHtml(slot, chord, lay, slideDy) {
   var dy = !slide ? "" : (delta > 0 ? "-14px" : "14px");
   lastGrip[slot] = { shapeName: v.shapeName, frets: v.frets.slice(), baseFret: v.baseFret };
   var opts = diaOpts(lay, slot, name + " " + voicingLabel(v));
-  var cls = "gtr-card" + (slot === "now" ? " now" : slot === "next" ? " nx" : "");
+  // "next" is the card's slot. The hint class "nx" is stripped from every element on Next
+  // (clearNextHintDom), and the phone-portrait size rules used to key off that class.
+  var cls = "gtr-card" + (slot === "now" ? " now" : slot === "next" ? " next" : "");
   var head = '<div class="gtr-head"><p class="gtr-lb">' + TAB_LABEL[slot] + '</p><p class="gtr-name">' + name + "</p></div>";
   var foot = "";
   if (slot === "now") {

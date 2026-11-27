@@ -143,7 +143,10 @@ export function nextHintSpec(item) {
   return spec;
 }
 function clearNextHintDom() {
-  Array.prototype.forEach.call(document.querySelectorAll(".nx, .nx-root"), function (n) { n.classList.remove("nx", "nx-root"); });
+  Array.prototype.forEach.call(document.querySelectorAll(".nx, .nx-root"), function (n) {
+    if (n.classList && n.classList.contains("gtr-card")) return;   // the guitar card's slot is not this hint
+    n.classList.remove("nx", "nx-root");
+  });
   var a = document.getElementById("nxArrow");
   if (a) a.hidden = true;
 }
