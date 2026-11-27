@@ -1,5 +1,5 @@
 // ChordAudio: AudioContext, master chain, mix / cutoff / reverb / delay / warmth, play / morph / stop chords, voice limit.
-import { makeWarmCurve, makeSoftClip, makeImpulse, makePulse, clamp01 } from "./effects.js?v=2026.11.27.23";
+import { makeWarmCurve, makeSoftClip, makeImpulse, makePulse, clamp01 } from "./effects.js?v=2026.11.27.24";
 var VOICE_CAP = 28;
 var VOICE_HARD_CAP = 72;
 
@@ -518,6 +518,13 @@ ChordAudio.prototype.stopChord = function (group, when, tau, force) {
   }
 };
 
+// Short guitar strums decay; a sustained chord button holds. These velocities
+// make up that difference per sound so the strum's RMS matches the tap.
+ChordAudio.prototype.strumVelocity = function (sound) {
+  var table = { piano: 1.26, epiano: 2.16, strings: 1.30, warm: 1.72, bell: 1.82, reed: 3.91 };
+  return table[sound] || table.piano;
+};
+
 ChordAudio.prototype.pluck = function (midi, opts) {
   this.ensure();
   opts = opts || {};
@@ -528,7 +535,7 @@ ChordAudio.prototype.pluck = function (midi, opts) {
     short: true,
     group: opts.group || "pluck",
     time: time,
-    velocity: opts.bass ? 1 : 0.85,
+    velocity: opts.velocity != null ? opts.velocity : (opts.bass ? 1 : 0.85),
     bass: !!opts.bass,
     step: opts.step
   }));

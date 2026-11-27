@@ -1,19 +1,19 @@
 // Expert Guitar tab. Draws the resolver's grips in the keyboard area and strums
 // them through ChordAudio. Kids, Simple, and the Piano tab do not use this panel.
-import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.23";
-import { unlock } from "../audio/unlock.js?v=2026.11.27.23";
-import { activeKey } from "../keys.js?v=2026.11.27.23";
-import { prog, magic } from "../songs/playback.js?v=2026.11.27.23";
-import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.23";
-import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.23";
-import { state } from "../state.js?v=2026.11.27.23";
-import { Theory } from "../theory/index.js?v=2026.11.27.23";
-import { accSym } from "../theory/spelling.js?v=2026.11.27.23";
-import { computeSpec } from "./touch.js?v=2026.11.27.23";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.24";
+import { unlock } from "../audio/unlock.js?v=2026.11.27.24";
+import { activeKey } from "../keys.js?v=2026.11.27.24";
+import { prog, magic } from "../songs/playback.js?v=2026.11.27.24";
+import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.24";
+import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.24";
+import { state } from "../state.js?v=2026.11.27.24";
+import { Theory } from "../theory/index.js?v=2026.11.27.24";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.24";
+import { computeSpec } from "./touch.js?v=2026.11.27.24";
 import {
   GTR_TAB_KEY, readGtrTab, gtrTabReduce, cardSlots, layoutOf,
   chordSig, chordDisplayName, voicingLabel, voicingFret, nextVoicingSize, cycleIndex, fretSlide, diagramModel, diagramFrame, fretRows, barreFinger, barreBox
-} from "./gtrmath.js?v=2026.11.27.23";
+} from "./gtrmath.js?v=2026.11.27.24";
 
 var TAB_LABEL = { now: "NOW", next: "NEXT", third: "3RD", fourth: "4TH" };
 var pick = {};
@@ -364,7 +364,7 @@ function strum(voicing) {
   var t0 = ChordAudio.ctx ? ChordAudio.ctx.currentTime : 0;
   if (ChordAudio.stopChord) ChordAudio.stopChord("gtr", t0, 0.02);
   for (var i = 0; i < voicing.midi.length; i++) {
-    ChordAudio.pluck(voicing.midi[i], { time: t0 + i * 0.02, sound: state.sound, group: "gtr" });
+    ChordAudio.pluck(voicing.midi[i], { time: t0 + i * 0.02, sound: state.sound, group: "gtr", velocity: ChordAudio.strumVelocity(state.sound) });
   }
 }
 

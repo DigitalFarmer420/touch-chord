@@ -1984,6 +1984,69 @@ try {
     } finally { await ctx.close(); }
   }
 
+  {
+    const { ctx, page } = await fresh(browser, 412, 915, 'strum loudness');
+    const notes = [];
+    try {
+      await boot(page, 'test=1&hour=12&expert=1');
+      const gaps = await page.evaluate(async () => {
+        const { voicedMidis } = await import('/js/theory/voicing.js');
+        const { resolveVoicings } = await import('/js/instruments/resolve.js');
+        const { guitar } = await import('/js/instruments/profiles.js');
+        const chords = [
+          { name: 'C', rootPc: 0, type: 'major', extensions: {} },
+          { name: 'Fm9', rootPc: 5, type: 'minor', extensions: { nine: true } },
+          { name: 'Ebmaj7', rootPc: 3, type: 'major', extensions: { maj7: true } },
+          { name: 'B7', rootPc: 11, type: 'major', extensions: { min7: true } }
+        ];
+        function db(x) { return 20 * Math.log10(Math.max(x, 1e-12)); }
+        function level(buf) {
+          const a = buf.getChannelData(0), b = buf.numberOfChannels > 1 ? buf.getChannelData(1) : a;
+          let sum = 0, peak = 0;
+          for (let i = 0; i < a.length; i++) {
+            const s = (a[i] + b[i]) * 0.5;
+            sum += s * s;
+            peak = Math.max(peak, Math.abs(s));
+          }
+          return { rms: db(Math.sqrt(sum / a.length)), peak: db(peak) };
+        }
+        async function render(play) {
+          const A = window.ChordAudio;
+          const rate = 48000;
+          A.ready = false;
+          A.voices = [];
+          A.ctx = new OfflineAudioContext(2, rate * 1.2, rate);
+          A.sound = 'piano';
+          A.volume = 1;
+          A.ensure();
+          play(A);
+          const buf = await A.ctx.startRendering();
+          A.ready = false;
+          A.ctx = null;
+          A.voices = [];
+          return level(buf);
+        }
+        const vel = window.ChordAudio.strumVelocity('piano');
+        const out = [];
+        for (const c of chords) {
+          const button = voicedMidis(c.rootPc, c.type, c.extensions, 'close');
+          const gtr = resolveVoicings(guitar, c)[0].midi;
+          const chip = await render(A => A.playChord('suggest', button.slice(), { sound: 'piano', time: 0.05 }));
+          const strum = await render(A => gtr.forEach((m, i) => A.pluck(m, { time: 0.05 + i * 0.02, sound: 'piano', group: 'gtr', velocity: vel })));
+          out.push({ name: c.name, dRms: strum.rms - chip.rms, peak: strum.peak });
+        }
+        return out;
+      });
+      for (const g of gaps) {
+        if (Math.abs(g.dRms) > 1.5) notes.push(g.name + ' strum RMS ' + g.dRms.toFixed(2) + ' dB from the chord button');
+        if (g.peak >= 0) notes.push(g.name + ' strum peak ' + g.peak.toFixed(2) + ' dBFS');
+      }
+      record('GTR strum loudness matches the chord button', !notes.length, notes.length ? notes.join(' | ') : 'piano RMS within 1.5 dB, peak under 0 dBFS');
+    } catch (err) {
+      record('GTR strum loudness matches the chord button', false, String(err && err.message || err).split('\n')[0]);
+    } finally { await ctx.close(); }
+  }
+
   // Phone portrait with a real song: lyrics and the chord rows leave a short panel (a Galaxy S25
   // in Brave is about 120px shorter than the layout viewport). Now is Fm7b5, Next is Gm7.
   const EB_SONG = JSON.stringify({
