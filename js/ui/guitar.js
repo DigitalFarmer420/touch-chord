@@ -1,19 +1,19 @@
 // Expert Guitar tab. Draws the resolver's grips in the keyboard area and strums
 // them through ChordAudio. Kids, Simple, and the Piano tab do not use this panel.
-import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.23";
-import { unlock } from "../audio/unlock.js?v=2026.11.27.23";
-import { activeKey } from "../keys.js?v=2026.11.27.23";
-import { prog, magic } from "../songs/playback.js?v=2026.11.27.23";
-import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.23";
-import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.23";
-import { state } from "../state.js?v=2026.11.27.23";
-import { Theory } from "../theory/index.js?v=2026.11.27.23";
-import { accSym } from "../theory/spelling.js?v=2026.11.27.23";
-import { computeSpec } from "./touch.js?v=2026.11.27.23";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.24";
+import { unlock } from "../audio/unlock.js?v=2026.11.27.24";
+import { activeKey } from "../keys.js?v=2026.11.27.24";
+import { prog, magic } from "../songs/playback.js?v=2026.11.27.24";
+import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.24";
+import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.24";
+import { state } from "../state.js?v=2026.11.27.24";
+import { Theory } from "../theory/index.js?v=2026.11.27.24";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.24";
+import { computeSpec } from "./touch.js?v=2026.11.27.24";
 import {
   GTR_TAB_KEY, readGtrTab, gtrTabReduce, cardSlots, layoutOf,
-  chordSig, chordDisplayName, voicingLabel, voicingFret, nextVoicingSize, cycleIndex, fretSlide, diagramModel, diagramFrame, fretRows, barreFinger, barreBox
-} from "./gtrmath.js?v=2026.11.27.23";
+  chordSig, chordDisplayName, voicingLabel, voicingFret, stringMidis, GTR_STYLE_DB, nextVoicingSize, cycleIndex, fretSlide, diagramModel, diagramFrame, fretRows, barreFinger, barreBox
+} from "./gtrmath.js?v=2026.11.27.24";
 
 var TAB_LABEL = { now: "NOW", next: "NEXT", third: "3RD", fourth: "4TH" };
 var pick = {};
@@ -358,14 +358,12 @@ function gripsFor(chord) {
 }
 
 function strum(voicing) {
-  if (!voicing || !voicing.midi || !voicing.midi.length) return;
+  if (!voicing || !voicing.frets) return;
+  var notes = stringMidis(voicing, guitarProfile.tuning);
+  if (!notes.length) return;
   unlock();
   try { ChordAudio.ensure(); } catch (e) { return; }
-  var t0 = ChordAudio.ctx ? ChordAudio.ctx.currentTime : 0;
-  if (ChordAudio.stopChord) ChordAudio.stopChord("gtr", t0, 0.02);
-  for (var i = 0; i < voicing.midi.length; i++) {
-    ChordAudio.pluck(voicing.midi[i], { time: t0 + i * 0.02, sound: state.sound, group: "gtr" });
-  }
+  ChordAudio.strumGuitar(notes, { group: "gtr", styleDb: GTR_STYLE_DB[state.style] || 0 });
 }
 
 function applyChrome() {
@@ -473,6 +471,21 @@ export function paintGuitar(spec) {
     }
   }
   fitVoicingLines();
+  warmGrips(chords, lay);
+}
+function warmGrips(chords, lay) {
+  var slots = cardSlots(lay), notes = [];
+  for (var i = 0; i < slots.length; i++) {
+    if (slots[i] !== "now" && slots[i] !== "next") continue;
+    var chord = chords[slots[i]];
+    var grips = gripsFor(chord);
+    if (!grips.length) continue;
+    var index = slots[i] === "now" ? (pick[chordSig(chord)] || 0) : 0;
+    if (index >= grips.length) index = 0;
+    notes = notes.concat(stringMidis(grips[index], guitarProfile.tuning));
+  }
+  var idle = window.requestIdleCallback || function (fn) { return setTimeout(fn, 30); };
+  idle(function () { try { ChordAudio.warmGuitar(notes); } catch (e) {} });
 }
 // The fret number stays whole. The line shrinks to the measured width, and only then
 // drops the shape name ("E-shape · 3fr" -> "3fr"). It never ends in an ellipsis.

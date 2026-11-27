@@ -52,6 +52,7 @@ var PRECACHE = [
   "js/audio/bass.js",
   "js/audio/effects.js",
   "js/audio/engine.js",
+  "js/audio/guitar-pluck.js",
   "js/audio/index.js",
   "js/audio/synths.js",
   "js/audio/unlock.js",
