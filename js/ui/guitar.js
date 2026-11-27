@@ -1,19 +1,19 @@
 // Expert Guitar tab. Draws the resolver's grips in the keyboard area and strums
 // them through ChordAudio. Kids, Simple, and the Piano tab do not use this panel.
-import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.1";
-import { unlock } from "../audio/unlock.js?v=2026.11.27.1";
-import { activeKey } from "../keys.js?v=2026.11.27.1";
-import { prog, magic } from "../songs/playback.js?v=2026.11.27.1";
-import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.1";
-import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.1";
-import { state } from "../state.js?v=2026.11.27.1";
-import { Theory } from "../theory/index.js?v=2026.11.27.1";
-import { accSym } from "../theory/spelling.js?v=2026.11.27.1";
-import { computeSpec } from "./touch.js?v=2026.11.27.1";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.3";
+import { unlock } from "../audio/unlock.js?v=2026.11.27.3";
+import { activeKey } from "../keys.js?v=2026.11.27.3";
+import { prog, magic } from "../songs/playback.js?v=2026.11.27.3";
+import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.3";
+import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.3";
+import { state } from "../state.js?v=2026.11.27.3";
+import { Theory } from "../theory/index.js?v=2026.11.27.3";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.3";
+import { computeSpec } from "./touch.js?v=2026.11.27.3";
 import {
   GTR_TAB_KEY, readGtrTab, gtrTabReduce, cardSlots, layoutOf,
   chordSig, voicingLabel, cycleIndex, fretSlide, diagramModel
-} from "./gtrmath.js?v=2026.11.27.1";
+} from "./gtrmath.js?v=2026.11.27.3";
 
 var TAB_LABEL = { now: "NOW", next: "NEXT", third: "3RD", fourth: "4TH" };
 var pick = {};

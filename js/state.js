@@ -1,7 +1,7 @@
 // One shared app state: `state` (chord / key / style / settings), `loop` (phrase loop), `shared` (mutable values more than one module writes) and persistence (localStorage keys unchanged from v112.3: touchChord.settings.v1, see STORE_KEY).
-import { validKeyName, defaultKeyName } from "./keys.js?v=2026.11.27.1";
-import { WARMTH_DEFAULT, clampWarmth } from "./styles.js?v=2026.11.27.1";
-import { Theory } from "./theory/index.js?v=2026.11.27.1";
+import { validKeyName, defaultKeyName } from "./keys.js?v=2026.11.27.3";
+import { WARMTH_DEFAULT, clampWarmth } from "./styles.js?v=2026.11.27.3";
+import { Theory } from "./theory/index.js?v=2026.11.27.3";
 
 // Shared mutable app state: the variables that more than one module writes. Read/write them as shared.<name>.
 export const shared = {
@@ -62,6 +62,7 @@ export const state = {
   allKeys: false,
   playAlong: true,             // v108: Config > Play along enable
   paHints: true,               // v112: Config > Show hints (Play along hints)
+  jam: false,                  // loaded song: Jam adds a few extra chords (off = song chords only)
   expert: true,                // Kids redesign: false = the Kids view (Simple), true = the full app (Expert)
   theme: "auto",               // Kids view look: "auto" (rd6, the clock: Day 7:00-19:00), "day" or "lamp"
   kidsSong: null,              // Kids redesign: the last Kids song played in the Kids view (picker "last", Hello resume)
@@ -124,6 +125,7 @@ export function factoryDefaults() {
     progNums: true,
     playAlong: true,   // v108: Play along on by default
     paHints: true,   // v112: Show hints on by default
+    jam: false,   // Jam extras on a loaded song; off shows only the song's chords
     volume: 100,
     band: 0,   // Band fix: one slider, 0 = off, 1..100 = on at that level (saved as bandLvl)
     lockKey: null,
@@ -182,6 +184,7 @@ function sanitizeSettings(raw) {
     progNums: bool(raw.progNums, d.progNums),
     playAlong: bool(raw.playAlong, d.playAlong),   // v108
     paHints: bool(raw.paHints, d.paHints),   // v112
+    jam: bool(raw.jam, d.jam),
     volume: num(raw.volume, 0, 100, d.volume, true),
     band: num(raw.bandLvl, 0, 100, d.band, true),   // Band fix: saves from before it (raw.band, toggle always off at load) migrate to 0 = off
     lockKey: (raw.lockKey && typeof raw.lockKey === "object" && raw.lockKey.pc === (raw.lockKey.pc | 0) && raw.lockKey.pc >= 0 && raw.lockKey.pc < 12 && SCALES.indexOf(raw.lockKey.mode) >= 0)
@@ -241,6 +244,7 @@ export function collectSettings() {
     progNums: !!state.progNums,
     playAlong: state.playAlong !== false,   // v108
     paHints: state.paHints !== false,   // v112
+    jam: !!state.jam,
     volume: state.volume == null ? 100 : state.volume,
     bandLvl: state.band | 0,
     band: (state.band | 0) >= 1 ? state.band | 0 : 50,   // older builds read this (1..100) and start Band off anyway

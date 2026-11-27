@@ -1,14 +1,14 @@
 // Keyboard window (which octave shows), Kids key placement and the Kids solo note.
-import { activeKey, keyDegrees } from "../keys.js?v=2026.11.27.1";
-import { kidKey } from "../kids.js?v=2026.11.27.1";
-import { magic, prog } from "../songs/playback.js?v=2026.11.27.1";
-import { state, fingers, padsEl, shared } from "../state.js?v=2026.11.27.1";
-import { wrap12 } from "../theory/quality.js?v=2026.11.27.1";
-import { paintKeyChip } from "./keychip.js?v=2026.11.27.1";
-import { kidsHintItem } from "./next.js?v=2026.11.27.1";
-import { computeSpec, effectiveLayout, renderKeys, paintPads, kbKidsPtr, winKeysNow } from "./pads.js?v=2026.11.27.1";
-import { KB_RESET_MS, tonicLow } from "./kbmath.js?v=2026.11.27.1";
-import { stripHeldNow } from "./strip.js?v=2026.11.27.1";
+import { activeKey, keyDegrees } from "../keys.js?v=2026.11.27.3";
+import { kidKey } from "../kids.js?v=2026.11.27.3";
+import { magic, prog } from "../songs/playback.js?v=2026.11.27.3";
+import { state, fingers, padsEl, shared } from "../state.js?v=2026.11.27.3";
+import { wrap12 } from "../theory/quality.js?v=2026.11.27.3";
+import { paintKeyChip } from "./keychip.js?v=2026.11.27.3";
+import { kidsHintItem } from "./next.js?v=2026.11.27.3";
+import { computeSpec, effectiveLayout, renderKeys, paintPads, kbKidsPtr, winKeysNow } from "./pads.js?v=2026.11.27.3";
+import { KB_RESET_MS, tonicLow } from "./kbmath.js?v=2026.11.27.3";
+import { stripHeldNow } from "./strip.js?v=2026.11.27.3";
 // ---- v83 one-octave window ----
 var kbLast;
 var kbPadAnchor = false;   // v112.9: kbLast came from a Kids chord pad pressed by hand: it leads the window (kbWantLow); v112.10: never over the gold

@@ -54,6 +54,9 @@ test('Kids redesign: expert / theme / kidsSong saved values load back; junk is s
   s = put({ kidsWalk: { name: 'Kids Twinkle', t: 3 } }); assert.deepEqual(s.kidsWalk, { name: 'Kids Twinkle', t: 3 });   // rd6: the Kids step
   s = put({ kidsWalk: { name: 'Kids Twinkle', end: true } }); assert.deepEqual(s.kidsWalk, { name: 'Kids Twinkle', end: true });
   s = put({ kidsWalk: { name: 5, t: 'x' } }); assert.equal(s.kidsWalk, null);
+  s = put({}); assert.equal(s.jam, false);   // Jam defaults off; a missing value stays off
+  s = put({ jam: true }); assert.equal(s.jam, true);
+  s = put({ jam: 'yes' }); assert.equal(s.jam, false);
   const src = readFileSync(root + 'js/state.js', 'utf8');
   assert.match(src, /expert: state\.expert !== false/); assert.match(src, /theme: state\.theme === "lamp" \|\| state\.theme === "day" \? state\.theme : "auto"/); assert.match(src, /kidsWalk: state\.kidsWalk \|\| null/); assert.match(src, /kidsSong: state\.kidsSong \|\| null/);
 });
