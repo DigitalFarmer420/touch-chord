@@ -1,13 +1,13 @@
 // Gear (Config) menu: volume, band, toggles, factory reset.
-import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.22";
-import { applySettings, showToast } from "../settings.js?v=2026.11.27.22";
-import { progStop, progPause, prog, progRedecorate } from "../songs/playback.js?v=2026.11.27.22";
-import { state, scheduleSave, factoryDefaults, storageClear, collectSettings, saveNow, shared } from "../state.js?v=2026.11.27.22";
-import { paHintHide } from "./hints.js?v=2026.11.27.22";
-import { updateSymbol } from "./nowbox.js?v=2026.11.27.22";
-import { renderPads, refreshHeld } from "./pads.js?v=2026.11.27.22";
-import { clearSuggestPreview } from "./strip.js?v=2026.11.27.22";
-import { tourStart } from "./tour.js?v=2026.11.27.22";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.23";
+import { applySettings, showToast } from "../settings.js?v=2026.11.27.23";
+import { progStop, progPause, prog, progRedecorate } from "../songs/playback.js?v=2026.11.27.23";
+import { state, scheduleSave, factoryDefaults, storageClear, collectSettings, saveNow, shared } from "../state.js?v=2026.11.27.23";
+import { paHintHide } from "./hints.js?v=2026.11.27.23";
+import { updateSymbol } from "./nowbox.js?v=2026.11.27.23";
+import { renderPads, refreshHeld } from "./pads.js?v=2026.11.27.23";
+import { clearSuggestPreview } from "./strip.js?v=2026.11.27.23";
+import { tourStart } from "./tour.js?v=2026.11.27.23";
 
 // v68: master Volume (Config). 0..100, gain = (v/100)^2 (perceptual), 100 = the old level.
 export function setVolume(v) {

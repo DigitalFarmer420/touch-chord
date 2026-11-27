@@ -363,22 +363,39 @@
       }
     },
     "lofi": {
-      "order": [
+      "majorOrder": [
         "Lofi Rainy Day",
         "Lofi Coffee Shop",
-        "Lofi Snow Globe",
         "Lofi Night Drive",
-        "Lofi Pillow",
         "Lofi Rain Window",
         "Lofi Stargaze",
-        "Lofi Late Night",
         "Lofi Side Step",
         "Lofi Slinky",
         "Lofi Cat Nap",
         "Lofi Ripple",
         "Lofi Back Porch",
+        "Lofi Study Hall",
+        "Lofi Soft Landing",
+        "Lofi Old Tape",
+        "Lofi Warm Vinyl",
+        "Lofi Tram Ride"
+      ],
+      "minorOrder": [
+        "Lofi Snow Globe",
+        "Lofi Pillow",
+        "Lofi Late Night",
         "Lofi Paper Boat",
-        "Lofi Midnight Snack"
+        "Lofi Midnight Snack",
+        "Lofi Firefly Jar",
+        "Lofi Blue Hour",
+        "Lofi Soft Focus",
+        "Lofi Night Bloom",
+        "Lofi Hazy Moon",
+        "Lofi Tide Pool",
+        "Lofi Sleepy Bus",
+        "Lofi Ghost Town",
+        "Lofi Lamp Light",
+        "Lofi Neon Glow"
       ],
       "major": {
         "Lofi Rainy Day": "4 maj9|3 m7|6 m9|1 maj7",
@@ -390,14 +407,29 @@
         "Lofi Slinky": "3 m7|b3 7|2 m7|b2 7|1 maj7",
         "Lofi Cat Nap": "1 maj7|5 m7|1 9|4 maj7|4 m7",
         "Lofi Ripple": "6 m9|2 9|5 m7|1 9|4 maj7",
-        "Lofi Back Porch": "4 maj7|b7 9|1 maj7|6 m7"
+        "Lofi Back Porch": "4 maj7|b7 9|1 maj7|6 m7",
+        "Lofi Study Hall": "2 m9|5 13|1 maj9|6 7b9",
+        "Lofi Soft Landing": "4 maj9|3 m7|2 m9|1 maj7",
+        "Lofi Old Tape": "2 m7|4 m7|b7 9|1 maj9",
+        "Lofi Warm Vinyl": "1 maj9|3 7|6 m9|4 m7",
+        "Lofi Tram Ride": "1 maj9|b3 maj7|b6 maj7|b2 maj7"
       },
       "minor": {
         "Lofi Snow Globe": "1 m9|6 maj9|3 maj7|5 7b9",
         "Lofi Pillow": "6 maj7|7 13|1 m9|5 m7",
         "Lofi Late Night": "1 m9|4 m9|5 m7|6 maj7",
         "Lofi Paper Boat": "1 m9|4 9|3 maj7|6 maj7",
-        "Lofi Midnight Snack": "4 m9|5 m7|1 m9|3 maj7"
+        "Lofi Midnight Snack": "4 m9|5 m7|1 m9|3 maj7",
+        "Lofi Firefly Jar": "1 m9|6 maj7|3 maj7|7 9",
+        "Lofi Blue Hour": "2 m7b5|5 7b9|1 m9|6 maj7",
+        "Lofi Soft Focus": "1 m9|2 m7|3 maj7|4 9",
+        "Lofi Night Bloom": "1 m9|7 13|6 maj7|4 m9",
+        "Lofi Hazy Moon": "1 m9|4 9|6 maj9|5 7#9",
+        "Lofi Tide Pool": "1 m9|5 m7|4 m9|7 13",
+        "Lofi Sleepy Bus": "4 m9|7 13|1 m9|5 7#9",
+        "Lofi Ghost Town": "1 m9|3 maj7|7 13|4 9",
+        "Lofi Lamp Light": "4 m9|3 maj7|2 m7b5|5 7b9|1 m9",
+        "Lofi Neon Glow": "6 maj7|5 7#9|1 m9|b2 maj7"
       }
     }
   }
