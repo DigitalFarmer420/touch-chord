@@ -234,7 +234,7 @@ const GUITAR_NEXT = () => {
     svg.querySelectorAll('rect').forEach(rc => {
       box(+rc.getAttribute('x'), +rc.getAttribute('y'), +rc.getAttribute('width'), +rc.getAttribute('height'), 'barre');
     });
-    svg.querySelectorAll('text.gtr-mark, text.gtr-fr').forEach(t => {
+    svg.querySelectorAll('text.gtr-mark, text.gtr-fr, text.gtr-finger').forEach(t => {
       const bb = t.getBBox();
       box(bb.x, bb.y, bb.width, bb.height, (t.textContent || '').trim().slice(0, 12) || 'mark');
     });
@@ -295,6 +295,79 @@ const GUITAR_NEXT = () => {
     }
     const fret = fr ? (fr.textContent || '').trim() : '';
     if (fret && text.indexOf(fret) < 0) issues.push({ kind: 'guitar', el: 'voicing "' + text + '"', detail: 'missing fret ' + fret });
+  }
+  return issues;
+};
+
+// N35/N36: a 5-fret grip keeps every dot above the string names, and a barre that
+// reaches the last string keeps its finger number inside the svg.
+const GUITAR_SPAN = () => {
+  const issues = [];
+  const card = document.querySelector('#gtrCards .gtr-card.now');
+  const svg = card && card.querySelector('.gtr-diagram');
+  const name = ((card && card.querySelector('.gtr-name') || {}).textContent || '').replace(/\s+/g, ' ').trim();
+  if (!svg) {
+    issues.push({ kind: 'guitar', el: name || 'now', detail: 'diagram missing' });
+    return issues;
+  }
+  const ctm = svg.getScreenCTM();
+  const s = svg.getBoundingClientRect();
+  if (!ctm) {
+    issues.push({ kind: 'guitar', el: name, detail: 'diagram has no screen transform' });
+    return issues;
+  }
+  const tol = 0.75;
+  function pt(x, y) {
+    const p = new DOMPoint(x, y).matrixTransform(ctm);
+    return { x: p.x, y: p.y };
+  }
+  const horiz = [...svg.querySelectorAll('line')].filter(l => Math.abs(+l.getAttribute('y1') - +l.getAttribute('y2')) < 0.1);
+  const vert = [...svg.querySelectorAll('line')].filter(l => Math.abs(+l.getAttribute('x1') - +l.getAttribute('x2')) < 0.1);
+  const ys = [...new Set(horiz.map(l => +l.getAttribute('y1')))].sort((a, b) => a - b);
+  const xs = [...new Set(vert.map(l => +l.getAttribute('x1')))].sort((a, b) => a - b);
+  const gridBottom = ys.length ? pt(0, ys[ys.length - 1]).y : null;
+  const names = [...svg.querySelectorAll('text.gtr-string')];
+  let nameTop = null;
+  names.forEach(t => {
+    const bb = t.getBBox();
+    const y = pt(bb.x, bb.y).y;
+    nameTop = nameTop == null ? y : Math.min(nameTop, y);
+  });
+  const phoneLand = document.documentElement.classList.contains('lay-phone-land');
+  if (!phoneLand && !names.length) issues.push({ kind: 'guitar', el: name, detail: 'string names missing' });
+  let dotOnNames = false;
+  svg.querySelectorAll('circle.gtr-dot').forEach(c => {
+    const r = +c.getAttribute('r') || 0;
+    const bot = pt(+c.getAttribute('cx'), +c.getAttribute('cy') + r).y;
+    if (gridBottom != null && bot > gridBottom + 0.5) dotOnNames = true;
+    if (nameTop != null && bot > nameTop + 0.5) dotOnNames = true;
+  });
+  if (dotOnNames) issues.push({ kind: 'guitar', el: name, detail: 'a dot overlaps the string-name row' });
+  const fingers = [...svg.querySelectorAll('text.gtr-finger')];
+  if ((name === 'F' || name === 'Gsus4' || name === 'Gsus') && !fingers.length) {
+    issues.push({ kind: 'guitar', el: name, detail: 'barre finger missing' });
+  }
+  fingers.forEach(t => {
+    const bb = t.getBBox();
+    const corners = [pt(bb.x, bb.y), pt(bb.x + bb.width, bb.y), pt(bb.x, bb.y + bb.height), pt(bb.x + bb.width, bb.y + bb.height)];
+    const past = corners.some(p => p.x < s.left - tol || p.y < s.top - tol || p.x > s.right + tol || p.y > s.bottom + tol);
+    if (past) issues.push({ kind: 'guitar', el: name + ' finger "' + (t.textContent || '').trim() + '"', detail: 'barre finger lies outside the diagram' });
+  });
+  // A 4-fret diagram can be taller than 1.3× the string spacing (iPad). The cap
+  // applies when the grip actually uses a fifth row.
+  if ((name === 'Dm9' || name === 'C9') && ys.length >= 2 && xs.length >= 2) {
+    const step = ys[1] - ys[0];
+    let spaces = step > 0 ? Math.round((ys[ys.length - 1] - ys[0]) / step) : 0;
+    const nut = [...svg.querySelectorAll('rect')].some(r => +r.getAttribute('y') < ys[0] - 0.5 && Math.abs(+r.getAttribute('height') - 5) < 0.6);
+    if (nut) spaces += 1;
+    if (spaces >= 5) {
+      const fh = (ys[ys.length - 1] - ys[0]) / (ys.length - 1);
+      const sg = (xs[xs.length - 1] - xs[0]) / (xs.length - 1);
+      const ratio = sg ? fh / sg : 0;
+      if (ratio < 0.9 - 0.02 || ratio > 1.3 + 0.02) {
+        issues.push({ kind: 'guitar', el: name, detail: 'fret ratio ' + ratio.toFixed(3) });
+      }
+    }
   }
   return issues;
 };
@@ -465,6 +538,56 @@ async function expertPass(page, vp) {
     }
     await run(null, 'Wishing Well');
     await run('lofi', 'Rain Window');
+    await clickIf(page, '#gtrTabs [data-gtr="piano"]');
+    await closeSheets(page);
+    await boot(page, 'test=1&hour=12&expert=1');
+  });
+  await guard(page, vp, 'guitar 5-fret shapes and full barre after Next', async () => {
+    const targets = [
+      ['rnb', 'Stepping Stones', 'Dm9'],
+      ['funk', 'Party', 'C9'],
+      ['pop', 'Four-Chord', 'F'],
+      ['pop', 'Wishing Well', 'Gsus4']
+    ];
+    for (const [style, progName, chord] of targets) {
+      if (!(await pickProgression(page, style, progName))) {
+        add(vp, 'guitar 5-fret shapes and full barre after Next', [{ kind: 'load', el: progName, detail: 'progression not in the list' }]);
+        continue;
+      }
+      if (!(await clickIf(page, '#gtrTabs [data-gtr="guitar"]'))) {
+        add(vp, 'guitar 5-fret shapes and full barre after Next', [{ kind: 'guitar', el: 'gtrTabs', detail: 'guitar tab did not open' }]);
+        continue;
+      }
+      let landed = '';
+      for (let i = 0; i < 8; i++) {
+        await clickIf(page, '#xNext');
+        await page.waitForTimeout(150);
+        landed = await page.locator('#gtrCards .gtr-card.now .gtr-name').innerText().then(t => t.replace(/\s+/g, ' ').trim()).catch(() => '');
+        if (landed === chord) break;
+      }
+      if (landed !== chord) {
+        add(vp, 'guitar 5-fret shapes and full barre after Next', [{ kind: 'guitar', el: chord, detail: 'Now is ' + (landed || 'empty') + ' after Next' }]);
+        continue;
+      }
+      const extra = await page.evaluate(GUITAR_SPAN);
+      const layout = await page.evaluate(GUITAR_NEXT);
+      const tagged = extra.concat(layout).map(issue => ({ ...issue, detail: chord + ' after Next: ' + issue.detail }));
+      add(vp, 'guitar 5-fret shapes and full barre after Next', tagged);
+      if (tagged.length) await shot(page, vp + ' guitar span ' + chord);
+      // Dm9's first grip is the short one. The older 5-fret grip is the next
+      // alternate, and the finger control is hidden when the phone is sideways.
+      if (chord === 'Dm9') {
+        const cycle = page.locator('#gtrCards [data-gtr-cycle="1"]').first();
+        if (await cycle.isVisible().catch(() => false)) {
+          await cycle.click();
+          await page.waitForTimeout(80);
+          const alt = await page.evaluate(GUITAR_SPAN);
+          const altTagged = alt.map(issue => ({ ...issue, detail: 'Dm9 alternate: ' + issue.detail }));
+          add(vp, 'guitar 5-fret shapes and full barre after Next', altTagged);
+          if (altTagged.length) await shot(page, vp + ' guitar span Dm9 alt');
+        }
+      }
+    }
     await clickIf(page, '#gtrTabs [data-gtr="piano"]');
     await closeSheets(page);
     await boot(page, 'test=1&hour=12&expert=1');

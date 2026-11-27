@@ -1,7 +1,7 @@
 // Guitar-tab decisions with no DOM: which tab is selected, where the tabs sit,
 // which cards a layout shows, the diagram marks, and whether a key change is a
 // fret slide. The screen (js/ui/guitar.js) only draws what this returns.
-import { accSym } from "../theory/spelling.js?v=2026.11.27.15";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.16";
 
 export var GTR_TAB_KEY = "touchChord.gtrTab.v1";
 export var ROOT_COLOR = "#FFC23D";
@@ -83,10 +83,43 @@ export function nextVoicingSize(scrollWidth, clientWidth, fontPx, minPx) {
   return Math.round(scaled * 10) / 10;
 }
 
+// How many fret spaces the grip needs. Four is the usual window. A 9th that
+// reaches five frets (Dm9 x5x968, C9 x3x756) needs the fifth, or its last dot
+// is drawn on the string-name row. The window starts where the diagram does:
+// the nut when an open grip fits in the first four frets, otherwise the lowest
+// fretted note.
+export function fretRows(frets) {
+  var hasOpen = false, low = null, high = 0;
+  var list = frets || [];
+  for (var i = 0; i < list.length; i++) {
+    var f = list[i];
+    if (f === 0) hasOpen = true;
+    else if (f > 0) {
+      if (low == null || f < low) low = f;
+      if (f > high) high = f;
+    }
+  }
+  if (low == null) return 4;
+  var base = hasOpen && high <= 4 ? 1 : low;
+  var span = high - base + 1;
+  return span > 4 ? span : 4;
+}
+
+// A barre that ends on the last string has no room to the right of its cap.
+// The finger number sits in the barre. A shorter barre keeps the number just
+// past its right end, where there is still string left.
+export function barreFinger(toString, stringCount, x0, x1, r) {
+  if (toString >= stringCount - 1) return { x: (x0 + x1) / 2, anchor: "middle" };
+  return { x: x1 + r + 2, anchor: "start" };
+}
+
 // Padding for one diagram, in the same user units the SVG draws. The dot radius is
 // min(string spacing, fret height) * 0.36, and the side inset is at least that radius
 // so an outer-string dot and a barre cap stay inside. The band above the nut fits an
-// O or X. A caller that already leaves more room keeps it.
+// O or X. A caller that already leaves more room keeps it. `rows` is the fret count
+// from fretRows; the caller's fh is the height of one fret in a 4-fret stack, and a
+// taller grip shares that stack so the box stays about square (fret height stays
+// between 0.9× and 1.3× the string spacing).
 export function diagramFrame(o) {
   var S = o.stringsCount > 1 ? o.stringsCount : 6;
   var fh = o.fh > 0 ? o.fh : 16;
@@ -107,6 +140,7 @@ export function diagramFrame(o) {
   var nameDrop = nameFs ? nameFs * 1.15 : 0;
   var bot = Math.max(o.bot > 0 ? o.bot : 0, nameDrop + nameFs * 0.28 + gap);
   var side = o.side > 0 ? o.side : 0;
+  var rows = o.rows > 4 ? o.rows : 4;
   var r = 0, sg = 1, gw = 1, left = side;
   for (var i = 0; i < 8; i++) {
     left = side + gutter;
@@ -118,24 +152,43 @@ export function diagramFrame(o) {
     if (need <= side + 0.05) break;
     side = need;
   }
+  // The caller's fh fills four rows. A 5-fret grip uses that same stack, so the
+  // diagram does not grow, and each fret stays close to the string spacing.
+  if (rows > 4) {
+    fh = fh * 4 / rows;
+    if (fh > sg * 1.3) fh = sg * 1.3;
+    if (fh < sg * 0.9) fh = sg * 0.9;
+    r = Math.min(sg, fh) * 0.36;
+    var grew = r + gap;
+    if (grew > side + 0.05) {
+      side = grew;
+      left = side + gutter;
+      gw = o.w - 2 * side - gutter;
+      if (!(gw > 1)) gw = 1;
+      sg = S > 1 ? gw / (S - 1) : gw;
+      if (fh > sg * 1.3) fh = sg * 1.3;
+      if (fh < sg * 0.9) fh = sg * 0.9;
+      r = Math.min(sg, fh) * 0.36;
+    }
+  }
   if (o.square) {
-    var H0 = top + 4 * fh + bot;
+    var H0 = top + rows * fh + bot;
     if (H0 > o.w && fh > sg * 0.9) {
-      fh = Math.max(sg * 0.9, fh - (H0 - o.w) / 4);
+      fh = Math.max(sg * 0.9, fh - (H0 - o.w) / rows);
       r = Math.min(sg, fh) * 0.36;
     }
   }
   // The painted box stays about square (the flow check allows 0.8). Markers keep their room;
   // the frets give up the extra height.
-  var H = top + 4 * fh + bot;
+  var H = top + rows * fh + bot;
   var limit = o.w / 0.82;
   if (H > limit) {
-    fh = Math.max(sg * 0.9, fh - (H - limit) / 4);
+    fh = Math.max(sg * 0.9, fh - (H - limit) / rows);
     r = Math.min(sg, fh) * 0.36;
-    H = top + 4 * fh + bot;
+    H = top + rows * fh + bot;
   }
   return {
-    side: side, top: top, bot: bot, left: left, gw: gw, sg: sg, fh: fh, r: r,
+    side: side, top: top, bot: bot, left: left, gw: gw, sg: sg, fh: fh, r: r, rows: rows,
     H: H, mk: mk, gap: gap, nutAbove: nutAbove, openR: openR, stroke: stroke,
     nameDrop: nameDrop, openCy: openCy, muteY: muteY
   };

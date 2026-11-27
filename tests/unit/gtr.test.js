@@ -4,9 +4,11 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   readGtrTab, gtrTabReduce, showOctave, tabAxis, cardSlots, layoutOf,
-  voicingLabel, nextVoicingSize, diagramFrame, cycleIndex, fretSlide, diagramModel, chordSig, ROOT_COLOR, SLIDE_MS
+  voicingLabel, nextVoicingSize, diagramFrame, cycleIndex, fretSlide, diagramModel, chordSig, ROOT_COLOR, SLIDE_MS,
+  fretRows, barreFinger
 } from "../../js/ui/gtrmath.js";
 import { guitar, resolveVoicings } from "../../js/instruments/index.js";
+import { GUITAR_OPEN } from "../../js/instruments/guitar-data.js";
 
 const css = readFileSync(new URL("../../css/guitar.css", import.meta.url), "utf8");
 
@@ -105,6 +107,157 @@ test("the fret token is what shrinks last", () => {
   assert.equal(nextVoicingSize(87, 85, 12, 10), 11.7);
   assert.equal(nextVoicingSize(80, 100, 12, 10), 12);
   assert.equal(nextVoicingSize(200, 40, 12, 10), 10);
+});
+
+test("every first shape draws its dots inside the fret grid", () => {
+  const cases = JSON.parse(readFileSync(new URL("../fixtures/guitar-inventory.json", import.meta.url), "utf8"));
+  const names = ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
+  const outside = [];
+  let five = 0;
+  let n = 0;
+  for (const q of cases.qualities) {
+    for (let root = 0; root < 12; root++) {
+      const chord = { rootPc: root, type: q.type, extensions: q.ext };
+      const v = resolveVoicings(guitar, chord)[0];
+      n++;
+      const label = names[root] + q.key;
+      if (!v) { outside.push(label + " missing"); continue; }
+      const rows = fretRows(v.frets);
+      const base = v.baseFret > 1 ? v.baseFret : 1;
+      let high = 0;
+      for (const fret of v.frets) if (fret > high) high = fret;
+      const span = high > 0 ? high - base + 1 : 0;
+      if (rows < span || rows < 4) outside.push(label + " rows " + rows + " span " + span);
+      if (span > 4) five++;
+      for (const fret of v.frets) {
+        if (!(fret > 0)) continue;
+        if (fret - base >= rows) outside.push(label + " fret " + fret + " outside " + rows + " rows from " + base);
+      }
+      const frame = diagramFrame({
+        w: 121, fh: 24, mk: 11, base: base, rows: rows, side: 4, top: 9, bot: 10,
+        gutter: 10, fing: true, strings: true, stringsCount: 6, square: true
+      });
+      if (high > 0) {
+        const dotBottom = frame.top + (high - base + 0.5) * frame.fh + frame.r;
+        const gridBottom = frame.top + frame.rows * frame.fh;
+        if (!(dotBottom < gridBottom)) outside.push(label + " dot crosses the grid");
+      }
+      if (rows > 4) {
+        const ratio = frame.fh / frame.sg;
+        if (ratio < 0.9 - 1e-9 || ratio > 1.3 + 1e-9) outside.push(label + " fret ratio " + ratio.toFixed(3));
+      }
+    }
+  }
+  assert.equal(n, 480);
+  assert.equal(five, 0);
+  let altFive = 0;
+  for (const q of cases.qualities) {
+    for (let root = 0; root < 12; root++) {
+      const list = resolveVoicings(guitar, { rootPc: root, type: q.type, extensions: q.ext });
+      for (let i = 1; i < list.length; i++) {
+        const v = list[i];
+        const rows = fretRows(v.frets);
+        const base = v.baseFret > 1 ? v.baseFret : 1;
+        let high = 0;
+        for (const fret of v.frets) if (fret > high) high = fret;
+        const span = high > 0 ? high - base + 1 : 0;
+        if (span > 4) altFive++;
+        if (rows < span || rows < 4) outside.push(names[root] + q.key + " alt rows " + rows + " span " + span);
+        for (const fret of v.frets) {
+          if (fret > 0 && fret - base >= rows) outside.push(names[root] + q.key + " alt fret " + fret);
+        }
+      }
+    }
+  }
+  assert.ok(altFive > 0, "an alternate still spans 5 frets");
+  assert.deepEqual(outside, []);
+  const dm9s = resolveVoicings(guitar, { rootPc: 2, type: "minor", extensions: { min7: true, nine: true } });
+  const c9 = resolveVoicings(guitar, { rootPc: 0, type: "major", extensions: { min7: true, nine: true } })[0];
+  const frets = v => v.frets.map(f => (f == null ? "x" : String(f))).join("");
+  assert.equal(frets(dm9s[0]), "x5355x");
+  assert.equal(frets(c9), "x32333");
+  assert.equal(frets(dm9s[1]), "x5x968");
+  assert.equal(fretRows(dm9s[1].frets), 5);
+  assert.equal(fretRows(c9.frets), 4);
+});
+
+test("the smaller-stretch table is the first grip, and a 5-fret alternate still fits", () => {
+  const cases = JSON.parse(readFileSync(new URL("../fixtures/guitar-inventory.json", import.meta.url), "utf8"));
+  const names = ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
+  const fretsOf = v => v.frets.map(f => (f == null ? "x" : String(f))).join("");
+  function spanOf(frets) {
+    let low = null, high = 0;
+    for (const f of frets) if (f > 0) { if (low == null || f < low) low = f; if (f > high) high = f; }
+    return low == null ? { span: 0, low: 0 } : { span: high - low + 1, low };
+  }
+  let wide = 0, above = 0, searched = 0;
+  const aboveNames = [], searchNames = [];
+  for (const q of cases.qualities) {
+    for (let root = 0; root < 12; root++) {
+      const v = resolveVoicings(guitar, { rootPc: root, type: q.type, extensions: q.ext })[0];
+      const s = spanOf(v.frets);
+      if (s.span > 4) wide++;
+      if (s.low > 7) { above++; aboveNames.push(names[root] + q.key + " " + fretsOf(v)); }
+      if (v.shapeName === "Generated") {
+        searched++;
+        if (q.key !== "7sus2" && q.key !== "m9b5") searchNames.push(names[root] + q.key);
+      }
+    }
+  }
+  assert.equal(wide, 0);
+  assert.equal(above, 1);
+  assert.deepEqual(aboveNames, ["Ebm13 11x11111313"]);
+  assert.deepEqual(searchNames, []);
+  assert.equal(GUITAR_OPEN.length, 157);
+  const first = (root, type, ext) => resolveVoicings(guitar, { rootPc: root, type, extensions: ext })[0];
+  const samples = [
+    ["C9", 0, "major", { min7: true, nine: true }, "x32333"],
+    ["Dm9", 2, "minor", { min7: true, nine: true }, "x5355x"],
+    ["Cm9", 0, "minor", { min7: true, nine: true }, "x3133x"],
+    ["C13", 0, "major", { min7: true, thirteen: true }, "x32335"],
+    ["Cm13", 0, "minor", { min7: true, thirteen: true }, "x30345"],
+    ["C7#9", 0, "major", { min7: true, sharp9: true }, "x3234x"],
+    ["Fmaj7sus2", 5, "major", { sus2: true, maj7: true }, "xx3010"],
+    ["Bbm9b5", 10, "dim", { min7: true, nine: true }, "63665x"]
+  ];
+  for (const [name, root, type, ext, want] of samples) {
+    assert.equal(fretsOf(first(root, type, ext)), want, name);
+  }
+  // The open Cmaj9 stays. The "Cmaj9 x3243x" family in the table is the A-shape from Db.
+  assert.equal(fretsOf(first(0, "major", { maj7: true, nine: true })), "x32430");
+  assert.equal(fretsOf(first(1, "major", { maj7: true, nine: true })), "x4354x");
+  const swapped = [
+    { quality: "add9", rootPc: 10, bassPc: null, name: "D-shape", frets: [null, null, 8, 7, 6, 8], fingers: [0, 0, 3, 2, 1, 4], barres: [] },
+    { quality: "add9", rootPc: 11, bassPc: null, name: "D-shape", frets: [null, null, 9, 8, 7, 9], fingers: [0, 0, 3, 2, 1, 4], barres: [] },
+    { quality: "madd9", rootPc: 10, bassPc: null, name: "D-shape", frets: [null, null, 8, 6, 6, 8], fingers: [0, 0, 3, 1, 1, 4], barres: [{ finger: 1, fret: 6, fromString: 3, toString: 4 }] },
+    { quality: "madd9", rootPc: 11, bassPc: null, name: "Open", frets: [null, 2, 0, 4, 2, 2], fingers: [0, 1, 0, 4, 2, 3], barres: [] },
+    { quality: "9", rootPc: 10, bassPc: null, name: "E-shape", frets: [6, null, 6, 7, 6, 8], fingers: [1, 0, 1, 2, 1, 4], barres: [{ finger: 1, fret: 6, fromString: 0, toString: 4 }] },
+    { quality: "maj9", rootPc: 10, bassPc: null, name: "Open", frets: [null, 1, 0, 2, 1, null], fingers: [0, 1, 0, 3, 2, 0], barres: [] },
+    { quality: "maj9", rootPc: 11, bassPc: null, name: "A-shape", frets: [null, 2, 1, 3, 2, null], fingers: [0, 2, 1, 4, 3, 0], barres: [] },
+    { quality: "m9", rootPc: 10, bassPc: null, name: "E-shape", frets: [6, null, 6, 6, 6, 8], fingers: [1, 0, 1, 1, 1, 3], barres: [{ finger: 1, fret: 6, fromString: 0, toString: 4 }] },
+    { quality: "mmaj9", rootPc: 10, bassPc: null, name: "E-shape", frets: [6, null, 7, 6, 6, 8], fingers: [1, 0, 2, 1, 1, 4], barres: [{ finger: 1, fret: 6, fromString: 0, toString: 4 }] },
+    { quality: "m69", rootPc: 10, bassPc: null, name: "D-shape", frets: [null, null, 8, 6, 8, 8], fingers: [0, 0, 2, 1, 3, 4], barres: [] }
+  ];
+  for (const grip of swapped) {
+    const hit = GUITAR_OPEN.find(g => g.quality === grip.quality && g.rootPc === grip.rootPc && fretsOf(g) === fretsOf(grip));
+    assert.deepEqual(hit, grip);
+  }
+  assert.equal(searched, 19);
+});
+
+test("a barre that reaches the last string keeps its finger number inside the barre", () => {
+  const full = barreFinger(5, 6, 12, 88, 6);
+  assert.equal(full.anchor, "middle");
+  assert.ok(full.x > 12 && full.x < 88, "full barre finger at " + full.x);
+  const shortEdge = barreFinger(5, 6, 70, 88, 6);
+  assert.equal(shortEdge.anchor, "middle");
+  assert.ok(shortEdge.x >= 70 && shortEdge.x <= 88);
+  const partial = barreFinger(3, 6, 12, 52, 6);
+  assert.equal(partial.anchor, "start");
+  assert.equal(partial.x, 52 + 6 + 2);
+  const oneString = barreFinger(1, 6, 30, 30, 5);
+  assert.equal(oneString.anchor, "start");
+  assert.equal(oneString.x, 30 + 5 + 2);
 });
 
 test("open G marks the open G string as a root", () => {

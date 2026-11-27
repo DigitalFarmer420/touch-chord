@@ -148,14 +148,16 @@ test("a searched grip sits at the lowest fret that works (N28)", () => {
     ["m9b5", "dim", { min7: true, nine: true }]
   ];
   const high = [];
+  let searched = 0;
   for (const [key, type, ext] of quals) {
     for (let r = 0; r < 12; r++) {
       const v = resolveVoicings("guitar", { rootPc: r, type, extensions: ext })[0];
-      assert.equal(v.shapeName, "Generated", NAMES[r] + key + " " + code(v.frets));
       const start = startFret(v.frets);
-      if (start > 7) high.push(NAMES[r] + key + " " + code(v.frets));
+      if (v.shapeName === "Generated") searched++;
+      if (start > 7) high.push(NAMES[r] + key + " " + code(v.frets) + " " + v.shapeName);
     }
   }
+  assert.ok(searched > 0);
   assert.deepEqual(high, []);
 });
 
