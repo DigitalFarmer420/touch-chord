@@ -117,14 +117,27 @@ html.expert:not(.kv).gtr.lay-pad-land .gtr-panel { left: 96px; }
 
 html.expert:not(.kv).lay-phone-port .gtr-card[data-slot="third"],
 html.expert:not(.kv).lay-phone-port .gtr-card[data-slot="fourth"] { display: none; }
-html.expert:not(.kv).lay-phone-port .gtr-cards { align-items: flex-start; }
-html.expert:not(.kv).lay-phone-port .gtr-card.now { flex: 1.6 1 auto; align-self: stretch; }
-html.expert:not(.kv).lay-phone-port .gtr-card.nx { flex: 0 0 auto; align-self: flex-start; }
-/* The Now diagram stays square. max-height must not squash it. */
-html.expert:not(.kv).lay-phone-port .gtr-card.now .gtr-diagram {
-  width: 100px; height: 100px; max-width: 100%; max-height: none; aspect-ratio: 1 / 1; align-self: center; flex: 0 0 auto;
+/* Phone portrait: the two cards share the panel width, Now fills the height the
+   flow layout left, and Next stays shorter and top-aligned. Diagrams are the
+   measured --gtr-now / --gtr-next squares, never wider than the card. */
+html.expert:not(.kv).lay-phone-port .gtr-cards { align-items: flex-start; height: 100%; min-height: 0; }
+html.expert:not(.kv).lay-phone-port .gtr-card.now,
+html.expert:not(.kv).lay-phone-port .gtr-card.nx {
+  flex: 1 1 0; width: 0; min-width: 0; max-height: 100%;
 }
-html.expert:not(.kv).lay-phone-port .gtr-card.nx .gtr-diagram { width: 84px; height: 72px; max-height: none; }
+html.expert:not(.kv).lay-phone-port .gtr-card.now { align-self: stretch; }
+html.expert:not(.kv).lay-phone-port .gtr-card.nx { align-self: flex-start; height: auto; }
+html.expert:not(.kv).lay-phone-port .gtr-card.now .gtr-diagram {
+  width: var(--gtr-now, 72px); height: var(--gtr-now, 72px); max-width: 100%; max-height: 100%;
+  aspect-ratio: 1 / 1; align-self: center; flex: 0 0 auto;
+}
+html.expert:not(.kv).lay-phone-port .gtr-card.nx .gtr-diagram {
+  width: var(--gtr-next, 56px); height: var(--gtr-next, 56px); max-width: 100%; max-height: 100%;
+  aspect-ratio: 1 / 1; flex: 0 0 auto;
+}
+html.expert:not(.kv).lay-phone-port .gtr-vo { flex-wrap: wrap; justify-content: center; max-width: 100%; }
+html.expert:not(.kv).lay-phone-port .gtr-vo button { width: 24px; height: 24px; min-height: 24px; }
+html.expert:not(.kv).lay-phone-port .gtr-vo span { white-space: normal; text-align: center; }
 html.expert:not(.kv).lay-phone-port .gtr-meta { white-space: normal; text-align: center; line-height: 1.15; max-width: 100%; }
 
 /* iPad portrait: cards fill the panel, so the band under the row goes away.
