@@ -1,6 +1,7 @@
 // Guitar-tab decisions with no DOM: which tab is selected, where the tabs sit,
 // which cards a layout shows, the diagram marks, and whether a key change is a
 // fret slide. The screen (js/ui/guitar.js) only draws what this returns.
+import { accSym } from "../theory/spelling.js?v=2026.11.27.7";
 
 export var GTR_TAB_KEY = "touchChord.gtrTab.v1";
 export var ROOT_COLOR = "#FFC23D";
@@ -39,6 +40,22 @@ export function layoutOf(className) {
   if (/lay-pad-land/.test(s)) return "pad-land";
   if (/lay-pad-port/.test(s)) return "pad-port";
   return "phone-port";
+}
+
+// The name on a Guitar card is the chord's own spelling (the song symbol or
+// the pad label), never the name of a grip the resolver happened to match.
+export function chordDisplayName(chord) {
+  if (!chord) return "";
+  if (chord.chipLabel != null) return accSym(String(chord.rootName || "") + String(chord.chipLabel));
+  if (chord.qualityLabel) {
+    var q = chord.qualityLabel;
+    if (q === "m7b5") q = "m7\u266d5";
+    else if (q === "sus4") q = "sus";
+    else if (chord.type === "dim" && q === "dim") q = "\u00b0";
+    return accSym(String(chord.rootName || "") + q);
+  }
+  if (chord.symbol) return accSym(chord.symbol);
+  return "";
 }
 
 export function chordSig(chord) {

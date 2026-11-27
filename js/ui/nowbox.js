@@ -1,14 +1,14 @@
 // Now box: chord symbol and its fitting.
-import { modeKey, syncKeySel } from "../keys.js?v=2026.11.27.6";
-import { paintLoop } from "../loop.js?v=2026.11.27.6";
-import { VOICINGS, state, scheduleSave, shared } from "../state.js?v=2026.11.27.6";
-import { accSym } from "../theory/spelling.js?v=2026.11.27.6";
-import { kbUpdate } from "./keyboard.js?v=2026.11.27.6";
-import { paintKeyChip, fitKeyRow, keyLabel } from "./keychip.js?v=2026.11.27.6";
-import { computeSpec, paintPads } from "./pads.js?v=2026.11.27.6";
-import { typeHeld, extStillHeld } from "./palette.js?v=2026.11.27.6";
-import { paintSuggestions } from "./strip.js?v=2026.11.27.6";
-import { paintGuitar } from "./guitar.js?v=2026.11.27.6";
+import { modeKey, syncKeySel } from "../keys.js?v=2026.11.27.7";
+import { paintLoop } from "../loop.js?v=2026.11.27.7";
+import { VOICINGS, state, scheduleSave, shared } from "../state.js?v=2026.11.27.7";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.7";
+import { kbUpdate } from "./keyboard.js?v=2026.11.27.7";
+import { paintKeyChip, fitKeyRow, keyLabel } from "./keychip.js?v=2026.11.27.7";
+import { computeSpec, paintPads } from "./pads.js?v=2026.11.27.7";
+import { typeHeld, extStillHeld } from "./palette.js?v=2026.11.27.7";
+import { paintSuggestions } from "./strip.js?v=2026.11.27.7";
+import { paintGuitar } from "./guitar.js?v=2026.11.27.7";
 
 // Shrink the Now symbol only when a long name (e.g. F#6sus4(add9)) would
 // overflow its card; short ones like Cmaj7 keep the full display size.
@@ -17,14 +17,16 @@ export function fitNowSymbol() {
   var sym = document.getElementById("symbol");
   var card = sym && sym.parentNode;
   if (!card) return;
-  sym.style.fontSize = "";
+  function sizeOf(el, px) { el.style.setProperty("font-size", px + "px", "important"); }
+  sym.style.removeProperty("font-size");
+  sym.style.whiteSpace = "nowrap";
   var cs = getComputedStyle(card);
   var avail = card.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
   var tones = document.getElementById("tones");
-  if (tones) tones.style.fontSize = "";
-  var w = sym.getBoundingClientRect().width;
+  if (tones) tones.style.removeProperty("font-size");
+  var w = Math.max(sym.scrollWidth, sym.getBoundingClientRect().width);
   var base = parseFloat(getComputedStyle(sym).fontSize) || 48;
-  if (avail > 0 && w > avail) sym.style.fontSize = Math.max(14, Math.floor(base * (avail / w) * 0.98)) + "px";
+  if (avail > 0 && w > avail + 0.5) sizeOf(sym, Math.max(11, Math.floor(base * (avail / w) * 0.96)));
   // v64: HEIGHT too, measured on the TEXT (not line boxes): every line in the card (NOW label, name,
   // notes, key row) must sit at least 1.25 px inside the card's border. Start from the full CSS size
   // and shrink only as far as needed; the name never goes below the Simple key note's size unless
@@ -55,17 +57,17 @@ export function fitNowSymbol() {
   var floor = state.simple && kn && kn.offsetParent ? Math.max(14, parseFloat(getComputedStyle(kn).fontSize) || 14) : 14;
   var fsS = parseFloat(getComputedStyle(sym).fontSize);
   // 1) the name, down to the floor
-  for (var k = 0; k < 80 && !ok() && fsS > floor; k++) { fsS = Math.max(floor, fsS - 0.5); sym.style.fontSize = fsS + "px"; }
+  for (var k = 0; k < 80 && !ok() && fsS > floor; k++) { fsS = Math.max(floor, fsS - 0.5); sizeOf(sym, fsS); }
   if (ok()) return;
   // 2) the note row, down to 10 px
   var fsT = tones ? parseFloat(getComputedStyle(tones).fontSize) : 0;
-  for (k = 0; k < 20 && !ok() && fsT > 11; k++) { fsT = Math.max(11, fsT - 0.5); tones.style.fontSize = fsT + "px"; }
+  for (k = 0; k < 20 && !ok() && fsT > 11; k++) { fsT = Math.max(11, fsT - 0.5); sizeOf(tones, fsT); }
   if (ok()) return;
   // 3) the padding
   card.style.paddingTop = card.style.paddingBottom = "2px";
   if (ok()) return;
   // 4) last resort: the name below the floor
-  for (k = 0; k < 80 && !ok() && fsS > 14; k++) { fsS -= 0.5; sym.style.fontSize = fsS + "px"; }
+  for (k = 0; k < 80 && !ok() && fsS > 11; k++) { fsS -= 0.5; sizeOf(sym, fsS); }
 }
 
 export function updateSymbol() {

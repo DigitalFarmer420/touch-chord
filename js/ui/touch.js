@@ -2,18 +2,18 @@
 // (computeSpec / kbPlace), finger tracking, spec from a finger, sounding / re-sounding a finger, release / lift,
 // the held-chord refresh and the Kids pointer set. Any view (the grown-up keyboard in pads.js, the Kids piano)
 // calls soundFinger(pointerId, keyOf(...)) / liftFinger(pointerId), so sound and timing are the same everywhere.
-import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.6";
-import { keyRootSpell, modeKey, activeKey, keyDegrees, maybeLockKey } from "../keys.js?v=2026.11.27.6";
-import { finalizeOne, armPending } from "../loop.js?v=2026.11.27.6";
-import { setItemState } from "../songs/playback.js?v=2026.11.27.6";
-import { state, loop, fingers, shared } from "../state.js?v=2026.11.27.6";
-import { Theory } from "../theory/index.js?v=2026.11.27.6";
-import { hasDoubleAcc, plainToneName, enharmonicSpell } from "../theory/names.js?v=2026.11.27.6";
-import { wrap12 } from "../theory/quality.js?v=2026.11.27.6";
-import { kbFullMode, kbFullRange, kbWindowMode, kbKeyLayout, kidsTonic, kbChord, kbUpdate, kbScheduleReset } from "./keyboard.js?v=2026.11.27.6";
-import { keyTapMidis, chipRootMidi, chipMidis, keyTapType } from "./kbmath.js?v=2026.11.27.6";
-import { clearStripExt, clearSuggestPreview } from "./strip.js?v=2026.11.27.6";
-import { sustainActive, poolFingerGroup } from "./sustain.js?v=2026.11.27.6";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.7";
+import { keyRootSpell, modeKey, activeKey, keyDegrees, maybeLockKey } from "../keys.js?v=2026.11.27.7";
+import { finalizeOne, armPending } from "../loop.js?v=2026.11.27.7";
+import { setItemState } from "../songs/playback.js?v=2026.11.27.7";
+import { state, loop, fingers, shared } from "../state.js?v=2026.11.27.7";
+import { Theory } from "../theory/index.js?v=2026.11.27.7";
+import { hasDoubleAcc, plainToneName, enharmonicSpell } from "../theory/names.js?v=2026.11.27.7";
+import { wrap12 } from "../theory/quality.js?v=2026.11.27.7";
+import { kbFullMode, kbFullRange, kbWindowMode, kbKeyLayout, kidsTonic, kbChord, kbUpdate, kbScheduleReset } from "./keyboard.js?v=2026.11.27.7";
+import { keyTapMidis, chipRootMidi, chipMidis, keyTapType } from "./kbmath.js?v=2026.11.27.7";
+import { clearStripExt, clearSuggestPreview } from "./strip.js?v=2026.11.27.7";
+import { sustainActive, poolFingerGroup } from "./sustain.js?v=2026.11.27.7";
 
 // The touched key as plain data (from a key element's data-* and its playable state), so any view can sound it.
 export function keyOf(id, pc, midi, degree, borrow, playable) {
@@ -24,6 +24,16 @@ export function keyOf(id, pc, midi, degree, borrow, playable) {
 const view = { symbol: function () {} };
 export function setTouchView(v) { if (v && v.symbol) view.symbol = v.symbol; }
 
+var WRITTEN_EXT = ["six", "min7", "maj7", "nine", "sus2", "flat9", "sharp9", "thirteen", "over", "sharp5", "flat5"];
+function sameWrittenExt(a, b) {
+  a = a || {}; b = b || {};
+  for (var i = 0; i < WRITTEN_EXT.length; i++) {
+    var k = WRITTEN_EXT[i];
+    if (k === "over") { if ((a.over || 0) !== (b.over || 0)) return false; }
+    else if (!!a[k] !== !!b[k]) return false;
+  }
+  return true;
+}
 export function computeSpec() {
   var rootPc = state.rootPc;
   var type = state.type;
@@ -90,6 +100,10 @@ export function computeSpec() {
       var c2 = Theory.buildChord({ rootPc: rootPc, type: type, extensions: state.extensions, voicing: state.voicing, rootSpell: alt, rootMidi: rootMidi });
       if (!hasDoubleAcc(c2.names)) chord = c2;
     }
+  }
+  var written = state.writtenChord;
+  if (written && state.style !== "kids" && written.type === chord.type && wrap12(written.rootPc) === wrap12(chord.rootPc) && sameWrittenExt(written.ext, chord.extensions)) {
+    chord.symbol = written.name;
   }
   chord.bassOut = state.bass ? chord.bassMidi + 12 : null;   // v68: bass an octave up (C3-B3) so phones play it
   chord.midis = kbPlace(chord, rootMidi);   // v83: close position from the root, inside one octave
