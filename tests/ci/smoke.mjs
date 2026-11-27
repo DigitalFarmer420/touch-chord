@@ -1842,10 +1842,46 @@ try {
         if (!side && !(m.tabs.b <= m.cards[0].box.t + 2)) notes.push('tabs are not above the cards');
       }
       if (m.page) notes.push('page scrolls');
+      const geo = await page.evaluate(() => {
+        const shown = e => !!(e && e.getClientRects().length && getComputedStyle(e).display !== 'none');
+        const portrait = /lay-phone-port|lay-pad-port/.test(document.documentElement.className);
+        const phonePort = document.documentElement.classList.contains('lay-phone-port');
+        function stack(card) {
+          if (!card) return null;
+          const name = card.querySelector('.gtr-name');
+          const dia = card.querySelector('.gtr-diagram');
+          const foot = card.querySelector('.gtr-foot');
+          if (!name || !dia) return { missing: true };
+          const nb = name.getBoundingClientRect(), db = dia.getBoundingClientRect();
+          const footOn = shown(foot);
+          const fb = footOn ? foot.getBoundingClientRect() : null;
+          return {
+            nameThenDia: nb.bottom <= db.top + 3,
+            diaThenFoot: !footOn || db.bottom <= fb.top + 3,
+            ratio: db.height > 1 ? +(db.width / db.height).toFixed(2) : 0
+          };
+        }
+        const now = document.querySelector('#gtrCards .gtr-card.now');
+        const next = document.querySelector('#gtrCards .gtr-card.nx');
+        const nh = now ? now.getBoundingClientRect().height : 0;
+        const xh = next ? next.getBoundingClientRect().height : 0;
+        return { portrait, phonePort, now: stack(now), next: stack(next), nextShorter: phonePort ? xh < nh - 1 : null };
+      });
+      if (geo.portrait) {
+        if (!geo.now || !geo.now.nameThenDia || !geo.now.diaThenFoot) notes.push('now stack ' + JSON.stringify(geo.now));
+        if (geo.next && (!geo.next.nameThenDia || !geo.next.diaThenFoot)) notes.push('next stack ' + JSON.stringify(geo.next));
+        if (geo.now && (geo.now.ratio < 0.8 || geo.now.ratio > 1.25)) notes.push('now ratio ' + geo.now.ratio);
+      }
+      if (geo.phonePort && geo.nextShorter === false) notes.push('Next is not shorter than Now');
       const labels = [m.label];
-      for (let i = 0; i < 2; i++) {
-        await page.locator('[data-gtr-cycle="1"]').click();
-        labels.push((await page.locator('[data-gtr-label]').innerText()).trim());
+      const cycleOn = await page.locator('[data-gtr-cycle="1"]').first().isVisible().catch(() => false);
+      if (cycleOn) {
+        for (let i = 0; i < 2; i++) {
+          await page.locator('[data-gtr-cycle="1"]').first().click();
+          labels.push((await page.locator('[data-gtr-label]').innerText()).trim());
+        }
+        const wantLabels = ['Open', 'A-shape · 3fr', 'E-shape · 8fr'];
+        if (labels.join('|') !== wantLabels.join('|')) notes.push('cycle ' + labels.join(' | '));
       }
       const clipped = await page.evaluate(() => {
         const vis = e => !!(e && e.getClientRects().length && getComputedStyle(e).display !== 'none');
@@ -1861,8 +1897,19 @@ try {
       });
       if (m.clipped.length || clipped.length) notes.push('clipped ' + [...m.clipped, ...clipped].join(', '));
       if (m.off.length) notes.push('outside ' + [...new Set(m.off)].slice(0, 6).join(', '));
-      const wantLabels = ['Open', 'A-shape · 3fr', 'E-shape · 8fr'];
-      if (labels.join('|') !== wantLabels.join('|')) notes.push('cycle ' + labels.join(' | '));
+      if (size === '780x360') {
+        await page.locator('#gtrTabs [data-gtr="piano"]').click();
+        await page.waitForTimeout(80);
+        const hits = await page.evaluate(() => {
+          const tabs = document.getElementById('gtrTabs').getBoundingClientRect();
+          return [...document.querySelectorAll('#pads .pad')].filter(k => {
+            const r = k.getBoundingClientRect();
+            if (r.width < 2 || r.height < 2) return false;
+            return !(tabs.right <= r.left + 1 || tabs.left >= r.right - 1 || tabs.bottom <= r.top + 1 || tabs.top >= r.bottom - 1);
+          }).length;
+        });
+        if (hits) notes.push('tabs overlap ' + hits + ' keys');
+      }
       if (bag.errors.length) notes.push('page: ' + bag.errors.slice(0, 2).join('; '));
       const name = 'GTR ' + size + ': Guitar tab fits, no clipped labels, C cycles three grips';
       if (notes.length) await shot(page, name);
