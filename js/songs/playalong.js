@@ -1,12 +1,12 @@
 // Play along: advance on the marked key / chip.
-import { magicAdvance } from "./magic.js?v=2026.11.27.21";
-import { magic, prog, PROG_TEST } from "./playback.js?v=2026.11.27.21";
-import { sameChord } from "./presets.js?v=2026.11.27.21";
-import { upSelected, upNextStep } from "./song.js?v=2026.11.27.21";
-import { state, shared } from "../state.js?v=2026.11.27.21";
-import { wrap12 } from "../theory/quality.js?v=2026.11.27.21";
-import { nxNow } from "../ui/next.js?v=2026.11.27.21";
-import { kidsTapPulse } from "../ui/pulse.js?v=2026.11.27.21";
+import { magicAdvance } from "./magic.js?v=2026.11.27.22";
+import { magic, prog, PROG_TEST } from "./playback.js?v=2026.11.27.22";
+import { sameChord } from "./presets.js?v=2026.11.27.22";
+import { upSelected, upNextStep } from "./song.js?v=2026.11.27.22";
+import { state, shared } from "../state.js?v=2026.11.27.22";
+import { wrap12 } from "../theory/quality.js?v=2026.11.27.22";
+import { nxNow } from "../ui/next.js?v=2026.11.27.22";
+import { kidsTapPulse } from "../ui/pulse.js?v=2026.11.27.22";
 // v108 Play along (outside Kids; Config > Play along enable, on by default): with a next chord marked
 // (nxNow, the same chord Next plays), tapping one of its tones on the keyboard (pitch class, any octave;
 // Full mode) or that chord's chip (Full and Simple) advances exactly like Next (magicAdvance). Never
