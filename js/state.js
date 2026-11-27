@@ -1,7 +1,7 @@
 // One shared app state: `state` (chord / key / style / settings), `loop` (phrase loop), `shared` (mutable values more than one module writes) and persistence (localStorage keys unchanged from v112.3: touchChord.settings.v1, see STORE_KEY).
-import { validKeyName, defaultKeyName } from "./keys.js?v=2026.11.27.12";
-import { WARMTH_DEFAULT, clampWarmth } from "./styles.js?v=2026.11.27.12";
-import { Theory } from "./theory/index.js?v=2026.11.27.12";
+import { validKeyName, defaultKeyName } from "./keys.js?v=2026.11.27.13";
+import { WARMTH_DEFAULT, clampWarmth } from "./styles.js?v=2026.11.27.13";
+import { Theory } from "./theory/index.js?v=2026.11.27.13";
 
 // Shared mutable app state: the variables that more than one module writes. Read/write them as shared.<name>.
 export const shared = {
@@ -97,7 +97,7 @@ const STORE_KEY = "touchChord.settings.v1";
 const STORE_VERSION = 1;
 const LAYOUTS = ["octave", "piano", "fourths", "full"];   // v85: + Full (the pre-v83 multi-octave keyboard)
 const SOUNDS = ["piano", "epiano", "strings", "warm", "bell", "reed"];
-const STYLES = ["pop", "kids", "jazz", "rnb", "ballad", "reggae", "funk", "yogaDeep", "country"];   // v60: Romantic and the old "yoga" removed (saved ones fall back to Pop). v68: "yogaDeep" is shown as "Yoga"; its id is unchanged, so a saved "yogaDeep" restores to it and an old saved "yoga" still falls back to Pop.
+const STYLES = ["pop", "kids", "jazz", "rnb", "ballad", "reggae", "funk", "yogaDeep", "country", "lofi"];   // v60: Romantic and the old "yoga" removed (saved ones fall back to Pop). v68: "yogaDeep" is shown as "Yoga"; its id is unchanged, so a saved "yogaDeep" restores to it and an old saved "yoga" still falls back to Pop. Lofi is its own style.
 const SCALES = ["major", "minor"];
 
 export function factoryDefaults() {

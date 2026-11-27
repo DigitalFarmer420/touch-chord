@@ -1,6 +1,6 @@
 // Band: drums and groove per style, the beat scheduler.
-import { bandBassMidi, bandIv } from "./bass.js?v=2026.11.27.12";
-import { ChordAudio } from "./engine.js?v=2026.11.27.12";
+import { bandBassMidi, bandIv } from "./bass.js?v=2026.11.27.13";
+import { ChordAudio } from "./engine.js?v=2026.11.27.13";
 
 // ===== v75 Band, STEP ONE: a separate groove layer (bass + drums, Jazz adds soft comping) =====
 // Spec: v69/GROOVE-STEP1-SPEC.md (+ amendments). Own gain bus -> limiter -> master Volume (vol), so
@@ -10,9 +10,9 @@ import { ChordAudio } from "./engine.js?v=2026.11.27.12";
 // restarting the beat; ~2 bars after the last chord it fades out and stops.
 // Clock (no own tempo): clock() from the app = the selected song's BPM / beats per bar, else the
 // Play song bar (PROG_BAR) while it runs, else the Config (style / loop) BPM.
-var BAND_STYLES = { pop: true, country: true, jazz: true, kids: true, ballad: true, rnb: true };   // v78: + Ballad, R&B
+var BAND_STYLES = { pop: true, country: true, jazz: true, kids: true, ballad: true, rnb: true, lofi: true };   // v78: + Ballad, R&B. Lofi: dusty boom-bap.
 // Per-style band level, measured (A-weighted) so Band 50 sits ~3 dB under the chords, 100 ~3 dB over.
-var BAND_TRIM = { pop: 0.27, country: 0.63, jazz: 0.42, kids: 0.65, ballad: 0.16, rnb: 0.175 };   // v78: Ballad / R&B at 100 <= chord level (measured)
+var BAND_TRIM = { pop: 0.27, country: 0.63, jazz: 0.42, kids: 0.65, ballad: 0.16, rnb: 0.175, lofi: 0.12 };   // v78: Ballad / R&B at 100 <= chord level (measured). Lofi sits lower, under the Rhodes.
 export function bandPc(m) { return ((m % 12) + 12) % 12; }
 export function Band(audio) {
   this.audio = audio; this.level = 0; this.style = null;
@@ -298,6 +298,18 @@ Band.prototype.playBeat = function (t, b, bpb, spb, barN) {
         this.sub(t + spb * 0.62, ap, spb * 0.36, 0.7, 0.01, tg);   // approach note sliding into the new root
       } else if (dense) this.sub(t + spb * 0.5, R + 12 > 55 ? R : R + 12, spb * 0.22, 0.5, 0.01);
     }
+  } else if (st === "lofi") {
+    // Dusty boom-bap under the Rhodes: a soft kick on 1 and the pickup into 3, a rim
+    // (not a bright snare) on 2 and 4 a little behind, light swung hats, round root bass.
+    var layL = Math.min(0.04, spb * 0.06), swL = spb * 2 / 3;
+    if (b === 0) this.kick(t, 0.48);
+    if (b === mid - 1) this.kick(t + spb * 0.75, 0.28);
+    if (b % 2 === 1) this.rim(t + layL, 0.62);
+    if (dense && b % 2 === 1) this.crossStick(t + layL, 0.3);
+    this.hat(t, b % 2 ? 0.22 : 0.32);
+    if (dense) this.hat(t + swL, 0.14);
+    if (b === 0) this.sub(t, R, spb * 1.6, 0.8, 0.02);
+    else if (b === mid) this.sub(t, R, spb * 0.9, 0.5, 0.02);
   } else if (st === "kids") {
     if (b % 2 === 1) this.clap(t, 0.9);
     if (full && last) this.clap(t + spb * 0.5, 0.45);

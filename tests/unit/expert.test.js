@@ -165,8 +165,9 @@ test('Expert pref: Auto default (rd6; was Lamplight), own store key, ?expert=1/0
   assert.equal(M.prefFromUrl('?expert=0', { v: 1, on: true, look: 'lamp' }).on, false);
   assert.equal(M.expertWindowKeys('octave'), 12); assert.equal(M.expertWindowKeys('full'), 0);
 });
-test('Style drop-down lists the nine styles in the live order', () => {
-  assert.deepEqual(M.STYLE_MENU.map(s => s[0]), ['pop', 'jazz', 'rnb', 'ballad', 'reggae', 'funk', 'yogaDeep', 'country']);
+test('Style drop-down lists the grown-up styles, Lofi last', () => {
+  assert.deepEqual(M.STYLE_MENU.map(s => s[0]), ['pop', 'jazz', 'rnb', 'ballad', 'reggae', 'funk', 'yogaDeep', 'country', 'lofi']);
+  assert.deepEqual(M.STYLE_MENU.find(s => s[0] === 'lofi').slice(1), ['Lofi', 'dusty 9ths']);
 });
 
 test('Expert Play face is a stop square only while playing, and Play again when it ends', () => {
