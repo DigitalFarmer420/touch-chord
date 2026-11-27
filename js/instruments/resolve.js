@@ -4,10 +4,10 @@
 // grips, then movable shapes at the lowest fret, then grips searched on the
 // board when nothing in the library fits. No DOM.
 
-import { getInstrument } from "./profiles.js?v=2026.11.24.1";
-import { shapesFor } from "./shapes.js?v=2026.11.24.1";
-import { normalizeExt, chordIntervals, buildChord } from "../theory/chords.js?v=2026.11.24.1";
-import { mod12 } from "../theory/spelling.js?v=2026.11.24.1";
+import { getInstrument } from "./profiles.js?v=2026.11.27.1";
+import { shapesFor } from "./shapes.js?v=2026.11.27.1";
+import { normalizeExt, chordIntervals, buildChord } from "../theory/chords.js?v=2026.11.27.1";
+import { mod12 } from "../theory/spelling.js?v=2026.11.27.1";
 
 var ROLE = {
   0: "root", 2: "2", 3: "3", 4: "3", 5: "4", 6: "b5", 7: "5", 8: "#5",

@@ -1781,6 +1781,98 @@ try {
     finally { await ctx.close(); }
   }
 
+  // Guitar tab (Expert only): four sizes, no overflow, labels fully visible, C cycles three grips.
+  for (const [w, h] of [[360, 780], [780, 360], [820, 1180], [1180, 820]]) {
+    const size = w + 'x' + h;
+    const { ctx, page, bag } = await fresh(browser, w, h, 'GTR ' + size);
+    const notes = [];
+    try {
+      await boot(page, 'test=1&hour=21&expert=1');
+      await page.locator('#gtrTabs [data-gtr="guitar"]').click();
+      await page.waitForTimeout(80);
+      const m = await page.evaluate(() => {
+        const box = e => { if (!e || !e.getClientRects().length) return null; const r = e.getBoundingClientRect(); return { l: r.left, r: r.right, t: r.top, b: r.bottom, w: r.width, h: r.height }; };
+        const vis = e => !!(e && e.getClientRects().length && getComputedStyle(e).display !== 'none' && getComputedStyle(e).visibility !== 'hidden');
+        const textBox = e => {
+          const range = document.createRange();
+          range.selectNodeContents(e);
+          const t = range.getBoundingClientRect();
+          return t.width || t.height ? t : null;
+        };
+        const de = document.documentElement;
+        const tabs = document.getElementById('gtrTabs');
+        const cards = [...document.querySelectorAll('#gtrCards .gtr-card')].filter(vis);
+        const labels = [...document.querySelectorAll('#gtrTabs button, #gtrCards .gtr-name, #gtrCards .gtr-lb, #gtrCards .gtr-vo span, #gtrCards .gtr-meta, #gtrCards .gtr-tap')];
+        const clipped = labels.filter(e => {
+          if (!vis(e)) return false;
+          const t = textBox(e), host = e.closest('.gtr-card') || e.closest('.gtr-tabs');
+          if (!t || !host || t.width < 1) return false;
+          const c = host.getBoundingClientRect();
+          return t.left < c.left - 1 || t.right > c.right + 1 || t.top < c.top - 1 || t.bottom > c.bottom + 1;
+        }).map(e => (e.textContent || '').trim().slice(0, 40));
+        const off = [];
+        const vw = innerWidth, vh = innerHeight;
+        for (const e of [tabs, ...cards, ...labels.filter(vis)]) {
+          const r = box(e);
+          if (!r) continue;
+          if (r.l < -1 || r.t < -1 || r.r > vw + 1 || r.b > vh + 1) off.push((e.textContent || e.id || 'el').trim().slice(0, 24));
+        }
+        const chip = document.getElementById('xKeysChip');
+        const pads = document.getElementById('pads');
+        return {
+          lay: de.className, gtr: de.classList.contains('gtr'),
+          uke: /ukulele/i.test(document.body.innerText),
+          octave: vis(chip), pads: vis(pads),
+          tabs: box(tabs), cards: cards.map(c => ({ slot: c.dataset.slot, box: box(c), name: (c.querySelector('.gtr-name') || {}).textContent || '' })),
+          label: (document.querySelector('[data-gtr-label]') || {}).textContent || '',
+          clipped, off,
+          page: de.scrollWidth > vw + 1 || de.scrollHeight > vh + 1
+        };
+      });
+      if (!m.gtr) notes.push('guitar tab did not select');
+      if (m.uke) notes.push('ukulele is on screen');
+      if (m.octave) notes.push('octave control still visible');
+      if (m.pads) notes.push('piano keys still visible');
+      const side = /lay-phone-land|lay-pad-land/.test(m.lay);
+      const want = side || /lay-pad-port/.test(m.lay) ? 4 : 2;
+      if (m.cards.length !== want) notes.push('cards ' + m.cards.length + ' want ' + want);
+      if (m.cards[0] && m.cards[0].name.trim() !== 'C') notes.push('now is ' + m.cards[0].name);
+      if (m.tabs && m.cards[0]) {
+        if (side && !(m.tabs.r <= m.cards[0].box.l + 1)) notes.push('tabs are not a left strip');
+        if (!side && !(m.tabs.b <= m.cards[0].box.t + 2)) notes.push('tabs are not above the cards');
+      }
+      if (m.page) notes.push('page scrolls');
+      const labels = [m.label];
+      for (let i = 0; i < 2; i++) {
+        await page.locator('[data-gtr-cycle="1"]').click();
+        labels.push((await page.locator('[data-gtr-label]').innerText()).trim());
+      }
+      const clipped = await page.evaluate(() => {
+        const vis = e => !!(e && e.getClientRects().length && getComputedStyle(e).display !== 'none');
+        return [...document.querySelectorAll('#gtrTabs button, #gtrCards .gtr-name, #gtrCards .gtr-lb, #gtrCards .gtr-vo span, #gtrCards .gtr-meta, #gtrCards .gtr-tap')].filter(e => {
+          if (!vis(e)) return false;
+          const range = document.createRange(); range.selectNodeContents(e);
+          const t = range.getBoundingClientRect();
+          const host = e.closest('.gtr-card') || e.closest('.gtr-tabs');
+          if (!host || t.width < 1) return false;
+          const c = host.getBoundingClientRect();
+          return t.left < c.left - 1 || t.right > c.right + 1 || t.top < c.top - 1 || t.bottom > c.bottom + 1;
+        }).map(e => (e.textContent || '').trim().slice(0, 40));
+      });
+      if (m.clipped.length || clipped.length) notes.push('clipped ' + [...m.clipped, ...clipped].join(', '));
+      if (m.off.length) notes.push('outside ' + [...new Set(m.off)].slice(0, 6).join(', '));
+      const wantLabels = ['Open', 'A-shape · 3fr', 'E-shape · 8fr'];
+      if (labels.join('|') !== wantLabels.join('|')) notes.push('cycle ' + labels.join(' | '));
+      if (bag.errors.length) notes.push('page: ' + bag.errors.slice(0, 2).join('; '));
+      const name = 'GTR ' + size + ': Guitar tab fits, no clipped labels, C cycles three grips';
+      if (notes.length) await shot(page, name);
+      record(name, !notes.length, notes.length ? notes.join(' | ') : m.lay);
+    } catch (err) {
+      try { await shot(page, 'GTR ' + size); } catch (e) {}
+      record('GTR ' + size, false, String(err && err.message || err).split('\n')[0]);
+    } finally { await ctx.close(); }
+  }
+
   for (const w of walks) {
     if (w.pageNotes.length) record('toggle ' + w.label, false, w.pageNotes.join(' | '));
   }
