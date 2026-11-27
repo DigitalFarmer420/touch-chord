@@ -256,7 +256,8 @@ html.lay-phone-land:where(:not(.kv)) #paneSound .sound-layer { height: 52px !imp
 :where(html:not(.kv)) #uploadPick input::placeholder { color: var(--muted); opacity: .7; font-style: italic; }
 
 /* Jam (loaded song, Simple and Expert). Pads stay in today's grid: other chords are hidden but keep their space.
-   Extras are dashed in the family colour. The pill sits in the top-left corner of the grid. */
+   Extras are dashed in the family colour. The control is a dashed circle in the empty top cell above B
+   (grid-row b, grid-column 15 / span 2). The circle stays its set size; the 44px tap is a pseudo-element. */
 html.expert:where(:not(.kv)) #suggest .ss-chip.ss-off,
 html.simple:where(:not(.kv)) #suggest .ss-chip.ss-off { visibility: hidden !important; pointer-events: none !important; }
 html.expert:where(:not(.kv)) #suggest .ss-chip.ss-jam,
@@ -301,33 +302,49 @@ html.expert.x-day:where(:not(.kv)) #suggest .ss-chip.ss-jam.color,
 html.expert.x-day:where(:not(.kv)) #suggest .ss-chip.ss-jam.borrowed,
 html.simple.s-day:where(:not(.kv)) #suggest .ss-chip.ss-jam.color,
 html.simple.s-day:where(:not(.kv)) #suggest .ss-chip.ss-jam.borrowed { border-color: #A34B1C !important; color: #A34B1C !important; }
-html.expert:where(:not(.kv)) #suggest .jam-pill,
-html.simple:where(:not(.kv)) #suggest .jam-pill {
-  position: absolute; top: 8px; left: 8px; z-index: 5; display: flex; align-items: center; gap: 6px;
-  height: 30px; padding: 0 12px 0 6px; border-radius: 15px; letter-spacing: .02em; cursor: pointer;
-  font: 800 13px/1 var(--tc-font-ui); border: 1.5px solid #43382c; background: #1f1a15; color: #bfb3a0;
+html.expert:where(:not(.kv)) #suggest .jam-toggle,
+html.simple:where(:not(.kv)) #suggest .jam-toggle {
+  --jam-d: 48px;
+  grid-row: b; grid-column: 15 / span 2;
+  justify-self: stretch !important; align-self: stretch !important;
+  position: relative; z-index: 6; box-sizing: border-box;
+  width: 100% !important; height: 100% !important;
+  min-width: 0 !important; max-width: none !important;
+  min-height: 0 !important; max-height: none !important;
+  margin: 0 !important; padding: 0 !important;
+  display: flex !important; align-items: center; justify-content: center;
+  border: 0 !important; border-radius: 0 !important;
+  background: transparent !important; box-shadow: none !important;
+  color: #C4B49A !important; cursor: pointer;
+  font-family: var(--tc-font-ui) !important; font-weight: 700 !important;
+  font-size: calc(var(--jam-d) * 0.55) !important; line-height: 1 !important;
 }
-html.expert:where(:not(.kv)) #suggest .jam-pill .sw,
-html.simple:where(:not(.kv)) #suggest .jam-pill .sw {
-  width: 30px; height: 18px; border-radius: 9px; background: #43382c; position: relative; flex: none;
+html.expert:where(:not(.kv)) #suggest .jam-toggle .jam-glyph,
+html.simple:where(:not(.kv)) #suggest .jam-toggle .jam-glyph { position: relative; z-index: 1; }
+html.expert:where(:not(.kv)) #suggest .jam-toggle::before,
+html.simple:where(:not(.kv)) #suggest .jam-toggle::before {
+  content: ""; position: absolute; left: 50%; top: 50%; z-index: 0; pointer-events: none;
+  width: var(--jam-d) !important; height: var(--jam-d) !important; box-sizing: border-box;
+  transform: translate(-50%, -50%); border-radius: 50%;
+  border: 2px dashed currentColor !important; background: transparent;
 }
-html.expert:where(:not(.kv)) #suggest .jam-pill .sw::after,
-html.simple:where(:not(.kv)) #suggest .jam-pill .sw::after {
-  content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 7px; background: #9d917e;
+html.expert.lay-phone-port:where(:not(.kv)) #suggest .jam-toggle,
+html.simple.lay-phone-port:where(:not(.kv)) #suggest .jam-toggle { --jam-d: 30px; }
+html.expert.lay-phone-land:where(:not(.kv)) #suggest .jam-toggle,
+html.simple.lay-phone-land:where(:not(.kv)) #suggest .jam-toggle { --jam-d: 28px; }
+html.expert.lay-pad-port:where(:not(.kv)) #suggest .jam-toggle,
+html.expert.lay-pad-land:where(:not(.kv)) #suggest .jam-toggle,
+html.simple.lay-pad-port:where(:not(.kv)) #suggest .jam-toggle,
+html.simple.lay-pad-land:where(:not(.kv)) #suggest .jam-toggle { --jam-d: 48px; }
+html.expert:where(:not(.kv)) #suggest .jam-toggle::after,
+html.simple:where(:not(.kv)) #suggest .jam-toggle::after {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: 44px; height: 44px; transform: translate(-50%, -50%);
 }
-html.expert:where(:not(.kv)) #suggest .jam-pill.on,
-html.simple:where(:not(.kv)) #suggest .jam-pill.on { background: #F3EAD8; border-color: #F3EAD8; color: #2a231c; }
-html.expert:where(:not(.kv)) #suggest .jam-pill.on .sw,
-html.simple:where(:not(.kv)) #suggest .jam-pill.on .sw { background: #2a231c; }
-html.expert:where(:not(.kv)) #suggest .jam-pill.on .sw::after,
-html.simple:where(:not(.kv)) #suggest .jam-pill.on .sw::after { left: 14px; background: #FFC23D; }
-html.expert:where(:not(.kv)) #suggest .jam-pill .ct,
-html.simple:where(:not(.kv)) #suggest .jam-pill .ct { font: 700 11px/1 var(--tc-font-ui); opacity: .7; }
-html.expert.x-day:where(:not(.kv)) #suggest .jam-pill,
-html.simple.s-day:where(:not(.kv)) #suggest .jam-pill { background: #E7DCC8; border-color: #C4B49A; color: #5C5146; }
-html.expert.x-day:where(:not(.kv)) #suggest .jam-pill .sw,
-html.simple.s-day:where(:not(.kv)) #suggest .jam-pill .sw { background: #C4B49A; }
-html.expert.x-day:where(:not(.kv)) #suggest .jam-pill .sw::after,
-html.simple.s-day:where(:not(.kv)) #suggest .jam-pill .sw::after { background: #FFF; }
-html.expert.x-day:where(:not(.kv)) #suggest .jam-pill.on,
-html.simple.s-day:where(:not(.kv)) #suggest .jam-pill.on { background: #F3EAD8; border-color: #C4B49A; color: #2a231c; }
+html.expert:where(:not(.kv)) #suggest .jam-toggle.is-on,
+html.simple:where(:not(.kv)) #suggest .jam-toggle.is-on { color: #FFC23D !important; background: transparent !important; }
+/* Day: the same dashed circle, in a darker cream so it reads on the cream grid. On stays #FFC23D. */
+html.expert.x-day:where(:not(.kv)) #suggest .jam-toggle,
+html.simple.s-day:where(:not(.kv)) #suggest .jam-toggle { color: #8A7764 !important; }
+html.expert.x-day:where(:not(.kv)) #suggest .jam-toggle.is-on,
+html.simple.s-day:where(:not(.kv)) #suggest .jam-toggle.is-on { color: #FFC23D !important; }

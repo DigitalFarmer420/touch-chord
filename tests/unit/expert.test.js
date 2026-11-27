@@ -168,3 +168,22 @@ test('Expert pref: Auto default (rd6; was Lamplight), own store key, ?expert=1/0
 test('Style drop-down lists the nine styles in the live order', () => {
   assert.deepEqual(M.STYLE_MENU.map(s => s[0]), ['pop', 'jazz', 'rnb', 'ballad', 'reggae', 'funk', 'yogaDeep', 'country']);
 });
+
+test('Expert Play face is a stop square only while playing, and Play again when it ends', () => {
+  assert.deepEqual(M.expertPlayFace('idle'), { glyph: '\u25b6', stop: false });
+  assert.deepEqual(M.expertPlayFace('paused'), { glyph: '\u25b6', stop: false });
+  assert.deepEqual(M.expertPlayFace('playing'), { glyph: '\u25a0', stop: true });
+  assert.deepEqual(M.expertPlayFace('idle'), { glyph: '\u25b6', stop: false });
+  const ui = readFileSync(new URL('../../js/expert/ui.js', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../../css/expert.css', import.meta.url), 'utf8');
+  const kids = readFileSync(new URL('../../js/kids/view.js', import.meta.url), 'utf8');
+  assert.match(ui, /expertPlayFace\(transportLabel\(\)\)/);
+  assert.match(ui, /classList\.toggle\("is-stop", face\.stop\)/);
+  assert.match(ui, /setAttribute\("aria-label", xl\.aria\)/);
+  assert.match(ui, /\$\("xPlay"\)\.addEventListener\("click", function \(\) \{ click\("#prog \.pg-song"\); paintPlayFace\(\); schedule\(\); \}\)/);
+  assert.match(css, /#xGo \.x-play\.is-stop \{/);
+  assert.match(css, /fill='%232B2118'/);
+  assert.doesNotMatch(css, /#xGo \.x-play\.is-stop[^}]*background-color:\s*var\(--x-next\)|#xGo \.x-play\.is-stop[^}]*background:\s*var\(--copper\)/);
+  assert.doesNotMatch(kids, /is-stop|expertPlayFace/);
+  assert.match(kids, /Play stays ▶ while a song plays/);
+});
