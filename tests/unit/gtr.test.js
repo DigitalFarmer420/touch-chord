@@ -103,6 +103,16 @@ test("a phone-portrait diagram reserves the dot and the O/X, and a wide side sta
   assert.ok(pad.top >= 22);
 });
 
+test("a phone diagram is wider than tall and the frets stay at least 0.9 of the string spacing", () => {
+  const frame = diagramFrame({
+    w: 126, fh: (126 - 9 - 10) / 4, mk: 11, base: 1, rows: 4, side: 4, top: 9, bot: 10,
+    gutter: 10, fing: true, strings: true, stringsCount: 6, square: true, wide: true
+  });
+  assert.ok(frame.H <= 126 / 1.12 + 0.6, "viewBox " + frame.H);
+  assert.ok(126 / frame.H >= 1.05);
+  assert.ok(frame.fh / frame.sg >= 0.9 - 1e-9);
+});
+
 test("the fret token is what shrinks last", () => {
   assert.equal(nextVoicingSize(87, 85, 12, 10), 11.7);
   assert.equal(nextVoicingSize(80, 100, 12, 10), 12);
@@ -265,6 +275,43 @@ test("a barre is a bar between the strings and its finger number sits on the bar
   assert.match(drawn, /m\.kind === "barre" \|\| m\.kind === "barre-root"/);
   assert.match(drawn, /var lite = now \|\| de\(\)\.classList\.contains\("x-day"\)/);
   assert.match(drawn, /ink: "#F3EAD8", line: "#8a7d69", dot: "#F3EAD8", dotT: "#2a231c", mute: "#9d917e"/);
+});
+
+test("moved D-shapes keep their frets and number every finger, including the Ebmaj7 root", () => {
+  const fretsOf = v => v.frets.map(f => (f == null ? "x" : String(f))).join("");
+  const eb = resolveVoicings(guitar, { rootPc: 3, type: "major", extensions: { maj7: true } })[0];
+  assert.equal(fretsOf(eb), "xx1333");
+  assert.deepEqual(eb.fingers, [0, 0, 1, 3, 3, 3]);
+  assert.equal(eb.barres[0].finger, 3);
+  const model = diagramModel(eb, guitar.tuning, 3);
+  const root = model.marks.find(m => m.string === 2);
+  assert.equal(root.kind, "root");
+  assert.equal(root.finger, 1, "the D-string root of Ebmaj7 xx1333 has a finger number");
+  const dim = resolveVoicings(guitar, { rootPc: 2, type: "dim", extensions: { six: true } })[0];
+  assert.equal(fretsOf(dim), "xx0101");
+  assert.equal(dim.fingers[3], 1, "open Ddim7 G string");
+  assert.equal(dim.fingers[5], 2, "open Ddim7 e string");
+  const cases = JSON.parse(readFileSync(new URL("../fixtures/guitar-inventory.json", import.meta.url), "utf8"));
+  let missing = 0;
+  let voiced = 0;
+  for (const q of cases.qualities) {
+    for (let rootPc = 0; rootPc < 12; rootPc++) {
+      const list = resolveVoicings(guitar, { rootPc, type: q.type, extensions: q.ext });
+      for (const v of list) {
+        voiced++;
+        for (let s = 0; s < v.frets.length; s++) {
+          if (!(v.frets[s] > 0)) continue;
+          const covered = (v.barres || []).some(b => b.finger > 0 && b.fret === v.frets[s] && s >= b.fromString && s <= b.toString);
+          if (!(v.fingers[s] > 0) && !covered) missing++;
+        }
+      }
+    }
+  }
+  assert.equal(missing, 0);
+  assert.ok(voiced > 480);
+  const drawn = readFileSync(new URL("../../js/ui/guitar.js", import.meta.url), "utf8");
+  assert.match(drawn, /fing: true/);
+  assert.doesNotMatch(drawn, /fing: now/);
 });
 
 test("open G marks the open G string as a root", () => {

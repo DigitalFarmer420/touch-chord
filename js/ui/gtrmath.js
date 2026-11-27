@@ -1,7 +1,7 @@
 // Guitar-tab decisions with no DOM: which tab is selected, where the tabs sit,
 // which cards a layout shows, the diagram marks, and whether a key change is a
 // fret slide. The screen (js/ui/guitar.js) only draws what this returns.
-import { accSym } from "../theory/spelling.js?v=2026.11.27.17";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.18";
 
 export var GTR_TAB_KEY = "touchChord.gtrTab.v1";
 export var ROOT_COLOR = "#FFC23D";
@@ -179,23 +179,27 @@ export function diagramFrame(o) {
       r = Math.min(sg, fh) * 0.36;
     }
   }
+  // Phone diagrams are a little wider than tall, so a short card still holds a
+  // fretboard that fills most of the card width. Other layouts stay within the
+  // 0.82 height cap (the flow check allows 0.8).
+  var wide = !!o.wide;
+  var fretFloor = sg * 0.9;
   if (o.square) {
     var H0 = top + rows * fh + bot;
-    if (H0 > o.w && fh > sg * 0.9) {
-      fh = Math.max(sg * 0.9, fh - (H0 - o.w) / rows);
+    var capH = wide ? o.w / 1.12 : o.w;
+    if (H0 > capH && fh > fretFloor) {
+      fh = Math.max(fretFloor, fh - (H0 - capH) / rows);
       r = Math.min(sg, fh) * 0.36;
     }
   }
-  // The painted box stays about square (the flow check allows 0.8). Markers keep their room;
-  // the frets give up the extra height.
   var H = top + rows * fh + bot;
-  var limit = o.w / 0.82;
+  var limit = wide ? o.w / 1.12 : o.w / 0.82;
   if (H > limit) {
-    fh = Math.max(sg * 0.9, fh - (H - limit) / rows);
+    fh = Math.max(fretFloor, fh - (H - limit) / rows);
     r = Math.min(sg, fh) * 0.36;
     H = top + rows * fh + bot;
   }
-  // A fret-1 dot has to clear the nut (the nut extends 1 unit below `top`).
+  // A fret-1 dot has to clear the nut (the nut ends at `top`).
   var nutClear = fh * 0.5 - 1.2;
   if (r > nutClear && nutClear > 1) r = nutClear;
   return {
