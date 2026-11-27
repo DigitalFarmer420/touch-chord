@@ -1,17 +1,20 @@
-// Loaded song: the chord grid keeps today's spots. Song chords stay; the rest are hidden
-// (the space stays). Jam, when on, fills up to 6 ranked extras into empty cells.
-// Kids is not touched.
-import { prog } from "../songs/playback.js?v=2026.11.27.10";
-import { jamRank, takeJam, songChordList, sameSongChord, chordFamily, songGridOn } from "../songs/jam.js?v=2026.11.27.10";
-import { upSelected } from "../songs/song.js?v=2026.11.27.10";
-import { state, shared, scheduleSave } from "../state.js?v=2026.11.27.10";
-import { STRIP_QUAL, styleDegreeQual, wireStripTap, prettyAcc } from "./strip.js?v=2026.11.27.10";
+// Loaded song: the grid shows the chords the song plays. Other style pads are taken
+// out of the layout (they do not hold a cell). Jam, the circle and the dashed extras,
+// is still in this file but off unless JAM_IN_SONG is set true. Kids is not touched.
+import { prog } from "../songs/playback.js?v=2026.11.27.11";
+import { jamRank, takeJam, songChordList, sameSongChord, chordFamily, songGridOn } from "../songs/jam.js?v=2026.11.27.11";
+import { upSelected } from "../songs/song.js?v=2026.11.27.11";
+import { state, shared, scheduleSave } from "../state.js?v=2026.11.27.11";
+import { STRIP_QUAL, styleDegreeQual, wireStripTap, prettyAcc } from "./strip.js?v=2026.11.27.11";
 
 var ROWN = { bright: "b", happy: "h", sad: "s", tension: "t" };
 
 // The empty top-row cell above B: the rightmost note column (B when B is in the key).
 // grid-column 15 / span 2 is half-column 13, grid-row b (the bright row, the top row).
 // A chip spans two half-columns, so hc 12 and hc 14 overlap that cell (the same rule as cellTaken).
+// false: Song mode does not offer Jam. The circle, the ranking and the dashed extras
+// stay below; set this true to put them back in the grid.
+export var JAM_IN_SONG = false;
 export var JAM_TOGGLE = { row: "bright", hc: 13, gridRow: "b", gridColumn: "15 / span 2" };
 export function jamToggleSlot(row, hc) {
   return row === JAM_TOGGLE.row && typeof hc === "number" && Math.abs(hc - JAM_TOGGLE.hc) < 2;
@@ -126,7 +129,7 @@ export function layoutSongGrid(el) {
     if (song.some(function (s) { return sameSongChord(s, chipItem(c)); })) c.classList.add("ss-song");
     else { c.classList.add("ss-off"); c.setAttribute("aria-hidden", "true"); }
   });
-  if (state.jam) {
+  if (JAM_IN_SONG && state.jam) {
     var ranked = jamRank(prog.model.key, song).map(function (c) { return voiceExtra(c, prog.model.key.mode); });
     var occupied = list.map(function (c) { return { row: c._tc && c._tc.row, hc: c._tc && c._tc.hc, item: chipItem(c) }; });
     takeJam(ranked, occupied, 6).forEach(function (extra) {
@@ -153,5 +156,5 @@ export function layoutSongGrid(el) {
     b.el.style.visibility = hide ? "hidden" : "";
     if (hide) b.el.setAttribute("aria-hidden", "true");
   });
-  paintToggle(el, !!state.jam);
+  if (JAM_IN_SONG) paintToggle(el, !!state.jam);
 }

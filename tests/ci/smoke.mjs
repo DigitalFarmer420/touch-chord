@@ -2077,6 +2077,60 @@ try {
     } finally { await ctx.close(); }
   }
 
+  // Song mode: Jam is off (JAM_IN_SONG). A saved jam:true must not bring the circle or dashed extras back.
+  const JAM_SONG = JSON.stringify({
+    contractVersion: '1.2',
+    song: { title: 'Night Hold', artist: 'Probe', key: { tonic: 'Eb', mode: 'major' } },
+    timing: { bpm: 78, timeSignature: '4/4' },
+    sections: [{ id: 'v', type: 'verse', chords: [
+      { index: 0, chord: 'Fm7b5', position: { bar: 1, beat: 1 }, durationBeats: 4, confidence: 0.9 },
+      { index: 1, chord: 'Gm7', position: { bar: 2, beat: 1 }, durationBeats: 4, confidence: 0.9 }
+    ], lyrics: [
+      { text: 'Hold the night and let it go now', markers: [{ charIndex: 0, chordIndex: 0 }, { charIndex: 20, chordIndex: 1 }] },
+      { text: 'One more line under the words', markers: [] }
+    ] }]
+  });
+  for (const [w, h] of [[360, 640], [384, 700], [412, 760], [412, 915], [780, 360], [820, 1180], [1180, 820]]) {
+    const size = w + 'x' + h;
+    const { ctx, page, bag } = await fresh(browser, w, h, 'JAM song ' + size);
+    const notes = [];
+    try {
+      await boot(page, 'test=1&hour=21&expert=1');
+      await page.evaluate(() => {
+        const raw = JSON.parse(localStorage.getItem('touchChord.settings.v1') || '{}');
+        raw.jam = true;
+        raw.expert = true;
+        localStorage.setItem('touchChord.settings.v1', JSON.stringify(raw));
+      });
+      await page.reload({ waitUntil: 'load' });
+      await page.waitForFunction(() => !document.documentElement.classList.contains('tc-boot') && window.__upload);
+      const progJam = await page.evaluate(() => ({
+        toggles: document.querySelectorAll('.jam-toggle').length,
+        extras: document.querySelectorAll('.ss-jamextra').length
+      }));
+      if (progJam.toggles || progJam.extras) notes.push('progressions has jam ' + JSON.stringify(progJam));
+      await page.evaluate(text => { window.__upload.load(text); }, JAM_SONG);
+      await page.waitForTimeout(80);
+      const m = await page.evaluate(() => ({
+        song: document.querySelector('#xSrc') && document.querySelector('#xSrc').classList.contains('x-mode-song'),
+        toggles: document.querySelectorAll('.jam-toggle, .jam-pill').length,
+        extras: document.querySelectorAll('.ss-jamextra, .ss-jam').length,
+        jamClass: document.querySelectorAll('[class~="jam"]').length
+      }));
+      if (!m.song) notes.push('song mode did not open');
+      if (m.toggles) notes.push('jam circle ' + m.toggles);
+      if (m.extras) notes.push('dashed extras ' + m.extras);
+      if (m.jamClass) notes.push('jam class ' + m.jamClass);
+      if (bag.errors.length) notes.push('page: ' + bag.errors.slice(0, 2).join('; '));
+      const name = 'JAM ' + size + ' song: no Jam circle and no dashed extras';
+      if (notes.length) await shot(page, name);
+      record(name, !notes.length, notes.join(' | '));
+    } catch (err) {
+      try { await shot(page, 'JAM song ' + size); } catch (e) {}
+      record('JAM song ' + size, false, String(err && err.message || err).split('\n')[0]);
+    } finally { await ctx.close(); }
+  }
+
   for (const w of walks) {
     if (w.pageNotes.length) record('toggle ' + w.label, false, w.pageNotes.join(' | '));
   }
