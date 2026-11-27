@@ -75,6 +75,18 @@ test("a key change that keeps the shape is a fret slide", () => {
   assert.equal(chordSig({ type: "major", extensions: {} }), chordSig({ type: "major", extensions: { six: false } }));
 });
 
+test("the guitar Next card is not the hint class that Next strips", () => {
+  const js = readFileSync(new URL("../../js/ui/guitar.js", import.meta.url), "utf8");
+  const hint = readFileSync(new URL("../../js/ui/next.js", import.meta.url), "utf8");
+  assert.match(js, /slot === "next" \? " next"/);
+  assert.doesNotMatch(js, /slot === "next" \? " nx"/);
+  assert.match(css, /\.gtr-card\.next \{/);
+  assert.match(css, /lay-phone-port \.gtr-card\.next \{ align-self: flex-start/);
+  assert.doesNotMatch(css, /\.gtr-card\.nx\b/);
+  assert.match(hint, /gtr-card/);
+  assert.match(hint, /clearNextHintDom[\s\S]*gtr-card[\s\S]*classList\.remove\("nx", "nx-root"\)/);
+});
+
 test("open G marks the open G string as a root", () => {
   const g = resolveVoicings(guitar, { rootPc: 7, type: "major", extensions: {} })[0];
   const model = diagramModel(g, guitar.tuning, 7);
