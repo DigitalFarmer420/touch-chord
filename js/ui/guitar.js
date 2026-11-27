@@ -1,19 +1,19 @@
 // Expert Guitar tab. Draws the resolver's grips in the keyboard area and strums
 // them through ChordAudio. Kids, Simple, and the Piano tab do not use this panel.
-import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.10";
-import { unlock } from "../audio/unlock.js?v=2026.11.27.10";
-import { activeKey } from "../keys.js?v=2026.11.27.10";
-import { prog, magic } from "../songs/playback.js?v=2026.11.27.10";
-import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.10";
-import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.10";
-import { state } from "../state.js?v=2026.11.27.10";
-import { Theory } from "../theory/index.js?v=2026.11.27.10";
-import { accSym } from "../theory/spelling.js?v=2026.11.27.10";
-import { computeSpec } from "./touch.js?v=2026.11.27.10";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.11";
+import { unlock } from "../audio/unlock.js?v=2026.11.27.11";
+import { activeKey } from "../keys.js?v=2026.11.27.11";
+import { prog, magic } from "../songs/playback.js?v=2026.11.27.11";
+import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.11";
+import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.11";
+import { state } from "../state.js?v=2026.11.27.11";
+import { Theory } from "../theory/index.js?v=2026.11.27.11";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.11";
+import { computeSpec } from "./touch.js?v=2026.11.27.11";
 import {
   GTR_TAB_KEY, readGtrTab, gtrTabReduce, cardSlots, layoutOf,
   chordSig, chordDisplayName, voicingLabel, cycleIndex, fretSlide, diagramModel
-} from "./gtrmath.js?v=2026.11.27.10";
+} from "./gtrmath.js?v=2026.11.27.11";
 
 var TAB_LABEL = { now: "NOW", next: "NEXT", third: "3RD", fourth: "4TH" };
 var pick = {};
@@ -83,8 +83,9 @@ function diagramSvg(voicing, chord, o) {
   var S = model.marks.length, F = 4;
   var top = o.top || 16, side = o.side || 10, fh = o.fh, mk = o.mk || 11;
   var base = model.base;
-  var left = side + (base > 1 ? 10 : 0);
-  var gw = o.w - 2 * side - (base > 1 ? 10 : 0);
+  var gutter = o.gutter != null ? o.gutter : 10;
+  var left = side + (base > 1 ? gutter : 0);
+  var gw = o.w - 2 * side - (base > 1 ? gutter : 0);
   var sg = S > 1 ? gw / (S - 1) : gw;
   var bot = o.bot != null ? o.bot : (o.strings ? 16 : 8);
   var H = top + F * fh + bot;
@@ -153,6 +154,63 @@ function capPadLand(fh, w, side) {
   return fh > cap ? cap : fh;
 }
 
+// Phone portrait only. The panel is whatever height the flow layout left under
+// the chord rows, so the diagram is the smaller of that free height and half
+// the panel width, locked near 1:1. Next stays smaller than Now.
+var portFit = null;
+function portInk(px, strings) {
+  var side = 4, top = 9, bot = strings ? 10 : 6;
+  // The fret numeral column is 10px on a full diagram. On a small phone square
+  // that column would make the frets too tall, so it shrinks with the box.
+  var gutter = px >= 78 ? 10 : Math.max(4, Math.round(px * 0.16));
+  var sgN = (px - 2 * side) / 5;
+  var sgB = (px - 2 * side - gutter) / 5;
+  var lo = 0.9 * sgN, hi = 1.18 * sgB;
+  var fh = (px - top - bot) / 4;
+  if (fh < lo) fh = lo;
+  if (fh > hi) fh = hi;
+  return { w: px, fh: fh, side: side, top: top, bot: bot, gutter: gutter, mk: Math.max(8, Math.min(11, px * 0.2)) };
+}
+function measurePort() {
+  var panel = document.getElementById("gtrPanel");
+  var pw = panel ? panel.clientWidth : 0;
+  var ph = panel ? panel.clientHeight : 0;
+  if (!(pw > 40 && ph > 40)) return { now: portInk(64, true), next: portInk(52, false) };
+  var innerW = (pw - 8) / 2 - 16;
+  var nowPx = Math.min(innerW, ph - 88);
+  var nextPx = Math.min(innerW, ph - 52, nowPx * 0.84);
+  nowPx = Math.max(28, Math.floor(nowPx));
+  nextPx = Math.max(24, Math.floor(nextPx));
+  if (nextPx > nowPx - 2) nextPx = Math.max(24, nowPx - 2);
+  return { now: portInk(nowPx, true), next: portInk(nextPx, false) };
+}
+function tightenPort() {
+  var panel = document.getElementById("gtrPanel");
+  var cards = document.querySelectorAll("#gtrCards .gtr-card");
+  if (!panel || !cards.length) return;
+  var pb = panel.getBoundingClientRect();
+  var excess = 0;
+  for (var i = 0; i < cards.length; i++) {
+    var card = cards[i];
+    var cb = card.getBoundingClientRect();
+    excess = Math.max(excess, cb.bottom - pb.bottom, cb.right - pb.right);
+    var bits = card.querySelectorAll(".gtr-diagram, .gtr-name, .gtr-meta, .gtr-vo, .gtr-tap, .gtr-lb");
+    for (var j = 0; j < bits.length; j++) {
+      var r = bits[j].getBoundingClientRect();
+      if (r.width < 1 && r.height < 1) continue;
+      excess = Math.max(excess, r.bottom - cb.bottom, r.right - cb.right, r.top - cb.top < -1 ? cb.top - r.top : 0, r.left - cb.left < -1 ? cb.left - r.left : 0);
+    }
+  }
+  if (excess <= 1) return;
+  var now = parseFloat(panel.style.getPropertyValue("--gtr-now")) || 64;
+  var next = parseFloat(panel.style.getPropertyValue("--gtr-next")) || 52;
+  var cut = Math.ceil(excess);
+  now = Math.max(28, now - cut);
+  next = Math.max(24, Math.min(next - cut, now - 2));
+  panel.style.setProperty("--gtr-now", now + "px");
+  panel.style.setProperty("--gtr-next", next + "px");
+}
+
 function diaOpts(lay, slot, name) {
   var now = slot === "now";
   var land = lay === "phone-land" || lay === "pad-land";
@@ -166,10 +224,17 @@ function diaOpts(lay, slot, name) {
   // iPad portrait (.8 was 40 / 24). Tall enough that Now and Next render about
   // 18% larger than .8, and the Now box stays within the portrait aspect check.
   var fh = land ? landFret(lay) : (now ? (pad ? 49 : 21) : (pad ? 30 : 17));
+  var top = pad ? 22 : 17;
+  var bot = null;
+  var mk = pad ? 13 : 11;
   if (lay === "pad-land") fh = capPadLand(fh, w, side);
+  if (lay === "phone-port" && portFit) {
+    var ink = now ? portFit.now : portFit.next;
+    w = ink.w; fh = ink.fh; side = ink.side; top = ink.top; bot = ink.bot; mk = ink.mk;
+  }
   return Object.assign(theme, {
-    w: w, fh: fh, mk: pad ? 13 : 11,
-    top: pad ? 22 : 17, side: side,
+    w: w, fh: fh, mk: mk,
+    top: top, side: side, bot: bot, gutter: lay === "phone-port" && portFit ? (now ? portFit.now.gutter : portFit.next.gutter) : null,
     fing: now, strings: now && (!land || pad), label: name
   });
 }
@@ -261,6 +326,12 @@ export function paintGuitar(spec) {
   if (!panel) return;
   if (!spec) { try { spec = computeSpec(); } catch (e) { return; } }
   var lay = layoutOf(de().className);
+  portFit = lay === "phone-port" ? measurePort() : null;
+  if (portFit) {
+    var host = document.getElementById("gtrPanel") || panel;
+    host.style.setProperty("--gtr-now", portFit.now.w + "px");
+    host.style.setProperty("--gtr-next", portFit.next.w + "px");
+  }
   var key = activeKey();
   var keyId = key ? key.pc + ":" + key.mode : "";
   var keyChanged = lastKey != null && lastKey !== keyId;
@@ -270,6 +341,7 @@ export function paintGuitar(spec) {
   var html = "";
   for (var i = 0; i < slots.length; i++) html += cardHtml(slots[i], chords[slots[i]], lay, keyChanged);
   panel.innerHTML = html;
+  if (portFit) tightenPort();
 }
 
 function onPanelClick(e) {

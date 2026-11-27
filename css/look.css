@@ -255,11 +255,13 @@ html.lay-phone-land:where(:not(.kv)) #paneSound .sound-layer { height: 52px !imp
 /* ===== 7. Upload: neutral hints ("Song title" / "Artist" in index.html) that read as hints, not as filled-in values ===== */
 :where(html:not(.kv)) #uploadPick input::placeholder { color: var(--muted); opacity: .7; font-style: italic; }
 
-/* Jam (loaded song, Simple and Expert). Pads stay in today's grid: other chords are hidden but keep their space.
-   Extras are dashed in the family colour. The control is a dashed circle in the empty top cell above B
-   (grid-row b, grid-column 15 / span 2). The circle stays its set size; the 44px tap is a pseudo-element. */
+/* Jam (loaded song, Simple and Expert). With JAM_IN_SONG false the circle is not drawn
+   and chords the song does not play are taken out of the grid, so they hold no cell.
+   The dashed-extra and circle rules stay for when that flag is turned back on.
+   The circle, when drawn, sits in the top cell above B (grid-row b, grid-column 15 / span 2)
+   and keeps its set size; the 44px tap is a pseudo-element. */
 html.expert:where(:not(.kv)) #suggest .ss-chip.ss-off,
-html.simple:where(:not(.kv)) #suggest .ss-chip.ss-off { visibility: hidden !important; pointer-events: none !important; }
+html.simple:where(:not(.kv)) #suggest .ss-chip.ss-off { display: none !important; }
 html.expert:where(:not(.kv)) #suggest .ss-chip.ss-jam,
 html.simple:where(:not(.kv)) #suggest .ss-chip.ss-jam {
   background: transparent !important; background-image: none !important; box-shadow: none !important;

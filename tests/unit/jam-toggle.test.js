@@ -99,10 +99,9 @@ globalThis.document = {
   querySelectorAll: () => []
 };
 
-const { layoutSongGrid, jamToggleSlot, JAM_TOGGLE } = await import(`../../js/ui/songgrid.js?v=${V}`);
+const { layoutSongGrid, jamToggleSlot, JAM_TOGGLE, JAM_IN_SONG } = await import(`../../js/ui/songgrid.js?v=${V}`);
 const { state, shared } = await import(`../../js/state.js?v=${V}`);
 const { prog } = await import(`../../js/songs/playback.js?v=${V}`);
-const { jamRank } = await import(`../../js/songs/jam.js?v=${V}`);
 
 const ext = () => ({ six: false, min7: false, maj7: false, nine: false });
 const chord = (pc, type) => ({ rootPc: pc, type, extensions: ext() });
@@ -128,61 +127,38 @@ function extras(grid) {
   }));
 }
 
-test('the circle sits in the top cell above B and exposes jam aria', () => {
+test('Song mode does not draw the Jam circle or any dashed extra, even when Jam was saved on', () => {
+  assert.equal(JAM_IN_SONG, false);
   assert.deepEqual(JAM_TOGGLE, { row: 'bright', hc: 13, gridRow: 'b', gridColumn: '15 / span 2' });
   assert.equal(jamToggleSlot('bright', 13), true);
-  assert.equal(jamToggleSlot('bright', 12), true, 'the half-column between A and B overlaps the circle');
-  assert.equal(jamToggleSlot('bright', 14), true);
-  assert.equal(jamToggleSlot('sad', 13), false);
-  assert.equal(jamToggleSlot('bright', 11), false);
   const grid = songOn([chord(0, 'major'), chord(5, 'major'), chord(7, 'major')]);
-  const b = toggleOf(grid);
-  assert.ok(b, 'toggle is in the grid');
-  assert.equal(b.style.gridRow, 'b');
-  assert.equal(b.style.gridColumn, '15 / span 2');
-  assert.equal(b.getAttribute('aria-label'), 'Jam: show extra chords');
-  assert.equal(b.getAttribute('aria-pressed'), 'false');
-  assert.equal(b.textContent, '+');
-  assert.equal(b.classList.contains('is-on'), false);
+  state.jam = true;
+  const songChip = makeEl('button');
+  songChip.className = 'ss-chip';
+  songChip._tc = { item: chord(0, 'major'), row: 'happy', hc: 1 };
+  const other = makeEl('button');
+  other.className = 'ss-chip';
+  other._tc = { item: chord(4, 'minor'), row: 'sad', hc: 5 };
+  grid.appendChild(songChip);
+  grid.appendChild(other);
+  layoutSongGrid(grid);
+  assert.equal(toggleOf(grid), null, 'no circle in the grid');
   assert.equal(grid.querySelectorAll('.jam-pill').length, 0);
-  assert.equal(extras(grid).length, 0, 'off hides the dashed extras');
-  b.click();
-  const on = toggleOf(grid);
-  assert.equal(state.jam, true);
-  assert.equal(on.getAttribute('aria-pressed'), 'true');
-  assert.equal(on.getAttribute('aria-label'), 'Jam: show extra chords');
-  assert.equal(on.textContent, '\u2212');
-  assert.equal(on.classList.contains('is-on'), true);
-  const shown = extras(grid);
-  assert.ok(shown.length > 0, 'on shows the dashed extras');
-  assert.equal(shown.some(c => c.row === 'bright' && Math.abs(c.hc - 13) < 2), false, 'nothing is drawn on the circle');
-  assert.ok(shown.some(c => c.label && c.label.startsWith('Am')));
-  on.click();
-  const off = toggleOf(grid);
-  assert.equal(state.jam, false);
-  assert.equal(off.getAttribute('aria-pressed'), 'false');
-  assert.equal(off.textContent, '+');
-  assert.equal(extras(grid).length, 0);
+  assert.equal(extras(grid).length, 0, 'saved Jam-on does not add dashed extras');
+  assert.equal(grid.querySelectorAll('.ss-jam').length, 0);
+  assert.equal(songChip.classList.contains('ss-song'), true);
+  assert.equal(other.classList.contains('ss-off'), true, 'a chord the song does not play is out of the layout');
+  const held = [...grid.querySelectorAll('.jam-toggle')];
+  assert.equal(held.length, 0, 'the old Jam cell is not reserved');
 });
 
-test('a jam extra that would occupy the B cell is not drawn, and the others stay put', () => {
-  const song = [chord(4, 'minor')];
-  const ranked = jamRank({ pc: 0, mode: 'major' }, song);
-  const b7 = ranked.find(c => c.rootPc === 11 && c.row === 'bright');
-  assert.ok(b7, 'B7 is a ranked extra when Em is in the song');
-  assert.equal(b7.hc, 13);
-  assert.equal(jamToggleSlot(b7.row, b7.hc), true);
-  state.jam = true;
-  const grid = songOn(song);
+test('a saved Jam-on still adds nothing when the song has only one chord', () => {
+  const grid = songOn([chord(4, 'minor')]);
   state.jam = true;
   layoutSongGrid(grid);
-  const placed = extras(grid);
-  assert.ok(placed.length >= 4, 'the other extras are still placed');
-  assert.equal(placed.some(c => c.row === 'bright' && Math.abs(c.hc - 13) < 2), false, 'B7 is not drawn on the circle');
-  assert.ok(placed.some(c => c.label && c.label.startsWith('Am')), 'Am stays where takeJam put it');
-  const b = toggleOf(grid);
-  assert.equal(b.style.gridColumn, '15 / span 2');
-  assert.equal(b.getAttribute('aria-pressed'), 'true');
+  assert.equal(toggleOf(grid), null);
+  assert.equal(extras(grid).length, 0);
+  assert.equal(state.jam, true, 'the saved flag is left as it was');
 });
 
 test('Kids never gets the circle', () => {
