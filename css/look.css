@@ -305,7 +305,7 @@ html.simple.s-day:where(:not(.kv)) #suggest .ss-chip.ss-jam.borrowed { border-co
 html.expert:where(:not(.kv)) #suggest .jam-toggle,
 html.simple:where(:not(.kv)) #suggest .jam-toggle {
   --jam-d: 48px;
-  grid-row: b !important; grid-column: 15 / span 2 !important;
+  grid-row: b; grid-column: 15 / span 2;
   justify-self: stretch !important; align-self: stretch !important;
   position: relative; z-index: 6; box-sizing: border-box;
   width: 100% !important; height: 100% !important;
