@@ -136,6 +136,14 @@ function diagramSvg(voicing, chord, o) {
 }
 function escapeAttr(s) { return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;"); }
 
+// Landscape fret spacing follows the card: (height − chrome) / 4.
+function landFret(lay) {
+  var panel = document.getElementById("gtrPanel");
+  var H = panel ? panel.clientHeight : 0;
+  if (!(H > 40)) return lay === "pad-land" ? 28 : 16;
+  return (H - (lay === "pad-land" ? 46 : 30)) / 4;
+}
+
 function diaOpts(lay, slot, name) {
   var now = slot === "now";
   var land = lay === "phone-land" || lay === "pad-land";
@@ -145,7 +153,7 @@ function diaOpts(lay, slot, name) {
     ? { ink: "#2a231c", line: "#7a6c58", dot: "#2a231c", dotT: "#F3EAD8", mute: "#7a6c58" }
     : { ink: "#F3EAD8", line: "#8a7d69", dot: "#F3EAD8", dotT: "#2a231c", mute: "#9d917e" };
   var w = land ? (pad ? 150 : 86) : (now ? (pad ? 190 : 118) : (pad ? 120 : 84));
-  var fh = land ? (pad ? 28 : 16) : (now ? (pad ? 36 : 21) : (pad ? 24 : 17));
+  var fh = land ? landFret(lay) : (now ? (pad ? 40 : 21) : (pad ? 24 : 17));
   return Object.assign(theme, {
     w: w, fh: fh, mk: pad ? 13 : 11,
     top: pad ? 22 : 17, side: pad ? 14 : 11,
@@ -220,16 +228,16 @@ function cardHtml(slot, chord, lay, slideDy) {
   lastGrip[slot] = { shapeName: v.shapeName, frets: v.frets.slice(), baseFret: v.baseFret };
   var opts = diaOpts(lay, slot, name + " " + voicingLabel(v));
   var cls = "gtr-card" + (slot === "now" ? " now" : slot === "next" ? " nx" : "");
-  var body = '<div class="gtr-tx"><p class="gtr-lb">' + TAB_LABEL[slot] + '</p><p class="gtr-name">' + name + "</p>";
+  var head = '<div class="gtr-head"><p class="gtr-lb">' + TAB_LABEL[slot] + '</p><p class="gtr-name">' + name + "</p></div>";
+  var foot = "";
   if (slot === "now") {
-    body += '<div class="gtr-vo"><button type="button" data-gtr-cycle="-1" aria-label="Previous shape">\u2039</button><span data-gtr-label>' +
+    foot = '<div class="gtr-foot"><div class="gtr-vo"><button type="button" data-gtr-cycle="-1" aria-label="Previous shape">\u2039</button><span data-gtr-label>' +
       voicingLabel(v) + '</span><button type="button" data-gtr-cycle="1" aria-label="Next shape">\u203a</button></div>' +
-      '<p class="gtr-meta">' + (index + 1) + " of " + grips.length + ' \u00b7 <b>\u25cf</b> root</p>';
-  } else if (slot === "next") body += '<p class="gtr-tap">Tap to strum</p>';
-  body += "</div>";
+      '<p class="gtr-meta">' + (index + 1) + " of " + grips.length + ' \u00b7 <b>\u25cf</b> root</p></div>';
+  } else if (slot === "next") foot = '<div class="gtr-foot"><p class="gtr-tap">Tap to strum</p></div>';
   var svg = diagramSvg(v, chord, opts);
   if (slide) svg = svg.replace('class="gtr-diagram"', 'class="gtr-diagram sliding" style="--gtr-dy:' + dy + '"');
-  return '<div role="button" tabindex="0" class="' + cls + '" data-slot="' + slot + '" data-sig="' + sig + '">' + body + svg + "</div>";
+  return '<div role="button" tabindex="0" class="' + cls + '" data-slot="' + slot + '" data-sig="' + sig + '">' + head + svg + foot + "</div>";
 }
 
 export function paintGuitar(spec) {
@@ -288,7 +296,7 @@ export function boot() {
   tabs.className = "gtr-tabs x-seg";
   tabs.setAttribute("role", "tablist");
   tabs.setAttribute("aria-label", "Instrument");
-  tabs.innerHTML = '<button type="button" role="tab" data-gtr="piano">Piano</button><button type="button" role="tab" data-gtr="guitar">Guitar</button>';
+  tabs.innerHTML = '<button type="button" role="tab" data-gtr="piano"><span class="gtr-emoji" aria-hidden="true">\uD83C\uDFB9</span> Piano</button><button type="button" role="tab" data-gtr="guitar"><span class="gtr-emoji" aria-hidden="true">\uD83C\uDFB8</span> Guitar</button>';
   tabs.addEventListener("click", function (e) {
     var b = e.target.closest("[data-gtr]");
     if (!b) return;
