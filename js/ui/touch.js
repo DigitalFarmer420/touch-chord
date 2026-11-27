@@ -24,6 +24,16 @@ export function keyOf(id, pc, midi, degree, borrow, playable) {
 const view = { symbol: function () {} };
 export function setTouchView(v) { if (v && v.symbol) view.symbol = v.symbol; }
 
+var WRITTEN_EXT = ["six", "min7", "maj7", "nine", "sus2", "flat9", "sharp9", "thirteen", "over", "sharp5", "flat5"];
+function sameWrittenExt(a, b) {
+  a = a || {}; b = b || {};
+  for (var i = 0; i < WRITTEN_EXT.length; i++) {
+    var k = WRITTEN_EXT[i];
+    if (k === "over") { if ((a.over || 0) !== (b.over || 0)) return false; }
+    else if (!!a[k] !== !!b[k]) return false;
+  }
+  return true;
+}
 export function computeSpec() {
   var rootPc = state.rootPc;
   var type = state.type;
@@ -90,6 +100,10 @@ export function computeSpec() {
       var c2 = Theory.buildChord({ rootPc: rootPc, type: type, extensions: state.extensions, voicing: state.voicing, rootSpell: alt, rootMidi: rootMidi });
       if (!hasDoubleAcc(c2.names)) chord = c2;
     }
+  }
+  var written = state.writtenChord;
+  if (written && state.style !== "kids" && written.type === chord.type && wrap12(written.rootPc) === wrap12(chord.rootPc) && sameWrittenExt(written.ext, chord.extensions)) {
+    chord.symbol = written.name;
   }
   chord.bassOut = state.bass ? chord.bassMidi + 12 : null;   // v68: bass an octave up (C3-B3) so phones play it
   chord.midis = kbPlace(chord, rootMidi);   // v83: close position from the root, inside one octave

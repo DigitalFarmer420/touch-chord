@@ -645,6 +645,11 @@ export function setItemState(item) {
   state.rootPc = item.rootPc;
   state.type = item.type;
   state.stripSpell = item.rootSpell ? { pc: item.rootPc, type: item.type, rs: item.rootSpell, keep: !!item.keepSpell } : null;
+  // The name the song or pad wrote (Cdim7), so the Now box and Guitar cards
+  // do not rename it to the shape the theory layer would print (Cdim6).
+  state.writtenChord = (state.style !== "kids" && item && (item.chipLabel != null || item.qualityLabel))
+    ? { rootPc: item.rootPc, type: item.type, ext: item.extensions || {}, name: stripLabel(item) }
+    : null;
   if (item.degree) {
     state.forceChord = null;
     if (state.keyMode) state.degree = item.degree;

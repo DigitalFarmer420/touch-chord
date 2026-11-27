@@ -12,7 +12,7 @@ import { accSym } from "../theory/spelling.js?v=2026.11.27.6";
 import { computeSpec } from "./touch.js?v=2026.11.27.6";
 import {
   GTR_TAB_KEY, readGtrTab, gtrTabReduce, cardSlots, layoutOf,
-  chordSig, voicingLabel, cycleIndex, fretSlide, diagramModel
+  chordSig, chordDisplayName, voicingLabel, cycleIndex, fretSlide, diagramModel
 } from "./gtrmath.js?v=2026.11.27.6";
 
 var TAB_LABEL = { now: "NOW", next: "NEXT", third: "3RD", fourth: "4TH" };
@@ -40,6 +40,8 @@ function sameChord(a, b) {
 }
 function chordName(chord) {
   if (!chord) return "";
+  if (chord.chipLabel != null || chord.qualityLabel) return chordDisplayName(chord);
+  if (chord.symbol) return chordDisplayName(chord);
   var builtChord = Theory.buildChord({
     rootPc: chord.rootPc, type: chord.type || "major", extensions: chord.extensions,
     rootSpell: chord.rootSpell, rootName: chord.rootName

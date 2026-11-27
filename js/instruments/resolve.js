@@ -237,7 +237,9 @@ function minFret(frets) {
 }
 
 function easeKey(frets, fingers) {
-  return [fingerCount(fingers), minFret(frets), -soundingCount(frets)];
+  // Lowest place on the neck first. A two-finger grip at fret 11 must not
+  // beat a playable grip that starts at fret 2.
+  return [minFret(frets), fingerCount(fingers), -soundingCount(frets)];
 }
 
 function absRel(rel, position) {

@@ -136,6 +136,29 @@ test("the 315 shown symbols and the 49 slash chords resolve", () => {
   assert.equal(failed.length, 0, failed.slice(0, 12).join("\n"));
 });
 
+function startFret(frets) {
+  let m = null;
+  for (const f of frets) if (f > 0 && (m == null || f < m)) m = f;
+  return m == null ? 0 : m;
+}
+
+test("a searched grip sits at the lowest fret that works (N28)", () => {
+  const quals = [
+    ["7sus2", "major", { sus2: true, min7: true }],
+    ["m9b5", "dim", { min7: true, nine: true }]
+  ];
+  const high = [];
+  for (const [key, type, ext] of quals) {
+    for (let r = 0; r < 12; r++) {
+      const v = resolveVoicings("guitar", { rootPc: r, type, extensions: ext })[0];
+      assert.equal(v.shapeName, "Generated", NAMES[r] + key + " " + code(v.frets));
+      const start = startFret(v.frets);
+      if (start > 7) high.push(NAMES[r] + key + " " + code(v.frets));
+    }
+  }
+  assert.deepEqual(high, []);
+});
+
 test("a searched grip keeps the bass and does not mute a middle string", () => {
   const bass = {
     id: "bass", name: "Bass", tuning: [28, 33, 38, 43],
