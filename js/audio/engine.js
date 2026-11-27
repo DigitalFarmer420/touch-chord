@@ -1,5 +1,5 @@
 // ChordAudio: AudioContext, master chain, mix / cutoff / reverb / delay / warmth, play / morph / stop chords, voice limit.
-import { makeWarmCurve, makeSoftClip, makeImpulse, makePulse, clamp01 } from "./effects.js?v=2026.11.27.23";
+import { makeWarmCurve, makeSoftClip, makeImpulse, makePulse, clamp01 } from "./effects.js?v=2026.11.27.24";
 var VOICE_CAP = 28;
 var VOICE_HARD_CAP = 72;
 
@@ -514,7 +514,7 @@ ChordAudio.prototype.stopChord = function (group, when, tau, force) {
   var t = when == null ? this.ctx.currentTime : when;
   for (var i = 0; i < this.voices.length; i++) {
     var v = this.voices[i];
-    if (v.group === group && !v.short && (!v.released || force)) v.release(t, tau, force);
+    if (v.group === group && (v.gtr || !v.short) && (!v.released || force)) v.release(t, tau, force);
   }
 };
 

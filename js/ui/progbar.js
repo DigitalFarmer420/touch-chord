@@ -1,11 +1,11 @@
 // Progression picker (#prog): placement, name fitting, Play / Next wiring.
-import { unlock } from "../audio/unlock.js?v=2026.11.27.23";
-import { paintLoop } from "../loop.js?v=2026.11.27.23";
-import { progNext } from "../songs/magic.js?v=2026.11.27.23";
-import { progPlay, prog, progSet, playButtonLabel, transportLabel } from "../songs/playback.js?v=2026.11.27.23";
-import { progFeel, progSteps, progNumerals } from "../songs/presets.js?v=2026.11.27.23";
-import { state } from "../state.js?v=2026.11.27.23";
-import { noteSimpleSongWalk, simpleProgStepIndex } from "./simplesrc.js?v=2026.11.27.23";
+import { unlock } from "../audio/unlock.js?v=2026.11.27.24";
+import { paintLoop } from "../loop.js?v=2026.11.27.24";
+import { progNext } from "../songs/magic.js?v=2026.11.27.24";
+import { progPlay, prog, progSet, playButtonLabel, transportLabel } from "../songs/playback.js?v=2026.11.27.24";
+import { progFeel, progSteps, progNumerals } from "../songs/presets.js?v=2026.11.27.24";
+import { state } from "../state.js?v=2026.11.27.24";
+import { noteSimpleSongWalk, simpleProgStepIndex } from "./simplesrc.js?v=2026.11.27.24";
 
 // The picker: Simple = friendly name in the left column under Major / Minor; full mode =
 // the numerals in a cycler by the style row (phone landscape: top of the Now column; other

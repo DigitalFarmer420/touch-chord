@@ -1,7 +1,7 @@
 // Guitar-tab decisions with no DOM: which tab is selected, where the tabs sit,
 // which cards a layout shows, the diagram marks, and whether a key change is a
 // fret slide. The screen (js/ui/guitar.js) only draws what this returns.
-import { accSym } from "../theory/spelling.js?v=2026.11.27.23";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.24";
 
 export var GTR_TAB_KEY = "touchChord.gtrTab.v1";
 export var ROOT_COLOR = "#FFC23D";
@@ -71,6 +71,14 @@ export function voicingLabel(v) {
   return v.shapeName + " \u00b7 " + v.baseFret + "fr";
 }
 export function voicingFret(v) { return v && v.baseFret > 1 ? v.baseFret + "fr" : ""; }
+// Per-style fine trim (dB) so a guitar strum sits about 1 dB under a held grid tap.
+export var GTR_STYLE_DB = { pop: -2.3, jazz: 0.9, rnb: -0.1, ballad: -0.3, reggae: -0.6, funk: -0.2, yogaDeep: 3.2, country: -1.7, lofi: 2.8 };
+// Diagram strings, low E first. Muted strings are skipped. Frets are absolute.
+export function stringMidis(v, tuning) {
+  var out = [], frets = v && v.frets || [];
+  for (var i = 0; i < frets.length; i++) if (frets[i] != null) out.push(tuning[i] + frets[i]);
+  return out;
+}
 
 // Shrink a label that is wider than its box. The fret token ("3fr") is never the part that
 // gets cut: if the full line cannot reach the floor, the caller switches to the fret alone.
