@@ -1,14 +1,14 @@
 // Key chip / key row (Full mode key picker).
-import { activeKey, keyDegrees, keyMainNames, keyAltNames, namePc, keyRootName, setKeySpell } from "../keys.js?v=2026.11.27.11";
-import { toggleHelpMenu } from "./helpmenu.js?v=2026.11.27.11";
-import { paintKidKey } from "../kids.js?v=2026.11.27.11";
-import { state, scheduleSave, shared } from "../state.js?v=2026.11.27.11";
-import { Theory } from "../theory/index.js?v=2026.11.27.11";
-import { accSym } from "../theory/spelling.js?v=2026.11.27.11";
-import { kidsKeyNow } from "./keyboard.js?v=2026.11.27.11";
-import { updateSymbol } from "./nowbox.js?v=2026.11.27.11";
-import { refreshHeld } from "./pads.js?v=2026.11.27.11";
-import { typeHeld, extStillHeld } from "./palette.js?v=2026.11.27.11";
+import { activeKey, keyDegrees, keyMainNames, keyAltNames, namePc, keyRootName, setKeySpell, keyNoteName } from "../keys.js?v=2026.11.27.12";
+import { toggleHelpMenu } from "./helpmenu.js?v=2026.11.27.12";
+import { paintKidKey } from "../kids.js?v=2026.11.27.12";
+import { state, scheduleSave, shared } from "../state.js?v=2026.11.27.12";
+import { Theory } from "../theory/index.js?v=2026.11.27.12";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.12";
+import { kidsKeyNow } from "./keyboard.js?v=2026.11.27.12";
+import { updateSymbol } from "./nowbox.js?v=2026.11.27.12";
+import { refreshHeld } from "./pads.js?v=2026.11.27.12";
+import { typeHeld, extStillHeld } from "./palette.js?v=2026.11.27.12";
 
 export function keyLabel(k) {
   return accSym(keyRootName(k)) + (k.mode === "minor" ? " minor" : " major");
@@ -27,7 +27,7 @@ export function paintKeyChip(spec) {
     pd.classList.toggle("nokey", !pd.dataset.borrow && !state.allKeys && !!k && !inKey[Number(pd.dataset.pc)]);   // v111 (K): Kids dims out-of-key keys again with Full Range off
     var nmEl = pd.querySelector(".nm");
     if (nmEl) {
-      var nmT = accSym(spellPc[Number(pd.dataset.pc)] || Theory.NOTE_NAMES[Number(pd.dataset.pc)]);
+      var nmT = accSym(k ? keyNoteName(k, Number(pd.dataset.pc)) : (spellPc[Number(pd.dataset.pc)] || Theory.NOTE_NAMES[Number(pd.dataset.pc)]));
       if (nmEl.textContent !== nmT) nmEl.textContent = nmT;
     }
   });

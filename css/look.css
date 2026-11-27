@@ -144,7 +144,13 @@ html.simple:where(:not(.kv)) #app #suggest .nxdot.nxdot, html.simple:where(:not(
 html.expert:where(:not(.kv)) #xSrc { position: relative !important; }
 html.expert:where(:not(.kv)) #xSrc .x-pbar { flex: 1 1 auto !important; width: 100% !important; max-width: none !important; padding-right: 62px !important; }
 html.expert:where(:not(.kv)) #xSrc.x-mode-song { padding-right: 0 !important; }
-html.expert:where(:not(.kv)) #xSrc.x-mode-song .x-songc { margin-right: 54px !important; min-width: 0 !important; }
+html.expert:where(:not(.kv)) #xSrc.x-mode-song .x-songc { margin-right: 54px !important; min-width: 0 !important; overflow: hidden !important; }
+html.expert:where(:not(.kv)) #xSrc.x-mode-song .x-lrows,
+html.expert:where(:not(.kv)) #xSrc.x-mode-song .x-lrow,
+html.expert:where(:not(.kv)) #xSrc.x-mode-song .x-lin,
+html.expert:where(:not(.kv)) #xSrc.x-mode-song .x-sline {
+  max-width: 100%; box-sizing: border-box; overflow: hidden; text-overflow: ellipsis;
+}
 html.expert:where(:not(.kv)) #xSrc :is(.x-plock, .x-lock) {
   position: absolute !important; right: 1.5px !important; top: 1.5px !important; bottom: 1.5px !important; transform: none !important; z-index: 2 !important;
   width: 52px !important; min-width: 52px !important; height: auto !important; min-height: 0 !important; max-height: none !important;

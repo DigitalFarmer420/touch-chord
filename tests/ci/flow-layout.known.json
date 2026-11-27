@@ -1,0 +1,41 @@
+[
+  {
+    "id": "kids-pad-clip",
+    "state": "kids-play",
+    "kind": "clip",
+    "el": "kv-pad",
+    "why": "Every Kids chord pad reports scrollWidth 8px over clientWidth, at all seven viewports. The letter is the only text. Kids mode does not change without Vinh's explicit OK, so this is reported and not edited."
+  },
+  {
+    "id": "xhelp-phone-land",
+    "vp": "780x360",
+    "kind": "clip",
+    "el": "#xHelp",
+    "why": "Expert's ? button is 38px wide in phone landscape and its content measures 43px. Follow-up; the hit target is already extended with a ::after."
+  },
+  {
+    "id": "help-menu-expert",
+    "state": "expert-help-menu",
+    "kind": "overlap",
+    "why": "The How to menu drops across Progressions (phone portrait), the song Lock and a chord chip (780×360), and Next (iPad). Follow-up."
+  },
+  {
+    "id": "help-menu-simple",
+    "state": "simple-help-menu",
+    "kind": "overlap",
+    "el": "Ballad",
+    "why": "Simple's How to menu overlaps the Ballad style chip at 384×700. Follow-up."
+  },
+  {
+    "id": "style-menu",
+    "state": "expert-style-menu",
+    "kind": "overlap",
+    "why": "The style menu covers piano keys at 780×360 and the Song / Progressions toggle at 820×1180. Follow-up. Sheets are supposed to stop above the piano."
+  },
+  {
+    "id": "key-sheet-close",
+    "state": "expert-key-sheet",
+    "kind": "overlap",
+    "why": "The key sheet's close button overlaps a black piano key at 820×1180. Follow-up."
+  }
+]
