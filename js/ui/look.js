@@ -1,9 +1,9 @@
 // rd6 Look (Auto · Day · Lamp) at run time: Kids (state.theme) and Expert (the Expert pref's look) register here.
 // Auto re-checks the clock every 15 s (and when the page comes back); at the 7:00 / 19:00 boundary it waits for a
 // pause in playing (no notes for LOOK_PAUSE_MS) and cross-fades, so the screen never changes in the middle of a strum.
-import { fingers, loop } from "../state.js?v=2026.11.24.1";
-import { prog } from "../songs/playback.js?v=2026.11.24.1";
-import { lookFor, lookQuiet, LOOK_PAUSE_MS } from "./lookmath.js?v=2026.11.24.1";
+import { fingers, loop } from "../state.js?v=2026.11.27.2";
+import { prog } from "../songs/playback.js?v=2026.11.27.2";
+import { lookFor, lookQuiet, LOOK_PAUSE_MS } from "./lookmath.js?v=2026.11.27.2";
 
 const views = {};   // name -> { pick: () => "auto" | "day" | "lamp", apply: (look) => void, shown }
 export const lookLog = { switches: [], waits: 0 };
