@@ -3,6 +3,8 @@ import './dom-stub.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+
+// Same ?v= the app uses, so this file and jam.js share one state module.
 const V = readFileSync(new URL('../../js/version.js', import.meta.url), 'utf8').match(/APP_VERSION = "([^"]+)"/)[1];
 const { chordFamily, songChordList, jamRank, jamExtras, takeJam, songGridOn, JAM_CAP } = await import(`../../js/songs/jam.js?v=${V}`);
 const { state } = await import(`../../js/state.js?v=${V}`);
