@@ -1,0 +1,31 @@
+Touch Chord guitar shape verification
+Source: DigitalFarmer420/touch-chord production 2026.11.24.1
+
+Required open shapes: PASS (C, Am, F, G, Cmaj7, Am7, Dm7, G7, Fmaj7 match the brief)
+
+Loading inventory from app source…
+  v3.2 menus: 152
+  menu symbols in all keys: 294
+  grid chip defs: 136; symbols: 251; borrowed symbols: 64
+  kids songs: 10; written symbols: 52; shown majors: 18
+  upload qualities: 43
+  union of shown symbols: 315
+  menu qualities: 13, 6, 7, 7#9, 7b9, 9, 9sus, add9, dim, m7, m7b5, m9, maj, maj7, maj9, min, mover3, moverV, over3, overV, sus2
+  grid qualities: 13, 7, 7#9, 7b9, 9, 9sus, add9, m7, m7b5, m9, maj, maj7, maj9, min, moverV, overV, sus2, sus4
+
+Resolving every concrete inventory symbol…
+  inventory: 315/315 passed, 0 simplified, 0 failed
+
+Resolving every quality in all 12 roots…
+  qualities×12: 480/480 passed, 0 simplified, 0 failed
+
+Resolving slash-rule samples (I/3, IV/V, v/7, and a few extras) in all 12 major keys…
+
+========== SUMMARY ==========
+Menus: 152 (v3.2)
+Qualities covered (templates + upload): 13, 6, 69, 6sus4, 7, 7#9, 7b5, 7b9, 7sus2, 7sus4, 9, 9sus, add9, aug, aug7, dim, dim7, dimAdd9, dimMaj7, m13, m6, m69, m7, m7b5, m9, m9b5, madd9, maj, maj7, maj7#5, maj7sus2, maj7sus4, maj9, majb5, min, mmaj7, mmaj9, sus2, sus4, sus4add9
+Inventory 315/315, qualities×12 480/480
+Simplified: inventory 0, qualities 0
+Failed: inventory 0, qualities 0
+Shapes: 64 open, 95 movable templates
+Wrote shapes.json, TABLE.md

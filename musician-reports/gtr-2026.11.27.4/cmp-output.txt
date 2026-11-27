@@ -1,0 +1,29 @@
+cases 480; app first voicing correct 458; empty 0; simplified 0; app first == my pick 75; my pick in app list 126
+EMPTY: 
+BAD:
+Csus2 3x0013 :: lowest pc 7 is not root 0
+Dsus2 x02230 :: lowest pc 9 is not root 2
+Fsus2 x33011 :: lowest pc 0 is not root 5
+Gsus2 xx0233 :: lowest pc 2 is not root 7
+Asus2 022200 :: lowest pc 4 is not root 9
+C6 x02210 :: lowest pc 9 is not root 0
+F6 xx0211 :: lowest pc 2 is not root 5
+G6 022000 :: lowest pc 4 is not root 7
+D9sus x32030 :: lowest pc 0 is not root 2
+A9sus 320203 :: lowest pc 7 is not root 9
+D7sus4 3x0013 :: lowest pc 7 is not root 2
+E7sus4 x02230 :: lowest pc 9 is not root 4
+G7sus4 x33011 :: lowest pc 0 is not root 7
+A7sus4 xx0233 :: lowest pc 2 is not root 9
+B7sus4 022200 :: lowest pc 4 is not root 11
+D6sus4 320003 :: lowest pc 7 is not root 2
+E6sus4 x02220 :: lowest pc 9 is not root 4
+G6sus4 x32010 :: lowest pc 0 is not root 7
+A6sus4 xx0232 :: lowest pc 2 is not root 9
+B6sus4 022100 :: lowest pc 4 is not root 11
+Dsus4add9 x02030 :: lowest pc 9 is not root 2
+Asus4add9 020200 :: lowest pc 4 is not root 9
+SIMPL:
+
+INNER-MUTED first voicings: 260
+{"6":2,"9":6,"13":3,"69":2,"sus2":8,"sus4":5,"add9":7,"madd9":9,"m6":9,"dim":12,"dim7":10,"aug":5,"maj7":4,"m7b5":10,"maj9":6,"m9":8,"m13":11,"9sus":1,"7sus4":8,"7sus2":12,"maj7sus2":7,"maj7sus4":5,"7b9":8,"7#9":7,"7b5":8,"aug7":11,"maj7#5":9,"majb5":8,"mmaj7":11,"mmaj9":6,"m69":7,"m9b5":9,"dimAdd9":10,"dimMaj7":6,"sus4add9":10}
