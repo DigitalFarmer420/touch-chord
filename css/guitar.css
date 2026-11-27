@@ -127,11 +127,13 @@ html.expert:not(.kv).lay-phone-port .gtr-card.now .gtr-diagram {
 html.expert:not(.kv).lay-phone-port .gtr-card.nx .gtr-diagram { width: 84px; height: 72px; max-height: none; }
 html.expert:not(.kv).lay-phone-port .gtr-meta { white-space: normal; text-align: center; line-height: 1.15; max-width: 100%; }
 
-html.expert:not(.kv).lay-pad-port .gtr-cards { align-items: flex-start; }
+/* iPad portrait: cards fill the panel, so the band under the row goes away.
+   Diagram height comes from the taller fret spacing in diaOpts. */
+html.expert:not(.kv).lay-pad-port .gtr-cards { align-items: stretch; }
 html.expert:not(.kv).lay-pad-port .gtr-card.now { flex: 1.45 1 auto; }
 html.expert:not(.kv).lay-pad-port .gtr-card.now .gtr-name { font-size: 34px; }
 html.expert:not(.kv).lay-pad-port .gtr-card.now .gtr-diagram { width: min(100%, 280px); max-height: none; height: auto; }
-html.expert:not(.kv).lay-pad-port .gtr-card { flex: 1 1 auto; align-self: flex-start; }
+html.expert:not(.kv).lay-pad-port .gtr-card { flex: 1 1 auto; align-self: stretch; min-height: 0; }
 
 html.expert:not(.kv).lay-phone-land .gtr-card,
 html.expert:not(.kv).lay-pad-land .gtr-card {
@@ -155,6 +157,48 @@ html.expert:not(.kv).lay-pad-land .gtr-diagram {
 }
 html.expert:not(.kv).lay-pad-land .gtr-card.now .gtr-name { font-size: 32px; }
 html.expert:not(.kv).lay-phone-land .gtr-card .gtr-name { font-size: 16px; }
+/* iPad landscape only: the capped diagram is centered in the card. The name
+   and the shape controls stay in the corners, above the diagram. Phone
+   landscape keeps the two-column grid above. */
+html.expert:not(.kv).lay-pad-land .gtr-card {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  position: relative;
+}
+html.expert:not(.kv).lay-pad-land .gtr-diagram {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: center;
+  align-self: center;
+  width: auto;
+  height: auto;
+  /* Equal inset on every side keeps the diagram on the card's center and
+     leaves the corner name and the shape controls off the fretboard. */
+  max-width: calc(100% - 16px);
+  max-height: calc(100% - 108px);
+}
+html.expert:not(.kv).lay-pad-land .gtr-head {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: start;
+  align-self: start;
+  z-index: 1;
+  padding: 1px 6px 2px 0;
+  border-radius: 8px;
+}
+html.expert:not(.kv).lay-pad-land .gtr-foot {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: start;
+  align-self: end;
+  z-index: 1;
+  padding: 2px 6px 0 0;
+  border-radius: 8px;
+}
+html.expert:not(.kv).lay-pad-land .gtr-card.now .gtr-head,
+html.expert:not(.kv).lay-pad-land .gtr-card.now .gtr-foot { background: #F3EAD8; }
+html.expert:not(.kv).lay-pad-land .gtr-card:not(.now) .gtr-head,
+html.expert:not(.kv).lay-pad-land .gtr-card:not(.now) .gtr-foot { background: #2a231c; }
 /* Phone sideways is short: the arrows and the "1 of N" line give way. */
 html.expert:not(.kv).lay-phone-land .gtr-vo,
 html.expert:not(.kv).lay-phone-land .gtr-meta { display: none; }
@@ -166,6 +210,8 @@ html.expert:not(.kv).x-day .gtr-card { background: #fff; border-color: #e2d6c4; 
 html.expert:not(.kv).x-day .gtr-card .gtr-name { color: #2b2118; }
 html.expert:not(.kv).x-day .gtr-card.now { background: #F3EAD8; border-color: #F3EAD8; }
 html.expert:not(.kv).x-day .gtr-card.nx { border-color: #FFC23D; }
+html.expert:not(.kv).x-day.lay-pad-land .gtr-card:not(.now) .gtr-head,
+html.expert:not(.kv).x-day.lay-pad-land .gtr-card:not(.now) .gtr-foot { background: #fff; }
 
 @keyframes gtr-slide {
   from { transform: translateY(var(--gtr-dy, 10px)); }
