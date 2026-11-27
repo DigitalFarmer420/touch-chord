@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 import {
   readGtrTab, gtrTabReduce, showOctave, tabAxis, cardSlots, layoutOf,
   voicingLabel, nextVoicingSize, diagramFrame, cycleIndex, fretSlide, diagramModel, chordSig, ROOT_COLOR, SLIDE_MS,
-  fretRows, barreFinger
+  fretRows, barreFinger, barreBox
 } from "../../js/ui/gtrmath.js";
 import { guitar, resolveVoicings } from "../../js/instruments/index.js";
 import { GUITAR_OPEN } from "../../js/instruments/guitar-data.js";
@@ -245,19 +245,26 @@ test("the smaller-stretch table is the first grip, and a 5-fret alternate still 
   assert.equal(searched, 19);
 });
 
-test("a barre that reaches the last string keeps its finger number inside the barre", () => {
+test("a barre is a bar between the strings and its finger number sits on the bar", () => {
   const full = barreFinger(5, 6, 12, 88, 6);
   assert.equal(full.anchor, "middle");
-  assert.ok(full.x > 12 && full.x < 88, "full barre finger at " + full.x);
-  const shortEdge = barreFinger(5, 6, 70, 88, 6);
-  assert.equal(shortEdge.anchor, "middle");
-  assert.ok(shortEdge.x >= 70 && shortEdge.x <= 88);
-  const partial = barreFinger(3, 6, 12, 52, 6);
-  assert.equal(partial.anchor, "start");
-  assert.equal(partial.x, 52 + 6 + 2);
-  const oneString = barreFinger(1, 6, 30, 30, 5);
-  assert.equal(oneString.anchor, "start");
-  assert.equal(oneString.x, 30 + 5 + 2);
+  assert.equal(full.x, 50);
+  const partial = barreFinger(4, 6, 40, 70, 6);
+  assert.equal(partial.anchor, "middle");
+  assert.equal(partial.x, 55);
+  const box = barreBox(40, 70, 30, 6);
+  assert.equal(box.x, 40);
+  assert.equal(box.width, 30);
+  assert.equal(box.height, 12);
+  assert.equal(box.y, 24);
+  const eb = resolveVoicings(guitar, { rootPc: 3, type: "major", extensions: { maj7: true } })[0];
+  const model = diagramModel(eb, guitar.tuning, 3);
+  const fretted = model.marks.filter(m => m.fret > 0);
+  assert.equal(fretted.length, 4, eb.frets.join(","));
+  const drawn = readFileSync(new URL("../../js/ui/guitar.js", import.meta.url), "utf8");
+  assert.match(drawn, /m\.kind === "barre" \|\| m\.kind === "barre-root"/);
+  assert.match(drawn, /var lite = now \|\| de\(\)\.classList\.contains\("x-day"\)/);
+  assert.match(drawn, /ink: "#F3EAD8", line: "#8a7d69", dot: "#F3EAD8", dotT: "#2a231c", mute: "#9d917e"/);
 });
 
 test("open G marks the open G string as a root", () => {

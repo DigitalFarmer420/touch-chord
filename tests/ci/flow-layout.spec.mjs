@@ -254,12 +254,94 @@ const GUITAR_NEXT = () => {
     if (ratio < 0.8 || ratio > 1.25) issues.push({ kind: 'guitar', el: name + ' diagram', detail: 'ratio ' + ratio.toFixed(2) + ' (' + Math.round(r.width) + '×' + Math.round(r.height) + ')' });
     return r;
   }
-  square(now, 'now');
-  square(next, 'next');
+  const nowR = square(now, 'now');
+  const nextR = square(next, 'next');
   const nb = now.getBoundingClientRect();
   const xb = next.getBoundingClientRect();
   if (xb.width > nb.width + 4 || xb.height > nb.height + 2) {
     issues.push({ kind: 'guitar', el: 'next card', detail: Math.round(xb.width) + '×' + Math.round(xb.height) + ' bigger than Now ' + Math.round(nb.width) + '×' + Math.round(nb.height) });
+  }
+  const phone = document.documentElement.classList.contains('lay-phone-port');
+  if (phone && nowR && nextR && nowR.width > 16) {
+    if (nextR.width < nowR.width * 0.7 - 1) {
+      issues.push({ kind: 'guitar', el: 'next diagram', detail: 'width ' + Math.round(nextR.width) + ' is under 0.7 of Now ' + Math.round(nowR.width) });
+    }
+    const cs = getComputedStyle(next);
+    const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+    const padY = parseFloat(getComputedStyle(now).paddingTop) + parseFloat(getComputedStyle(now).paddingBottom);
+    let used = padY;
+    for (const el of now.children) if (!el.classList.contains('gtr-diagram')) used += el.getBoundingClientRect().height;
+    const hole = now.clientHeight - used - 2;
+    const innerW = next.clientWidth - padX;
+    // A square cannot be 60% of a short card, so the floor is 60% of the width
+    // only when that square fits in the card. Otherwise Next fills 90% of the hole.
+    const fit = Math.min(innerW * 0.96, Math.max(0, hole));
+    const floor = Math.min(innerW * 0.6, fit * 0.9);
+    if (fit > 24 && nextR.width < floor - 2) {
+      issues.push({ kind: 'guitar', el: 'next diagram', detail: 'width ' + Math.round(nextR.width) + ' is under ' + Math.round(floor) + ' (60% of ' + Math.round(innerW) + ', hole ' + Math.round(hole) + ')' });
+    }
+  }
+  function lin(c) { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
+  function asHex(s) {
+    s = (s || '').trim().toLowerCase();
+    if (s[0] === '#') return s.length === 4 ? '#' + s[1] + s[1] + s[2] + s[2] + s[3] + s[3] : s;
+    const m = s.match(/rgba?\(([^)]+)\)/);
+    if (!m) return '';
+    const p = m[1].split(',').map(n => Math.round(parseFloat(n)));
+    return '#' + [p[0], p[1], p[2]].map(n => n.toString(16).padStart(2, '0')).join('');
+  }
+  function lum(hex) {
+    if (!hex || hex.length < 7) return 0;
+    const n = parseInt(hex.slice(1), 16);
+    return 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
+  }
+  function contrast(a, b) {
+    const A = lum(asHex(a)), B = lum(asHex(b));
+    return (Math.max(A, B) + 0.05) / (Math.min(A, B) + 0.05);
+  }
+  const day = document.documentElement.classList.contains('x-day');
+  const lamp = document.documentElement.classList.contains('x-lamp') && !day;
+  for (const card of [now, next]) {
+    const svg = card.querySelector('.gtr-diagram');
+    if (!svg) continue;
+    const bg = getComputedStyle(card).backgroundColor;
+    const line = svg.querySelector('line');
+    const stroke = line ? (line.getAttribute('stroke') || '').toLowerCase() : '';
+    if (day && stroke && stroke !== '#7a6c58') issues.push({ kind: 'guitar', el: card.dataset.slot + ' ink', detail: 'day line ' + stroke });
+    if (lamp && card === next && stroke && stroke !== '#8a7d69') issues.push({ kind: 'guitar', el: 'next ink', detail: 'dark look line changed to ' + stroke });
+    if (lamp && card === now && stroke && stroke !== '#7a6c58') issues.push({ kind: 'guitar', el: 'now ink', detail: 'dark look line changed to ' + stroke });
+    const need = +svg.getAttribute('data-gtr-fretted') || 0;
+    const dots = [...svg.querySelectorAll('circle.gtr-dot')];
+    if (need && dots.length < need) issues.push({ kind: 'guitar', el: card.dataset.slot, detail: dots.length + ' dots for ' + need + ' fretted notes' });
+    dots.forEach(c => {
+      const fill = c.getAttribute('fill') || '';
+      const rootGold = asHex(fill) === '#ffc23d';
+      if (lamp && rootGold) return;
+      if (day && rootGold) issues.push({ kind: 'guitar', el: card.dataset.slot + ' root', detail: 'day root is still the light gold' });
+      if (contrast(fill, bg) < 3) issues.push({ kind: 'guitar', el: card.dataset.slot + ' dot', detail: 'contrast ' + contrast(fill, bg).toFixed(2) + ' ' + fill + ' on ' + bg });
+    });
+    svg.querySelectorAll('text.gtr-fr, text.gtr-finger').forEach(t => {
+      const fill = t.getAttribute('fill') || '';
+      let back = bg;
+      if (!t.classList.contains('gtr-fr')) {
+        let best = 1e9;
+        dots.forEach(c => {
+          const d = (+c.getAttribute('cx') - +t.getAttribute('x')) ** 2 + (+c.getAttribute('cy') - +t.getAttribute('y')) ** 2;
+          if (d < best) { best = d; back = c.getAttribute('fill') || bg; }
+        });
+      }
+      if (contrast(fill, back) < 4.5) issues.push({ kind: 'guitar', el: card.dataset.slot + ' "' + (t.textContent || '').trim() + '"', detail: 'contrast ' + contrast(fill, back).toFixed(2) + ' on ' + back });
+    });
+    const nut = svg.querySelector('rect.gtr-nut');
+    if (nut) {
+      const nutBot = +nut.getAttribute('y') + +nut.getAttribute('height');
+      dots.forEach(c => {
+        if (+c.getAttribute('cy') - +c.getAttribute('r') < nutBot - 0.4) issues.push({ kind: 'guitar', el: card.dataset.slot + ' dot', detail: 'dot is under the nut' });
+      });
+    }
+    svg.querySelectorAll('text.gtr-mark').forEach(t => {
+      if (contrast(t.getAttribute('fill') || '', bg) < 3) issues.push({ kind: 'guitar', el: card.dataset.slot + ' mark', detail: 'mute contrast ' + contrast(t.getAttribute('fill') || '', bg).toFixed(2) });
+    });
   }
   const panel = document.getElementById('gtrPanel');
   const pb = panel ? panel.getBoundingClientRect() : null;
@@ -540,6 +622,13 @@ async function expertPass(page, vp) {
     await run('lofi', 'Rain Window');
     await clickIf(page, '#gtrTabs [data-gtr="piano"]');
     await closeSheets(page);
+    await boot(page, 'test=1&hour=21&expert=1');
+    if (await clickIf(page, '#gtrTabs [data-gtr="guitar"]')) {
+      await page.waitForTimeout(180);
+      const dark = await page.evaluate(GUITAR_NEXT);
+      add(vp, 'guitar lamp colors', dark.map(issue => ({ ...issue, detail: 'lamp: ' + issue.detail })));
+      if (dark.length) await shot(page, vp + ' guitar lamp');
+    }
     await boot(page, 'test=1&hour=12&expert=1');
   });
   await guard(page, vp, 'guitar 5-fret shapes and full barre after Next', async () => {
