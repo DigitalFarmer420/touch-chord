@@ -103,6 +103,16 @@ test("a phone-portrait diagram reserves the dot and the O/X, and a wide side sta
   assert.ok(pad.top >= 22);
 });
 
+test("a short phone portrait diagram is shorter than the tall-phone one and frets stay at least 0.8", () => {
+  const base = { w: 140, fh: (140 - 9 - 10) / 4, mk: 11, base: 1, rows: 4, side: 4, top: 9, bot: 10, gutter: 0, strings: true, stringsCount: 6, square: true, wide: true };
+  const tall = diagramFrame(base);
+  const short = diagramFrame(Object.assign({}, base, { compact: true }));
+  assert.ok(short.H < tall.H - 8, "compact H " + short.H + " tall H " + tall.H);
+  assert.ok(short.fh / short.sg >= 0.8 - 1e-9);
+  assert.ok(short.nameFs < tall.nameFs);
+  assert.ok(short.mk < tall.mk);
+});
+
 test("a phone diagram is wider than tall and the frets stay at least 0.9 of the string spacing", () => {
   const frame = diagramFrame({
     w: 126, fh: (126 - 9 - 10) / 4, mk: 11, base: 1, rows: 4, side: 4, top: 9, bot: 10,

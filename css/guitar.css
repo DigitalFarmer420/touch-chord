@@ -137,6 +137,20 @@ html.expert:not(.kv).gtr.lay-phone-port .gtr-panel {
   flex: 0 0 auto;
 }
 html.expert.gtr.lay-phone-port #suggest.ss { --ss-fs: 14px; --ss-note: 14px; --ss-small: 9px; }
+/* Short portrait only (760 and under). 412x915 and taller do not match, so that
+   layout stays the one shipped in .20. The token tells the diagram to draw a
+   shorter fret stack, smaller open/mute marks and smaller string letters. */
+@media (max-height: 800px) {
+  html.expert.gtr.lay-phone-port:not(.kv) { --gtr-compact: 1; }
+  html.expert:not(.kv).gtr.lay-phone-port .gtr-card { padding-block: 0; padding-inline: var(--x-g); }
+  /* The row gap goes to the chips so a long name can stack instead of clipping. */
+  html.expert.gtr.lay-phone-port:not(.kv) #suggest.ss { --ss-rg: 0px; }
+  /* The 16px chip lock is for a tall row. On a short phone the fitter may use
+     the 11px floor and stack the name, so a long quality is not clipped. */
+  html.expert.gtr.lay-phone-port:not(.kv) #suggest .ss-chip {
+    font-size: max(11px, calc(16px * var(--ss-k, 1))) !important;
+  }
+}
 html.expert:not(.kv).lay-phone-port .gtr-card { padding: 2px 6px 2px; }
 html.expert:not(.kv).lay-phone-port .gtr-head { flex-direction: row; align-items: baseline; gap: 4px; }
 html.expert:not(.kv).lay-phone-port .gtr-card .gtr-lb { margin: 0; }
@@ -163,15 +177,24 @@ html.expert:not(.kv).lay-pad-port .gtr-card.now .gtr-name { font-size: 34px; }
 html.expert:not(.kv).lay-pad-port .gtr-card.now .gtr-diagram { width: min(100%, 280px); max-height: none; height: auto; }
 html.expert:not(.kv).lay-pad-port .gtr-card { flex: 1 1 auto; align-self: flex-start; height: auto; min-height: 0; }
 html.expert.gtr.lay-pad-port:not(.kv) #app {
-  grid-template-rows: var(--x-row) var(--x-row) var(--x-src-h) minmax(0, 1fr) var(--x-ctl-h) auto !important;
+  /* The chord grid keeps the .19 minimum (--x-grid-h). On a tall iPad the
+     minimum does not bind, so the row stays the settled card height. */
+  grid-template-rows: var(--x-row) var(--x-row) var(--x-src-h) minmax(var(--x-grid-h), 1fr) var(--x-ctl-h) auto !important;
 }
 html.expert:not(.kv).gtr.lay-pad-port .gtr-panel {
   position: relative;
   top: auto; right: auto; bottom: auto; left: auto;
   width: 100%;
   height: auto;
-  flex: 0 0 auto;
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: 100%;
 }
+/* When the grid minimum leaves a shorter guitar row, the diagram gives up
+   height. Card widths stay on the flex share, so the drawing does not restretch. */
+html.expert:not(.kv).lay-pad-port .gtr-cards { max-height: 100%; min-height: 0; }
+html.expert:not(.kv).lay-pad-port .gtr-card { max-height: 100%; min-height: 0; }
+html.expert:not(.kv).lay-pad-port .gtr-card .gtr-diagram { flex: 0 1 auto; min-height: 0; }
 
 html.expert:not(.kv).lay-phone-land .gtr-card,
 html.expert:not(.kv).lay-pad-land .gtr-card {
