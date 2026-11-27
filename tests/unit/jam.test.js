@@ -2,7 +2,7 @@
 import './dom-stub.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { chordFamily, songChordList, jamRank, jamExtras, takeJam, songGridOn, JAM_CAP } from '../../js/songs/jam.js?v=2026.11.27.1';
+import { chordFamily, songChordList, jamRank, jamExtras, takeJam, songGridOn, JAM_CAP } from '../../js/songs/jam.js?v=2026.11.27.2';
 
 const ext = (min7) => ({ six: false, min7: !!min7, maj7: false, nine: false });
 const C = (pc, type, min7) => ({ rootPc: pc, type: type, extensions: ext(min7) });
