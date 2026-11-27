@@ -1,8 +1,9 @@
 // Jam extras: the chords offered beside a loaded song. Pure (no DOM).
 // A later idea, not built here: context-aware "best next moves" from the chord that is sounding.
-import { scaleDegrees } from "../theory/keys.js?v=2026.11.27.2";
-import { wrap12, blankExt } from "../theory/quality.js?v=2026.11.27.2";
-import { spellRoot, noteName } from "../theory/spelling.js?v=2026.11.27.2";
+import { keyRootSpell } from "../keys.js?v=2026.11.27.3";
+import { scaleDegrees } from "../theory/keys.js?v=2026.11.27.3";
+import { wrap12, blankExt } from "../theory/quality.js?v=2026.11.27.3";
+import { spellRoot, noteName } from "../theory/spelling.js?v=2026.11.27.3";
 
 export const JAM_CAP = 6;
 var EXT_KEYS = ["six", "min7", "maj7", "nine", "sus2", "flat9", "sharp9", "thirteen", "over", "sharp5", "flat5"];
@@ -47,7 +48,8 @@ function songHasFamily(song, pc, family) {
 }
 
 function degsOf(key) {
-  return scaleDegrees(key.pc, key.mode === "minor" ? "minor" : "major", spellRoot(key.pc));
+  // The key's own spelling (Db, Gb), not the sharp chromatic name of the same pitch.
+  return scaleDegrees(key.pc, key.mode === "minor" ? "minor" : "major", keyRootSpell(key));
 }
 
 function spellPc(degs, pc) {

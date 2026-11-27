@@ -2,7 +2,8 @@
 import './dom-stub.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { chordFamily, songChordList, jamRank, jamExtras, takeJam, songGridOn, JAM_CAP } from '../../js/songs/jam.js?v=2026.11.27.2';
+import { chordFamily, songChordList, jamRank, jamExtras, takeJam, songGridOn, JAM_CAP } from '../../js/songs/jam.js?v=2026.11.27.3';
+import { state } from '../../js/state.js?v=2026.11.27.3';
 
 const ext = (min7) => ({ six: false, min7: !!min7, maj7: false, nine: false });
 const C = (pc, type, min7) => ({ rootPc: pc, type: type, extensions: ext(min7) });
@@ -116,6 +117,27 @@ test('the song grid is off for progressions and for Kids, so extras cannot carry
   assert.equal(songGridOn({ song: false, style: 'jazz' }), false);
   assert.equal(songGridOn({ song: true, style: 'kids' }), false);
   assert.equal(songGridOn({ song: true, kv: true, style: 'pop' }), false);
+});
+
+test('flat keys spell extras with the key spelling; a sharp key stays sharp', () => {
+  const prevSimple = state.simple, prevSpell = state.keySpell;
+  state.simple = false;
+  state.keySpell = {};
+  try {
+    // Db major, same shape as Amazing Grace (I, I7, IV, V): Bbm Ebm Fm, then Eb7, Gbm, Cb.
+    const db = [C(1, 'major'), C(1, 'major', true), C(6, 'major'), C(8, 'major')];
+    assert.deepEqual(syms(jamExtras({ pc: 1, mode: 'major' }, db)), ['Bbm', 'Ebm', 'Fm', 'Eb7', 'Gbm', 'Cb']);
+    // Gb is the alternate spelling of pc 6 (the default name is F#). The key picker stores Gb.
+    state.keySpell = { '6major': 'Gb' };
+    const gb = [C(6, 'major'), C(6, 'major', true), C(11, 'major'), C(1, 'major')];
+    assert.deepEqual(syms(jamExtras({ pc: 6, mode: 'major' }, gb)), ['Ebm', 'Abm', 'Bbm', 'Ab7', 'Cbm', 'Fb']);
+    state.keySpell = {};
+    const d = [C(2, 'major'), C(2, 'major', true), C(7, 'major'), C(9, 'major')];
+    assert.deepEqual(syms(jamExtras({ pc: 2, mode: 'major' }, d)), ['Bm', 'Em', 'F#m', 'E7', 'Gm', 'C']);
+  } finally {
+    state.simple = prevSimple;
+    state.keySpell = prevSpell;
+  }
 });
 
 test('no viio, and no bVI or bIII in major', () => {
