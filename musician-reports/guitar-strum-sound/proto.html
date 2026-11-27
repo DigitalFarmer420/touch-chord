@@ -1,0 +1,42 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guitar strum A/B (current vs proposed)</title>
+<style>body{font:16px system-ui;margin:16px;max-width:640px}button{font-size:18px;margin:4px;padding:10px 14px}fieldset{margin:10px 0}</style>
+<h1>Guitar strum A/B</h1>
+<p>Serve this folder (it imports ./src = touch-chord develop and ./dropin/guitar-pluck.js). Style uses the app's preset numbers.</p>
+<label>Style <select id="style"></select></label>
+<fieldset><legend>Current app strum (pluck x strings, 20 ms)</legend><div id="cur"></div></fieldset>
+<fieldset><legend>Proposed Karplus-Strong strum (alternates down/up)</legend><div id="new"></div></fieldset>
+<fieldset><legend>Chord grid tap (held 1.5 s)</legend><div id="grid"></div></fieldset>
+<script type="module">
+const V = "?v=2026.11.27.23";
+const eng = await import("./src/js/audio/engine.js" + V);
+await import("./src/js/audio/index.js" + V);
+const { Band } = await import("./src/js/audio/band.js" + V);
+const { buildChord } = await import("./src/js/theory/chords.js" + V);
+const { resolveVoicings } = await import("./src/js/instruments/resolve.js" + V);
+const { guitar } = await import("./src/js/instruments/profiles.js" + V);
+const GP = await import("./dropin/guitar-pluck.js");
+GP.installGuitarPluck(eng.ChordAudio);
+const PRE = { pop: ["piano","close",.75,.12,.08,112,15,1.41], jazz: ["epiano","drop",.42,.32,.22,120,55,.86], rnb: ["epiano","close",.5,.36,.24,78,50,.9],
+  ballad: ["strings","close",.4,.48,.14,68,35,2.91], reggae: ["warm","close",.55,.22,.18,76,40,4.07], funk: ["reed","close",.8,.08,.06,108,20,4.6],
+  country: ["piano","close",.82,.1,.05,100,12,1.24], lofi: ["epiano","close",.4,.34,.2,80,60,.9] };
+const STYLE_DB = { pop: -2.3, jazz: 0.9, rnb: -0.1, ballad: -0.3, reggae: -0.6, funk: -0.2, yogaDeep: 3.2, country: -1.7, lofi: 2.8 };
+const CH = { C: [0, "major"], G: [7, "major"], Am: [9, "minor"], F: [5, "major"], D: [2, "major"], Em: [4, "minor"] };
+const sel = document.getElementById("style"); Object.keys(PRE).forEach(k => sel.add(new Option(k, k)));
+let c = null;
+function audio() {
+  if (!c) { c = new eng.ChordAudio(); c.band = new Band(c); c.ensureContext(); }
+  const p = PRE[sel.value]; c.ctx.resume(); c.ensure();
+  c.setSound(p[0]); c.setFlavor(sel.value); c.setCutoff(p[2]); c.setReverb(p[3]); c.setDelay(p[4]); c.setBpm(p[5]); c.setWarmth(p[6] / 100);
+  c.setTrim(p[7]); return c;
+}
+const grip = n => resolveVoicings(guitar, { rootPc: CH[n][0], type: CH[n][1] })[0];
+const strings = g => g.frets.map((f, i) => f == null ? null : guitar.tuning[i] + f).filter(x => x != null);
+for (const n of Object.keys(CH)) {
+  const b1 = document.createElement("button"); b1.textContent = n; b1.onclick = () => { const a = audio(), g = grip(n), t = a.ctx.currentTime;
+    g.midi.forEach((m, i) => a.pluck(m, { time: t + i * 0.02, sound: a.sound, group: "gtr" })); }; document.getElementById("cur").append(b1);
+  const b2 = document.createElement("button"); b2.textContent = n; b2.onclick = () => { const a = audio(); a.strumGuitar(strings(grip(n)), { styleDb: STYLE_DB[sel.value] || 0 }); }; document.getElementById("new").append(b2);
+  const b3 = document.createElement("button"); b3.textContent = n; b3.onclick = () => { const a = audio(), t = a.ctx.currentTime, ch = buildChord({ rootPc: CH[n][0], type: CH[n][1], voicing: PRE[sel.value][1] });
+    a.stopChord("g"); a.playChord("g", ch.midis, { bass: 48 + CH[n][0], sound: a.sound, time: t }); a.stopChord("g", t + 1.5); }; document.getElementById("grid").append(b3);
+}
+</script>

@@ -1,0 +1,93 @@
+<!doctype html><meta charset="utf-8"><title>render</title><body>render harness
+<script type="module">
+const V = "?v=2026.11.27.23";
+const eng = await import("../src/js/audio/engine.js" + V);
+await import("../src/js/audio/index.js" + V);
+const { Band } = await import("../src/js/audio/band.js" + V);
+const { buildChord } = await import("../src/js/theory/chords.js" + V);
+const { resolveVoicings } = await import("../src/js/instruments/resolve.js" + V);
+const { guitar } = await import("../src/js/instruments/profiles.js" + V);
+const GP = await import("../dropin/guitar-pluck.js");
+const ChordAudio = eng.ChordAudio;
+GP.installGuitarPluck(ChordAudio);
+const PRE = {
+  pop: { sound: "piano", voicing: "close", cutoff: 0.75, reverb: 0.12, delay: 0.08, bpm: 112, warmth: 15 },
+  jazz: { sound: "epiano", voicing: "drop", cutoff: 0.42, reverb: 0.32, delay: 0.22, bpm: 120, warmth: 55 },
+  rnb: { sound: "epiano", voicing: "close", cutoff: 0.50, reverb: 0.36, delay: 0.24, bpm: 78, warmth: 50 },
+  ballad: { sound: "strings", voicing: "close", cutoff: 0.40, reverb: 0.48, delay: 0.14, bpm: 68, warmth: 35 },
+  reggae: { sound: "warm", voicing: "close", cutoff: 0.55, reverb: 0.22, delay: 0.18, bpm: 76, warmth: 40 },
+  funk: { sound: "reed", voicing: "close", cutoff: 0.80, reverb: 0.08, delay: 0.06, bpm: 108, warmth: 20 },
+  yogaDeep: { sound: "warm", bass: false, voicing: "low", cutoff: 0.32, reverb: 0.58, delay: 0.02, bpm: 52, warmth: 30 },
+  country: { sound: "piano", voicing: "close", cutoff: 0.82, reverb: 0.10, delay: 0.05, bpm: 100, warmth: 12 },
+  lofi: { sound: "epiano", voicing: "close", cutoff: 0.40, reverb: 0.34, delay: 0.20, bpm: 80, warmth: 60 }
+};
+const TRIM = { pop: 1.41, jazz: 0.86, rnb: 0.90, ballad: 2.91, reggae: 4.07, funk: 4.60, yogaDeep: 3.94, country: 1.24, lofi: 0.90 };
+const CH = { C: [0, "major"], G: [7, "major"], Am: [9, "minor"], F: [5, "major"] };
+const SR = 48000;
+function grip(name) {
+  const [pc, type] = CH[name];
+  const g = resolveVoicings(guitar, { rootPc: pc, type })[0];
+  const strings = []; g.frets.forEach((f, i) => { if (f != null) strings.push(guitar.tuning[i] + f); });
+  return { frets: g.frets, sorted: g.midi, strings, shape: g.shapeName };
+}
+function setup(style, ctx) {
+  const p = PRE[style], c = new ChordAudio();
+  c.ctx = ctx; c.cutoffNorm = p.cutoff; c.reverbMix = p.reverb; c.delayMix = p.delay; c.warmth = p.warmth / 100; c.bpm = p.bpm;
+  c.setSound(p.sound); c.trim = TRIM[style]; c.setArt(p.art); c.setFlavor(style); c.band = new Band(c); c.ensure();
+  return c;
+}
+window.render = async function (kind, style, name, o) {
+  o = o || {};
+  const dur = o.dur || 3.2, ctx = new OfflineAudioContext(2, Math.ceil(SR * dur), SR);
+  const log = [];
+  const cbs = ctx.createBufferSource.bind(ctx);
+  ctx.createBufferSource = function () { const s = cbs(); const st = s.start.bind(s); s.start = function (t) { let mm = null; for (let q = 30; q < 100; q++) if (GP.ksBuffer(ctx, q) === s.buffer) { mm = q; break; } log.push({ t, midi: mm }); return st(t); }; return s; };
+  const cosc = ctx.createOscillator.bind(ctx);
+  const c = setup(style, ctx), p = PRE[style], T0 = 0.05, gr = grip(name);
+  const origMake = c.makeVoice.bind(c); const voiceLog = [];
+  c.makeVoice = function (spec) { voiceLog.push({ midi: spec.midi, t: spec.time, short: spec.short, bass: spec.bass, vel: spec.velocity, engine: spec.engine }); return origMake(spec); };
+  if (o.dry) { c.reverbMix = 0; c.delayMix = 0; c.applyMix(true); }
+  if (kind === "grid") {
+    const ch = buildChord({ rootPc: CH[name][0], type: CH[name][1], voicing: p.voicing });
+    const bass = p.bass === false ? null : 48 + CH[name][0];
+    c.playChord("g", ch.midis, { bass, sound: c.sound, time: T0 });
+    c.stopChord("g", T0 + (o.hold || 1.5));
+  } else if (kind === "cur") {
+    for (let i = 0; i < gr.sorted.length; i++) c.pluck(gr.sorted[i], { time: T0 + i * 0.02, sound: c.sound, group: "gtr" });
+  } else if (kind === "new") {
+    c.strumGuitar(gr.strings, { time: T0, up: !!o.up, seed: o.seed || 1 });
+    if (o.second) c.strumGuitar(gr.strings, { time: T0 + o.second, seed: 2 });
+  }
+  const buf = await ctx.startRendering();
+  const L = buf.getChannelData(0), R = buf.getChannelData(1), n = L.length;
+  const mono = new Float32Array(n); let pk = 0;
+  for (let i = 0; i < n; i++) { mono[i] = (L[i] + R[i]) / 2; pk = Math.max(pk, Math.abs(L[i]), Math.abs(R[i])); }
+  const db = x => x > 0 ? 20 * Math.log10(x) : -999;
+  const win = (a, b) => { let s = 0, k = 0; for (let i = Math.max(0, a | 0); i < Math.min(n, b | 0); i++) { s += L[i] * L[i] + R[i] * R[i]; k += 2; } return Math.sqrt(s / Math.max(1, k)); };
+  let max400 = 0; for (let t = T0; t + 0.4 <= dur; t += 0.01) max400 = Math.max(max400, win(t * SR, (t + 0.4) * SR));
+  const fr = []; for (let t = 0; t < dur - 0.01; t += 0.01) fr.push(win(t * SR, (t + 0.01) * SR));
+  let pi = 0; fr.forEach((v, i) => { if (v > fr[pi]) pi = i; });
+  const at = s => db(fr[Math.min(fr.length - 1, Math.round((T0 + s) / 0.01))] / fr[pi]);
+  let t60 = null; for (let i = pi; i < fr.length; i++) if (fr[i] < fr[pi] * 0.001) { t60 = +(i * 0.01 - pi * 0.01).toFixed(2); break; }
+  let t20 = null; for (let i = pi; i < fr.length; i++) if (fr[i] < fr[pi] * 0.1) { t20 = +(i * 0.01 - pi * 0.01).toFixed(2); break; }
+  const res = {
+    kind, style, name, peakDb: +db(pk).toFixed(2), max400Db: +db(max400).toFixed(2), rms0_2Db: +db(win(T0 * SR, (T0 + 2) * SR)).toFixed(2),
+    peakFrameMs: Math.round(pi * 10 - T0 * 1000), rel100: +at(0.1).toFixed(1), rel300: +at(0.3).toFixed(1), rel500: +at(0.5).toFixed(1), rel1000: +at(1.0).toFixed(1), rel2000: +at(2.0).toFixed(1),
+    t20, t60, clipFrac: 0, starts: log.map(x => +((x.t - T0) * 1000).toFixed(2)), order: log.map(x => x.midi), voices: voiceLog.length, voiceLog: o.vlog ? voiceLog : undefined, grip: gr
+  };
+  let clip = 0; for (let i = 0; i < n; i++) if (Math.abs(L[i]) > 0.999 || Math.abs(R[i]) > 0.999) clip++; res.clipFrac = clip / n;
+  if (o.wav) { const i16 = new Int16Array(n * 2); for (let i = 0; i < n; i++) { i16[2 * i] = Math.max(-1, Math.min(1, L[i])) * 32767; i16[2 * i + 1] = Math.max(-1, Math.min(1, R[i])) * 32767; }
+    let s = ""; const u8 = new Uint8Array(i16.buffer); for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); res.pcm = btoa(s); }
+  return res;
+};
+window.ksPitch = function (midi) {   // autocorrelation f0 of the raw KS buffer (cents error)
+  const y = GP.ksRender(SR, midi), f = 440 * Math.pow(2, (midi - 69) / 12), P = SR / f;
+  const a = 4800, w = 4096; let best = 0, bl = 0;
+  for (let lag = Math.floor(P * 0.9); lag <= Math.ceil(P * 1.1); lag++) { let s = 0; for (let i = 0; i < w; i++) s += y[a + i] * y[a + i + lag]; if (s > best) { best = s; bl = lag; } }
+  const c = l => { let s = 0; for (let i = 0; i < w; i++) s += y[a + i] * y[a + i + l]; return s; };
+  const ym = c(bl - 1), y0 = c(bl), yp = c(bl + 1), dlt = 0.5 * (ym - yp) / (ym - 2 * y0 + yp);
+  const fe = SR / (bl + dlt); return +(1200 * Math.log2(fe / f)).toFixed(2);
+};
+window.ksTime = function () { const t = performance.now(); for (let m = 40; m <= 76; m++) GP.ksRender(SR, m + 0.0001 * 0); return (performance.now() - t) / 37; };
+window.ready = true;
+</script>
