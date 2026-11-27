@@ -1,0 +1,773 @@
+{
+  "schema": "touch-chord lofi-15 v1",
+  "generated": "2026-11-27",
+  "source": {
+    "deployClone": "/workspace/chord-touch/jam-2026.11.27.2/site",
+    "deployCommit": "2176a5af1f1f1f3ba600201a84cfa97c033c2f39 Deploy touch-chord develop@6e8a151",
+    "version": "2026.11.27.20-6e8a151",
+    "file": "js/songs/presets.js PROG_MENU.lofi"
+  },
+  "notation": {
+    "steps": "Roman numerals relative to the mode's tonic (minor: bIII/bVI/bVII are natural-minor degrees 3/6/7).",
+    "appSteps": "Exact PROG_MENU step strings (degree quality); minor degrees already count from the natural minor scale.",
+    "exampleInCAm": "Chord names with tonic C (major) or A (minor)."
+  },
+  "counts": {
+    "major": {
+      "existing": 10,
+      "new": 5,
+      "total": 15
+    },
+    "minor": {
+      "existing": 5,
+      "new": 10,
+      "total": 15
+    }
+  },
+  "existing": {
+    "major": [
+      {
+        "position": 1,
+        "name": "Lofi Rainy Day",
+        "mode": "major",
+        "steps": [
+          "IVmaj9",
+          "iii7",
+          "vi9",
+          "Imaj7"
+        ],
+        "appSteps": [
+          "4 maj9",
+          "3 m7",
+          "6 m9",
+          "1 maj7"
+        ],
+        "exampleInCAm": [
+          "Fmaj9",
+          "Em7",
+          "Am9",
+          "Cmaj7"
+        ]
+      },
+      {
+        "position": 2,
+        "name": "Lofi Coffee Shop",
+        "mode": "major",
+        "steps": [
+          "ii9",
+          "V13",
+          "iii7",
+          "vi9"
+        ],
+        "appSteps": [
+          "2 m9",
+          "5 13",
+          "3 m7",
+          "6 m9"
+        ],
+        "exampleInCAm": [
+          "Dm9",
+          "G13",
+          "Em7",
+          "Am9"
+        ]
+      },
+      {
+        "position": 3,
+        "name": "Lofi Night Drive",
+        "mode": "major",
+        "steps": [
+          "Imaj9",
+          "vi9",
+          "IVmaj7",
+          "iv7"
+        ],
+        "appSteps": [
+          "1 maj9",
+          "6 m9",
+          "4 maj7",
+          "4 m7"
+        ],
+        "exampleInCAm": [
+          "Cmaj9",
+          "Am9",
+          "Fmaj7",
+          "Fm7"
+        ]
+      },
+      {
+        "position": 4,
+        "name": "Lofi Rain Window",
+        "mode": "major",
+        "steps": [
+          "IVmaj9",
+          "iv9",
+          "iii7",
+          "VI7b9",
+          "ii9",
+          "V13"
+        ],
+        "appSteps": [
+          "4 maj9",
+          "4 m9",
+          "3 m7",
+          "6 7b9",
+          "2 m9",
+          "5 13"
+        ],
+        "exampleInCAm": [
+          "Fmaj9",
+          "Fm9",
+          "Em7",
+          "A7b9",
+          "Dm9",
+          "G13"
+        ]
+      },
+      {
+        "position": 5,
+        "name": "Lofi Stargaze",
+        "mode": "major",
+        "steps": [
+          "Imaj7",
+          "ii7",
+          "iii7",
+          "IVmaj7"
+        ],
+        "appSteps": [
+          "1 maj7",
+          "2 m7",
+          "3 m7",
+          "4 maj7"
+        ],
+        "exampleInCAm": [
+          "Cmaj7",
+          "Dm7",
+          "Em7",
+          "Fmaj7"
+        ]
+      },
+      {
+        "position": 6,
+        "name": "Lofi Side Step",
+        "mode": "major",
+        "steps": [
+          "ii9",
+          "bII7",
+          "Imaj9",
+          "VI7b9"
+        ],
+        "appSteps": [
+          "2 m9",
+          "b2 7",
+          "1 maj9",
+          "6 7b9"
+        ],
+        "exampleInCAm": [
+          "Dm9",
+          "Db7",
+          "Cmaj9",
+          "A7b9"
+        ]
+      },
+      {
+        "position": 7,
+        "name": "Lofi Slinky",
+        "mode": "major",
+        "steps": [
+          "iii7",
+          "bIII7",
+          "ii7",
+          "bII7",
+          "Imaj7"
+        ],
+        "appSteps": [
+          "3 m7",
+          "b3 7",
+          "2 m7",
+          "b2 7",
+          "1 maj7"
+        ],
+        "exampleInCAm": [
+          "Em7",
+          "Eb7",
+          "Dm7",
+          "Db7",
+          "Cmaj7"
+        ]
+      },
+      {
+        "position": 8,
+        "name": "Lofi Cat Nap",
+        "mode": "major",
+        "steps": [
+          "Imaj7",
+          "v7",
+          "I9",
+          "IVmaj7",
+          "iv7"
+        ],
+        "appSteps": [
+          "1 maj7",
+          "5 m7",
+          "1 9",
+          "4 maj7",
+          "4 m7"
+        ],
+        "exampleInCAm": [
+          "Cmaj7",
+          "Gm7",
+          "C9",
+          "Fmaj7",
+          "Fm7"
+        ]
+      },
+      {
+        "position": 9,
+        "name": "Lofi Ripple",
+        "mode": "major",
+        "steps": [
+          "vi9",
+          "II9",
+          "v7",
+          "I9",
+          "IVmaj7"
+        ],
+        "appSteps": [
+          "6 m9",
+          "2 9",
+          "5 m7",
+          "1 9",
+          "4 maj7"
+        ],
+        "exampleInCAm": [
+          "Am9",
+          "D9",
+          "Gm7",
+          "C9",
+          "Fmaj7"
+        ]
+      },
+      {
+        "position": 10,
+        "name": "Lofi Back Porch",
+        "mode": "major",
+        "steps": [
+          "IVmaj7",
+          "bVII9",
+          "Imaj7",
+          "vi7"
+        ],
+        "appSteps": [
+          "4 maj7",
+          "b7 9",
+          "1 maj7",
+          "6 m7"
+        ],
+        "exampleInCAm": [
+          "Fmaj7",
+          "Bb9",
+          "Cmaj7",
+          "Am7"
+        ]
+      }
+    ],
+    "minor": [
+      {
+        "position": 1,
+        "name": "Lofi Snow Globe",
+        "mode": "minor",
+        "steps": [
+          "i9",
+          "bVImaj9",
+          "bIIImaj7",
+          "V7b9"
+        ],
+        "appSteps": [
+          "1 m9",
+          "6 maj9",
+          "3 maj7",
+          "5 7b9"
+        ],
+        "exampleInCAm": [
+          "Am9",
+          "Fmaj9",
+          "Cmaj7",
+          "E7b9"
+        ]
+      },
+      {
+        "position": 2,
+        "name": "Lofi Pillow",
+        "mode": "minor",
+        "steps": [
+          "bVImaj7",
+          "bVII13",
+          "i9",
+          "v7"
+        ],
+        "appSteps": [
+          "6 maj7",
+          "7 13",
+          "1 m9",
+          "5 m7"
+        ],
+        "exampleInCAm": [
+          "Fmaj7",
+          "G13",
+          "Am9",
+          "Em7"
+        ]
+      },
+      {
+        "position": 3,
+        "name": "Lofi Late Night",
+        "mode": "minor",
+        "steps": [
+          "i9",
+          "iv9",
+          "v7",
+          "bVImaj7"
+        ],
+        "appSteps": [
+          "1 m9",
+          "4 m9",
+          "5 m7",
+          "6 maj7"
+        ],
+        "exampleInCAm": [
+          "Am9",
+          "Dm9",
+          "Em7",
+          "Fmaj7"
+        ]
+      },
+      {
+        "position": 4,
+        "name": "Lofi Paper Boat",
+        "mode": "minor",
+        "steps": [
+          "i9",
+          "IV9",
+          "bIIImaj7",
+          "bVImaj7"
+        ],
+        "appSteps": [
+          "1 m9",
+          "4 9",
+          "3 maj7",
+          "6 maj7"
+        ],
+        "exampleInCAm": [
+          "Am9",
+          "D9",
+          "Cmaj7",
+          "Fmaj7"
+        ]
+      },
+      {
+        "position": 5,
+        "name": "Lofi Midnight Snack",
+        "mode": "minor",
+        "steps": [
+          "iv9",
+          "v7",
+          "i9",
+          "bIIImaj7"
+        ],
+        "appSteps": [
+          "4 m9",
+          "5 m7",
+          "1 m9",
+          "3 maj7"
+        ],
+        "exampleInCAm": [
+          "Dm9",
+          "Em7",
+          "Am9",
+          "Cmaj7"
+        ]
+      }
+    ]
+  },
+  "new": [
+    {
+      "rank": 1,
+      "name": "Lofi Study Hall",
+      "status": "new",
+      "mode": "major",
+      "steps": [
+        "ii9",
+        "V13",
+        "Imaj9",
+        "VI7b9"
+      ],
+      "appSteps": [
+        "2 m9",
+        "5 13",
+        "1 maj9",
+        "6 7b9"
+      ],
+      "exampleInCAm": [
+        "Dm9",
+        "G13",
+        "Cmaj9",
+        "A7b9"
+      ],
+      "usage": "The jazz-hop staple: ii9-V13-Imaj9 with a VI7b9 turnaround back to ii."
+    },
+    {
+      "rank": 2,
+      "name": "Lofi Soft Landing",
+      "status": "new",
+      "mode": "major",
+      "steps": [
+        "IVmaj9",
+        "iii7",
+        "ii9",
+        "Imaj7"
+      ],
+      "appSteps": [
+        "4 maj9",
+        "3 m7",
+        "2 m9",
+        "1 maj7"
+      ],
+      "exampleInCAm": [
+        "Fmaj9",
+        "Em7",
+        "Dm9",
+        "Cmaj7"
+      ],
+      "usage": "Stepwise walk down IVmaj9-iii7-ii9-Imaj7: the gentle diatonic descent of chillhop keys loops."
+    },
+    {
+      "rank": 3,
+      "name": "Lofi Old Tape",
+      "status": "new",
+      "mode": "major",
+      "steps": [
+        "ii7",
+        "iv7",
+        "bVII9",
+        "Imaj9"
+      ],
+      "appSteps": [
+        "2 m7",
+        "4 m7",
+        "b7 9",
+        "1 maj9"
+      ],
+      "exampleInCAm": [
+        "Dm7",
+        "Fm7",
+        "Bb9",
+        "Cmaj9"
+      ],
+      "usage": "Backdoor cadence: ii7 to borrowed iv7, then bVII9 resolving to Imaj9."
+    },
+    {
+      "rank": 4,
+      "name": "Lofi Warm Vinyl",
+      "status": "new",
+      "mode": "major",
+      "steps": [
+        "Imaj9",
+        "III7",
+        "vi9",
+        "iv7"
+      ],
+      "appSteps": [
+        "1 maj9",
+        "3 7",
+        "6 m9",
+        "4 m7"
+      ],
+      "exampleInCAm": [
+        "Cmaj9",
+        "E7",
+        "Am9",
+        "Fm7"
+      ],
+      "usage": "Imaj9 to secondary dominant III7 into vi9, closing on the borrowed iv7 (minor plagal pull home)."
+    },
+    {
+      "rank": 5,
+      "name": "Lofi Tram Ride",
+      "status": "new",
+      "mode": "major",
+      "steps": [
+        "Imaj9",
+        "bIIImaj7",
+        "bVImaj7",
+        "bIImaj7"
+      ],
+      "appSteps": [
+        "1 maj9",
+        "b3 maj7",
+        "b6 maj7",
+        "b2 maj7"
+      ],
+      "exampleInCAm": [
+        "Cmaj9",
+        "Ebmaj7",
+        "Abmaj7",
+        "Dbmaj7"
+      ],
+      "usage": "Parallel maj7 planing through borrowed bIII, bVI and bII: the dreamy chromatic side-slip sound."
+    },
+    {
+      "rank": 1,
+      "name": "Lofi Firefly Jar",
+      "status": "new",
+      "mode": "minor",
+      "steps": [
+        "i9",
+        "bVImaj7",
+        "bIIImaj7",
+        "bVII9"
+      ],
+      "appSteps": [
+        "1 m9",
+        "6 maj7",
+        "3 maj7",
+        "7 9"
+      ],
+      "exampleInCAm": [
+        "Am9",
+        "Fmaj7",
+        "Cmaj7",
+        "G9"
+      ],
+      "usage": "i-bVI-bIII-bVII, the most common minor pop/lo-fi loop, with m9, maj7 and dominant-9 colours."
+    },
+    {
+      "rank": 2,
+      "name": "Lofi Blue Hour",
+      "status": "new",
+      "mode": "minor",
+      "steps": [
+        "iiø7",
+        "V7b9",
+        "i9",
+        "bVImaj7"
+      ],
+      "appSteps": [
+        "2 m7b5",
+        "5 7b9",
+        "1 m9",
+        "6 maj7"
+      ],
+      "exampleInCAm": [
+        "Bm7b5",
+        "E7b9",
+        "Am9",
+        "Fmaj7"
+      ],
+      "usage": "Minor ii-V-i (iiø7-V7b9-i9) resting on bVImaj7 before the next turn."
+    },
+    {
+      "rank": 3,
+      "name": "Lofi Soft Focus",
+      "status": "new",
+      "mode": "minor",
+      "steps": [
+        "i9",
+        "ii7",
+        "bIIImaj7",
+        "IV9"
+      ],
+      "appSteps": [
+        "1 m9",
+        "2 m7",
+        "3 maj7",
+        "4 9"
+      ],
+      "exampleInCAm": [
+        "Am9",
+        "Bm7",
+        "Cmaj7",
+        "D9"
+      ],
+      "usage": "Dorian climb: i9-ii7-bIIImaj7-IV9; the major IV gives the Dorian lift."
+    },
+    {
+      "rank": 4,
+      "name": "Lofi Night Bloom",
+      "status": "new",
+      "mode": "minor",
+      "steps": [
+        "i9",
+        "bVII13",
+        "bVImaj7",
+        "iv9"
+      ],
+      "appSteps": [
+        "1 m9",
+        "7 13",
+        "6 maj7",
+        "4 m9"
+      ],
+      "exampleInCAm": [
+        "Am9",
+        "G13",
+        "Fmaj7",
+        "Dm9"
+      ],
+      "usage": "Aeolian step-down i9-bVII13-bVImaj7 landing on iv9: a soft, unresolved minor loop."
+    },
+    {
+      "rank": 5,
+      "name": "Lofi Hazy Moon",
+      "status": "new",
+      "mode": "minor",
+      "steps": [
+        "i9",
+        "IV9",
+        "bVImaj9",
+        "V7#9"
+      ],
+      "appSteps": [
+        "1 m9",
+        "4 9",
+        "6 maj9",
+        "5 7#9"
+      ],
+      "exampleInCAm": [
+        "Am9",
+        "D9",
+        "Fmaj9",
+        "E7#9"
+      ],
+      "usage": "i9 to the Dorian IV9, then bVImaj9 sliding down to a crunchy V7#9 back to the tonic."
+    },
+    {
+      "rank": 6,
+      "name": "Lofi Tide Pool",
+      "status": "new",
+      "mode": "minor",
+      "steps": [
+        "i9",
+        "v7",
+        "iv9",
+        "bVII13"
+      ],
+      "appSteps": [
+        "1 m9",
+        "5 m7",
+        "4 m9",
+        "7 13"
+      ],
+      "exampleInCAm": [
+        "Am9",
+        "Em7",
+        "Dm9",
+        "G13"
+      ],
+      "usage": "Aeolian float: i9-v7-iv9-bVII13, no leading tone, very laid back."
+    },
+    {
+      "rank": 7,
+      "name": "Lofi Sleepy Bus",
+      "status": "new",
+      "mode": "minor",
+      "steps": [
+        "iv9",
+        "bVII13",
+        "i9",
+        "V7#9"
+      ],
+      "appSteps": [
+        "4 m9",
+        "7 13",
+        "1 m9",
+        "5 7#9"
+      ],
+      "exampleInCAm": [
+        "Dm9",
+        "G13",
+        "Am9",
+        "E7#9"
+      ],
+      "usage": "Minor backdoor: iv9-bVII13 into i9, then V7#9 to pull back round."
+    },
+    {
+      "rank": 8,
+      "name": "Lofi Ghost Town",
+      "status": "new",
+      "mode": "minor",
+      "steps": [
+        "i9",
+        "bIIImaj7",
+        "bVII13",
+        "IV9"
+      ],
+      "appSteps": [
+        "1 m9",
+        "3 maj7",
+        "7 13",
+        "4 9"
+      ],
+      "exampleInCAm": [
+        "Am9",
+        "Cmaj7",
+        "G13",
+        "D9"
+      ],
+      "usage": "Dorian loop: i9-bIIImaj7-bVII13-IV9."
+    },
+    {
+      "rank": 9,
+      "name": "Lofi Lamp Light",
+      "status": "new",
+      "mode": "minor",
+      "steps": [
+        "iv9",
+        "bIIImaj7",
+        "iiø7",
+        "V7b9",
+        "i9"
+      ],
+      "appSteps": [
+        "4 m9",
+        "3 maj7",
+        "2 m7b5",
+        "5 7b9",
+        "1 m9"
+      ],
+      "exampleInCAm": [
+        "Dm9",
+        "Cmaj7",
+        "Bm7b5",
+        "E7b9",
+        "Am9"
+      ],
+      "usage": "Stepwise walk down iv9-bIIImaj7-iiø7, then V7b9 to i9."
+    },
+    {
+      "rank": 10,
+      "name": "Lofi Neon Glow",
+      "status": "new",
+      "mode": "minor",
+      "steps": [
+        "bVImaj7",
+        "V7#9",
+        "i9",
+        "bIImaj7"
+      ],
+      "appSteps": [
+        "6 maj7",
+        "5 7#9",
+        "1 m9",
+        "b2 maj7"
+      ],
+      "exampleInCAm": [
+        "Fmaj7",
+        "E7#9",
+        "Am9",
+        "Bbmaj7"
+      ],
+      "usage": "bVImaj7-V7#9-i9 with a Phrygian bIImaj7 side slip above the tonic."
+    }
+  ]
+}

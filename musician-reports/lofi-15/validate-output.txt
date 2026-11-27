@@ -1,0 +1,52 @@
+live lofi: major 10, minor 5; new: major 5, minor 10
+WARN near-duplicate (same roots + major/minor families; other style, different chord colours): Lofi Study Hall vs existing jazz/Jazz Rhythm (major)
+WARN near-duplicate (same roots + major/minor families; other style, different chord colours): Lofi Soft Landing vs existing rnb/R&B Slow Jam (major)
+WARN near-duplicate (same roots + major/minor families; other style, different chord colours): Lofi Firefly Jar vs existing pop/Pop Axis (minor)
+WARN near-duplicate (same roots + major/minor families; other style, different chord colours): Lofi Firefly Jar vs existing ballad/Ballad Axis (minor)
+WARN near-duplicate (same roots + major/minor families; other style, different chord colours): Lofi Firefly Jar vs existing reggae/Reggae Lovers (minor)
+WARN near-duplicate (same roots + major/minor families; other style, different chord colours): Lofi Blue Hour vs existing jazz/Jazz Turnaround (minor)
+WARN near-duplicate (same roots + major/minor families; other style, different chord colours): Lofi Blue Hour vs existing rnb/R&B ii–V–I (minor)
+WARN near-duplicate (same roots + major/minor families; other style, different chord colours): Lofi Soft Focus vs existing funk/Funk Elevator (minor)
+WARN near-duplicate (same roots + major/minor families; other style, different chord colours): Lofi Night Bloom vs existing reggae/Reggae Night Riddim (minor)
+WARN subsequence overlap: Lofi Lamp Light vs existing funk/Funk iiV (minor)
+guitar tuning midi [40,45,50,55,59,64]
+app parser: 732 step spellings checked (15 charts x 12 keys), tones match expected interval table unless FAIL above
+guitar: 732/732 first shapes resolve with the root as lowest sounding note
+patched copy: js/songs/presets.js | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+patched progList("lofi","major"): 15 rows: Lofi Rainy Day, Lofi Coffee Shop, Lofi Night Drive, Lofi Rain Window, Lofi Stargaze, Lofi Side Step, Lofi Slinky, Lofi Cat Nap, Lofi Ripple, Lofi Back Porch, Lofi Study Hall, Lofi Soft Landing, Lofi Old Tape, Lofi Warm Vinyl, Lofi Tram Ride
+patched progList("lofi","minor"): 15 rows: Lofi Snow Globe, Lofi Pillow, Lofi Late Night, Lofi Paper Boat, Lofi Midnight Snack, Lofi Firefly Jar, Lofi Blue Hour, Lofi Soft Focus, Lofi Night Bloom, Lofi Hazy Moon, Lofi Tide Pool, Lofi Sleepy Bus, Lofi Ghost Town, Lofi Lamp Light, Lofi Neon Glow
+
+Spellings (app progSteps -> Theory.chordSymbol [chordToneNames]), C / Eb major, A / C minor:
+Lofi Study Hall      C    ii9=Dm9[D F A C E]  V13=G13[G B F A E]  Imaj9=Cmaj9[C E G B D]  VI7♭9=A7b9[A C# E G Bb]
+Lofi Study Hall      Eb   ii9=Fm9[F Ab C Eb G]  V13=Bb13[Bb D Ab C G]  Imaj9=Ebmaj9[Eb G Bb D F]  VI7♭9=C7b9[C E G Bb Db]
+Lofi Soft Landing    C    IVmaj9=Fmaj9[F A C E G]  iii7=Em7[E G B D]  ii9=Dm9[D F A C E]  Imaj7=Cmaj7[C E G B]
+Lofi Soft Landing    Eb   IVmaj9=Abmaj9[Ab C Eb G Bb]  iii7=Gm7[G Bb D F]  ii9=Fm9[F Ab C Eb G]  Imaj7=Ebmaj7[Eb G Bb D]
+Lofi Old Tape        C    ii7=Dm7[D F A C]  iv7=Fm7[F Ab C Eb]  ♭VII9=Bb9[Bb D F Ab C]  Imaj9=Cmaj9[C E G B D]
+Lofi Old Tape        Eb   ii7=Fm7[F Ab C Eb]  iv7=Abm7[Ab Cb Eb Gb]  ♭VII9=Db9[Db F Ab Cb Eb]  Imaj9=Ebmaj9[Eb G Bb D F]
+Lofi Warm Vinyl      C    Imaj9=Cmaj9[C E G B D]  III7=E7[E G# B D]  vi9=Am9[A C E G B]  iv7=Fm7[F Ab C Eb]
+Lofi Warm Vinyl      Eb   Imaj9=Ebmaj9[Eb G Bb D F]  III7=G7[G B D F]  vi9=Cm9[C Eb G Bb D]  iv7=Abm7[Ab Cb Eb Gb]
+Lofi Tram Ride       C    Imaj9=Cmaj9[C E G B D]  ♭IIImaj7=Ebmaj7[Eb G Bb D]  ♭VImaj7=Abmaj7[Ab C Eb G]  ♭IImaj7=Dbmaj7[Db F Ab C]
+Lofi Tram Ride       Eb   Imaj9=Ebmaj9[Eb G Bb D F]  ♭IIImaj7=Gbmaj7[Gb Bb Db F]  ♭VImaj7=Bmaj7[B D# F# A#]  ♭IImaj7=Emaj7[E G# B D#]
+Lofi Firefly Jar     Am   i9=Am9[A C E G B]  VImaj7=Fmaj7[F A C E]  IIImaj7=Cmaj7[C E G B]  VII9=G9[G B D F A]
+Lofi Firefly Jar     Cm   i9=Cm9[C Eb G Bb D]  VImaj7=Abmaj7[Ab C Eb G]  IIImaj7=Ebmaj7[Eb G Bb D]  VII9=Bb9[Bb D F Ab C]
+Lofi Blue Hour       Am   iiø7=Bm7b5[B D F A]  V7♭9=E7b9[E G# B D F]  i9=Am9[A C E G B]  VImaj7=Fmaj7[F A C E]
+Lofi Blue Hour       Cm   iiø7=Dm7b5[D F Ab C]  V7♭9=G7b9[G B D F Ab]  i9=Cm9[C Eb G Bb D]  VImaj7=Abmaj7[Ab C Eb G]
+Lofi Soft Focus      Am   i9=Am9[A C E G B]  ii7=Bm7[B D F# A]  IIImaj7=Cmaj7[C E G B]  IV9=D9[D F# A C E]
+Lofi Soft Focus      Cm   i9=Cm9[C Eb G Bb D]  ii7=Dm7[D F A C]  IIImaj7=Ebmaj7[Eb G Bb D]  IV9=F9[F A C Eb G]
+Lofi Night Bloom     Am   i9=Am9[A C E G B]  VII13=G13[G B F A E]  VImaj7=Fmaj7[F A C E]  iv9=Dm9[D F A C E]
+Lofi Night Bloom     Cm   i9=Cm9[C Eb G Bb D]  VII13=Bb13[Bb D Ab C G]  VImaj7=Abmaj7[Ab C Eb G]  iv9=Fm9[F Ab C Eb G]
+Lofi Hazy Moon       Am   i9=Am9[A C E G B]  IV9=D9[D F# A C E]  VImaj9=Fmaj9[F A C E G]  V7♯9=E7#9[E G# B D G]
+Lofi Hazy Moon       Cm   i9=Cm9[C Eb G Bb D]  IV9=F9[F A C Eb G]  VImaj9=Abmaj9[Ab C Eb G Bb]  V7♯9=G7#9[G B D F A#]
+Lofi Tide Pool       Am   i9=Am9[A C E G B]  v7=Em7[E G B D]  iv9=Dm9[D F A C E]  VII13=G13[G B F A E]
+Lofi Tide Pool       Cm   i9=Cm9[C Eb G Bb D]  v7=Gm7[G Bb D F]  iv9=Fm9[F Ab C Eb G]  VII13=Bb13[Bb D Ab C G]
+Lofi Sleepy Bus      Am   iv9=Dm9[D F A C E]  VII13=G13[G B F A E]  i9=Am9[A C E G B]  V7♯9=E7#9[E G# B D G]
+Lofi Sleepy Bus      Cm   iv9=Fm9[F Ab C Eb G]  VII13=Bb13[Bb D Ab C G]  i9=Cm9[C Eb G Bb D]  V7♯9=G7#9[G B D F A#]
+Lofi Ghost Town      Am   i9=Am9[A C E G B]  IIImaj7=Cmaj7[C E G B]  VII13=G13[G B F A E]  IV9=D9[D F# A C E]
+Lofi Ghost Town      Cm   i9=Cm9[C Eb G Bb D]  IIImaj7=Ebmaj7[Eb G Bb D]  VII13=Bb13[Bb D Ab C G]  IV9=F9[F A C Eb G]
+Lofi Lamp Light      Am   iv9=Dm9[D F A C E]  IIImaj7=Cmaj7[C E G B]  iiø7=Bm7b5[B D F A]  V7♭9=E7b9[E G# B D F]  i9=Am9[A C E G B]
+Lofi Lamp Light      Cm   iv9=Fm9[F Ab C Eb G]  IIImaj7=Ebmaj7[Eb G Bb D]  iiø7=Dm7b5[D F Ab C]  V7♭9=G7b9[G B D F Ab]  i9=Cm9[C Eb G Bb D]
+Lofi Neon Glow       Am   VImaj7=Fmaj7[F A C E]  V7♯9=E7#9[E G# B D G]  i9=Am9[A C E G B]  ♭IImaj7=Bbmaj7[Bb D F A]
+Lofi Neon Glow       Cm   VImaj7=Abmaj7[Ab C Eb G]  V7♯9=G7#9[G B D F A#]  i9=Cm9[C Eb G Bb D]  ♭IImaj7=Dbmaj7[Db F Ab C]
+
+RESULT: 0 fail, 10 warn; new charts 15; live charts compared 192; names checked vs 158 in presets.js
