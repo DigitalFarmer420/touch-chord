@@ -1,13 +1,13 @@
 // Gear (Config) menu: volume, band, toggles, factory reset.
-import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.12";
-import { applySettings, showToast } from "../settings.js?v=2026.11.27.12";
-import { progStop, progPause, prog, progRedecorate } from "../songs/playback.js?v=2026.11.27.12";
-import { state, scheduleSave, factoryDefaults, storageClear, collectSettings, saveNow, shared } from "../state.js?v=2026.11.27.12";
-import { paHintHide } from "./hints.js?v=2026.11.27.12";
-import { updateSymbol } from "./nowbox.js?v=2026.11.27.12";
-import { renderPads, refreshHeld } from "./pads.js?v=2026.11.27.12";
-import { clearSuggestPreview } from "./strip.js?v=2026.11.27.12";
-import { tourStart } from "./tour.js?v=2026.11.27.12";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.13";
+import { applySettings, showToast } from "../settings.js?v=2026.11.27.13";
+import { progStop, progPause, prog, progRedecorate } from "../songs/playback.js?v=2026.11.27.13";
+import { state, scheduleSave, factoryDefaults, storageClear, collectSettings, saveNow, shared } from "../state.js?v=2026.11.27.13";
+import { paHintHide } from "./hints.js?v=2026.11.27.13";
+import { updateSymbol } from "./nowbox.js?v=2026.11.27.13";
+import { renderPads, refreshHeld } from "./pads.js?v=2026.11.27.13";
+import { clearSuggestPreview } from "./strip.js?v=2026.11.27.13";
+import { tourStart } from "./tour.js?v=2026.11.27.13";
 
 // v68: master Volume (Config). 0..100, gain = (v/100)^2 (perceptual), 100 = the old level.
 export function setVolume(v) {
@@ -38,7 +38,7 @@ function applyBand() {
 export function paintBand() {
   var el = document.getElementById("band");
   if (!el) return;
-  var v = state.band | 0, on = !!ChordAudio.band && !!{ pop: 1, country: 1, jazz: 1, kids: 1, ballad: 1, rnb: 1 }[state.style];
+  var v = state.band | 0, on = !!ChordAudio.band && !!{ pop: 1, country: 1, jazz: 1, kids: 1, ballad: 1, rnb: 1, lofi: 1 }[state.style];
   var live = !!state.bandOn;
   if (el.value !== String(v)) el.value = String(v);
   el.setAttribute("aria-valuetext", (live ? String(v) : "Off") + (on ? "" : ", no band for this style yet"));

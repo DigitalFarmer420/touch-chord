@@ -200,12 +200,12 @@ export function cardHead(M, idx, name) {
   var ent = M && M.seq ? M.seq[idx] : null, prev = M && M.seq && idx > 0 ? M.seq[idx - 1] : null;
   return ent && prev && prev.si !== ent.si ? (name(ent.si) || null) : null;
 }
-// Style drop-down (decision 6): the nine styles with the mockup's short sound hints.
+// Style drop-down (decision 6): each style with a short sound hint.
 // rd4: no Kids here - the Kids / Simple / Expert switch is the only way into Kids (the classic style chips keep Kids)
 export const STYLE_MENU = [
   ["pop", "Pop", "bright triads"], ["jazz", "Jazz", "7ths, 9ths"], ["rnb", "R&B", "smooth 9ths"],
   ["ballad", "Ballad", "slow, add9"], ["reggae", "Reggae", "off-beat"], ["funk", "Funk", "tight 9ths"], ["yogaDeep", "Yoga", "sus2 drone"],
-  ["country", "Country", "I IV V7"]
+  ["country", "Country", "I IV V7"], ["lofi", "Lofi", "dusty 9ths"]
 ];
 export function styleName(id) { for (var i = 0; i < STYLE_MENU.length; i++) if (STYLE_MENU[i][0] === id) return STYLE_MENU[i][1]; return id; }
 // The docked piano window in Expert (decision 10): C..B = 12 keys, 7 white keys (classic Full keeps its 13-key window).

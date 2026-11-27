@@ -117,7 +117,8 @@ html.simple.lay-pad-land .now-col > .now-card { min-height: 160px; }
 html.simple.lay-pad-land .brand { display: block; }
 html.simple.lay-pad-land header.topbar { position: relative; }
 html.simple.lay-pad-land header.topbar > #xTog { position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: calc(320 * var(--sw)); }
-html.simple.lay-pad-land #styles button { flex: 1 1 0; min-width: 0; padding: 0 4px; }   /* the 8 style pills share the row */
+html.simple.lay-pad-land #styles { padding-right: 168px; }   /* the ? menu drops on the right; the pills stop before it */
+html.simple.lay-pad-land #styles button { flex: 1 1 0; min-width: 0; padding: 0 4px; }   /* the style pills share the row */
 html.simple.lay-pad-land .now-col { gap: 10px; }
 html.simple.lay-pad-land .kid-key { --kk-h: calc(84 * var(--sh)); --kk-mh: max(44px, calc(56 * var(--sh))); }
 html.simple.lay-pad-land .prog { --pg-h: max(44px, calc(48 * var(--sh))); }   /* song picker */
