@@ -1,8 +1,8 @@
 // Play along hint pill (placement, misses, timers).
-import { playAlongKey, playAlongNow } from "../songs/playalong.js?v=2026.11.27.14";
-import { prog } from "../songs/playback.js?v=2026.11.27.14";
-import { state, loop, shared } from "../state.js?v=2026.11.27.14";
-import { nxKeyEl, nxBurst, kidsGoldStep } from "./next.js?v=2026.11.27.14";
+import { playAlongKey, playAlongNow } from "../songs/playalong.js?v=2026.11.27.15";
+import { prog } from "../songs/playback.js?v=2026.11.27.15";
+import { state, loop, shared } from "../state.js?v=2026.11.27.15";
+import { nxKeyEl, nxBurst, kidsGoldStep } from "./next.js?v=2026.11.27.15";
 // v112 Play along hints (Config > Show hints, on by default). A tap that does not advance while a next chord is
 // marked gets one small pill above the keyboard for 2 s: at most one every 4 s, the same hint not again until an
 // advance, never during Play (song or loop) or with Play along off. The tap itself still sounds as before.

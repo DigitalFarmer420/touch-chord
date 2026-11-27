@@ -6,7 +6,7 @@
 //
 // Matrix: Kids, Simple, Expert; Song and Progressions; Piano and Guitar; with lyrics (Anh Đã Ổn Hơn, Eb)
 // and without; a long song (All I Ask) and a 6-row chord grid; menus and sheets open.
-// Viewports: 360x640, 384x700, 412x760, 412x915, 780x360, 820x1180, 1180x820.
+// Viewports: 360x640, 384x700, 412x760, 412x915, 780x360, 820x1180, 1180x820, plus 390x844 and 360x780.
 //
 // A hit fails the run unless it is listed in flow-layout.known.json. A known id that nothing hits
 // also fails, so a fix has to drop its line.
@@ -21,7 +21,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const OUT = join(ROOT, 'tests/ci/out');
 const KNOWN_PATH = join(dirname(fileURLToPath(import.meta.url)), 'flow-layout.known.json');
 const AUDIT = process.env.AUDIT === '1';
-const VPS = [[360, 640], [384, 700], [412, 760], [412, 915], [780, 360], [820, 1180], [1180, 820]];
+const VPS = [[360, 640], [384, 700], [412, 760], [412, 915], [780, 360], [820, 1180], [1180, 820], [390, 844], [360, 780]];
 const ANH = readFileSync(join(ROOT, 'tests/fixtures/upload/anh-v13.json'), 'utf8');
 const LONG = readFileSync(join(ROOT, 'tests/fixtures/songs/all-i-ask.json'), 'utf8');
 const MIME = {
@@ -209,6 +209,37 @@ const MEASURE = () => {
 // hint class "nx", which the Next highlight removes.
 const GUITAR_NEXT = () => {
   const issues = [];
+  function marksOutside(svg) {
+    const s = svg.getBoundingClientRect();
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return ['no ctm'];
+    const bad = [];
+    const tol = 0.75;
+    function pt(x, y) {
+      const p = new DOMPoint(x, y).matrixTransform(ctm);
+      return { x: p.x, y: p.y };
+    }
+    function box(x, y, w, h, name) {
+      const a = pt(x, y), b = pt(x + w, y + h);
+      const left = Math.min(a.x, b.x), right = Math.max(a.x, b.x);
+      const top = Math.min(a.y, b.y), bot = Math.max(a.y, b.y);
+      if (left < s.left - tol || top < s.top - tol || right > s.right + tol || bot > s.bottom + tol) bad.push(name);
+    }
+    svg.querySelectorAll('circle').forEach(c => {
+      const r = +c.getAttribute('r') || 0;
+      const sw = c.getAttribute('fill') === 'none' ? (parseFloat(c.getAttribute('stroke-width')) || 0) / 2 : 0;
+      const rr = r + sw;
+      box(+c.getAttribute('cx') - rr, +c.getAttribute('cy') - rr, rr * 2, rr * 2, 'dot');
+    });
+    svg.querySelectorAll('rect').forEach(rc => {
+      box(+rc.getAttribute('x'), +rc.getAttribute('y'), +rc.getAttribute('width'), +rc.getAttribute('height'), 'barre');
+    });
+    svg.querySelectorAll('text.gtr-mark, text.gtr-fr').forEach(t => {
+      const bb = t.getBBox();
+      box(bb.x, bb.y, bb.width, bb.height, (t.textContent || '').trim().slice(0, 12) || 'mark');
+    });
+    return bad;
+  }
   const now = document.querySelector('#gtrCards .gtr-card[data-slot="now"]');
   const next = document.querySelector('#gtrCards .gtr-card[data-slot="next"]');
   if (!now || !next || now.getBoundingClientRect().width < 2 || next.getBoundingClientRect().width < 2) {
@@ -252,6 +283,18 @@ const GUITAR_NEXT = () => {
     if (cb.bottom > innerHeight + 1 || cb.right > innerWidth + 1 || cb.top < -1 || cb.left < -1) {
       issues.push({ kind: 'viewport', el: card.dataset.slot, detail: 'card leaves the screen' });
     }
+    const svg = card.querySelector('.gtr-diagram');
+    if (svg) marksOutside(svg).forEach(bit => issues.push({ kind: 'guitar', el: card.dataset.slot + ' ' + bit, detail: 'mark is clipped by the diagram' }));
+  }
+  const label = now.querySelector('[data-gtr-label]');
+  const fr = now.querySelector('.gtr-fr');
+  if (label) {
+    const text = (label.textContent || '').replace(/\s+/g, ' ').trim();
+    if (/\u2026|\.\.\./.test(text) || label.scrollWidth > label.clientWidth + 1) {
+      issues.push({ kind: 'clip', el: 'voicing "' + text + '"', detail: 'fret label is cut (' + label.scrollWidth + '>' + label.clientWidth + ')' });
+    }
+    const fret = fr ? (fr.textContent || '').trim() : '';
+    if (fret && text.indexOf(fret) < 0) issues.push({ kind: 'guitar', el: 'voicing "' + text + '"', detail: 'missing fret ' + fret });
   }
   return issues;
 };
@@ -361,22 +404,32 @@ async function guard(page, vp, state, fn) {
   }
 }
 
-async function wishingWell(page) {
+async function pickProgression(page, style, name) {
+  if (style) {
+    const ok = await page.evaluate(s => {
+      const b = document.querySelector('#styles button[data-style="' + s + '"]');
+      if (!b) return false;
+      b.click();
+      return true;
+    }, style);
+    if (!ok) return false;
+    await page.waitForTimeout(200);
+  }
   const onProg = await page.evaluate(() => {
     const b = document.querySelector('#xTog button[data-v="prog"]');
     return !!(b && (b.classList.contains('on') || b.getAttribute('aria-selected') === 'true'));
   });
   if (!onProg) await clickIf(page, '#xTog button[data-v="prog"]');
-  const closed = await page.evaluate(() => { const l = document.getElementById('xPList'); return !l || l.hidden; });
-  if (closed) await clickIf(page, '#xSrc .x-pbar');
+  await closeSheets(page);
+  await clickIf(page, '#xSrc .x-pbar');
   await page.waitForSelector('#xPList:not([hidden]) .x-prow', { timeout: 5000 });
-  const picked = await page.evaluate(() => {
-    const row = [...document.querySelectorAll('#xPList .x-prow')].find(r => /Wishing Well/.test(r.textContent || ''));
+  const picked = await page.evaluate(want => {
+    const row = [...document.querySelectorAll('#xPList .x-prow')].find(r => (r.textContent || '').indexOf(want) >= 0);
     if (!row) return false;
     row.scrollIntoView();
     row.click();
     return true;
-  });
+  }, name);
   await closeSheets(page);
   return picked;
 }
@@ -385,29 +438,33 @@ async function expertPass(page, vp) {
   await boot(page, 'test=1&hour=12&expert=1');
   await measure(page, vp, 'expert-prog-piano');
   await guard(page, vp, 'guitar tab after Next (1 and 3 taps)', async () => {
-    const state = 'guitar tab after Next (1 and 3 taps)';
-    if (!(await wishingWell(page))) {
-      add(vp, state, [{ kind: 'load', el: 'Wishing Well', detail: 'progression not in the Pop list' }]);
-      return;
+    async function run(style, progName) {
+      const state = 'guitar tab after Next (1 and 3 taps) ' + progName;
+      if (!(await pickProgression(page, style, progName))) {
+        add(vp, state, [{ kind: 'load', el: progName, detail: 'progression not in the list' }]);
+        return;
+      }
+      if (!(await clickIf(page, '#gtrTabs [data-gtr="guitar"]'))) {
+        add(vp, state, [{ kind: 'guitar', el: 'gtrTabs', detail: 'guitar tab did not open' }]);
+        return;
+      }
+      async function after(taps) {
+        const extra = await page.evaluate(GUITAR_NEXT);
+        const layout = await page.evaluate(MEASURE);
+        const tagged = extra.concat(layout).map(issue => ({ ...issue, detail: progName + ' ' + taps + ' tap' + (taps === 1 ? '' : 's') + ': ' + issue.detail }));
+        add(vp, state, tagged);
+        if (tagged.length) await shot(page, vp + ' ' + state + ' ' + taps);
+      }
+      await clickIf(page, '#xNext');
+      await page.waitForTimeout(200);
+      await after(1);
+      await clickIf(page, '#xNext');
+      await clickIf(page, '#xNext');
+      await page.waitForTimeout(200);
+      await after(3);
     }
-    if (!(await clickIf(page, '#gtrTabs [data-gtr="guitar"]'))) {
-      add(vp, state, [{ kind: 'guitar', el: 'gtrTabs', detail: 'guitar tab did not open' }]);
-      return;
-    }
-    async function after(taps) {
-      const extra = await page.evaluate(GUITAR_NEXT);
-      const layout = await page.evaluate(MEASURE);
-      const tagged = extra.concat(layout).map(issue => ({ ...issue, detail: taps + ' tap' + (taps === 1 ? '' : 's') + ': ' + issue.detail }));
-      add(vp, state, tagged);
-      if (tagged.length) await shot(page, vp + ' ' + state + ' ' + taps);
-    }
-    await clickIf(page, '#xNext');
-    await page.waitForTimeout(200);
-    await after(1);
-    await clickIf(page, '#xNext');
-    await clickIf(page, '#xNext');
-    await page.waitForTimeout(200);
-    await after(3);
+    await run(null, 'Wishing Well');
+    await run('lofi', 'Rain Window');
     await clickIf(page, '#gtrTabs [data-gtr="piano"]');
     await closeSheets(page);
     await boot(page, 'test=1&hour=12&expert=1');

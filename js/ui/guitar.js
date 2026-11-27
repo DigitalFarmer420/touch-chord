@@ -1,19 +1,19 @@
 // Expert Guitar tab. Draws the resolver's grips in the keyboard area and strums
 // them through ChordAudio. Kids, Simple, and the Piano tab do not use this panel.
-import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.14";
-import { unlock } from "../audio/unlock.js?v=2026.11.27.14";
-import { activeKey } from "../keys.js?v=2026.11.27.14";
-import { prog, magic } from "../songs/playback.js?v=2026.11.27.14";
-import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.14";
-import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.14";
-import { state } from "../state.js?v=2026.11.27.14";
-import { Theory } from "../theory/index.js?v=2026.11.27.14";
-import { accSym } from "../theory/spelling.js?v=2026.11.27.14";
-import { computeSpec } from "./touch.js?v=2026.11.27.14";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.15";
+import { unlock } from "../audio/unlock.js?v=2026.11.27.15";
+import { activeKey } from "../keys.js?v=2026.11.27.15";
+import { prog, magic } from "../songs/playback.js?v=2026.11.27.15";
+import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.15";
+import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.15";
+import { state } from "../state.js?v=2026.11.27.15";
+import { Theory } from "../theory/index.js?v=2026.11.27.15";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.15";
+import { computeSpec } from "./touch.js?v=2026.11.27.15";
 import {
   GTR_TAB_KEY, readGtrTab, gtrTabReduce, cardSlots, layoutOf,
-  chordSig, chordDisplayName, voicingLabel, cycleIndex, fretSlide, diagramModel
-} from "./gtrmath.js?v=2026.11.27.14";
+  chordSig, chordDisplayName, voicingLabel, voicingFret, nextVoicingSize, cycleIndex, fretSlide, diagramModel, diagramFrame
+} from "./gtrmath.js?v=2026.11.27.15";
 
 var TAB_LABEL = { now: "NOW", next: "NEXT", third: "3RD", fourth: "4TH" };
 var pick = {};
@@ -96,19 +96,20 @@ function fretText(label, left, top, fh, gutter, ink) {
 function diagramSvg(voicing, chord, o) {
   var model = diagramModel(voicing, guitarProfile.tuning, chord.rootPc);
   var S = model.marks.length, F = 4;
-  var top = o.top || 16, side = o.side || 10, fh = o.fh, mk = o.mk || 11;
+  var f = diagramFrame({
+    w: o.w, fh: o.fh, mk: o.mk || 11, base: model.base,
+    side: o.side, top: o.top, bot: o.bot != null ? o.bot : (o.strings ? 16 : 8),
+    gutter: o.gutter != null ? o.gutter : 10,
+    fing: o.fing, strings: o.strings, stringsCount: S, square: o.square
+  });
+  var top = f.top, left = f.left, gw = f.gw, sg = f.sg, fh = f.fh, r = f.r, mk = f.mk;
   var base = model.base;
-  var gutter = o.gutter != null ? o.gutter : 10;
-  var left = side + (base > 1 ? gutter : 0);
-  var gw = o.w - 2 * side - (base > 1 ? gutter : 0);
-  var sg = S > 1 ? gw / (S - 1) : gw;
-  var bot = o.bot != null ? o.bot : (o.strings ? 16 : 8);
-  var H = top + F * fh + bot;
+  var gutter = model.base > 1 ? (o.gutter != null ? o.gutter : 10) : 0;
+  var H = f.H;
   var ink = o.ink, line = o.line, dot = o.dot, dotT = o.dotT, mute = o.mute;
   var Y = "#FFC23D", YT = "#2a231c";
-  var r = Math.min(sg, fh) * 0.36;
   var g = '<svg class="gtr-diagram" width="100%" viewBox="0 0 ' + o.w + " " + H + '" role="img" aria-label="' + escapeAttr(o.label || "") + '">';
-  if (model.nut) g += '<rect x="' + (left - 1) + '" y="' + (top - 4) + '" width="' + (gw + 2) + '" height="5" rx="1.5" fill="' + ink + '"/>';
+  if (model.nut) g += '<rect x="' + (left - 1) + '" y="' + (top - f.nutAbove) + '" width="' + (gw + 2) + '" height="5" rx="1.5" fill="' + ink + '"/>';
   else g += '<line x1="' + left + '" x2="' + (left + gw) + '" y1="' + top + '" y2="' + top + '" stroke="' + line + '" stroke-width="1.5"/>' +
     fretText(model.frLabel, left, top, fh, gutter, ink);
   for (var fi = 1; fi <= F; fi++) g += '<line x1="' + left + '" x2="' + (left + gw) + '" y1="' + (top + fi * fh) + '" y2="' + (top + fi * fh) + '" stroke="' + line + '" stroke-width="1.5"/>';
@@ -121,31 +122,31 @@ function diagramSvg(voicing, chord, o) {
     var yb = top + (b.fret - base + 0.5) * fh;
     var x0 = left + b.fromString * sg;
     var x1 = left + b.toString * sg;
-    g += '<rect x="' + (x0 - r) + '" y="' + (yb - r) + '" width="' + (x1 - x0 + 2 * r) + '" height="' + (2 * r) + '" rx="' + r + '" fill="' + dot + '"/>';
+    g += '<rect class="gtr-barre" x="' + (x0 - r) + '" y="' + (yb - r) + '" width="' + (x1 - x0 + 2 * r) + '" height="' + (2 * r) + '" rx="' + r + '" fill="' + dot + '"/>';
     if (o.fing) g += '<text x="' + (x1 + r + 2) + '" y="' + (yb + r * 0.42) + '" font-size="' + (r * 1.15) + '" fill="' + mute + '" font-family="Nunito, system-ui, sans-serif" font-weight="800">' + b.finger + "</text>";
   }
   for (var mi = 0; mi < model.marks.length; mi++) {
     var m = model.marks[mi];
     var x = left + m.string * sg;
     if (m.kind === "mute") {
-      g += '<text x="' + x + '" y="' + (top - 8) + '" font-size="' + mk + '" text-anchor="middle" fill="' + mute + '" font-family="Nunito, system-ui, sans-serif" font-weight="800">\u00d7</text>';
+      g += '<text class="gtr-mark" x="' + x + '" y="' + f.muteY + '" font-size="' + mk + '" text-anchor="middle" fill="' + mute + '" font-family="Nunito, system-ui, sans-serif" font-weight="800">\u00d7</text>';
     } else if (m.kind === "open" || m.kind === "open-root") {
-      if (m.kind === "open-root") g += '<circle cx="' + x + '" cy="' + (top - 11) + '" r="' + (mk * 0.36) + '" fill="' + Y + '"/>';
-      else g += '<circle cx="' + x + '" cy="' + (top - 11) + '" r="' + (mk * 0.32) + '" fill="none" stroke="' + ink + '" stroke-width="1.6"/>';
+      if (m.kind === "open-root") g += '<circle class="gtr-mark" cx="' + x + '" cy="' + f.openCy + '" r="' + f.openR + '" fill="' + Y + '"/>';
+      else g += '<circle class="gtr-mark" cx="' + x + '" cy="' + f.openCy + '" r="' + (mk * 0.32) + '" fill="none" stroke="' + ink + '" stroke-width="1.6"/>';
     } else if (m.kind === "barre-root") {
       var ybr = top + (m.fret - base + 0.5) * fh;
-      g += '<circle cx="' + x + '" cy="' + ybr + '" r="' + (r * 0.92) + '" fill="' + Y + '"/>';
+      g += '<circle class="gtr-dot" cx="' + x + '" cy="' + ybr + '" r="' + (r * 0.92) + '" fill="' + Y + '"/>';
     } else if (m.kind === "dot" || m.kind === "root") {
       var y = top + (m.fret - base + 0.5) * fh;
       var rootDot = m.kind === "root";
-      g += '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + (rootDot ? Y : dot) + '"/>';
+      g += '<circle class="gtr-dot" cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + (rootDot ? Y : dot) + '"/>';
       if (o.fing && m.finger) g += '<text x="' + x + '" y="' + (y + r * 0.42) + '" font-size="' + (r * 1.15) + '" text-anchor="middle" fill="' + (rootDot ? YT : dotT) + '" font-family="Nunito, system-ui, sans-serif" font-weight="800">' + m.finger + "</text>";
     }
   }
   if (o.strings) {
     var names = guitarProfile.stringNames;
     for (var n = 0; n < names.length && n < S; n++) {
-      g += '<text x="' + (left + n * sg) + '" y="' + (top + F * fh + 12) + '" font-size="10" text-anchor="middle" fill="' + mute + '" font-family="Nunito, system-ui, sans-serif" font-weight="700">' + names[n] + "</text>";
+      g += '<text x="' + (left + n * sg) + '" y="' + (top + F * fh + f.nameDrop) + '" font-size="10" text-anchor="middle" fill="' + mute + '" font-family="Nunito, system-ui, sans-serif" font-weight="700">' + names[n] + "</text>";
     }
   }
   return g + "</svg>";
@@ -250,7 +251,8 @@ function diaOpts(lay, slot, name) {
   return Object.assign(theme, {
     w: w, fh: fh, mk: mk,
     top: top, side: side, bot: bot, gutter: lay === "phone-port" && portFit ? (now ? portFit.now.gutter : portFit.next.gutter) : null,
-    fing: now, strings: now && (!land || pad), label: name
+    fing: now, strings: now && (!land || pad), label: name,
+    square: lay === "phone-port" && !!portFit
   });
 }
 
@@ -326,8 +328,9 @@ function cardHtml(slot, chord, lay, slideDy) {
   var head = '<div class="gtr-head"><p class="gtr-lb">' + TAB_LABEL[slot] + '</p><p class="gtr-name">' + name + "</p></div>";
   var foot = "";
   if (slot === "now") {
-    foot = '<div class="gtr-foot"><div class="gtr-vo"><button type="button" data-gtr-cycle="-1" aria-label="Previous shape">\u2039</button><span data-gtr-label>' +
-      voicingLabel(v) + '</span><button type="button" data-gtr-cycle="1" aria-label="Next shape">\u203a</button></div>' +
+    var fullLabel = voicingLabel(v), fretTok = voicingFret(v);
+    foot = '<div class="gtr-foot"><div class="gtr-vo"><button type="button" data-gtr-cycle="-1" aria-label="Previous shape">\u2039</button><span data-gtr-label data-gtr-full="' + escapeAttr(fullLabel) + '" data-gtr-fret="' + escapeAttr(fretTok) + '">' +
+      escapeAttr(fullLabel) + '</span><button type="button" data-gtr-cycle="1" aria-label="Next shape">\u203a</button></div>' +
       '<p class="gtr-meta">' + (index + 1) + " of " + grips.length + ' \u00b7 <b>\u25cf</b> root</p></div>';
   } else if (slot === "next") foot = '<div class="gtr-foot"><p class="gtr-tap">Tap to strum</p></div>';
   var svg = diagramSvg(v, chord, opts);
@@ -359,6 +362,40 @@ export function paintGuitar(spec) {
   for (var i = 0; i < slots.length; i++) html += cardHtml(slots[i], chords[slots[i]], lay, keyChanged);
   panel.innerHTML = html;
   if (portFit) tightenPort();
+  fitVoicingLines();
+}
+// The fret number stays whole. The line shrinks to the measured width, and only then
+// drops the shape name ("E-shape · 3fr" -> "3fr"). It never ends in an ellipsis.
+function fitVoicingLines() {
+  var spans = document.querySelectorAll("#gtrCards [data-gtr-label]");
+  for (var i = 0; i < spans.length; i++) fitVoicingLine(spans[i]);
+}
+function fitVoicingLine(span) {
+  var full = span.getAttribute("data-gtr-full") || span.textContent;
+  var fret = span.getAttribute("data-gtr-fret") || "";
+  var minPx = 10;
+  span.style.fontSize = "";
+  span.textContent = full;
+  var guard = 0, size;
+  while (span.scrollWidth > span.clientWidth + 1 && guard < 4) {
+    size = parseFloat(getComputedStyle(span).fontSize) || 12;
+    var next = nextVoicingSize(span.scrollWidth, span.clientWidth, size, minPx);
+    if (next >= size - 0.05) break;
+    span.style.fontSize = next + "px";
+    guard++;
+  }
+  if (fret && fret !== full && span.scrollWidth > span.clientWidth + 1) {
+    span.textContent = fret;
+    span.style.fontSize = "";
+    guard = 0;
+    while (span.scrollWidth > span.clientWidth + 1 && guard < 4) {
+      size = parseFloat(getComputedStyle(span).fontSize) || 12;
+      next = nextVoicingSize(span.scrollWidth, span.clientWidth, size, minPx);
+      if (next >= size - 0.05) break;
+      span.style.fontSize = next + "px";
+      guard++;
+    }
+  }
 }
 
 function onPanelClick(e) {

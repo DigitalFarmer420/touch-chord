@@ -137,7 +137,7 @@ html.expert:not(.kv).lay-phone-port .gtr-card.next .gtr-diagram {
 }
 html.expert:not(.kv).lay-phone-port .gtr-vo { flex-wrap: nowrap; justify-content: center; max-width: 100%; }
 html.expert:not(.kv).lay-phone-port .gtr-vo button { width: 24px; height: 24px; min-height: 24px; flex: none; }
-html.expert:not(.kv).lay-phone-port .gtr-vo span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; text-align: center; }
+html.expert:not(.kv).lay-phone-port .gtr-vo span { white-space: nowrap; min-width: 0; text-align: center; }
 html.expert:not(.kv).lay-phone-port .gtr-meta { white-space: normal; text-align: center; line-height: 1.15; max-width: 100%; }
 
 /* iPad portrait: cards fill the panel, so the band under the row goes away.

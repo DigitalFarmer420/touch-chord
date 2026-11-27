@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   readGtrTab, gtrTabReduce, showOctave, tabAxis, cardSlots, layoutOf,
-  voicingLabel, cycleIndex, fretSlide, diagramModel, chordSig, ROOT_COLOR, SLIDE_MS
+  voicingLabel, nextVoicingSize, diagramFrame, cycleIndex, fretSlide, diagramModel, chordSig, ROOT_COLOR, SLIDE_MS
 } from "../../js/ui/gtrmath.js";
 import { guitar, resolveVoicings } from "../../js/instruments/index.js";
 
@@ -85,6 +85,26 @@ test("the guitar Next card is not the hint class that Next strips", () => {
   assert.doesNotMatch(css, /\.gtr-card\.nx\b/);
   assert.match(hint, /gtr-card/);
   assert.match(hint, /clearNextHintDom[\s\S]*gtr-card[\s\S]*classList\.remove\("nx", "nx-root"\)/);
+});
+
+test("a phone-portrait diagram reserves the dot and the O/X, and a wide side stays", () => {
+  const phone = diagramFrame({ w: 96, fh: 18, mk: 11, base: 3, side: 4, top: 9, bot: 10, gutter: 10, fing: true, strings: true, stringsCount: 6, square: true });
+  assert.ok(phone.side + 0.01 >= phone.r, "side " + phone.side + " covers r " + phone.r);
+  const right = phone.left + 5 * phone.sg;
+  assert.ok(right + phone.r <= 96 + 0.01, "high-e dot stays inside");
+  assert.ok(phone.left - phone.r >= -0.01, "low-E dot stays inside");
+  assert.ok(phone.openCy - phone.openR - phone.stroke >= -0.01, "open marker stays inside the top");
+  assert.ok(phone.muteY - phone.mk * 1.05 >= -0.01, "mute em box stays inside the top");
+  assert.ok(phone.H <= 96 + 0.6, "the phone square still fills its box");
+  const pad = diagramFrame({ w: 190, fh: 49, mk: 13, base: 1, side: 14, top: 22, bot: 16, gutter: 10, fing: true, strings: true, stringsCount: 6 });
+  assert.equal(pad.side, 14);
+  assert.ok(pad.top >= 22);
+});
+
+test("the fret token is what shrinks last", () => {
+  assert.equal(nextVoicingSize(87, 85, 12, 10), 11.7);
+  assert.equal(nextVoicingSize(80, 100, 12, 10), 12);
+  assert.equal(nextVoicingSize(200, 40, 12, 10), 10);
 });
 
 test("open G marks the open G string as a root", () => {

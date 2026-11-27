@@ -1,7 +1,7 @@
 // Guitar-tab decisions with no DOM: which tab is selected, where the tabs sit,
 // which cards a layout shows, the diagram marks, and whether a key change is a
 // fret slide. The screen (js/ui/guitar.js) only draws what this returns.
-import { accSym } from "../theory/spelling.js?v=2026.11.27.14";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.15";
 
 export var GTR_TAB_KEY = "touchChord.gtrTab.v1";
 export var ROOT_COLOR = "#FFC23D";
@@ -69,6 +69,76 @@ export function voicingLabel(v) {
   if (!v) return "";
   if (v.shapeName === "Open" || !(v.baseFret > 1)) return v.shapeName === "Open" ? "Open" : (v.shapeName || "Open");
   return v.shapeName + " \u00b7 " + v.baseFret + "fr";
+}
+export function voicingFret(v) { return v && v.baseFret > 1 ? v.baseFret + "fr" : ""; }
+
+// Shrink a label that is wider than its box. The fret token ("3fr") is never the part that
+// gets cut: if the full line cannot reach the floor, the caller switches to the fret alone.
+export function nextVoicingSize(scrollWidth, clientWidth, fontPx, minPx) {
+  var min = minPx > 0 ? minPx : 10;
+  var font = fontPx > 0 ? fontPx : 12;
+  if (!(scrollWidth > clientWidth + 1) || !(clientWidth > 0)) return font;
+  var scaled = font * clientWidth / scrollWidth;
+  if (scaled < min) return min;
+  return Math.round(scaled * 10) / 10;
+}
+
+// Padding for one diagram, in the same user units the SVG draws. The dot radius is
+// min(string spacing, fret height) * 0.36, and the side inset is at least that radius
+// so an outer-string dot and a barre cap stay inside. The band above the nut fits an
+// O or X. A caller that already leaves more room keeps it.
+export function diagramFrame(o) {
+  var S = o.stringsCount > 1 ? o.stringsCount : 6;
+  var fh = o.fh > 0 ? o.fh : 16;
+  var mk = o.mk > 0 ? o.mk : 11;
+  var base = o.base > 1 ? o.base : 1;
+  var gutter = base > 1 ? (o.gutter > 0 ? o.gutter : 10) : 0;
+  var openR = mk * 0.36;
+  var stroke = 0.8;
+  var gap = Math.max(0.6, openR * 0.2);
+  // The × glyph's em box is about the font size above its baseline (measured, not the cap height).
+  var muteAscent = mk * 1.05;
+  var openCy = gap + openR + stroke;
+  var muteY = gap + muteAscent;
+  var marksBottom = Math.max(muteY + mk * 0.3, openCy + openR + stroke);
+  var nutAbove = 4;
+  var top = Math.max(o.top > 0 ? o.top : 0, marksBottom + nutAbove + gap);
+  var nameFs = o.strings ? 10 : 0;
+  var nameDrop = nameFs ? nameFs * 1.15 : 0;
+  var bot = Math.max(o.bot > 0 ? o.bot : 0, nameDrop + nameFs * 0.28 + gap);
+  var side = o.side > 0 ? o.side : 0;
+  var r = 0, sg = 1, gw = 1, left = side;
+  for (var i = 0; i < 8; i++) {
+    left = side + gutter;
+    gw = o.w - 2 * side - gutter;
+    if (!(gw > 1)) gw = 1;
+    sg = S > 1 ? gw / (S - 1) : gw;
+    r = Math.min(sg, fh) * 0.36;
+    var need = r + gap;
+    if (need <= side + 0.05) break;
+    side = need;
+  }
+  if (o.square) {
+    var H0 = top + 4 * fh + bot;
+    if (H0 > o.w && fh > sg * 0.9) {
+      fh = Math.max(sg * 0.9, fh - (H0 - o.w) / 4);
+      r = Math.min(sg, fh) * 0.36;
+    }
+  }
+  // The painted box stays about square (the flow check allows 0.8). Markers keep their room;
+  // the frets give up the extra height.
+  var H = top + 4 * fh + bot;
+  var limit = o.w / 0.82;
+  if (H > limit) {
+    fh = Math.max(sg * 0.9, fh - (H - limit) / 4);
+    r = Math.min(sg, fh) * 0.36;
+    H = top + 4 * fh + bot;
+  }
+  return {
+    side: side, top: top, bot: bot, left: left, gw: gw, sg: sg, fh: fh, r: r,
+    H: H, mk: mk, gap: gap, nutAbove: nutAbove, openR: openR, stroke: stroke,
+    nameDrop: nameDrop, openCy: openCy, muteY: muteY
+  };
 }
 
 export function cycleIndex(index, count, dir) {
