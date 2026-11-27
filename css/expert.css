@@ -731,8 +731,8 @@ html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x
   html.expert:is(.lay-pad-land, .lay-pad-port) #xGo > .x-b {
     height: var(--xl-go); min-height: 44px; align-self: stretch;
     flex: none; box-sizing: border-box;
-    /* JS retains the accessible name and playback state. Only its visual glyph
-       is replaced: the white button remains a triangle even while playing. */
+    /* JS retains the accessible name and playback state. The glyph is a triangle
+       until Play, then a stop square in the same ink; the button colour stays. */
     font-size: 0; color: transparent;
     background-position: center; background-repeat: no-repeat;
   }
@@ -745,6 +745,9 @@ html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x
     width: var(--xl-go); background-color: #fff;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 5v14l11-7z' fill='%232B2118'/%3E%3C/svg%3E");
     background-size: var(--xl-play-icon) var(--xl-play-icon);
+  }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xGo .x-play.is-stop {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='6.5' y='6.5' width='11' height='11' rx='1.2' fill='%232B2118'/%3E%3C/svg%3E");
   }
   html.expert:is(.lay-pad-land, .lay-pad-port) #xCtl .x-sound { order: 1; }
   html.expert:is(.lay-pad-land, .lay-pad-port) #xCtl .x-full { order: 2; }

@@ -9,6 +9,14 @@ import { STRIP_QUAL, styleDegreeQual, wireStripTap, prettyAcc } from "./strip.js
 
 var ROWN = { bright: "b", happy: "h", sad: "s", tension: "t" };
 
+// The empty top-row cell above B: the rightmost note column (B when B is in the key).
+// grid-column 15 / span 2 is half-column 13, grid-row b (the bright row, the top row).
+// A chip spans two half-columns, so hc 12 and hc 14 overlap that cell (the same rule as cellTaken).
+export var JAM_TOGGLE = { row: "bright", hc: 13, gridRow: "b", gridColumn: "15 / span 2" };
+export function jamToggleSlot(row, hc) {
+  return row === JAM_TOGGLE.row && typeof hc === "number" && Math.abs(hc - JAM_TOGGLE.hc) < 2;
+}
+
 function kidsOn() {
   if (state.style === "kids" || shared.kidsView) return true;
   try {
@@ -73,7 +81,7 @@ function addChip(el, extra) {
 }
 
 function clearGrid(el) {
-  Array.prototype.forEach.call(el.querySelectorAll(".ss-jamextra, .jam-pill"), function (n) { n.parentNode.removeChild(n); });
+  Array.prototype.forEach.call(el.querySelectorAll(".ss-jamextra, .jam-toggle, .jam-pill"), function (n) { n.parentNode.removeChild(n); });
   Array.prototype.forEach.call(el.querySelectorAll(".ss-chip"), function (c) {
     c.classList.remove("ss-off", "ss-song", "ss-jam");
     c.removeAttribute("aria-hidden");
@@ -81,13 +89,15 @@ function clearGrid(el) {
   if (prog.badges) prog.badges.forEach(function (b) { if (b.el) { b.el.style.visibility = ""; b.el.removeAttribute("aria-hidden"); } });
 }
 
-function paintPill(el, on, n) {
+function paintToggle(el, on) {
   var b = document.createElement("button");
   b.type = "button";
-  b.className = "jam-pill" + (on ? " on" : "");
+  b.className = "jam-toggle" + (on ? " is-on" : "");
+  b.style.gridRow = JAM_TOGGLE.gridRow;
+  b.style.gridColumn = JAM_TOGGLE.gridColumn;
   b.setAttribute("aria-pressed", on ? "true" : "false");
-  b.setAttribute("aria-label", on ? "Jam on, " + n + " extra chords" : "Jam");
-  b.innerHTML = "<span class=\"sw\" aria-hidden=\"true\"></span>Jam" + (on ? " <span class=\"ct\">+" + n + "</span>" : "");
+  b.setAttribute("aria-label", "Jam: show extra chords");
+  b.textContent = on ? "\u2212" : "+";
   b.addEventListener("click", function (e) {
     e.preventDefault();
     e.stopPropagation();
@@ -112,24 +122,25 @@ export function layoutSongGrid(el) {
     if (song.some(function (s) { return sameSongChord(s, chipItem(c)); })) c.classList.add("ss-song");
     else { c.classList.add("ss-off"); c.setAttribute("aria-hidden", "true"); }
   });
-  var shown = 0;
   if (state.jam) {
     var ranked = jamRank(prog.model.key, song).map(function (c) { return voiceExtra(c, prog.model.key.mode); });
     var occupied = list.map(function (c) { return { row: c._tc && c._tc.row, hc: c._tc && c._tc.hc, item: chipItem(c) }; });
     takeJam(ranked, occupied, 6).forEach(function (extra) {
       var chip = findChip(list, extra);
+      // The circle owns the top cell of the B column, including a half-column chip that
+      // overlaps it (Bb between A and B, or B7 on B). Ranking is unchanged and no other
+      // extra moves; that one chord is not drawn, and nothing is pulled in to replace it.
+      if (jamToggleSlot(extra.row, extra.hc) && !(chip && chip.classList.contains("ss-song"))) return;
       if (chip && !chip.classList.contains("ss-song")) {
         chip.classList.remove("ss-off");
         chip.classList.add("ss-jam");
         chip.removeAttribute("aria-hidden");
-        shown++;
         return;
       }
       if (chip) return;
       if (cellTaken(list, extra.row, extra.hc)) return;
       var made = addChip(el, extra);
       list.push(made);
-      shown++;
     });
   }
   if (prog.badges) prog.badges.forEach(function (b) {
@@ -138,5 +149,5 @@ export function layoutSongGrid(el) {
     b.el.style.visibility = hide ? "hidden" : "";
     if (hide) b.el.setAttribute("aria-hidden", "true");
   });
-  paintPill(el, !!state.jam, shown);
+  paintToggle(el, !!state.jam);
 }

@@ -8,7 +8,7 @@ import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.2";
 import { stopPlayback } from "../loop.js?v=2026.11.27.2";
 import { activeKey } from "../keys.js?v=2026.11.27.2";
 import { setKidKey } from "../kids.js?v=2026.11.27.2";
-import { prog, progSet, placeBadges, setBadgeAvoid, magic, progStop, progWalkAt, progWalkTo, playButtonLabel } from "../songs/playback.js?v=2026.11.27.2";
+import { prog, progSet, placeBadges, setBadgeAvoid, magic, progStop, progWalkAt, progWalkTo, playButtonLabel, transportLabel } from "../songs/playback.js?v=2026.11.27.2";
 import { magicQueue } from "../songs/magic.js?v=2026.11.27.2";
 import { nextHintSpec } from "../ui/next.js?v=2026.11.27.2";
 import { setHintAvoid } from "../ui/hints.js?v=2026.11.27.2";
@@ -36,7 +36,7 @@ import { KEYS_CHOICES, makeChip, configureSheet, openModeSheet, bootSheet, paint
 import { registerLook, lookApplyNow, lookShown } from "../ui/look.js?v=2026.11.27.2";
 import { toggleHelpMenu } from "../ui/helpmenu.js?v=2026.11.27.2";   // redesign-dev: the Kids view (kids-build) is the switch's Kids
 import { EXPERT_STORE, parsePref, prefFromUrl, modeOf, modeTarget, typeBarInit, typeBarReduce, typeBarLabel, TYPEBAR_HOLD_MS,
-  sourceInit, sourceReduce, progDots, songCardRows, capLayout, cardHead, STYLE_MENU, styleName, expertWindowKeys, expertStyleFix, fullToExpert, chartFor } from "./model.js?v=2026.11.27.2";
+  sourceInit, sourceReduce, progDots, songCardRows, capLayout, cardHead, STYLE_MENU, styleName, expertWindowKeys, expertStyleFix, fullToExpert, chartFor, expertPlayFace } from "./model.js?v=2026.11.27.2";
 // rd6: ?test=1&classic=1 keeps the legacy classic screens (Full layout, Kids style chip in Simple) for the sound-equivalence
 // suites (audioeq / kvaudio replay the 351c02c taps). Users can no longer reach them.
 const CLASSIC = /[?&]test=1(&|$)/.test(location.search) && /[?&]classic=1(&|$)/.test(location.search);
@@ -709,12 +709,21 @@ export function paint() {
   $("xFull").classList.toggle("on", !!state.allKeys);
   var fs = $("xFull").querySelector(".x-fsub"), ft = state.allKeys ? "all 12" : "in key only";
   if (fs.textContent !== ft) { fs.textContent = ft; $("xFull").setAttribute("aria-label", "All notes: " + ft); }
-  // Play stays ▶ while a song plays (never ■ Stop), at every size. Label: Play song / Pause / Resume.
-  var xl = playButtonLabel();
-  $("xPlay").textContent = "\u25b6"; $("xPlay").removeAttribute("aria-pressed"); $("xPlay").setAttribute("aria-label", xl.aria); $("xPlay").title = xl.title;
+  paintPlayFace();
   var v = $("volume"); if (v) { $("xVol").value = v.value; $("xVolVal").textContent = v.value; }
   paintType();
   paintSrc();
+}
+// Playing: a stop square, immediately. Paused keeps the place in the song, so the glyph is Play
+// again and the next tap resumes. Idle (the song or progression has ended, or Stop cleared it)
+// is Play too. Cream / ink colours stay as they are; only the glyph changes. Kids is not this button.
+function paintPlayFace() {
+  var b = $("xPlay"); if (!b) return;
+  var face = expertPlayFace(transportLabel()), xl = playButtonLabel();
+  b.textContent = face.glyph;
+  b.classList.toggle("is-stop", face.stop);
+  b.removeAttribute("aria-pressed");
+  b.setAttribute("aria-label", xl.aria); b.title = xl.title;
 }
 function schedule() { if (paintT) return; paintT = requestAnimationFrame(function () { paintT = 0; paintMode(); }); }
 export function expertPaintNow() { paintMode(); }
@@ -730,8 +739,8 @@ function wireAll() {
   });
   $("xHelp").addEventListener("click", function (e) { closeAll(); toggleHelpMenu(e.currentTarget); });   // rd17: How to / Tour menu
   $("xNext").addEventListener("click", function () { click("#prog .pg-step"); schedule(); });
-  $("xPlay").addEventListener("click", function () { click("#prog .pg-song"); schedule(); });
-  window.addEventListener("tc:transport", schedule);   // Play label follows pause / resume from any path (hidden tab, Next)
+  $("xPlay").addEventListener("click", function () { click("#prog .pg-song"); paintPlayFace(); schedule(); });
+  window.addEventListener("tc:transport", function () { paintPlayFace(); schedule(); });   // glyph follows pause / resume / end from any path
   $("xTog").addEventListener("click", function (e) {
     var b = e.target.closest("button[data-v]"); if (!b) return;
     if (state.simple) { tapSimpleSrc(b.dataset.v); return; }

@@ -210,3 +210,10 @@ export const STYLE_MENU = [
 export function styleName(id) { for (var i = 0; i < STYLE_MENU.length; i++) if (STYLE_MENU[i][0] === id) return STYLE_MENU[i][1]; return id; }
 // The docked piano window in Expert (decision 10): C..B = 12 keys, 7 white keys (classic Full keeps its 13-key window).
 export function expertWindowKeys(layout) { return layout === "octave" || layout === "piano" ? 12 : 0; }
+
+// Expert's Play key only. Playing shows a stop square; paused, idle, and a song that has
+// finished show the play triangle again. The words stay playButtonLabel (Play song / Pause / Resume).
+export function expertPlayFace(transportState) {
+  var playing = transportState === "playing";
+  return { glyph: playing ? "\u25a0" : "\u25b6", stop: playing };
+}
