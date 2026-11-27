@@ -1,19 +1,19 @@
 // Expert Guitar tab. Draws the resolver's grips in the keyboard area and strums
 // them through ChordAudio. Kids, Simple, and the Piano tab do not use this panel.
-import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.19";
-import { unlock } from "../audio/unlock.js?v=2026.11.27.19";
-import { activeKey } from "../keys.js?v=2026.11.27.19";
-import { prog, magic } from "../songs/playback.js?v=2026.11.27.19";
-import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.19";
-import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.19";
-import { state } from "../state.js?v=2026.11.27.19";
-import { Theory } from "../theory/index.js?v=2026.11.27.19";
-import { accSym } from "../theory/spelling.js?v=2026.11.27.19";
-import { computeSpec } from "./touch.js?v=2026.11.27.19";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.20";
+import { unlock } from "../audio/unlock.js?v=2026.11.27.20";
+import { activeKey } from "../keys.js?v=2026.11.27.20";
+import { prog, magic } from "../songs/playback.js?v=2026.11.27.20";
+import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.20";
+import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.20";
+import { state } from "../state.js?v=2026.11.27.20";
+import { Theory } from "../theory/index.js?v=2026.11.27.20";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.20";
+import { computeSpec } from "./touch.js?v=2026.11.27.20";
 import {
   GTR_TAB_KEY, readGtrTab, gtrTabReduce, cardSlots, layoutOf,
   chordSig, chordDisplayName, voicingLabel, voicingFret, nextVoicingSize, cycleIndex, fretSlide, diagramModel, diagramFrame, fretRows, barreFinger, barreBox
-} from "./gtrmath.js?v=2026.11.27.19";
+} from "./gtrmath.js?v=2026.11.27.20";
 
 var TAB_LABEL = { now: "NOW", next: "NEXT", third: "3RD", fourth: "4TH" };
 var pick = {};
@@ -263,8 +263,50 @@ function growPort() {
   if (nextPx > nowPx - 2) nextPx = Math.max(24, nowPx - 2);
   host.style.setProperty("--gtr-now", nowPx + "px");
   host.style.setProperty("--gtr-next", nextPx + "px");
-  // If the drawing is taller than the card, shrink both widths together so
-  // the 0.85 ratio survives.
+  // Phone and iPad portrait size the guitar row to the cards. The hole is then
+  // the diagram itself, so shrinking to fit it would collapse the drawing.
+  // On a short phone the full-width diagram would eat the chord rows, so the
+  // drawing steps down until those rows keep about 120px (still about 0.6 of
+  // the card). A tall phone never hits that floor.
+  var root = de();
+  if (root.classList.contains("gtr") && root.classList.contains("lay-phone-port")) {
+    var grid = document.getElementById("suggest");
+    var nextCard = document.querySelector("#gtrCards .gtr-card.next");
+    var guard = 0;
+    while (grid && nextCard && grid.getBoundingClientRect().height < 108 && nowPx > 100 && guard < 8) {
+      var cs = getComputedStyle(nextCard);
+      var inner = nextCard.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      var svg = nextCard.querySelector(".gtr-diagram");
+      var span = 0;
+      if (svg && svg.getScreenCTM()) {
+        var verts = svg.querySelectorAll("line");
+        var minX = 1e9, maxX = -1e9;
+        for (var li = 0; li < verts.length; li++) {
+          if (Math.abs(+verts[li].getAttribute("x1") - +verts[li].getAttribute("x2")) > 0.1) continue;
+          var x = +verts[li].getAttribute("x1");
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+        }
+        if (maxX > minX) {
+          var ctm = svg.getScreenCTM();
+          var a = svg.createSVGPoint(); a.x = minX; a.y = 0;
+          var b = svg.createSVGPoint(); b.x = maxX; b.y = 0;
+          span = Math.abs(b.matrixTransform(ctm).x - a.matrixTransform(ctm).x);
+        }
+      }
+      if (inner > 20 && span && span < inner * 0.64) break;
+      nowPx -= 6;
+      nextPx = Math.round(nowPx * 0.85);
+      if (nextPx > nowPx - 2) nextPx = nowPx - 2;
+      host.style.setProperty("--gtr-now", nowPx + "px");
+      host.style.setProperty("--gtr-next", nextPx + "px");
+      guard++;
+    }
+    return;
+  }
+  if (root.classList.contains("gtr") && root.classList.contains("lay-pad-port")) return;
+  // If the drawing is taller than a fixed-height card, shrink both widths
+  // together so the 0.85 ratio survives.
   var drawn = now.querySelector(".gtr-diagram");
   if (drawn && nb.innerH > 24 && drawn.getBoundingClientRect().height > nb.innerH) {
     var scale = nb.innerH / drawn.getBoundingClientRect().height;
