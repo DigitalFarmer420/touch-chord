@@ -1,0 +1,7848 @@
+{
+  "meta": {
+    "title": "Touch Chord Expert Guitar chord-shape table",
+    "approved": "2026-11-26",
+    "instrument": "guitar (ukulele out of scope)",
+    "source": {
+      "repo": "DigitalFarmer420/touch-chord",
+      "version": "2026.11.24.1",
+      "commit": "5d51e9da9273cd3e2797d78adb10db63b0679eb1",
+      "path": "/workspace/tc-uiux-v4/base"
+    },
+    "generated": "2026-11-26"
+  },
+  "instrument": {
+    "name": "guitar",
+    "tuningMidi": [
+      40,
+      45,
+      50,
+      55,
+      59,
+      64
+    ],
+    "tuningNames": [
+      "E2",
+      "A2",
+      "D3",
+      "G3",
+      "B3",
+      "E4"
+    ],
+    "strings": 6,
+    "fretCount": 21,
+    "stringOrder": "low-to-high",
+    "rootStringNumbers": "6 = low E, 1 = high E",
+    "notes": "Ukulele (G4 C4 E4 A4, reentrant) uses the same model but is out of scope."
+  },
+  "selectionRules": {
+    "preferOpenWhenExists": true,
+    "otherwise": "Choose a movable E-shape, A-shape or D-shape whose root string (6 / 5 / 4) can play the chord root (or whose lowest note is the slash bass). Prefer the candidate with the lowest barre fret; when a previous chord is known, prefer the shape whose fret is closest to that chord's fret (ties go to the lower fret, then E-shape, A-shape, D-shape).",
+    "slashRule": "If a slash chord is not in the curated list, use a voicing of the upper chord whose lowest sounding note is the named bass. Prefer a familiar open inversion when one exists (3rd in the bass: C/E, G/B, D/F#, A/C#, E/G#, F/A, Am/C, Dm/F, Em/G; 5th in the bass: C/G, G/D, D/A, F/C, A/E). For other keys, start from the E-shape of the upper chord at fret R (the fret where the low E string plays the root): major /3 is x (R-1) (R+2) (R+1) R R; minor /3 is (R+3) x (R+2) R R R; major /2 (IV/V) is (R+2) x (R+2) (R+1) R R (F/G = 3x3211 or 333211); minor /2 is (R+2) x (R+2) R R R; /5 is x (R+2) plus the rest of the E-shape (F/C = x33211). Otherwise place the named bass under an existing open or movable shape, muting skipped strings. Keep span <= 4 and fingers <= 4 (a barre counts as one). If the bass cannot sit under a full voicing, keep the bass, the 3rd or sus tone, and the 7th/extension, and mark the grip simplified.",
+    "simplifiedRule": "A grip is marked simplified when the full set of chord tones (except an omitted perfect 5th) cannot be played under the span/finger/fret limits. The 3rd (or sus tone) and the 7th, when the symbol has one, are never dropped. Altered 5ths (b5, #5) and the dim 5th stay in the grip.",
+    "leftHanded": "A left-handed flip (strings reversed) is a later Settings option and is not in this table.",
+    "ukulele": "Ukulele (G4 C4 E4 A4, reentrant high G) uses the same instrument-profile + shape model; it is out of scope here.",
+    "checks": [
+      "Sounding pitch classes are a subset of the chord's tones (plus the slash bass) and include the root, the 3rd or sus tone, and the 7th/extension when the symbol has one.",
+      "The lowest sounding note is the root, or the named slash bass.",
+      "Fret span is 4 or less, excluding open strings.",
+      "At most 4 fingers, counting a barre as one.",
+      "No fret is above 15."
+    ]
+  },
+  "openShapes": [
+    {
+      "symbol": "C",
+      "quality": "maj",
+      "rootPc": 0,
+      "frets": [
+        -1,
+        3,
+        2,
+        0,
+        1,
+        0
+      ],
+      "fingers": [
+        0,
+        3,
+        2,
+        0,
+        1,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x32010"
+    },
+    {
+      "symbol": "D",
+      "quality": "maj",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        -1,
+        0,
+        2,
+        3,
+        2
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        1,
+        3,
+        2
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "E",
+      "quality": "maj",
+      "rootPc": 4,
+      "frets": [
+        0,
+        2,
+        2,
+        1,
+        0,
+        0
+      ],
+      "fingers": [
+        0,
+        2,
+        3,
+        1,
+        0,
+        0
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "F",
+      "quality": "maj",
+      "rootPc": 5,
+      "frets": [
+        1,
+        3,
+        3,
+        2,
+        1,
+        1
+      ],
+      "fingers": [
+        1,
+        3,
+        4,
+        2,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 1,
+        "fromString": 6,
+        "toString": 1
+      },
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "E-shape at 1, 134211"
+    },
+    {
+      "symbol": "G",
+      "quality": "maj",
+      "rootPc": 7,
+      "frets": [
+        3,
+        2,
+        0,
+        0,
+        0,
+        3
+      ],
+      "fingers": [
+        2,
+        1,
+        0,
+        0,
+        0,
+        3
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "320003 / 210003"
+    },
+    {
+      "symbol": "A",
+      "quality": "maj",
+      "rootPc": 9,
+      "frets": [
+        -1,
+        0,
+        2,
+        2,
+        2,
+        0
+      ],
+      "fingers": [
+        0,
+        0,
+        1,
+        2,
+        3,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "B",
+      "quality": "maj",
+      "rootPc": 11,
+      "frets": [
+        -1,
+        2,
+        4,
+        4,
+        4,
+        2
+      ],
+      "fingers": [
+        0,
+        1,
+        3,
+        3,
+        3,
+        1
+      ],
+      "barre": {
+        "fret": 2,
+        "fromString": 5,
+        "toString": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "A-shape at 2; also available as a movable template"
+    },
+    {
+      "symbol": "Am",
+      "quality": "min",
+      "rootPc": 9,
+      "frets": [
+        -1,
+        0,
+        2,
+        2,
+        1,
+        0
+      ],
+      "fingers": [
+        0,
+        0,
+        2,
+        3,
+        1,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x02210 / x02310"
+    },
+    {
+      "symbol": "Dm",
+      "quality": "min",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        -1,
+        0,
+        2,
+        3,
+        1
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        2,
+        3,
+        1
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Em",
+      "quality": "min",
+      "rootPc": 4,
+      "frets": [
+        0,
+        2,
+        2,
+        0,
+        0,
+        0
+      ],
+      "fingers": [
+        0,
+        2,
+        3,
+        0,
+        0,
+        0
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Fm",
+      "quality": "min",
+      "rootPc": 5,
+      "frets": [
+        1,
+        3,
+        3,
+        1,
+        1,
+        1
+      ],
+      "fingers": [
+        1,
+        3,
+        4,
+        1,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 1,
+        "fromString": 6,
+        "toString": 1
+      },
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Bm",
+      "quality": "min",
+      "rootPc": 11,
+      "frets": [
+        -1,
+        2,
+        4,
+        4,
+        3,
+        2
+      ],
+      "fingers": [
+        0,
+        1,
+        3,
+        4,
+        2,
+        1
+      ],
+      "barre": {
+        "fret": 2,
+        "fromString": 5,
+        "toString": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "C7",
+      "quality": "7",
+      "rootPc": 0,
+      "frets": [
+        -1,
+        3,
+        2,
+        3,
+        1,
+        0
+      ],
+      "fingers": [
+        0,
+        3,
+        2,
+        4,
+        1,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "D7",
+      "quality": "7",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        -1,
+        0,
+        2,
+        1,
+        2
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        2,
+        1,
+        3
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "E7",
+      "quality": "7",
+      "rootPc": 4,
+      "frets": [
+        0,
+        2,
+        0,
+        1,
+        0,
+        0
+      ],
+      "fingers": [
+        0,
+        2,
+        0,
+        1,
+        0,
+        0
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "F7",
+      "quality": "7",
+      "rootPc": 5,
+      "frets": [
+        1,
+        3,
+        1,
+        2,
+        1,
+        1
+      ],
+      "fingers": [
+        1,
+        3,
+        1,
+        2,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 1,
+        "fromString": 6,
+        "toString": 1
+      },
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "G7",
+      "quality": "7",
+      "rootPc": 7,
+      "frets": [
+        3,
+        2,
+        0,
+        0,
+        0,
+        1
+      ],
+      "fingers": [
+        3,
+        2,
+        0,
+        0,
+        0,
+        1
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "320001"
+    },
+    {
+      "symbol": "A7",
+      "quality": "7",
+      "rootPc": 9,
+      "frets": [
+        -1,
+        0,
+        2,
+        0,
+        2,
+        0
+      ],
+      "fingers": [
+        0,
+        0,
+        1,
+        0,
+        3,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "B7",
+      "quality": "7",
+      "rootPc": 11,
+      "frets": [
+        -1,
+        2,
+        1,
+        2,
+        0,
+        2
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        3,
+        0,
+        4
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Am7",
+      "quality": "m7",
+      "rootPc": 9,
+      "frets": [
+        -1,
+        0,
+        2,
+        0,
+        1,
+        0
+      ],
+      "fingers": [
+        0,
+        0,
+        2,
+        0,
+        1,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x02010"
+    },
+    {
+      "symbol": "Dm7",
+      "quality": "m7",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        -1,
+        0,
+        2,
+        1,
+        1
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        2,
+        1,
+        1
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "xx0211, finger 1 covers the top two strings"
+    },
+    {
+      "symbol": "Em7",
+      "quality": "m7",
+      "rootPc": 4,
+      "frets": [
+        0,
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fingers": [
+        0,
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Fm7",
+      "quality": "m7",
+      "rootPc": 5,
+      "frets": [
+        1,
+        3,
+        1,
+        1,
+        1,
+        1
+      ],
+      "fingers": [
+        1,
+        3,
+        1,
+        1,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 1,
+        "fromString": 6,
+        "toString": 1
+      },
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Cmaj7",
+      "quality": "maj7",
+      "rootPc": 0,
+      "frets": [
+        -1,
+        3,
+        2,
+        0,
+        0,
+        0
+      ],
+      "fingers": [
+        0,
+        3,
+        2,
+        0,
+        0,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x32000"
+    },
+    {
+      "symbol": "Dmaj7",
+      "quality": "maj7",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        -1,
+        0,
+        2,
+        2,
+        2
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 2,
+        "fromString": 3,
+        "toString": 1
+      },
+      "rootString": 4,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Emaj7",
+      "quality": "maj7",
+      "rootPc": 4,
+      "frets": [
+        0,
+        2,
+        1,
+        1,
+        0,
+        0
+      ],
+      "fingers": [
+        0,
+        3,
+        1,
+        2,
+        0,
+        0
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "open 021100; template 0x110x is the movable form"
+    },
+    {
+      "symbol": "Fmaj7",
+      "quality": "maj7",
+      "rootPc": 5,
+      "frets": [
+        -1,
+        -1,
+        3,
+        2,
+        1,
+        0
+      ],
+      "fingers": [
+        0,
+        0,
+        3,
+        2,
+        1,
+        0
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "xx3210"
+    },
+    {
+      "symbol": "Gmaj7",
+      "quality": "maj7",
+      "rootPc": 7,
+      "frets": [
+        3,
+        2,
+        0,
+        0,
+        0,
+        2
+      ],
+      "fingers": [
+        2,
+        1,
+        0,
+        0,
+        0,
+        3
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Amaj7",
+      "quality": "maj7",
+      "rootPc": 9,
+      "frets": [
+        -1,
+        0,
+        2,
+        1,
+        2,
+        0
+      ],
+      "fingers": [
+        0,
+        0,
+        2,
+        1,
+        3,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Cadd9",
+      "quality": "add9",
+      "rootPc": 0,
+      "frets": [
+        -1,
+        3,
+        2,
+        0,
+        3,
+        0
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        0,
+        3,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Dadd9",
+      "quality": "add9",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        5,
+        4,
+        2,
+        3,
+        0
+      ],
+      "fingers": [
+        0,
+        4,
+        3,
+        1,
+        2,
+        0
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x54230: root and 3rd on A/D, 9th on the open E"
+    },
+    {
+      "symbol": "Dsus4",
+      "quality": "sus4",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        -1,
+        0,
+        2,
+        3,
+        3
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        1,
+        3,
+        4
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Dsus2",
+      "quality": "sus2",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        -1,
+        0,
+        2,
+        3,
+        0
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        1,
+        3,
+        0
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Asus2",
+      "quality": "sus2",
+      "rootPc": 9,
+      "frets": [
+        -1,
+        0,
+        2,
+        2,
+        0,
+        0
+      ],
+      "fingers": [
+        0,
+        0,
+        1,
+        2,
+        0,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Asus4",
+      "quality": "sus4",
+      "rootPc": 9,
+      "frets": [
+        -1,
+        0,
+        2,
+        2,
+        3,
+        0
+      ],
+      "fingers": [
+        0,
+        0,
+        1,
+        2,
+        4,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Esus4",
+      "quality": "sus4",
+      "rootPc": 4,
+      "frets": [
+        0,
+        2,
+        2,
+        2,
+        0,
+        0
+      ],
+      "fingers": [
+        0,
+        2,
+        3,
+        4,
+        0,
+        0
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Esus2",
+      "quality": "sus2",
+      "rootPc": 4,
+      "frets": [
+        0,
+        2,
+        4,
+        4,
+        0,
+        0
+      ],
+      "fingers": [
+        0,
+        1,
+        3,
+        4,
+        0,
+        0
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Cmaj9",
+      "quality": "maj9",
+      "rootPc": 0,
+      "frets": [
+        -1,
+        3,
+        2,
+        4,
+        3,
+        0
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        4,
+        3,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "root, 3, 7, 9; 5th omitted"
+    },
+    {
+      "symbol": "Am9",
+      "quality": "m9",
+      "rootPc": 9,
+      "frets": [
+        -1,
+        0,
+        2,
+        4,
+        1,
+        3
+      ],
+      "fingers": [
+        0,
+        0,
+        2,
+        4,
+        1,
+        3
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "A9",
+      "quality": "9",
+      "rootPc": 9,
+      "frets": [
+        -1,
+        0,
+        -1,
+        4,
+        2,
+        3
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        4,
+        2,
+        3
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x0x423, 5th omitted so the 9, 3 and b7 all fit"
+    },
+    {
+      "symbol": "Em9",
+      "quality": "m9",
+      "rootPc": 4,
+      "frets": [
+        0,
+        2,
+        0,
+        0,
+        0,
+        2
+      ],
+      "fingers": [
+        0,
+        2,
+        0,
+        0,
+        0,
+        3
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "E9",
+      "quality": "9",
+      "rootPc": 4,
+      "frets": [
+        0,
+        2,
+        0,
+        1,
+        0,
+        2
+      ],
+      "fingers": [
+        0,
+        2,
+        0,
+        1,
+        0,
+        4
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "A13",
+      "quality": "13",
+      "rootPc": 9,
+      "frets": [
+        -1,
+        0,
+        -1,
+        4,
+        2,
+        2
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        4,
+        1,
+        1
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x0x422: 3, 9, 13; 5th omitted"
+    },
+    {
+      "symbol": "C6",
+      "quality": "6",
+      "rootPc": 0,
+      "frets": [
+        -1,
+        3,
+        2,
+        2,
+        1,
+        0
+      ],
+      "fingers": [
+        0,
+        3,
+        2,
+        4,
+        1,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Am6",
+      "quality": "m6",
+      "rootPc": 9,
+      "frets": [
+        -1,
+        0,
+        2,
+        2,
+        1,
+        2
+      ],
+      "fingers": [
+        0,
+        0,
+        2,
+        3,
+        1,
+        4
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Eaug",
+      "quality": "aug",
+      "rootPc": 4,
+      "frets": [
+        0,
+        3,
+        2,
+        1,
+        1,
+        0
+      ],
+      "fingers": [
+        0,
+        4,
+        3,
+        1,
+        2,
+        0
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Edim",
+      "quality": "dim",
+      "rootPc": 4,
+      "frets": [
+        0,
+        1,
+        2,
+        0,
+        -1,
+        -1
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        0,
+        0,
+        0
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Adim",
+      "quality": "dim",
+      "rootPc": 9,
+      "frets": [
+        -1,
+        0,
+        1,
+        2,
+        1,
+        -1
+      ],
+      "fingers": [
+        0,
+        0,
+        1,
+        3,
+        2,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Edim7",
+      "quality": "dim7",
+      "rootPc": 4,
+      "frets": [
+        0,
+        1,
+        2,
+        0,
+        2,
+        0
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        0,
+        3,
+        0
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "Bdim",
+      "quality": "dim",
+      "rootPc": 11,
+      "frets": [
+        -1,
+        2,
+        3,
+        4,
+        3,
+        -1
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        4,
+        3,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": ""
+    },
+    {
+      "symbol": "G/B",
+      "quality": "maj",
+      "rootPc": 7,
+      "frets": [
+        -1,
+        2,
+        0,
+        0,
+        0,
+        3
+      ],
+      "fingers": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        3
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": 11,
+      "bassName": "B",
+      "notes": "x20003"
+    },
+    {
+      "symbol": "C/E",
+      "quality": "maj",
+      "rootPc": 0,
+      "frets": [
+        0,
+        3,
+        2,
+        0,
+        1,
+        0
+      ],
+      "fingers": [
+        0,
+        3,
+        2,
+        0,
+        1,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": 4,
+      "bassName": "E",
+      "notes": "032010"
+    },
+    {
+      "symbol": "D/F#",
+      "quality": "maj",
+      "rootPc": 2,
+      "frets": [
+        2,
+        -1,
+        0,
+        2,
+        3,
+        2
+      ],
+      "fingers": [
+        1,
+        0,
+        0,
+        1,
+        3,
+        2
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "Open",
+      "movable": false,
+      "bassPc": 6,
+      "bassName": "F#",
+      "notes": "2x0232"
+    },
+    {
+      "symbol": "A/C#",
+      "quality": "maj",
+      "rootPc": 9,
+      "frets": [
+        -1,
+        4,
+        2,
+        2,
+        2,
+        0
+      ],
+      "fingers": [
+        0,
+        3,
+        1,
+        1,
+        1,
+        0
+      ],
+      "barre": {
+        "fret": 2,
+        "fromString": 4,
+        "toString": 2
+      },
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": 1,
+      "bassName": "C#",
+      "notes": ""
+    },
+    {
+      "symbol": "E/G#",
+      "quality": "maj",
+      "rootPc": 4,
+      "frets": [
+        4,
+        2,
+        2,
+        1,
+        0,
+        0
+      ],
+      "fingers": [
+        4,
+        2,
+        3,
+        1,
+        0,
+        0
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": 8,
+      "bassName": "G#",
+      "notes": ""
+    },
+    {
+      "symbol": "F/A",
+      "quality": "maj",
+      "rootPc": 5,
+      "frets": [
+        -1,
+        0,
+        3,
+        2,
+        1,
+        1
+      ],
+      "fingers": [
+        0,
+        0,
+        4,
+        3,
+        1,
+        2
+      ],
+      "barre": {
+        "fret": 1,
+        "fromString": 2,
+        "toString": 1
+      },
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": 9,
+      "bassName": "A",
+      "notes": ""
+    },
+    {
+      "symbol": "Am/C",
+      "quality": "min",
+      "rootPc": 9,
+      "frets": [
+        -1,
+        3,
+        2,
+        2,
+        1,
+        0
+      ],
+      "fingers": [
+        0,
+        3,
+        2,
+        4,
+        1,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": 0,
+      "bassName": "C",
+      "notes": ""
+    },
+    {
+      "symbol": "Dm/F",
+      "quality": "min",
+      "rootPc": 2,
+      "frets": [
+        1,
+        -1,
+        0,
+        2,
+        3,
+        1
+      ],
+      "fingers": [
+        1,
+        0,
+        0,
+        2,
+        3,
+        1
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "Open",
+      "movable": false,
+      "bassPc": 5,
+      "bassName": "F",
+      "notes": ""
+    },
+    {
+      "symbol": "Em/G",
+      "quality": "min",
+      "rootPc": 4,
+      "frets": [
+        3,
+        2,
+        2,
+        0,
+        0,
+        0
+      ],
+      "fingers": [
+        3,
+        1,
+        2,
+        0,
+        0,
+        0
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": 7,
+      "bassName": "G",
+      "notes": ""
+    },
+    {
+      "symbol": "C/G",
+      "quality": "maj",
+      "rootPc": 0,
+      "frets": [
+        3,
+        3,
+        2,
+        0,
+        1,
+        0
+      ],
+      "fingers": [
+        3,
+        4,
+        2,
+        0,
+        1,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": 7,
+      "bassName": "G",
+      "notes": ""
+    },
+    {
+      "symbol": "G/D",
+      "quality": "maj",
+      "rootPc": 7,
+      "frets": [
+        -1,
+        -1,
+        0,
+        0,
+        0,
+        3
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        3
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": 2,
+      "bassName": "D",
+      "notes": ""
+    },
+    {
+      "symbol": "F/C",
+      "quality": "maj",
+      "rootPc": 5,
+      "frets": [
+        -1,
+        3,
+        3,
+        2,
+        1,
+        1
+      ],
+      "fingers": [
+        0,
+        3,
+        4,
+        2,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 1,
+        "fromString": 2,
+        "toString": 1
+      },
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": 0,
+      "bassName": "C",
+      "notes": ""
+    },
+    {
+      "symbol": "A/E",
+      "quality": "maj",
+      "rootPc": 9,
+      "frets": [
+        0,
+        0,
+        2,
+        2,
+        2,
+        0
+      ],
+      "fingers": [
+        0,
+        0,
+        1,
+        2,
+        3,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": 4,
+      "bassName": "E",
+      "notes": ""
+    },
+    {
+      "symbol": "D/A",
+      "quality": "maj",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        0,
+        0,
+        2,
+        3,
+        2
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        1,
+        3,
+        2
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "Open",
+      "movable": false,
+      "bassPc": 9,
+      "bassName": "A",
+      "notes": ""
+    },
+    {
+      "symbol": "Fsus2",
+      "quality": "sus2",
+      "rootPc": 5,
+      "frets": [
+        -1,
+        -1,
+        3,
+        0,
+        1,
+        1
+      ],
+      "fingers": [
+        0,
+        0,
+        3,
+        0,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 1,
+        "fromString": 2,
+        "toString": 1,
+        "finger": 1
+      },
+      "rootString": 4,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "xx3011; N35: was 135511, 5 frets"
+    },
+    {
+      "symbol": "F#sus2",
+      "quality": "sus2",
+      "rootPc": 6,
+      "frets": [
+        -1,
+        -1,
+        4,
+        1,
+        2,
+        2
+      ],
+      "fingers": [
+        0,
+        0,
+        4,
+        1,
+        2,
+        3
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "D-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "xx4122; N35: was 246622, 5 frets"
+    },
+    {
+      "symbol": "Gsus2",
+      "quality": "sus2",
+      "rootPc": 7,
+      "frets": [
+        3,
+        0,
+        0,
+        0,
+        3,
+        3
+      ],
+      "fingers": [
+        2,
+        0,
+        0,
+        0,
+        3,
+        4
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "300033; N35: was 357733, 5 frets"
+    },
+    {
+      "symbol": "Absus2",
+      "quality": "sus2",
+      "rootPc": 8,
+      "frets": [
+        -1,
+        -1,
+        6,
+        3,
+        4,
+        4
+      ],
+      "fingers": [
+        0,
+        0,
+        4,
+        1,
+        2,
+        3
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "D-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "xx6344; N35: was 468844, 5 frets"
+    },
+    {
+      "symbol": "Dbadd9",
+      "quality": "add9",
+      "rootPc": 1,
+      "frets": [
+        -1,
+        4,
+        1,
+        1,
+        2,
+        1
+      ],
+      "fingers": [
+        0,
+        4,
+        1,
+        1,
+        2,
+        1
+      ],
+      "barre": {
+        "fret": 1,
+        "fromString": 4,
+        "toString": 1,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x41121; N35: was x46864, 5 frets"
+    },
+    {
+      "symbol": "Ebadd9",
+      "quality": "add9",
+      "rootPc": 3,
+      "frets": [
+        -1,
+        6,
+        3,
+        3,
+        4,
+        3
+      ],
+      "fingers": [
+        0,
+        4,
+        1,
+        1,
+        2,
+        1
+      ],
+      "barre": {
+        "fret": 3,
+        "fromString": 4,
+        "toString": 1,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x63343; N35: was x68(10)86, 5 frets"
+    },
+    {
+      "symbol": "Bbadd9",
+      "quality": "add9",
+      "rootPc": 10,
+      "frets": [
+        -1,
+        -1,
+        8,
+        7,
+        6,
+        8
+      ],
+      "fingers": [
+        0,
+        0,
+        3,
+        2,
+        1,
+        4
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "D-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "xx8768; N35: was x13531, 5 frets"
+    },
+    {
+      "symbol": "Badd9",
+      "quality": "add9",
+      "rootPc": 11,
+      "frets": [
+        -1,
+        -1,
+        9,
+        8,
+        7,
+        9
+      ],
+      "fingers": [
+        0,
+        0,
+        3,
+        2,
+        1,
+        4
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "D-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "xx9879; N35: was x24642, 5 frets"
+    },
+    {
+      "symbol": "Cmadd9",
+      "quality": "madd9",
+      "rootPc": 0,
+      "frets": [
+        -1,
+        3,
+        1,
+        0,
+        3,
+        3
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        0,
+        3,
+        4
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x31033; N35: was x35743, 5 frets"
+    },
+    {
+      "symbol": "Dbmadd9",
+      "quality": "madd9",
+      "rootPc": 1,
+      "frets": [
+        -1,
+        4,
+        2,
+        1,
+        4,
+        -1
+      ],
+      "fingers": [
+        0,
+        3,
+        2,
+        1,
+        4,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x4214x; N35: was x46854, 5 frets"
+    },
+    {
+      "symbol": "Dmadd9",
+      "quality": "madd9",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        5,
+        3,
+        2,
+        5,
+        -1
+      ],
+      "fingers": [
+        0,
+        3,
+        2,
+        1,
+        4,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x5325x; N35: was x57965, 5 frets"
+    },
+    {
+      "symbol": "Ebmadd9",
+      "quality": "madd9",
+      "rootPc": 3,
+      "frets": [
+        -1,
+        6,
+        4,
+        3,
+        6,
+        -1
+      ],
+      "fingers": [
+        0,
+        3,
+        2,
+        1,
+        4,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x6436x; N35: was x68(10)76, 5 frets"
+    },
+    {
+      "symbol": "Bbmadd9",
+      "quality": "madd9",
+      "rootPc": 10,
+      "frets": [
+        -1,
+        -1,
+        8,
+        6,
+        6,
+        8
+      ],
+      "fingers": [
+        0,
+        0,
+        3,
+        1,
+        1,
+        4
+      ],
+      "barre": {
+        "fret": 6,
+        "fromString": 3,
+        "toString": 2,
+        "finger": 1
+      },
+      "rootString": 4,
+      "name": "D-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "xx8668; N35: was x13521, 5 frets"
+    },
+    {
+      "symbol": "Bmadd9",
+      "quality": "madd9",
+      "rootPc": 11,
+      "frets": [
+        -1,
+        2,
+        0,
+        4,
+        2,
+        2
+      ],
+      "fingers": [
+        0,
+        1,
+        0,
+        4,
+        2,
+        3
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x20422; N35: was x24632, 5 frets"
+    },
+    {
+      "symbol": "C9",
+      "quality": "9",
+      "rootPc": 0,
+      "frets": [
+        -1,
+        3,
+        2,
+        3,
+        3,
+        3
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        3,
+        3,
+        3
+      ],
+      "barre": {
+        "fret": 3,
+        "fromString": 3,
+        "toString": 1,
+        "finger": 3
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x32333; N35: was x3x756, 5 frets"
+    },
+    {
+      "symbol": "Db9",
+      "quality": "9",
+      "rootPc": 1,
+      "frets": [
+        -1,
+        4,
+        3,
+        4,
+        4,
+        4
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        3,
+        3,
+        3
+      ],
+      "barre": {
+        "fret": 4,
+        "fromString": 3,
+        "toString": 1,
+        "finger": 3
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x43444; N35: was x4x867, 5 frets"
+    },
+    {
+      "symbol": "D9",
+      "quality": "9",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        5,
+        4,
+        5,
+        5,
+        5
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        3,
+        3,
+        3
+      ],
+      "barre": {
+        "fret": 5,
+        "fromString": 3,
+        "toString": 1,
+        "finger": 3
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x54555; N35: was x5x978, 5 frets"
+    },
+    {
+      "symbol": "Eb9",
+      "quality": "9",
+      "rootPc": 3,
+      "frets": [
+        -1,
+        6,
+        5,
+        6,
+        6,
+        6
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        3,
+        3,
+        3
+      ],
+      "barre": {
+        "fret": 6,
+        "fromString": 3,
+        "toString": 1,
+        "finger": 3
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x65666; N35: was x6x(10)89, 5 frets"
+    },
+    {
+      "symbol": "Bb9",
+      "quality": "9",
+      "rootPc": 10,
+      "frets": [
+        6,
+        -1,
+        6,
+        7,
+        6,
+        8
+      ],
+      "fingers": [
+        1,
+        0,
+        1,
+        2,
+        1,
+        4
+      ],
+      "barre": {
+        "fret": 6,
+        "fromString": 6,
+        "toString": 2,
+        "finger": 1
+      },
+      "rootString": 6,
+      "name": "E-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "6x6768; N35: was x1x534, 5 frets"
+    },
+    {
+      "symbol": "B9",
+      "quality": "9",
+      "rootPc": 11,
+      "frets": [
+        -1,
+        2,
+        1,
+        2,
+        2,
+        2
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        3,
+        3,
+        3
+      ],
+      "barre": {
+        "fret": 2,
+        "fromString": 3,
+        "toString": 1,
+        "finger": 3
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x21222; N35: was x2x645, 5 frets"
+    },
+    {
+      "symbol": "Dbmaj9",
+      "quality": "maj9",
+      "rootPc": 1,
+      "frets": [
+        -1,
+        4,
+        3,
+        5,
+        4,
+        -1
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        4,
+        3,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x4354x; N35: was x4x868, 5 frets"
+    },
+    {
+      "symbol": "Dmaj9",
+      "quality": "maj9",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        5,
+        4,
+        6,
+        5,
+        -1
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        4,
+        3,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x5465x; N35: was x5x979, 5 frets"
+    },
+    {
+      "symbol": "Ebmaj9",
+      "quality": "maj9",
+      "rootPc": 3,
+      "frets": [
+        -1,
+        6,
+        5,
+        7,
+        6,
+        -1
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        4,
+        3,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x6576x; N35: was x6x(10)8(10), 5 frets"
+    },
+    {
+      "symbol": "Bbmaj9",
+      "quality": "maj9",
+      "rootPc": 10,
+      "frets": [
+        -1,
+        1,
+        0,
+        2,
+        1,
+        -1
+      ],
+      "fingers": [
+        0,
+        1,
+        0,
+        3,
+        2,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x1021x; N35: was x1x535, 5 frets"
+    },
+    {
+      "symbol": "Bmaj9",
+      "quality": "maj9",
+      "rootPc": 11,
+      "frets": [
+        -1,
+        2,
+        1,
+        3,
+        2,
+        -1
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        4,
+        3,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x2132x; N35: was x2x646, 5 frets"
+    },
+    {
+      "symbol": "Cm9",
+      "quality": "m9",
+      "rootPc": 0,
+      "frets": [
+        -1,
+        3,
+        1,
+        3,
+        3,
+        -1
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        3,
+        3,
+        0
+      ],
+      "barre": {
+        "fret": 3,
+        "fromString": 3,
+        "toString": 2,
+        "finger": 3
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x3133x; N35: was x3x746, 5 frets"
+    },
+    {
+      "symbol": "Dbm9",
+      "quality": "m9",
+      "rootPc": 1,
+      "frets": [
+        -1,
+        4,
+        2,
+        4,
+        4,
+        -1
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        3,
+        3,
+        0
+      ],
+      "barre": {
+        "fret": 4,
+        "fromString": 3,
+        "toString": 2,
+        "finger": 3
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x4244x; N35: was x4x857, 5 frets"
+    },
+    {
+      "symbol": "Dm9",
+      "quality": "m9",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        5,
+        3,
+        5,
+        5,
+        -1
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        3,
+        3,
+        0
+      ],
+      "barre": {
+        "fret": 5,
+        "fromString": 3,
+        "toString": 2,
+        "finger": 3
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x5355x; N35: was x5x968, 5 frets"
+    },
+    {
+      "symbol": "Ebm9",
+      "quality": "m9",
+      "rootPc": 3,
+      "frets": [
+        -1,
+        6,
+        4,
+        6,
+        6,
+        -1
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        3,
+        3,
+        0
+      ],
+      "barre": {
+        "fret": 6,
+        "fromString": 3,
+        "toString": 2,
+        "finger": 3
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x6466x; N35: was x6x(10)79, 5 frets"
+    },
+    {
+      "symbol": "Bbm9",
+      "quality": "m9",
+      "rootPc": 10,
+      "frets": [
+        6,
+        -1,
+        6,
+        6,
+        6,
+        8
+      ],
+      "fingers": [
+        1,
+        0,
+        1,
+        1,
+        1,
+        3
+      ],
+      "barre": {
+        "fret": 6,
+        "fromString": 6,
+        "toString": 2,
+        "finger": 1
+      },
+      "rootString": 6,
+      "name": "E-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "6x6668; N35: was x1x524, 5 frets"
+    },
+    {
+      "symbol": "Bm9",
+      "quality": "m9",
+      "rootPc": 11,
+      "frets": [
+        -1,
+        2,
+        0,
+        2,
+        2,
+        2
+      ],
+      "fingers": [
+        0,
+        1,
+        0,
+        3,
+        3,
+        3
+      ],
+      "barre": {
+        "fret": 2,
+        "fromString": 3,
+        "toString": 1,
+        "finger": 3
+      },
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x20222; N35: was x2x635, 5 frets"
+    },
+    {
+      "symbol": "C9sus4",
+      "quality": "9sus",
+      "rootPc": 0,
+      "frets": [
+        -1,
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "fingers": [
+        0,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 3,
+        "fromString": 5,
+        "toString": 1,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x33333; N35: was x35766, 5 frets"
+    },
+    {
+      "symbol": "Db9sus4",
+      "quality": "9sus",
+      "rootPc": 1,
+      "frets": [
+        -1,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "fingers": [
+        0,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 4,
+        "fromString": 5,
+        "toString": 1,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x44444; N35: was x46877, 5 frets"
+    },
+    {
+      "symbol": "D9sus4",
+      "quality": "9sus",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "fingers": [
+        0,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 5,
+        "fromString": 5,
+        "toString": 1,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x55555; N35: was x57988, 5 frets"
+    },
+    {
+      "symbol": "Eb9sus4",
+      "quality": "9sus",
+      "rootPc": 3,
+      "frets": [
+        -1,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "fingers": [
+        0,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 6,
+        "fromString": 5,
+        "toString": 1,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x66666; N35: was x68(10)99, 5 frets"
+    },
+    {
+      "symbol": "Bb9sus4",
+      "quality": "9sus",
+      "rootPc": 10,
+      "frets": [
+        -1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "fingers": [
+        0,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 1,
+        "fromString": 5,
+        "toString": 1,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x11111; N35: was x13544, 5 frets"
+    },
+    {
+      "symbol": "B9sus4",
+      "quality": "9sus",
+      "rootPc": 11,
+      "frets": [
+        -1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "fingers": [
+        0,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 2,
+        "fromString": 5,
+        "toString": 1,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x22222; N35: was x24655, 5 frets"
+    },
+    {
+      "symbol": "D7sus2",
+      "quality": "7sus2",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        -1,
+        0,
+        2,
+        1,
+        0
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        2,
+        1,
+        0
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "xx0210; N35: was x5xx10, 5 frets"
+    },
+    {
+      "symbol": "Cm(maj9)",
+      "quality": "mmaj9",
+      "rootPc": 0,
+      "frets": [
+        -1,
+        3,
+        1,
+        4,
+        3,
+        -1
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        4,
+        3,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x3143x; N35: was x3x747, 5 frets"
+    },
+    {
+      "symbol": "Dbm(maj9)",
+      "quality": "mmaj9",
+      "rootPc": 1,
+      "frets": [
+        -1,
+        4,
+        2,
+        5,
+        4,
+        -1
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        4,
+        3,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x4254x; N35: was x4x858, 5 frets"
+    },
+    {
+      "symbol": "Dm(maj9)",
+      "quality": "mmaj9",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        5,
+        3,
+        6,
+        5,
+        -1
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        4,
+        3,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x5365x; N35: was x5x969, 5 frets"
+    },
+    {
+      "symbol": "Ebm(maj9)",
+      "quality": "mmaj9",
+      "rootPc": 3,
+      "frets": [
+        -1,
+        6,
+        4,
+        7,
+        6,
+        -1
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        4,
+        3,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x6476x; N35: was x6x(10)7(10), 5 frets"
+    },
+    {
+      "symbol": "Bbm(maj9)",
+      "quality": "mmaj9",
+      "rootPc": 10,
+      "frets": [
+        6,
+        -1,
+        7,
+        6,
+        6,
+        8
+      ],
+      "fingers": [
+        1,
+        0,
+        2,
+        1,
+        1,
+        4
+      ],
+      "barre": {
+        "fret": 6,
+        "fromString": 6,
+        "toString": 2,
+        "finger": 1
+      },
+      "rootString": 6,
+      "name": "E-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "6x7668; N35: was x1x525, 5 frets"
+    },
+    {
+      "symbol": "Bm(maj9)",
+      "quality": "mmaj9",
+      "rootPc": 11,
+      "frets": [
+        -1,
+        2,
+        0,
+        3,
+        2,
+        2
+      ],
+      "fingers": [
+        0,
+        1,
+        0,
+        4,
+        2,
+        3
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x20322; N35: was x2x636, 5 frets"
+    },
+    {
+      "symbol": "C6/9",
+      "quality": "69",
+      "rootPc": 0,
+      "frets": [
+        -1,
+        3,
+        2,
+        2,
+        3,
+        3
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        1,
+        3,
+        4
+      ],
+      "barre": {
+        "fret": 2,
+        "fromString": 4,
+        "toString": 3,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x32233; N35: was x3x755, 5 frets"
+    },
+    {
+      "symbol": "Db6/9",
+      "quality": "69",
+      "rootPc": 1,
+      "frets": [
+        -1,
+        4,
+        3,
+        3,
+        4,
+        4
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        1,
+        3,
+        4
+      ],
+      "barre": {
+        "fret": 3,
+        "fromString": 4,
+        "toString": 3,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x43344; N35: was x4x866, 5 frets"
+    },
+    {
+      "symbol": "D6/9",
+      "quality": "69",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        5,
+        4,
+        4,
+        5,
+        5
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        1,
+        3,
+        4
+      ],
+      "barre": {
+        "fret": 4,
+        "fromString": 4,
+        "toString": 3,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x54455; N35: was x5x977, 5 frets"
+    },
+    {
+      "symbol": "Eb6/9",
+      "quality": "69",
+      "rootPc": 3,
+      "frets": [
+        -1,
+        6,
+        5,
+        5,
+        6,
+        6
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        1,
+        3,
+        4
+      ],
+      "barre": {
+        "fret": 5,
+        "fromString": 4,
+        "toString": 3,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x65566; N35: was x6x(10)88, 5 frets"
+    },
+    {
+      "symbol": "Bb6/9",
+      "quality": "69",
+      "rootPc": 10,
+      "frets": [
+        -1,
+        1,
+        0,
+        0,
+        1,
+        1
+      ],
+      "fingers": [
+        0,
+        1,
+        0,
+        0,
+        2,
+        3
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x10011; N35: was x1x533, 5 frets"
+    },
+    {
+      "symbol": "B6/9",
+      "quality": "69",
+      "rootPc": 11,
+      "frets": [
+        -1,
+        2,
+        1,
+        1,
+        2,
+        2
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        1,
+        3,
+        4
+      ],
+      "barre": {
+        "fret": 1,
+        "fromString": 4,
+        "toString": 3,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x21122; N35: was x2x644, 5 frets"
+    },
+    {
+      "symbol": "Cm6/9",
+      "quality": "m69",
+      "rootPc": 0,
+      "frets": [
+        -1,
+        3,
+        1,
+        2,
+        3,
+        -1
+      ],
+      "fingers": [
+        0,
+        3,
+        1,
+        2,
+        4,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x3123x; N35: was x3x745, 5 frets"
+    },
+    {
+      "symbol": "Dbm6/9",
+      "quality": "m69",
+      "rootPc": 1,
+      "frets": [
+        -1,
+        4,
+        2,
+        3,
+        4,
+        -1
+      ],
+      "fingers": [
+        0,
+        3,
+        1,
+        2,
+        4,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x4234x; N35: was x4x856, 5 frets"
+    },
+    {
+      "symbol": "Dm6/9",
+      "quality": "m69",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        5,
+        3,
+        4,
+        5,
+        -1
+      ],
+      "fingers": [
+        0,
+        3,
+        1,
+        2,
+        4,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x5345x; N35: was x5x967, 5 frets"
+    },
+    {
+      "symbol": "Ebm6/9",
+      "quality": "m69",
+      "rootPc": 3,
+      "frets": [
+        -1,
+        6,
+        4,
+        5,
+        6,
+        -1
+      ],
+      "fingers": [
+        0,
+        3,
+        1,
+        2,
+        4,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x6456x; N35: was x6x(10)78, 5 frets"
+    },
+    {
+      "symbol": "Bbm6/9",
+      "quality": "m69",
+      "rootPc": 10,
+      "frets": [
+        -1,
+        -1,
+        8,
+        6,
+        8,
+        8
+      ],
+      "fingers": [
+        0,
+        0,
+        2,
+        1,
+        3,
+        4
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "D-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "xx8688; N35: was x1x523, 5 frets"
+    },
+    {
+      "symbol": "Bm6/9",
+      "quality": "m69",
+      "rootPc": 11,
+      "frets": [
+        -1,
+        2,
+        0,
+        1,
+        2,
+        2
+      ],
+      "fingers": [
+        0,
+        2,
+        0,
+        1,
+        3,
+        4
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x20122; N35: was x2x634, 5 frets"
+    },
+    {
+      "symbol": "Dm9b5",
+      "quality": "m9b5",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        5,
+        6,
+        5,
+        6,
+        0
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        1,
+        3,
+        0
+      ],
+      "barre": {
+        "fret": 5,
+        "fromString": 5,
+        "toString": 3,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x56560; N35: was x52111, 5 frets"
+    },
+    {
+      "symbol": "Ebm9b5",
+      "quality": "m9b5",
+      "rootPc": 3,
+      "frets": [
+        -1,
+        6,
+        4,
+        6,
+        6,
+        5
+      ],
+      "fingers": [
+        0,
+        3,
+        1,
+        4,
+        4,
+        2
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x64665; N35: was x63222, 5 frets"
+    },
+    {
+      "symbol": "Am9b5",
+      "quality": "m9b5",
+      "rootPc": 9,
+      "frets": [
+        -1,
+        0,
+        1,
+        4,
+        1,
+        3
+      ],
+      "fingers": [
+        0,
+        0,
+        1,
+        4,
+        1,
+        3
+      ],
+      "barre": {
+        "fret": 1,
+        "fromString": 4,
+        "toString": 2,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x01413; N35: was x01503, 5 frets"
+    },
+    {
+      "symbol": "Bbm9b5",
+      "quality": "m9b5",
+      "rootPc": 10,
+      "frets": [
+        6,
+        3,
+        6,
+        6,
+        5,
+        -1
+      ],
+      "fingers": [
+        4,
+        1,
+        3,
+        3,
+        2,
+        0
+      ],
+      "barre": null,
+      "rootString": 6,
+      "name": "E-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "63665x; app parity: the app had no library grip for Bbm9b5 and generated 636620 (5 frets); this table resolved 6366x0 by fallback search"
+    },
+    {
+      "symbol": "Csus4add9",
+      "quality": "sus4add9",
+      "rootPc": 0,
+      "frets": [
+        -1,
+        3,
+        0,
+        0,
+        1,
+        1
+      ],
+      "fingers": [
+        0,
+        3,
+        0,
+        0,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 1,
+        "fromString": 2,
+        "toString": 1,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x30011; N35: was x35763, 5 frets"
+    },
+    {
+      "symbol": "Dbsus4add9",
+      "quality": "sus4add9",
+      "rootPc": 1,
+      "frets": [
+        -1,
+        4,
+        1,
+        1,
+        2,
+        2
+      ],
+      "fingers": [
+        0,
+        4,
+        1,
+        1,
+        2,
+        3
+      ],
+      "barre": {
+        "fret": 1,
+        "fromString": 4,
+        "toString": 3,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x41122; N35: was x46874, 5 frets"
+    },
+    {
+      "symbol": "Dsus4add9",
+      "quality": "sus4add9",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        5,
+        2,
+        2,
+        3,
+        3
+      ],
+      "fingers": [
+        0,
+        4,
+        1,
+        1,
+        2,
+        3
+      ],
+      "barre": {
+        "fret": 2,
+        "fromString": 4,
+        "toString": 3,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x52233; N35: was x57985, 5 frets"
+    },
+    {
+      "symbol": "Ebsus4add9",
+      "quality": "sus4add9",
+      "rootPc": 3,
+      "frets": [
+        -1,
+        6,
+        3,
+        3,
+        4,
+        4
+      ],
+      "fingers": [
+        0,
+        4,
+        1,
+        1,
+        2,
+        3
+      ],
+      "barre": {
+        "fret": 3,
+        "fromString": 4,
+        "toString": 3,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x63344; N35: was x68(10)96, 5 frets"
+    },
+    {
+      "symbol": "Fsus4add9",
+      "quality": "sus4add9",
+      "rootPc": 5,
+      "frets": [
+        -1,
+        -1,
+        3,
+        3,
+        1,
+        3
+      ],
+      "fingers": [
+        0,
+        0,
+        2,
+        3,
+        1,
+        4
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "D-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "xx3313; N35: was 135311, 5 frets"
+    },
+    {
+      "symbol": "F#sus4add9",
+      "quality": "sus4add9",
+      "rootPc": 6,
+      "frets": [
+        -1,
+        -1,
+        4,
+        4,
+        2,
+        4
+      ],
+      "fingers": [
+        0,
+        0,
+        2,
+        3,
+        1,
+        4
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "D-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "xx4424; N35: was 246422, 5 frets"
+    },
+    {
+      "symbol": "Gsus4add9",
+      "quality": "sus4add9",
+      "rootPc": 7,
+      "frets": [
+        -1,
+        -1,
+        5,
+        5,
+        3,
+        5
+      ],
+      "fingers": [
+        0,
+        0,
+        2,
+        3,
+        1,
+        4
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "D-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "xx5535; N35: was 357533, 5 frets"
+    },
+    {
+      "symbol": "Absus4add9",
+      "quality": "sus4add9",
+      "rootPc": 8,
+      "frets": [
+        -1,
+        -1,
+        6,
+        6,
+        4,
+        6
+      ],
+      "fingers": [
+        0,
+        0,
+        2,
+        3,
+        1,
+        4
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "D-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "xx6646; N35: was 468644, 5 frets"
+    },
+    {
+      "symbol": "Bbsus4add9",
+      "quality": "sus4add9",
+      "rootPc": 10,
+      "frets": [
+        -1,
+        1,
+        1,
+        3,
+        1,
+        1
+      ],
+      "fingers": [
+        0,
+        1,
+        1,
+        3,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 1,
+        "fromString": 5,
+        "toString": 1,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x11311; N35: was x13541, 5 frets"
+    },
+    {
+      "symbol": "Bsus4add9",
+      "quality": "sus4add9",
+      "rootPc": 11,
+      "frets": [
+        -1,
+        2,
+        2,
+        4,
+        2,
+        2
+      ],
+      "fingers": [
+        0,
+        1,
+        1,
+        3,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 2,
+        "fromString": 5,
+        "toString": 1,
+        "finger": 1
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x22422; N35: was x24652, 5 frets"
+    },
+    {
+      "symbol": "C13",
+      "quality": "13",
+      "rootPc": 0,
+      "frets": [
+        -1,
+        3,
+        2,
+        3,
+        3,
+        5
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        3,
+        3,
+        4
+      ],
+      "barre": {
+        "fret": 3,
+        "fromString": 3,
+        "toString": 2,
+        "finger": 3
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x32335; low position: was 8x89(10)(10) from fret 8"
+    },
+    {
+      "symbol": "Db13",
+      "quality": "13",
+      "rootPc": 1,
+      "frets": [
+        -1,
+        4,
+        3,
+        4,
+        4,
+        6
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        3,
+        3,
+        4
+      ],
+      "barre": {
+        "fret": 4,
+        "fromString": 3,
+        "toString": 2,
+        "finger": 3
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x43446; low position: was 9x9(10)(11)(11) from fret 9"
+    },
+    {
+      "symbol": "D13",
+      "quality": "13",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        5,
+        4,
+        5,
+        5,
+        7
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        3,
+        3,
+        4
+      ],
+      "barre": {
+        "fret": 5,
+        "fromString": 3,
+        "toString": 2,
+        "finger": 3
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x54557; low position: was (10)x(10)(11)(12)(12) from fret 10"
+    },
+    {
+      "symbol": "Eb13",
+      "quality": "13",
+      "rootPc": 3,
+      "frets": [
+        -1,
+        6,
+        5,
+        6,
+        6,
+        8
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        3,
+        3,
+        4
+      ],
+      "barre": {
+        "fret": 6,
+        "fromString": 3,
+        "toString": 2,
+        "finger": 3
+      },
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x65668; low position: was (11)x(11)(12)(13)(13) from fret 11"
+    },
+    {
+      "symbol": "Cm13",
+      "quality": "m13",
+      "rootPc": 0,
+      "frets": [
+        -1,
+        3,
+        0,
+        3,
+        4,
+        5
+      ],
+      "fingers": [
+        0,
+        1,
+        0,
+        2,
+        3,
+        4
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x30345; low position: was 8x88(10)(10) from fret 8"
+    },
+    {
+      "symbol": "Dbm13",
+      "quality": "m13",
+      "rootPc": 1,
+      "frets": [
+        -1,
+        4,
+        1,
+        3,
+        0,
+        0
+      ],
+      "fingers": [
+        0,
+        4,
+        1,
+        3,
+        0,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x41300; low position: was 9x99(11)(11) from fret 9"
+    },
+    {
+      "symbol": "Dm13",
+      "quality": "m13",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        5,
+        3,
+        5,
+        0,
+        0
+      ],
+      "fingers": [
+        0,
+        3,
+        1,
+        4,
+        0,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x53500; low position: was (10)x(10)(10)(12)(12) from fret 10"
+    },
+    {
+      "symbol": "Fmaj7sus2",
+      "quality": "maj7sus2",
+      "rootPc": 5,
+      "frets": [
+        -1,
+        -1,
+        3,
+        0,
+        1,
+        0
+      ],
+      "fingers": [
+        0,
+        0,
+        3,
+        0,
+        1,
+        0
+      ],
+      "barre": null,
+      "rootString": 4,
+      "name": "Open",
+      "movable": false,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "xx3010; low position: was x8(10)988 from fret 8"
+    },
+    {
+      "symbol": "F#maj7sus2",
+      "quality": "maj7sus2",
+      "rootPc": 6,
+      "frets": [
+        -1,
+        -1,
+        4,
+        1,
+        2,
+        1
+      ],
+      "fingers": [
+        0,
+        0,
+        4,
+        1,
+        2,
+        1
+      ],
+      "barre": {
+        "fret": 1,
+        "fromString": 3,
+        "toString": 1,
+        "finger": 1
+      },
+      "rootString": 4,
+      "name": "D-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "xx4121; low position: was x9(11)(10)99 from fret 9"
+    },
+    {
+      "symbol": "Gmaj7sus2",
+      "quality": "maj7sus2",
+      "rootPc": 7,
+      "frets": [
+        -1,
+        -1,
+        5,
+        2,
+        3,
+        2
+      ],
+      "fingers": [
+        0,
+        0,
+        4,
+        1,
+        2,
+        1
+      ],
+      "barre": {
+        "fret": 2,
+        "fromString": 3,
+        "toString": 1,
+        "finger": 1
+      },
+      "rootString": 4,
+      "name": "D-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "xx5232; low position: was x(10)(12)(11)(10)(10) from fret 10"
+    },
+    {
+      "symbol": "Abmaj7sus2",
+      "quality": "maj7sus2",
+      "rootPc": 8,
+      "frets": [
+        -1,
+        -1,
+        6,
+        3,
+        4,
+        3
+      ],
+      "fingers": [
+        0,
+        0,
+        4,
+        1,
+        2,
+        1
+      ],
+      "barre": {
+        "fret": 3,
+        "fromString": 3,
+        "toString": 1,
+        "finger": 1
+      },
+      "rootString": 4,
+      "name": "D-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "xx6343; low position: was x(11)(13)(12)(11)(11) from fret 11"
+    },
+    {
+      "symbol": "C7#9",
+      "quality": "7#9",
+      "rootPc": 0,
+      "frets": [
+        -1,
+        3,
+        2,
+        3,
+        4,
+        -1
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        3,
+        4,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x3234x; low position: was 8(10)898(11) from fret 8"
+    },
+    {
+      "symbol": "Db7#9",
+      "quality": "7#9",
+      "rootPc": 1,
+      "frets": [
+        -1,
+        4,
+        3,
+        4,
+        5,
+        -1
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        3,
+        4,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x4345x; low position: was 9(11)9(10)9(12) from fret 9"
+    },
+    {
+      "symbol": "D7#9",
+      "quality": "7#9",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        5,
+        4,
+        5,
+        6,
+        -1
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        3,
+        4,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x5456x; low position: was (10)(12)(10)(11)(10)(13) from fret 10"
+    },
+    {
+      "symbol": "Eb7#9",
+      "quality": "7#9",
+      "rootPc": 3,
+      "frets": [
+        -1,
+        6,
+        5,
+        6,
+        7,
+        -1
+      ],
+      "fingers": [
+        0,
+        2,
+        1,
+        3,
+        4,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x6567x; low position: was (11)(13)(11)(12)(11)(14) from fret 11"
+    },
+    {
+      "symbol": "CdimAdd9",
+      "quality": "dimAdd9",
+      "rootPc": 0,
+      "frets": [
+        -1,
+        3,
+        1,
+        -1,
+        3,
+        2
+      ],
+      "fingers": [
+        0,
+        3,
+        1,
+        0,
+        4,
+        2
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x31x32; low position: was 89(10)8x(10) from fret 8"
+    },
+    {
+      "symbol": "DbdimAdd9",
+      "quality": "dimAdd9",
+      "rootPc": 1,
+      "frets": [
+        -1,
+        4,
+        2,
+        -1,
+        4,
+        3
+      ],
+      "fingers": [
+        0,
+        3,
+        1,
+        0,
+        4,
+        2
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x42x43; low position: was 9(10)(11)9x(11) from fret 9"
+    },
+    {
+      "symbol": "DdimAdd9",
+      "quality": "dimAdd9",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        5,
+        3,
+        -1,
+        5,
+        4
+      ],
+      "fingers": [
+        0,
+        3,
+        1,
+        0,
+        4,
+        2
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x53x54; low position: was (10)(11)(12)(10)x(12) from fret 10"
+    },
+    {
+      "symbol": "EbdimAdd9",
+      "quality": "dimAdd9",
+      "rootPc": 3,
+      "frets": [
+        -1,
+        6,
+        4,
+        -1,
+        6,
+        5
+      ],
+      "fingers": [
+        0,
+        3,
+        1,
+        0,
+        4,
+        2
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x64x65; low position: was (11)(12)(13)(11)x(13) from fret 11"
+    },
+    {
+      "symbol": "CdimMaj7",
+      "quality": "dimMaj7",
+      "rootPc": 0,
+      "frets": [
+        -1,
+        3,
+        4,
+        4,
+        4,
+        -1
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x3444x; low position: was 8998xx from fret 8"
+    },
+    {
+      "symbol": "DbdimMaj7",
+      "quality": "dimMaj7",
+      "rootPc": 1,
+      "frets": [
+        -1,
+        4,
+        5,
+        5,
+        5,
+        -1
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x4555x; low position: was 9(10)(10)9xx from fret 9"
+    },
+    {
+      "symbol": "DdimMaj7",
+      "quality": "dimMaj7",
+      "rootPc": 2,
+      "frets": [
+        -1,
+        5,
+        6,
+        6,
+        6,
+        -1
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x5666x; low position: was (10)(11)(11)(10)xx from fret 10"
+    },
+    {
+      "symbol": "EbdimMaj7",
+      "quality": "dimMaj7",
+      "rootPc": 3,
+      "frets": [
+        -1,
+        6,
+        7,
+        7,
+        7,
+        -1
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        0
+      ],
+      "barre": null,
+      "rootString": 5,
+      "name": "A-shape",
+      "movable": true,
+      "bassPc": null,
+      "bassName": null,
+      "notes": "x6777x; low position: was (11)(12)(12)(11)xx from fret 11"
+    }
+  ],
+  "movableTemplates": [
+    {
+      "quality": "maj",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        2,
+        2,
+        1,
+        0,
+        0
+      ],
+      "fingers": [
+        1,
+        3,
+        4,
+        2,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "022100",
+      "simplified": false
+    },
+    {
+      "quality": "min",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        2,
+        2,
+        0,
+        0,
+        0
+      ],
+      "fingers": [
+        1,
+        3,
+        4,
+        1,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "022000",
+      "simplified": false
+    },
+    {
+      "quality": "7",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        2,
+        0,
+        1,
+        0,
+        0
+      ],
+      "fingers": [
+        1,
+        3,
+        1,
+        2,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "020100",
+      "simplified": false
+    },
+    {
+      "quality": "m7",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fingers": [
+        1,
+        3,
+        1,
+        1,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "020000",
+      "simplified": false
+    },
+    {
+      "quality": "maj7",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        -1,
+        1,
+        1,
+        0,
+        -1
+      ],
+      "fingers": [
+        1,
+        0,
+        2,
+        3,
+        1,
+        0
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 2
+      },
+      "notes": "0x110x",
+      "simplified": false
+    },
+    {
+      "quality": "9",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        2,
+        0,
+        1,
+        0,
+        2
+      ],
+      "fingers": [
+        1,
+        3,
+        1,
+        2,
+        1,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 2
+      },
+      "notes": "020102",
+      "simplified": false
+    },
+    {
+      "quality": "m9",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        2,
+        0,
+        0,
+        0,
+        2
+      ],
+      "fingers": [
+        1,
+        3,
+        1,
+        1,
+        1,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "020002",
+      "simplified": false
+    },
+    {
+      "quality": "maj9",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        -1,
+        1,
+        1,
+        0,
+        2
+      ],
+      "fingers": [
+        1,
+        0,
+        2,
+        3,
+        1,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 2
+      },
+      "notes": "0x1102",
+      "simplified": false
+    },
+    {
+      "quality": "add9",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        -1,
+        2,
+        1,
+        0,
+        2
+      ],
+      "fingers": [
+        1,
+        0,
+        3,
+        2,
+        1,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 2
+      },
+      "notes": "0x2102",
+      "simplified": false
+    },
+    {
+      "quality": "madd9",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        2,
+        2,
+        0,
+        0,
+        2
+      ],
+      "fingers": [
+        1,
+        3,
+        4,
+        1,
+        1,
+        2
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "022002; finger 2 on the 9, or 1-3-4-1-1-2",
+      "simplified": false
+    },
+    {
+      "quality": "sus2",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        2,
+        4,
+        4,
+        0,
+        0
+      ],
+      "fingers": [
+        1,
+        2,
+        3,
+        4,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "024400",
+      "simplified": false
+    },
+    {
+      "quality": "sus4",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        2,
+        2,
+        2,
+        0,
+        0
+      ],
+      "fingers": [
+        1,
+        2,
+        3,
+        4,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "022200",
+      "simplified": false
+    },
+    {
+      "quality": "7sus4",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        2,
+        0,
+        2,
+        0,
+        0
+      ],
+      "fingers": [
+        1,
+        2,
+        1,
+        3,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "020200",
+      "simplified": false
+    },
+    {
+      "quality": "9sus",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        2,
+        0,
+        2,
+        0,
+        2
+      ],
+      "fingers": [
+        1,
+        2,
+        1,
+        3,
+        1,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 2
+      },
+      "notes": "020202",
+      "simplified": false
+    },
+    {
+      "quality": "dim",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        1,
+        2,
+        0,
+        -1,
+        -1
+      ],
+      "fingers": [
+        1,
+        2,
+        3,
+        1,
+        0,
+        0
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 3
+      },
+      "notes": "0120xx",
+      "simplified": false
+    },
+    {
+      "quality": "dim7",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        1,
+        2,
+        0,
+        2,
+        0
+      ],
+      "fingers": [
+        1,
+        2,
+        3,
+        1,
+        4,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "012020",
+      "simplified": false
+    },
+    {
+      "quality": "m7b5",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        1,
+        0,
+        0,
+        3,
+        0
+      ],
+      "fingers": [
+        1,
+        2,
+        1,
+        1,
+        4,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "010030",
+      "simplified": false
+    },
+    {
+      "quality": "aug",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        3,
+        2,
+        1,
+        1,
+        0
+      ],
+      "fingers": [
+        1,
+        4,
+        3,
+        2,
+        2,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "032110; finger 2 covers G and B at +1",
+      "simplified": false
+    },
+    {
+      "quality": "6",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        -1,
+        2,
+        1,
+        2,
+        0
+      ],
+      "fingers": [
+        1,
+        0,
+        3,
+        2,
+        4,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "0x2120; 5th on the D string is omitted so the grip stays at 4 fingers when moved",
+      "simplified": false
+    },
+    {
+      "quality": "m6",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        -1,
+        2,
+        0,
+        2,
+        0
+      ],
+      "fingers": [
+        1,
+        0,
+        3,
+        1,
+        4,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "0x2020",
+      "simplified": false
+    },
+    {
+      "quality": "7b9",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        2,
+        0,
+        1,
+        0,
+        1
+      ],
+      "fingers": [
+        1,
+        3,
+        1,
+        2,
+        1,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 2
+      },
+      "notes": "020101",
+      "simplified": false
+    },
+    {
+      "quality": "7#9",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        2,
+        0,
+        1,
+        0,
+        3
+      ],
+      "fingers": [
+        1,
+        3,
+        1,
+        2,
+        1,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 2
+      },
+      "notes": "020103 Hendrix",
+      "simplified": false
+    },
+    {
+      "quality": "13",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        -1,
+        0,
+        1,
+        2,
+        2
+      ],
+      "fingers": [
+        1,
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 4
+      },
+      "notes": "0x0122, 5th omitted, has 9 and 13",
+      "simplified": false
+    },
+    {
+      "quality": "m13",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        -1,
+        0,
+        0,
+        2,
+        2
+      ],
+      "fingers": [
+        1,
+        0,
+        1,
+        1,
+        3,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "0x0022",
+      "simplified": false
+    },
+    {
+      "quality": "aug7",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        3,
+        0,
+        1,
+        1,
+        0
+      ],
+      "fingers": [
+        1,
+        4,
+        1,
+        2,
+        3,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "030110",
+      "simplified": false
+    },
+    {
+      "quality": "7b5",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        1,
+        0,
+        1,
+        3,
+        0
+      ],
+      "fingers": [
+        1,
+        2,
+        1,
+        3,
+        4,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "010130",
+      "simplified": false
+    },
+    {
+      "quality": "maj7#5",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        -1,
+        1,
+        1,
+        1,
+        0
+      ],
+      "fingers": [
+        1,
+        0,
+        2,
+        2,
+        2,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "0x1110",
+      "simplified": false
+    },
+    {
+      "quality": "majb5",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        1,
+        2,
+        1,
+        -1,
+        -1
+      ],
+      "fingers": [
+        1,
+        2,
+        4,
+        3,
+        0,
+        0
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 3
+      },
+      "notes": "0121xx",
+      "simplified": false
+    },
+    {
+      "quality": "mmaj7",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        2,
+        1,
+        0,
+        0,
+        0
+      ],
+      "fingers": [
+        1,
+        3,
+        2,
+        1,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "021000",
+      "simplified": false
+    },
+    {
+      "quality": "mmaj9",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        2,
+        1,
+        0,
+        0,
+        2
+      ],
+      "fingers": [
+        1,
+        3,
+        2,
+        1,
+        1,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "021002",
+      "simplified": false
+    },
+    {
+      "quality": "69",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        -1,
+        2,
+        1,
+        2,
+        2
+      ],
+      "fingers": [
+        1,
+        0,
+        3,
+        2,
+        4,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "0x2122, 5th omitted; finger 4 covers 13 and 9",
+      "simplified": false
+    },
+    {
+      "quality": "m69",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        -1,
+        2,
+        0,
+        2,
+        2
+      ],
+      "fingers": [
+        1,
+        0,
+        3,
+        1,
+        4,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "0x2022",
+      "simplified": false
+    },
+    {
+      "quality": "7sus2",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        2,
+        0,
+        4,
+        0,
+        0
+      ],
+      "fingers": [
+        1,
+        2,
+        1,
+        4,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "020400; 4 is a stretch of 4 frets",
+      "simplified": false
+    },
+    {
+      "quality": "maj7sus2",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        -1,
+        1,
+        4,
+        0,
+        0
+      ],
+      "fingers": [
+        1,
+        0,
+        2,
+        4,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "0x1400",
+      "simplified": false
+    },
+    {
+      "quality": "m9b5",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        2
+      ],
+      "fingers": [
+        1,
+        2,
+        1,
+        1,
+        1,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "010002",
+      "simplified": false
+    },
+    {
+      "quality": "dimAdd9",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        1,
+        2,
+        0,
+        -1,
+        2
+      ],
+      "fingers": [
+        1,
+        2,
+        3,
+        1,
+        0,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 3
+      },
+      "notes": "0120x2",
+      "simplified": false
+    },
+    {
+      "quality": "dimMaj7",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        1,
+        1,
+        0,
+        -1,
+        -1
+      ],
+      "fingers": [
+        1,
+        3,
+        2,
+        1,
+        0,
+        0
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 3
+      },
+      "notes": "0110xx (maj7 + dim triad)",
+      "simplified": false
+    },
+    {
+      "quality": "6sus4",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        2,
+        2,
+        2,
+        2,
+        0
+      ],
+      "fingers": [
+        1,
+        3,
+        3,
+        3,
+        4,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "022220; finger 3 bars A-G-B? B is +2, yes 3 bars A,D,G and 4 on B... A D G at +2, B at +2 too. Finger 3 can bar A–B at +2 (4 strings). 2 fingers.",
+      "simplified": false
+    },
+    {
+      "quality": "sus4add9",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        2,
+        4,
+        2,
+        0,
+        0
+      ],
+      "fingers": [
+        1,
+        2,
+        4,
+        3,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "024200; has 2 and 4, no 3rd",
+      "simplified": false
+    },
+    {
+      "quality": "maj7sus4",
+      "name": "E-shape",
+      "rootString": 6,
+      "movable": true,
+      "relFrets": [
+        0,
+        -1,
+        1,
+        2,
+        0,
+        0
+      ],
+      "fingers": [
+        1,
+        0,
+        2,
+        3,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 6,
+        "toString": 1
+      },
+      "notes": "0x1200",
+      "simplified": false
+    },
+    {
+      "quality": "maj",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        2,
+        2,
+        2,
+        0
+      ],
+      "fingers": [
+        0,
+        1,
+        3,
+        3,
+        3,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 1
+      },
+      "notes": "x02220; one finger bars D-G-B",
+      "simplified": false
+    },
+    {
+      "quality": "min",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        2,
+        2,
+        1,
+        0
+      ],
+      "fingers": [
+        0,
+        1,
+        3,
+        4,
+        2,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 1
+      },
+      "notes": "x02210",
+      "simplified": false
+    },
+    {
+      "quality": "7",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        2,
+        0,
+        2,
+        0
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        1,
+        3,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 1
+      },
+      "notes": "x02020",
+      "simplified": false
+    },
+    {
+      "quality": "m7",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        2,
+        0,
+        1,
+        0
+      ],
+      "fingers": [
+        0,
+        1,
+        3,
+        1,
+        2,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 1
+      },
+      "notes": "x02010",
+      "simplified": false
+    },
+    {
+      "quality": "maj7",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        2,
+        1,
+        2,
+        0
+      ],
+      "fingers": [
+        0,
+        1,
+        3,
+        2,
+        4,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 1
+      },
+      "notes": "x02120",
+      "simplified": false
+    },
+    {
+      "quality": "9",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        -1,
+        4,
+        2,
+        3
+      ],
+      "fingers": [
+        0,
+        1,
+        0,
+        4,
+        2,
+        3
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 5
+      },
+      "notes": "x0x423, 5th omitted",
+      "simplified": false
+    },
+    {
+      "quality": "m9",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        -1,
+        4,
+        1,
+        3
+      ],
+      "fingers": [
+        0,
+        1,
+        0,
+        4,
+        2,
+        3
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 5
+      },
+      "notes": "x0x413",
+      "simplified": false
+    },
+    {
+      "quality": "maj9",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        -1,
+        4,
+        2,
+        4
+      ],
+      "fingers": [
+        0,
+        1,
+        0,
+        3,
+        2,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 5
+      },
+      "notes": "x0x424",
+      "simplified": false
+    },
+    {
+      "quality": "add9",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        2,
+        4,
+        2,
+        0
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        4,
+        3,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 1
+      },
+      "notes": "x02420",
+      "simplified": false
+    },
+    {
+      "quality": "madd9",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        2,
+        4,
+        1,
+        0
+      ],
+      "fingers": [
+        0,
+        1,
+        3,
+        4,
+        2,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 1
+      },
+      "notes": "x02410",
+      "simplified": false
+    },
+    {
+      "quality": "sus2",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        2,
+        2,
+        0,
+        0
+      ],
+      "fingers": [
+        0,
+        1,
+        3,
+        4,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 1
+      },
+      "notes": "x02200",
+      "simplified": false
+    },
+    {
+      "quality": "sus4",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        2,
+        2,
+        3,
+        0
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 1
+      },
+      "notes": "x02230",
+      "simplified": false
+    },
+    {
+      "quality": "7sus4",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        2,
+        0,
+        3,
+        0
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        1,
+        4,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 1
+      },
+      "notes": "x02030",
+      "simplified": false
+    },
+    {
+      "quality": "9sus",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        2,
+        4,
+        3,
+        3
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        4,
+        3,
+        3
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 1
+      },
+      "notes": "x02433; finger 3 bars B+E",
+      "simplified": false
+    },
+    {
+      "quality": "dim",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        1,
+        2,
+        1,
+        -1
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        4,
+        3,
+        0
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 5
+      },
+      "notes": "x0121x",
+      "simplified": false
+    },
+    {
+      "quality": "dim7",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        1,
+        2,
+        1,
+        2
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        3,
+        2,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 5
+      },
+      "notes": "x01212; finger 2 covers D+B? no D is +1, B is +1. Yes finger 2 bars D and B? G is between at +2. Not adjacent. Use 1 0 2 3 2 4 and 2 only on one — 4 fingers: 1,2,3,4.",
+      "simplified": false
+    },
+    {
+      "quality": "m7b5",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        1,
+        0,
+        1,
+        -1
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        1,
+        3,
+        0
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 3
+      },
+      "notes": "x0101x",
+      "simplified": false
+    },
+    {
+      "quality": "aug",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        3,
+        2,
+        2,
+        1
+      ],
+      "fingers": [
+        0,
+        1,
+        4,
+        3,
+        3,
+        2
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 5
+      },
+      "notes": "x03221; finger 3 covers G+B",
+      "simplified": false
+    },
+    {
+      "quality": "6",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        2,
+        2,
+        2,
+        2
+      ],
+      "fingers": [
+        0,
+        1,
+        3,
+        3,
+        3,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 1
+      },
+      "notes": "x02222; finger 3 bars D-G-B, 4 on high E",
+      "simplified": false
+    },
+    {
+      "quality": "m6",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        2,
+        2,
+        1,
+        2
+      ],
+      "fingers": [
+        0,
+        1,
+        3,
+        4,
+        2,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 1
+      },
+      "notes": "x02212; pinky covers 6, or 1 3 3 2 4 with 3 on D+G",
+      "simplified": false
+    },
+    {
+      "quality": "7b9",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        -1,
+        3,
+        2,
+        3
+      ],
+      "fingers": [
+        0,
+        1,
+        0,
+        3,
+        2,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 5
+      },
+      "notes": "x0x323",
+      "simplified": false
+    },
+    {
+      "quality": "13",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        -1,
+        4,
+        2,
+        2
+      ],
+      "fingers": [
+        0,
+        1,
+        0,
+        4,
+        2,
+        2
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 5
+      },
+      "notes": "x0x422, has 9 and 13, 5th omitted; finger 2 bars B+E",
+      "simplified": false
+    },
+    {
+      "quality": "m13",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        -1,
+        4,
+        1,
+        2
+      ],
+      "fingers": [
+        0,
+        1,
+        0,
+        4,
+        2,
+        3
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 5
+      },
+      "notes": "x0x412",
+      "simplified": false
+    },
+    {
+      "quality": "aug7",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        3,
+        0,
+        2,
+        1
+      ],
+      "fingers": [
+        0,
+        1,
+        4,
+        1,
+        3,
+        2
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 3
+      },
+      "notes": "x03021",
+      "simplified": false
+    },
+    {
+      "quality": "7b5",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        1,
+        0,
+        2,
+        3
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        1,
+        3,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 3
+      },
+      "notes": "x01023",
+      "simplified": false
+    },
+    {
+      "quality": "maj7#5",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        3,
+        1,
+        2,
+        1
+      ],
+      "fingers": [
+        0,
+        1,
+        4,
+        2,
+        3,
+        2
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 5
+      },
+      "notes": "x03121",
+      "simplified": false
+    },
+    {
+      "quality": "majb5",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        1,
+        2,
+        2,
+        -1
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        0
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 5
+      },
+      "notes": "x0122x",
+      "simplified": false
+    },
+    {
+      "quality": "mmaj7",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        2,
+        1,
+        1,
+        0
+      ],
+      "fingers": [
+        0,
+        1,
+        4,
+        2,
+        3,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 1
+      },
+      "notes": "x02110",
+      "simplified": false
+    },
+    {
+      "quality": "mmaj9",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        -1,
+        4,
+        1,
+        4
+      ],
+      "fingers": [
+        0,
+        1,
+        0,
+        3,
+        2,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 5
+      },
+      "notes": "x0x414",
+      "simplified": false
+    },
+    {
+      "quality": "69",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        -1,
+        4,
+        2,
+        2
+      ],
+      "fingers": [
+        0,
+        1,
+        0,
+        4,
+        2,
+        2
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 5
+      },
+      "notes": "x0x422 = 9th+6th+3rd (A6/9 without 5th)",
+      "simplified": false
+    },
+    {
+      "quality": "m69",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        -1,
+        4,
+        1,
+        2
+      ],
+      "fingers": [
+        0,
+        1,
+        0,
+        4,
+        2,
+        3
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 5
+      },
+      "notes": "x0x412",
+      "simplified": false
+    },
+    {
+      "quality": "7sus2",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        2,
+        4,
+        0,
+        0
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        4,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 1
+      },
+      "notes": "x02400; has 9/2, b7? G at 0 is b7 of A. Yes.",
+      "simplified": false
+    },
+    {
+      "quality": "maj7sus2",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        2,
+        1,
+        0,
+        0
+      ],
+      "fingers": [
+        0,
+        1,
+        3,
+        2,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 1
+      },
+      "notes": "x02100 = root, 5, maj7, 9 (sus2)",
+      "simplified": false
+    },
+    {
+      "quality": "m9b5",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        1,
+        0,
+        0,
+        3
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        1,
+        1,
+        4
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 2
+      },
+      "notes": "x01003",
+      "simplified": false
+    },
+    {
+      "quality": "6sus4",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        2,
+        2,
+        3,
+        2
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        2
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 1
+      },
+      "notes": "x02232; finger 2 cannot cover D and E easily. Use 1 2 3 4 2 — 4 fingers if 2 only on one string. D+2 and E+2 can use finger 2 as a jump? No. Finger 3 bars D+G, 4 on B, 2 on E? 4 fingers.",
+      "simplified": false
+    },
+    {
+      "quality": "sus4add9",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        2,
+        4,
+        3,
+        0
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        4,
+        3,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 1
+      },
+      "notes": "x02430",
+      "simplified": false
+    },
+    {
+      "quality": "maj7sus4",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        2,
+        1,
+        3,
+        0
+      ],
+      "fingers": [
+        0,
+        1,
+        3,
+        2,
+        4,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 1
+      },
+      "notes": "x02130",
+      "simplified": false
+    },
+    {
+      "quality": "9",
+      "name": "A-shape",
+      "rootString": 5,
+      "movable": true,
+      "relFrets": [
+        -1,
+        0,
+        "b1",
+        0,
+        0,
+        0
+      ],
+      "fingers": [
+        0,
+        1,
+        2,
+        1,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 0,
+        "fromString": 5,
+        "toString": 1
+      },
+      "notes": "C9-grip: D string one fret below the barre. Valid when barre >= 1 (C9 = x32333).",
+      "simplified": false
+    },
+    {
+      "quality": "maj",
+      "name": "D-shape",
+      "rootString": 4,
+      "movable": true,
+      "relFrets": [
+        -1,
+        -1,
+        0,
+        2,
+        3,
+        2
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        1,
+        3,
+        2
+      ],
+      "barre": null,
+      "notes": "xx0232",
+      "simplified": false
+    },
+    {
+      "quality": "min",
+      "name": "D-shape",
+      "rootString": 4,
+      "movable": true,
+      "relFrets": [
+        -1,
+        -1,
+        0,
+        2,
+        3,
+        1
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        2,
+        3,
+        1
+      ],
+      "barre": null,
+      "notes": "xx0231",
+      "simplified": false
+    },
+    {
+      "quality": "7",
+      "name": "D-shape",
+      "rootString": 4,
+      "movable": true,
+      "relFrets": [
+        -1,
+        -1,
+        0,
+        2,
+        1,
+        2
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        2,
+        1,
+        3
+      ],
+      "barre": null,
+      "notes": "xx0212",
+      "simplified": false
+    },
+    {
+      "quality": "m7",
+      "name": "D-shape",
+      "rootString": 4,
+      "movable": true,
+      "relFrets": [
+        -1,
+        -1,
+        0,
+        2,
+        1,
+        1
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        2,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 1,
+        "fromString": 2,
+        "toString": 1
+      },
+      "notes": "xx0211",
+      "simplified": false
+    },
+    {
+      "quality": "maj7",
+      "name": "D-shape",
+      "rootString": 4,
+      "movable": true,
+      "relFrets": [
+        -1,
+        -1,
+        0,
+        2,
+        2,
+        2
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 2,
+        "fromString": 3,
+        "toString": 1
+      },
+      "notes": "xx0222",
+      "simplified": false
+    },
+    {
+      "quality": "sus4",
+      "name": "D-shape",
+      "rootString": 4,
+      "movable": true,
+      "relFrets": [
+        -1,
+        -1,
+        0,
+        2,
+        3,
+        3
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        1,
+        3,
+        4
+      ],
+      "barre": null,
+      "notes": "xx0233",
+      "simplified": false
+    },
+    {
+      "quality": "sus2",
+      "name": "D-shape",
+      "rootString": 4,
+      "movable": true,
+      "relFrets": [
+        -1,
+        -1,
+        0,
+        2,
+        3,
+        0
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        1,
+        3,
+        0
+      ],
+      "barre": null,
+      "notes": "xx0230",
+      "simplified": false
+    },
+    {
+      "quality": "add9",
+      "name": "D-shape",
+      "rootString": 4,
+      "movable": true,
+      "relFrets": [
+        -1,
+        -1,
+        0,
+        4,
+        3,
+        2
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        4,
+        3,
+        2
+      ],
+      "barre": null,
+      "notes": "xx0432, has 3rd and 9, 5th as the high D",
+      "simplified": false
+    },
+    {
+      "quality": "6",
+      "name": "D-shape",
+      "rootString": 4,
+      "movable": true,
+      "relFrets": [
+        -1,
+        -1,
+        0,
+        2,
+        0,
+        2
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        2
+      ],
+      "barre": null,
+      "notes": "xx0202 = D A B F#",
+      "simplified": false
+    },
+    {
+      "quality": "m6",
+      "name": "D-shape",
+      "rootString": 4,
+      "movable": true,
+      "relFrets": [
+        -1,
+        -1,
+        0,
+        2,
+        0,
+        1
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        2,
+        0,
+        1
+      ],
+      "barre": null,
+      "notes": "xx0201",
+      "simplified": false
+    },
+    {
+      "quality": "maj9",
+      "name": "D-shape",
+      "rootString": 4,
+      "movable": true,
+      "relFrets": [
+        -1,
+        -1,
+        0,
+        4,
+        2,
+        2
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        4,
+        2,
+        2
+      ],
+      "barre": null,
+      "notes": "xx0422 = D, B, C#, F#",
+      "simplified": false
+    },
+    {
+      "quality": "m9",
+      "name": "D-shape",
+      "rootString": 4,
+      "movable": true,
+      "relFrets": [
+        -1,
+        -1,
+        0,
+        4,
+        1,
+        1
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        4,
+        1,
+        1
+      ],
+      "barre": null,
+      "notes": "xx0411 = D, B, C, F; finger 1 bars B+E",
+      "simplified": false
+    },
+    {
+      "quality": "dim",
+      "name": "D-shape",
+      "rootString": 4,
+      "movable": true,
+      "relFrets": [
+        -1,
+        -1,
+        0,
+        1,
+        3,
+        1
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        1,
+        4,
+        2
+      ],
+      "barre": null,
+      "notes": "xx0131 = D, Ab, D, F",
+      "simplified": false
+    },
+    {
+      "quality": "dim7",
+      "name": "D-shape",
+      "rootString": 4,
+      "movable": true,
+      "relFrets": [
+        -1,
+        -1,
+        0,
+        1,
+        0,
+        1
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        2,
+        0,
+        1
+      ],
+      "barre": null,
+      "notes": "xx0101",
+      "simplified": false
+    },
+    {
+      "quality": "m7b5",
+      "name": "D-shape",
+      "rootString": 4,
+      "movable": true,
+      "relFrets": [
+        -1,
+        -1,
+        0,
+        1,
+        1,
+        1
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        1
+      ],
+      "barre": {
+        "fret": 1,
+        "fromString": 3,
+        "toString": 1
+      },
+      "notes": "xx0111 = D, Ab, C, F",
+      "simplified": false
+    },
+    {
+      "quality": "7sus4",
+      "name": "D-shape",
+      "rootString": 4,
+      "movable": true,
+      "relFrets": [
+        -1,
+        -1,
+        0,
+        2,
+        1,
+        3
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        2,
+        1,
+        4
+      ],
+      "barre": null,
+      "notes": "xx0213",
+      "simplified": false
+    },
+    {
+      "quality": "13",
+      "name": "D-shape",
+      "rootString": 4,
+      "movable": true,
+      "relFrets": [
+        -1,
+        -1,
+        0,
+        4,
+        1,
+        2
+      ],
+      "fingers": [
+        0,
+        0,
+        0,
+        4,
+        1,
+        2
+      ],
+      "barre": null,
+      "notes": "xx0412 = root, 13, b7, 3; 5th and 9th omitted — marked simplified if no fuller shape exists",
+      "simplified": false
+    }
+  ],
+  "qualities": [
+    {
+      "key": "maj",
+      "label": "maj",
+      "type": "major",
+      "ext": {},
+      "via": "C, CM, Cmaj (no number)",
+      "aliasOf": null
+    },
+    {
+      "key": "min",
+      "label": "m",
+      "type": "minor",
+      "ext": {},
+      "via": "Cm, Cmin",
+      "aliasOf": null
+    },
+    {
+      "key": "5",
+      "label": "5→maj",
+      "type": "major",
+      "ext": {},
+      "via": "C5 (played as major)",
+      "aliasOf": "maj"
+    },
+    {
+      "key": "sus2",
+      "label": "sus2",
+      "type": "major",
+      "ext": {
+        "sus2": true
+      },
+      "via": "Csus2, C2",
+      "aliasOf": null
+    },
+    {
+      "key": "sus4",
+      "label": "sus4",
+      "type": "sus4",
+      "ext": {},
+      "via": "Csus4, C4",
+      "aliasOf": null
+    },
+    {
+      "key": "add9",
+      "label": "add9",
+      "type": "major",
+      "ext": {
+        "nine": true
+      },
+      "via": "Cadd9, Cadd2",
+      "aliasOf": null
+    },
+    {
+      "key": "madd9",
+      "label": "m(add9)",
+      "type": "minor",
+      "ext": {
+        "nine": true
+      },
+      "via": "Cmadd9",
+      "aliasOf": null
+    },
+    {
+      "key": "6",
+      "label": "6",
+      "type": "major",
+      "ext": {
+        "six": true
+      },
+      "via": "C6",
+      "aliasOf": null
+    },
+    {
+      "key": "m6",
+      "label": "m6",
+      "type": "minor",
+      "ext": {
+        "six": true
+      },
+      "via": "Cm6",
+      "aliasOf": null
+    },
+    {
+      "key": "dim",
+      "label": "°",
+      "type": "dim",
+      "ext": {},
+      "via": "Cdim",
+      "aliasOf": null
+    },
+    {
+      "key": "dim7",
+      "label": "dim7",
+      "type": "dim",
+      "ext": {
+        "six": true
+      },
+      "via": "Cdim7 (7 on dim = bb7)",
+      "aliasOf": null
+    },
+    {
+      "key": "aug",
+      "label": "aug",
+      "type": "major",
+      "ext": {
+        "sharp5": true
+      },
+      "via": "Caug",
+      "aliasOf": null
+    },
+    {
+      "key": "7",
+      "label": "7",
+      "type": "major",
+      "ext": {
+        "min7": true
+      },
+      "via": "C7",
+      "aliasOf": null
+    },
+    {
+      "key": "maj7",
+      "label": "maj7",
+      "type": "major",
+      "ext": {
+        "maj7": true
+      },
+      "via": "Cmaj7, CM7",
+      "aliasOf": null
+    },
+    {
+      "key": "m7",
+      "label": "m7",
+      "type": "minor",
+      "ext": {
+        "min7": true
+      },
+      "via": "Cm7",
+      "aliasOf": null
+    },
+    {
+      "key": "m7b5",
+      "label": "m7b5",
+      "type": "dim",
+      "ext": {
+        "min7": true
+      },
+      "via": "Cm7b5",
+      "aliasOf": null
+    },
+    {
+      "key": "9",
+      "label": "9",
+      "type": "major",
+      "ext": {
+        "min7": true,
+        "nine": true
+      },
+      "via": "C9",
+      "aliasOf": null
+    },
+    {
+      "key": "maj9",
+      "label": "maj9",
+      "type": "major",
+      "ext": {
+        "maj7": true,
+        "nine": true
+      },
+      "via": "Cmaj9",
+      "aliasOf": null
+    },
+    {
+      "key": "m9",
+      "label": "m9",
+      "type": "minor",
+      "ext": {
+        "min7": true,
+        "nine": true
+      },
+      "via": "Cm9",
+      "aliasOf": null
+    },
+    {
+      "key": "11",
+      "label": "11→9sus",
+      "type": "sus4",
+      "ext": {
+        "min7": true,
+        "nine": true
+      },
+      "via": "C11 (major 11 played as 9sus)",
+      "aliasOf": "9sus"
+    },
+    {
+      "key": "m11",
+      "label": "m11→m9",
+      "type": "minor",
+      "ext": {
+        "min7": true,
+        "nine": true
+      },
+      "via": "Cm11 (11th left out, played as m9)",
+      "aliasOf": "m9"
+    },
+    {
+      "key": "13",
+      "label": "13",
+      "type": "major",
+      "ext": {
+        "min7": true,
+        "thirteen": true
+      },
+      "via": "C13",
+      "aliasOf": null
+    },
+    {
+      "key": "m13",
+      "label": "m13",
+      "type": "minor",
+      "ext": {
+        "min7": true,
+        "thirteen": true
+      },
+      "via": "Cm13",
+      "aliasOf": null
+    },
+    {
+      "key": "9sus",
+      "label": "9sus",
+      "type": "sus4",
+      "ext": {
+        "min7": true,
+        "nine": true
+      },
+      "via": "C9sus4, C9sus",
+      "aliasOf": null
+    },
+    {
+      "key": "7sus4",
+      "label": "7sus4",
+      "type": "sus4",
+      "ext": {
+        "min7": true
+      },
+      "via": "C7sus4",
+      "aliasOf": null
+    },
+    {
+      "key": "7sus2",
+      "label": "7sus2",
+      "type": "major",
+      "ext": {
+        "sus2": true,
+        "min7": true
+      },
+      "via": "C7sus2",
+      "aliasOf": null
+    },
+    {
+      "key": "maj7sus2",
+      "label": "maj7sus2",
+      "type": "major",
+      "ext": {
+        "sus2": true,
+        "maj7": true
+      },
+      "via": "Cmaj7sus2",
+      "aliasOf": null
+    },
+    {
+      "key": "maj7sus4",
+      "label": "maj7sus4",
+      "type": "sus4",
+      "ext": {
+        "maj7": true
+      },
+      "via": "Cmaj7sus4",
+      "aliasOf": null
+    },
+    {
+      "key": "7b9",
+      "label": "7b9",
+      "type": "major",
+      "ext": {
+        "min7": true,
+        "flat9": true
+      },
+      "via": "C7b9",
+      "aliasOf": null
+    },
+    {
+      "key": "7#9",
+      "label": "7#9",
+      "type": "major",
+      "ext": {
+        "min7": true,
+        "sharp9": true
+      },
+      "via": "C7#9",
+      "aliasOf": null
+    },
+    {
+      "key": "7b5",
+      "label": "7b5",
+      "type": "major",
+      "ext": {
+        "min7": true,
+        "flat5": true
+      },
+      "via": "C7b5",
+      "aliasOf": null
+    },
+    {
+      "key": "aug7",
+      "label": "aug7",
+      "type": "major",
+      "ext": {
+        "min7": true,
+        "sharp5": true
+      },
+      "via": "Caug7, C7#5",
+      "aliasOf": null
+    },
+    {
+      "key": "maj7#5",
+      "label": "maj7#5",
+      "type": "major",
+      "ext": {
+        "maj7": true,
+        "sharp5": true
+      },
+      "via": "Cmaj7#5",
+      "aliasOf": null
+    },
+    {
+      "key": "majb5",
+      "label": "(b5)",
+      "type": "major",
+      "ext": {
+        "flat5": true
+      },
+      "via": "C(b5)",
+      "aliasOf": null
+    },
+    {
+      "key": "mmaj7",
+      "label": "m(maj7)",
+      "type": "minor",
+      "ext": {
+        "maj7": true
+      },
+      "via": "CmM7, CmM",
+      "aliasOf": null
+    },
+    {
+      "key": "mmaj9",
+      "label": "m(maj9)",
+      "type": "minor",
+      "ext": {
+        "maj7": true,
+        "nine": true
+      },
+      "via": "CmM9, Cmmaj9",
+      "aliasOf": null
+    },
+    {
+      "key": "69",
+      "label": "6(add9)",
+      "type": "major",
+      "ext": {
+        "six": true,
+        "nine": true
+      },
+      "via": "C6add9 (6/9 not accepted as a token; 6+add9 is)",
+      "aliasOf": null
+    },
+    {
+      "key": "m69",
+      "label": "m6(add9)",
+      "type": "minor",
+      "ext": {
+        "six": true,
+        "nine": true
+      },
+      "via": "Cm6add9",
+      "aliasOf": null
+    },
+    {
+      "key": "m9b5",
+      "label": "m9b5",
+      "type": "dim",
+      "ext": {
+        "min7": true,
+        "nine": true
+      },
+      "via": "Cm9b5",
+      "aliasOf": null
+    },
+    {
+      "key": "dimAdd9",
+      "label": "dim(add9)",
+      "type": "dim",
+      "ext": {
+        "nine": true
+      },
+      "via": "Cdimadd9",
+      "aliasOf": null
+    },
+    {
+      "key": "dimMaj7",
+      "label": "dim(maj7)",
+      "type": "dim",
+      "ext": {
+        "maj7": true
+      },
+      "via": "Cdimmaj7",
+      "aliasOf": null
+    },
+    {
+      "key": "6sus4",
+      "label": "6sus4",
+      "type": "sus4",
+      "ext": {
+        "six": true
+      },
+      "via": "C6sus4",
+      "aliasOf": null
+    },
+    {
+      "key": "sus4add9",
+      "label": "sus4(add9)",
+      "type": "sus4",
+      "ext": {
+        "nine": true
+      },
+      "via": "Csus4add9",
+      "aliasOf": null
+    }
+  ]
+}
