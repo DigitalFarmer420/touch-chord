@@ -122,9 +122,12 @@ html.expert:not(.kv).lay-phone-port .gtr-card[data-slot="fourth"] { display: non
 html.expert:not(.kv).lay-phone-port .gtr-cards { align-items: stretch; height: 100%; min-height: 0; max-height: 100%; }
 html.expert:not(.kv).lay-phone-port .gtr-card.now,
 html.expert:not(.kv).lay-phone-port .gtr-card.next {
-  flex: 1 1 0; width: 0; min-width: 0; max-height: 100%; height: 100%; min-height: 0; align-self: stretch;
-  justify-content: space-between;
+  flex: 1 1 0; width: 0; min-width: 0; max-height: 100%; min-height: 0;
 }
+/* Now fills the piano keyboard slot so its diagram can scale into that budget.
+   Next stays only as tall as its smaller diagram, so the card is shorter than Now. */
+html.expert:not(.kv).lay-phone-port .gtr-card.now { height: 100%; align-self: stretch; justify-content: space-between; }
+html.expert:not(.kv).lay-phone-port .gtr-card.next { height: auto; align-self: flex-start; }
 /* Guitar uses the same rows as Piano, so the chord grid does not jump when the
    instrument changes. The diagrams shrink into the keyboard row. */
 html.expert:not(.kv).gtr.lay-phone-port .kb-wrap,
