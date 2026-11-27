@@ -127,13 +127,26 @@ html.expert:not(.kv).lay-phone-port .gtr-card.next {
 }
 html.expert:not(.kv).lay-phone-port .gtr-card.now { align-self: stretch; }
 html.expert:not(.kv).lay-phone-port .gtr-card.next { align-self: flex-start; height: auto; }
+/* Guitar borrows height from the chord grid (five rows stay, a bit shorter) so
+   the diagrams can use the card width instead of a 30px square. */
+html.expert.gtr.lay-phone-port #app {
+  /* A 640-tall phone lends the diagrams about 28px from the chord grid (120px).
+     Taller phones keep the 148px grid. */
+  grid-template-rows: var(--x-row) var(--x-row) var(--x-src-h) minmax(108px, min(148px, max(108px, calc(100 * var(--tc-dvh) - 520px)))) var(--x-ctl-h) minmax(0, 1fr) !important;
+}
+html.expert.gtr.lay-phone-port #suggest.ss { --ss-fs: 14px; --ss-note: 14px; --ss-small: 9px; }
+html.expert:not(.kv).lay-phone-port .gtr-card { padding: 2px 6px 2px; }
+html.expert:not(.kv).lay-phone-port .gtr-head { flex-direction: row; align-items: baseline; gap: 4px; }
+html.expert:not(.kv).lay-phone-port .gtr-card .gtr-lb { margin: 0; }
+html.expert:not(.kv).lay-phone-port .gtr-card .gtr-name { font-size: 17px; }
+html.expert:not(.kv).lay-phone-port .gtr-card .gtr-meta { margin: 0; }
 html.expert:not(.kv).lay-phone-port .gtr-card.now .gtr-diagram {
-  width: var(--gtr-now, 72px); height: var(--gtr-now, 72px); max-width: 100%; max-height: 100%;
-  aspect-ratio: 1 / 1; align-self: center; flex: 0 0 auto;
+  width: var(--gtr-now, 72px); height: auto; max-width: 100%; max-height: none;
+  aspect-ratio: auto; align-self: center; flex: 0 0 auto;
 }
 html.expert:not(.kv).lay-phone-port .gtr-card.next .gtr-diagram {
-  width: var(--gtr-next, 56px); height: var(--gtr-next, 56px); max-width: 100%; max-height: 100%;
-  aspect-ratio: 1 / 1; flex: 0 0 auto;
+  width: var(--gtr-next, 56px); height: auto; max-width: 100%; max-height: none;
+  aspect-ratio: auto; flex: 0 0 auto;
 }
 html.expert:not(.kv).lay-phone-port .gtr-vo { flex-wrap: nowrap; justify-content: center; max-width: 100%; }
 html.expert:not(.kv).lay-phone-port .gtr-vo button { width: 24px; height: 24px; min-height: 24px; flex: none; }

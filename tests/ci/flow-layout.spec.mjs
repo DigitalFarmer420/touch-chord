@@ -261,24 +261,28 @@ const GUITAR_NEXT = () => {
   if (xb.width > nb.width + 4 || xb.height > nb.height + 2) {
     issues.push({ kind: 'guitar', el: 'next card', detail: Math.round(xb.width) + '×' + Math.round(xb.height) + ' bigger than Now ' + Math.round(nb.width) + '×' + Math.round(nb.height) });
   }
-  const phone = document.documentElement.classList.contains('lay-phone-port');
-  if (phone && nowR && nextR && nowR.width > 16) {
-    if (nextR.width < nowR.width * 0.7 - 1) {
-      issues.push({ kind: 'guitar', el: 'next diagram', detail: 'width ' + Math.round(nextR.width) + ' is under 0.7 of Now ' + Math.round(nowR.width) });
+  function drawnWidth(svg) {
+    const ctm = svg.getScreenCTM();
+    const verts = [...svg.querySelectorAll('line')].filter(l => Math.abs(+l.getAttribute('x1') - +l.getAttribute('x2')) < 0.1);
+    const xs = verts.map(l => +l.getAttribute('x1')).sort((a, b) => a - b);
+    if (!ctm || xs.length < 2) return 0;
+    const a = new DOMPoint(xs[0], 0).matrixTransform(ctm);
+    const b = new DOMPoint(xs[xs.length - 1], 0).matrixTransform(ctm);
+    return Math.abs(b.x - a.x);
+  }
+  const sizeWatch = (innerWidth === 360 && innerHeight === 640) || (innerWidth === 412 && innerHeight === 915) || (innerWidth === 820 && innerHeight === 1180);
+  if (sizeWatch && nowR && nextR) {
+    const nowSvg = now.querySelector('.gtr-diagram');
+    const nextSvg = next.querySelector('.gtr-diagram');
+    const nowDrawn = drawnWidth(nowSvg);
+    const nextDrawn = drawnWidth(nextSvg);
+    if (nowDrawn > 8 && nextDrawn < nowDrawn * 0.7 - 1) {
+      issues.push({ kind: 'guitar', el: 'next diagram', detail: 'drawn width ' + Math.round(nextDrawn) + ' is under 0.7 of Now ' + Math.round(nowDrawn) });
     }
-    const cs = getComputedStyle(next);
-    const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
-    const padY = parseFloat(getComputedStyle(now).paddingTop) + parseFloat(getComputedStyle(now).paddingBottom);
-    let used = padY;
-    for (const el of now.children) if (!el.classList.contains('gtr-diagram')) used += el.getBoundingClientRect().height;
-    const hole = now.clientHeight - used - 2;
+    const padX = parseFloat(getComputedStyle(next).paddingLeft) + parseFloat(getComputedStyle(next).paddingRight);
     const innerW = next.clientWidth - padX;
-    // A square cannot be 60% of a short card, so the floor is 60% of the width
-    // only when that square fits in the card. Otherwise Next fills 90% of the hole.
-    const fit = Math.min(innerW * 0.96, Math.max(0, hole));
-    const floor = Math.min(innerW * 0.6, fit * 0.9);
-    if (fit > 24 && nextR.width < floor - 2) {
-      issues.push({ kind: 'guitar', el: 'next diagram', detail: 'width ' + Math.round(nextR.width) + ' is under ' + Math.round(floor) + ' (60% of ' + Math.round(innerW) + ', hole ' + Math.round(hole) + ')' });
+    if (innerW > 20 && nextDrawn < innerW * 0.6 - 1) {
+      issues.push({ kind: 'guitar', el: 'next diagram', detail: 'drawn width ' + Math.round(nextDrawn) + ' is under 60% of the card ' + Math.round(innerW) });
     }
   }
   function lin(c) { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
@@ -312,7 +316,9 @@ const GUITAR_NEXT = () => {
     if (lamp && card === now && stroke && stroke !== '#7a6c58') issues.push({ kind: 'guitar', el: 'now ink', detail: 'dark look line changed to ' + stroke });
     const need = +svg.getAttribute('data-gtr-fretted') || 0;
     const dots = [...svg.querySelectorAll('circle.gtr-dot')];
+    const fingers = [...svg.querySelectorAll('text.gtr-finger')];
     if (need && dots.length < need) issues.push({ kind: 'guitar', el: card.dataset.slot, detail: dots.length + ' dots for ' + need + ' fretted notes' });
+    if (need && !fingers.length) issues.push({ kind: 'guitar', el: card.dataset.slot, detail: 'fretted notes have no finger numbers' });
     dots.forEach(c => {
       const fill = c.getAttribute('fill') || '';
       const rootGold = asHex(fill) === '#ffc23d';
