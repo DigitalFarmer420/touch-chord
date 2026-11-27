@@ -130,7 +130,7 @@ export function diagramFrame(o) {
   var H = top + 4 * fh + bot;
   var limit = o.w / 0.82;
   if (H > limit) {
-    fh = Math.max(sg * 0.75, fh - (H - limit) / 4);
+    fh = Math.max(sg * 0.9, fh - (H - limit) / 4);
     r = Math.min(sg, fh) * 0.36;
     H = top + 4 * fh + bot;
   }
