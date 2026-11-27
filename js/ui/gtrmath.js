@@ -1,7 +1,7 @@
 // Guitar-tab decisions with no DOM: which tab is selected, where the tabs sit,
 // which cards a layout shows, the diagram marks, and whether a key change is a
 // fret slide. The screen (js/ui/guitar.js) only draws what this returns.
-import { accSym } from "../theory/spelling.js?v=2026.11.27.18";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.19";
 
 export var GTR_TAB_KEY = "touchChord.gtrTab.v1";
 export var ROOT_COLOR = "#FFC23D";
@@ -105,11 +105,26 @@ export function fretRows(frets) {
   return span > 4 ? span : 4;
 }
 
-// The finger number sits in the middle of the bar, in a color that reads on the
-// bar, for a full barre and a partial one. A number past the last string is
-// what made the full-barre "1" fall off the right edge.
-export function barreFinger(toString, stringCount, x0, x1, r) {
-  return { x: (Math.min(x0, x1) + Math.max(x0, x1)) / 2, anchor: "middle", r: r };
+// The finger number sits inside the barre dot nearest the middle of the bar.
+// A six-string barre's midpoint falls between two strings, which left the
+// digit touching a ring. On a tie the higher string wins. `dots` are the
+// barre circles: { string, x, root }.
+export function barreFinger(x0, x1, r, dots) {
+  var mid = (Math.min(x0, x1) + Math.max(x0, x1)) / 2;
+  var best = null;
+  var bestD = Infinity;
+  var list = dots || [];
+  for (var i = 0; i < list.length; i++) {
+    var d = Math.abs(list[i].x - mid);
+    var closer = d < bestD - 1e-6;
+    var tie = best && Math.abs(d - bestD) <= 1e-6 && list[i].string > best.string;
+    if (!best || closer || tie) {
+      best = list[i];
+      bestD = d;
+    }
+  }
+  if (!best) return { x: mid, anchor: "middle", r: r, root: false, string: -1 };
+  return { x: best.x, anchor: "middle", r: r, root: !!best.root, string: best.string };
 }
 
 // A barre is a bar from the first barred string to the last, as thick as a dot

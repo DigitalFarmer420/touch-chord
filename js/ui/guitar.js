@@ -1,19 +1,19 @@
 // Expert Guitar tab. Draws the resolver's grips in the keyboard area and strums
 // them through ChordAudio. Kids, Simple, and the Piano tab do not use this panel.
-import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.18";
-import { unlock } from "../audio/unlock.js?v=2026.11.27.18";
-import { activeKey } from "../keys.js?v=2026.11.27.18";
-import { prog, magic } from "../songs/playback.js?v=2026.11.27.18";
-import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.18";
-import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.18";
-import { state } from "../state.js?v=2026.11.27.18";
-import { Theory } from "../theory/index.js?v=2026.11.27.18";
-import { accSym } from "../theory/spelling.js?v=2026.11.27.18";
-import { computeSpec } from "./touch.js?v=2026.11.27.18";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.19";
+import { unlock } from "../audio/unlock.js?v=2026.11.27.19";
+import { activeKey } from "../keys.js?v=2026.11.27.19";
+import { prog, magic } from "../songs/playback.js?v=2026.11.27.19";
+import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.19";
+import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.19";
+import { state } from "../state.js?v=2026.11.27.19";
+import { Theory } from "../theory/index.js?v=2026.11.27.19";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.19";
+import { computeSpec } from "./touch.js?v=2026.11.27.19";
 import {
   GTR_TAB_KEY, readGtrTab, gtrTabReduce, cardSlots, layoutOf,
   chordSig, chordDisplayName, voicingLabel, voicingFret, nextVoicingSize, cycleIndex, fretSlide, diagramModel, diagramFrame, fretRows, barreFinger, barreBox
-} from "./gtrmath.js?v=2026.11.27.18";
+} from "./gtrmath.js?v=2026.11.27.19";
 
 var TAB_LABEL = { now: "NOW", next: "NEXT", third: "3RD", fourth: "4TH" };
 var pick = {};
@@ -132,7 +132,18 @@ function diagramSvg(voicing, chord, o) {
     var x1 = left + b.toString * sg;
     var box = barreBox(x0, x1, yb, r);
     if (box.width > 0.5) g += '<rect class="gtr-barre" x="' + box.x + '" y="' + box.y + '" width="' + box.width + '" height="' + box.height + '" rx="' + Math.min(2.2, r * 0.35) + '" fill="' + dot + '"/>';
-    if (o.fing) fingerNotes.push(barreFinger(b.toString, S, x0, x1, r).x + "|" + yb + "|" + b.finger);
+    if (o.fing) {
+      var loS = Math.min(b.fromString, b.toString), hiS = Math.max(b.fromString, b.toString);
+      var dots = [];
+      for (var di = 0; di < model.marks.length; di++) {
+        var dm = model.marks[di];
+        if (dm.fret !== b.fret || dm.string < loS || dm.string > hiS) continue;
+        if (dm.kind !== "barre" && dm.kind !== "barre-root") continue;
+        dots.push({ string: dm.string, x: left + dm.string * sg, root: dm.kind === "barre-root" });
+      }
+      var spot = barreFinger(x0, x1, r, dots);
+      fingerNotes.push(spot.x + "|" + yb + "|" + b.finger + "|" + (spot.root ? YT : dotT));
+    }
   }
   for (var mi = 0; mi < model.marks.length; mi++) {
     var m = model.marks[mi];
@@ -152,7 +163,9 @@ function diagramSvg(voicing, chord, o) {
   }
   for (var fn = 0; fn < fingerNotes.length; fn++) {
     var parts = fingerNotes[fn].split("|");
-    g += '<text class="gtr-finger" x="' + parts[0] + '" y="' + (parseFloat(parts[1]) + r * 0.42) + '" font-size="' + (r * 1.15) + '" text-anchor="middle" fill="' + dotT + '" font-family="Nunito, system-ui, sans-serif" font-weight="800">' + parts[2] + "</text>";
+    // A little smaller than a fretted-note number so the glyph stays inside the
+    // ring on a short landscape diagram, where the dot is only a few pixels.
+    g += '<text class="gtr-finger gtr-barre-num" x="' + parts[0] + '" y="' + (parseFloat(parts[1]) + r * 0.38) + '" font-size="' + (r * 0.9) + '" text-anchor="middle" fill="' + (parts[3] || dotT) + '" font-family="Nunito, system-ui, sans-serif" font-weight="800">' + parts[2] + "</text>";
   }
   if (o.strings) {
     var names = guitarProfile.stringNames;

@@ -180,7 +180,7 @@ html.expert.lay-phone-land:where(:not(.kv)) #app { --x-row: 40px !important; --x
   html.expert.lay-phone-land.x-types-open:where(:not(.kv)) #app { --x-kb-h: clamp(72px, calc(calc(100 * var(--tc-dvh)) - 255px), 84px) !important; }
 }
 html.expert.lay-phone-land:where(:not(.kv)):has(#xSrc.x-mode-prog) #suggest.ss { grid-template-rows: [b-start g-start] 0px [b-end h-start] minmax(0, 1fr) [h-end n-start] minmax(0, 1fr) [n-end s-start] minmax(0, 1fr) [s-end t-start] minmax(0, 1fr) [t-end g-end] !important; --ss-fs: 16px; --ss-note: 16px; }
-html.expert.lay-phone-land:where(:not(.kv)):has(#xSrc.x-mode-prog) #suggest .ss-chip.color { grid-row: h-start / h-end !important; }   /* the borrowed chord joins the major row: frees a whole row */
+html.expert.lay-phone-land:where(:not(.kv)):has(#xSrc.x-mode-prog) #suggest .ss-chip.color:not(.tmp) { grid-row: h-start / h-end !important; }   /* the strip's borrowed chord joins the major row. A progression chip keeps the row it was given. */
 html.expert.lay-phone-land:where(:not(.kv)) .x-b, html.expert.lay-phone-land:where(:not(.kv)) .x-pbar { min-height: 40px; }
 html.expert.lay-phone-land:where(:not(.kv)) .now-card #symbol { font-size: 30px !important; }
 html.expert.lay-phone-land:where(:not(.kv)) .now-card { align-items: center !important; gap: 6px; }

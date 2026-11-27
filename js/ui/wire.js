@@ -1,17 +1,17 @@
 // Main event wiring (wire()): style row, sound tiles, sliders, controls.
-import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.18";
-import { unlock } from "../audio/unlock.js?v=2026.11.27.18";
-import { modeKey, namePc, buildKeySel, setKeySpell } from "../keys.js?v=2026.11.27.18";
-import { killLoopVoices, onRecord, onPlay, onClear, setBpm } from "../loop.js?v=2026.11.27.18";
-import { magic, progStop, progPause, prog, progSet } from "../songs/playback.js?v=2026.11.27.18";
-import { upInList } from "../songs/song.js?v=2026.11.27.18";
-import { VOICINGS, state, loop, padsEl, shared } from "../state.js?v=2026.11.27.18";
-import { applyStylePreset, enforceYogaDeepPaletteGate, setWarmth } from "../styles.js?v=2026.11.27.18";
-import { paintKeyChip } from "./keychip.js?v=2026.11.27.18";
-import { computeSpec, eatMove, renderPads, releaseFingers, onPadUp, refreshHeld } from "./pads.js?v=2026.11.27.18";
-import { onPaletteDown, onPaletteUp, onTouchGone, setKeyModeState } from "./palette.js?v=2026.11.27.18";
-import { paintSuggestions } from "./strip.js?v=2026.11.27.18";
-import { paintSustainBtn, setSustain, wireSustain } from "./sustain.js?v=2026.11.27.18";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.19";
+import { unlock } from "../audio/unlock.js?v=2026.11.27.19";
+import { modeKey, namePc, buildKeySel, setKeySpell } from "../keys.js?v=2026.11.27.19";
+import { killLoopVoices, onRecord, onPlay, onClear, setBpm } from "../loop.js?v=2026.11.27.19";
+import { magic, progStop, progPause, prog, progSet } from "../songs/playback.js?v=2026.11.27.19";
+import { upInList } from "../songs/song.js?v=2026.11.27.19";
+import { VOICINGS, state, loop, padsEl, shared } from "../state.js?v=2026.11.27.19";
+import { applyStylePreset, enforceYogaDeepPaletteGate, setWarmth } from "../styles.js?v=2026.11.27.19";
+import { paintKeyChip } from "./keychip.js?v=2026.11.27.19";
+import { computeSpec, eatMove, renderPads, releaseFingers, onPadUp, refreshHeld } from "./pads.js?v=2026.11.27.19";
+import { onPaletteDown, onPaletteUp, onTouchGone, setKeyModeState } from "./palette.js?v=2026.11.27.19";
+import { paintSuggestions } from "./strip.js?v=2026.11.27.19";
+import { paintSustainBtn, setSustain, wireSustain } from "./sustain.js?v=2026.11.27.19";
 
 export function wire() {
   var keySel = document.getElementById("keyRoot");

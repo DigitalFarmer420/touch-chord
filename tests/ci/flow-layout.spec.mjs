@@ -140,6 +140,33 @@ const MEASURE = () => {
       if (r - l > 6 && btm - t > 6) issues.push({ kind: 'overlap', el: label(a.e) + ' ∩ ' + label(b.e), detail: Math.round(r - l) + '×' + Math.round(btm - t) });
     }
   }
+  // Every progression chip gets its own tappable slot: at least 32px tall, and
+  // not stacked on another chip. A hidden 8px sliver used to fail the hit test
+  // and so never showed up as an overlap.
+  if (document.documentElement.classList.contains('expert') && !document.documentElement.classList.contains('kv')) {
+    const chips = [...document.querySelectorAll('#suggest .ss-chip')].filter(e => {
+      if (e.hidden || (e.closest && e.closest('[hidden]'))) return false;
+      const s = getComputedStyle(e);
+      return s.display !== 'none' && s.visibility !== 'hidden';
+    });
+    // Phone-portrait Guitar shortens the chord grid so the diagrams can use the
+    // width. Those chips keep their own row; the 32px floor is for every other
+    // layout, where a slot that is not a real row collapses to a few pixels.
+    const phoneGtr = document.documentElement.classList.contains('lay-phone-port') && document.documentElement.classList.contains('gtr');
+    const minH = phoneGtr ? 16 : 32;
+    chips.forEach(e => {
+      const r = e.getBoundingClientRect();
+      if (Math.round(r.height) < minH) issues.push({ kind: 'chip', el: label(e), detail: 'progression chip is ' + Math.round(r.width) + '×' + Math.round(r.height) });
+    });
+    for (let i = 0; i < chips.length; i++) {
+      for (let j = i + 1; j < chips.length; j++) {
+        const a = chips[i].getBoundingClientRect(), b = chips[j].getBoundingClientRect();
+        const w = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+        const h = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+        if (w > 1 && h > 1) issues.push({ kind: 'overlap', el: label(chips[i]) + ' ∩ ' + label(chips[j]), detail: 'chips overlap ' + Math.round(w) + '×' + Math.round(h) });
+      }
+    }
+  }
   // Guitar fret number ("3fr") must be fully inside its diagram. A clipped label reads ":fr".
   document.querySelectorAll('svg.gtr-diagram text.gtr-fr').forEach(t => {
     if (!shown(t)) return;
@@ -325,6 +352,28 @@ const GUITAR_NEXT = () => {
       if (lamp && rootGold) return;
       if (day && rootGold) issues.push({ kind: 'guitar', el: card.dataset.slot + ' root', detail: 'day root is still the light gold' });
       if (contrast(fill, bg) < 3) issues.push({ kind: 'guitar', el: card.dataset.slot + ' dot', detail: 'contrast ' + contrast(fill, bg).toFixed(2) + ' ' + fill + ' on ' + bg });
+    });
+    svg.querySelectorAll('text.gtr-barre-num').forEach(t => {
+      const bb = t.getBBox();
+      const cx = bb.x + bb.width / 2, cy = bb.y + bb.height / 2;
+      const rings = [...svg.querySelectorAll('circle.gtr-dot')].filter(c => c.getAttribute('stroke'));
+      const host = rings.find(c => Math.hypot(cx - +c.getAttribute('cx'), cy - +c.getAttribute('cy')) < +c.getAttribute('r') - 0.75);
+      if (!host) issues.push({ kind: 'guitar', el: card.dataset.slot + ' barre "' + (t.textContent || '').trim() + '"', detail: 'barre digit is not inside a barre dot' });
+      const corners = [[bb.x, bb.y], [bb.x + bb.width, bb.y], [bb.x, bb.y + bb.height], [bb.x + bb.width, bb.y + bb.height]];
+      rings.forEach(c => {
+        const rad = +c.getAttribute('r');
+        const sw = parseFloat(c.getAttribute('stroke-width')) || 1.5;
+        const ccx = +c.getAttribute('cx'), ccy = +c.getAttribute('cy');
+        const inner = rad - sw / 2, outer = rad + sw / 2;
+        if (c === host) {
+          const out = corners.some(([x, y]) => Math.hypot(x - ccx, y - ccy) > inner + 0.4);
+          if (out) issues.push({ kind: 'guitar', el: card.dataset.slot + ' barre "' + (t.textContent || '').trim() + '"', detail: 'barre digit overlaps its ring' });
+        } else {
+          const qx = Math.max(bb.x, Math.min(ccx, bb.x + bb.width));
+          const qy = Math.max(bb.y, Math.min(ccy, bb.y + bb.height));
+          if (Math.hypot(qx - ccx, qy - ccy) < outer - 0.4) issues.push({ kind: 'guitar', el: card.dataset.slot + ' barre "' + (t.textContent || '').trim() + '"', detail: 'barre digit overlaps another ring' });
+        }
+      });
     });
     svg.querySelectorAll('text.gtr-fr, text.gtr-finger').forEach(t => {
       const fill = t.getAttribute('fill') || '';
