@@ -2,7 +2,7 @@
 // sounding fingers, release / lift, held refresh) lives in touch.js (no DOM); this file draws the keys and feeds it.
 import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.12";
 import { unlock } from "../audio/unlock.js?v=2026.11.27.12";
-import { modeKey, keyDegrees } from "../keys.js?v=2026.11.27.12";
+import { modeKey, keyDegrees, activeKey, keyNoteName } from "../keys.js?v=2026.11.27.12";
 import { paTwin, playAlongKey, playAlongGo } from "../songs/playalong.js?v=2026.11.27.12";
 import { magic } from "../songs/playback.js?v=2026.11.27.12";
 import { state, fingers, padsEl, shared } from "../state.js?v=2026.11.27.12";
@@ -40,6 +40,10 @@ function degreeAt(pc) {
   }
   return null;
 }
+function keyLabel(pc) {
+  var k = activeKey();
+  return k ? keyNoteName(k, pc) : Theory.NOTE_NAMES[pc];
+}
 
 var keySerial;
 
@@ -47,7 +51,7 @@ function makeKey(pc, midi) {
   var b = document.createElement("button");
   b.type = "button";
   var deg = degreeAt(pc);
-  var name = deg ? deg.name : Theory.NOTE_NAMES[pc];
+  var name = keyLabel(pc);
   b.dataset.id = "k" + (keySerial++);
   b.dataset.pc = String(pc);
   b.dataset.midi = String(midi);
@@ -55,7 +59,7 @@ function makeKey(pc, midi) {
     b.className = "pad " + kbChord.type;
     b.dataset.borrow = "1";
     b.dataset.btype = kbChord.type;
-    b.innerHTML = "<span class=\"nm\">" + accSym(Theory.NOTE_NAMES[pc]) + "</span>";
+    b.innerHTML = "<span class=\"nm\">" + accSym(name) + "</span>";
     bindPad(b);
     return b;
   }

@@ -732,7 +732,8 @@ export function applySongKey(tonic, mode) {
   state.keyScale = mode;
   shared.lockKey = { pc: pc, mode: mode };
   if (typeof tonic === "string") setKeySpell(pc, mode, tonic);
-  if (state.keyMode) renderPads();
+  // Repaint key names for the new spelling. Kids hides #app, so its own piano is left alone.
+  if (state.keyMode || !shared.kidsView) renderPads();
   shared.suggestSig = "";
   refreshHeld();
   paintSuggestions(computeSpec());

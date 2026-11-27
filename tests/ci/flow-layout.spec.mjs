@@ -136,6 +136,38 @@ const MEASURE = () => {
       if (r - l > 6 && btm - t > 6) issues.push({ kind: 'overlap', el: label(a.e) + ' ∩ ' + label(b.e), detail: Math.round(r - l) + '×' + Math.round(btm - t) });
     }
   }
+  // Guitar fret number ("3fr") must be fully inside its diagram. A clipped label reads ":fr".
+  document.querySelectorAll('svg.gtr-diagram text.gtr-fr').forEach(t => {
+    if (!shown(t)) return;
+    const svg = t.ownerSVGElement;
+    if (!svg) return;
+    const r = t.getBoundingClientRect();
+    const s = svg.getBoundingClientRect();
+    const text = (t.textContent || '').trim();
+    if (!/^[0-9]+fr$/.test(text) || r.left < s.left - 0.5 || r.right > s.right + 0.5 || r.top < s.top - 0.5 || r.bottom > s.bottom + 0.5) {
+      issues.push({ kind: 'fret', el: label(t), detail: 'fret label "' + text + '" is not inside the diagram' });
+    }
+  });
+  // The lyric line ends before the song Lock. It must not paint underneath that button.
+  const lock = document.querySelector('#xSrc .x-lock');
+  if (lock && shown(lock)) {
+    const L = lock.getBoundingClientRect();
+    document.querySelectorAll('#xSrc .x-sline, #xSrc .x-lin').forEach(line => {
+      if (!shown(line)) return;
+      const box = painted(line);
+      if (!box) return;
+      if (box.right > L.left + 1 && box.bottom > L.top + 1 && box.top < L.bottom - 1) {
+        issues.push({ kind: 'lyric', el: label(line), detail: 'lyric runs under the lock' });
+      }
+    });
+  }
+  // Out-of-key piano notes use the key's accidental. Eb major is Db and Gb, not C# and F#.
+  const keyName = ((document.querySelector('#xKey .x-kl') || {}).textContent || '');
+  if (/E♭|Eb/.test(keyName) && document.documentElement.classList.contains('expert')) {
+    const blacks = [...document.querySelectorAll('#pads .pad.black .nm')].filter(shown).map(e => (e.textContent || '').trim());
+    const bad = blacks.filter(n => n === 'F♯' || n === 'C♯' || n === 'F#' || n === 'C#');
+    if (bad.length) issues.push({ kind: 'spell', el: 'pad.black', detail: 'Eb piano shows ' + bad.join(' ') });
+  }
   return issues;
 };
 

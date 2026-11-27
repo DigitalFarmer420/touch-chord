@@ -78,6 +78,21 @@ function cardChords(spec) {
   return out;
 }
 
+// "3fr" has to sit fully inside the diagram. The left gutter is used when the
+// label fits there; a small Next square puts it in the top band instead, so the
+// "3" is not clipped off the left edge.
+function fretText(label, left, top, fh, gutter, ink) {
+  if (!label) return "";
+  var wide = label.length * 0.62;
+  var fs = 10;
+  while (fs > 7 && wide * fs > gutter - 2) fs -= 1;
+  var tw = wide * fs;
+  if (tw <= gutter - 2 && left - 1 - tw >= 1) {
+    return '<text class="gtr-fr" x="' + (left - 1) + '" y="' + (top + fh * 0.62) + '" font-size="' + fs + '" text-anchor="end" fill="' + ink + '" font-family="Nunito, system-ui, sans-serif" font-weight="800">' + label + "</text>";
+  }
+  fs = Math.max(7, Math.min(9, top - 1));
+  return '<text class="gtr-fr" x="1" y="' + (fs + 0.5) + '" font-size="' + fs + '" text-anchor="start" fill="' + ink + '" font-family="Nunito, system-ui, sans-serif" font-weight="800">' + label + "</text>";
+}
 function diagramSvg(voicing, chord, o) {
   var model = diagramModel(voicing, guitarProfile.tuning, chord.rootPc);
   var S = model.marks.length, F = 4;
@@ -95,7 +110,7 @@ function diagramSvg(voicing, chord, o) {
   var g = '<svg class="gtr-diagram" width="100%" viewBox="0 0 ' + o.w + " " + H + '" role="img" aria-label="' + escapeAttr(o.label || "") + '">';
   if (model.nut) g += '<rect x="' + (left - 1) + '" y="' + (top - 4) + '" width="' + (gw + 2) + '" height="5" rx="1.5" fill="' + ink + '"/>';
   else g += '<line x1="' + left + '" x2="' + (left + gw) + '" y1="' + top + '" y2="' + top + '" stroke="' + line + '" stroke-width="1.5"/>' +
-    '<text x="' + (left - 5) + '" y="' + (top + fh * 0.62) + '" font-size="10" text-anchor="end" fill="' + ink + '" font-family="Nunito, system-ui, sans-serif" font-weight="800">' + model.frLabel + "</text>";
+    fretText(model.frLabel, left, top, fh, gutter, ink);
   for (var fi = 1; fi <= F; fi++) g += '<line x1="' + left + '" x2="' + (left + gw) + '" y1="' + (top + fi * fh) + '" y2="' + (top + fi * fh) + '" stroke="' + line + '" stroke-width="1.5"/>';
   for (var si = 0; si < S; si++) {
     var sw = (1 + (S - 1 - si) * 0.25).toFixed(2);

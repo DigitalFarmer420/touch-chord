@@ -658,12 +658,18 @@ function fitLyrRow(box) {
   if (!lin) return;
   lin.style.transform = ""; row.classList.remove("x-shift"); row.classList.remove("x-ovr");
   var rr = row.getBoundingClientRect(), lr = lin.getBoundingClientRect(), dx = 0;
+  var edge = rr.right;
+  var lock = box.querySelector(".x-lock");
+  if (lock) {
+    var lk = lock.getBoundingClientRect();
+    if (lk.width > 2) edge = Math.min(edge, lk.left - 2);
+  }
   if (w) {
     var wr = w.getBoundingClientRect();
-    if (wr.right > rr.right - 4) dx = Math.max(0, Math.min(wr.left - rr.left - 24, wr.right - rr.right + 8));
+    if (wr.right > edge - 4) dx = Math.max(0, Math.min(wr.left - rr.left - 24, wr.right - edge + 8));
   }
   if (dx > 0) { lin.style.transform = "translateX(" + (-Math.round(dx)) + "px)"; row.classList.add("x-shift"); }
-  if (lr.right - dx > rr.right + 0.5) row.classList.add("x-ovr");   // more text past the right edge: fade it out
+  if (lr.right - dx > edge + 0.5) row.classList.add("x-ovr");   // more text past the right edge: fade it out
 }
 function heldTag(p) { return p && p.held && p.from ? " <small>" + esc(styleName(p.from)) + "</small>" : ""; }   // a locked pick carried into another style
 function progLockTap() {

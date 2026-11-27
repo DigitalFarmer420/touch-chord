@@ -165,6 +165,8 @@ Chord names use the current key's spelling. `keyRootName` in `js/keys.js` reads 
 
 **Rule.** A label shows the song's chord name or the pad's chord name. It does not show the name of the guitar shape the resolver matched. `chordDisplayName` in `js/ui/gtrmath.js` is that label: `chipLabel`, or `qualityLabel`, or `symbol`, then `accSym`. The grip is a separate line, `voicingLabel`: `"Open"` or `"A-shape · 3fr"`. A new card, hint, or lyric cue uses `chordDisplayName` (or the same inputs) for the chord, and `voicingLabel` only for the grip.
 
+Piano key names use `keyNoteName` (`js/keys.js`). A note in the scale uses that scale's spelling. A note outside the scale uses the same accidental side as the key, so Eb major shows Db and Gb, not C# and F#. The Kids piano draws its own labels and is not part of this path.
+
 ## Sustain
 
 `#sustainBtn` is one button, grid area `sus`. Where it sits today:
