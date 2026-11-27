@@ -255,13 +255,17 @@ test("the smaller-stretch table is the first grip, and a 5-fret alternate still 
   assert.equal(searched, 19);
 });
 
-test("a barre is a bar between the strings and its finger number sits on the bar", () => {
-  const full = barreFinger(5, 6, 12, 88, 6);
+test("a barre is a bar between the strings and its finger number sits on a barre dot", () => {
+  const dots = [0, 1, 2, 3, 4, 5].map(s => ({ string: s, x: 12 + s * (76 / 5), root: s === 0 }));
+  const full = barreFinger(12, 88, 6, dots);
   assert.equal(full.anchor, "middle");
-  assert.equal(full.x, 50);
-  const partial = barreFinger(4, 6, 40, 70, 6);
-  assert.equal(partial.anchor, "middle");
-  assert.equal(partial.x, 55);
+  assert.equal(full.string, 3);
+  assert.equal(full.x, dots[3].x);
+  assert.equal(full.root, false);
+  const partialDots = [3, 4, 5].map(s => ({ string: s, x: 40 + (s - 3) * 15, root: false }));
+  const partial = barreFinger(40, 70, 6, partialDots);
+  assert.equal(partial.string, 4);
+  assert.equal(partial.x, partialDots[1].x);
   const box = barreBox(40, 70, 30, 6);
   assert.equal(box.x, 40);
   assert.equal(box.width, 30);
@@ -312,6 +316,55 @@ test("moved D-shapes keep their frets and number every finger, including the Ebm
   const drawn = readFileSync(new URL("../../js/ui/guitar.js", import.meta.url), "utf8");
   assert.match(drawn, /fing: true/);
   assert.doesNotMatch(drawn, /fing: now/);
+});
+
+test("the barre digit sits inside a barre dot and clear of every ring", () => {
+  const cases = [
+    ["Fm9", { rootPc: 5, type: "minor", extensions: { min7: true, nine: true } }, "131113"],
+    ["F", { rootPc: 5, type: "major", extensions: {} }, "133211"],
+    ["Ebmaj7", { rootPc: 3, type: "major", extensions: { maj7: true } }, "xx1333"]
+  ];
+  function boxInside(box, cx, cy, rad) {
+    return [[box.left, box.top], [box.right, box.top], [box.left, box.bottom], [box.right, box.bottom]]
+      .every(([x, y]) => Math.hypot(x - cx, y - cy) <= rad + 1e-6);
+  }
+  function boxMisses(box, cx, cy, rad) {
+    const x = Math.max(box.left, Math.min(cx, box.right));
+    const y = Math.max(box.top, Math.min(cy, box.bottom));
+    return Math.hypot(x - cx, y - cy) >= rad - 1e-6;
+  }
+  for (const [name, chord, frets] of cases) {
+    const v = resolveVoicings(guitar, chord)[0];
+    const got = v.frets.map(f => (f == null ? "x" : String(f))).join("");
+    assert.equal(got, frets, name);
+    const model = diagramModel(v, guitar.tuning, chord.rootPc);
+    const frame = diagramFrame({
+      w: 167, fh: 36, mk: 11, base: model.base, rows: fretRows(v.frets),
+      side: 4, top: 9, bot: model.base > 1 ? 16 : 10, gutter: model.base > 1 ? 10 : 0,
+      fing: true, strings: true, stringsCount: 6, square: true
+    });
+    assert.ok(model.barres.length, name + " barre");
+    for (const b of model.barres) {
+      const lo = Math.min(b.fromString, b.toString), hi = Math.max(b.fromString, b.toString);
+      const dots = model.marks.filter(m => (m.kind === "barre" || m.kind === "barre-root") && m.fret === b.fret && m.string >= lo && m.string <= hi)
+        .map(m => ({ string: m.string, x: frame.left + m.string * frame.sg, y: frame.top + (m.fret - model.base + 0.5) * frame.fh, root: m.kind === "barre-root" }));
+      const spot = barreFinger(frame.left + b.fromString * frame.sg, frame.left + b.toString * frame.sg, frame.r, dots);
+      const host = dots.find(d => d.string === spot.string);
+      assert.ok(host, name + " digit is on a barre dot");
+      assert.equal(spot.x, host.x);
+      const fs = frame.r * 0.9;
+      const baseline = host.y + frame.r * 0.38;
+      const glyph = { left: spot.x - fs * 0.32, right: spot.x + fs * 0.32, top: baseline - fs * 0.75, bottom: baseline + fs * 0.05 };
+      const center = { x: spot.x, y: (glyph.top + glyph.bottom) / 2 };
+      assert.ok(Math.hypot(center.x - host.x, center.y - host.y) < frame.r - 0.75, name + " center is inside the dot");
+      const sw = 1.5;
+      for (const d of dots) {
+        const inner = frame.r - sw / 2, outer = frame.r + sw / 2;
+        if (d.string === host.string) assert.ok(boxInside(glyph, d.x, d.y, inner), name + " digit overlaps its own ring");
+        else assert.ok(boxMisses(glyph, d.x, d.y, outer), name + " digit overlaps the ring on string " + d.string);
+      }
+    }
+  }
 });
 
 test("open G marks the open G string as a root", () => {
