@@ -1,0 +1,163 @@
+/* Expert Guitar tab. Every rule is under html.expert:not(.kv), so Kids (html.kv)
+   never matches. Piano stays the keyboard it is; .gtr only swaps the keys for diagrams. */
+
+html.expert:not(.kv) .gtr-tabs {
+  position: absolute;
+  z-index: 6;
+  top: 4px;
+  left: 6px;
+  right: 128px;
+  height: calc(var(--x-kh, 40px) - 8px);
+  min-height: 28px;
+  box-sizing: border-box;
+}
+html.expert:not(.kv) .gtr-tabs button { min-height: 0; height: 100%; padding: 0 8px; font-size: 13px; }
+html.expert:not(.kv).lay-pad-port .gtr-tabs,
+html.expert:not(.kv).lay-pad-land .gtr-tabs { right: 160px; }
+/* Guitar hides the Octave chip, so the tabs can use the whole header. */
+html.expert:not(.kv).gtr:not(.lay-phone-land):not(.lay-pad-land) .gtr-tabs { right: 8px; }
+html.expert:not(.kv).lay-pad-port .gtr-tabs button,
+html.expert:not(.kv).lay-pad-land .gtr-tabs button { font-size: 15px; }
+
+/* Phone sideways, Piano: a small control, not in the key flow (the keys keep their box). */
+html.expert:not(.kv).lay-phone-land:not(.gtr) .gtr-tabs {
+  top: 4px;
+  left: 4px;
+  right: auto;
+  width: 132px;
+  height: 28px;
+  min-height: 28px;
+}
+html.expert:not(.kv).lay-phone-land:not(.gtr) .gtr-tabs button { font-size: 11px; padding: 0 4px; }
+
+html.expert:not(.kv) .gtr-panel { display: none; }
+html.expert:not(.kv).gtr .gtr-panel {
+  display: flex;
+  position: absolute;
+  z-index: 4;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  top: var(--x-kh, 40px);
+  min-height: 0;
+}
+html.expert:not(.kv).gtr #pads,
+html.expert:not(.kv).gtr .phase-track,
+html.expert:not(.kv).gtr #unlock,
+html.expert:not(.kv).gtr #xKeysChip { display: none !important; }
+
+/* Sideways Guitar: tabs become a narrow strip on the left, cards fill the rest. */
+html.expert:not(.kv).gtr.lay-phone-land .gtr-tabs,
+html.expert:not(.kv).gtr.lay-pad-land .gtr-tabs {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  right: auto;
+  width: 64px;
+  height: auto;
+  min-height: 0;
+  flex-direction: column;
+}
+html.expert:not(.kv).gtr.lay-phone-land .gtr-tabs button,
+html.expert:not(.kv).gtr.lay-pad-land .gtr-tabs button {
+  flex: 1;
+  height: auto;
+  font-size: 11px;
+  flex-direction: column;
+  padding: 4px 2px;
+  white-space: normal;
+  line-height: 1.1;
+}
+html.expert:not(.kv).gtr.lay-pad-land .gtr-tabs { width: 84px; }
+html.expert:not(.kv).gtr.lay-pad-land .gtr-tabs button { font-size: 14px; }
+html.expert:not(.kv).gtr.lay-phone-land .gtr-panel,
+html.expert:not(.kv).gtr.lay-pad-land .gtr-panel { left: 72px; top: 4px; }
+html.expert:not(.kv).gtr.lay-pad-land .gtr-panel { left: 96px; }
+
+.gtr-cards { display: flex; gap: 8px; width: 100%; height: 100%; min-width: 0; min-height: 0; align-items: stretch; }
+.gtr-card {
+  background: #2a231c;
+  border: 1px solid #43382c;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 4px 8px 6px;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+  color: #F3EAD8;
+  touch-action: manipulation;
+}
+.gtr-card .gtr-lb { font: 800 9px Nunito, system-ui, sans-serif; letter-spacing: .12em; color: #9d917e; margin: 0 0 2px; }
+.gtr-card .gtr-name { font: 600 20px Fredoka, Nunito, system-ui, sans-serif; color: #F3EAD8; line-height: 1; margin: 0; flex-shrink: 0; }
+.gtr-card.now { background: #F3EAD8; border-color: #F3EAD8; color: #2a231c; }
+.gtr-card.now .gtr-name { color: #2a231c; }
+.gtr-card.now .gtr-lb { color: #7a6c58; }
+.gtr-card.nx { border: 2px solid #FFC23D; }
+.gtr-card .gtr-diagram { width: 100%; height: auto; display: block; max-height: 100%; pointer-events: none; }
+.gtr-card .gtr-vo { position: relative; z-index: 1; }
+.gtr-card .gtr-vo { display: flex; align-items: center; gap: 6px; margin-top: 2px; max-width: 100%; }
+.gtr-card .gtr-vo button {
+  width: 28px; height: 28px; min-height: 28px; padding: 0; border: 0; border-radius: 8px;
+  background: transparent; color: #7a6c58; font: 700 16px Nunito, system-ui, sans-serif;
+}
+.gtr-card .gtr-vo span {
+  font: 800 12px Nunito, system-ui, sans-serif; white-space: nowrap; color: #2a231c;
+  background: #e6dac3; border-radius: 7px; padding: 2px 7px; max-width: 100%;
+}
+.gtr-card .gtr-meta { font: 700 10px Nunito, system-ui, sans-serif; color: #7a6c58; margin: 2px 0 0; white-space: nowrap; }
+.gtr-card .gtr-meta b { color: #b07d00; }
+.gtr-card .gtr-tap { font: 700 10px Nunito, system-ui, sans-serif; color: #9d917e; margin: 2px 0 0; }
+.gtr-card .gtr-tx { display: contents; }
+
+html.expert:not(.kv).lay-phone-port .gtr-card[data-slot="third"],
+html.expert:not(.kv).lay-phone-port .gtr-card[data-slot="fourth"] { display: none; }
+html.expert:not(.kv).lay-phone-port .gtr-card.now { flex: 1.3 1 0; }
+html.expert:not(.kv).lay-phone-port .gtr-card.nx { flex: 0.9 1 0; align-self: flex-start; }
+
+html.expert:not(.kv).lay-pad-port .gtr-cards { align-items: flex-start; }
+html.expert:not(.kv).lay-pad-port .gtr-card.now { flex: 1.35 1 0; }
+html.expert:not(.kv).lay-pad-port .gtr-card.now .gtr-name { font-size: 34px; }
+html.expert:not(.kv).lay-pad-port .gtr-card { flex: 1 1 0; }
+
+html.expert:not(.kv).lay-phone-land .gtr-card,
+html.expert:not(.kv).lay-pad-land .gtr-card {
+  flex: 1 1 0;
+  flex-direction: row;
+  gap: 4px;
+  padding: 4px 6px;
+  justify-content: center;
+  align-items: center;
+}
+html.expert:not(.kv).lay-phone-land .gtr-card .gtr-tx,
+html.expert:not(.kv).lay-pad-land .gtr-card .gtr-tx {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 0 0 auto;
+  min-width: 0;
+  max-width: 62%;
+}
+html.expert:not(.kv).lay-phone-land .gtr-diagram,
+html.expert:not(.kv).lay-pad-land .gtr-diagram { width: auto; max-width: 58%; flex: 1 1 auto; min-width: 0; }
+html.expert:not(.kv).lay-pad-land .gtr-card.now .gtr-name { font-size: 32px; }
+html.expert:not(.kv).lay-phone-land .gtr-card .gtr-name { font-size: 16px; }
+html.expert:not(.kv).lay-phone-land .gtr-card .gtr-vo span,
+html.expert:not(.kv).lay-phone-land .gtr-card .gtr-meta { font-size: 9px; padding: 1px 4px; white-space: normal; line-height: 1.15; }
+
+html.expert:not(.kv).x-day .gtr-card { background: #fff; border-color: #e2d6c4; color: #2b2118; }
+html.expert:not(.kv).x-day .gtr-card .gtr-name { color: #2b2118; }
+html.expert:not(.kv).x-day .gtr-card.now { background: #F3EAD8; border-color: #F3EAD8; }
+html.expert:not(.kv).x-day .gtr-card.nx { border-color: #FFC23D; }
+
+@keyframes gtr-slide {
+  from { transform: translateY(var(--gtr-dy, 10px)); }
+  to { transform: none; }
+}
+.gtr-diagram.sliding { animation: gtr-slide 250ms ease; }
+@media (prefers-reduced-motion: reduce) {
+  .gtr-diagram.sliding { animation: none; }
+}
