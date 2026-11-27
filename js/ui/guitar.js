@@ -1,19 +1,19 @@
 // Expert Guitar tab. Draws the resolver's grips in the keyboard area and strums
 // them through ChordAudio. Kids, Simple, and the Piano tab do not use this panel.
-import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.15";
-import { unlock } from "../audio/unlock.js?v=2026.11.27.15";
-import { activeKey } from "../keys.js?v=2026.11.27.15";
-import { prog, magic } from "../songs/playback.js?v=2026.11.27.15";
-import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.15";
-import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.15";
-import { state } from "../state.js?v=2026.11.27.15";
-import { Theory } from "../theory/index.js?v=2026.11.27.15";
-import { accSym } from "../theory/spelling.js?v=2026.11.27.15";
-import { computeSpec } from "./touch.js?v=2026.11.27.15";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.16";
+import { unlock } from "../audio/unlock.js?v=2026.11.27.16";
+import { activeKey } from "../keys.js?v=2026.11.27.16";
+import { prog, magic } from "../songs/playback.js?v=2026.11.27.16";
+import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.16";
+import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.16";
+import { state } from "../state.js?v=2026.11.27.16";
+import { Theory } from "../theory/index.js?v=2026.11.27.16";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.16";
+import { computeSpec } from "./touch.js?v=2026.11.27.16";
 import {
   GTR_TAB_KEY, readGtrTab, gtrTabReduce, cardSlots, layoutOf,
-  chordSig, chordDisplayName, voicingLabel, voicingFret, nextVoicingSize, cycleIndex, fretSlide, diagramModel, diagramFrame
-} from "./gtrmath.js?v=2026.11.27.15";
+  chordSig, chordDisplayName, voicingLabel, voicingFret, nextVoicingSize, cycleIndex, fretSlide, diagramModel, diagramFrame, fretRows, barreFinger
+} from "./gtrmath.js?v=2026.11.27.16";
 
 var TAB_LABEL = { now: "NOW", next: "NEXT", third: "3RD", fourth: "4TH" };
 var pick = {};
@@ -95,9 +95,9 @@ function fretText(label, left, top, fh, gutter, ink) {
 }
 function diagramSvg(voicing, chord, o) {
   var model = diagramModel(voicing, guitarProfile.tuning, chord.rootPc);
-  var S = model.marks.length, F = 4;
+  var S = model.marks.length, F = fretRows(voicing && voicing.frets);
   var f = diagramFrame({
-    w: o.w, fh: o.fh, mk: o.mk || 11, base: model.base,
+    w: o.w, fh: o.fh, mk: o.mk || 11, base: model.base, rows: F,
     side: o.side, top: o.top, bot: o.bot != null ? o.bot : (o.strings ? 16 : 8),
     gutter: o.gutter != null ? o.gutter : 10,
     fing: o.fing, strings: o.strings, stringsCount: S, square: o.square
@@ -123,7 +123,10 @@ function diagramSvg(voicing, chord, o) {
     var x0 = left + b.fromString * sg;
     var x1 = left + b.toString * sg;
     g += '<rect class="gtr-barre" x="' + (x0 - r) + '" y="' + (yb - r) + '" width="' + (x1 - x0 + 2 * r) + '" height="' + (2 * r) + '" rx="' + r + '" fill="' + dot + '"/>';
-    if (o.fing) g += '<text x="' + (x1 + r + 2) + '" y="' + (yb + r * 0.42) + '" font-size="' + (r * 1.15) + '" fill="' + mute + '" font-family="Nunito, system-ui, sans-serif" font-weight="800">' + b.finger + "</text>";
+    if (o.fing) {
+      var finger = barreFinger(b.toString, S, x0, x1, r);
+      g += '<text class="gtr-finger" x="' + finger.x + '" y="' + (yb + r * 0.42) + '" text-anchor="' + finger.anchor + '" font-size="' + (r * 1.15) + '" fill="' + (finger.anchor === "middle" ? dotT : mute) + '" font-family="Nunito, system-ui, sans-serif" font-weight="800">' + b.finger + "</text>";
+    }
   }
   for (var mi = 0; mi < model.marks.length; mi++) {
     var m = model.marks[mi];
@@ -146,7 +149,7 @@ function diagramSvg(voicing, chord, o) {
   if (o.strings) {
     var names = guitarProfile.stringNames;
     for (var n = 0; n < names.length && n < S; n++) {
-      g += '<text x="' + (left + n * sg) + '" y="' + (top + F * fh + f.nameDrop) + '" font-size="10" text-anchor="middle" fill="' + mute + '" font-family="Nunito, system-ui, sans-serif" font-weight="700">' + names[n] + "</text>";
+      g += '<text class="gtr-string" x="' + (left + n * sg) + '" y="' + (top + F * fh + f.nameDrop) + '" font-size="10" text-anchor="middle" fill="' + mute + '" font-family="Nunito, system-ui, sans-serif" font-weight="700">' + names[n] + "</text>";
     }
   }
   return g + "</svg>";
