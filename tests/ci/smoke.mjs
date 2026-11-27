@@ -1873,6 +1873,53 @@ try {
         if (geo.now && (geo.now.ratio < 0.8 || geo.now.ratio > 1.25)) notes.push('now ratio ' + geo.now.ratio);
       }
       if (geo.phonePort && geo.nextShorter === false) notes.push('Next is not shorter than Now');
+      if (size === '1180x820' || size === '820x1180') {
+        const ipad = await page.evaluate(() => {
+          function fretRatio(svg) {
+            const lines = [...svg.querySelectorAll('line')];
+            const horiz = lines.filter(l => Math.abs(+l.getAttribute('y1') - +l.getAttribute('y2')) < 0.1);
+            const vert = lines.filter(l => Math.abs(+l.getAttribute('x1') - +l.getAttribute('x2')) < 0.1);
+            const ys = [...new Set(horiz.map(l => +l.getAttribute('y1')))].sort((a, b) => a - b);
+            const xs = [...new Set(vert.map(l => +l.getAttribute('x1')))].sort((a, b) => a - b);
+            const ctm = svg.getScreenCTM();
+            if (!ctm || ys.length < 2 || xs.length < 2) return 0;
+            const fh = (ys[ys.length - 1] - ys[0]) / (ys.length - 1) * ctm.d;
+            const sg = (xs[xs.length - 1] - xs[0]) / (xs.length - 1) * ctm.a;
+            return sg ? fh / sg : 0;
+          }
+          const panel = document.getElementById('gtrPanel').getBoundingClientRect();
+          return [...document.querySelectorAll('#gtrCards .gtr-card')].map(card => {
+            const svg = card.querySelector('.gtr-diagram');
+            const c = card.getBoundingClientRect();
+            const d = svg.getBoundingClientRect();
+            const overflow = c.bottom > panel.bottom + 1 || c.right > panel.right + 1 || c.top < panel.top - 1 || c.left < panel.left - 1
+              || d.bottom > c.bottom + 1 || d.right > c.right + 1 || d.top < c.top - 1 || d.left < c.left - 1
+              || card.scrollHeight > card.clientHeight + 1 || card.scrollWidth > card.clientWidth + 1;
+            return {
+              slot: card.dataset.slot,
+              ratio: fretRatio(svg),
+              dx: (d.left + d.right) / 2 - (c.left + c.right) / 2,
+              dy: (d.top + d.bottom) / 2 - (c.top + c.bottom) / 2,
+              h: d.height,
+              overflow
+            };
+          });
+        });
+        if (size === '1180x820') {
+          for (const c of ipad) {
+            if (!(c.ratio <= 1.3)) notes.push(c.slot + ' fret ratio ' + c.ratio.toFixed(3));
+            if (Math.abs(c.dx) > 4 || Math.abs(c.dy) > 4) notes.push(c.slot + ' off center ' + c.dx.toFixed(1) + ',' + c.dy.toFixed(1));
+          }
+        }
+        if (size === '820x1180') {
+          // .8 at 820×1180 drew Now 178px tall and Next 179px tall. Width was already the card.
+          const base = { now: 178, next: 179 };
+          for (const c of ipad) {
+            if (c.overflow) notes.push(c.slot + ' overflows');
+            if (base[c.slot] && !(c.h >= base[c.slot] * 1.15)) notes.push(c.slot + ' diagram ' + c.h.toFixed(1) + 'px');
+          }
+        }
+      }
       const labels = [m.label];
       const cycleOn = await page.locator('[data-gtr-cycle="1"]').first().isVisible().catch(() => false);
       if (cycleOn) {
@@ -1882,6 +1929,23 @@ try {
         }
         const wantLabels = ['Open', 'A-shape · 3fr', 'E-shape · 8fr'];
         if (labels.join('|') !== wantLabels.join('|')) notes.push('cycle ' + labels.join(' | '));
+      }
+      if (size === '1180x820') {
+        const barre = await page.evaluate(() => {
+          const svg = document.querySelector('#gtrCards .gtr-card.now .gtr-diagram');
+          if (!svg) return 0;
+          const lines = [...svg.querySelectorAll('line')];
+          const horiz = lines.filter(l => Math.abs(+l.getAttribute('y1') - +l.getAttribute('y2')) < 0.1);
+          const vert = lines.filter(l => Math.abs(+l.getAttribute('x1') - +l.getAttribute('x2')) < 0.1);
+          const ys = [...new Set(horiz.map(l => +l.getAttribute('y1')))].sort((a, b) => a - b);
+          const xs = [...new Set(vert.map(l => +l.getAttribute('x1')))].sort((a, b) => a - b);
+          const ctm = svg.getScreenCTM();
+          if (!ctm || ys.length < 2 || xs.length < 2) return 0;
+          const fh = (ys[ys.length - 1] - ys[0]) / (ys.length - 1) * ctm.d;
+          const sg = (xs[xs.length - 1] - xs[0]) / (xs.length - 1) * ctm.a;
+          return sg ? fh / sg : 0;
+        });
+        if (!(barre <= 1.3)) notes.push('barre fret ratio ' + barre.toFixed(3));
       }
       const clipped = await page.evaluate(() => {
         const vis = e => !!(e && e.getClientRects().length && getComputedStyle(e).display !== 'none');

@@ -1,19 +1,19 @@
 // Expert Guitar tab. Draws the resolver's grips in the keyboard area and strums
 // them through ChordAudio. Kids, Simple, and the Piano tab do not use this panel.
-import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.8";
-import { unlock } from "../audio/unlock.js?v=2026.11.27.8";
-import { activeKey } from "../keys.js?v=2026.11.27.8";
-import { prog, magic } from "../songs/playback.js?v=2026.11.27.8";
-import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.8";
-import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.8";
-import { state } from "../state.js?v=2026.11.27.8";
-import { Theory } from "../theory/index.js?v=2026.11.27.8";
-import { accSym } from "../theory/spelling.js?v=2026.11.27.8";
-import { computeSpec } from "./touch.js?v=2026.11.27.8";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.9";
+import { unlock } from "../audio/unlock.js?v=2026.11.27.9";
+import { activeKey } from "../keys.js?v=2026.11.27.9";
+import { prog, magic } from "../songs/playback.js?v=2026.11.27.9";
+import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.9";
+import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.9";
+import { state } from "../state.js?v=2026.11.27.9";
+import { Theory } from "../theory/index.js?v=2026.11.27.9";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.9";
+import { computeSpec } from "./touch.js?v=2026.11.27.9";
 import {
   GTR_TAB_KEY, readGtrTab, gtrTabReduce, cardSlots, layoutOf,
   chordSig, chordDisplayName, voicingLabel, cycleIndex, fretSlide, diagramModel
-} from "./gtrmath.js?v=2026.11.27.8";
+} from "./gtrmath.js?v=2026.11.27.9";
 
 var TAB_LABEL = { now: "NOW", next: "NEXT", third: "3RD", fourth: "4TH" };
 var pick = {};
@@ -144,6 +144,15 @@ function landFret(lay) {
   return (H - (lay === "pad-land" ? 46 : 30)) / 4;
 }
 
+// iPad landscape only. Height still starts from the card, then stops at 1.3×
+// the string spacing. The above-nut gap is the tight one (the fret numeral
+// takes 10px), so every diagram, nut or not, stays within the cap.
+function capPadLand(fh, w, side) {
+  var sg = (w - 2 * side - 10) / 5;
+  var cap = 1.3 * sg;
+  return fh > cap ? cap : fh;
+}
+
 function diaOpts(lay, slot, name) {
   var now = slot === "now";
   var land = lay === "phone-land" || lay === "pad-land";
@@ -153,10 +162,14 @@ function diaOpts(lay, slot, name) {
     ? { ink: "#2a231c", line: "#7a6c58", dot: "#2a231c", dotT: "#F3EAD8", mute: "#7a6c58" }
     : { ink: "#F3EAD8", line: "#8a7d69", dot: "#F3EAD8", dotT: "#2a231c", mute: "#9d917e" };
   var w = land ? (pad ? 150 : 86) : (now ? (pad ? 190 : 118) : (pad ? 120 : 84));
-  var fh = land ? landFret(lay) : (now ? (pad ? 40 : 21) : (pad ? 24 : 17));
+  var side = pad ? 14 : 11;
+  // iPad portrait (.8 was 40 / 24). Tall enough that Now and Next render about
+  // 18% larger than .8, and the Now box stays within the portrait aspect check.
+  var fh = land ? landFret(lay) : (now ? (pad ? 49 : 21) : (pad ? 30 : 17));
+  if (lay === "pad-land") fh = capPadLand(fh, w, side);
   return Object.assign(theme, {
     w: w, fh: fh, mk: pad ? 13 : 11,
-    top: pad ? 22 : 17, side: pad ? 14 : 11,
+    top: pad ? 22 : 17, side: side,
     fing: now, strings: now && (!land || pad), label: name
   });
 }
