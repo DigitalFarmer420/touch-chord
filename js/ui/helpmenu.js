@@ -1,7 +1,7 @@
 // rd17 (Uiux, one home per control): in Simple and Expert the "?" circle (#howtoBtn, #xHelp) is the one home for help.
 // A tap opens a tiny menu under it with "How to" (the How to dialog) and "Tour" (the first-launch tour, #tourBtn).
 // Kids has no "?": its Settings sheet keeps "How to & tour" (modesheet.js calls openHowto directly).
-import { fitPopover } from "../expert/model.js?v=2026.11.27.14";
+import { fitPopover } from "../expert/model.js?v=2026.11.27.15";
 var menu = null, anchor = null;
 export const helpLog = { opens: 0, picks: [] };
 function $(id) { return document.getElementById(id); }
