@@ -306,18 +306,27 @@ html.expert:where(:not(.kv)) #suggest .jam-toggle,
 html.simple:where(:not(.kv)) #suggest .jam-toggle {
   --jam-d: 48px;
   grid-row: b !important; grid-column: 15 / span 2 !important;
-  justify-self: center !important; align-self: center !important;
+  justify-self: stretch !important; align-self: stretch !important;
   position: relative; z-index: 6; box-sizing: border-box;
-  width: var(--jam-d) !important; height: var(--jam-d) !important;
-  min-width: var(--jam-d) !important; max-width: var(--jam-d) !important;
-  min-height: 0 !important; max-height: var(--jam-d) !important;
+  width: 100% !important; height: 100% !important;
+  min-width: 0 !important; max-width: none !important;
+  min-height: 0 !important; max-height: none !important;
   margin: 0 !important; padding: 0 !important;
   display: flex !important; align-items: center; justify-content: center;
-  border-radius: 50% !important; border: 2px dashed #C4B49A !important;
+  border: 0 !important; border-radius: 0 !important;
   background: transparent !important; box-shadow: none !important;
   color: #C4B49A !important; cursor: pointer;
   font-family: var(--tc-font-ui) !important; font-weight: 700 !important;
   font-size: calc(var(--jam-d) * 0.55) !important; line-height: 1 !important;
+}
+html.expert:where(:not(.kv)) #suggest .jam-toggle .jam-glyph,
+html.simple:where(:not(.kv)) #suggest .jam-toggle .jam-glyph { position: relative; z-index: 1; }
+html.expert:where(:not(.kv)) #suggest .jam-toggle::before,
+html.simple:where(:not(.kv)) #suggest .jam-toggle::before {
+  content: ""; position: absolute; left: 50%; top: 50%; z-index: 0; pointer-events: none;
+  width: var(--jam-d) !important; height: var(--jam-d) !important; box-sizing: border-box;
+  transform: translate(-50%, -50%); border-radius: 50%;
+  border: 2px dashed currentColor !important; background: transparent;
 }
 html.expert.lay-phone-port:where(:not(.kv)) #suggest .jam-toggle,
 html.simple.lay-phone-port:where(:not(.kv)) #suggest .jam-toggle { --jam-d: 30px; }
@@ -333,11 +342,9 @@ html.simple:where(:not(.kv)) #suggest .jam-toggle::after {
   width: 44px; height: 44px; transform: translate(-50%, -50%);
 }
 html.expert:where(:not(.kv)) #suggest .jam-toggle.is-on,
-html.simple:where(:not(.kv)) #suggest .jam-toggle.is-on {
-  border-color: #FFC23D !important; color: #FFC23D !important; background: transparent !important;
-}
+html.simple:where(:not(.kv)) #suggest .jam-toggle.is-on { color: #FFC23D !important; background: transparent !important; }
 /* Day: the same dashed circle, in a darker cream so it reads on the cream grid. On stays #FFC23D. */
 html.expert.x-day:where(:not(.kv)) #suggest .jam-toggle,
-html.simple.s-day:where(:not(.kv)) #suggest .jam-toggle { border-color: #8A7764 !important; color: #8A7764 !important; }
+html.simple.s-day:where(:not(.kv)) #suggest .jam-toggle { color: #8A7764 !important; }
 html.expert.x-day:where(:not(.kv)) #suggest .jam-toggle.is-on,
-html.simple.s-day:where(:not(.kv)) #suggest .jam-toggle.is-on { border-color: #FFC23D !important; color: #FFC23D !important; }
+html.simple.s-day:where(:not(.kv)) #suggest .jam-toggle.is-on { color: #FFC23D !important; }

@@ -97,7 +97,11 @@ function paintToggle(el, on) {
   b.style.gridColumn = JAM_TOGGLE.gridColumn;
   b.setAttribute("aria-pressed", on ? "true" : "false");
   b.setAttribute("aria-label", "Jam: show extra chords");
-  b.textContent = on ? "\u2212" : "+";
+  var glyph = document.createElement("span");
+  glyph.className = "jam-glyph";
+  glyph.setAttribute("aria-hidden", "true");
+  glyph.textContent = on ? "\u2212" : "+";
+  b.appendChild(glyph);
   b.addEventListener("click", function (e) {
     e.preventDefault();
     e.stopPropagation();

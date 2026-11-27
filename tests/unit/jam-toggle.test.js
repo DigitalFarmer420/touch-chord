@@ -26,8 +26,12 @@ const KIDS_JS = readFileSync(new URL('js/kids/view.js', R), 'utf8');
 
 function makeEl(tag) {
   const node = {
-    tagName: tag, type: '', className: '', textContent: '', style: {}, attrs: {}, children: [], parentNode: null, listeners: {}
+    tagName: tag, type: '', className: '', _text: '', style: {}, attrs: {}, children: [], parentNode: null, listeners: {}
   };
+  Object.defineProperty(node, 'textContent', {
+    get() { return node.children.length ? node.children.map(c => c.textContent).join('') : node._text; },
+    set(v) { node._text = String(v); node.children = []; }
+  });
   node.classList = {
     contains(c) { return node.className.split(/\s+/).filter(Boolean).includes(c); },
     add(c) { if (!node.classList.contains(c)) node.className = (node.className + ' ' + c).trim(); },
@@ -202,9 +206,10 @@ test('the circle is 30 / 28 / 48px, dashed, with a 44px tap that does not grow i
   assert.match(LOOK, /html\.expert\.lay-phone-port:where\(:not\(\.kv\)\) #suggest \.jam-toggle,\s*html\.simple\.lay-phone-port:where\(:not\(\.kv\)\) #suggest \.jam-toggle \{ --jam-d: 30px; \}/);
   assert.match(LOOK, /html\.expert\.lay-phone-land:where\(:not\(\.kv\)\) #suggest \.jam-toggle,\s*html\.simple\.lay-phone-land:where\(:not\(\.kv\)\) #suggest \.jam-toggle \{ --jam-d: 28px; \}/);
   assert.match(LOOK, /lay-pad-port:where\(:not\(\.kv\)\) #suggest \.jam-toggle,\s*html\.expert\.lay-pad-land:where\(:not\(\.kv\)\) #suggest \.jam-toggle,\s*html\.simple\.lay-pad-port:where\(:not\(\.kv\)\) #suggest \.jam-toggle,\s*html\.simple\.lay-pad-land:where\(:not\(\.kv\)\) #suggest \.jam-toggle \{ --jam-d: 48px; \}/);
-  assert.match(LOOK, /border: 2px dashed #C4B49A !important;/);
-  assert.match(LOOK, /border-color: #FFC23D !important; color: #FFC23D !important;/);
+  assert.match(LOOK, /border: 2px dashed currentColor !important;/);
+  assert.match(LOOK, /\.jam-toggle\.is-on \{ color: #FFC23D !important;/);
   assert.match(LOOK, /width: 44px; height: 44px;/);
-  assert.match(LOOK, /width: var\(--jam-d\) !important; height: var\(--jam-d\) !important;/);
+  assert.match(LOOK, /jam-toggle::before[\s\S]*width: var\(--jam-d\) !important; height: var\(--jam-d\) !important;/);
+  assert.match(LOOK, /min-height: 0 !important;/);
   assert.doesNotMatch(LOOK, /jam-pill/);
 });
