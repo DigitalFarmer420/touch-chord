@@ -1,0 +1,4691 @@
+{
+  "schema": "touch-chord progressions-15 v1",
+  "generated": "2026-11-27",
+  "source": {
+    "deployClone": "/workspace/chord-touch/jam-2026.11.27.2/site",
+    "version": "2026.11.27.9",
+    "commit": "0eb1f4d54fc129093fd9134b5fa7a1483587e363",
+    "file": "js/songs/presets.js PROG_MENU"
+  },
+  "notation": {
+    "steps": "Roman numerals relative to the tonic of the entry's mode; b = flat relative to the MAJOR scale (minor bVI = degree 6 of natural minor). Lower case = minor-family chord (min, m7, m9, madd9, m7b5 'ø7', dim '°'). 'x2' / 'x0.5' = bars (default 1). 'V/3' = 3rd in the bass (app over3), 'IV/V' = bass a whole step above the root (app overV).",
+    "appSteps": "Exactly the app's PROG_MENU step strings for that mode (degree quality [xBars]); import these to avoid re-parsing.",
+    "mode": "Primary mode of the entry (major when the family has a major chart). Existing families that also have the other mode carry it in otherMode; new entries are single-mode (the app leaves a family out of a mode it has no chart for).",
+    "rank": "1 = most popular. Existing order kept from the live menu; new entries inserted by judgment (famous song-cited loops higher)."
+  },
+  "styles": {
+    "pop": {
+      "label": "Pop",
+      "counts": {
+        "existing": 12,
+        "new": 3,
+        "total": 15
+      },
+      "progressions": [
+        {
+          "rank": 1,
+          "name": "Pop Four-Chord",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "V",
+            "vi",
+            "IV"
+          ],
+          "appSteps": [
+            "1 maj",
+            "5 maj",
+            "6 min",
+            "4 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "G",
+            "Am",
+            "F"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "v",
+              "bVI",
+              "iv"
+            ],
+            "appSteps": [
+              "1 min",
+              "5 min",
+              "6 maj",
+              "4 min"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "Em",
+              "F",
+              "Dm"
+            ]
+          }
+        },
+        {
+          "rank": 2,
+          "name": "Pop Turnaround",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "vi",
+            "IV",
+            "V"
+          ],
+          "appSteps": [
+            "1 maj",
+            "6 min",
+            "4 maj",
+            "5 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "Am",
+            "F",
+            "G"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "bVI",
+              "iv",
+              "V"
+            ],
+            "appSteps": [
+              "1 min",
+              "6 maj",
+              "4 min",
+              "5 maj"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "F",
+              "Dm",
+              "E"
+            ]
+          }
+        },
+        {
+          "rank": 3,
+          "name": "Pop Oldies",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "vi",
+            "ii",
+            "V"
+          ],
+          "appSteps": [
+            "1 maj",
+            "6 min",
+            "2 min",
+            "5 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "Am",
+            "Dm",
+            "G"
+          ]
+        },
+        {
+          "rank": 4,
+          "name": "Pop Electropop",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "vi",
+            "I",
+            "IV",
+            "V"
+          ],
+          "appSteps": [
+            "6 min",
+            "1 maj",
+            "4 maj",
+            "5 maj"
+          ],
+          "exampleInCAm": [
+            "Am",
+            "C",
+            "F",
+            "G"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "bIII",
+              "bVI",
+              "bVII"
+            ],
+            "appSteps": [
+              "1 min",
+              "3 maj",
+              "6 maj",
+              "7 maj"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "C",
+              "F",
+              "G"
+            ]
+          }
+        },
+        {
+          "rank": 5,
+          "name": "Pop Sensitive",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "V",
+            "vi",
+            "iii"
+          ],
+          "appSteps": [
+            "1 maj",
+            "5 maj",
+            "6 min",
+            "3 min"
+          ],
+          "exampleInCAm": [
+            "C",
+            "G",
+            "Am",
+            "Em"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "v",
+              "bVI",
+              "bIII"
+            ],
+            "appSteps": [
+              "1 min",
+              "5 min",
+              "6 maj",
+              "3 maj"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "Em",
+              "F",
+              "C"
+            ]
+          }
+        },
+        {
+          "rank": 6,
+          "name": "Pop Axis",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "i",
+            "bVI",
+            "bIII",
+            "bVII"
+          ],
+          "appSteps": [
+            "1 min",
+            "6 maj",
+            "3 maj",
+            "7 maj"
+          ],
+          "exampleInCAm": [
+            "Am",
+            "F",
+            "C",
+            "G"
+          ]
+        },
+        {
+          "rank": 7,
+          "name": "Pop Plagal",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "IV",
+            "I",
+            "V"
+          ],
+          "appSteps": [
+            "1 maj",
+            "4 maj",
+            "1 maj",
+            "5 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "F",
+            "C",
+            "G"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "iv",
+              "i",
+              "V"
+            ],
+            "appSteps": [
+              "1 min",
+              "4 min",
+              "1 min",
+              "5 maj"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "Dm",
+              "Am",
+              "E"
+            ]
+          }
+        },
+        {
+          "rank": 8,
+          "name": "Pop Wishing Well",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "vi7",
+            "I",
+            "Vsus4",
+            "II7sus4"
+          ],
+          "appSteps": [
+            "6 m7",
+            "1 maj",
+            "5 sus4",
+            "2 7sus4"
+          ],
+          "exampleInCAm": [
+            "Am7",
+            "C",
+            "Gsus4",
+            "D7sus4"
+          ],
+          "usage": "Oasis \"Wonderwall\" loop, commonly charted Em7-G-Dsus4-A7sus4 (key of G)."
+        },
+        {
+          "rank": 9,
+          "name": "Pop Daydream",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "I",
+            "III",
+            "IV",
+            "iv"
+          ],
+          "appSteps": [
+            "1 maj",
+            "3 maj",
+            "4 maj",
+            "4 min"
+          ],
+          "exampleInCAm": [
+            "C",
+            "E",
+            "F",
+            "Fm"
+          ],
+          "usage": "Radiohead \"Creep\" (G-B-C-Cm): major III and borrowed minor iv."
+        },
+        {
+          "rank": 10,
+          "name": "Pop Climb",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "IV",
+            "V",
+            "iii",
+            "vi"
+          ],
+          "appSteps": [
+            "4 maj",
+            "5 maj",
+            "3 min",
+            "6 min"
+          ],
+          "exampleInCAm": [
+            "F",
+            "G",
+            "Em",
+            "Am"
+          ]
+        },
+        {
+          "rank": 11,
+          "name": "Pop Rock",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "bVII",
+            "IV",
+            "V"
+          ],
+          "appSteps": [
+            "1 maj",
+            "b7 maj",
+            "4 maj",
+            "5 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "Bb",
+            "F",
+            "G"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "bVII",
+              "bVI",
+              "V"
+            ],
+            "appSteps": [
+              "1 min",
+              "7 maj",
+              "6 maj",
+              "5 maj"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "G",
+              "F",
+              "E"
+            ]
+          }
+        },
+        {
+          "rank": 12,
+          "name": "Pop Bounce",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "IV",
+            "vi",
+            "V"
+          ],
+          "appSteps": [
+            "1 maj",
+            "4 maj",
+            "6 min",
+            "5 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "F",
+            "Am",
+            "G"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "iv",
+              "bVI",
+              "V"
+            ],
+            "appSteps": [
+              "1 min",
+              "4 min",
+              "6 maj",
+              "5 maj"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "Dm",
+              "F",
+              "E"
+            ]
+          }
+        },
+        {
+          "rank": 13,
+          "name": "Pop Canon",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "V",
+            "vi",
+            "iii",
+            "IV",
+            "V"
+          ],
+          "appSteps": [
+            "1 maj",
+            "5 maj",
+            "6 min",
+            "3 min",
+            "4 maj",
+            "5 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "G",
+            "Am",
+            "Em",
+            "F",
+            "G"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "v",
+              "bVI",
+              "bIII",
+              "iv",
+              "v"
+            ],
+            "appSteps": [
+              "1 min",
+              "5 min",
+              "6 maj",
+              "3 maj",
+              "4 min",
+              "5 min"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "Em",
+              "F",
+              "C",
+              "Dm",
+              "Em"
+            ]
+          }
+        },
+        {
+          "rank": 14,
+          "name": "Pop Garage",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "bVII",
+            "IV",
+            "bVII"
+          ],
+          "appSteps": [
+            "1 maj",
+            "b7 maj",
+            "4 maj",
+            "b7 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "Bb",
+            "F",
+            "Bb"
+          ]
+        },
+        {
+          "rank": 15,
+          "name": "Pop Hero",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "IV",
+            "bVI",
+            "bVII",
+            "I"
+          ],
+          "appSteps": [
+            "4 maj",
+            "b6 maj",
+            "b7 maj",
+            "1 maj"
+          ],
+          "exampleInCAm": [
+            "F",
+            "Ab",
+            "Bb",
+            "C"
+          ],
+          "usage": "Genre: the bVI-bVII-I \"victory\" cadence of pop-rock anthems and game music."
+        }
+      ]
+    },
+    "jazz": {
+      "label": "Jazz",
+      "counts": {
+        "existing": 14,
+        "new": 1,
+        "total": 15
+      },
+      "progressions": [
+        {
+          "rank": 1,
+          "name": "Jazz ii–V–I",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "ii7",
+            "V7",
+            "Imaj7"
+          ],
+          "appSteps": [
+            "2 m7",
+            "5 7",
+            "1 maj7"
+          ],
+          "exampleInCAm": [
+            "Dm7",
+            "G7",
+            "Cmaj7"
+          ]
+        },
+        {
+          "rank": 2,
+          "name": "Jazz Minor ii–V–i",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "iiø7",
+            "V7b9",
+            "i7"
+          ],
+          "appSteps": [
+            "2 m7b5",
+            "5 7b9",
+            "1 m7"
+          ],
+          "exampleInCAm": [
+            "Bm7b5",
+            "E7b9",
+            "Am7"
+          ]
+        },
+        {
+          "rank": 3,
+          "name": "Jazz Turnaround",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "Imaj7",
+            "vi7",
+            "ii7",
+            "V7"
+          ],
+          "appSteps": [
+            "1 maj7",
+            "6 m7",
+            "2 m7",
+            "5 7"
+          ],
+          "exampleInCAm": [
+            "Cmaj7",
+            "Am7",
+            "Dm7",
+            "G7"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i7",
+              "bVImaj7",
+              "iiø7",
+              "V7b9"
+            ],
+            "appSteps": [
+              "1 m7",
+              "6 maj7",
+              "2 m7b5",
+              "5 7b9"
+            ],
+            "exampleInCAm": [
+              "Am7",
+              "Fmaj7",
+              "Bm7b5",
+              "E7b9"
+            ]
+          }
+        },
+        {
+          "rank": 4,
+          "name": "Jazz Rhythm",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "I6",
+            "VI7",
+            "ii7",
+            "V7"
+          ],
+          "appSteps": [
+            "1 6",
+            "6 7",
+            "2 m7",
+            "5 7"
+          ],
+          "exampleInCAm": [
+            "C6",
+            "A7",
+            "Dm7",
+            "G7"
+          ],
+          "usage": "Rhythm changes A section (Gershwin \"I Got Rhythm\"): I6-VI7-ii7-V7."
+        },
+        {
+          "rank": 5,
+          "name": "Jazz Blues",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I7",
+            "IV7",
+            "V7",
+            "I7"
+          ],
+          "appSteps": [
+            "1 7",
+            "4 7",
+            "5 7",
+            "1 7"
+          ],
+          "exampleInCAm": [
+            "C7",
+            "F7",
+            "G7",
+            "C7"
+          ]
+        },
+        {
+          "rank": 6,
+          "name": "Jazz Leaves",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "ii7",
+            "V7",
+            "Imaj7",
+            "IVmaj7",
+            "viiø7",
+            "III7",
+            "vi7 x2"
+          ],
+          "appSteps": [
+            "2 m7",
+            "5 7",
+            "1 maj7",
+            "4 maj7",
+            "7 m7b5",
+            "3 7",
+            "6 m7 x2"
+          ],
+          "exampleInCAm": [
+            "Dm7",
+            "G7",
+            "Cmaj7",
+            "Fmaj7",
+            "Bm7b5",
+            "E7",
+            "Am7"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "iv7",
+              "bVII7",
+              "bIIImaj7",
+              "bVImaj7",
+              "iiø7",
+              "V7b9",
+              "i7 x2"
+            ],
+            "appSteps": [
+              "4 m7",
+              "7 7",
+              "3 maj7",
+              "6 maj7",
+              "2 m7b5",
+              "5 7b9",
+              "1 m7 x2"
+            ],
+            "exampleInCAm": [
+              "Dm7",
+              "G7",
+              "Cmaj7",
+              "Fmaj7",
+              "Bm7b5",
+              "E7b9",
+              "Am7"
+            ]
+          }
+        },
+        {
+          "rank": 7,
+          "name": "Jazz Circle",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "iii7",
+            "vi7",
+            "ii7",
+            "V7",
+            "Imaj7"
+          ],
+          "appSteps": [
+            "3 m7",
+            "6 m7",
+            "2 m7",
+            "5 7",
+            "1 maj7"
+          ],
+          "exampleInCAm": [
+            "Em7",
+            "Am7",
+            "Dm7",
+            "G7",
+            "Cmaj7"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "v7",
+              "i7",
+              "iv7",
+              "bVII7",
+              "bIIImaj7"
+            ],
+            "appSteps": [
+              "5 m7",
+              "1 m7",
+              "4 m7",
+              "7 7",
+              "3 maj7"
+            ],
+            "exampleInCAm": [
+              "Em7",
+              "Am7",
+              "Dm7",
+              "G7",
+              "Cmaj7"
+            ]
+          }
+        },
+        {
+          "rank": 8,
+          "name": "Jazz Backdoor",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "iv7",
+            "bVII7",
+            "Imaj7"
+          ],
+          "appSteps": [
+            "4 m7",
+            "b7 7",
+            "1 maj7"
+          ],
+          "exampleInCAm": [
+            "Fm7",
+            "Bb7",
+            "Cmaj7"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "iv7",
+              "bVII7",
+              "i7"
+            ],
+            "appSteps": [
+              "4 m7",
+              "7 7",
+              "1 m7"
+            ],
+            "exampleInCAm": [
+              "Dm7",
+              "G7",
+              "Am7"
+            ]
+          }
+        },
+        {
+          "rank": 9,
+          "name": "Jazz Slide",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "ii7",
+            "bII7",
+            "Imaj7",
+            "vi7"
+          ],
+          "appSteps": [
+            "2 m7",
+            "b2 7",
+            "1 maj7",
+            "6 m7"
+          ],
+          "exampleInCAm": [
+            "Dm7",
+            "Db7",
+            "Cmaj7",
+            "Am7"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "iiø7",
+              "bII7",
+              "i7",
+              "iv7"
+            ],
+            "appSteps": [
+              "2 m7b5",
+              "b2 7",
+              "1 m7",
+              "4 m7"
+            ],
+            "exampleInCAm": [
+              "Bm7b5",
+              "Bb7",
+              "Am7",
+              "Dm7"
+            ]
+          }
+        },
+        {
+          "rank": 10,
+          "name": "Jazz Lady",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "ii7",
+            "V7",
+            "Imaj7",
+            "IVmaj7",
+            "iii7",
+            "VI7"
+          ],
+          "appSteps": [
+            "2 m7",
+            "5 7",
+            "1 maj7",
+            "4 maj7",
+            "3 m7",
+            "6 7"
+          ],
+          "exampleInCAm": [
+            "Dm7",
+            "G7",
+            "Cmaj7",
+            "Fmaj7",
+            "Em7",
+            "A7"
+          ]
+        },
+        {
+          "rank": 11,
+          "name": "Jazz Andalusian",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "i7",
+            "bVIImaj7",
+            "bVImaj7",
+            "V7"
+          ],
+          "appSteps": [
+            "1 m7",
+            "7 maj7",
+            "6 maj7",
+            "5 7"
+          ],
+          "exampleInCAm": [
+            "Am7",
+            "Gmaj7",
+            "Fmaj7",
+            "E7"
+          ]
+        },
+        {
+          "rank": 12,
+          "name": "Jazz Minor Turn",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "i7",
+            "iv7",
+            "iiø7",
+            "V7b9"
+          ],
+          "appSteps": [
+            "1 m7",
+            "4 m7",
+            "2 m7b5",
+            "5 7b9"
+          ],
+          "exampleInCAm": [
+            "Am7",
+            "Dm7",
+            "Bm7b5",
+            "E7b9"
+          ]
+        },
+        {
+          "rank": 13,
+          "name": "Jazz Bossa",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "Imaj7 x2",
+            "II7 x2",
+            "ii7",
+            "bII7",
+            "Imaj7 x2"
+          ],
+          "appSteps": [
+            "1 maj7 x2",
+            "2 7 x2",
+            "2 m7",
+            "b2 7",
+            "1 maj7 x2"
+          ],
+          "exampleInCAm": [
+            "Cmaj7",
+            "D7",
+            "Dm7",
+            "Db7",
+            "Cmaj7"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i7 x2",
+              "iv7 x2",
+              "iiø7",
+              "V7b9",
+              "i7 x2"
+            ],
+            "appSteps": [
+              "1 m7 x2",
+              "4 m7 x2",
+              "2 m7b5",
+              "5 7b9",
+              "1 m7 x2"
+            ],
+            "exampleInCAm": [
+              "Am7",
+              "Dm7",
+              "Bm7b5",
+              "E7b9",
+              "Am7"
+            ]
+          }
+        },
+        {
+          "rank": 14,
+          "name": "Jazz Chain",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "VI7",
+            "II7",
+            "V7",
+            "Imaj7"
+          ],
+          "appSteps": [
+            "6 7",
+            "2 7",
+            "5 7",
+            "1 maj7"
+          ],
+          "exampleInCAm": [
+            "A7",
+            "D7",
+            "G7",
+            "Cmaj7"
+          ]
+        },
+        {
+          "rank": 15,
+          "name": "Jazz Modal Vamp",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "i9 x2",
+            "iv9 x2",
+            "bii9 x2",
+            "i9 x2"
+          ],
+          "appSteps": [
+            "1 m9 x2",
+            "4 m9 x2",
+            "b2 m9 x2",
+            "1 m9 x2"
+          ],
+          "exampleInCAm": [
+            "Am9",
+            "Dm9",
+            "Bbm9",
+            "Am9"
+          ]
+        }
+      ]
+    },
+    "rnb": {
+      "label": "R&B",
+      "counts": {
+        "existing": 12,
+        "new": 3,
+        "total": 15
+      },
+      "progressions": [
+        {
+          "rank": 1,
+          "name": "R&B DooWop",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "vi",
+            "IV",
+            "V"
+          ],
+          "appSteps": [
+            "1 maj",
+            "6 min",
+            "4 maj",
+            "5 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "Am",
+            "F",
+            "G"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "bVI",
+              "iv",
+              "V"
+            ],
+            "appSteps": [
+              "1 min",
+              "6 maj",
+              "4 min",
+              "5 maj"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "F",
+              "Dm",
+              "E"
+            ]
+          }
+        },
+        {
+          "rank": 2,
+          "name": "R&B Classic",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "Imaj7",
+            "vi7",
+            "IVmaj7",
+            "V7"
+          ],
+          "appSteps": [
+            "1 maj7",
+            "6 m7",
+            "4 maj7",
+            "5 7"
+          ],
+          "exampleInCAm": [
+            "Cmaj7",
+            "Am7",
+            "Fmaj7",
+            "G7"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i7",
+              "bVImaj7",
+              "iv7",
+              "V7"
+            ],
+            "appSteps": [
+              "1 m7",
+              "6 maj7",
+              "4 m7",
+              "5 7"
+            ],
+            "exampleInCAm": [
+              "Am7",
+              "Fmaj7",
+              "Dm7",
+              "E7"
+            ]
+          }
+        },
+        {
+          "rank": 3,
+          "name": "R&B Together",
+          "status": "new",
+          "mode": "minor",
+          "steps": [
+            "bVImaj7",
+            "V7",
+            "i7",
+            "bvii7",
+            "bIII7"
+          ],
+          "appSteps": [
+            "6 maj7",
+            "5 7",
+            "1 m7",
+            "7 m7",
+            "3 7"
+          ],
+          "exampleInCAm": [
+            "Fmaj7",
+            "E7",
+            "Am7",
+            "Gm7",
+            "C7"
+          ],
+          "usage": "Grover Washington Jr. & Bill Withers \"Just the Two of Us\" loop (Dbmaj7-C7-Fm7-Ebm7-Ab7 in F minor)."
+        },
+        {
+          "rank": 4,
+          "name": "R&B Neo",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "ii9",
+            "V9",
+            "Imaj9",
+            "vi9"
+          ],
+          "appSteps": [
+            "2 m9",
+            "5 9",
+            "1 maj9",
+            "6 m9"
+          ],
+          "exampleInCAm": [
+            "Dm9",
+            "G9",
+            "Cmaj9",
+            "Am9"
+          ]
+        },
+        {
+          "rank": 5,
+          "name": "R&B Slow Jam",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "IVmaj7",
+            "iii7",
+            "ii7",
+            "Imaj7"
+          ],
+          "appSteps": [
+            "4 maj7",
+            "3 m7",
+            "2 m7",
+            "1 maj7"
+          ],
+          "exampleInCAm": [
+            "Fmaj7",
+            "Em7",
+            "Dm7",
+            "Cmaj7"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "iv9",
+              "bIIImaj9",
+              "iiø7",
+              "i9"
+            ],
+            "appSteps": [
+              "4 m9",
+              "3 maj9",
+              "2 m7b5",
+              "1 m9"
+            ],
+            "exampleInCAm": [
+              "Dm9",
+              "Cmaj9",
+              "Bm7b5",
+              "Am9"
+            ]
+          }
+        },
+        {
+          "rank": 6,
+          "name": "R&B Church",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "IVmaj9",
+            "iii7",
+            "vi9",
+            "ii9",
+            "V9sus",
+            "Imaj9"
+          ],
+          "appSteps": [
+            "4 maj9",
+            "3 m7",
+            "6 m9",
+            "2 m9",
+            "5 9sus",
+            "1 maj9"
+          ],
+          "exampleInCAm": [
+            "Fmaj9",
+            "Em7",
+            "Am9",
+            "Dm9",
+            "G9sus4",
+            "Cmaj9"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "bVImaj9",
+              "bVII13",
+              "i9",
+              "iv9",
+              "V7#9",
+              "i9"
+            ],
+            "appSteps": [
+              "6 maj9",
+              "7 13",
+              "1 m9",
+              "4 m9",
+              "5 7#9",
+              "1 m9"
+            ],
+            "exampleInCAm": [
+              "Fmaj9",
+              "G13",
+              "Am9",
+              "Dm9",
+              "E7#9",
+              "Am9"
+            ]
+          }
+        },
+        {
+          "rank": 7,
+          "name": "R&B Float",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "iv9",
+            "bVII13",
+            "bIIImaj9",
+            "bVImaj9"
+          ],
+          "appSteps": [
+            "4 m9",
+            "7 13",
+            "3 maj9",
+            "6 maj9"
+          ],
+          "exampleInCAm": [
+            "Dm9",
+            "G13",
+            "Cmaj9",
+            "Fmaj9"
+          ]
+        },
+        {
+          "rank": 8,
+          "name": "R&B Quiet",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "Imaj7",
+            "iii7",
+            "IVmaj7",
+            "V7"
+          ],
+          "appSteps": [
+            "1 maj7",
+            "3 m7",
+            "4 maj7",
+            "5 7"
+          ],
+          "exampleInCAm": [
+            "Cmaj7",
+            "Em7",
+            "Fmaj7",
+            "G7"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i7",
+              "bIIImaj7",
+              "iv7",
+              "V7"
+            ],
+            "appSteps": [
+              "1 m7",
+              "3 maj7",
+              "4 m7",
+              "5 7"
+            ],
+            "exampleInCAm": [
+              "Am7",
+              "Cmaj7",
+              "Dm7",
+              "E7"
+            ]
+          }
+        },
+        {
+          "rank": 9,
+          "name": "R&B Sway",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "Imaj9",
+            "IVmaj9",
+            "Imaj9",
+            "V9"
+          ],
+          "appSteps": [
+            "1 maj9",
+            "4 maj9",
+            "1 maj9",
+            "5 9"
+          ],
+          "exampleInCAm": [
+            "Cmaj9",
+            "Fmaj9",
+            "Cmaj9",
+            "G9"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i9",
+              "iv9",
+              "i9",
+              "V9"
+            ],
+            "appSteps": [
+              "1 m9",
+              "4 m9",
+              "1 m9",
+              "5 9"
+            ],
+            "exampleInCAm": [
+              "Am9",
+              "Dm9",
+              "Am9",
+              "E9"
+            ]
+          }
+        },
+        {
+          "rank": 10,
+          "name": "R&B Ladder",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "vi7",
+            "V7",
+            "IVmaj7",
+            "iii7"
+          ],
+          "appSteps": [
+            "6 m7",
+            "5 7",
+            "4 maj7",
+            "3 m7"
+          ],
+          "exampleInCAm": [
+            "Am7",
+            "G7",
+            "Fmaj7",
+            "Em7"
+          ]
+        },
+        {
+          "rank": 11,
+          "name": "R&B Smooth",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "Imaj9",
+            "iii7",
+            "vi9",
+            "ii9",
+            "V13"
+          ],
+          "appSteps": [
+            "1 maj9",
+            "3 m7",
+            "6 m9",
+            "2 m9",
+            "5 13"
+          ],
+          "exampleInCAm": [
+            "Cmaj9",
+            "Em7",
+            "Am9",
+            "Dm9",
+            "G13"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i9",
+              "bIIImaj9",
+              "bVImaj9",
+              "iiø7",
+              "V7#9"
+            ],
+            "appSteps": [
+              "1 m9",
+              "3 maj9",
+              "6 maj9",
+              "2 m7b5",
+              "5 7#9"
+            ],
+            "exampleInCAm": [
+              "Am9",
+              "Cmaj9",
+              "Fmaj9",
+              "Bm7b5",
+              "E7#9"
+            ]
+          }
+        },
+        {
+          "rank": 12,
+          "name": "R&B Groove",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "i9",
+            "bVII13",
+            "bVImaj9",
+            "v7"
+          ],
+          "appSteps": [
+            "1 m9",
+            "7 13",
+            "6 maj9",
+            "5 m7"
+          ],
+          "exampleInCAm": [
+            "Am9",
+            "G13",
+            "Fmaj9",
+            "Em7"
+          ]
+        },
+        {
+          "rank": 13,
+          "name": "R&B ii–V–I",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "iiø7",
+            "V7#9",
+            "i9",
+            "bVImaj9"
+          ],
+          "appSteps": [
+            "2 m7b5",
+            "5 7#9",
+            "1 m9",
+            "6 maj9"
+          ],
+          "exampleInCAm": [
+            "Bm7b5",
+            "E7#9",
+            "Am9",
+            "Fmaj9"
+          ]
+        },
+        {
+          "rank": 14,
+          "name": "R&B Stepping Stones",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "ii9",
+            "iii7",
+            "IVmaj7",
+            "V13"
+          ],
+          "appSteps": [
+            "2 m9",
+            "3 m7",
+            "4 maj7",
+            "5 13"
+          ],
+          "exampleInCAm": [
+            "Dm9",
+            "Em7",
+            "Fmaj7",
+            "G13"
+          ],
+          "usage": "Genre: stepwise ii-iii-IV-V climb used in neo-soul / R&B grooves."
+        },
+        {
+          "rank": 15,
+          "name": "R&B Soul Light",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "Imaj7",
+            "III7",
+            "vi7",
+            "IVmaj7"
+          ],
+          "appSteps": [
+            "1 maj7",
+            "3 7",
+            "6 m7",
+            "4 maj7"
+          ],
+          "exampleInCAm": [
+            "Cmaj7",
+            "E7",
+            "Am7",
+            "Fmaj7"
+          ],
+          "usage": "Genre: soul/R&B secondary dominant III7 resolving to vi."
+        }
+      ]
+    },
+    "ballad": {
+      "label": "Ballad",
+      "counts": {
+        "existing": 11,
+        "new": 4,
+        "total": 15
+      },
+      "progressions": [
+        {
+          "rank": 1,
+          "name": "Ballad Axis",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "vi",
+            "IV",
+            "I",
+            "V"
+          ],
+          "appSteps": [
+            "6 min",
+            "4 maj",
+            "1 maj",
+            "5 maj"
+          ],
+          "exampleInCAm": [
+            "Am",
+            "F",
+            "C",
+            "G"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "bVI",
+              "bIII",
+              "bVII"
+            ],
+            "appSteps": [
+              "1 min",
+              "6 maj",
+              "3 maj",
+              "7 maj"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "F",
+              "C",
+              "G"
+            ]
+          }
+        },
+        {
+          "rank": 2,
+          "name": "Ballad 50s",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "vi",
+            "IV",
+            "V"
+          ],
+          "appSteps": [
+            "1 maj",
+            "6 min",
+            "4 maj",
+            "5 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "Am",
+            "F",
+            "G"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "bVI",
+              "iv",
+              "V"
+            ],
+            "appSteps": [
+              "1 min",
+              "6 maj",
+              "4 min",
+              "5 maj"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "F",
+              "Dm",
+              "E"
+            ]
+          }
+        },
+        {
+          "rank": 3,
+          "name": "Ballad Steps",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "Iadd9",
+            "V/3",
+            "vi7",
+            "IVadd9"
+          ],
+          "appSteps": [
+            "1 add9",
+            "5 over3",
+            "6 m7",
+            "4 add9"
+          ],
+          "exampleInCAm": [
+            "Cadd9",
+            "G/B",
+            "Am7",
+            "Fadd9"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i7",
+              "bVII",
+              "bVIadd9",
+              "V"
+            ],
+            "appSteps": [
+              "1 m7",
+              "7 maj",
+              "6 add9",
+              "5 maj"
+            ],
+            "exampleInCAm": [
+              "Am7",
+              "G",
+              "Fadd9",
+              "E"
+            ]
+          }
+        },
+        {
+          "rank": 4,
+          "name": "Ballad Lament",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "i",
+            "bVII",
+            "bVI",
+            "V"
+          ],
+          "appSteps": [
+            "1 min",
+            "7 maj",
+            "6 maj",
+            "5 maj"
+          ],
+          "exampleInCAm": [
+            "Am",
+            "G",
+            "F",
+            "E"
+          ]
+        },
+        {
+          "rank": 5,
+          "name": "Ballad Piano",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "iii",
+            "IV",
+            "V"
+          ],
+          "appSteps": [
+            "1 maj",
+            "3 min",
+            "4 maj",
+            "5 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "Em",
+            "F",
+            "G"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "bIII",
+              "iv",
+              "V"
+            ],
+            "appSteps": [
+              "1 min",
+              "3 maj",
+              "4 min",
+              "5 maj"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "C",
+              "Dm",
+              "E"
+            ]
+          }
+        },
+        {
+          "rank": 6,
+          "name": "Ballad Candle",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "I",
+            "iii",
+            "vi",
+            "V"
+          ],
+          "appSteps": [
+            "1 maj",
+            "3 min",
+            "6 min",
+            "5 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "Em",
+            "Am",
+            "G"
+          ],
+          "usage": "Coldplay \"Fix You\" verse, commonly charted Eb-Gm-Cm-Bb (I-iii-vi-V)."
+        },
+        {
+          "rank": 7,
+          "name": "Ballad Echo",
+          "status": "new",
+          "mode": "minor",
+          "steps": [
+            "i",
+            "bIII",
+            "bVII",
+            "bVI"
+          ],
+          "appSteps": [
+            "1 min",
+            "3 maj",
+            "7 maj",
+            "6 maj"
+          ],
+          "exampleInCAm": [
+            "Am",
+            "C",
+            "G",
+            "F"
+          ],
+          "usage": "Adele \"Hello\" loop, commonly charted Fm-Ab-Eb-Db (i-bIII-bVII-bVI)."
+        },
+        {
+          "rank": 8,
+          "name": "Ballad Tender",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "Iadd9",
+            "IVadd9",
+            "iv",
+            "Iadd9"
+          ],
+          "appSteps": [
+            "1 add9",
+            "4 add9",
+            "4 min",
+            "1 add9"
+          ],
+          "exampleInCAm": [
+            "Cadd9",
+            "Fadd9",
+            "Fm",
+            "Cadd9"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i7",
+              "iv7",
+              "i7",
+              "V"
+            ],
+            "appSteps": [
+              "1 m7",
+              "4 m7",
+              "1 m7",
+              "5 maj"
+            ],
+            "exampleInCAm": [
+              "Am7",
+              "Dm7",
+              "Am7",
+              "E"
+            ]
+          }
+        },
+        {
+          "rank": 9,
+          "name": "Ballad Rising",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "IV",
+            "V",
+            "iii",
+            "vi"
+          ],
+          "appSteps": [
+            "4 maj",
+            "5 maj",
+            "3 min",
+            "6 min"
+          ],
+          "exampleInCAm": [
+            "F",
+            "G",
+            "Em",
+            "Am"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "iv",
+              "V",
+              "bIII",
+              "bVI"
+            ],
+            "appSteps": [
+              "4 min",
+              "5 maj",
+              "3 maj",
+              "6 maj"
+            ],
+            "exampleInCAm": [
+              "Dm",
+              "E",
+              "C",
+              "F"
+            ]
+          }
+        },
+        {
+          "rank": 10,
+          "name": "Ballad Home",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "vi7",
+            "ii7",
+            "V",
+            "Iadd9"
+          ],
+          "appSteps": [
+            "6 m7",
+            "2 m7",
+            "5 maj",
+            "1 add9"
+          ],
+          "exampleInCAm": [
+            "Am7",
+            "Dm7",
+            "G",
+            "Cadd9"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "bVIadd9",
+              "iv7",
+              "V",
+              "i7"
+            ],
+            "appSteps": [
+              "6 add9",
+              "4 m7",
+              "5 maj",
+              "1 m7"
+            ],
+            "exampleInCAm": [
+              "Fadd9",
+              "Dm7",
+              "E",
+              "Am7"
+            ]
+          }
+        },
+        {
+          "rank": 11,
+          "name": "Ballad Hymn",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "IV",
+            "I/3",
+            "V"
+          ],
+          "appSteps": [
+            "1 maj",
+            "4 maj",
+            "1 over3",
+            "5 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "F",
+            "C/E",
+            "G"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "iv",
+              "i/3",
+              "V"
+            ],
+            "appSteps": [
+              "1 min",
+              "4 min",
+              "1 mover3",
+              "5 maj"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "Dm",
+              "Am/C",
+              "E"
+            ]
+          }
+        },
+        {
+          "rank": 12,
+          "name": "Ballad Gentle",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "Iadd9",
+            "iii",
+            "vi7",
+            "IVadd9"
+          ],
+          "appSteps": [
+            "1 add9",
+            "3 min",
+            "6 m7",
+            "4 add9"
+          ],
+          "exampleInCAm": [
+            "Cadd9",
+            "Em",
+            "Am7",
+            "Fadd9"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i7",
+              "bIIIadd9",
+              "bVIadd9",
+              "bVII"
+            ],
+            "appSteps": [
+              "1 m7",
+              "3 add9",
+              "6 add9",
+              "7 maj"
+            ],
+            "exampleInCAm": [
+              "Am7",
+              "Cadd9",
+              "Fadd9",
+              "G"
+            ]
+          }
+        },
+        {
+          "rank": 13,
+          "name": "Ballad Big Finish",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "IV",
+            "IV/V",
+            "iii",
+            "vi",
+            "ii",
+            "V",
+            "I"
+          ],
+          "appSteps": [
+            "4 maj",
+            "4 overV",
+            "3 min",
+            "6 min",
+            "2 min",
+            "5 maj",
+            "1 maj"
+          ],
+          "exampleInCAm": [
+            "F",
+            "F/G",
+            "Em",
+            "Am",
+            "Dm",
+            "G",
+            "C"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "iv",
+              "iv/V",
+              "bIII",
+              "bVI",
+              "ii°",
+              "V",
+              "i"
+            ],
+            "appSteps": [
+              "4 min",
+              "4 moverV",
+              "3 maj",
+              "6 maj",
+              "2 dim",
+              "5 maj",
+              "1 min"
+            ],
+            "exampleInCAm": [
+              "Dm",
+              "Dm/E",
+              "C",
+              "F",
+              "Bdim",
+              "E",
+              "Am"
+            ]
+          }
+        },
+        {
+          "rank": 14,
+          "name": "Ballad Walkdown",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "I",
+            "V/3",
+            "vi",
+            "V",
+            "IV"
+          ],
+          "appSteps": [
+            "1 maj",
+            "5 over3",
+            "6 min",
+            "5 maj",
+            "4 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "G/B",
+            "Am",
+            "G",
+            "F"
+          ],
+          "usage": "Genre: descending-bass ballad line (C-G/B-Am-G-F)."
+        },
+        {
+          "rank": 15,
+          "name": "Ballad Uphill",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "I",
+            "ii",
+            "I/3",
+            "IV",
+            "V"
+          ],
+          "appSteps": [
+            "1 maj",
+            "2 min",
+            "1 over3",
+            "4 maj",
+            "5 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "Dm",
+            "C/E",
+            "F",
+            "G"
+          ],
+          "usage": "Genre: rising-bass hymn/ballad line (C-Dm-C/E-F-G)."
+        }
+      ]
+    },
+    "reggae": {
+      "label": "Reggae",
+      "counts": {
+        "existing": 12,
+        "new": 3,
+        "total": 15
+      },
+      "progressions": [
+        {
+          "rank": 1,
+          "name": "Reggae Island Skank",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "IV",
+            "V",
+            "IV"
+          ],
+          "appSteps": [
+            "1 maj",
+            "4 maj",
+            "5 maj",
+            "4 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "F",
+            "G",
+            "F"
+          ]
+        },
+        {
+          "rank": 2,
+          "name": "Reggae Lovers",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "vi",
+            "IV",
+            "V"
+          ],
+          "appSteps": [
+            "1 maj",
+            "6 min",
+            "4 maj",
+            "5 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "Am",
+            "F",
+            "G"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "bVI",
+              "bIII",
+              "bVII"
+            ],
+            "appSteps": [
+              "1 min",
+              "6 maj",
+              "3 maj",
+              "7 maj"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "F",
+              "C",
+              "G"
+            ]
+          }
+        },
+        {
+          "rank": 3,
+          "name": "Reggae One Drop",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "bVII",
+            "IV",
+            "I"
+          ],
+          "appSteps": [
+            "1 maj",
+            "b7 maj",
+            "4 maj",
+            "1 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "Bb",
+            "F",
+            "C"
+          ]
+        },
+        {
+          "rank": 4,
+          "name": "Reggae Skank I",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "i",
+            "iv",
+            "V",
+            "iv"
+          ],
+          "appSteps": [
+            "1 min",
+            "4 min",
+            "5 maj",
+            "4 min"
+          ],
+          "exampleInCAm": [
+            "Am",
+            "Dm",
+            "E",
+            "Dm"
+          ]
+        },
+        {
+          "rank": 5,
+          "name": "Reggae Drop",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "i",
+            "bVII",
+            "iv",
+            "i"
+          ],
+          "appSteps": [
+            "1 min",
+            "7 maj",
+            "4 min",
+            "1 min"
+          ],
+          "exampleInCAm": [
+            "Am",
+            "G",
+            "Dm",
+            "Am"
+          ]
+        },
+        {
+          "rank": 6,
+          "name": "Reggae Easy",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "IV",
+            "V",
+            "bVII"
+          ],
+          "appSteps": [
+            "1 maj",
+            "4 maj",
+            "5 maj",
+            "b7 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "F",
+            "G",
+            "Bb"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "bVI",
+              "bVII",
+              "i",
+              "iv"
+            ],
+            "appSteps": [
+              "6 maj",
+              "7 maj",
+              "1 min",
+              "4 min"
+            ],
+            "exampleInCAm": [
+              "F",
+              "G",
+              "Am",
+              "Dm"
+            ]
+          }
+        },
+        {
+          "rank": 7,
+          "name": "Reggae Roots",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "vi",
+            "V",
+            "IV",
+            "V"
+          ],
+          "appSteps": [
+            "6 min",
+            "5 maj",
+            "4 maj",
+            "5 maj"
+          ],
+          "exampleInCAm": [
+            "Am",
+            "G",
+            "F",
+            "G"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "bVII",
+              "bVI",
+              "bVII"
+            ],
+            "appSteps": [
+              "1 min",
+              "7 maj",
+              "6 maj",
+              "7 maj"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "G",
+              "F",
+              "G"
+            ]
+          }
+        },
+        {
+          "rank": 8,
+          "name": "Reggae Rocksteady",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "V",
+            "vi",
+            "IV"
+          ],
+          "appSteps": [
+            "1 maj",
+            "5 maj",
+            "6 min",
+            "4 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "G",
+            "Am",
+            "F"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "V",
+              "bVI",
+              "iv"
+            ],
+            "appSteps": [
+              "1 min",
+              "5 maj",
+              "6 maj",
+              "4 min"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "E",
+              "F",
+              "Dm"
+            ]
+          }
+        },
+        {
+          "rank": 9,
+          "name": "Reggae Lover",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "i",
+            "bVI",
+            "iv",
+            "V"
+          ],
+          "appSteps": [
+            "1 min",
+            "6 maj",
+            "4 min",
+            "5 maj"
+          ],
+          "exampleInCAm": [
+            "Am",
+            "F",
+            "Dm",
+            "E"
+          ]
+        },
+        {
+          "rank": 10,
+          "name": "Reggae Sway",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "ii",
+            "I",
+            "IV"
+          ],
+          "appSteps": [
+            "1 maj",
+            "2 min",
+            "1 maj",
+            "4 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "Dm",
+            "C",
+            "F"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "ii7",
+              "i",
+              "iv"
+            ],
+            "appSteps": [
+              "1 min",
+              "2 m7",
+              "1 min",
+              "4 min"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "Bm7",
+              "Am",
+              "Dm"
+            ]
+          }
+        },
+        {
+          "rank": 11,
+          "name": "Reggae Ska",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I x0.5",
+            "vi x0.5",
+            "ii x0.5",
+            "V x0.5"
+          ],
+          "appSteps": [
+            "1 maj x0.5",
+            "6 min x0.5",
+            "2 min x0.5",
+            "5 maj x0.5"
+          ],
+          "exampleInCAm": [
+            "C",
+            "Am",
+            "Dm",
+            "G"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i x0.5",
+              "iv x0.5",
+              "V x0.5",
+              "i x0.5"
+            ],
+            "appSteps": [
+              "1 min x0.5",
+              "4 min x0.5",
+              "5 maj x0.5",
+              "1 min x0.5"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "Dm",
+              "E",
+              "Am"
+            ]
+          }
+        },
+        {
+          "rank": 12,
+          "name": "Reggae Minor Riddim",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "i",
+            "iv",
+            "v",
+            "iv"
+          ],
+          "appSteps": [
+            "1 min",
+            "4 min",
+            "5 min",
+            "4 min"
+          ],
+          "exampleInCAm": [
+            "Am",
+            "Dm",
+            "Em",
+            "Dm"
+          ]
+        },
+        {
+          "rank": 13,
+          "name": "Reggae Sunny",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "I",
+            "iii",
+            "IV",
+            "ii"
+          ],
+          "appSteps": [
+            "1 maj",
+            "3 min",
+            "4 maj",
+            "2 min"
+          ],
+          "exampleInCAm": [
+            "C",
+            "Em",
+            "F",
+            "Dm"
+          ],
+          "usage": "Genre: I-iii-IV-ii lovers-rock style loop."
+        },
+        {
+          "rank": 14,
+          "name": "Reggae Lazy Day",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "I",
+            "V",
+            "ii",
+            "IV"
+          ],
+          "appSteps": [
+            "1 maj",
+            "5 maj",
+            "2 min",
+            "4 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "G",
+            "Dm",
+            "F"
+          ],
+          "usage": "Genre: I-V-ii-IV easy skank loop."
+        },
+        {
+          "rank": 15,
+          "name": "Reggae Night Riddim",
+          "status": "new",
+          "mode": "minor",
+          "steps": [
+            "i",
+            "bVII",
+            "bVI",
+            "iv"
+          ],
+          "appSteps": [
+            "1 min",
+            "7 maj",
+            "6 maj",
+            "4 min"
+          ],
+          "exampleInCAm": [
+            "Am",
+            "G",
+            "F",
+            "Dm"
+          ],
+          "usage": "Genre: minor roots riddim stepping down i-bVII-bVI-iv."
+        }
+      ]
+    },
+    "funk": {
+      "label": "Funk",
+      "counts": {
+        "existing": 10,
+        "new": 5,
+        "total": 15
+      },
+      "progressions": [
+        {
+          "rank": 1,
+          "name": "Funk OneFour",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I9",
+            "IV9",
+            "I9",
+            "V9"
+          ],
+          "appSteps": [
+            "1 9",
+            "4 9",
+            "1 9",
+            "5 9"
+          ],
+          "exampleInCAm": [
+            "C9",
+            "F9",
+            "C9",
+            "G9"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i7",
+              "iv7",
+              "i7",
+              "V9"
+            ],
+            "appSteps": [
+              "1 m7",
+              "4 m7",
+              "1 m7",
+              "5 9"
+            ],
+            "exampleInCAm": [
+              "Am7",
+              "Dm7",
+              "Am7",
+              "E9"
+            ]
+          }
+        },
+        {
+          "rank": 2,
+          "name": "Funk Disco",
+          "status": "new",
+          "mode": "minor",
+          "steps": [
+            "i7",
+            "bIII",
+            "v7",
+            "IV"
+          ],
+          "appSteps": [
+            "1 m7",
+            "3 maj",
+            "5 m7",
+            "4 maj"
+          ],
+          "exampleInCAm": [
+            "Am7",
+            "C",
+            "Em7",
+            "D"
+          ],
+          "usage": "Daft Punk \"Get Lucky\" loop, commonly charted Bm7-D-F#m7-E (B Dorian)."
+        },
+        {
+          "rank": 3,
+          "name": "Funk Vamp",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I7",
+            "IV7",
+            "I7",
+            "V7"
+          ],
+          "appSteps": [
+            "1 7",
+            "4 7",
+            "1 7",
+            "5 7"
+          ],
+          "exampleInCAm": [
+            "C7",
+            "F7",
+            "C7",
+            "G7"
+          ]
+        },
+        {
+          "rank": 4,
+          "name": "Funk Dorian",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "i7",
+            "IV7",
+            "i7",
+            "bVII9"
+          ],
+          "appSteps": [
+            "1 m7",
+            "4 7",
+            "1 m7",
+            "7 9"
+          ],
+          "exampleInCAm": [
+            "Am7",
+            "D7",
+            "Am7",
+            "G9"
+          ]
+        },
+        {
+          "rank": 5,
+          "name": "Funk Mixo",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I9",
+            "bVII9",
+            "IV9",
+            "I9"
+          ],
+          "appSteps": [
+            "1 9",
+            "b7 9",
+            "4 9",
+            "1 9"
+          ],
+          "exampleInCAm": [
+            "C9",
+            "Bb9",
+            "F9",
+            "C9"
+          ]
+        },
+        {
+          "rank": 6,
+          "name": "Funk Strut",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I9",
+            "bVII9",
+            "IV9",
+            "V9"
+          ],
+          "appSteps": [
+            "1 9",
+            "b7 9",
+            "4 9",
+            "5 9"
+          ],
+          "exampleInCAm": [
+            "C9",
+            "Bb9",
+            "F9",
+            "G9"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i7",
+              "bVII9",
+              "iv7",
+              "V9"
+            ],
+            "appSteps": [
+              "1 m7",
+              "7 9",
+              "4 m7",
+              "5 9"
+            ],
+            "exampleInCAm": [
+              "Am7",
+              "G9",
+              "Dm7",
+              "E9"
+            ]
+          }
+        },
+        {
+          "rank": 7,
+          "name": "Funk Breakdown",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "i9",
+            "bVII9",
+            "IV9",
+            "i9"
+          ],
+          "appSteps": [
+            "1 m9",
+            "7 9",
+            "4 9",
+            "1 m9"
+          ],
+          "exampleInCAm": [
+            "Am9",
+            "G9",
+            "D9",
+            "Am9"
+          ]
+        },
+        {
+          "rank": 8,
+          "name": "Funk iiV",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "ii7",
+            "V9",
+            "I9",
+            "IV9"
+          ],
+          "appSteps": [
+            "2 m7",
+            "5 9",
+            "1 9",
+            "4 9"
+          ],
+          "exampleInCAm": [
+            "Dm7",
+            "G9",
+            "C9",
+            "F9"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "iiø7",
+              "V9",
+              "i7",
+              "iv7"
+            ],
+            "appSteps": [
+              "2 m7b5",
+              "5 9",
+              "1 m7",
+              "4 m7"
+            ],
+            "exampleInCAm": [
+              "Bm7b5",
+              "E9",
+              "Am7",
+              "Dm7"
+            ]
+          }
+        },
+        {
+          "rank": 9,
+          "name": "Funk Chrome",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I9",
+            "ii7",
+            "IV9",
+            "V9"
+          ],
+          "appSteps": [
+            "1 9",
+            "2 m7",
+            "4 9",
+            "5 9"
+          ],
+          "exampleInCAm": [
+            "C9",
+            "Dm7",
+            "F9",
+            "G9"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i7",
+              "iiø7",
+              "iv7",
+              "V9"
+            ],
+            "appSteps": [
+              "1 m7",
+              "2 m7b5",
+              "4 m7",
+              "5 9"
+            ],
+            "exampleInCAm": [
+              "Am7",
+              "Bm7b5",
+              "Dm7",
+              "E9"
+            ]
+          }
+        },
+        {
+          "rank": 10,
+          "name": "Funk Cool",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "vi7",
+            "ii7",
+            "vi7",
+            "V9"
+          ],
+          "appSteps": [
+            "6 m7",
+            "2 m7",
+            "6 m7",
+            "5 9"
+          ],
+          "exampleInCAm": [
+            "Am7",
+            "Dm7",
+            "Am7",
+            "G9"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i7",
+              "bIIImaj7",
+              "iv7",
+              "V7#9"
+            ],
+            "appSteps": [
+              "1 m7",
+              "3 maj7",
+              "4 m7",
+              "5 7#9"
+            ],
+            "exampleInCAm": [
+              "Am7",
+              "Cmaj7",
+              "Dm7",
+              "E7#9"
+            ]
+          }
+        },
+        {
+          "rank": 11,
+          "name": "Funk Party",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I9",
+            "IV9",
+            "V9",
+            "IV9"
+          ],
+          "appSteps": [
+            "1 9",
+            "4 9",
+            "5 9",
+            "4 9"
+          ],
+          "exampleInCAm": [
+            "C9",
+            "F9",
+            "G9",
+            "F9"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i7",
+              "bVImaj7",
+              "bVII9",
+              "i7"
+            ],
+            "appSteps": [
+              "1 m7",
+              "6 maj7",
+              "7 9",
+              "1 m7"
+            ],
+            "exampleInCAm": [
+              "Am7",
+              "Fmaj7",
+              "G9",
+              "Am7"
+            ]
+          }
+        },
+        {
+          "rank": 12,
+          "name": "Funk Stomp",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "I7#9",
+            "bIII7",
+            "IV7",
+            "bVII7"
+          ],
+          "appSteps": [
+            "1 7#9",
+            "b3 7",
+            "4 7",
+            "b7 7"
+          ],
+          "exampleInCAm": [
+            "C7#9",
+            "Eb7",
+            "F7",
+            "Bb7"
+          ],
+          "usage": "Genre: blues-rock/funk riff on I7#9-bIII7-IV7-bVII7."
+        },
+        {
+          "rank": 13,
+          "name": "Funk Elevator",
+          "status": "new",
+          "mode": "minor",
+          "steps": [
+            "i7",
+            "ii7",
+            "bIIImaj7",
+            "IV7"
+          ],
+          "appSteps": [
+            "1 m7",
+            "2 m7",
+            "3 maj7",
+            "4 7"
+          ],
+          "exampleInCAm": [
+            "Am7",
+            "Bm7",
+            "Cmaj7",
+            "D7"
+          ],
+          "usage": "Genre: Dorian stepwise climb i7-ii7-bIIImaj7-IV7."
+        },
+        {
+          "rank": 14,
+          "name": "Funk Glide",
+          "status": "new",
+          "mode": "minor",
+          "steps": [
+            "i7",
+            "IV7",
+            "bVII9",
+            "bIIImaj7"
+          ],
+          "appSteps": [
+            "1 m7",
+            "4 7",
+            "7 9",
+            "3 maj7"
+          ],
+          "exampleInCAm": [
+            "Am7",
+            "D7",
+            "G9",
+            "Cmaj7"
+          ],
+          "usage": "Genre: Dorian i7-IV7 moving round the circle to bVII9-bIIImaj7."
+        },
+        {
+          "rank": 15,
+          "name": "Funk Clav Slide",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "I7",
+            "bVII7",
+            "bVI7",
+            "V7#9"
+          ],
+          "appSteps": [
+            "1 7",
+            "b7 7",
+            "b6 7",
+            "5 7#9"
+          ],
+          "exampleInCAm": [
+            "C7",
+            "Bb7",
+            "Ab7",
+            "G7#9"
+          ],
+          "usage": "Genre: descending dominant-7 line I7-bVII7-bVI7-V7#9 (soul/funk)."
+        }
+      ]
+    },
+    "yogaDeep": {
+      "label": "Yoga",
+      "counts": {
+        "existing": 10,
+        "new": 5,
+        "total": 15
+      },
+      "progressions": [
+        {
+          "rank": 1,
+          "name": "Yoga Om",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "Isus2",
+            "IVsus2",
+            "Isus2",
+            "Vsus2"
+          ],
+          "appSteps": [
+            "1 sus2",
+            "4 sus2",
+            "1 sus2",
+            "5 sus2"
+          ],
+          "exampleInCAm": [
+            "Csus2",
+            "Fsus2",
+            "Csus2",
+            "Gsus2"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i7",
+              "iv7",
+              "i7",
+              "Vsus2"
+            ],
+            "appSteps": [
+              "1 m7",
+              "4 m7",
+              "1 m7",
+              "5 sus2"
+            ],
+            "exampleInCAm": [
+              "Am7",
+              "Dm7",
+              "Am7",
+              "Esus2"
+            ]
+          }
+        },
+        {
+          "rank": 2,
+          "name": "Yoga Path",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "Isus2",
+            "Vsus2",
+            "vi7",
+            "IVsus2"
+          ],
+          "appSteps": [
+            "1 sus2",
+            "5 sus2",
+            "6 m7",
+            "4 sus2"
+          ],
+          "exampleInCAm": [
+            "Csus2",
+            "Gsus2",
+            "Am7",
+            "Fsus2"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i7",
+              "Vsus2",
+              "bVIsus2",
+              "iv7"
+            ],
+            "appSteps": [
+              "1 m7",
+              "5 sus2",
+              "6 sus2",
+              "4 m7"
+            ],
+            "exampleInCAm": [
+              "Am7",
+              "Esus2",
+              "Fsus2",
+              "Dm7"
+            ]
+          }
+        },
+        {
+          "rank": 3,
+          "name": "Yoga Open",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "Isus2",
+            "bVIIsus2",
+            "IVsus2"
+          ],
+          "appSteps": [
+            "1 sus2",
+            "b7 sus2",
+            "4 sus2"
+          ],
+          "exampleInCAm": [
+            "Csus2",
+            "Bbsus2",
+            "Fsus2"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "Isus2",
+              "bVIIsus2",
+              "IVsus2"
+            ],
+            "appSteps": [
+              "1 sus2",
+              "7 sus2",
+              "4 sus2"
+            ],
+            "exampleInCAm": [
+              "Asus2",
+              "Gsus2",
+              "Dsus2"
+            ]
+          }
+        },
+        {
+          "rank": 4,
+          "name": "Yoga Rise",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "IVsus2",
+            "Vsus2",
+            "Isus2",
+            "vi7"
+          ],
+          "appSteps": [
+            "4 sus2",
+            "5 sus2",
+            "1 sus2",
+            "6 m7"
+          ],
+          "exampleInCAm": [
+            "Fsus2",
+            "Gsus2",
+            "Csus2",
+            "Am7"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "iv7",
+              "Vsus2",
+              "i7",
+              "bVIsus2"
+            ],
+            "appSteps": [
+              "4 m7",
+              "5 sus2",
+              "1 m7",
+              "6 sus2"
+            ],
+            "exampleInCAm": [
+              "Dm7",
+              "Esus2",
+              "Am7",
+              "Fsus2"
+            ]
+          }
+        },
+        {
+          "rank": 5,
+          "name": "Yoga Float",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "Isus2 x2",
+            "IVsus2 x2",
+            "Vsus2 x2",
+            "Isus2 x2"
+          ],
+          "appSteps": [
+            "1 sus2 x2",
+            "4 sus2 x2",
+            "5 sus2 x2",
+            "1 sus2 x2"
+          ],
+          "exampleInCAm": [
+            "Csus2",
+            "Fsus2",
+            "Gsus2",
+            "Csus2"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i7 x2",
+              "iv7 x2",
+              "Vsus2 x2",
+              "i7 x2"
+            ],
+            "appSteps": [
+              "1 m7 x2",
+              "4 m7 x2",
+              "5 sus2 x2",
+              "1 m7 x2"
+            ],
+            "exampleInCAm": [
+              "Am7",
+              "Dm7",
+              "Esus2",
+              "Am7"
+            ]
+          }
+        },
+        {
+          "rank": 6,
+          "name": "Yoga Breathe",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "Isus2 x2",
+            "Iadd9 x2",
+            "IVsus2 x2",
+            "Vsus2 x2"
+          ],
+          "appSteps": [
+            "1 sus2 x2",
+            "1 add9 x2",
+            "4 sus2 x2",
+            "5 sus2 x2"
+          ],
+          "exampleInCAm": [
+            "Csus2",
+            "Cadd9",
+            "Fsus2",
+            "Gsus2"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i7 x2",
+              "i9 x2",
+              "iv7 x2",
+              "Vsus2 x2"
+            ],
+            "appSteps": [
+              "1 m7 x2",
+              "1 m9 x2",
+              "4 m7 x2",
+              "5 sus2 x2"
+            ],
+            "exampleInCAm": [
+              "Am7",
+              "Am9",
+              "Dm7",
+              "Esus2"
+            ]
+          }
+        },
+        {
+          "rank": 7,
+          "name": "Yoga Moon",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "ii7 x2",
+            "Vsus2 x2",
+            "IVsus2 x2",
+            "Isus2 x2"
+          ],
+          "appSteps": [
+            "2 m7 x2",
+            "5 sus2 x2",
+            "4 sus2 x2",
+            "1 sus2 x2"
+          ],
+          "exampleInCAm": [
+            "Dm7",
+            "Gsus2",
+            "Fsus2",
+            "Csus2"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "iv7 x2",
+              "bVIIsus2 x2",
+              "bIIIsus2 x2",
+              "i7 x2"
+            ],
+            "appSteps": [
+              "4 m7 x2",
+              "7 sus2 x2",
+              "3 sus2 x2",
+              "1 m7 x2"
+            ],
+            "exampleInCAm": [
+              "Dm7",
+              "Gsus2",
+              "Csus2",
+              "Am7"
+            ]
+          }
+        },
+        {
+          "rank": 8,
+          "name": "Yoga Still",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "i9",
+            "bVImaj7",
+            "bVII6",
+            "i9"
+          ],
+          "appSteps": [
+            "1 m9",
+            "6 maj7",
+            "7 6",
+            "1 m9"
+          ],
+          "exampleInCAm": [
+            "Am9",
+            "Fmaj7",
+            "G6",
+            "Am9"
+          ]
+        },
+        {
+          "rank": 9,
+          "name": "Yoga Glow",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "bVIsus2 x2",
+            "bVIIsus2 x2",
+            "i7 x4"
+          ],
+          "appSteps": [
+            "6 sus2 x2",
+            "7 sus2 x2",
+            "1 m7 x4"
+          ],
+          "exampleInCAm": [
+            "Fsus2",
+            "Gsus2",
+            "Am7"
+          ]
+        },
+        {
+          "rank": 10,
+          "name": "Yoga Sky",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "i7 x2",
+            "bIIIsus2 x2",
+            "bVIsus2 x2",
+            "bVIIsus2 x2"
+          ],
+          "appSteps": [
+            "1 m7 x2",
+            "3 sus2 x2",
+            "6 sus2 x2",
+            "7 sus2 x2"
+          ],
+          "exampleInCAm": [
+            "Am7",
+            "Csus2",
+            "Fsus2",
+            "Gsus2"
+          ]
+        },
+        {
+          "rank": 11,
+          "name": "Yoga Lotus",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "Imaj7 x2",
+            "IIsus2 x2",
+            "vi7 x2",
+            "Vsus2 x2"
+          ],
+          "appSteps": [
+            "1 maj7 x2",
+            "2 sus2 x2",
+            "6 m7 x2",
+            "5 sus2 x2"
+          ],
+          "exampleInCAm": [
+            "Cmaj7",
+            "Dsus2",
+            "Am7",
+            "Gsus2"
+          ],
+          "usage": "Genre: Lydian-flavoured ambient pad (major II)."
+        },
+        {
+          "rank": 12,
+          "name": "Yoga River",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "Isus2 x2",
+            "vi7 x2",
+            "iii7 x2",
+            "IVmaj7 x2"
+          ],
+          "appSteps": [
+            "1 sus2 x2",
+            "6 m7 x2",
+            "3 m7 x2",
+            "4 maj7 x2"
+          ],
+          "exampleInCAm": [
+            "Csus2",
+            "Am7",
+            "Em7",
+            "Fmaj7"
+          ],
+          "usage": "Genre: slow diatonic ambient/meditation pad."
+        },
+        {
+          "rank": 13,
+          "name": "Yoga Dawn",
+          "status": "new",
+          "mode": "minor",
+          "steps": [
+            "i9 x2",
+            "bIIImaj7 x2",
+            "iv7 x2",
+            "bVIIsus2 x2"
+          ],
+          "appSteps": [
+            "1 m9 x2",
+            "3 maj7 x2",
+            "4 m7 x2",
+            "7 sus2 x2"
+          ],
+          "exampleInCAm": [
+            "Am9",
+            "Cmaj7",
+            "Dm7",
+            "Gsus2"
+          ],
+          "usage": "Genre: Aeolian ambient pad."
+        },
+        {
+          "rank": 14,
+          "name": "Yoga Cloud",
+          "status": "new",
+          "mode": "minor",
+          "steps": [
+            "i7 x2",
+            "bVImaj7 x2",
+            "iv9 x2",
+            "bIIImaj7 x2"
+          ],
+          "appSteps": [
+            "1 m7 x2",
+            "6 maj7 x2",
+            "4 m9 x2",
+            "3 maj7 x2"
+          ],
+          "exampleInCAm": [
+            "Am7",
+            "Fmaj7",
+            "Dm9",
+            "Cmaj7"
+          ],
+          "usage": "Genre: Aeolian ambient pad."
+        },
+        {
+          "rank": 15,
+          "name": "Yoga Earth",
+          "status": "new",
+          "mode": "minor",
+          "steps": [
+            "i9 x2",
+            "ii7 x2",
+            "IVsus2 x2",
+            "v7 x2"
+          ],
+          "appSteps": [
+            "1 m9 x2",
+            "2 m7 x2",
+            "4 sus2 x2",
+            "5 m7 x2"
+          ],
+          "exampleInCAm": [
+            "Am9",
+            "Bm7",
+            "Dsus2",
+            "Em7"
+          ],
+          "usage": "Genre: Dorian ambient pad (major IV colour)."
+        }
+      ]
+    },
+    "country": {
+      "label": "Country",
+      "counts": {
+        "existing": 14,
+        "new": 1,
+        "total": 15
+      },
+      "progressions": [
+        {
+          "rank": 1,
+          "name": "Country Three-Chord",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "IV",
+            "V7",
+            "I"
+          ],
+          "appSteps": [
+            "1 maj",
+            "4 maj",
+            "5 7",
+            "1 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "F",
+            "G7",
+            "C"
+          ]
+        },
+        {
+          "rank": 2,
+          "name": "Country Story",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "vi",
+            "IV",
+            "V"
+          ],
+          "appSteps": [
+            "1 maj",
+            "6 min",
+            "4 maj",
+            "5 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "Am",
+            "F",
+            "G"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "bVI",
+              "iv",
+              "V"
+            ],
+            "appSteps": [
+              "1 min",
+              "6 maj",
+              "4 min",
+              "5 maj"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "F",
+              "Dm",
+              "E"
+            ]
+          }
+        },
+        {
+          "rank": 3,
+          "name": "Country Back Roads",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "I",
+            "vi",
+            "V",
+            "IV"
+          ],
+          "appSteps": [
+            "1 maj",
+            "6 min",
+            "5 maj",
+            "4 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "Am",
+            "G",
+            "F"
+          ],
+          "usage": "John Denver \"Take Me Home, Country Roads\" verse (G-Em-D-C)."
+        },
+        {
+          "rank": 4,
+          "name": "Country Outlaw",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "i",
+            "bVII",
+            "bVI",
+            "bVII"
+          ],
+          "appSteps": [
+            "1 min",
+            "7 maj",
+            "6 maj",
+            "7 maj"
+          ],
+          "exampleInCAm": [
+            "Am",
+            "G",
+            "F",
+            "G"
+          ]
+        },
+        {
+          "rank": 5,
+          "name": "Country Wagon",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "V",
+            "vi",
+            "IV"
+          ],
+          "appSteps": [
+            "1 maj",
+            "5 maj",
+            "6 min",
+            "4 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "G",
+            "Am",
+            "F"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "V",
+              "bVI",
+              "iv"
+            ],
+            "appSteps": [
+              "1 min",
+              "5 maj",
+              "6 maj",
+              "4 min"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "E",
+              "F",
+              "Dm"
+            ]
+          }
+        },
+        {
+          "rank": 6,
+          "name": "Country Train",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "IV",
+            "V7",
+            "vi"
+          ],
+          "appSteps": [
+            "1 maj",
+            "4 maj",
+            "5 7",
+            "6 min"
+          ],
+          "exampleInCAm": [
+            "C",
+            "F",
+            "G7",
+            "Am"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "iv",
+              "V7",
+              "bVII"
+            ],
+            "appSteps": [
+              "1 min",
+              "4 min",
+              "5 7",
+              "7 maj"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "Dm",
+              "E7",
+              "G"
+            ]
+          }
+        },
+        {
+          "rank": 7,
+          "name": "Country Classic",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "i",
+            "iv",
+            "V",
+            "i"
+          ],
+          "appSteps": [
+            "1 min",
+            "4 min",
+            "5 maj",
+            "1 min"
+          ],
+          "exampleInCAm": [
+            "Am",
+            "Dm",
+            "E",
+            "Am"
+          ]
+        },
+        {
+          "rank": 8,
+          "name": "Country Honky",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "IV",
+            "V7",
+            "IV"
+          ],
+          "appSteps": [
+            "1 maj",
+            "4 maj",
+            "5 7",
+            "4 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "F",
+            "G7",
+            "F"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "iv",
+              "V7",
+              "iv"
+            ],
+            "appSteps": [
+              "1 min",
+              "4 min",
+              "5 7",
+              "4 min"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "Dm",
+              "E7",
+              "Dm"
+            ]
+          }
+        },
+        {
+          "rank": 9,
+          "name": "Country Holler",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "i",
+            "bIII",
+            "bVII",
+            "iv"
+          ],
+          "appSteps": [
+            "1 min",
+            "3 maj",
+            "7 maj",
+            "4 min"
+          ],
+          "exampleInCAm": [
+            "Am",
+            "C",
+            "G",
+            "Dm"
+          ]
+        },
+        {
+          "rank": 10,
+          "name": "Country Ramble",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "bVII",
+            "IV",
+            "V"
+          ],
+          "appSteps": [
+            "1 maj",
+            "b7 maj",
+            "4 maj",
+            "5 maj"
+          ],
+          "exampleInCAm": [
+            "C",
+            "Bb",
+            "F",
+            "G"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "IV",
+              "i",
+              "bVII"
+            ],
+            "appSteps": [
+              "1 min",
+              "4 maj",
+              "1 min",
+              "7 maj"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "D",
+              "Am",
+              "G"
+            ]
+          }
+        },
+        {
+          "rank": 11,
+          "name": "Country Rag",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "VI7",
+            "II7",
+            "V7"
+          ],
+          "appSteps": [
+            "1 maj",
+            "6 7",
+            "2 7",
+            "5 7"
+          ],
+          "exampleInCAm": [
+            "C",
+            "A7",
+            "D7",
+            "G7"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "bVI",
+              "ii°",
+              "V7"
+            ],
+            "appSteps": [
+              "1 min",
+              "6 maj",
+              "2 dim",
+              "5 7"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "F",
+              "Bdim",
+              "E7"
+            ]
+          }
+        },
+        {
+          "rank": 12,
+          "name": "Country Sunset",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "iii",
+            "IV",
+            "V7"
+          ],
+          "appSteps": [
+            "1 maj",
+            "3 min",
+            "4 maj",
+            "5 7"
+          ],
+          "exampleInCAm": [
+            "C",
+            "Em",
+            "F",
+            "G7"
+          ],
+          "otherMode": {
+            "mode": "minor",
+            "steps": [
+              "i",
+              "bIII",
+              "bVI",
+              "V7"
+            ],
+            "appSteps": [
+              "1 min",
+              "3 maj",
+              "6 maj",
+              "5 7"
+            ],
+            "exampleInCAm": [
+              "Am",
+              "C",
+              "F",
+              "E7"
+            ]
+          }
+        },
+        {
+          "rank": 13,
+          "name": "Country Two-Step",
+          "status": "existing",
+          "mode": "major",
+          "steps": [
+            "I",
+            "IV",
+            "I",
+            "V7"
+          ],
+          "appSteps": [
+            "1 maj",
+            "4 maj",
+            "1 maj",
+            "5 7"
+          ],
+          "exampleInCAm": [
+            "C",
+            "F",
+            "C",
+            "G7"
+          ]
+        },
+        {
+          "rank": 14,
+          "name": "Country Hoedown",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "i",
+            "bVII",
+            "V7",
+            "i"
+          ],
+          "appSteps": [
+            "1 min",
+            "7 maj",
+            "5 7",
+            "1 min"
+          ],
+          "exampleInCAm": [
+            "Am",
+            "G",
+            "E7",
+            "Am"
+          ]
+        },
+        {
+          "rank": 15,
+          "name": "Country Minor Three-Chord",
+          "status": "existing",
+          "mode": "minor",
+          "steps": [
+            "i",
+            "iv",
+            "i",
+            "v"
+          ],
+          "appSteps": [
+            "1 min",
+            "4 min",
+            "1 min",
+            "5 min"
+          ],
+          "exampleInCAm": [
+            "Am",
+            "Dm",
+            "Am",
+            "Em"
+          ]
+        }
+      ]
+    },
+    "lofi": {
+      "label": "Lofi",
+      "newStyle": true,
+      "styleNote": {
+        "sound": "Warm Rhodes-like electric piano (closest existing voice: \"epiano\"), dark/soft filter, tape-style warmth; rich 7th/9th chords in close or drop voicings, not bright triads.",
+        "tempo": "Slow and laid-back: about 70-90 BPM, default ~80 (swung/behind-the-beat feel if the engine supports swing; otherwise straight at ~80).",
+        "drums": "Soft, dusty boom-bap: muted kick, gentle snare/rim, light swung hats; low volume under the keys.",
+        "bass": "Round, soft sub/electric bass on roots, not busy.",
+        "fx": "More reverb and a little delay than Pop (in the range of the R&B preset), warmth around 50-60.",
+        "suggestedPreset": {
+          "sound": "epiano",
+          "bass": true,
+          "voicing": "close",
+          "cutoff": 0.4,
+          "reverb": 0.34,
+          "delay": 0.2,
+          "bpm": 80,
+          "warmth": 60
+        },
+        "caveat": "Suggested numbers are a starting point modelled on the existing jazz/rnb presets; not listened to. Loudness trim (STYLE_TRIM) must be measured by Crash."
+      },
+      "counts": {
+        "existing": 0,
+        "new": 15,
+        "total": 15
+      },
+      "progressions": [
+        {
+          "rank": 1,
+          "name": "Lofi Rainy Day",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "IVmaj9",
+            "iii7",
+            "vi9",
+            "Imaj7"
+          ],
+          "appSteps": [
+            "4 maj9",
+            "3 m7",
+            "6 m9",
+            "1 maj7"
+          ],
+          "exampleInCAm": [
+            "Fmaj9",
+            "Em7",
+            "Am9",
+            "Cmaj7"
+          ],
+          "usage": "Genre: IVmaj7-iii7-vi7 lofi/J-pop staple, landing on Imaj7."
+        },
+        {
+          "rank": 2,
+          "name": "Lofi Coffee Shop",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "ii9",
+            "V13",
+            "iii7",
+            "vi9"
+          ],
+          "appSteps": [
+            "2 m9",
+            "5 13",
+            "3 m7",
+            "6 m9"
+          ],
+          "exampleInCAm": [
+            "Dm9",
+            "G13",
+            "Em7",
+            "Am9"
+          ],
+          "usage": "Genre: ii-V that dodges to iii-vi, common lofi/neo-soul loop."
+        },
+        {
+          "rank": 3,
+          "name": "Lofi Snow Globe",
+          "status": "new",
+          "mode": "minor",
+          "steps": [
+            "i9",
+            "bVImaj9",
+            "bIIImaj7",
+            "V7b9"
+          ],
+          "appSteps": [
+            "1 m9",
+            "6 maj9",
+            "3 maj7",
+            "5 7b9"
+          ],
+          "exampleInCAm": [
+            "Am9",
+            "Fmaj9",
+            "Cmaj7",
+            "E7b9"
+          ],
+          "usage": "Genre: minor lofi loop i9-bVImaj9-bIIImaj7 with V7b9 pull back to i."
+        },
+        {
+          "rank": 4,
+          "name": "Lofi Night Drive",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "Imaj9",
+            "vi9",
+            "IVmaj7",
+            "iv7"
+          ],
+          "appSteps": [
+            "1 maj9",
+            "6 m9",
+            "4 maj7",
+            "4 m7"
+          ],
+          "exampleInCAm": [
+            "Cmaj9",
+            "Am9",
+            "Fmaj7",
+            "Fm7"
+          ],
+          "usage": "Genre: borrowed minor iv7 after IVmaj7 (lofi/neo-soul)."
+        },
+        {
+          "rank": 5,
+          "name": "Lofi Pillow",
+          "status": "new",
+          "mode": "minor",
+          "steps": [
+            "bVImaj7",
+            "bVII13",
+            "i9",
+            "v7"
+          ],
+          "appSteps": [
+            "6 maj7",
+            "7 13",
+            "1 m9",
+            "5 m7"
+          ],
+          "exampleInCAm": [
+            "Fmaj7",
+            "G13",
+            "Am9",
+            "Em7"
+          ],
+          "usage": "Genre: bVI-bVII-i lift with minor v7 (lofi/anime style)."
+        },
+        {
+          "rank": 6,
+          "name": "Lofi Rain Window",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "IVmaj9",
+            "iv9",
+            "iii7",
+            "VI7b9",
+            "ii9",
+            "V13"
+          ],
+          "appSteps": [
+            "4 maj9",
+            "4 m9",
+            "3 m7",
+            "6 7b9",
+            "2 m9",
+            "5 13"
+          ],
+          "exampleInCAm": [
+            "Fmaj9",
+            "Fm9",
+            "Em7",
+            "A7b9",
+            "Dm9",
+            "G13"
+          ],
+          "usage": "Genre: neo-soul walk-down IV-iv-iii-VI7-ii-V."
+        },
+        {
+          "rank": 7,
+          "name": "Lofi Stargaze",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "Imaj7",
+            "ii7",
+            "iii7",
+            "IVmaj7"
+          ],
+          "appSteps": [
+            "1 maj7",
+            "2 m7",
+            "3 m7",
+            "4 maj7"
+          ],
+          "exampleInCAm": [
+            "Cmaj7",
+            "Dm7",
+            "Em7",
+            "Fmaj7"
+          ],
+          "usage": "Genre: stepwise diatonic 7th-chord climb."
+        },
+        {
+          "rank": 8,
+          "name": "Lofi Late Night",
+          "status": "new",
+          "mode": "minor",
+          "steps": [
+            "i9",
+            "iv9",
+            "v7",
+            "bVImaj7"
+          ],
+          "appSteps": [
+            "1 m9",
+            "4 m9",
+            "5 m7",
+            "6 maj7"
+          ],
+          "exampleInCAm": [
+            "Am9",
+            "Dm9",
+            "Em7",
+            "Fmaj7"
+          ],
+          "usage": "Genre: minor 9th loop i-iv-v-bVI."
+        },
+        {
+          "rank": 9,
+          "name": "Lofi Side Step",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "ii9",
+            "bII7",
+            "Imaj9",
+            "VI7b9"
+          ],
+          "appSteps": [
+            "2 m9",
+            "b2 7",
+            "1 maj9",
+            "6 7b9"
+          ],
+          "exampleInCAm": [
+            "Dm9",
+            "Db7",
+            "Cmaj9",
+            "A7b9"
+          ],
+          "usage": "Genre: tritone-sub ii-bII7-I with VI7b9 turnaround (jazz/lofi)."
+        },
+        {
+          "rank": 10,
+          "name": "Lofi Slinky",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "iii7",
+            "bIII7",
+            "ii7",
+            "bII7",
+            "Imaj7"
+          ],
+          "appSteps": [
+            "3 m7",
+            "b3 7",
+            "2 m7",
+            "b2 7",
+            "1 maj7"
+          ],
+          "exampleInCAm": [
+            "Em7",
+            "Eb7",
+            "Dm7",
+            "Db7",
+            "Cmaj7"
+          ],
+          "usage": "Genre: chromatic descending ii-V chain into Imaj7."
+        },
+        {
+          "rank": 11,
+          "name": "Lofi Cat Nap",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "Imaj7",
+            "v7",
+            "I9",
+            "IVmaj7",
+            "iv7"
+          ],
+          "appSteps": [
+            "1 maj7",
+            "5 m7",
+            "1 9",
+            "4 maj7",
+            "4 m7"
+          ],
+          "exampleInCAm": [
+            "Cmaj7",
+            "Gm7",
+            "C9",
+            "Fmaj7",
+            "Fm7"
+          ],
+          "usage": "Genre: v7-I9 (ii-V of IV) into IVmaj7-iv7, neo-soul/J Dilla-style move."
+        },
+        {
+          "rank": 12,
+          "name": "Lofi Ripple",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "vi9",
+            "II9",
+            "v7",
+            "I9",
+            "IVmaj7"
+          ],
+          "appSteps": [
+            "6 m9",
+            "2 9",
+            "5 m7",
+            "1 9",
+            "4 maj7"
+          ],
+          "exampleInCAm": [
+            "Am9",
+            "D9",
+            "Gm7",
+            "C9",
+            "Fmaj7"
+          ],
+          "usage": "Genre: chain of ii-V moves (vi9-II9, v7-I9) landing on IVmaj7."
+        },
+        {
+          "rank": 13,
+          "name": "Lofi Back Porch",
+          "status": "new",
+          "mode": "major",
+          "steps": [
+            "IVmaj7",
+            "bVII9",
+            "Imaj7",
+            "vi7"
+          ],
+          "appSteps": [
+            "4 maj7",
+            "b7 9",
+            "1 maj7",
+            "6 m7"
+          ],
+          "exampleInCAm": [
+            "Fmaj7",
+            "Bb9",
+            "Cmaj7",
+            "Am7"
+          ],
+          "usage": "Genre: backdoor bVII9 to Imaj7."
+        },
+        {
+          "rank": 14,
+          "name": "Lofi Paper Boat",
+          "status": "new",
+          "mode": "minor",
+          "steps": [
+            "i9",
+            "IV9",
+            "bIIImaj7",
+            "bVImaj7"
+          ],
+          "appSteps": [
+            "1 m9",
+            "4 9",
+            "3 maj7",
+            "6 maj7"
+          ],
+          "exampleInCAm": [
+            "Am9",
+            "D9",
+            "Cmaj7",
+            "Fmaj7"
+          ],
+          "usage": "Genre: Dorian i9-IV9 into bIIImaj7-bVImaj7."
+        },
+        {
+          "rank": 15,
+          "name": "Lofi Midnight Snack",
+          "status": "new",
+          "mode": "minor",
+          "steps": [
+            "iv9",
+            "v7",
+            "i9",
+            "bIIImaj7"
+          ],
+          "appSteps": [
+            "4 m9",
+            "5 m7",
+            "1 m9",
+            "3 maj7"
+          ],
+          "exampleInCAm": [
+            "Dm9",
+            "Em7",
+            "Am9",
+            "Cmaj7"
+          ],
+          "usage": "Genre: minor iv9-v7-i9 with bIIImaj7 colour."
+        }
+      ]
+    }
+  }
+}

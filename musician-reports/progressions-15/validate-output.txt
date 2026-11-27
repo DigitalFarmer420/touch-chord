@@ -1,0 +1,10 @@
+WARN pop/Pop Daydream: root +5 semitones appears 2 times (different chord quality/bass)
+WARN ballad/Ballad Walkdown: root +7 semitones appears 2 times (different chord quality/bass)
+WARN ballad/Ballad Uphill: root +0 semitones appears 2 times (different chord quality/bass)
+WARN lofi/Lofi Night Drive: root +5 semitones appears 2 times (different chord quality/bass)
+WARN lofi/Lofi Rain Window: root +5 semitones appears 2 times (different chord quality/bass)
+WARN lofi/Lofi Cat Nap: root +0 semitones appears 2 times (different chord quality/bass)
+WARN lofi/Lofi Cat Nap: root +5 semitones appears 2 times (different chord quality/bass)
+WARN subsequence overlap (one loop is a contiguous part of the other): ballad/Ballad Uphill vs existing reggae/Reggae Sway (major)
+
+RESULT: 0 fail, 8 warn; new charts checked: 40; live charts compared: 152; supported qualities: maj min 7 maj7 m7 m7b5 sus4 sus2 add9 madd9 9 maj9 m9 9sus 13 7b9 7#9 7sus4 overV moverV 6 dim over3 mover3
