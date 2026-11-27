@@ -83,7 +83,7 @@ test("the guitar Next card is not the hint class that Next strips", () => {
   assert.match(js, /slot === "next" \? " next"/);
   assert.doesNotMatch(js, /slot === "next" \? " nx"/);
   assert.match(css, /\.gtr-card\.next \{/);
-  assert.match(css, /lay-phone-port \.gtr-card\.next \{ align-self: flex-start/);
+  assert.match(css, /lay-phone-port \.gtr-card\.next \{[^}]*align-self: flex-start/);
   assert.doesNotMatch(css, /\.gtr-card\.nx\b/);
   assert.match(hint, /gtr-card/);
   assert.match(hint, /clearNextHintDom[\s\S]*gtr-card[\s\S]*classList\.remove\("nx", "nx-root"\)/);
@@ -101,6 +101,16 @@ test("a phone-portrait diagram reserves the dot and the O/X, and a wide side sta
   const pad = diagramFrame({ w: 190, fh: 49, mk: 13, base: 1, side: 14, top: 22, bot: 16, gutter: 10, fing: true, strings: true, stringsCount: 6 });
   assert.equal(pad.side, 14);
   assert.ok(pad.top >= 22);
+});
+
+test("a short phone portrait diagram is shorter than the tall-phone one and frets stay at least 0.8", () => {
+  const base = { w: 140, fh: (140 - 9 - 10) / 4, mk: 11, base: 1, rows: 4, side: 4, top: 9, bot: 10, gutter: 0, strings: true, stringsCount: 6, square: true, wide: true };
+  const tall = diagramFrame(base);
+  const short = diagramFrame(Object.assign({}, base, { compact: true }));
+  assert.ok(short.H < tall.H - 8, "compact H " + short.H + " tall H " + tall.H);
+  assert.ok(short.fh / short.sg >= 0.8 - 1e-9);
+  assert.ok(short.nameFs < tall.nameFs);
+  assert.ok(short.mk < tall.mk);
 });
 
 test("a phone diagram is wider than tall and the frets stay at least 0.9 of the string spacing", () => {

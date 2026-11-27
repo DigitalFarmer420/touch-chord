@@ -149,11 +149,12 @@ const MEASURE = () => {
       const s = getComputedStyle(e);
       return s.display !== 'none' && s.visibility !== 'hidden';
     });
-    // Phone-portrait Guitar shortens the chord grid so the diagrams can use the
-    // width. Those chips keep their own row; the 32px floor is for every other
-    // layout, where a slot that is not a real row collapses to a few pixels.
+    // Phone-portrait Guitar keeps a full-width diagram, so a 640-tall phone with
+    // a dense song has shorter rows than a tall phone. Those chips still have
+    // their own row. Every other layout, including the landscape progression
+    // that used to collapse a chord to 8px, keeps a 32px slot.
     const phoneGtr = document.documentElement.classList.contains('lay-phone-port') && document.documentElement.classList.contains('gtr');
-    const minH = phoneGtr ? 16 : 32;
+    const minH = phoneGtr ? 14 : 32;
     chips.forEach(e => {
       const r = e.getBoundingClientRect();
       if (Math.round(r.height) < minH) issues.push({ kind: 'chip', el: label(e), detail: 'progression chip is ' + Math.round(r.width) + '×' + Math.round(r.height) });
@@ -297,6 +298,39 @@ const GUITAR_NEXT = () => {
     const b = new DOMPoint(xs[xs.length - 1], 0).matrixTransform(ctm);
     return Math.abs(b.x - a.x);
   }
+  function contentGap(card) {
+    const r = card.getBoundingClientRect();
+    let bottom = r.top;
+    card.querySelectorAll('.gtr-head, .gtr-diagram, .gtr-foot').forEach(el => {
+      const b = el.getBoundingClientRect();
+      if (b.height > 1) bottom = Math.max(bottom, b.bottom);
+    });
+    return r.bottom - bottom;
+  }
+  for (const card of [now, next]) {
+    const gap = contentGap(card);
+    if (gap > 48) issues.push({ kind: 'guitar', el: card.dataset.slot + ' card', detail: 'empty band ' + Math.round(gap) + 'px under the diagram' });
+  }
+  // .19 at 412x915 gave the chord grid 138px and left ~244px empty in the Now card.
+  if (innerWidth === 412 && innerHeight === 915) {
+    const grid = document.querySelector('#suggest');
+    const gh = grid ? grid.getBoundingClientRect().height : 0;
+    if (gh < 250) issues.push({ kind: 'guitar', el: 'chord grid', detail: 'grid ' + Math.round(gh) + 'px is not taller than the .19 138px grid' });
+    const compact = getComputedStyle(document.documentElement).getPropertyValue('--gtr-compact').trim();
+    if (compact) issues.push({ kind: 'guitar', el: 'layout', detail: 'short-screen diagram is on at 412x915' });
+  }
+  // .20 left the chord grid at 101px on a 360x640 phone and clipped names such as D#m7b5.
+  if (innerWidth === 360 && innerHeight === 640) {
+    const gh = document.querySelector('#suggest').getBoundingClientRect().height;
+    if (Math.round(gh) < 118) issues.push({ kind: 'guitar', el: 'chord grid', detail: 'grid ' + Math.round(gh) + 'px is not taller than the .20 101px grid' });
+    document.querySelectorAll('#suggest .ss-chip').forEach(chip => {
+      if (!chip.getClientRects().length) return;
+      const text = (chip.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 18);
+      if (chip.classList.contains('ell')) issues.push({ kind: 'clip', el: 'chip "' + text + '"', detail: 'name is clipped' });
+      const nm = chip.querySelector('.nm');
+      if (nm && nm.scrollWidth > nm.clientWidth + 4) issues.push({ kind: 'clip', el: 'chip "' + text + '"', detail: 'scrollWidth ' + nm.scrollWidth + ' > clientWidth ' + nm.clientWidth });
+    });
+  }
   const sizeWatch = (innerWidth === 360 && innerHeight === 640) || (innerWidth === 412 && innerHeight === 915) || (innerWidth === 820 && innerHeight === 1180);
   if (sizeWatch && nowR && nextR) {
     const nowSvg = now.querySelector('.gtr-diagram');
@@ -306,11 +340,9 @@ const GUITAR_NEXT = () => {
     if (nowDrawn > 8 && nextDrawn < nowDrawn * 0.7 - 1) {
       issues.push({ kind: 'guitar', el: 'next diagram', detail: 'drawn width ' + Math.round(nextDrawn) + ' is under 0.7 of Now ' + Math.round(nowDrawn) });
     }
-    const padX = parseFloat(getComputedStyle(next).paddingLeft) + parseFloat(getComputedStyle(next).paddingRight);
-    const innerW = next.clientWidth - padX;
-    if (innerW > 20 && nextDrawn < innerW * 0.6 - 1) {
-      issues.push({ kind: 'guitar', el: 'next diagram', detail: 'drawn width ' + Math.round(nextDrawn) + ' is under 60% of the card ' + Math.round(innerW) });
-    }
+    // The 60% card-width floor is relaxed. The diagram scales down to the piano
+    // keyboard slot, so on a short phone Next stays about 0.85 of Now and can
+    // be under 60% of the card (about 37% at 360x640).
   }
   function lin(c) { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
   function asHex(s) {
@@ -646,6 +678,36 @@ async function pickProgression(page, style, name) {
 
 async function expertPass(page, vp) {
   await boot(page, 'test=1&hour=12&expert=1');
+  await guard(page, vp, 'guitar grid matches piano', async () => {
+    const piano = await page.evaluate(() => Math.round(document.querySelector('#suggest').getBoundingClientRect().height));
+    if (!(await clickIf(page, '#gtrTabs [data-gtr="guitar"]'))) return;
+    await page.waitForTimeout(250);
+    const read = () => {
+      const svg = document.querySelector('#gtrCards .gtr-card.now .gtr-diagram');
+      return {
+        grid: Math.round(document.querySelector('#suggest').getBoundingClientRect().height),
+        panel: Math.round(document.getElementById('gtrPanel').getBoundingClientRect().height),
+        vb: svg ? svg.getAttribute('viewBox') : ''
+      };
+    };
+    const first = await page.evaluate(read);
+    await clickIf(page, '#xNext');
+    await page.waitForTimeout(200);
+    const second = await page.evaluate(read);
+    const issues = [];
+    if (piano > 0 && Math.abs(first.grid - piano) / piano > 0.05) {
+      issues.push({ kind: 'guitar', el: 'chord grid', detail: 'guitar grid ' + first.grid + 'px is ' + Math.round(Math.abs(first.grid - piano) / piano * 100) + '% off the piano grid ' + piano + 'px' });
+    }
+    if (vp === '360x640' || vp === '360x780' || vp === '412x915') {
+      if (Math.abs(first.grid - second.grid) > 1 || Math.abs(first.panel - second.panel) > 1) {
+        issues.push({ kind: 'guitar', el: 'chord grid', detail: 'first paint grid ' + first.grid + ' panel ' + first.panel + ' jumped to ' + second.grid + ' / ' + second.panel });
+      }
+      if (/^0 0 64(\s|$)/.test(first.vb)) issues.push({ kind: 'guitar', el: 'now diagram', detail: 'first viewBox is the 64 fallback (' + first.vb + ')' });
+    }
+    add(vp, 'guitar grid matches piano', issues);
+    if (issues.length) await shot(page, vp + ' guitar grid matches piano');
+    await clickIf(page, '#gtrTabs [data-gtr="piano"]');
+  });
   await measure(page, vp, 'expert-prog-piano');
   await guard(page, vp, 'guitar tab after Next (1 and 3 taps)', async () => {
     async function run(style, progName) {
@@ -832,6 +894,30 @@ async function kidsPass(page, vp) {
   }
 }
 
+async function ipadGrid(browser, port) {
+  const vp = '768x1024';
+  const ctx = await browser.newContext({ viewport: { width: 768, height: 1024 }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 });
+  ctx._flowPort = port;
+  await ctx.addInitScript(() => { try { localStorage.clear(); localStorage.setItem('touchChord.tour.v1', 'done'); } catch (e) {} });
+  const page = await ctx.newPage();
+  page.context()._flowPort = port;
+  try {
+    await boot(page, 'test=1&hour=12&expert=1');
+    if (await clickIf(page, '#gtrTabs [data-gtr="guitar"]')) {
+      await page.waitForTimeout(250);
+      const gh = await page.evaluate(() => Math.round(document.querySelector('#suggest').getBoundingClientRect().height));
+      const issues = [];
+      if (gh < 337) issues.push({ kind: 'guitar', el: 'chord grid', detail: '768x1024 grid ' + gh + 'px is under the .19 337px grid' });
+      add(vp, 'guitar ipad grid', issues);
+      if (issues.length) await shot(page, vp + ' guitar ipad grid');
+    }
+  } catch (err) {
+    add(vp, 'guitar ipad grid', [{ kind: 'thrown', el: 'runner', detail: String(err && err.message || err).split('\n')[0].slice(0, 180) }]);
+  }
+  await ctx.close();
+  console.log(vp + '  ' + hits.filter(x => x.vp === vp).length + ' hits');
+}
+
 const known = existsSync(KNOWN_PATH) ? JSON.parse(readFileSync(KNOWN_PATH, 'utf8')) : [];
 
 let srv;
@@ -863,6 +949,7 @@ try {
     await ctx.close();
     console.log(vp + '  ' + hits.filter(x => x.vp === vp).length + ' hits');
   }
+  await ipadGrid(browser, port);
 } finally {
   await browser.close();
   srv.close();

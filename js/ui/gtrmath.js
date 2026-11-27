@@ -1,7 +1,7 @@
 // Guitar-tab decisions with no DOM: which tab is selected, where the tabs sit,
 // which cards a layout shows, the diagram marks, and whether a key change is a
 // fret slide. The screen (js/ui/guitar.js) only draws what this returns.
-import { accSym } from "../theory/spelling.js?v=2026.11.27.19";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.24";
 
 export var GTR_TAB_KEY = "touchChord.gtrTab.v1";
 export var ROOT_COLOR = "#FFC23D";
@@ -71,6 +71,14 @@ export function voicingLabel(v) {
   return v.shapeName + " \u00b7 " + v.baseFret + "fr";
 }
 export function voicingFret(v) { return v && v.baseFret > 1 ? v.baseFret + "fr" : ""; }
+// Per-style fine trim (dB) so a guitar strum sits about 1 dB under a held grid tap.
+export var GTR_STYLE_DB = { pop: -2.3, jazz: 0.9, rnb: -0.1, ballad: -0.3, reggae: -0.6, funk: -0.2, yogaDeep: 3.2, country: -1.7, lofi: 2.8 };
+// Diagram strings, low E first. Muted strings are skipped. Frets are absolute.
+export function stringMidis(v, tuning) {
+  var out = [], frets = v && v.frets || [];
+  for (var i = 0; i < frets.length; i++) if (frets[i] != null) out.push(tuning[i] + frets[i]);
+  return out;
+}
 
 // Shrink a label that is wider than its box. The fret token ("3fr") is never the part that
 // gets cut: if the full line cannot reach the floor, the caller switches to the fret alone.
@@ -147,6 +155,10 @@ export function diagramFrame(o) {
   var S = o.stringsCount > 1 ? o.stringsCount : 6;
   var fh = o.fh > 0 ? o.fh : 16;
   var mk = o.mk > 0 ? o.mk : 11;
+  // Short portrait phones set --gtr-compact. Markers, the string-name row and
+  // the padding around them shrink together so the fretboard stays wide while
+  // the card gets shorter and the chord grid takes the height.
+  if (o.compact) mk = Math.max(6.5, mk * 0.7);
   var base = o.base > 1 ? o.base : 1;
   var gutter = base > 1 ? (o.gutter > 0 ? o.gutter : 10) : 0;
   var openR = mk * 0.36;
@@ -159,8 +171,8 @@ export function diagramFrame(o) {
   var marksBottom = Math.max(muteY + mk * 0.3, openCy + openR + stroke);
   var nutAbove = 4;
   var top = Math.max(o.top > 0 ? o.top : 0, marksBottom + nutAbove + gap);
-  var nameFs = o.strings ? 10 : 0;
-  var nameDrop = nameFs ? nameFs * 1.15 : 0;
+  var nameFs = o.strings ? (o.compact ? 7 : 10) : 0;
+  var nameDrop = nameFs ? nameFs * (o.compact ? 0.9 : 1.15) : 0;
   var bot = Math.max(o.bot > 0 ? o.bot : 0, nameDrop + nameFs * 0.28 + gap);
   var side = o.side > 0 ? o.side : 0;
   var rows = o.rows > 4 ? o.rows : 4;
@@ -198,17 +210,20 @@ export function diagramFrame(o) {
   // fretboard that fills most of the card width. Other layouts stay within the
   // 0.82 height cap (the flow check allows 0.8).
   var wide = !!o.wide;
-  var fretFloor = sg * 0.9;
+  // A 5-fret grip stays at 0.9 so its fret ratio still clears the flow check.
+  // A short phone's 4-fret diagram may sit a little lower (still above 0.8).
+  var fretFloor = sg * (o.compact && rows <= 4 ? 0.82 : 0.9);
+  var wideCap = o.compact ? 1.22 : 1.12;
   if (o.square) {
     var H0 = top + rows * fh + bot;
-    var capH = wide ? o.w / 1.12 : o.w;
+    var capH = wide ? o.w / wideCap : o.w;
     if (H0 > capH && fh > fretFloor) {
       fh = Math.max(fretFloor, fh - (H0 - capH) / rows);
       r = Math.min(sg, fh) * 0.36;
     }
   }
   var H = top + rows * fh + bot;
-  var limit = wide ? o.w / 1.12 : o.w / 0.82;
+  var limit = wide ? o.w / wideCap : o.w / 0.82;
   if (H > limit) {
     fh = Math.max(fretFloor, fh - (H - limit) / rows);
     r = Math.min(sg, fh) * 0.36;
@@ -220,7 +235,7 @@ export function diagramFrame(o) {
   return {
     side: side, top: top, bot: bot, left: left, gw: gw, sg: sg, fh: fh, r: r, rows: rows,
     H: H, mk: mk, gap: gap, nutAbove: nutAbove, openR: openR, stroke: stroke,
-    nameDrop: nameDrop, openCy: openCy, muteY: muteY
+    nameDrop: nameDrop, openCy: openCy, muteY: muteY, nameFs: nameFs
   };
 }
 

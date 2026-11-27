@@ -1,19 +1,19 @@
 // Expert Guitar tab. Draws the resolver's grips in the keyboard area and strums
 // them through ChordAudio. Kids, Simple, and the Piano tab do not use this panel.
-import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.19";
-import { unlock } from "../audio/unlock.js?v=2026.11.27.19";
-import { activeKey } from "../keys.js?v=2026.11.27.19";
-import { prog, magic } from "../songs/playback.js?v=2026.11.27.19";
-import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.19";
-import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.19";
-import { state } from "../state.js?v=2026.11.27.19";
-import { Theory } from "../theory/index.js?v=2026.11.27.19";
-import { accSym } from "../theory/spelling.js?v=2026.11.27.19";
-import { computeSpec } from "./touch.js?v=2026.11.27.19";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.24";
+import { unlock } from "../audio/unlock.js?v=2026.11.27.24";
+import { activeKey } from "../keys.js?v=2026.11.27.24";
+import { prog, magic } from "../songs/playback.js?v=2026.11.27.24";
+import { guitar as guitarProfile } from "../instruments/profiles.js?v=2026.11.27.24";
+import { resolveVoicings } from "../instruments/resolve.js?v=2026.11.27.24";
+import { state } from "../state.js?v=2026.11.27.24";
+import { Theory } from "../theory/index.js?v=2026.11.27.24";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.24";
+import { computeSpec } from "./touch.js?v=2026.11.27.24";
 import {
   GTR_TAB_KEY, readGtrTab, gtrTabReduce, cardSlots, layoutOf,
-  chordSig, chordDisplayName, voicingLabel, voicingFret, nextVoicingSize, cycleIndex, fretSlide, diagramModel, diagramFrame, fretRows, barreFinger, barreBox
-} from "./gtrmath.js?v=2026.11.27.19";
+  chordSig, chordDisplayName, voicingLabel, voicingFret, stringMidis, GTR_STYLE_DB, nextVoicingSize, cycleIndex, fretSlide, diagramModel, diagramFrame, fretRows, barreFinger, barreBox
+} from "./gtrmath.js?v=2026.11.27.24";
 
 var TAB_LABEL = { now: "NOW", next: "NEXT", third: "3RD", fourth: "4TH" };
 var pick = {};
@@ -100,7 +100,7 @@ function diagramSvg(voicing, chord, o) {
     w: o.w, fh: o.fh, mk: o.mk || 11, base: model.base, rows: F,
     side: o.side, top: o.top, bot: o.bot != null ? o.bot : (o.strings ? 16 : 8),
     gutter: o.gutter != null ? o.gutter : 10,
-    fing: o.fing, strings: o.strings, stringsCount: S, square: o.square, wide: o.wide
+    fing: o.fing, strings: o.strings, stringsCount: S, square: o.square, wide: o.wide, compact: o.compact
   });
   var top = f.top, left = f.left, gw = f.gw, sg = f.sg, fh = f.fh, r = f.r, mk = f.mk;
   var base = model.base;
@@ -170,7 +170,7 @@ function diagramSvg(voicing, chord, o) {
   if (o.strings) {
     var names = guitarProfile.stringNames;
     for (var n = 0; n < names.length && n < S; n++) {
-      g += '<text class="gtr-string" x="' + (left + n * sg) + '" y="' + (top + F * fh + f.nameDrop) + '" font-size="10" text-anchor="middle" fill="' + mute + '" font-family="Nunito, system-ui, sans-serif" font-weight="700">' + names[n] + "</text>";
+      g += '<text class="gtr-string" x="' + (left + n * sg) + '" y="' + (top + F * fh + f.nameDrop) + '" font-size="' + (f.nameFs || 10) + '" text-anchor="middle" fill="' + mute + '" font-family="Nunito, system-ui, sans-serif" font-weight="700">' + names[n] + "</text>";
     }
   }
   return g + "</svg>";
@@ -198,6 +198,11 @@ function capPadLand(fh, w, side) {
 // the chord rows, so the diagram is the smaller of that free height and half
 // the panel width, locked near 1:1. Next stays smaller than Now.
 var portFit = null;
+// Set on html by the short-portrait breakpoint in guitar.css. Absent at 915 and taller.
+function gtrCompact() {
+  var raw = getComputedStyle(de()).getPropertyValue("--gtr-compact");
+  return parseFloat(raw) > 0;
+}
 function portInk(px, strings) {
   var side = 4, top = 9, bot = strings ? 10 : 6;
   // The fret numeral column is 10px on a full diagram. On a small phone square
@@ -214,14 +219,17 @@ function portInk(px, strings) {
 function measurePort() {
   var panel = document.getElementById("gtrPanel");
   var pw = panel ? panel.clientWidth : 0;
-  var ph = panel ? panel.clientHeight : 0;
-  if (!(pw > 40 && ph > 40)) return { now: portInk(64, true), next: portInk(52, false) };
+  // The panel's height is the diagram, so it cannot decide the diagram's width.
+  // A width-only measure is what the second paint (after Next) already settles on.
+  // Falling back to 64 while the panel is still empty is what made the first
+  // viewBox too tall until the next chord.
+  if (!(pw > 40)) {
+    var kb = document.querySelector(".kb-wrap");
+    pw = kb ? kb.clientWidth - 8 : 0;
+  }
+  if (!(pw > 40)) return { now: portInk(64, true), next: portInk(52, false) };
   var innerW = (pw - 8) / 2 - 12;
-  // Prefer the card width. A short panel still caps the drawing so it stays
-  // on the card; Next stays at 85% of that width.
-  var byWidth = innerW * 0.94;
-  var byHeight = ph > 80 ? (ph - 64) * 1.15 : byWidth;
-  var nowPx = Math.min(byWidth, byHeight);
+  var nowPx = innerW * 0.94;
   var nextPx = nowPx * 0.85;
   nowPx = Math.max(28, Math.floor(nowPx));
   nextPx = Math.max(24, Math.floor(nextPx));
@@ -249,7 +257,7 @@ function growPort() {
       var rh = kids[i].getBoundingClientRect().height;
       if (rh > 0) used += rh;
     }
-    return { innerW: card.clientWidth - padX, innerH: card.clientHeight - used - 2 };
+    return { innerW: card.clientWidth - padX, innerH: card.clientHeight - used - 6 };
   }
   var nb = hole(now);
   if (!(nb.innerW > 40)) return;
@@ -263,8 +271,13 @@ function growPort() {
   if (nextPx > nowPx - 2) nextPx = Math.max(24, nowPx - 2);
   host.style.setProperty("--gtr-now", nowPx + "px");
   host.style.setProperty("--gtr-next", nextPx + "px");
-  // If the drawing is taller than the card, shrink both widths together so
-  // the 0.85 ratio survives.
+  // iPad portrait keeps the piano's fixed grid row, and the cards size to the
+  // drawing. Phone portrait's row is the piano keyboard slot, so a diagram that
+  // is taller than that slot scales down. Next stays 85% of Now.
+  var root = de();
+  if (root.classList.contains("gtr") && root.classList.contains("lay-pad-port")) return;
+  // If the drawing is taller than a fixed-height card, shrink both widths
+  // together so the 0.85 ratio survives.
   var drawn = now.querySelector(".gtr-diagram");
   if (drawn && nb.innerH > 24 && drawn.getBoundingClientRect().height > nb.innerH) {
     var scale = nb.innerH / drawn.getBoundingClientRect().height;
@@ -331,7 +344,8 @@ function diaOpts(lay, slot, name) {
     top: top, side: side, bot: bot, gutter: lay === "phone-port" && portFit ? (now ? portFit.now.gutter : portFit.next.gutter) : null,
     fing: true, strings: now && (!land || pad), label: name,
     square: lay === "phone-port" && !!portFit,
-    wide: lay === "phone-port" && !!portFit
+    wide: lay === "phone-port" && !!portFit,
+    compact: lay === "phone-port" && gtrCompact()
   });
 }
 
@@ -344,14 +358,12 @@ function gripsFor(chord) {
 }
 
 function strum(voicing) {
-  if (!voicing || !voicing.midi || !voicing.midi.length) return;
+  if (!voicing || !voicing.frets) return;
+  var notes = stringMidis(voicing, guitarProfile.tuning);
+  if (!notes.length) return;
   unlock();
   try { ChordAudio.ensure(); } catch (e) { return; }
-  var t0 = ChordAudio.ctx ? ChordAudio.ctx.currentTime : 0;
-  if (ChordAudio.stopChord) ChordAudio.stopChord("gtr", t0, 0.02);
-  for (var i = 0; i < voicing.midi.length; i++) {
-    ChordAudio.pluck(voicing.midi[i], { time: t0 + i * 0.02, sound: state.sound, group: "gtr" });
-  }
+  ChordAudio.strumGuitar(notes, { group: "gtr", styleDb: GTR_STYLE_DB[state.style] || 0 });
 }
 
 function applyChrome() {
@@ -437,11 +449,43 @@ export function paintGuitar(spec) {
   lastKey = keyId;
   var chords = cardChords(spec);
   var slots = cardSlots(lay);
-  var html = "";
-  for (var i = 0; i < slots.length; i++) html += cardHtml(slots[i], chords[slots[i]], lay, keyChanged);
-  panel.innerHTML = html;
-  if (portFit) { growPort(); tightenPort(); }
+  function fill(slide) {
+    var html = "";
+    for (var i = 0; i < slots.length; i++) html += cardHtml(slots[i], chords[slots[i]], lay, slide);
+    panel.innerHTML = html;
+  }
+  fill(keyChanged);
+  if (portFit) {
+    growPort();
+    tightenPort();
+    var host = document.getElementById("gtrPanel");
+    var settled = host ? parseFloat(host.style.getPropertyValue("--gtr-now")) : 0;
+    // growPort reads the real card. If that width is not the one the viewBox
+    // was built with, draw once more in this same turn so the first frame is
+    // already the settled size.
+    if (settled > 40 && Math.abs(settled - portFit.now.w) > 1) {
+      var nextW = parseFloat(host.style.getPropertyValue("--gtr-next"));
+      if (!(nextW > 0)) nextW = Math.round(settled * 0.85);
+      portFit = { now: portInk(Math.round(settled), true), next: portInk(Math.round(nextW), false) };
+      fill(false);
+    }
+  }
   fitVoicingLines();
+  warmGrips(chords, lay);
+}
+function warmGrips(chords, lay) {
+  var slots = cardSlots(lay), notes = [];
+  for (var i = 0; i < slots.length; i++) {
+    if (slots[i] !== "now" && slots[i] !== "next") continue;
+    var chord = chords[slots[i]];
+    var grips = gripsFor(chord);
+    if (!grips.length) continue;
+    var index = slots[i] === "now" ? (pick[chordSig(chord)] || 0) : 0;
+    if (index >= grips.length) index = 0;
+    notes = notes.concat(stringMidis(grips[index], guitarProfile.tuning));
+  }
+  var idle = window.requestIdleCallback || function (fn) { return setTimeout(fn, 30); };
+  idle(function () { try { ChordAudio.warmGuitar(notes); } catch (e) {} });
 }
 // The fret number stays whole. The line shrinks to the measured width, and only then
 // drops the shape name ("E-shape · 3fr" -> "3fr"). It never ends in an ellipsis.

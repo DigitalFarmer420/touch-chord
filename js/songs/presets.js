@@ -1,12 +1,12 @@
 // Built-in progressions (PROGRESSIONS: every style + Kids songs) and their parsing.
-import { keyDegrees } from "../keys.js?v=2026.11.27.19";
-import { upInList, upSteps } from "./song.js?v=2026.11.27.19";
-import { upProgObj } from "./upload.js?v=2026.11.27.19";
-import { state, shared } from "../state.js?v=2026.11.27.19";
-import { Theory } from "../theory/index.js?v=2026.11.27.19";
-import { wrap12, blankExt } from "../theory/quality.js?v=2026.11.27.19";
-import { accSym } from "../theory/spelling.js?v=2026.11.27.19";
-import { STRIP_QUAL, plainRootSpell } from "../ui/strip.js?v=2026.11.27.19";
+import { keyDegrees } from "../keys.js?v=2026.11.27.24";
+import { upInList, upSteps } from "./song.js?v=2026.11.27.24";
+import { upProgObj } from "./upload.js?v=2026.11.27.24";
+import { state, shared } from "../state.js?v=2026.11.27.24";
+import { Theory } from "../theory/index.js?v=2026.11.27.24";
+import { wrap12, blankExt } from "../theory/quality.js?v=2026.11.27.24";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.24";
+import { STRIP_QUAL, plainRootSpell } from "../ui/strip.js?v=2026.11.27.24";
 const PROG_BPM = 80;
 export var PROG_BAR;
 function P(name, s) { return { name: name, steps: s.split("|") }; }
@@ -18,6 +18,7 @@ const PROG_SUFFIX = { maj: "", min: "", "7": "7", maj7: "maj7", m7: "7", m7b5: "
   add9: "add9", madd9: "add9", "9": "9", maj9: "maj9", m9: "9", "9sus": "9sus", "13": "13", "7b9": "7\u266d9",
   "7#9": "7\u266f9", "7sus4": "7sus4", "6": "6", dim: "\u00b0", overV: "/V", moverV: "/V", over3: "/3", mover3: "/3" };
 // Ranked menu. One list of 15 families per style, most popular first.
+// Lofi is the exception: 15 charts in major and 15 in minor.
 // A family is listed in a mode only when it has a chart there. Existing charts
 // keep their steps and both modes; a new chart is the one mode it was written in.
 // PROGRESSIONS stays the full catalog. Kids has no entry and shows its songs.
@@ -259,6 +260,11 @@ var PROG_MENU = {
       ["Lofi Cat Nap", "1 maj7|5 m7|1 9|4 maj7|4 m7"],
       ["Lofi Ripple", "6 m9|2 9|5 m7|1 9|4 maj7"],
       ["Lofi Back Porch", "4 maj7|b7 9|1 maj7|6 m7"],
+      ["Lofi Study Hall", "2 m9|5 13|1 maj9|6 7b9"],
+      ["Lofi Soft Landing", "4 maj9|3 m7|2 m9|1 maj7"],
+      ["Lofi Old Tape", "2 m7|4 m7|b7 9|1 maj9"],
+      ["Lofi Warm Vinyl", "1 maj9|3 7|6 m9|4 m7"],
+      ["Lofi Tram Ride", "1 maj9|b3 maj7|b6 maj7|b2 maj7"],
     ],
     minor: [
       ["Lofi Snow Globe", "1 m9|6 maj9|3 maj7|5 7b9"],
@@ -266,6 +272,16 @@ var PROG_MENU = {
       ["Lofi Late Night", "1 m9|4 m9|5 m7|6 maj7"],
       ["Lofi Paper Boat", "1 m9|4 9|3 maj7|6 maj7"],
       ["Lofi Midnight Snack", "4 m9|5 m7|1 m9|3 maj7"],
+      ["Lofi Firefly Jar", "1 m9|6 maj7|3 maj7|7 9"],
+      ["Lofi Blue Hour", "2 m7b5|5 7b9|1 m9|6 maj7"],
+      ["Lofi Soft Focus", "1 m9|2 m7|3 maj7|4 9"],
+      ["Lofi Night Bloom", "1 m9|7 13|6 maj7|4 m9"],
+      ["Lofi Hazy Moon", "1 m9|4 9|6 maj9|5 7#9"],
+      ["Lofi Tide Pool", "1 m9|5 m7|4 m9|7 13"],
+      ["Lofi Sleepy Bus", "4 m9|7 13|1 m9|5 7#9"],
+      ["Lofi Ghost Town", "1 m9|3 maj7|7 13|4 9"],
+      ["Lofi Lamp Light", "4 m9|3 maj7|2 m7b5|5 7b9|1 m9"],
+      ["Lofi Neon Glow", "6 maj7|5 7#9|1 m9|b2 maj7"],
     ],
   },
 };

@@ -39,6 +39,7 @@ function menu(style) {
 test("every style has exactly 15 progressions in proposal order and steps", () => {
   assert.equal(FIX.source.includes("7a9e13d34347c0dc8e5889054a133dd6759f7c1f5f71328c4a8e4227d51b27a2"), true);
   for (const s of STYLES) {
+    if (s === "lofi") continue;
     const live = menu(s);
     const want = FIX.styles[s];
     assert.equal(want.order.length, 15, s);
@@ -57,6 +58,54 @@ test("every style has exactly 15 progressions in proposal order and steps", () =
   assert.equal(menu("kids"), undefined);
   assert.equal(PR.progFeel("Lofi Rainy Day"), "Rainy Day");
   assert.equal(PR.progFeel("Pop Wishing Well"), "Wishing Well");
+});
+
+test("Lofi lists 15 major and 15 minor, with the new names after the existing ones", () => {
+  const live = menu("lofi");
+  const want = FIX.styles.lofi;
+  assert.equal(want.majorOrder.length, 15);
+  assert.equal(want.minorOrder.length, 15);
+  assert.deepEqual(live.major.map((e) => e[0]), want.majorOrder);
+  assert.deepEqual(live.minor.map((e) => e[0]), want.minorOrder);
+  for (const mode of ["major", "minor"]) {
+    for (const e of live[mode]) assert.equal(e[1], want[mode][e[0]], e[0]);
+    const shown = PR.progList("lofi", mode).filter((p) => !p.up).map((p) => p.name);
+    assert.deepEqual(shown, mode === "major" ? want.majorOrder : want.minorOrder);
+  }
+  const names = [...live.major, ...live.minor].map((e) => e[0]);
+  assert.equal(new Set(names).size, names.length, "duplicate Lofi name");
+  const others = [];
+  for (const s of STYLES) {
+    if (s === "lofi") continue;
+    const m = menu(s);
+    for (const mode of ["major", "minor"]) for (const e of m[mode]) others.push(e[0]);
+  }
+  for (const n of names) assert.equal(others.includes(n), false, n + " collides with another style");
+});
+
+const LOFI_NEW = {
+  major: ["Lofi Study Hall", "Lofi Soft Landing", "Lofi Old Tape", "Lofi Warm Vinyl", "Lofi Tram Ride"],
+  minor: ["Lofi Firefly Jar", "Lofi Blue Hour", "Lofi Soft Focus", "Lofi Night Bloom", "Lofi Hazy Moon", "Lofi Tide Pool", "Lofi Sleepy Bus", "Lofi Ghost Town", "Lofi Lamp Light", "Lofi Neon Glow"]
+};
+
+test("every new Lofi chart resolves in all 12 keys", () => {
+  for (const mode of ["major", "minor"]) {
+    assert.equal(LOFI_NEW[mode].length, mode === "major" ? 5 : 10);
+    for (const name of LOFI_NEW[mode]) {
+      const row = PR.progList("lofi", mode).find((p) => p.name === name);
+      assert.ok(row, name);
+      for (let pc = 0; pc < 12; pc++) {
+        const steps = PR.progSteps({ pc, mode }, row);
+        assert.equal(steps.length, row.steps.length, name + " key " + pc);
+        for (const st of steps) {
+          const item = st.item;
+          assert.ok(item && item.rootName, name);
+          const built = T.buildChord({ rootPc: item.rootPc, rootName: item.rootName, type: item.type, extensions: item.extensions, voicing: "close" });
+          assert.ok(built.midis && built.midis.length >= 3, name + " " + item.rootName);
+        }
+      }
+    }
+  }
 });
 
 test("each progression step resolves to a valid chord in its key", () => {

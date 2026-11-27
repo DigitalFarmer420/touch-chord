@@ -1984,6 +1984,97 @@ try {
     } finally { await ctx.close(); }
   }
 
+  {
+    const { ctx, page } = await fresh(browser, 412, 915, 'strum loudness');
+    const notes = [];
+    try {
+      await boot(page, 'test=1&hour=12&expert=1');
+      const gaps = await page.evaluate(async () => {
+        const { GTR_STYLE_DB } = await import('/js/ui/gtrmath.js?v=2026.11.27.23');
+        const { buildChord } = await import('/js/theory/chords.js?v=2026.11.27.23');
+        const { resolveVoicings } = await import('/js/instruments/resolve.js?v=2026.11.27.23');
+        const { guitar } = await import('/js/instruments/profiles.js?v=2026.11.27.23');
+        const { styleTrim } = await import('/js/styles.js?v=2026.11.27.23');
+        const PRE = {
+          pop: { sound: 'piano', voicing: 'close', cutoff: 0.75, reverb: 0.12, delay: 0.08, bpm: 112, warmth: 15 },
+          jazz: { sound: 'epiano', voicing: 'drop', cutoff: 0.42, reverb: 0.32, delay: 0.22, bpm: 120, warmth: 55 },
+          rnb: { sound: 'epiano', voicing: 'close', cutoff: 0.50, reverb: 0.36, delay: 0.24, bpm: 78, warmth: 50 },
+          ballad: { sound: 'strings', voicing: 'close', cutoff: 0.40, reverb: 0.48, delay: 0.14, bpm: 68, warmth: 35 },
+          reggae: { sound: 'warm', voicing: 'close', cutoff: 0.55, reverb: 0.22, delay: 0.18, bpm: 76, warmth: 40 },
+          funk: { sound: 'reed', voicing: 'close', cutoff: 0.80, reverb: 0.08, delay: 0.06, bpm: 108, warmth: 20 },
+          yogaDeep: { sound: 'warm', bass: false, voicing: 'low', cutoff: 0.32, reverb: 0.58, delay: 0.02, bpm: 52, warmth: 30 },
+          country: { sound: 'piano', voicing: 'close', cutoff: 0.82, reverb: 0.10, delay: 0.05, bpm: 100, warmth: 12 },
+          lofi: { sound: 'epiano', voicing: 'close', cutoff: 0.40, reverb: 0.34, delay: 0.20, bpm: 80, warmth: 60 }
+        };
+        const CH = [['C', 0, 'major'], ['G', 7, 'major'], ['Am', 9, 'minor'], ['F', 5, 'major']];
+        const SR = 48000, DUR = 3.2, T0 = 0.05;
+        function db(x) { return x > 0 ? 20 * Math.log10(x) : -120; }
+        function max400(buf) {
+          const L = buf.getChannelData(0), R = buf.getChannelData(1), n = L.length;
+          let pk = 0, clip = 0;
+          const win = (a, b) => { let s = 0, k = 0; for (let i = Math.max(0, a | 0); i < Math.min(n, b | 0); i++) { s += L[i] * L[i] + R[i] * R[i]; k += 2; } return Math.sqrt(s / Math.max(1, k)); };
+          for (let i = 0; i < n; i++) { pk = Math.max(pk, Math.abs(L[i]), Math.abs(R[i])); if (Math.abs(L[i]) >= 0.999 || Math.abs(R[i]) >= 0.999) clip++; }
+          let m = 0;
+          for (let t = T0; t + 0.4 <= DUR; t += 0.01) m = Math.max(m, win(t * SR, (t + 0.4) * SR));
+          return { loud: db(m), peak: db(pk), clip };
+        }
+        function stringsOf(pc, type) {
+          const g = resolveVoicings(guitar, { rootPc: pc, type })[0];
+          const strings = [];
+          g.frets.forEach((f, i) => { if (f != null) strings.push(guitar.tuning[i] + f); });
+          return strings;
+        }
+        async function render(style, play) {
+          const A = window.ChordAudio, p = PRE[style];
+          A.ready = false; A.voices = []; A._gtrLast = null; A.band = null;
+          A.ctx = new OfflineAudioContext(2, Math.ceil(SR * DUR), SR);
+          A.cutoffNorm = p.cutoff; A.reverbMix = p.reverb; A.delayMix = p.delay; A.warmth = p.warmth / 100; A.bpm = p.bpm;
+          A.setSound(p.sound); A.trim = styleTrim(style); A.setArt(null); A.setFlavor(style); A.ensure();
+          play(A);
+          const buf = await A.ctx.startRendering();
+          const m = max400(buf);
+          A.ready = false; A.ctx = null; A.voices = [];
+          return m;
+        }
+        const out = [];
+        for (const style of Object.keys(PRE)) {
+          const deltas = [];
+          let worstPeak = -99, clips = 0;
+          for (const [name, pc, type] of CH) {
+            const ch = buildChord({ rootPc: pc, type, voicing: PRE[style].voicing });
+            const bass = PRE[style].bass === false ? null : 48 + pc;
+            const grid = await render(style, A => { A.playChord('g', ch.midis.slice(), { bass, sound: A.sound, time: T0 }); A.stopChord('g', T0 + 1.5); });
+            const strum = await render(style, A => A.strumGuitar(stringsOf(pc, type), { time: T0, up: false, seed: 1, styleDb: GTR_STYLE_DB[style] || 0, group: 'gtr' }));
+            deltas.push(strum.loud - grid.loud);
+            worstPeak = Math.max(worstPeak, strum.peak);
+            clips += strum.clip;
+          }
+          const mean = deltas.reduce((a, b) => a + b, 0) / deltas.length;
+          out.push({ style, mean, worstPeak, clips });
+        }
+        const A = window.ChordAudio;
+        A.ready = false; A.voices = []; A.band = null;
+        A.ctx = new OfflineAudioContext(2, SR, SR);
+        A.setSound('piano'); A.trim = 1; A.ensure();
+        A.strumGuitar([48, 52, 55, 60, 64], { time: 0.05, up: false, seed: 1, group: 'gtr' });
+        const ringing = A.voices.filter(v => v.gtr && !v.released).length;
+        A.stopChord('gtr', 0.2, 0.04);
+        const stopped = A.voices.filter(v => v.gtr && v.released).length;
+        A.ready = false; A.ctx = null; A.voices = [];
+        out.push({ stop: ringing === 1 && stopped === 1 });
+        return out;
+      });
+      for (const g of gaps) {
+        if (g.stop === false) notes.push('stopChord did not choke the strum');
+        if (g.style && (g.mean < -2.5 || g.mean > 0.5)) notes.push(g.style + ' strum is ' + g.mean.toFixed(2) + ' dB from the grid (want about -1)');
+        if (g.style && (g.worstPeak > -6 || g.clips)) notes.push(g.style + ' peak ' + g.worstPeak.toFixed(1) + ' clips ' + g.clips);
+      }
+      record('GTR strum matches the chord grid', !notes.length, notes.length ? notes.join(' | ') : 'each style within about 1 dB, peak under -6 dBFS');
+    } catch (err) {
+      record('GTR strum matches the chord grid', false, String(err && err.message || err).split('\n')[0]);
+    } finally { await ctx.close(); }
+  }
+
   // Phone portrait with a real song: lyrics and the chord rows leave a short panel (a Galaxy S25
   // in Brave is about 120px shorter than the layout viewport). Now is Fm7b5, Next is Gm7.
   const EB_SONG = JSON.stringify({
