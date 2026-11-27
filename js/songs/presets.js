@@ -1,26 +1,26 @@
 // Built-in progressions (PROGRESSIONS: every style + Kids songs) and their parsing.
-import { keyDegrees } from "../keys.js?v=2026.11.24.1";
-import { upInList, upSteps } from "./song.js?v=2026.11.24.1";
-import { upProgObj } from "./upload.js?v=2026.11.24.1";
-import { state, shared } from "../state.js?v=2026.11.24.1";
-import { Theory } from "../theory/index.js?v=2026.11.24.1";
-import { wrap12, blankExt } from "../theory/quality.js?v=2026.11.24.1";
-import { accSym } from "../theory/spelling.js?v=2026.11.24.1";
-import { STRIP_QUAL, plainRootSpell } from "../ui/strip.js?v=2026.11.24.1";
+import { keyDegrees } from "../keys.js?v=2026.11.27.19";
+import { upInList, upSteps } from "./song.js?v=2026.11.27.19";
+import { upProgObj } from "./upload.js?v=2026.11.27.19";
+import { state, shared } from "../state.js?v=2026.11.27.19";
+import { Theory } from "../theory/index.js?v=2026.11.27.19";
+import { wrap12, blankExt } from "../theory/quality.js?v=2026.11.27.19";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.19";
+import { STRIP_QUAL, plainRootSpell } from "../ui/strip.js?v=2026.11.27.19";
 const PROG_BPM = 80;
 export var PROG_BAR;
 function P(name, s) { return { name: name, steps: s.split("|") }; }
 // v60: labels are Style + feel (phones show the feel only). Steps: "degree quality [xBars]".
 export var PROGRESSIONS;
 // Phones: the feel only ("Jazz Turnaround" -> "Turnaround", "Yoga Drone" -> "Drone").
-export function progFeel(name) { if (upProgObj && shared.U && name === upProgObj.name) return shared.U.title; return String(name || "").replace(/^(Pop|Kids|Jazz|R&B|Ballad|Reggae|Funk|Yoga|Country)\s+/, ""); }
+export function progFeel(name) { if (upProgObj && shared.U && name === upProgObj.name) return shared.U.title; return String(name || "").replace(/^(Pop|Kids|Jazz|R&B|Ballad|Reggae|Funk|Yoga|Country|Lofi)\s+/, ""); }
 const PROG_SUFFIX = { maj: "", min: "", "7": "7", maj7: "maj7", m7: "7", m7b5: "\u00f87", sus4: "sus4", sus2: "sus2",
   add9: "add9", madd9: "add9", "9": "9", maj9: "maj9", m9: "9", "9sus": "9sus", "13": "13", "7b9": "7\u266d9",
   "7#9": "7\u266f9", "7sus4": "7sus4", "6": "6", dim: "\u00b0", overV: "/V", moverV: "/V", over3: "/3", mover3: "/3" };
-// Ranked menu, Noff v3.2 (final-menus-export-v3.2.json 51fd5585). PROGRESSIONS stays the full catalog.
-// Each style and mode lists exactly these charts, most popular first, as one list with nothing below.
-// A chart is [name, steps]. Its steps are a menu copy and do not write the source array.
-// A family with no chart for a mode is left out of that mode. Kids has no entry and shows its songs.
+// Ranked menu. One list of 15 families per style, most popular first.
+// A family is listed in a mode only when it has a chart there. Existing charts
+// keep their steps and both modes; a new chart is the one mode it was written in.
+// PROGRESSIONS stays the full catalog. Kids has no entry and shows its songs.
 var PROG_MENU = {
   pop: {
     major: [
@@ -30,11 +30,14 @@ var PROG_MENU = {
       ["Pop Electropop", "6 min|1 maj|4 maj|5 maj"],
       ["Pop Sensitive", "1 maj|5 maj|6 min|3 min"],
       ["Pop Plagal", "1 maj|4 maj|1 maj|5 maj"],
+      ["Pop Wishing Well", "6 m7|1 maj|5 sus4|2 7sus4"],
+      ["Pop Daydream", "1 maj|3 maj|4 maj|4 min"],
       ["Pop Climb", "4 maj|5 maj|3 min|6 min"],
       ["Pop Rock", "1 maj|b7 maj|4 maj|5 maj"],
       ["Pop Bounce", "1 maj|4 maj|6 min|5 maj"],
+      ["Pop Canon", "1 maj|5 maj|6 min|3 min|4 maj|5 maj"],
       ["Pop Garage", "1 maj|b7 maj|4 maj|b7 maj"],
-      ["Pop Canon", "1 maj|5 maj|6 min|3 min|4 maj|5 maj"]
+      ["Pop Hero", "4 maj|b6 maj|b7 maj|1 maj"],
     ],
     minor: [
       ["Pop Four-Chord", "1 min|5 min|6 maj|4 min"],
@@ -45,21 +48,22 @@ var PROG_MENU = {
       ["Pop Plagal", "1 min|4 min|1 min|5 maj"],
       ["Pop Rock", "1 min|7 maj|6 maj|5 maj"],
       ["Pop Bounce", "1 min|4 min|6 maj|5 maj"],
-      ["Pop Canon", "1 min|5 min|6 maj|3 maj|4 min|5 min"]
-    ]
+      ["Pop Canon", "1 min|5 min|6 maj|3 maj|4 min|5 min"],
+    ],
   },
   jazz: {
     major: [
       ["Jazz ii\u2013V\u2013I", "2 m7|5 7|1 maj7"],
       ["Jazz Turnaround", "1 maj7|6 m7|2 m7|5 7"],
+      ["Jazz Rhythm", "1 6|6 7|2 m7|5 7"],
       ["Jazz Blues", "1 7|4 7|5 7|1 7"],
       ["Jazz Leaves", "2 m7|5 7|1 maj7|4 maj7|7 m7b5|3 7|6 m7 x2"],
       ["Jazz Circle", "3 m7|6 m7|2 m7|5 7|1 maj7"],
       ["Jazz Backdoor", "4 m7|b7 7|1 maj7"],
-      ["Jazz Lady", "2 m7|5 7|1 maj7|4 maj7|3 m7|6 7"],
       ["Jazz Slide", "2 m7|b2 7|1 maj7|6 m7"],
+      ["Jazz Lady", "2 m7|5 7|1 maj7|4 maj7|3 m7|6 7"],
       ["Jazz Bossa", "1 maj7 x2|2 7 x2|2 m7|b2 7|1 maj7 x2"],
-      ["Jazz Chain", "6 7|2 7|5 7|1 maj7"]
+      ["Jazz Chain", "6 7|2 7|5 7|1 maj7"],
     ],
     minor: [
       ["Jazz Minor ii\u2013V\u2013i", "2 m7b5|5 7b9|1 m7"],
@@ -71,8 +75,8 @@ var PROG_MENU = {
       ["Jazz Andalusian", "1 m7|7 maj7|6 maj7|5 7"],
       ["Jazz Minor Turn", "1 m7|4 m7|2 m7b5|5 7b9"],
       ["Jazz Bossa", "1 m7 x2|4 m7 x2|2 m7b5|5 7b9|1 m7 x2"],
-      ["Jazz Modal Vamp", "1 m9 x2|4 m9 x2|b2 m9 x2|1 m9 x2"]
-    ]
+      ["Jazz Modal Vamp", "1 m9 x2|4 m9 x2|b2 m9 x2|1 m9 x2"],
+    ],
   },
   rnb: {
     major: [
@@ -84,11 +88,14 @@ var PROG_MENU = {
       ["R&B Quiet", "1 maj7|3 m7|4 maj7|5 7"],
       ["R&B Sway", "1 maj9|4 maj9|1 maj9|5 9"],
       ["R&B Ladder", "6 m7|5 7|4 maj7|3 m7"],
-      ["R&B Smooth", "1 maj9|3 m7|6 m9|2 m9|5 13"]
+      ["R&B Smooth", "1 maj9|3 m7|6 m9|2 m9|5 13"],
+      ["R&B Stepping Stones", "2 m9|3 m7|4 maj7|5 13"],
+      ["R&B Soul Light", "1 maj7|3 7|6 m7|4 maj7"],
     ],
     minor: [
       ["R&B DooWop", "1 min|6 maj|4 min|5 maj"],
       ["R&B Classic", "1 m7|6 maj7|4 m7|5 7"],
+      ["R&B Together", "6 maj7|5 7|1 m7|7 m7|3 7"],
       ["R&B Slow Jam", "4 m9|3 maj9|2 m7b5|1 m9"],
       ["R&B Church", "6 maj9|7 13|1 m9|4 m9|5 7#9|1 m9"],
       ["R&B Float", "4 m9|7 13|3 maj9|6 maj9"],
@@ -96,8 +103,8 @@ var PROG_MENU = {
       ["R&B Sway", "1 m9|4 m9|1 m9|5 9"],
       ["R&B Smooth", "1 m9|3 maj9|6 maj9|2 m7b5|5 7#9"],
       ["R&B Groove", "1 m9|7 13|6 maj9|5 m7"],
-      ["R&B ii\u2013V\u2013I", "2 m7b5|5 7#9|1 m9|6 maj9"]
-    ]
+      ["R&B ii\u2013V\u2013I", "2 m7b5|5 7#9|1 m9|6 maj9"],
+    ],
   },
   ballad: {
     major: [
@@ -105,37 +112,43 @@ var PROG_MENU = {
       ["Ballad 50s", "1 maj|6 min|4 maj|5 maj"],
       ["Ballad Steps", "1 add9|5 over3|6 m7|4 add9"],
       ["Ballad Piano", "1 maj|3 min|4 maj|5 maj"],
+      ["Ballad Candle", "1 maj|3 min|6 min|5 maj"],
       ["Ballad Tender", "1 add9|4 add9|4 min|1 add9"],
       ["Ballad Rising", "4 maj|5 maj|3 min|6 min"],
       ["Ballad Home", "6 m7|2 m7|5 maj|1 add9"],
       ["Ballad Hymn", "1 maj|4 maj|1 over3|5 maj"],
       ["Ballad Gentle", "1 add9|3 min|6 m7|4 add9"],
-      ["Ballad Big Finish", "4 maj|4 overV|3 min|6 min|2 min|5 maj|1 maj"]
+      ["Ballad Big Finish", "4 maj|4 overV|3 min|6 min|2 min|5 maj|1 maj"],
+      ["Ballad Walkdown", "1 maj|5 over3|6 min|5 maj|4 maj"],
+      ["Ballad Uphill", "1 maj|2 min|1 over3|4 maj|5 maj"],
     ],
     minor: [
       ["Ballad Axis", "1 min|6 maj|3 maj|7 maj"],
       ["Ballad 50s", "1 min|6 maj|4 min|5 maj"],
-      ["Ballad Lament", "1 min|7 maj|6 maj|5 maj"],
       ["Ballad Steps", "1 m7|7 maj|6 add9|5 maj"],
+      ["Ballad Lament", "1 min|7 maj|6 maj|5 maj"],
       ["Ballad Piano", "1 min|3 maj|4 min|5 maj"],
+      ["Ballad Echo", "1 min|3 maj|7 maj|6 maj"],
       ["Ballad Tender", "1 m7|4 m7|1 m7|5 maj"],
       ["Ballad Rising", "4 min|5 maj|3 maj|6 maj"],
       ["Ballad Home", "6 add9|4 m7|5 maj|1 m7"],
       ["Ballad Hymn", "1 min|4 min|1 mover3|5 maj"],
       ["Ballad Gentle", "1 m7|3 add9|6 add9|7 maj"],
-      ["Ballad Big Finish", "4 min|4 moverV|3 maj|6 maj|2 dim|5 maj|1 min"]
-    ]
+      ["Ballad Big Finish", "4 min|4 moverV|3 maj|6 maj|2 dim|5 maj|1 min"],
+    ],
   },
   reggae: {
     major: [
       ["Reggae Island Skank", "1 maj|4 maj|5 maj|4 maj"],
-      ["Reggae One Drop", "1 maj|b7 maj|4 maj|1 maj"],
       ["Reggae Lovers", "1 maj|6 min|4 maj|5 maj"],
+      ["Reggae One Drop", "1 maj|b7 maj|4 maj|1 maj"],
       ["Reggae Easy", "1 maj|4 maj|5 maj|b7 maj"],
       ["Reggae Roots", "6 min|5 maj|4 maj|5 maj"],
       ["Reggae Rocksteady", "1 maj|5 maj|6 min|4 maj"],
       ["Reggae Sway", "1 maj|2 min|1 maj|4 maj"],
-      ["Reggae Ska", "1 maj x0.5|6 min x0.5|2 min x0.5|5 maj x0.5"]
+      ["Reggae Ska", "1 maj x0.5|6 min x0.5|2 min x0.5|5 maj x0.5"],
+      ["Reggae Sunny", "1 maj|3 min|4 maj|2 min"],
+      ["Reggae Lazy Day", "1 maj|5 maj|2 min|4 maj"],
     ],
     minor: [
       ["Reggae Lovers", "1 min|6 maj|3 maj|7 maj"],
@@ -143,12 +156,13 @@ var PROG_MENU = {
       ["Reggae Drop", "1 min|7 maj|4 min|1 min"],
       ["Reggae Easy", "6 maj|7 maj|1 min|4 min"],
       ["Reggae Roots", "1 min|7 maj|6 maj|7 maj"],
-      ["Reggae Lover", "1 min|6 maj|4 min|5 maj"],
       ["Reggae Rocksteady", "1 min|5 maj|6 maj|4 min"],
+      ["Reggae Lover", "1 min|6 maj|4 min|5 maj"],
       ["Reggae Sway", "1 min|2 m7|1 min|4 min"],
       ["Reggae Ska", "1 min x0.5|4 min x0.5|5 maj x0.5|1 min x0.5"],
-      ["Reggae Minor Riddim", "1 min|4 min|5 min|4 min"]
-    ]
+      ["Reggae Minor Riddim", "1 min|4 min|5 min|4 min"],
+      ["Reggae Night Riddim", "1 min|7 maj|6 maj|4 min"],
+    ],
   },
   funk: {
     major: [
@@ -159,18 +173,23 @@ var PROG_MENU = {
       ["Funk iiV", "2 m7|5 9|1 9|4 9"],
       ["Funk Chrome", "1 9|2 m7|4 9|5 9"],
       ["Funk Cool", "6 m7|2 m7|6 m7|5 9"],
-      ["Funk Party", "1 9|4 9|5 9|4 9"]
+      ["Funk Party", "1 9|4 9|5 9|4 9"],
+      ["Funk Stomp", "1 7#9|b3 7|4 7|b7 7"],
+      ["Funk Clav Slide", "1 7|b7 7|b6 7|5 7#9"],
     ],
     minor: [
       ["Funk OneFour", "1 m7|4 m7|1 m7|5 9"],
+      ["Funk Disco", "1 m7|3 maj|5 m7|4 maj"],
       ["Funk Dorian", "1 m7|4 7|1 m7|7 9"],
       ["Funk Strut", "1 m7|7 9|4 m7|5 9"],
       ["Funk Breakdown", "1 m9|7 9|4 9|1 m9"],
       ["Funk iiV", "2 m7b5|5 9|1 m7|4 m7"],
       ["Funk Chrome", "1 m7|2 m7b5|4 m7|5 9"],
       ["Funk Cool", "1 m7|3 maj7|4 m7|5 7#9"],
-      ["Funk Party", "1 m7|6 maj7|7 9|1 m7"]
-    ]
+      ["Funk Party", "1 m7|6 maj7|7 9|1 m7"],
+      ["Funk Elevator", "1 m7|2 m7|3 maj7|4 7"],
+      ["Funk Glide", "1 m7|4 7|7 9|3 maj7"],
+    ],
   },
   yogaDeep: {
     major: [
@@ -180,7 +199,9 @@ var PROG_MENU = {
       ["Yoga Rise", "4 sus2|5 sus2|1 sus2|6 m7"],
       ["Yoga Float", "1 sus2 x2|4 sus2 x2|5 sus2 x2|1 sus2 x2"],
       ["Yoga Breathe", "1 sus2 x2|1 add9 x2|4 sus2 x2|5 sus2 x2"],
-      ["Yoga Moon", "2 m7 x2|5 sus2 x2|4 sus2 x2|1 sus2 x2"]
+      ["Yoga Moon", "2 m7 x2|5 sus2 x2|4 sus2 x2|1 sus2 x2"],
+      ["Yoga Lotus", "1 maj7 x2|2 sus2 x2|6 m7 x2|5 sus2 x2"],
+      ["Yoga River", "1 sus2 x2|6 m7 x2|3 m7 x2|4 maj7 x2"],
     ],
     minor: [
       ["Yoga Om", "1 m7|4 m7|1 m7|5 sus2"],
@@ -192,36 +213,61 @@ var PROG_MENU = {
       ["Yoga Moon", "4 m7 x2|7 sus2 x2|3 sus2 x2|1 m7 x2"],
       ["Yoga Still", "1 m9|6 maj7|7 6|1 m9"],
       ["Yoga Glow", "6 sus2 x2|7 sus2 x2|1 m7 x4"],
-      ["Yoga Sky", "1 m7 x2|3 sus2 x2|6 sus2 x2|7 sus2 x2"]
-    ]
+      ["Yoga Sky", "1 m7 x2|3 sus2 x2|6 sus2 x2|7 sus2 x2"],
+      ["Yoga Dawn", "1 m9 x2|3 maj7 x2|4 m7 x2|7 sus2 x2"],
+      ["Yoga Cloud", "1 m7 x2|6 maj7 x2|4 m9 x2|3 maj7 x2"],
+      ["Yoga Earth", "1 m9 x2|2 m7 x2|4 sus2 x2|5 m7 x2"],
+    ],
   },
   country: {
     major: [
       ["Country Three-Chord", "1 maj|4 maj|5 7|1 maj"],
       ["Country Story", "1 maj|6 min|4 maj|5 maj"],
+      ["Country Back Roads", "1 maj|6 min|5 maj|4 maj"],
       ["Country Wagon", "1 maj|5 maj|6 min|4 maj"],
       ["Country Train", "1 maj|4 maj|5 7|6 min"],
       ["Country Honky", "1 maj|4 maj|5 7|4 maj"],
       ["Country Ramble", "1 maj|b7 maj|4 maj|5 maj"],
       ["Country Rag", "1 maj|6 7|2 7|5 7"],
       ["Country Sunset", "1 maj|3 min|4 maj|5 7"],
-      ["Country Two-Step", "1 maj|4 maj|1 maj|5 7"]
+      ["Country Two-Step", "1 maj|4 maj|1 maj|5 7"],
     ],
     minor: [
       ["Country Story", "1 min|6 maj|4 min|5 maj"],
       ["Country Outlaw", "1 min|7 maj|6 maj|7 maj"],
       ["Country Wagon", "1 min|5 maj|6 maj|4 min"],
-      ["Country Classic", "1 min|4 min|5 maj|1 min"],
-      ["Country Holler", "1 min|3 maj|7 maj|4 min"],
       ["Country Train", "1 min|4 min|5 7|7 maj"],
+      ["Country Classic", "1 min|4 min|5 maj|1 min"],
       ["Country Honky", "1 min|4 min|5 7|4 min"],
+      ["Country Holler", "1 min|3 maj|7 maj|4 min"],
       ["Country Ramble", "1 min|4 maj|1 min|7 maj"],
-      ["Country Hoedown", "1 min|7 maj|5 7|1 min"],
       ["Country Rag", "1 min|6 maj|2 dim|5 7"],
       ["Country Sunset", "1 min|3 maj|6 maj|5 7"],
-      ["Country Minor Three-Chord", "1 min|4 min|1 min|5 min"]
-    ]
-  }
+      ["Country Hoedown", "1 min|7 maj|5 7|1 min"],
+      ["Country Minor Three-Chord", "1 min|4 min|1 min|5 min"],
+    ],
+  },
+  lofi: {
+    major: [
+      ["Lofi Rainy Day", "4 maj9|3 m7|6 m9|1 maj7"],
+      ["Lofi Coffee Shop", "2 m9|5 13|3 m7|6 m9"],
+      ["Lofi Night Drive", "1 maj9|6 m9|4 maj7|4 m7"],
+      ["Lofi Rain Window", "4 maj9|4 m9|3 m7|6 7b9|2 m9|5 13"],
+      ["Lofi Stargaze", "1 maj7|2 m7|3 m7|4 maj7"],
+      ["Lofi Side Step", "2 m9|b2 7|1 maj9|6 7b9"],
+      ["Lofi Slinky", "3 m7|b3 7|2 m7|b2 7|1 maj7"],
+      ["Lofi Cat Nap", "1 maj7|5 m7|1 9|4 maj7|4 m7"],
+      ["Lofi Ripple", "6 m9|2 9|5 m7|1 9|4 maj7"],
+      ["Lofi Back Porch", "4 maj7|b7 9|1 maj7|6 m7"],
+    ],
+    minor: [
+      ["Lofi Snow Globe", "1 m9|6 maj9|3 maj7|5 7b9"],
+      ["Lofi Pillow", "6 maj7|7 13|1 m9|5 m7"],
+      ["Lofi Late Night", "1 m9|4 m9|5 m7|6 maj7"],
+      ["Lofi Paper Boat", "1 m9|4 9|3 maj7|6 maj7"],
+      ["Lofi Midnight Snack", "4 m9|5 m7|1 m9|3 maj7"],
+    ],
+  },
 };
 function progMenu(style, full, mode) {
   var m = PROG_MENU[style];

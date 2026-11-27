@@ -1781,6 +1781,356 @@ try {
     finally { await ctx.close(); }
   }
 
+  // Guitar tab (Expert only): four sizes, no overflow, labels fully visible, C cycles three grips.
+  for (const [w, h] of [[360, 780], [780, 360], [820, 1180], [1180, 820]]) {
+    const size = w + 'x' + h;
+    const { ctx, page, bag } = await fresh(browser, w, h, 'GTR ' + size);
+    const notes = [];
+    try {
+      await boot(page, 'test=1&hour=21&expert=1');
+      await page.locator('#gtrTabs [data-gtr="guitar"]').click();
+      await page.waitForTimeout(80);
+      const m = await page.evaluate(() => {
+        const box = e => { if (!e || !e.getClientRects().length) return null; const r = e.getBoundingClientRect(); return { l: r.left, r: r.right, t: r.top, b: r.bottom, w: r.width, h: r.height }; };
+        const vis = e => !!(e && e.getClientRects().length && getComputedStyle(e).display !== 'none' && getComputedStyle(e).visibility !== 'hidden');
+        const textBox = e => {
+          const range = document.createRange();
+          range.selectNodeContents(e);
+          const t = range.getBoundingClientRect();
+          return t.width || t.height ? t : null;
+        };
+        const de = document.documentElement;
+        const tabs = document.getElementById('gtrTabs');
+        const cards = [...document.querySelectorAll('#gtrCards .gtr-card')].filter(vis);
+        const labels = [...document.querySelectorAll('#gtrTabs button, #gtrCards .gtr-name, #gtrCards .gtr-lb, #gtrCards .gtr-vo span, #gtrCards .gtr-meta, #gtrCards .gtr-tap')];
+        const clipped = labels.filter(e => {
+          if (!vis(e)) return false;
+          const t = textBox(e), host = e.closest('.gtr-card') || e.closest('.gtr-tabs');
+          if (!t || !host || t.width < 1) return false;
+          const c = host.getBoundingClientRect();
+          return t.left < c.left - 1 || t.right > c.right + 1 || t.top < c.top - 1 || t.bottom > c.bottom + 1;
+        }).map(e => (e.textContent || '').trim().slice(0, 40));
+        const off = [];
+        const vw = innerWidth, vh = innerHeight;
+        for (const e of [tabs, ...cards, ...labels.filter(vis)]) {
+          const r = box(e);
+          if (!r) continue;
+          if (r.l < -1 || r.t < -1 || r.r > vw + 1 || r.b > vh + 1) off.push((e.textContent || e.id || 'el').trim().slice(0, 24));
+        }
+        const chip = document.getElementById('xKeysChip');
+        const pads = document.getElementById('pads');
+        return {
+          lay: de.className, gtr: de.classList.contains('gtr'),
+          uke: /ukulele/i.test(document.body.innerText),
+          octave: vis(chip), pads: vis(pads),
+          tabs: box(tabs), cards: cards.map(c => ({ slot: c.dataset.slot, box: box(c), name: (c.querySelector('.gtr-name') || {}).textContent || '' })),
+          label: (document.querySelector('[data-gtr-label]') || {}).textContent || '',
+          clipped, off,
+          page: de.scrollWidth > vw + 1 || de.scrollHeight > vh + 1
+        };
+      });
+      if (!m.gtr) notes.push('guitar tab did not select');
+      if (m.uke) notes.push('ukulele is on screen');
+      if (m.octave) notes.push('octave control still visible');
+      if (m.pads) notes.push('piano keys still visible');
+      const side = /lay-phone-land|lay-pad-land/.test(m.lay);
+      const want = side || /lay-pad-port/.test(m.lay) ? 4 : 2;
+      if (m.cards.length !== want) notes.push('cards ' + m.cards.length + ' want ' + want);
+      if (m.cards[0] && m.cards[0].name.trim() !== 'C') notes.push('now is ' + m.cards[0].name);
+      if (m.tabs && m.cards[0]) {
+        if (side && !(m.tabs.r <= m.cards[0].box.l + 1)) notes.push('tabs are not a left strip');
+        if (!side && !(m.tabs.b <= m.cards[0].box.t + 2)) notes.push('tabs are not above the cards');
+      }
+      if (m.page) notes.push('page scrolls');
+      const geo = await page.evaluate(() => {
+        const shown = e => !!(e && e.getClientRects().length && getComputedStyle(e).display !== 'none');
+        const portrait = /lay-phone-port|lay-pad-port/.test(document.documentElement.className);
+        const phonePort = document.documentElement.classList.contains('lay-phone-port');
+        function stack(card) {
+          if (!card) return null;
+          const name = card.querySelector('.gtr-name');
+          const dia = card.querySelector('.gtr-diagram');
+          const foot = card.querySelector('.gtr-foot');
+          if (!name || !dia) return { missing: true };
+          const nb = name.getBoundingClientRect(), db = dia.getBoundingClientRect();
+          const footOn = shown(foot);
+          const fb = footOn ? foot.getBoundingClientRect() : null;
+          return {
+            nameThenDia: nb.bottom <= db.top + 3,
+            diaThenFoot: !footOn || db.bottom <= fb.top + 3,
+            ratio: db.height > 1 ? +(db.width / db.height).toFixed(2) : 0
+          };
+        }
+        const now = document.querySelector('#gtrCards .gtr-card.now');
+        const next = document.querySelector('#gtrCards .gtr-card.next');
+        const nh = now ? now.getBoundingClientRect().height : 0;
+        const xh = next ? next.getBoundingClientRect().height : 0;
+        return { portrait, phonePort, now: stack(now), next: stack(next), nextShorter: phonePort ? xh < nh - 1 : null };
+      });
+      if (geo.portrait) {
+        if (!geo.now || !geo.now.nameThenDia || !geo.now.diaThenFoot) notes.push('now stack ' + JSON.stringify(geo.now));
+        if (geo.next && (!geo.next.nameThenDia || !geo.next.diaThenFoot)) notes.push('next stack ' + JSON.stringify(geo.next));
+        if (geo.now && (geo.now.ratio < 0.8 || geo.now.ratio > 1.25)) notes.push('now ratio ' + geo.now.ratio);
+      }
+      if (geo.phonePort && geo.nextShorter === false) notes.push('Next is not shorter than Now');
+      if (size === '1180x820' || size === '820x1180') {
+        const ipad = await page.evaluate(() => {
+          function fretRatio(svg) {
+            const lines = [...svg.querySelectorAll('line')];
+            const horiz = lines.filter(l => Math.abs(+l.getAttribute('y1') - +l.getAttribute('y2')) < 0.1);
+            const vert = lines.filter(l => Math.abs(+l.getAttribute('x1') - +l.getAttribute('x2')) < 0.1);
+            const ys = [...new Set(horiz.map(l => +l.getAttribute('y1')))].sort((a, b) => a - b);
+            const xs = [...new Set(vert.map(l => +l.getAttribute('x1')))].sort((a, b) => a - b);
+            const ctm = svg.getScreenCTM();
+            if (!ctm || ys.length < 2 || xs.length < 2) return 0;
+            const fh = (ys[ys.length - 1] - ys[0]) / (ys.length - 1) * ctm.d;
+            const sg = (xs[xs.length - 1] - xs[0]) / (xs.length - 1) * ctm.a;
+            return sg ? fh / sg : 0;
+          }
+          const panel = document.getElementById('gtrPanel').getBoundingClientRect();
+          return [...document.querySelectorAll('#gtrCards .gtr-card')].map(card => {
+            const svg = card.querySelector('.gtr-diagram');
+            const c = card.getBoundingClientRect();
+            const d = svg.getBoundingClientRect();
+            const overflow = c.bottom > panel.bottom + 1 || c.right > panel.right + 1 || c.top < panel.top - 1 || c.left < panel.left - 1
+              || d.bottom > c.bottom + 1 || d.right > c.right + 1 || d.top < c.top - 1 || d.left < c.left - 1
+              || card.scrollHeight > card.clientHeight + 1 || card.scrollWidth > card.clientWidth + 1;
+            return {
+              slot: card.dataset.slot,
+              ratio: fretRatio(svg),
+              dx: (d.left + d.right) / 2 - (c.left + c.right) / 2,
+              dy: (d.top + d.bottom) / 2 - (c.top + c.bottom) / 2,
+              h: d.height,
+              overflow
+            };
+          });
+        });
+        if (size === '1180x820') {
+          for (const c of ipad) {
+            if (!(c.ratio <= 1.3)) notes.push(c.slot + ' fret ratio ' + c.ratio.toFixed(3));
+            if (Math.abs(c.dx) > 4 || Math.abs(c.dy) > 4) notes.push(c.slot + ' off center ' + c.dx.toFixed(1) + ',' + c.dy.toFixed(1));
+          }
+        }
+        if (size === '820x1180') {
+          // .8 at 820×1180 drew Now 178px tall and Next 179px tall. Width was already the card.
+          const base = { now: 178, next: 179 };
+          for (const c of ipad) {
+            if (c.overflow) notes.push(c.slot + ' overflows');
+            if (base[c.slot] && !(c.h >= base[c.slot] * 1.15)) notes.push(c.slot + ' diagram ' + c.h.toFixed(1) + 'px');
+          }
+        }
+      }
+      const labels = [m.label];
+      const cycleOn = await page.locator('[data-gtr-cycle="1"]').first().isVisible().catch(() => false);
+      if (cycleOn) {
+        for (let i = 0; i < 2; i++) {
+          await page.locator('[data-gtr-cycle="1"]').first().click();
+          labels.push((await page.locator('[data-gtr-label]').innerText()).trim());
+        }
+        const wantLabels = ['Open', 'A-shape · 3fr', 'E-shape · 8fr'];
+        if (labels.join('|') !== wantLabels.join('|')) notes.push('cycle ' + labels.join(' | '));
+      }
+      if (size === '1180x820') {
+        const barre = await page.evaluate(() => {
+          const svg = document.querySelector('#gtrCards .gtr-card.now .gtr-diagram');
+          if (!svg) return 0;
+          const lines = [...svg.querySelectorAll('line')];
+          const horiz = lines.filter(l => Math.abs(+l.getAttribute('y1') - +l.getAttribute('y2')) < 0.1);
+          const vert = lines.filter(l => Math.abs(+l.getAttribute('x1') - +l.getAttribute('x2')) < 0.1);
+          const ys = [...new Set(horiz.map(l => +l.getAttribute('y1')))].sort((a, b) => a - b);
+          const xs = [...new Set(vert.map(l => +l.getAttribute('x1')))].sort((a, b) => a - b);
+          const ctm = svg.getScreenCTM();
+          if (!ctm || ys.length < 2 || xs.length < 2) return 0;
+          const fh = (ys[ys.length - 1] - ys[0]) / (ys.length - 1) * ctm.d;
+          const sg = (xs[xs.length - 1] - xs[0]) / (xs.length - 1) * ctm.a;
+          return sg ? fh / sg : 0;
+        });
+        if (!(barre <= 1.3)) notes.push('barre fret ratio ' + barre.toFixed(3));
+      }
+      const clipped = await page.evaluate(() => {
+        const vis = e => !!(e && e.getClientRects().length && getComputedStyle(e).display !== 'none');
+        return [...document.querySelectorAll('#gtrTabs button, #gtrCards .gtr-name, #gtrCards .gtr-lb, #gtrCards .gtr-vo span, #gtrCards .gtr-meta, #gtrCards .gtr-tap')].filter(e => {
+          if (!vis(e)) return false;
+          const range = document.createRange(); range.selectNodeContents(e);
+          const t = range.getBoundingClientRect();
+          const host = e.closest('.gtr-card') || e.closest('.gtr-tabs');
+          if (!host || t.width < 1) return false;
+          const c = host.getBoundingClientRect();
+          return t.left < c.left - 1 || t.right > c.right + 1 || t.top < c.top - 1 || t.bottom > c.bottom + 1;
+        }).map(e => (e.textContent || '').trim().slice(0, 40));
+      });
+      if (m.clipped.length || clipped.length) notes.push('clipped ' + [...m.clipped, ...clipped].join(', '));
+      if (m.off.length) notes.push('outside ' + [...new Set(m.off)].slice(0, 6).join(', '));
+      if (size === '780x360') {
+        await page.locator('#gtrTabs [data-gtr="piano"]').click();
+        await page.waitForTimeout(80);
+        const hits = await page.evaluate(() => {
+          const tabs = document.getElementById('gtrTabs').getBoundingClientRect();
+          return [...document.querySelectorAll('#pads .pad')].filter(k => {
+            const r = k.getBoundingClientRect();
+            if (r.width < 2 || r.height < 2) return false;
+            return !(tabs.right <= r.left + 1 || tabs.left >= r.right - 1 || tabs.bottom <= r.top + 1 || tabs.top >= r.bottom - 1);
+          }).length;
+        });
+        if (hits) notes.push('tabs overlap ' + hits + ' keys');
+      }
+      if (bag.errors.length) notes.push('page: ' + bag.errors.slice(0, 2).join('; '));
+      const name = 'GTR ' + size + ': Guitar tab fits, no clipped labels, C cycles three grips';
+      if (notes.length) await shot(page, name);
+      record(name, !notes.length, notes.length ? notes.join(' | ') : m.lay);
+    } catch (err) {
+      try { await shot(page, 'GTR ' + size); } catch (e) {}
+      record('GTR ' + size, false, String(err && err.message || err).split('\n')[0]);
+    } finally { await ctx.close(); }
+  }
+
+  // Phone portrait with a real song: lyrics and the chord rows leave a short panel (a Galaxy S25
+  // in Brave is about 120px shorter than the layout viewport). Now is Fm7b5, Next is Gm7.
+  const EB_SONG = JSON.stringify({
+    contractVersion: '1.2',
+    song: { title: 'Night Hold', artist: 'Probe', key: { tonic: 'Eb', mode: 'major' } },
+    timing: { bpm: 78, timeSignature: '4/4' },
+    sections: [{ id: 'v', type: 'verse', chords: [
+      { index: 0, chord: 'Fm7b5', position: { bar: 1, beat: 1 }, durationBeats: 4, confidence: 0.9 },
+      { index: 1, chord: 'Gm7', position: { bar: 2, beat: 1 }, durationBeats: 4, confidence: 0.9 },
+      { index: 2, chord: 'Abmaj7', position: { bar: 3, beat: 1 }, durationBeats: 4, confidence: 0.9 }
+    ], lyrics: [
+      { text: 'Hold the night and let it go now', markers: [{ charIndex: 0, chordIndex: 0 }, { charIndex: 20, chordIndex: 1 }] },
+      { text: 'One more line under the words', markers: [{ charIndex: 0, chordIndex: 2 }] }
+    ] }]
+  });
+  for (const [w, h] of [[360, 640], [384, 700], [412, 760], [412, 915]]) {
+    const size = w + 'x' + h;
+    const { ctx, page, bag } = await fresh(browser, w, h, 'GTR song ' + size);
+    const notes = [];
+    try {
+      await boot(page, 'test=1&hour=21&expert=1');
+      await page.waitForFunction(() => window.__upload && document.getElementById('gtrTabs'));
+      await page.evaluate(text => {
+        document.querySelector('#styles button[data-style="rnb"]').click();
+        window.__upload.load(text);
+      }, EB_SONG);
+      await page.waitForTimeout(60);
+      const picked = await page.evaluate(() => {
+        const b = [...document.querySelectorAll('#suggest button')].find(el => /♭5|b5/.test(el.textContent || ''));
+        if (b) b.click();
+        return b ? (b.textContent || '').trim().slice(0, 24) : '';
+      });
+      if (!picked) notes.push('no Fm7b5 chip');
+      await page.locator('#gtrTabs [data-gtr="guitar"]').click();
+      await page.waitForTimeout(80);
+      const m = await page.evaluate(() => {
+        function fretRatio(svg) {
+          const lines = [...svg.querySelectorAll('line')];
+          const horiz = lines.filter(l => Math.abs(+l.getAttribute('y1') - +l.getAttribute('y2')) < 0.1);
+          const vert = lines.filter(l => Math.abs(+l.getAttribute('x1') - +l.getAttribute('x2')) < 0.1);
+          const ys = [...new Set(horiz.map(l => +l.getAttribute('y1')))].sort((a, b) => a - b);
+          const xs = [...new Set(vert.map(l => +l.getAttribute('x1')))].sort((a, b) => a - b);
+          const ctm = svg.getScreenCTM();
+          if (!ctm || ys.length < 2 || xs.length < 2) return 0;
+          const fh = (ys[ys.length - 1] - ys[0]) / (ys.length - 1) * ctm.d;
+          const sg = (xs[xs.length - 1] - xs[0]) / (xs.length - 1) * ctm.a;
+          return sg ? fh / sg : 0;
+        }
+        const panel = document.getElementById('gtrPanel').getBoundingClientRect();
+        const vw = innerWidth, vh = innerHeight;
+        const cards = [...document.querySelectorAll('#gtrCards .gtr-card')].map(card => {
+          const svg = card.querySelector('.gtr-diagram');
+          const c = card.getBoundingClientRect();
+          const d = svg.getBoundingClientRect();
+          const texts = [...card.querySelectorAll('.gtr-name, .gtr-lb, .gtr-vo span, .gtr-meta, .gtr-tap')].filter(e => e.getClientRects().length);
+          const clipped = texts.filter(e => {
+            const range = document.createRange(); range.selectNodeContents(e);
+            const t = range.getBoundingClientRect();
+            return t.width > 1 && (t.left < c.left - 1 || t.right > c.right + 1 || t.top < c.top - 1 || t.bottom > c.bottom + 1);
+          }).map(e => (e.textContent || '').trim().slice(0, 24));
+          return {
+            slot: card.dataset.slot,
+            name: (card.querySelector('.gtr-name') || {}).textContent || '',
+            dw: d.width, dh: d.height, ratio: fretRatio(svg),
+            diaOut: d.bottom > c.bottom + 1 || d.right > c.right + 1 || d.top < c.top - 1 || d.left < c.left - 1,
+            cardOut: c.bottom > panel.bottom + 1 || c.right > panel.right + 1 || c.top < panel.top - 1 || c.left < panel.left - 1
+              || c.bottom > vh + 1 || c.right > vw + 1 || c.top < -1 || c.left < -1,
+            clipped
+          };
+        });
+        return { cards };
+      });
+      const now = m.cards.find(c => c.slot === 'now');
+      const next = m.cards.find(c => c.slot === 'next');
+      if (!now || !/Fm7/.test(now.name)) notes.push('now is ' + (now && now.name));
+      if (!next || next.name.trim() !== 'Gm7') notes.push('next is ' + (next && next.name));
+      if (now && next && !(next.dw <= now.dw + 0.5)) notes.push('next diagram ' + next.dw.toFixed(1) + ' wider than now ' + now.dw.toFixed(1));
+      for (const c of m.cards) {
+        if (c.diaOut) notes.push(c.slot + ' diagram overflows its card');
+        if (c.cardOut) notes.push(c.slot + ' card leaves the panel');
+        if (c.ratio < 0.8 || c.ratio > 1.3) notes.push(c.slot + ' fret ratio ' + c.ratio.toFixed(3));
+        if (c.clipped.length) notes.push(c.slot + ' clipped ' + c.clipped.join(', '));
+      }
+      if (bag.errors.length) notes.push('page: ' + bag.errors.slice(0, 2).join('; '));
+      const name = 'GTR ' + size + ' song: Next diagram no wider than Now, ratios 0.8-1.3, nothing overflows';
+      if (notes.length) await shot(page, name);
+      record(name, !notes.length, notes.length ? notes.join(' | ') : (now && next ? 'now ' + Math.round(now.dw) + ' next ' + Math.round(next.dw) : ''));
+    } catch (err) {
+      try { await shot(page, 'GTR song ' + size); } catch (e) {}
+      record('GTR song ' + size, false, String(err && err.message || err).split('\n')[0]);
+    } finally { await ctx.close(); }
+  }
+
+  // Song mode: Jam is off (JAM_IN_SONG). A saved jam:true must not bring the circle or dashed extras back.
+  const JAM_SONG = JSON.stringify({
+    contractVersion: '1.2',
+    song: { title: 'Night Hold', artist: 'Probe', key: { tonic: 'Eb', mode: 'major' } },
+    timing: { bpm: 78, timeSignature: '4/4' },
+    sections: [{ id: 'v', type: 'verse', chords: [
+      { index: 0, chord: 'Fm7b5', position: { bar: 1, beat: 1 }, durationBeats: 4, confidence: 0.9 },
+      { index: 1, chord: 'Gm7', position: { bar: 2, beat: 1 }, durationBeats: 4, confidence: 0.9 }
+    ], lyrics: [
+      { text: 'Hold the night and let it go now', markers: [{ charIndex: 0, chordIndex: 0 }, { charIndex: 20, chordIndex: 1 }] },
+      { text: 'One more line under the words', markers: [] }
+    ] }]
+  });
+  for (const [w, h] of [[360, 640], [384, 700], [412, 760], [412, 915], [780, 360], [820, 1180], [1180, 820]]) {
+    const size = w + 'x' + h;
+    const { ctx, page, bag } = await fresh(browser, w, h, 'JAM song ' + size);
+    const notes = [];
+    try {
+      await boot(page, 'test=1&hour=21&expert=1');
+      await page.evaluate(() => {
+        const raw = JSON.parse(localStorage.getItem('touchChord.settings.v1') || '{}');
+        raw.jam = true;
+        raw.expert = true;
+        localStorage.setItem('touchChord.settings.v1', JSON.stringify(raw));
+      });
+      await page.reload({ waitUntil: 'load' });
+      await page.waitForFunction(() => !document.documentElement.classList.contains('tc-boot') && window.__upload);
+      const progJam = await page.evaluate(() => ({
+        toggles: document.querySelectorAll('.jam-toggle').length,
+        extras: document.querySelectorAll('.ss-jamextra').length
+      }));
+      if (progJam.toggles || progJam.extras) notes.push('progressions has jam ' + JSON.stringify(progJam));
+      await page.evaluate(text => { window.__upload.load(text); }, JAM_SONG);
+      await page.waitForTimeout(80);
+      const m = await page.evaluate(() => ({
+        song: document.querySelector('#xSrc') && document.querySelector('#xSrc').classList.contains('x-mode-song'),
+        toggles: document.querySelectorAll('.jam-toggle, .jam-pill').length,
+        extras: document.querySelectorAll('.ss-jamextra, .ss-jam').length,
+        jamClass: document.querySelectorAll('[class~="jam"]').length
+      }));
+      if (!m.song) notes.push('song mode did not open');
+      if (m.toggles) notes.push('jam circle ' + m.toggles);
+      if (m.extras) notes.push('dashed extras ' + m.extras);
+      if (m.jamClass) notes.push('jam class ' + m.jamClass);
+      if (bag.errors.length) notes.push('page: ' + bag.errors.slice(0, 2).join('; '));
+      const name = 'JAM ' + size + ' song: no Jam circle and no dashed extras';
+      if (notes.length) await shot(page, name);
+      record(name, !notes.length, notes.join(' | '));
+    } catch (err) {
+      try { await shot(page, 'JAM song ' + size); } catch (e) {}
+      record('JAM song ' + size, false, String(err && err.message || err).split('\n')[0]);
+    } finally { await ctx.close(); }
+  }
+
   for (const w of walks) {
     if (w.pageNotes.length) record('toggle ' + w.label, false, w.pageNotes.join(' | '));
   }

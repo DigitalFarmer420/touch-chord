@@ -165,6 +165,61 @@ test('Expert pref: Auto default (rd6; was Lamplight), own store key, ?expert=1/0
   assert.equal(M.prefFromUrl('?expert=0', { v: 1, on: true, look: 'lamp' }).on, false);
   assert.equal(M.expertWindowKeys('octave'), 12); assert.equal(M.expertWindowKeys('full'), 0);
 });
-test('Style drop-down lists the nine styles in the live order', () => {
-  assert.deepEqual(M.STYLE_MENU.map(s => s[0]), ['pop', 'jazz', 'rnb', 'ballad', 'reggae', 'funk', 'yogaDeep', 'country']);
+test('Style drop-down lists the grown-up styles, Lofi last', () => {
+  assert.deepEqual(M.STYLE_MENU.map(s => s[0]), ['pop', 'jazz', 'rnb', 'ballad', 'reggae', 'funk', 'yogaDeep', 'country', 'lofi']);
+  assert.deepEqual(M.STYLE_MENU.find(s => s[0] === 'lofi').slice(1), ['Lofi', 'dusty 9ths']);
+});
+
+test('fitPopover keeps a menu in the band, clear of the opener and the piano', () => {
+  const anchor = { left: 128, top: 4, right: 228, bottom: 44 };
+  const piano = { left: 8, top: 266, right: 772, bottom: 358 };
+  const toggle = { left: 16, top: 90, right: 540, bottom: 154 };
+  const nine = 9 * 46 + 12;
+  const land = M.fitPopover({
+    anchor, bandTop: 44, bandBottom: piano.top, viewW: 780, width: 172, height: nine,
+    align: 'start', keepClear: [anchor, piano]
+  });
+  assert.ok(land.top >= 44, 'below the top bar');
+  assert.ok(land.top + land.maxHeight <= piano.top, 'stops at the piano');
+  assert.ok(land.maxHeight < nine, 'nine styles scroll inside the short band');
+  assert.ok(land.maxHeight > 46, 'at least one style row stays visible');
+  const port = M.fitPopover({
+    anchor: { left: 214, top: 16, right: 384, bottom: 80 },
+    bandTop: 80, bandBottom: 778, viewW: 820, width: 172, height: nine,
+    align: 'start', keepClear: [toggle, { left: 16, top: 778, right: 804, bottom: 1168 }]
+  });
+  assert.ok(port.top >= toggle.bottom - 0.5, 'starts below Song | Progressions');
+  assert.ok(port.top + port.maxHeight <= 778, 'stops above the iPad piano');
+  assert.ok(port.maxHeight >= nine, 'the portrait band fits every style');
+  const help = M.fitPopover({
+    anchor: { left: 732, top: 4, right: 772, bottom: 44 },
+    bandTop: 44, bandBottom: 266, viewW: 780, width: 148, height: 106,
+    align: 'end', keepClear: [
+      { left: 107, top: 47, right: 642, bottom: 93 },
+      { left: 645, top: 47, right: 772, bottom: 93 }
+    ]
+  });
+  assert.equal(help.left + 148 <= 780, true);
+  assert.ok(help.top >= 93, 'clears the song row under the ? button');
+  assert.ok(help.top + Math.min(106, help.maxHeight) <= 266);
+  assert.ok(help.maxHeight >= 106);
+});
+
+test('Expert Play face is a stop square only while playing, and Play again when it ends', () => {
+  assert.deepEqual(M.expertPlayFace('idle'), { glyph: '\u25b6', stop: false });
+  assert.deepEqual(M.expertPlayFace('paused'), { glyph: '\u25b6', stop: false });
+  assert.deepEqual(M.expertPlayFace('playing'), { glyph: '\u25a0', stop: true });
+  assert.deepEqual(M.expertPlayFace('idle'), { glyph: '\u25b6', stop: false });
+  const ui = readFileSync(new URL('../../js/expert/ui.js', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../../css/expert.css', import.meta.url), 'utf8');
+  const kids = readFileSync(new URL('../../js/kids/view.js', import.meta.url), 'utf8');
+  assert.match(ui, /expertPlayFace\(transportLabel\(\)\)/);
+  assert.match(ui, /classList\.toggle\("is-stop", face\.stop\)/);
+  assert.match(ui, /setAttribute\("aria-label", xl\.aria\)/);
+  assert.match(ui, /\$\("xPlay"\)\.addEventListener\("click", function \(\) \{ click\("#prog \.pg-song"\); paintPlayFace\(\); schedule\(\); \}\)/);
+  assert.match(css, /#xGo \.x-play\.is-stop \{/);
+  assert.match(css, /fill='%232B2118'/);
+  assert.doesNotMatch(css, /#xGo \.x-play\.is-stop[^}]*background-color:\s*var\(--x-next\)|#xGo \.x-play\.is-stop[^}]*background:\s*var\(--copper\)/);
+  assert.doesNotMatch(kids, /is-stop|expertPlayFace/);
+  assert.match(kids, /Play stays ▶ while a song plays/);
 });

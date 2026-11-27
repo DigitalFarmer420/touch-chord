@@ -287,7 +287,7 @@ html.expert .kb.piano .pad.black { background: var(--x-bkey); border: 1.5px soli
 /* ---------- sheets / menus ---------- */
 html.expert #xScrim { position: fixed; left: 0; right: 0; top: 0; height: var(--x-kb-top, 100%); background: rgba(0,0,0,.45); z-index: 50; }
 html.expert .x-menu { position: fixed; z-index: 61; width: 172px; background: var(--x-surface); color: var(--x-ink); border: 1.5px solid var(--x-line); border-radius: 18px; padding: 6px; box-shadow: 0 14px 30px rgba(0,0,0,.5);
-  max-height: calc(var(--x-kb-top, calc(80 * var(--tc-vh))) - 70px); overflow: auto; box-sizing: border-box; }
+  max-height: calc(var(--x-kb-top, calc(80 * var(--tc-vh))) - var(--x-top-b, 0px)); overflow: auto; box-sizing: border-box; }
 html.expert .x-mi { display: flex; width: 100%; align-items: center; justify-content: space-between; height: 46px; padding: 0 10px; border: 0; border-radius: 12px; background: transparent; color: var(--x-ink); box-sizing: border-box; }
 html.expert .x-mi b { font: 600 15px Fredoka, Nunito, system-ui, sans-serif; } html.expert .x-mi span { font-size: 10.5px; color: var(--x-muted); font-weight: 700; }
 html.expert .x-mi.on { background: var(--x-gold); color: #3B2600; } html.expert .x-mi.on span { color: #3B2600; } html.expert .x-mi.on span::before { content: "\2713 "; }
@@ -296,7 +296,7 @@ html.expert .x-sheet { position: fixed; z-index: 61; left: 8px; right: 8px; back
 html.expert .x-grab { width: 48px; height: 5px; border-radius: 3px; background: var(--x-line); margin: 0 auto 8px; }
 html.expert .x-sh-h { display: flex; justify-content: space-between; align-items: center; font: 600 22px Fredoka, Nunito, system-ui, sans-serif; margin-bottom: 8px; }
 html.expert .x-close { width: 44px; height: 44px; border-radius: 50%; padding: 0; }
-html.expert .x-keysheet { top: auto; bottom: 8px; max-height: calc(100% - 60px); }
+html.expert .x-keysheet { top: var(--x-top-b, 0px); bottom: auto; max-height: calc(var(--x-kb-top, 100%) - var(--x-top-b, 0px)); }
 html.expert .x-mini { position: relative; height: 120px; margin: 4px 0 12px; }
 html.expert .x-mw { display: flex; height: 100%; gap: 3px; }
 html.expert .x-mk.wk { flex: 1; border: 0; border-radius: 0 0 8px 8px; background: #F7F1E6; color: #3a2e22; font: 800 14px Nunito, system-ui, sans-serif; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; position: relative; }
@@ -444,7 +444,10 @@ html.expert #pads.fourths .pad { overflow: hidden; }
 html.expert.lay-phone-land #xTop { align-items: center; }
 html.expert.lay-phone-land #xTop > .x-b, html.expert.lay-phone-land #xTop .mode-chip, html.expert.lay-phone-land #xTog { height: 36px; min-height: 0; align-self: center; box-sizing: border-box; }
 html.expert.lay-phone-land #xTop .x-help { flex: 0 0 36px; width: 36px; height: 36px; min-width: 36px; min-height: 0; position: relative; overflow: visible; margin: 0 4px 0 4px; }
-html.expert.lay-phone-land #xTop .x-help::after { content: ""; position: absolute; left: -5px; top: -5px; right: -5px; bottom: -5px; border-radius: 50%; }
+html.expert.lay-phone-land #xTop .x-help::after { content: ""; position: absolute; border-radius: 50%;
+  /* Hit target stays 44, grown from this box. A fixed -5px ring made scrollWidth 43 in the 38px content box. */
+  left: min(0px, calc((100% - 44px) / 2)); right: min(0px, calc((100% - 44px) / 2));
+  top: min(0px, calc((100% - 44px) / 2)); bottom: min(0px, calc((100% - 44px) / 2)); }
 /* rd15: the Now card is the same height as the song bar, Next and Play beside it. Nov 21 (Vinh): it was still 32px after
    the song card grew to --x-src-h (46, or 40 under 349px tall), so it sat shorter than the lyric card; it now follows that height. */
 html.expert.lay-phone-land .now-col > .now-card { flex: 0 0 var(--x-src-h) !important; min-height: 0; height: var(--x-src-h); }
@@ -731,8 +734,8 @@ html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x
   html.expert:is(.lay-pad-land, .lay-pad-port) #xGo > .x-b {
     height: var(--xl-go); min-height: 44px; align-self: stretch;
     flex: none; box-sizing: border-box;
-    /* JS retains the accessible name and playback state. Only its visual glyph
-       is replaced: the white button remains a triangle even while playing. */
+    /* JS retains the accessible name and playback state. The glyph is a triangle
+       until Play, then a stop square in the same ink; the button colour stays. */
     font-size: 0; color: transparent;
     background-position: center; background-repeat: no-repeat;
   }
@@ -745,6 +748,9 @@ html.expert.lay-pad-port .x-cuetag.x-cuein, html.expert.lay-pad-land .x-cuetag.x
     width: var(--xl-go); background-color: #fff;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 5v14l11-7z' fill='%232B2118'/%3E%3C/svg%3E");
     background-size: var(--xl-play-icon) var(--xl-play-icon);
+  }
+  html.expert:is(.lay-pad-land, .lay-pad-port) #xGo .x-play.is-stop {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='6.5' y='6.5' width='11' height='11' rx='1.2' fill='%232B2118'/%3E%3C/svg%3E");
   }
   html.expert:is(.lay-pad-land, .lay-pad-port) #xCtl .x-sound { order: 1; }
   html.expert:is(.lay-pad-land, .lay-pad-port) #xCtl .x-full { order: 2; }

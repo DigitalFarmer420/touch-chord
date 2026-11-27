@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import "./dom-stub.js";
 
-// Noff v3.2 ranked menus: each style and mode lists exactly these charts, in menuOrder.
+// The v3.2 charts stay on the menu with their original steps. The 15-family
+// order lives in progressions15.test.js.
 const SRC = readFileSync(new URL("../../js/songs/presets.js", import.meta.url), "utf8");
 const PLAY = readFileSync(new URL("../../js/songs/playback.js", import.meta.url), "utf8");
 const V32 = JSON.parse(readFileSync(new URL("../fixtures/ranked-v3.2.json", import.meta.url), "utf8")).menus;
@@ -30,25 +31,21 @@ const progIndexFor = eval("(" + block("export function progIndexFor(").replace(/
 const CATALOG = (function () { const b = block("PROGRESSIONS = {"); return eval("(" + b.slice(b.indexOf("{")) + ")"); })();
 const QUALS = new Set(["maj", "min", "7", "maj7", "m7", "m7b5", "sus4", "sus2", "add9", "madd9", "9", "maj9", "m9", "9sus", "13", "7b9", "7#9", "7sus4", "overV", "moverV", "6", "dim", "over3", "mover3"]);
 
-test("v3.2 counts: 152 mode entries, families per style as handed off", () => {
-  const want = { pop: [12, 11, 9], jazz: [14, 10, 10], rnb: [12, 9, 10], ballad: [11, 10, 11], reggae: [12, 8, 10], funk: [10, 8, 8], yogaDeep: [10, 7, 10], country: [14, 9, 12] };
-  let total = 0;
-  for (const s of ADULT) {
-    const fam = new Set([...PROG_MENU[s].major, ...PROG_MENU[s].minor].map((e) => e[0]));
-    assert.deepEqual([fam.size, PROG_MENU[s].major.length, PROG_MENU[s].minor.length], want[s], s);
-    total += PROG_MENU[s].major.length + PROG_MENU[s].minor.length;
-  }
-  assert.equal(total, 152);
-  assert.deepEqual(Object.keys(PROG_MENU), ADULT);
+test("v3.2 charts stay on the menu with the same steps", () => {
   assert.equal(PROG_MENU.kids, undefined);
+  for (const s of ADULT) for (const m of ["major", "minor"]) {
+    for (const e of V32[s][m]) {
+      const row = PROG_MENU[s][m].find((r) => r[0] === e.name);
+      assert.ok(row, s + " " + m + " " + e.name);
+      assert.equal(row[1], e.steps, e.name + " " + m);
+    }
+  }
 });
 
-test("every style/mode menu matches the v3.2 menuOrder exactly, 3-8 steps each, nothing appended", () => {
-  for (const s of ADULT) for (const m of ["major", "minor"]) {
-    const rows = progMenu(s, CATALOG[s][m], m);
-    assert.deepEqual(rows.map((p) => p.name), V32[s][m].map((e) => e.name), s + " " + m);
-    rows.forEach((p, i) => {
-      assert.equal(p.steps.join("|"), V32[s][m][i].steps, p.name + " " + m);
+test("every live menu chart is 3-8 known steps, with no chord twice in a row", () => {
+  for (const s of Object.keys(PROG_MENU)) for (const m of ["major", "minor"]) {
+    const rows = progMenu(s, CATALOG[s] ? CATALOG[s][m] : [], m);
+    rows.forEach((p) => {
       assert.ok(p.steps.length >= 3 && p.steps.length <= 8, p.name + " " + p.steps.length);
       p.steps.forEach((t) => {
         assert.match(t, /^b?[1-7] \S+( x[0-9.]+)?$/, p.name + " " + t);

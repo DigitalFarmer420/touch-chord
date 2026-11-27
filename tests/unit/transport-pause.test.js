@@ -774,6 +774,40 @@ test('N22: a style change that swaps the song while paused resets Play to "Play 
   tapGap(); P.progStop();
 });
 
+test('Expert Play to Stop keeps the step, Play resumes it, and the end of the song resets to Play', async () => {
+  const { expertPlayFace } = await import(`../../js/expert/model.js?v=${V}`);
+  setupSong();
+  assert.deepEqual(expertPlayFace(P.transportLabel()), { glyph: '\u25b6', stop: false });
+  await playTo(1);
+  assert.equal(P.getTransportState().state, 'playing');
+  assert.deepEqual(expertPlayFace(P.transportLabel()), { glyph: '\u25a0', stop: true });
+  tapGap();
+  P.progPlay();
+  const paused = P.getTransportState();
+  const held = 1;
+  assert.equal(paused.state, 'paused');
+  assert.equal(paused.cur, held, 'Stop keeps the current step');
+  assert.ok(paused.paused);
+  assert.deepEqual(expertPlayFace(paused.state), { glyph: '\u25b6', stop: false });
+  const before = strikes.filter(s => !s.stop && !s.cancelled).length;
+  tapGap();
+  P.progPlay();
+  const again = P.getTransportState();
+  assert.equal(again.state, 'playing');
+  assert.equal(again.cur, held, 'Play resumes from the paused step');
+  const added = strikes.filter(s => !s.stop && !s.cancelled).slice(before);
+  assert.ok(added.length, 'resume strikes the paused chord');
+  assert.equal(added[0].step, held);
+  assert.deepEqual(expertPlayFace(again.state), { glyph: '\u25a0', stop: true });
+  tapGap();
+  P.progStop();
+  const ended = P.getTransportState();
+  assert.equal(ended.state, 'idle', 'the song ending is idle, not a paused resume point');
+  assert.equal(ended.cur, -1);
+  assert.equal(P.prog.pauseSnap, null);
+  assert.deepEqual(expertPlayFace(ended.state), { glyph: '\u25b6', stop: false });
+});
+
 test('N22 guard: a key change while paused (same song) still keeps the paused step and the Resume label', async () => {
   setupSong();
   await playTo(2);

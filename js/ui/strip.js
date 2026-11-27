@@ -1,22 +1,22 @@
 // The chord table / scale strip: model, chips, taps, preview, fitting.
-import { api as ChordAudio } from "../audio/index.js?v=2026.11.24.1";
-import { unlock } from "../audio/unlock.js?v=2026.11.24.1";
-import { activeKey, keyDegrees, keyRootName, suggestionKey } from "../keys.js?v=2026.11.24.1";
-import { paintKidChip } from "../kids.js?v=2026.11.24.1";
-import { paTwin, playAlongGo, playAlongChip } from "../songs/playalong.js?v=2026.11.24.1";
-import { setItemState, progSync, progDecorate, placeBadges } from "../songs/playback.js?v=2026.11.24.1";
-import { state, fingers, shared } from "../state.js?v=2026.11.24.1";
-import { Theory } from "../theory/index.js?v=2026.11.24.1";
-import { wrap12, blankExt, mapQuality } from "../theory/quality.js?v=2026.11.24.1";
-import { accSym } from "../theory/spelling.js?v=2026.11.24.1";
-import { paHintMiss } from "./hints.js?v=2026.11.24.1";
-import { kbSound, kidsSoloSpec, kbScheduleReset, kbCancelReset } from "./keyboard.js?v=2026.11.24.1";
-import { paintNextHint, paintProgActive, kidsGoldGo, kidsGoldPad } from "./next.js?v=2026.11.24.1";
-import { updateSymbol } from "./nowbox.js?v=2026.11.24.1";
-import { computeSpec, highlightMidisFromSpec, refreshHeld } from "./pads.js?v=2026.11.24.1";
-import { paintProg } from "./progbar.js?v=2026.11.24.1";
-import { fxTapPulse } from "./pulse.js?v=2026.11.24.1";
-import { sustainPool, sustainActive } from "./sustain.js?v=2026.11.24.1";
+import { api as ChordAudio } from "../audio/index.js?v=2026.11.27.19";
+import { unlock } from "../audio/unlock.js?v=2026.11.27.19";
+import { activeKey, keyDegrees, keyRootName, suggestionKey } from "../keys.js?v=2026.11.27.19";
+import { paintKidChip } from "../kids.js?v=2026.11.27.19";
+import { paTwin, playAlongGo, playAlongChip } from "../songs/playalong.js?v=2026.11.27.19";
+import { setItemState, progSync, progDecorate, placeBadges } from "../songs/playback.js?v=2026.11.27.19";
+import { state, fingers, shared } from "../state.js?v=2026.11.27.19";
+import { Theory } from "../theory/index.js?v=2026.11.27.19";
+import { wrap12, blankExt, mapQuality } from "../theory/quality.js?v=2026.11.27.19";
+import { accSym } from "../theory/spelling.js?v=2026.11.27.19";
+import { paHintMiss } from "./hints.js?v=2026.11.27.19";
+import { kbSound, kidsSoloSpec, kbScheduleReset, kbCancelReset } from "./keyboard.js?v=2026.11.27.19";
+import { paintNextHint, paintProgActive, kidsGoldGo, kidsGoldPad } from "./next.js?v=2026.11.27.19";
+import { updateSymbol } from "./nowbox.js?v=2026.11.27.19";
+import { computeSpec, highlightMidisFromSpec, refreshHeld } from "./pads.js?v=2026.11.27.19";
+import { paintProg } from "./progbar.js?v=2026.11.27.19";
+import { fxTapPulse } from "./pulse.js?v=2026.11.27.19";
+import { sustainPool, sustainActive } from "./sustain.js?v=2026.11.27.19";
 const suggestTapAt = 0;   // last touch/pen tap on a Next chip (click de-dupe)
 var suggestSeq;
 
@@ -253,7 +253,12 @@ const STRIP_SETS = {
   // v60 Country: I IV V7, ii iii vi (iii plain), green borrowed II7 and bVII.
   country: [[1, "maj", "happy"], [4, "maj", "happy"], [5, "7", "happy"],
             [6, "min", "sad"], [2, "min", "sad"], [3, "min", "sad"],
-            [2, "7", "bright", false, true], [7, "maj", "bright", true, true]]
+            [2, "7", "bright", false, true], [7, "maj", "bright", true, true]],
+  // Lofi: 7ths and 9ths, close to the R&B grid so the rows stay the same shape.
+  // Major borrows bVII9 (the backdoor). Minor's tension chord is V7b9.
+  lofi: [[1, "maj9", "happy"], [4, "maj9", "happy"], [5, "13", "happy"],
+         [2, "m9", "sad"], [3, "m7", "sad"], [6, "m9", "sad"],
+         [5, "9sus", "tension"], [7, "9", "bright", true, true]]
 };
 const STRIP_SETS_MINOR = {
   // Pop: Vsus4 and V share the V column in the tension row, so V alone.
@@ -284,7 +289,10 @@ const STRIP_SETS_MINOR = {
   // v60 Country minor: bIII bVI bVII, i iv v, V7 as the tension chord, Dorian IV green borrowed.
   country: [[3, "maj", "happy"], [6, "maj", "happy"], [7, "maj", "happy"],
             [1, "min", "sad"], [4, "min", "sad"], [5, "min", "sad"],
-            [5, "7", "tension"], [4, "maj", "bright", false, true]]
+            [5, "7", "tension"], [4, "maj", "bright", false, true]],
+  lofi: [[3, "maj9", "happy"], [6, "maj9", "happy"], [7, "13", "happy"],
+         [1, "m9", "sad"], [4, "m9", "sad"], [5, "m7", "sad"],
+         [2, "m7b5", "tension"], [5, "7b9", "tension"], [4, "9", "bright", false, true]]
 };
 export function prettyAcc(name) { return accSym(name); }
 export function stripLabel(item) {
@@ -395,6 +403,14 @@ function stripModel(key) {
 }
 
 export function stripChips(key) { return stripModel(key || suggestionKey()).chips; }
+// The quality a style already uses for a scale degree (jazz ii is m7, pop ii is min). low = lowered root (bVII).
+export function styleDegreeQual(style, mode, degree, low) {
+  var sets = mode === "minor" ? STRIP_SETS_MINOR : STRIP_SETS;
+  var set = sets[style] || sets.pop;
+  var want = !!low;
+  for (var i = 0; i < set.length; i++) if (set[i][0] === degree && !!set[i][3] === want) return set[i][1];
+  return null;
+}
 
 // Touch/pen fire on pointerup: browsers drop the synthetic click when
 // another finger is down (e.g. holding Sustain). Click stays for

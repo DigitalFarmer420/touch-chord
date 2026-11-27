@@ -1,8 +1,8 @@
 // Style presets (sound, FX, warmth per style) and the Yoga palette gate.
-import { api as ChordAudio } from "./audio/index.js?v=2026.11.24.1";
-import { setBpm } from "./loop.js?v=2026.11.24.1";
-import { VOICINGS, state, shared } from "./state.js?v=2026.11.24.1";
-import { paintBand } from "./ui/gear.js?v=2026.11.24.1";
+import { api as ChordAudio } from "./audio/index.js?v=2026.11.27.19";
+import { setBpm } from "./loop.js?v=2026.11.27.19";
+import { VOICINGS, state, shared } from "./state.js?v=2026.11.27.19";
+import { paintBand } from "./ui/gear.js?v=2026.11.27.19";
 
 // ---- Warmth + factory style presets ----
 export const WARMTH_DEFAULT = 25;
@@ -39,12 +39,15 @@ const STYLE_PRESETS = {
   yogaDeep:  { sound: "warm",    bass: false, voicing: "low",   cutoff: 0.32, reverb: 0.58, delay: 0.02, bpm: 52,  warmth: 30, trim: 5.5 },
   // v60 Country: bright piano (the closest existing voice to a picked guitar), bass on, 100 BPM.
   // v68: close voicing (was bright: plain C reached G6, A7 in A).
-  country:   { sound: "piano",   bass: true,  voicing: "close", cutoff: 0.82, reverb: 0.10, delay: 0.05, bpm: 100, warmth: 12 }
+  country:   { sound: "piano",   bass: true,  voicing: "close", cutoff: 0.82, reverb: 0.10, delay: 0.05, bpm: 100, warmth: 12 },
+  // Lofi: warm Rhodes (the plain epiano voice), dark filter, tape warmth, ~80 BPM.
+  // Drums are the Band's dusty boom-bap. Numbers follow the musician's suggestedPreset.
+  lofi:      { sound: "epiano",  bass: true,  voicing: "close", cutoff: 0.40, reverb: 0.34, delay: 0.20, bpm: 80,  warmth: 60 }
 };
 
 // v68: per-style loudness trims (bus gain), measured so every style plays within ~2 dB.
 // v73: re-measured for the style voices (A-weighted 400 ms loudness, 90th percentile, -32 dBA target; v73-sound/TABLE.md).
-const STYLE_TRIM = { pop: 1.41, kids: 2.07, jazz: 0.86, rnb: 0.90, ballad: 2.91, reggae: 4.07, funk: 4.60, yogaDeep: 3.94, country: 1.24 };
+const STYLE_TRIM = { pop: 1.41, kids: 2.07, jazz: 0.86, rnb: 0.90, ballad: 2.91, reggae: 4.07, funk: 4.60, yogaDeep: 3.94, country: 1.24, lofi: 0.90 };
 export function styleTrim(style) { return STYLE_TRIM[style] || 1; }
 
 // Yoga (id yogaDeep): Dim/Sus4 type pads are unavailable (stillness palette).

@@ -121,7 +121,8 @@ html.lay-phone-port header.topbar .mode-chip { height: 44px; }
 html.simple.lay-phone-land header.topbar .mode-chip { height: 44px; }
 /* rd17: the "?" menu (Simple and Expert): How to, Tour. Opens under the "?" circle, right-aligned. */
 .help-menu { position: fixed; z-index: 90; display: flex; flex-direction: column; gap: 4px; min-width: 148px; padding: 6px; box-sizing: border-box;
-  background: var(--x-surface, #2A231C); color: var(--x-ink, #F4EAD9); border: 1.5px solid var(--x-line, #43382C); border-radius: 16px; box-shadow: 0 10px 26px rgba(0,0,0,.45); }
+  background: var(--x-surface, #2A231C); color: var(--x-ink, #F4EAD9); border: 1.5px solid var(--x-line, #43382C); border-radius: 16px; box-shadow: 0 10px 26px rgba(0,0,0,.45);
+  overflow-y: auto; overscroll-behavior: contain; }
 .help-menu[hidden] { display: none; }
 .help-menu button { height: 44px; min-height: 44px; border: 0; border-radius: 11px; background: transparent; color: inherit; font: 700 16px Nunito, system-ui, sans-serif; text-align: left; padding: 0 14px; }
 .help-menu button:active, .help-menu button:focus-visible { background: var(--x-card, rgba(255,255,255,.08)); outline: none; }

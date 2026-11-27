@@ -1,0 +1,9 @@
+[
+  {
+    "id": "kids-pad-clip",
+    "state": "kids-play",
+    "kind": "clip",
+    "el": "kv-pad",
+    "why": "Every Kids chord pad reports scrollWidth 8px over clientWidth, at all seven viewports. The letter is the only text. Kids mode does not change without Vinh's explicit OK, so this is reported and not edited."
+  }
+]

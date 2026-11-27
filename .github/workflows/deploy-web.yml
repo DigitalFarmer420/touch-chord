@@ -81,7 +81,7 @@ jobs:
   smoke:
     name: smoke
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
         with:
@@ -105,6 +105,8 @@ jobs:
         run: npx playwright-core install-deps chromium
       - name: Smoke tests
         run: node tests/ci/smoke.mjs
+      - name: Flow layout
+        run: node tests/ci/flow-layout.spec.mjs
       - name: Upload smoke screenshots
         if: failure()
         uses: actions/upload-artifact@v4

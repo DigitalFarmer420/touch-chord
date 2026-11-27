@@ -1,8 +1,8 @@
 // The current key: lock key, key spellings, key picker data (keyRootName, modeKey, setKeySpell...).
-import { state, scheduleSave, shared } from "./state.js?v=2026.11.24.1";
-import { Theory } from "./theory/index.js?v=2026.11.24.1";
-import { wrap12 } from "./theory/quality.js?v=2026.11.24.1";
-import { accSym } from "./theory/spelling.js?v=2026.11.24.1";
+import { state, scheduleSave, shared } from "./state.js?v=2026.11.27.19";
+import { Theory } from "./theory/index.js?v=2026.11.27.19";
+import { wrap12 } from "./theory/quality.js?v=2026.11.27.19";
+import { accSym } from "./theory/spelling.js?v=2026.11.27.19";
 function keyFromChord(spec) {
   return { pc: spec.rootPc, mode: (spec.type === "minor" || spec.type === "dim") ? "minor" : "major" };
 }
@@ -56,6 +56,25 @@ export function keyRootName(k) {
 }
 export function keyRootSpell(k) { return spellFromName(keyRootName(k)); }
 export function keyDegrees(k) { return Theory.scaleDegrees(k.pc, k.mode, keyRootSpell(k)); }
+var FLAT_NAMES = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
+var SHARP_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+// A pitch class written the way this key writes. Scale notes use the key's spelling.
+// A note outside the scale takes the same accidental side (Eb major: Db and Gb, not C# and F#).
+// A key with no flats and no sharps (C major) keeps the usual names.
+export function keyNoteName(k, pc) {
+  pc = wrap12(pc);
+  if (!k) return Theory.NOTE_NAMES[pc];
+  var degrees = keyDegrees(k);
+  var flat = 0, sharp = 0, i;
+  for (i = 0; i < degrees.length; i++) {
+    if (degrees[i].pc === pc) return degrees[i].name;
+    if (degrees[i].name.indexOf("b") >= 0) flat++;
+    if (degrees[i].name.indexOf("#") >= 0) sharp++;
+  }
+  if (flat > sharp) return FLAT_NAMES[pc];
+  if (sharp > flat) return SHARP_NAMES[pc];
+  return Theory.NOTE_NAMES[pc];
+}
 export function buildKeySel() {
   var sel = document.getElementById("keyRoot");
   if (!sel) return;

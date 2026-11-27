@@ -1,15 +1,15 @@
 // Next-chord marks: lookahead, next hint arrow, Kids gold pad / key.
-import { paintKidChip } from "../kids.js?v=2026.11.24.1";
-import { magicTarget, magicQueue, magicAdvance } from "../songs/magic.js?v=2026.11.24.1";
-import { magic, setItemState, prog, PROG_TEST, progPlayStart } from "../songs/playback.js?v=2026.11.24.1";
-import { upSelected, upNextStep } from "../songs/song.js?v=2026.11.24.1";
-import { state, padsEl } from "../state.js?v=2026.11.24.1";
-import { wrap12 } from "../theory/quality.js?v=2026.11.24.1";
-import { kbUpdate, kidsSoloSpec } from "./keyboard.js?v=2026.11.24.1";
-import { paintKidsLyr } from "./lyrics.js?v=2026.11.24.1";
-import { computeSpec, highlightMidisFromSpec } from "./pads.js?v=2026.11.24.1";
-import { kidsTapPulse, kidsTapLog } from "./pulse.js?v=2026.11.24.1";
-import { paintSongBar } from "./songbar.js?v=2026.11.24.1";
+import { paintKidChip } from "../kids.js?v=2026.11.27.19";
+import { magicTarget, magicQueue, magicAdvance } from "../songs/magic.js?v=2026.11.27.19";
+import { magic, setItemState, prog, PROG_TEST, progPlayStart } from "../songs/playback.js?v=2026.11.27.19";
+import { upSelected, upNextStep } from "../songs/song.js?v=2026.11.27.19";
+import { state, padsEl } from "../state.js?v=2026.11.27.19";
+import { wrap12 } from "../theory/quality.js?v=2026.11.27.19";
+import { kbUpdate, kidsSoloSpec } from "./keyboard.js?v=2026.11.27.19";
+import { paintKidsLyr } from "./lyrics.js?v=2026.11.27.19";
+import { computeSpec, highlightMidisFromSpec } from "./pads.js?v=2026.11.27.19";
+import { kidsTapPulse, kidsTapLog } from "./pulse.js?v=2026.11.27.19";
+import { paintSongBar } from "./songbar.js?v=2026.11.27.19";
 // v99: full mode (not Kids, not Simple, not an uploaded song, which has its own next-chord outline):
 // mark the grid cell of the chord Play would sound right now. Stopped: Play starts at step 1. Playing: the
 // step after the lit one (none in the random part after one pass). No mark when that step has no grid
@@ -143,7 +143,10 @@ export function nextHintSpec(item) {
   return spec;
 }
 function clearNextHintDom() {
-  Array.prototype.forEach.call(document.querySelectorAll(".nx, .nx-root"), function (n) { n.classList.remove("nx", "nx-root"); });
+  Array.prototype.forEach.call(document.querySelectorAll(".nx, .nx-root"), function (n) {
+    if (n.classList && n.classList.contains("gtr-card")) return;   // the guitar card's slot is not this hint
+    n.classList.remove("nx", "nx-root");
+  });
   var a = document.getElementById("nxArrow");
   if (a) a.hidden = true;
 }
