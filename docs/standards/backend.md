@@ -132,7 +132,7 @@ Node 20 in every workflow. `tests/ci/README.md` notes that the unit runner break
 
 - `unit` — `node --test tests/unit/*.test.js`
 - `version` — `check-version.py`, then `check-bump.py origin/<base>`
-- `smoke` — `npm ci`, Chromium, `node tests/ci/smoke.mjs`
+- `smoke` — `npm ci`, Chromium, `node tests/ci/smoke.mjs`, then `node tests/ci/flow-layout.spec.mjs` (the seven-viewport flow check; known gaps in `tests/ci/flow-layout.known.json`)
 
 `.github/workflows/deploy-web.yml` runs the same three jobs on a push to `develop` or `main`. A failed job stays red and the deploy is skipped.
 

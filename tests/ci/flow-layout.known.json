@@ -1,0 +1,60 @@
+[
+  {
+    "id": "guitar-phone-cards",
+    "state": "expert-anh-guitar",
+    "kind": "panel",
+    "why": "Guitar Now and Next cards still run past the card or the panel at 360×640 and 384×700 on this branch. PR #62 sizes those cards from the panel. Delete this id after develop contains that fix and a re-run shows the cards inside the panel."
+  },
+  {
+    "id": "kids-pad-clip",
+    "state": "kids-play",
+    "kind": "clip",
+    "el": "kv-pad",
+    "why": "Every Kids chord pad reports scrollWidth 8px over clientWidth, at all seven viewports. The letter is the only text. Kids mode does not change without Vinh's explicit OK, so this is reported and not edited."
+  },
+  {
+    "id": "jam-glyph-grid",
+    "kind": "panel",
+    "el": "jam-glyph",
+    "why": "The Jam + glyph crosses the top of the chord grid in Expert at 780×360 once a song is loaded. Song-mode Jam removal is in flight on another branch (.11)."
+  },
+  {
+    "id": "jam-toggle-help",
+    "state": "simple-help-menu",
+    "kind": "overlap",
+    "el": "jam-toggle",
+    "why": "Simple's Jam toggle overlaps the How to menu at 1180×820. Same Jam removal."
+  },
+  {
+    "id": "xhelp-phone-land",
+    "vp": "780x360",
+    "kind": "clip",
+    "el": "#xHelp",
+    "why": "Expert's ? button is 38px wide in phone landscape and its content measures 43px. Follow-up; the hit target is already extended with a ::after."
+  },
+  {
+    "id": "help-menu-expert",
+    "state": "expert-help-menu",
+    "kind": "overlap",
+    "why": "The How to menu drops across Progressions (phone portrait), the song Lock and a chord chip (780×360), and Next (iPad). Follow-up."
+  },
+  {
+    "id": "help-menu-simple",
+    "state": "simple-help-menu",
+    "kind": "overlap",
+    "el": "Ballad",
+    "why": "Simple's How to menu overlaps the Ballad style chip at 384×700. The Jam overlap is a separate id. Follow-up."
+  },
+  {
+    "id": "style-menu",
+    "state": "expert-style-menu",
+    "kind": "overlap",
+    "why": "The style menu covers piano keys at 780×360 and the Song / Progressions toggle at 820×1180. Follow-up. Sheets are supposed to stop above the piano."
+  },
+  {
+    "id": "key-sheet-close",
+    "state": "expert-key-sheet",
+    "kind": "overlap",
+    "why": "The key sheet's close button overlaps a black piano key at 820×1180. Follow-up."
+  }
+]

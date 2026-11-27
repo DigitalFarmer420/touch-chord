@@ -1,4 +1,5 @@
 node_modules/
 tests/e2e/out/
+tests/ci/out/
 node_modules
 __pycache__/

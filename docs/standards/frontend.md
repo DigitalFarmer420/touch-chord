@@ -132,9 +132,18 @@ Aspect ratios that stay locked:
 
 Check Expert, Simple, and Kids. Kids must look the same as before the change (see Kids mode).
 
-`tests/ci/smoke.mjs` already walks many of these for specific checks (chord grid against the piano, Now against the song card, Guitar tab at 360×780 / 780×360 / 820×1180 / 1180×820, Simple phone-portrait budget at 360×640). It does not yet walk 384×700, 412×760, or 412×915 as a set.
+`tests/ci/smoke.mjs` already walks many of these for specific checks (chord grid against the piano, Now against the song card, Guitar tab at 360×780 / 780×360 / 820×1180 / 1180×820, Simple phone-portrait budget at 360×640).
 
-**TODO.** A smoke assert that no element in the main panels overflows the viewport at the seven sizes above. Probed on 2026.11.27.9 (Expert, piano and Guitar tab, with `tests/fixtures/upload/anh-v13.json` and without it): panel boxes stayed inside the viewport except the Guitar cards at 360×640, which extend about 4px past the bottom, and the diagram about 7px. Lyric rows also scroll a few pixels inside their own box, and a few landscape controls report 2–4px of `scrollWidth`. A hard assert on every element would fail those cases, so it is not wired into `tests/ci/smoke.mjs`. Add it once the 360×640 Guitar cards sit inside the screen and the assert ignores in-box lyric scrolling.
+`node tests/ci/flow-layout.spec.mjs` is the required check for this table. The smoke job in `pr-checks.yml` and `deploy-web.yml` runs it after `smoke.mjs`. It opens Expert, Simple, and Kids at the seven sizes, with Progressions and Song, Piano and Guitar, Anh Đã Ổn Hơn (Eb, with lyrics) and All I Ask (a long chart), and with the upload dialog, style menu, key sheet, sound sheet, How to menu, and mode sheet open. A hit fails the job unless its id is in `tests/ci/flow-layout.known.json`. An id that nothing hits also fails, so a fix deletes its line.
+
+The check ignores a line an ancestor already clips, the 1px visually-hidden Expert song title on phones, piano-key overlaps (including the key sheet's mini keyboard), and the Lock docked inside the progression bar or the song bar. A label may be 4px over `clientWidth` before it counts as clipped (the border). Step badges may cross the grid edge by up to 12px; they still have to stay on screen.
+
+Still open, and listed in the known file rather than edited here:
+
+- Guitar Now/Next cards past the card at 360×640 and 384×700. Another branch owns that layout.
+- Kids pads, `scrollWidth` 8px over `clientWidth` at every size. Kids does not change without Vinh's OK.
+- The Jam glyph and the Jam toggle. Another branch is removing Jam from song mode.
+- The ? button 5px over its box at 780×360, and the How to menu, style menu, and key-sheet close overlapping the control under them.
 
 ## Real devices
 

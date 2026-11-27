@@ -51,6 +51,8 @@ node tests/ci/smoke.mjs
 
 `npm run test:smoke` is `node tests/e2e/run.cjs`, the long suite. It is not the pull-request gate. The legacy `.github/workflows/tests.yml` job runs it only for a pull request from `develop` into `main`, and that job is not the required check.
 
+The same smoke job also runs `node tests/ci/flow-layout.spec.mjs` (the seven viewports, every mode, song and progressions, piano and guitar, menus open). A new overflow, overlap, or clipped label fails that job. Known gaps live in `tests/ci/flow-layout.known.json`.
+
 `npm test` runs the version check, the unit tests, and the long e2e suite.
 
 ## Process
