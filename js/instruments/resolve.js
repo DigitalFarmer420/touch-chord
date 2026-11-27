@@ -7,10 +7,10 @@
 // search builds never mutes a string in the middle. A library grip is used
 // as written, even when it mutes one on purpose. No DOM.
 
-import { getInstrument } from "./profiles.js?v=2026.11.27.5";
-import { shapesFor } from "./shapes.js?v=2026.11.27.5";
-import { normalizeExt, chordIntervals, buildChord } from "../theory/chords.js?v=2026.11.27.5";
-import { mod12 } from "../theory/spelling.js?v=2026.11.27.5";
+import { getInstrument } from "./profiles.js?v=2026.11.27.6";
+import { shapesFor } from "./shapes.js?v=2026.11.27.6";
+import { normalizeExt, chordIntervals, buildChord } from "../theory/chords.js?v=2026.11.27.6";
+import { mod12 } from "../theory/spelling.js?v=2026.11.27.6";
 
 var ROLE = {
   0: "root", 2: "2", 3: "3", 4: "3", 5: "4", 6: "b5", 7: "5", 8: "#5",
