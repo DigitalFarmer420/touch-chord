@@ -138,10 +138,11 @@ Check Expert, Simple, and Kids. Kids must look the same as before the change (se
 
 The check ignores a line an ancestor already clips, the 1px visually-hidden Expert song title on phones, piano-key overlaps (including the key sheet's mini keyboard), and the Lock docked inside the progression bar or the song bar. A label may be 4px over `clientWidth` before it counts as clipped (the border). Step badges may cross the grid edge by up to 12px; they still have to stay on screen.
 
+Menus and sheets that open over the page (How to, Style, Key) are popovers. They may cover the content area they open over. They stay in the measured band between the top bar and the piano, never cover the piano or the control that opened them, and scroll inside themselves when the content is taller than that band. The size comes from that measured band.
+
 Verified after #62 and #63: Guitar cards stay inside the panel, and Song mode no longer shows Jam. Still listed in the known file, and not edited here:
 
 - Kids pads, `scrollWidth` 8px over `clientWidth` at every size. Kids does not change without Vinh's OK.
-- The ? button 5px over its box at 780×360, and the How to menu, style menu, and key-sheet close overlapping the control under them.
 
 ## Real devices
 

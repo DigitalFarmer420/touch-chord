@@ -131,6 +131,10 @@ const MEASURE = () => {
       // The Lock sits inside the progression bar and inside the song bar on purpose.
       const dock = e => (e.closest && e.closest('.x-pbar, .x-plock')) || e.id === 'songBar' || e.id === 'sbLock';
       if (dock(a.e) && dock(b.e)) continue;
+      // A popover may cover the chord grid it opens over. The piano, the opener, and other controls still count.
+      const pop = e => !!(e.closest && e.closest('#helpMenu, #xStyleMenu, #xKeySheet'));
+      const grid = e => !!(e.closest && e.closest('#suggest'));
+      if ((pop(a.e) && grid(b.e)) || (pop(b.e) && grid(a.e))) continue;
       const l = Math.max(a.r.left, b.r.left), t = Math.max(a.r.top, b.r.top);
       const r = Math.min(a.r.right, b.r.right), btm = Math.min(a.r.bottom, b.r.bottom);
       if (r - l > 6 && btm - t > 6) issues.push({ kind: 'overlap', el: label(a.e) + ' ∩ ' + label(b.e), detail: Math.round(r - l) + '×' + Math.round(btm - t) });
@@ -161,6 +165,35 @@ const MEASURE = () => {
       }
     });
   }
+  // Popovers (How to, Style, Key) stay in the measured band between the top bar and the piano.
+  // They may cover the chord grid. They must not cover the piano or the control that opened them,
+  // and a menu taller than that band scrolls inside itself.
+  const popovers = [
+    ['#helpMenu', '#xHelp, #howtoBtn'],
+    ['#xStyleMenu', '#xStyle'],
+    ['#xKeySheet', '#xKey']
+  ];
+  const bandBar = [...document.querySelectorAll('#xTop, header.topbar')].find(shown);
+  const bandTop = bandBar ? bandBar.getBoundingClientRect().bottom : 0;
+  const pianoEl = document.querySelector('.kb-wrap');
+  const pianoTop = pianoEl && shown(pianoEl) ? pianoEl.getBoundingClientRect().top : null;
+  function crosses(a, b) {
+    return Math.min(a.right, b.right) - Math.max(a.left, b.left) > 6 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 6;
+  }
+  popovers.forEach(([sel, openSel]) => {
+    const pop = document.querySelector(sel);
+    if (!pop || !shown(pop)) return;
+    const box = pop.getBoundingClientRect();
+    const name = label(pop);
+    if (box.top < bandTop - 1) issues.push({ kind: 'popover', el: name, detail: 'starts above the top bar' });
+    if (pianoTop != null && box.bottom > pianoTop + 1) issues.push({ kind: 'popover', el: name, detail: 'crosses the piano' });
+    const opener = [...document.querySelectorAll(openSel)].find(shown);
+    if (opener && crosses(box, opener.getBoundingClientRect())) issues.push({ kind: 'popover', el: name, detail: 'covers the control that opened it' });
+    const oy = getComputedStyle(pop).overflowY;
+    if (pop.scrollHeight > pop.clientHeight + 1 && oy !== 'auto' && oy !== 'scroll') {
+      issues.push({ kind: 'popover', el: name, detail: 'taller than the band and does not scroll inside' });
+    }
+  });
   // Out-of-key piano notes use the key's accidental. Eb major is Db and Gb, not C# and F#.
   const keyName = ((document.querySelector('#xKey .x-kl') || {}).textContent || '');
   if (/E♭|Eb/.test(keyName) && document.documentElement.classList.contains('expert')) {

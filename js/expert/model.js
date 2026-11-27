@@ -217,3 +217,79 @@ export function expertPlayFace(transportState) {
   var playing = transportState === "playing";
   return { glyph: playing ? "\u25a0" : "\u25b6", stop: playing };
 }
+
+// A menu or sheet is a popover. It sits in the measured band between the top bar and the piano,
+// may cover the content under it, and must not cover the piano or a keep-clear control (the opener,
+// and anything else the caller passes). When the content is taller than that room, maxHeight is the
+// room and the caller scrolls inside the popover. Sizes come from the rects; nothing here is a
+// fixed panel height. rects are {left, top, right, bottom}.
+// o: { anchor, bandTop, bandBottom, viewW, width, height, align, keepClear, tol, edge, lockX, lockLeft }
+export function fitPopover(o) {
+  var tol = o.tol == null ? 6 : o.tol;
+  var edge = o.edge || 0;
+  var viewW = o.viewW;
+  var width = o.width > 0 ? o.width : 0;
+  var height = o.height > 0 ? o.height : 0;
+  var bandTop = o.bandTop;
+  var bandBottom = o.bandBottom > bandTop ? o.bandBottom : bandTop;
+  var anchor = o.anchor || { left: 0, right: 0, top: bandTop, bottom: bandTop };
+  var keep = o.keepClear || [];
+  var left = o.lockX ? o.lockLeft : (o.align === "end"
+    ? anchor.right - width
+    : o.align === "center" ? (anchor.left + anchor.right - width) / 2 : anchor.left);
+  if (!o.lockX) {
+    if (width > viewW - 2 * edge) width = Math.max(0, viewW - 2 * edge);
+    if (left < edge) left = edge;
+    if (left + width > viewW - edge) left = Math.max(edge, viewW - edge - width);
+  }
+  function xOver(rect) { return Math.min(left + width, rect.right) - Math.max(left, rect.left); }
+  function hits(top, bottom, rect) {
+    return xOver(rect) > tol && Math.min(bottom, rect.bottom) - Math.max(top, rect.top) > tol;
+  }
+  var tops = [bandTop];
+  if (anchor.bottom > bandTop && anchor.bottom < bandBottom) tops.push(anchor.bottom);
+  for (var i = 0; i < keep.length; i++) {
+    var b = keep[i].bottom;
+    if (b > bandTop && b < bandBottom) tops.push(b);
+  }
+  tops.sort(function (a, c) { return a - c; });
+  var uniq = [], t;
+  for (i = 0; i < tops.length; i++) {
+    t = tops[i] < bandTop ? bandTop : tops[i];
+    if (t >= bandBottom) continue;
+    if (!uniq.length || t - uniq[uniq.length - 1] > 0.5) uniq.push(t);
+  }
+  function limitOf(top) {
+    var limit = bandBottom, j, k;
+    for (j = 0; j < keep.length; j++) {
+      k = keep[j];
+      if (xOver(k) > tol && k.top >= top - 0.5 && k.top < limit) limit = k.top;
+    }
+    return limit;
+  }
+  var anchorAt = anchor.bottom > bandTop ? anchor.bottom : bandTop;
+  var best = null, top, limit, room, blocked, cand, j;
+  for (i = 0; i < uniq.length; i++) {
+    top = uniq[i];
+    limit = limitOf(top);
+    room = limit - top;
+    if (room <= tol) continue;
+    blocked = false;
+    for (j = 0; j < keep.length; j++) if (hits(top, limit, keep[j])) { blocked = true; break; }
+    if (blocked) continue;
+    cand = { top: top, maxHeight: room, fits: room + 0.5 >= height };
+    if (!best || prefers(cand, best, anchorAt)) best = cand;
+  }
+  if (!best) best = { top: bandTop, maxHeight: bandBottom - bandTop };
+  var topOut = Math.ceil(best.top - 1e-6);
+  var maxH = Math.floor(best.maxHeight - (topOut - best.top));
+  if (topOut + maxH > bandBottom) maxH = Math.floor(bandBottom - topOut);
+  if (maxH < 0) maxH = 0;
+  return { left: Math.round(left), top: topOut, width: Math.round(width), maxHeight: maxH };
+}
+function prefers(a, b, anchorAt) {
+  if (a.fits !== b.fits) return a.fits;
+  if (a.fits) return Math.abs(a.top - anchorAt) < Math.abs(b.top - anchorAt);
+  if (Math.abs(a.maxHeight - b.maxHeight) > 1) return a.maxHeight > b.maxHeight;
+  return Math.abs(a.top - anchorAt) < Math.abs(b.top - anchorAt);
+}
