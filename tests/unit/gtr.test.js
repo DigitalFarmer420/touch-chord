@@ -83,7 +83,7 @@ test("the guitar Next card is not the hint class that Next strips", () => {
   assert.match(js, /slot === "next" \? " next"/);
   assert.doesNotMatch(js, /slot === "next" \? " nx"/);
   assert.match(css, /\.gtr-card\.next \{/);
-  assert.match(css, /lay-phone-port \.gtr-card\.next \{[^}]*align-self: flex-start/);
+  assert.match(css, /lay-phone-port \.gtr-card\.next \{[^}]*align-self: stretch/);
   assert.doesNotMatch(css, /\.gtr-card\.nx\b/);
   assert.match(hint, /gtr-card/);
   assert.match(hint, /clearNextHintDom[\s\S]*gtr-card[\s\S]*classList\.remove\("nx", "nx-root"\)/);

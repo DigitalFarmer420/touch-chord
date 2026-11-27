@@ -119,22 +119,25 @@ html.expert:not(.kv).lay-phone-port .gtr-card[data-slot="third"],
 html.expert:not(.kv).lay-phone-port .gtr-card[data-slot="fourth"] { display: none; }
 /* Phone portrait: the two cards share the panel width and stay as tall as
    their diagram. The chord grid keeps the rest of the screen. */
-html.expert:not(.kv).lay-phone-port .gtr-cards { align-items: flex-start; height: auto; min-height: 0; }
+html.expert:not(.kv).lay-phone-port .gtr-cards { align-items: stretch; height: 100%; min-height: 0; max-height: 100%; }
 html.expert:not(.kv).lay-phone-port .gtr-card.now,
 html.expert:not(.kv).lay-phone-port .gtr-card.next {
-  flex: 1 1 0; width: 0; min-width: 0; max-height: none; height: auto; align-self: flex-start;
+  flex: 1 1 0; width: 0; min-width: 0; max-height: 100%; height: 100%; min-height: 0; align-self: stretch;
+  justify-content: space-between;
 }
-/* The guitar row is as tall as the cards (diagram, shape name, "1 of N", a little
-   padding). The chord grid takes the height that used to sit empty under the diagram. */
-html.expert.gtr.lay-phone-port:not(.kv) #app {
-  grid-template-rows: var(--x-row) var(--x-row) var(--x-src-h) minmax(0, 1fr) var(--x-ctl-h) auto !important;
-}
-html.expert:not(.kv).gtr.lay-phone-port .gtr-panel {
+/* Guitar uses the same rows as Piano, so the chord grid does not jump when the
+   instrument changes. The diagrams shrink into the keyboard row. */
+html.expert:not(.kv).gtr.lay-phone-port .kb-wrap,
+html.expert:not(.kv).gtr.lay-pad-port .kb-wrap { min-height: 0; overflow: hidden; }
+html.expert:not(.kv).gtr.lay-phone-port .gtr-panel,
+html.expert:not(.kv).gtr.lay-pad-port .gtr-panel {
   position: relative;
   top: auto; right: auto; bottom: auto; left: auto;
   width: 100%;
-  height: auto;
-  flex: 0 0 auto;
+  height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 100%;
 }
 html.expert.gtr.lay-phone-port #suggest.ss { --ss-fs: 14px; --ss-note: 14px; --ss-small: 9px; }
 /* Short portrait only (760 and under). 412x915 and taller do not match, so that
@@ -158,11 +161,11 @@ html.expert:not(.kv).lay-phone-port .gtr-card .gtr-name { font-size: 17px; }
 html.expert:not(.kv).lay-phone-port .gtr-card .gtr-meta { margin: 0; }
 html.expert:not(.kv).lay-phone-port .gtr-card.now .gtr-diagram {
   width: var(--gtr-now, 72px); height: auto; max-width: 100%; max-height: none;
-  aspect-ratio: auto; align-self: center; flex: 0 0 auto;
+  min-height: 0; aspect-ratio: auto; align-self: center; flex: 0 0 auto;
 }
 html.expert:not(.kv).lay-phone-port .gtr-card.next .gtr-diagram {
   width: var(--gtr-next, 56px); height: auto; max-width: 100%; max-height: none;
-  aspect-ratio: auto; flex: 0 0 auto;
+  min-height: 0; aspect-ratio: auto; align-self: center; flex: 0 0 auto;
 }
 html.expert:not(.kv).lay-phone-port .gtr-vo { flex-wrap: nowrap; justify-content: center; max-width: 100%; }
 html.expert:not(.kv).lay-phone-port .gtr-vo button { width: 24px; height: 24px; min-height: 24px; flex: none; }
@@ -175,26 +178,9 @@ html.expert:not(.kv).lay-pad-port .gtr-cards { align-items: flex-start; height: 
 html.expert:not(.kv).lay-pad-port .gtr-card.now { flex: 1.45 1 auto; }
 html.expert:not(.kv).lay-pad-port .gtr-card.now .gtr-name { font-size: 34px; }
 html.expert:not(.kv).lay-pad-port .gtr-card.now .gtr-diagram { width: min(100%, 280px); max-height: none; height: auto; }
-html.expert:not(.kv).lay-pad-port .gtr-card { flex: 1 1 auto; align-self: flex-start; height: auto; min-height: 0; }
-html.expert.gtr.lay-pad-port:not(.kv) #app {
-  /* The chord grid keeps the .19 minimum (--x-grid-h). On a tall iPad the
-     minimum does not bind, so the row stays the settled card height. */
-  grid-template-rows: var(--x-row) var(--x-row) var(--x-src-h) minmax(var(--x-grid-h), 1fr) var(--x-ctl-h) auto !important;
-}
-html.expert:not(.kv).gtr.lay-pad-port .gtr-panel {
-  position: relative;
-  top: auto; right: auto; bottom: auto; left: auto;
-  width: 100%;
-  height: auto;
-  flex: 0 1 auto;
-  min-height: 0;
-  max-height: 100%;
-}
-/* When the grid minimum leaves a shorter guitar row, the diagram gives up
-   height. Card widths stay on the flex share, so the drawing does not restretch. */
+html.expert:not(.kv).lay-pad-port .gtr-card { flex: 1 1 auto; align-self: flex-start; height: auto; min-height: 0; max-height: 100%; }
 html.expert:not(.kv).lay-pad-port .gtr-cards { max-height: 100%; min-height: 0; }
-html.expert:not(.kv).lay-pad-port .gtr-card { max-height: 100%; min-height: 0; }
-html.expert:not(.kv).lay-pad-port .gtr-card .gtr-diagram { flex: 0 1 auto; min-height: 0; }
+html.expert:not(.kv).lay-pad-port .gtr-card .gtr-diagram { flex: 0 1 auto; min-height: 0; max-height: 100%; height: auto; }
 
 html.expert:not(.kv).lay-phone-land .gtr-card,
 html.expert:not(.kv).lay-pad-land .gtr-card {

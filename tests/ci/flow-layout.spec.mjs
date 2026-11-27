@@ -340,11 +340,9 @@ const GUITAR_NEXT = () => {
     if (nowDrawn > 8 && nextDrawn < nowDrawn * 0.7 - 1) {
       issues.push({ kind: 'guitar', el: 'next diagram', detail: 'drawn width ' + Math.round(nextDrawn) + ' is under 0.7 of Now ' + Math.round(nowDrawn) });
     }
-    const padX = parseFloat(getComputedStyle(next).paddingLeft) + parseFloat(getComputedStyle(next).paddingRight);
-    const innerW = next.clientWidth - padX;
-    if (innerW > 20 && nextDrawn < innerW * 0.6 - 1) {
-      issues.push({ kind: 'guitar', el: 'next diagram', detail: 'drawn width ' + Math.round(nextDrawn) + ' is under 60% of the card ' + Math.round(innerW) });
-    }
+    // The 60% card-width floor is relaxed. The diagram scales down to the piano
+    // keyboard slot, so on a short phone Next stays about 0.85 of Now and can
+    // be under 60% of the card (about 37% at 360x640).
   }
   function lin(c) { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
   function asHex(s) {
@@ -680,38 +678,36 @@ async function pickProgression(page, style, name) {
 
 async function expertPass(page, vp) {
   await boot(page, 'test=1&hour=12&expert=1');
-  if (vp === '360x640' || vp === '360x780' || vp === '412x915') {
-    await guard(page, vp, 'guitar first paint', async () => {
-      if (!(await clickIf(page, '#gtrTabs [data-gtr="guitar"]'))) return;
-      await page.waitForTimeout(250);
-      const read = () => {
-        const svg = document.querySelector('#gtrCards .gtr-card.now .gtr-diagram');
-        return {
-          grid: Math.round(document.querySelector('#suggest').getBoundingClientRect().height),
-          panel: Math.round(document.getElementById('gtrPanel').getBoundingClientRect().height),
-          vb: svg ? svg.getAttribute('viewBox') : ''
-        };
+  await guard(page, vp, 'guitar grid matches piano', async () => {
+    const piano = await page.evaluate(() => Math.round(document.querySelector('#suggest').getBoundingClientRect().height));
+    if (!(await clickIf(page, '#gtrTabs [data-gtr="guitar"]'))) return;
+    await page.waitForTimeout(250);
+    const read = () => {
+      const svg = document.querySelector('#gtrCards .gtr-card.now .gtr-diagram');
+      return {
+        grid: Math.round(document.querySelector('#suggest').getBoundingClientRect().height),
+        panel: Math.round(document.getElementById('gtrPanel').getBoundingClientRect().height),
+        vb: svg ? svg.getAttribute('viewBox') : ''
       };
-      const first = await page.evaluate(read);
-      await clickIf(page, '#xNext');
-      await page.waitForTimeout(200);
-      const second = await page.evaluate(read);
-      const issues = [];
+    };
+    const first = await page.evaluate(read);
+    await clickIf(page, '#xNext');
+    await page.waitForTimeout(200);
+    const second = await page.evaluate(read);
+    const issues = [];
+    if (piano > 0 && Math.abs(first.grid - piano) / piano > 0.05) {
+      issues.push({ kind: 'guitar', el: 'chord grid', detail: 'guitar grid ' + first.grid + 'px is ' + Math.round(Math.abs(first.grid - piano) / piano * 100) + '% off the piano grid ' + piano + 'px' });
+    }
+    if (vp === '360x640' || vp === '360x780' || vp === '412x915') {
       if (Math.abs(first.grid - second.grid) > 1 || Math.abs(first.panel - second.panel) > 1) {
         issues.push({ kind: 'guitar', el: 'chord grid', detail: 'first paint grid ' + first.grid + ' panel ' + first.panel + ' jumped to ' + second.grid + ' / ' + second.panel });
       }
       if (/^0 0 64(\s|$)/.test(first.vb)) issues.push({ kind: 'guitar', el: 'now diagram', detail: 'first viewBox is the 64 fallback (' + first.vb + ')' });
-      // .20's settled paint at 412x915, after the diagram has its real width. The
-      // first frame used to be the 64-wide fallback (grid 334, panel 253).
-      if (vp === '412x915') {
-        if (Math.abs(first.grid - 379) > 1) issues.push({ kind: 'guitar', el: 'chord grid', detail: '412x915 grid ' + first.grid + 'px, settled .20 was 379px' });
-        if (Math.abs(first.panel - 208) > 1) issues.push({ kind: 'guitar', el: 'guitar panel', detail: '412x915 panel ' + first.panel + 'px, settled .20 was 208px' });
-      }
-      add(vp, 'guitar first paint', issues);
-      if (issues.length) await shot(page, vp + ' guitar first paint');
-      await clickIf(page, '#gtrTabs [data-gtr="piano"]');
-    });
-  }
+    }
+    add(vp, 'guitar grid matches piano', issues);
+    if (issues.length) await shot(page, vp + ' guitar grid matches piano');
+    await clickIf(page, '#gtrTabs [data-gtr="piano"]');
+  });
   await measure(page, vp, 'expert-prog-piano');
   await guard(page, vp, 'guitar tab after Next (1 and 3 taps)', async () => {
     async function run(style, progName) {
