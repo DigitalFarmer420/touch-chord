@@ -149,11 +149,12 @@ const MEASURE = () => {
       const s = getComputedStyle(e);
       return s.display !== 'none' && s.visibility !== 'hidden';
     });
-    // Phone-portrait Guitar shortens the chord grid so the diagrams can use the
-    // width. Those chips keep their own row; the 32px floor is for every other
-    // layout, where a slot that is not a real row collapses to a few pixels.
+    // Phone-portrait Guitar keeps a full-width diagram, so a 640-tall phone with
+    // a dense song has shorter rows than a tall phone. Those chips still have
+    // their own row. Every other layout, including the landscape progression
+    // that used to collapse a chord to 8px, keeps a 32px slot.
     const phoneGtr = document.documentElement.classList.contains('lay-phone-port') && document.documentElement.classList.contains('gtr');
-    const minH = phoneGtr ? 16 : 32;
+    const minH = phoneGtr ? 14 : 32;
     chips.forEach(e => {
       const r = e.getBoundingClientRect();
       if (Math.round(r.height) < minH) issues.push({ kind: 'chip', el: label(e), detail: 'progression chip is ' + Math.round(r.width) + '×' + Math.round(r.height) });
@@ -296,6 +297,25 @@ const GUITAR_NEXT = () => {
     const a = new DOMPoint(xs[0], 0).matrixTransform(ctm);
     const b = new DOMPoint(xs[xs.length - 1], 0).matrixTransform(ctm);
     return Math.abs(b.x - a.x);
+  }
+  function contentGap(card) {
+    const r = card.getBoundingClientRect();
+    let bottom = r.top;
+    card.querySelectorAll('.gtr-head, .gtr-diagram, .gtr-foot').forEach(el => {
+      const b = el.getBoundingClientRect();
+      if (b.height > 1) bottom = Math.max(bottom, b.bottom);
+    });
+    return r.bottom - bottom;
+  }
+  for (const card of [now, next]) {
+    const gap = contentGap(card);
+    if (gap > 48) issues.push({ kind: 'guitar', el: card.dataset.slot + ' card', detail: 'empty band ' + Math.round(gap) + 'px under the diagram' });
+  }
+  // .19 at 412x915 gave the chord grid 138px and left ~244px empty in the Now card.
+  if (innerWidth === 412 && innerHeight === 915) {
+    const grid = document.querySelector('#suggest');
+    const gh = grid ? grid.getBoundingClientRect().height : 0;
+    if (gh < 250) issues.push({ kind: 'guitar', el: 'chord grid', detail: 'grid ' + Math.round(gh) + 'px is not taller than the .19 138px grid' });
   }
   const sizeWatch = (innerWidth === 360 && innerHeight === 640) || (innerWidth === 412 && innerHeight === 915) || (innerWidth === 820 && innerHeight === 1180);
   if (sizeWatch && nowR && nextR) {
