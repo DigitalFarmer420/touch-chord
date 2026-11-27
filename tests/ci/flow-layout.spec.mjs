@@ -316,6 +316,20 @@ const GUITAR_NEXT = () => {
     const grid = document.querySelector('#suggest');
     const gh = grid ? grid.getBoundingClientRect().height : 0;
     if (gh < 250) issues.push({ kind: 'guitar', el: 'chord grid', detail: 'grid ' + Math.round(gh) + 'px is not taller than the .19 138px grid' });
+    const compact = getComputedStyle(document.documentElement).getPropertyValue('--gtr-compact').trim();
+    if (compact) issues.push({ kind: 'guitar', el: 'layout', detail: 'short-screen diagram is on at 412x915' });
+  }
+  // .20 left the chord grid at 101px on a 360x640 phone and clipped names such as D#m7b5.
+  if (innerWidth === 360 && innerHeight === 640) {
+    const gh = document.querySelector('#suggest').getBoundingClientRect().height;
+    if (Math.round(gh) < 118) issues.push({ kind: 'guitar', el: 'chord grid', detail: 'grid ' + Math.round(gh) + 'px is not taller than the .20 101px grid' });
+    document.querySelectorAll('#suggest .ss-chip').forEach(chip => {
+      if (!chip.getClientRects().length) return;
+      const text = (chip.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 18);
+      if (chip.classList.contains('ell')) issues.push({ kind: 'clip', el: 'chip "' + text + '"', detail: 'name is clipped' });
+      const nm = chip.querySelector('.nm');
+      if (nm && nm.scrollWidth > nm.clientWidth + 4) issues.push({ kind: 'clip', el: 'chip "' + text + '"', detail: 'scrollWidth ' + nm.scrollWidth + ' > clientWidth ' + nm.clientWidth });
+    });
   }
   const sizeWatch = (innerWidth === 360 && innerHeight === 640) || (innerWidth === 412 && innerHeight === 915) || (innerWidth === 820 && innerHeight === 1180);
   if (sizeWatch && nowR && nextR) {
@@ -666,6 +680,38 @@ async function pickProgression(page, style, name) {
 
 async function expertPass(page, vp) {
   await boot(page, 'test=1&hour=12&expert=1');
+  if (vp === '360x640' || vp === '360x780' || vp === '412x915') {
+    await guard(page, vp, 'guitar first paint', async () => {
+      if (!(await clickIf(page, '#gtrTabs [data-gtr="guitar"]'))) return;
+      await page.waitForTimeout(250);
+      const read = () => {
+        const svg = document.querySelector('#gtrCards .gtr-card.now .gtr-diagram');
+        return {
+          grid: Math.round(document.querySelector('#suggest').getBoundingClientRect().height),
+          panel: Math.round(document.getElementById('gtrPanel').getBoundingClientRect().height),
+          vb: svg ? svg.getAttribute('viewBox') : ''
+        };
+      };
+      const first = await page.evaluate(read);
+      await clickIf(page, '#xNext');
+      await page.waitForTimeout(200);
+      const second = await page.evaluate(read);
+      const issues = [];
+      if (Math.abs(first.grid - second.grid) > 1 || Math.abs(first.panel - second.panel) > 1) {
+        issues.push({ kind: 'guitar', el: 'chord grid', detail: 'first paint grid ' + first.grid + ' panel ' + first.panel + ' jumped to ' + second.grid + ' / ' + second.panel });
+      }
+      if (/^0 0 64(\s|$)/.test(first.vb)) issues.push({ kind: 'guitar', el: 'now diagram', detail: 'first viewBox is the 64 fallback (' + first.vb + ')' });
+      // .20's settled paint at 412x915, after the diagram has its real width. The
+      // first frame used to be the 64-wide fallback (grid 334, panel 253).
+      if (vp === '412x915') {
+        if (Math.abs(first.grid - 379) > 1) issues.push({ kind: 'guitar', el: 'chord grid', detail: '412x915 grid ' + first.grid + 'px, settled .20 was 379px' });
+        if (Math.abs(first.panel - 208) > 1) issues.push({ kind: 'guitar', el: 'guitar panel', detail: '412x915 panel ' + first.panel + 'px, settled .20 was 208px' });
+      }
+      add(vp, 'guitar first paint', issues);
+      if (issues.length) await shot(page, vp + ' guitar first paint');
+      await clickIf(page, '#gtrTabs [data-gtr="piano"]');
+    });
+  }
   await measure(page, vp, 'expert-prog-piano');
   await guard(page, vp, 'guitar tab after Next (1 and 3 taps)', async () => {
     async function run(style, progName) {
@@ -852,6 +898,30 @@ async function kidsPass(page, vp) {
   }
 }
 
+async function ipadGrid(browser, port) {
+  const vp = '768x1024';
+  const ctx = await browser.newContext({ viewport: { width: 768, height: 1024 }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 });
+  ctx._flowPort = port;
+  await ctx.addInitScript(() => { try { localStorage.clear(); localStorage.setItem('touchChord.tour.v1', 'done'); } catch (e) {} });
+  const page = await ctx.newPage();
+  page.context()._flowPort = port;
+  try {
+    await boot(page, 'test=1&hour=12&expert=1');
+    if (await clickIf(page, '#gtrTabs [data-gtr="guitar"]')) {
+      await page.waitForTimeout(250);
+      const gh = await page.evaluate(() => Math.round(document.querySelector('#suggest').getBoundingClientRect().height));
+      const issues = [];
+      if (gh < 337) issues.push({ kind: 'guitar', el: 'chord grid', detail: '768x1024 grid ' + gh + 'px is under the .19 337px grid' });
+      add(vp, 'guitar ipad grid', issues);
+      if (issues.length) await shot(page, vp + ' guitar ipad grid');
+    }
+  } catch (err) {
+    add(vp, 'guitar ipad grid', [{ kind: 'thrown', el: 'runner', detail: String(err && err.message || err).split('\n')[0].slice(0, 180) }]);
+  }
+  await ctx.close();
+  console.log(vp + '  ' + hits.filter(x => x.vp === vp).length + ' hits');
+}
+
 const known = existsSync(KNOWN_PATH) ? JSON.parse(readFileSync(KNOWN_PATH, 'utf8')) : [];
 
 let srv;
@@ -883,6 +953,7 @@ try {
     await ctx.close();
     console.log(vp + '  ' + hits.filter(x => x.vp === vp).length + ' hits');
   }
+  await ipadGrid(browser, port);
 } finally {
   await browser.close();
   srv.close();

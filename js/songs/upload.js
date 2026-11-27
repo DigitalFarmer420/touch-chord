@@ -1,16 +1,16 @@
 // Upload: AI prompt text, schema, answer parsing and validation, load flow.
-import { keyDegrees, SPELL_LI } from "../keys.js?v=2026.11.27.20";
-import { upSave, LIB_MAX, libKey, libFind, libId, libWrite, paintLib } from "./library.js?v=2026.11.27.20";
-import { progStop, progSet } from "./playback.js?v=2026.11.27.20";
-import { upSelected, upKeyApply, upSelect, upStoreCopy, upLoadOne } from "./song.js?v=2026.11.27.20";
-import { state, shared } from "../state.js?v=2026.11.27.20";
-import { Theory } from "../theory/index.js?v=2026.11.27.20";
-import { wrap12 } from "../theory/quality.js?v=2026.11.27.20";
-import { repairJson, tidyChord, is13, from13 } from "./normalize.js?v=2026.11.27.20";
-import { normalizeAiPaste, normalizeAiVersion } from "./aipaste.js?v=2026.11.27.20";
-import { upFullSecs } from "./fullchart.js?v=2026.11.27.20";
-import { computeSpec } from "../ui/pads.js?v=2026.11.27.20";
-import { paintSuggestions } from "../ui/strip.js?v=2026.11.27.20";
+import { keyDegrees, SPELL_LI } from "../keys.js?v=2026.11.27.21";
+import { upSave, LIB_MAX, libKey, libFind, libId, libWrite, paintLib } from "./library.js?v=2026.11.27.21";
+import { progStop, progSet } from "./playback.js?v=2026.11.27.21";
+import { upSelected, upKeyApply, upSelect, upStoreCopy, upLoadOne } from "./song.js?v=2026.11.27.21";
+import { state, shared } from "../state.js?v=2026.11.27.21";
+import { Theory } from "../theory/index.js?v=2026.11.27.21";
+import { wrap12 } from "../theory/quality.js?v=2026.11.27.21";
+import { repairJson, tidyChord, is13, from13 } from "./normalize.js?v=2026.11.27.21";
+import { normalizeAiPaste, normalizeAiVersion } from "./aipaste.js?v=2026.11.27.21";
+import { upFullSecs } from "./fullchart.js?v=2026.11.27.21";
+import { computeSpec } from "../ui/pads.js?v=2026.11.27.21";
+import { paintSuggestions } from "../ui/strip.js?v=2026.11.27.21";
 
 // ===== Song Upload (full mode only) =====
 // Contract: contract/song-contract.schema.json (embedded below as #songSchemaJson, copied to the
