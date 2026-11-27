@@ -75,8 +75,8 @@ function findCode(list, pattern) {
 test("profiles carry tuning, frets, and hand span", () => {
   assert.equal(guitar.id, "guitar");
   assert.deepEqual(guitar.tuning, [40, 45, 50, 55, 59, 64]);
-  assert.equal(guitar.frets, 12);
-  assert.equal(guitar.maxSpan, 4);
+  assert.equal(guitar.frets, 15);
+  assert.equal(guitar.maxSpan, 5);
   assert.equal(guitar.maxFingers, 4);
   assert.equal(guitar.curated, true);
   assert.equal(ukulele.curated, false);

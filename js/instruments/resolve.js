@@ -1,13 +1,16 @@
 // Resolver: an instrument profile plus an app chord
 // ({ rootPc, type, extensions }, the same object buildChord takes)
-// becomes an ordered list of playable voicings. Easiest first: curated open
-// grips, then movable shapes at the lowest fret, then grips searched on the
-// board when nothing in the library fits. No DOM.
+// becomes an ordered list of playable voicings. Easiest first: a curated open
+// grip for that exact chord, then movable E, A and D shapes at the lowest
+// fret, then a search of the board when the library has nothing. The lowest
+// sounding note is the root, or the slash bass, on every grip. A grip the
+// search builds never mutes a string in the middle. A library grip is used
+// as written, even when it mutes one on purpose. No DOM.
 
-import { getInstrument } from "./profiles.js?v=2026.11.27.5";
-import { shapesFor } from "./shapes.js?v=2026.11.27.5";
-import { normalizeExt, chordIntervals, buildChord } from "../theory/chords.js?v=2026.11.27.5";
-import { mod12 } from "../theory/spelling.js?v=2026.11.27.5";
+import { getInstrument } from "./profiles.js?v=2026.11.27.6";
+import { shapesFor } from "./shapes.js?v=2026.11.27.6";
+import { normalizeExt, chordIntervals, buildChord } from "../theory/chords.js?v=2026.11.27.6";
+import { mod12 } from "../theory/spelling.js?v=2026.11.27.6";
 
 var ROLE = {
   0: "root", 2: "2", 3: "3", 4: "3", 5: "4", 6: "b5", 7: "5", 8: "#5",
@@ -237,17 +240,29 @@ function easeKey(frets, fingers) {
   return [fingerCount(fingers), minFret(frets), -soundingCount(frets)];
 }
 
+function absRel(rel, position) {
+  if (rel == null) return null;
+  if (typeof rel === "string") {
+    var drop = parseInt(rel.slice(1), 10) || 1;
+    var below = position - drop;
+    return below < 0 ? -1 : below;
+  }
+  return rel + position;
+}
+
 function placeMovable(shape, position, profile) {
   var frets = [];
   for (var i = 0; i < shape.frets.length; i++) {
-    frets.push(shape.frets[i] == null ? null : shape.frets[i] + position);
-    if (frets[i] != null && frets[i] > profile.frets) return null;
+    var abs = absRel(shape.frets[i], position);
+    if (abs != null && abs < 0) return null;
+    if (abs != null && abs > profile.frets) return null;
+    frets.push(abs);
   }
   var fingers = shape.fingers.slice();
   var barres = copyBarres(shape.barres);
   for (var b = 0; b < barres.length; b++) barres[b].fret += position;
   if (position === 0) {
-    for (var s = 0; s < shape.frets.length; s++) if (shape.frets[s] === 0) fingers[s] = 0;
+    for (var s = 0; s < frets.length; s++) if (frets[s] === 0) fingers[s] = 0;
     var kept = [];
     for (var k = 0; k < barres.length; k++) if (barres[k].fret !== 0) kept.push(barres[k]);
     var compacted = compactFingers(fingers, kept);
@@ -258,9 +273,10 @@ function placeMovable(shape, position, profile) {
     frets: frets,
     fingers: fingers,
     barres: barres,
-    baseFret: position === 0 ? 1 : position,
+    baseFret: windowBase(frets),
     shapeName: shape.name,
-    position: position
+    position: position,
+    from: "movable"
   };
 }
 
@@ -277,46 +293,236 @@ function positionsFor(shape, root, profile) {
   return out;
 }
 
+function windowBase(frets) {
+  var hasOpen = false, low = null, high = 0;
+  for (var i = 0; i < frets.length; i++) {
+    var f = frets[i];
+    if (f === 0) hasOpen = true;
+    if (f > 0) {
+      if (low == null || f < low) low = f;
+      if (f > high) high = f;
+    }
+  }
+  if (low == null) return 1;
+  if (hasOpen && high <= 4) return 1;
+  return low;
+}
+
+// A mute with a sounding string on both sides cannot be strummed. Mutes
+// before the first sounding string, or after the last, are fine.
+function hasInnerMute(frets) {
+  var first = -1, last = -1;
+  for (var i = 0; i < frets.length; i++) {
+    if (frets[i] != null) {
+      if (first < 0) first = i;
+      last = i;
+    }
+  }
+  if (first < 0) return false;
+  for (var s = first; s <= last; s++) if (frets[s] == null) return true;
+  return false;
+}
+
+// The shape table's quality key for an app chord. Slash bass is not part of
+// the key: C/E is still major, with the bass checked separately.
+function qualityKey(type, ext) {
+  var e = ext || {};
+  var hasMaj7 = !!e.maj7;
+  var hasMin7 = !!e.min7 && !hasMaj7;
+  var nine = !!e.nine;
+  var six = !!e.six && !hasMaj7 && !hasMin7;
+  if (e.thirteen && hasMin7) return type === "minor" ? "m13" : "13";
+  if (e.flat9 && hasMin7 && type === "major") return "7b9";
+  if (e.sharp9 && hasMin7 && type === "major") return "7#9";
+  if (e.sharp5 && type === "major" && hasMin7) return "aug7";
+  if (e.sharp5 && type === "major" && hasMaj7) return "maj7#5";
+  if (e.sharp5 && type === "major") return "aug";
+  if (e.flat5 && type === "major" && hasMin7) return "7b5";
+  if (e.flat5 && type === "major") return "majb5";
+  if (e.sus2 && (type === "major" || type === "minor")) {
+    if (hasMaj7) return "maj7sus2";
+    if (hasMin7) return "7sus2";
+    return "sus2";
+  }
+  if (type === "sus4") {
+    if (hasMin7 && nine) return "9sus";
+    if (hasMaj7) return "maj7sus4";
+    if (hasMin7) return "7sus4";
+    if (six) return "6sus4";
+    if (nine) return "sus4add9";
+    return "sus4";
+  }
+  if (hasMaj7 && nine) return type === "minor" ? "mmaj9" : "maj9";
+  if (hasMin7 && nine) return type === "minor" ? "m9" : type === "dim" ? "m9b5" : "9";
+  if (nine) {
+    if (six && type === "minor") return "m69";
+    if (six) return "69";
+    if (type === "minor") return "madd9";
+    if (type === "dim") return "dimAdd9";
+    return "add9";
+  }
+  if (hasMaj7) return type === "minor" ? "mmaj7" : type === "dim" ? "dimMaj7" : "maj7";
+  if (hasMin7) return type === "minor" ? "m7" : type === "dim" ? "m7b5" : "7";
+  if (six) return type === "minor" ? "m6" : type === "dim" ? "dim7" : "6";
+  if (type === "minor") return "min";
+  if (type === "dim") return "dim";
+  return "maj";
+}
+
+function familyName(name) {
+  return name === "E-shape" || name === "A-shape" || name === "D-shape";
+}
+
+function nameRank(name) {
+  if (name === "E-shape") return 0;
+  if (name === "A-shape") return 1;
+  if (name === "D-shape") return 2;
+  return 3;
+}
+
+function bassOk(profile, frets, info) {
+  // Re-entrant tunings (ukulele) do not put the root on the lowest MIDI note.
+  if (!monotonic(profile.tuning)) return true;
+  return lowest(profile, frets).pc === info.bassPc;
+}
+
+function keepGrip(a, b) {
+  var pos = Math.max(a.position || 0, b.position || 0);
+  if (pos > 0 && (familyName(a.shapeName) || familyName(b.shapeName))) {
+    var fam = familyName(b.shapeName) ? b : a;
+    var open = a.from === "open" ? a : b.from === "open" ? b : fam;
+    return {
+      frets: open.frets, fingers: open.fingers, barres: open.barres,
+      baseFret: windowBase(open.frets), shapeName: fam.shapeName,
+      position: fam.position, from: fam.from
+    };
+  }
+  var chosen = a.from === "open" ? a : b.from === "open" ? b : a;
+  chosen.baseFret = windowBase(chosen.frets);
+  return chosen;
+}
+
+function gripFromFrets(profile, frets, shapeName, position, from) {
+  for (var i = 0; i < frets.length; i++) {
+    if (frets[i] != null && (frets[i] < 0 || frets[i] > profile.frets)) return null;
+  }
+  var assigned = assignFingers(frets, profile.maxFingers);
+  if (!assigned || !withinLimits(profile, frets, assigned.fingers)) return null;
+  return {
+    frets: frets, fingers: assigned.fingers, barres: assigned.barres,
+    baseFret: windowBase(frets), shapeName: shapeName, position: position, from: from
+  };
+}
+
+// Slash chords that are not in the open list: the E-shape of the upper chord
+// with the named bass on the bottom. A full barre is listed beside the
+// inner-muted form so a strum can use the one with no mute in the middle.
+function slashFormulas(profile, info) {
+  if (!monotonic(profile.tuning) || profile.tuning.length < 6) return [];
+  var R = mod12(info.root - mod12(profile.tuning[0]));
+  var rel = mod12(info.bassPc - info.root);
+  var specs = [];
+  if (info.type === "major") {
+    if (rel === 4 && R >= 1) specs.push([null, R - 1, R + 2, R + 1, R, R]);
+    if (rel === 4 && R === 0) specs.push([4, 2, 2, 1, 0, 0]);
+    if (rel === 2) {
+      specs.push([R + 2, null, R + 2, R + 1, R, R]);
+      specs.push([R + 2, R + 2, R + 2, R + 1, R, R]);
+    }
+    if (rel === 7) specs.push([null, R + 2, R + 2, R + 1, R, R]);
+  }
+  if (info.type === "minor") {
+    if (rel === 3) specs.push([R + 3, null, R + 2, R, R, R]);
+    if (rel === 2) specs.push([R + 2, null, R + 2, R, R, R]);
+    if (rel === 7) specs.push([null, R + 2, R + 2, R, R, R]);
+  }
+  var out = [];
+  for (var i = 0; i < specs.length; i++) {
+    var low = null;
+    for (var s = 0; s < specs[i].length; s++) if (specs[i][s] > 0 && (low == null || specs[i][s] < low)) low = specs[i][s];
+    out.push(gripFromFrets(profile, specs[i], "E-shape", low || 0, "slash"));
+  }
+  return out;
+}
+
+function placeBassUnder(placed, profile, info) {
+  var out = [];
+  for (var s = 0; s <= 3 && s < profile.tuning.length; s++) {
+    var f = mod12(info.bassPc - mod12(profile.tuning[s]));
+    while (f <= profile.frets) {
+      var frets = placed.frets.slice();
+      for (var i = 0; i < s; i++) frets[i] = null;
+      frets[s] = f;
+      var low = null;
+      for (var k = 0; k < frets.length; k++) if (frets[k] > 0 && (low == null || frets[k] < low)) low = frets[k];
+      out.push(gripFromFrets(profile, frets, placed.shapeName, low || 0, "slash"));
+      f += 12;
+    }
+  }
+  return out;
+}
+
 function libraryVoicings(profile, info) {
   var lib = shapesFor(profile.id);
+  var q = qualityKey(info.type, info.ext);
   var seen = {};
-  var opens = [];
-  var movables = [];
-  function accept(placed, into) {
+  var plain = [];
+  var list = [];
+  function accept(placed) {
     if (!placed) return;
     if (placed.frets.length !== profile.tuning.length) return;
     if (!withinLimits(profile, placed.frets, placed.fingers)) return;
+    if (!bassOk(profile, placed.frets, info)) return;
     var pcs = pcsOf(profile, placed.frets);
     if (!subsetOk(pcs, info) || !completeOk(pcs, info)) return;
     var key = fretKey(placed.frets);
-    if (seen[key]) return;
-    seen[key] = true;
-    into.push(placed);
+    if (seen[key]) seen[key] = keepGrip(seen[key], placed);
+    else seen[key] = placed;
   }
   for (var o = 0; o < lib.open.length; o++) {
     var shape = lib.open[o];
-    accept({
+    if (shape.quality && shape.quality !== q) continue;
+    if (shape.rootPc != null && shape.rootPc !== info.root) continue;
+    if (shape.bassPc != null && shape.bassPc !== info.bassPc) continue;
+    var openPlaced = {
       frets: shape.frets.slice(),
       fingers: shape.fingers.slice(),
       barres: copyBarres(shape.barres),
-      baseFret: 1,
+      baseFret: windowBase(shape.frets),
       shapeName: shape.name || "Open",
-      position: 0
-    }, opens);
+      position: 0,
+      from: "open"
+    };
+    if (shape.bassPc == null) plain.push(openPlaced);
+    if (shape.quality && shape.bassPc == null && info.bassPc !== info.root) continue;
+    accept(openPlaced);
   }
   for (var m = 0; m < lib.movable.length; m++) {
     var mov = lib.movable[m];
+    if (mov.quality && mov.quality !== q) continue;
     if (mov.frets.length !== profile.tuning.length) continue;
     var spots = positionsFor(mov, info.root, profile);
-    for (var s = 0; s < spots.length; s++) accept(placeMovable(mov, spots[s], profile), movables);
+    for (var s = 0; s < spots.length; s++) {
+      var moved = placeMovable(mov, spots[s], profile);
+      if (moved) plain.push(moved);
+      accept(moved);
+    }
   }
-  movables.sort(function (a, b) {
+  if (info.bassPc !== info.root) {
+    var formulas = slashFormulas(profile, info);
+    for (var f = 0; f < formulas.length; f++) accept(formulas[f]);
+    for (var u = 0; u < plain.length; u++) {
+      var under = placeBassUnder(plain[u], profile, info);
+      for (var p = 0; p < under.length; p++) accept(under[p]);
+    }
+  }
+  for (var id in seen) list.push(seen[id]);
+  list.sort(function (a, b) {
+    var ao = a.from === "open" ? 0 : 1, bo = b.from === "open" ? 0 : 1;
+    if (ao !== bo) return ao - bo;
     if (a.position !== b.position) return a.position - b.position;
-    if (a.shapeName < b.shapeName) return -1;
-    if (a.shapeName > b.shapeName) return 1;
-    return 0;
+    return nameRank(a.shapeName) - nameRank(b.shapeName);
   });
-  var list = opens.concat(movables);
   var out = [];
   for (var i = 0; i < list.length; i++) {
     out.push(finish(profile, list[i].frets, list[i].fingers, list[i].barres, list[i].baseFret, list[i].shapeName, info.root, false, []));
@@ -352,6 +558,7 @@ function generate(profile, info) {
   function consider() {
     var snap = frets.slice();
     if (soundingCount(snap) < 2) return;
+    if (hasInnerMute(snap)) return;
     var low = lowest(profile, snap);
     if (low.pc !== info.bassPc) return;
     var pcs = pcsOf(profile, snap);

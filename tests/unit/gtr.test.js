@@ -38,10 +38,10 @@ test("tabs sit on top, and on the left when the phone or iPad is sideways", () =
 
 test("C cycles Open, A-shape at 3fr, then E-shape at 8fr", () => {
   const list = resolveVoicings(guitar, { rootPc: 0, type: "major", extensions: {} });
-  assert.deepEqual(list.map(voicingLabel), ["Open", "A-shape \u00b7 3fr", "E-shape \u00b7 8fr"]);
+  assert.deepEqual(list.map(voicingLabel), ["Open", "A-shape \u00b7 3fr", "E-shape \u00b7 8fr", "D-shape \u00b7 10fr"]);
   assert.equal(cycleIndex(0, list.length, 1), 1);
-  assert.equal(cycleIndex(2, list.length, 1), 0);
-  assert.equal(cycleIndex(0, list.length, -1), 2);
+  assert.equal(cycleIndex(list.length - 1, list.length, 1), 0);
+  assert.equal(cycleIndex(0, list.length, -1), list.length - 1);
   const open = diagramModel(list[0], guitar.tuning, 0);
   assert.equal(open.nut, true);
   assert.equal(open.frLabel, "");

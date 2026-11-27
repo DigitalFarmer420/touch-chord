@@ -57,6 +57,7 @@ var PRECACHE = [
   "js/audio/unlock.js",
   "js/boot-early.js",
   "js/expert/model.js",
+  "js/instruments/guitar-data.js",
   "js/instruments/index.js",
   "js/instruments/profiles.js",
   "js/instruments/resolve.js",
